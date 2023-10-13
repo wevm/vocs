@@ -6,7 +6,7 @@ export type Page = {
 }
 
 export function pages() {
-  const pages = import.meta.glob<true, string, Page>('./pages/*.tsx', {
+  const pages = import.meta.glob<true, string, Page>('./pages/**/*.tsx', {
     eager: true,
   })
   const pathRegex = new RegExp('./pages/*.tsx'.replace(/\*/g, '(.*)'))

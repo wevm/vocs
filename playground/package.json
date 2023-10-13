@@ -1,0 +1,11 @@
+{
+  "name": "playground",
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "bun index.ts"
+  },
+  "dependencies": {
+    "scood": "workspace:*"
+  }
+}

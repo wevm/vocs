@@ -1,20 +1,24 @@
 import { App } from '@tinyhttp/app'
 import { createServer as createDevServer } from 'vite'
+import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import compression from 'compression'
-import serveStatic from 'serve-static'
+import * as compression from 'compression'
+import * as serveStatic from 'serve-static'
 
-createServer()
+export type CreateServerParameters = {
+  dev: boolean
+}
 
-export async function createServer() {
+export async function createServer(args: CreateServerParameters) {
+  const { dev } = args
+
   const app = new App()
-  
-  const cwd = import.meta.dir
-  const prod = process.env.NODE_ENV === 'production'
-  const root = prod ? resolve(cwd, './dist/client') : cwd
-  
+
+  const root = dev ? __dirname : resolve(__dirname, './dist/client')
+
   const devServer = await createDevServer({
     appType: 'custom',
+    root,
     server: {
       middlewareMode: true,
       watch: {
@@ -23,52 +27,53 @@ export async function createServer() {
       },
     },
   })
-  
+
   // Middlewares
-  if (!prod) app.use(devServer.middlewares)
-  if (prod) app.use(compression() as any)
-  if (prod)
+  if (dev) app.use(devServer.middlewares)
+  // @ts-expect-error
+  if (!dev) app.use(compression.default() as any)
+  if (!dev)
     app.use(
-      serveStatic(root, {
+      // @ts-expect-error
+      serveStatic.default(root, {
         index: false,
       }),
     )
-  
+
   // HTML
   app.use('*', async (req, res) => {
     try {
       const url = req.originalUrl
-  
+
       const template = await (async () => {
-        const indexHtml = await Bun.file(resolve(root, 'index.html')).text()
-        if (prod) return indexHtml
-        return devServer.transformIndexHtml(url, indexHtml)
+        const indexHtml = readFileSync(resolve(root, 'index.html'), 'utf-8')
+        if (dev) return devServer.transformIndexHtml(url, indexHtml)
+        return indexHtml
       })()
-  
+
       const module = await (async () => {
-        if (prod) return import(resolve(root, '../server/index.server.js'))
-        return devServer.ssrLoadModule(resolve(root, './src/index.server.tsx'))
+        if (dev) return devServer.ssrLoadModule(resolve(root, './app/index.server.tsx'))
+        return import(resolve(root, '../server/index.server.js'))
       })()
-  
+
       const context = { url: '' }
       const { head, body } = module.render(url, context)
-  
+
       if (context.url) return res.redirect(context.url, 301)
-  
+
       const html = template.replace('<!--body-->', body).replace('<!--head-->', head)
-  
+
       res.status(200).set({ 'Content-Type': 'text/html' }).end(html)
     } catch (e) {
       const err = e as Error
-      if (!prod) devServer.ssrFixStacktrace(err)
+      if (dev) devServer.ssrFixStacktrace(err)
       console.log(err.stack)
       res.status(500).end(err.stack)
     }
     return
   })
-  
+
   app.listen(5173, () => {
     console.log('http://localhost:5173')
   })
 }
-

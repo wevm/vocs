@@ -1,31 +1,17 @@
 {
-  "name": "scood",
+  "workspaces": ["playground", "src"],
   "private": true,
-  "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "bun server.ts",
-    "build": "bun run build:client && bun run build:server",
-    "build:client": "vite build --outDir dist/client",
-    "build:server": "vite build --ssr src/index.server.tsx --outDir dist/server",
+    "dev": "bun --cwd src scripts/createServer.ts",
+    "build": "rimraf src/_lib && tsc -p tsconfig.build.json && bun scripts/postbuild.ts",
     "format": "biome format . --write",
     "lint": "biome lint . --apply-unsafe",
-    "serve": "NODE_ENV=production bun server.ts",
-    "debug": "node --inspect-brk server"
-  },
-  "dependencies": {
-    "@tinyhttp/app": "^2.2.0",
-    "@vitejs/plugin-react": "4.1.0",
-    "autoprefixer": "^10.4.16",
-    "compression": "^1.7.4",
-    "postcss": "^8.4.31",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-helmet": "^6.1.0",
-    "react-router-dom": "^6.16.0",
-    "serve-static": "^1.15.0",
-    "tailwindcss": "^3.3.3",
-    "vite": "^4.4.11"
+    "prepare": "bun run prepare:client && bun run prepare:server",
+    "prepare:client": "bun --cwd src vite build --outDir dist/client",
+    "prepare:server": "bun --cwd src vite build --ssr app/index.server.tsx --outDir dist/server",
+    "serve": "bun run prepare && NODE_ENV=production bun --cwd src scripts/createServer.ts",
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.2.2",
@@ -35,6 +21,8 @@
     "@types/react-dom": "^18.2.13",
     "@types/react-helmet": "^6.1.7",
     "@types/serve-static": "^1.15.3",
-    "bun-types": "^1.0.6"
+    "bun-types": "^1.0.6",
+    "rimraf": "^5.0.5",
+    "typescript": "^5.2.2"
   }
 }
