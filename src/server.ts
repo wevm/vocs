@@ -2,19 +2,18 @@ import { App } from '@tinyhttp/app'
 import { createServer as createDevServer } from 'vite'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import * as compression from 'compression'
-import * as serveStatic from 'serve-static'
 
 export type CreateServerParameters = {
-  dev: boolean
+  dev?: boolean
+  outDir?: string
+  root?: string
 }
 
-export async function createServer(args: CreateServerParameters) {
-  const { dev } = args
+export async function createServer(args: CreateServerParameters = {}) {
+  const { dev, outDir = 'dist', root = dev ? __dirname : process.cwd() } = args
 
-  const app = new App()
-
-  const root = dev ? __dirname : resolve(__dirname, './dist/client')
+  const clientRoot = dev ? root : resolve(root, outDir, 'client')
+  const serverRoot = dev ? root : resolve(root, outDir, 'server')
 
   const devServer = await createDevServer({
     appType: 'custom',
@@ -28,32 +27,32 @@ export async function createServer(args: CreateServerParameters) {
     },
   })
 
+  const server = new App()
+
   // Middlewares
-  if (dev) app.use(devServer.middlewares)
-  // @ts-expect-error
-  if (!dev) app.use(compression.default() as any)
+  if (dev) server.use(devServer.middlewares)
+  if (!dev) server.use(require('compression')())
   if (!dev)
-    app.use(
-      // @ts-expect-error
-      serveStatic.default(root, {
+    server.use(
+      require('serve-static')(clientRoot, {
         index: false,
       }),
     )
 
   // HTML
-  app.use('*', async (req, res) => {
+  server.use('*', async (req, res) => {
     try {
       const url = req.originalUrl
 
       const template = await (async () => {
-        const indexHtml = readFileSync(resolve(root, 'index.html'), 'utf-8')
+        const indexHtml = readFileSync(resolve(clientRoot, 'index.html'), 'utf-8')
         if (dev) return devServer.transformIndexHtml(url, indexHtml)
         return indexHtml
       })()
 
       const module = await (async () => {
         if (dev) return devServer.ssrLoadModule(resolve(root, './app/index.server.tsx'))
-        return import(resolve(root, '../server/index.server.js'))
+        return import(resolve(serverRoot, 'index.server.js'))
       })()
 
       const context = { url: '' }
@@ -73,7 +72,7 @@ export async function createServer(args: CreateServerParameters) {
     return
   })
 
-  app.listen(5173, () => {
+  server.listen(5173, () => {
     console.log('http://localhost:5173')
   })
 }

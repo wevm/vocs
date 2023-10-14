@@ -17,3 +17,7 @@ writeFileSync(pagesFilePath, pagesFile.replace(/\.tsx/g, '.js'))
 const serverFilePath = resolve(__dirname, '../src/_lib/server.js')
 const serverFile = readFileSync(serverFilePath, 'utf-8')
 writeFileSync(serverFilePath, serverFile.replace(/\.tsx/g, '.js'))
+
+const buildFilePath = resolve(__dirname, '../src/_lib/build.js')
+const buildFile = readFileSync(buildFilePath, 'utf-8')
+writeFileSync(buildFilePath, buildFile.replace(/\.tsx/g, '.js'))

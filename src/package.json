@@ -2,10 +2,9 @@
   "name": "scood",
   "version": "0.0.0",
   "type": "module",
-  "main": "./_lib/server.js",
+  "main": "./_lib/index.js",
   "exports": {
-    ".": "./_lib/server.js",
-    "./server": "./_lib/server.js"
+    ".": "./_lib/index.js"
   },
   "dependencies": {
     "@tinyhttp/app": "^2.2.0",

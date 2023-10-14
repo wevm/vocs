@@ -3,14 +3,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "bun --cwd src scripts/createServer.ts",
-    "build": "rimraf src/_lib && tsc -p tsconfig.build.json && bun scripts/postbuild.ts",
+    "dev": "bun scripts/dev.ts",
     "format": "biome format . --write",
     "lint": "biome lint . --apply-unsafe",
-    "prepare": "bun run prepare:client && bun run prepare:server",
-    "prepare:client": "bun --cwd src vite build --outDir dist/client",
-    "prepare:server": "bun --cwd src vite build --ssr app/index.server.tsx --outDir dist/server",
-    "serve": "bun run prepare && NODE_ENV=production bun --cwd src scripts/createServer.ts",
+    "build": "NODE_ENV=production bun scripts/build.ts",
+    "build:lib": "rimraf src/_lib src/tsconfig.build.* && tsc -p tsconfig.build.json && bun scripts/postbuild.ts",
+    "serve": "bun scripts/serve.ts",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
