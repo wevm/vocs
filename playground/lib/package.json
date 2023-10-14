@@ -1,5 +1,5 @@
 {
-  "name": "playground",
+  "name": "playground-lib",
   "version": "0.0.0",
   "type": "module",
   "scripts": {
@@ -8,6 +8,9 @@
     "serve": "bun serve.ts"
   },
   "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-helmet": "^6.1.0",
     "scood": "workspace:*"
   }
 }

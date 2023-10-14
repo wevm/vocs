@@ -1,17 +1,17 @@
 import * as ReactDOMServer from 'react-dom/server'
 import { StaticRouter } from 'react-router-dom/server.js'
 import { Helmet } from 'react-helmet'
+import { pages } from 'virtual:pages'
 
-import { App } from './main.js'
-import { pages } from './pages.js'
+import { Routes } from './routes.js'
 
-export function render(url: string) {
-  const page = pages().find((route) => route.path === url)
-  if (!page) throw new Error(`No page found for ${url}`)
+export function render(path: string) {
+  const page = Object.values(pages).find((route) => route.path === path)
+  if (!page) throw new Error(`No page found for ${path}`)
 
   const body = ReactDOMServer.renderToString(
-    <StaticRouter location={url}>
-      <App />
+    <StaticRouter location={path}>
+      <Routes />
     </StaticRouter>,
   )
   const helmet = Helmet.renderStatic()

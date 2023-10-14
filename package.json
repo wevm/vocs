@@ -1,14 +1,11 @@
 {
-  "workspaces": ["playground", "src"],
+  "workspaces": ["playground/*", "src"],
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "bun scripts/dev.ts",
     "format": "biome format . --write",
     "lint": "biome lint . --apply-unsafe",
-    "build": "NODE_ENV=production bun scripts/build.ts",
-    "build:lib": "rimraf src/_lib src/tsconfig.build.* && tsc -p tsconfig.build.json && bun scripts/postbuild.ts",
-    "serve": "bun scripts/serve.ts",
+    "build": "rimraf src/_lib src/tsconfig.build.* && tsc -p tsconfig.build.json && bun scripts/postbuild.ts",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {

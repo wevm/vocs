@@ -1,0 +1,15 @@
+{
+  "name": "playground-dev",
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "bun dev.ts",
+    "build": "NODE_ENV=production bun build.ts",
+    "serve": "bun serve.ts"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-helmet": "^6.1.0"
+  }
+}

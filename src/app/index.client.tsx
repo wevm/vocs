@@ -1,10 +1,10 @@
 import * as ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
-import { App } from './main.js'
+import { Routes } from './routes.js'
 
 ReactDOM.hydrateRoot(
   document.getElementById('app')!,
   <BrowserRouter>
-    <App />
+    <Routes />
   </BrowserRouter>,
 )
