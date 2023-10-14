@@ -3,9 +3,9 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "build": "rimraf src/_lib src/tsconfig.build.* && tsc -p tsconfig.build.json && bun scripts/postbuild.ts",
     "format": "biome format . --write",
     "lint": "biome lint . --apply-unsafe",
-    "build": "rimraf src/_lib src/tsconfig.build.* && tsc -p tsconfig.build.json && bun scripts/postbuild.ts",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
