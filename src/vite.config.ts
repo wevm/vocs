@@ -3,6 +3,8 @@ import mdx from '@mdx-js/rollup'
 import react from '@vitejs/plugin-react'
 import * as autoprefixer from 'autoprefixer'
 import { globby } from 'globby'
+import remarkFrontmatter from 'remark-frontmatter'
+import remarkMdxFrontmatter from 'remark-mdx-frontmatter'
 import * as tailwindcss from 'tailwindcss'
 import { type PluginOption, defineConfig } from 'vite'
 
@@ -19,7 +21,7 @@ export default defineConfig({
   },
   plugins: [
     react(),
-    mdx(),
+    mdx({ remarkPlugins: [remarkFrontmatter, remarkMdxFrontmatter] }),
     pages({ paths: resolve(process.cwd(), './pages/**/*.{md,mdx,ts,tsx,js,jsx}') }),
   ],
 })
@@ -45,10 +47,11 @@ function pages({ paths: glob }: PagesParameters): PluginOption {
       if (id === resolvedVirtualModuleId) {
         let code = 'export const pages = ['
         paths.forEach((path) => {
+          const type = path.split('.').pop()?.match(/(mdx|md)/) ? 'mdx' : 'jsx'
           const replacer = glob.split('*')[0]
           let pagePath = path.replace(replacer, '').replace(/\.(.*)/, '')
           if (pagePath === 'index') pagePath = ''
-          code += `  { path: "/${pagePath}", lazy: () => import("${path}") },`
+          code += `  { lazy: () => import("${path}"), path: "/${pagePath}", type: "${type}" },`
         })
         code += ']'
         return code

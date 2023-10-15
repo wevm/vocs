@@ -1,13 +1,22 @@
 import type { RouteObject } from 'react-router-dom'
+import { Helmet } from 'react-helmet'
 import { pages } from 'virtual:pages'
 
-export const routes: RouteObject[] = pages.map((page) => ({
+import { FrontmatterHead } from './components/FrontmatterHead.js'
+
+export const routes = pages.map((page) => ({
   path: page.path,
   lazy: async () => {
-    const route = await page.lazy()
+    const { frontmatter, head, ...route } = await page.lazy()
     return {
       ...route,
-      Component: route.default,
-    }
+      element: (
+        <>
+          {head && <Helmet>{head}</Helmet>}
+          {frontmatter && <FrontmatterHead frontmatter={frontmatter} />}
+          <route.default />
+        </>
+      ),
+    } satisfies RouteObject
   },
 }))
