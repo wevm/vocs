@@ -6,6 +6,7 @@
     "build": "rimraf src/_lib src/tsconfig.build.* && tsc -p tsconfig.build.json && bun scripts/postbuild.ts",
     "format": "biome format . --write",
     "lint": "biome lint . --apply-unsafe",
+    "prepare": "bun x simple-git-hooks",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
