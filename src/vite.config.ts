@@ -48,7 +48,7 @@ export default defineConfig({
       plugins: [
         (autoprefixer as any).default(),
         tailwindcss.default({
-          content: [resolve(__dirname, './**/*.{html,tsx,ts,js,jsx}')],
+          content: [resolve(process.cwd(), './**/*.{html,tsx,ts,js,jsx}')],
         }),
       ],
     },

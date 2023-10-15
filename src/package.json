@@ -2,6 +2,9 @@
   "name": "scood",
   "version": "0.0.0",
   "type": "module",
+  "bin": {
+    "scood": "./_lib/cli.js"
+  },
   "main": "./_lib/index.js",
   "exports": {
     ".": "./_lib/index.js"
@@ -15,6 +18,7 @@
     "@tinyhttp/app": "^2.2.0",
     "@vitejs/plugin-react": "4.1.0",
     "autoprefixer": "^10.4.16",
+    "cac": "^6.7.14",
     "compression": "^1.7.4",
     "globby": "^13.2.2",
     "minimatch": "^9.0.3",

@@ -1,5 +1,8 @@
-import { resolve } from 'path'
+import { resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import * as vite from 'vite'
+
+const dir = resolve(fileURLToPath(import.meta.url), '..')
 
 export async function build() {
   const outDir = 'dist'
@@ -11,7 +14,7 @@ export async function build() {
       outDir: resolve(outDir, 'client'),
       target: 'esnext',
     },
-    root: __dirname,
+    root: dir,
   })
 
   // server
@@ -19,9 +22,9 @@ export async function build() {
     build: {
       emptyOutDir: true,
       outDir: resolve(outDir, 'server'),
-      ssr: resolve(__dirname, 'app/index.server.tsx'),
+      ssr: resolve(dir, 'app/index.server.tsx'),
       target: 'esnext',
     },
-    root: __dirname,
+    root: dir,
   })
 }

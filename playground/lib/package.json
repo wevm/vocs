@@ -3,9 +3,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "bun dev.ts",
-    "build": "NODE_ENV=production bun build.ts",
-    "serve": "bun serve.ts"
+    "dev": "scood",
+    "build": "scood build",
+    "serve": "scood serve"
   },
   "dependencies": {
     "react": "^18.2.0",

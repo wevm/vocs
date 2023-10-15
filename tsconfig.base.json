@@ -35,6 +35,9 @@
     "jsx": "react-jsx",
 
     // Skip type checking for node modules
-    "skipLibCheck": true
+    "skipLibCheck": true,
+
+    // JSON
+    "resolveJsonModule": true
   }
 }

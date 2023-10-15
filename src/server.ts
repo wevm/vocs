@@ -1,23 +1,28 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { App } from '@tinyhttp/app'
+import * as compression from 'compression'
+import * as serveStatic from 'serve-static'
 import { createServer as createDevServer } from 'vite'
 
 export type CreateServerParameters = {
   dev?: boolean
 }
 
+const dir = resolve(fileURLToPath(import.meta.url), '..')
+
 export async function createServer(args: CreateServerParameters = {}) {
   const { dev } = args
 
   const outDir = 'dist'
-  const root = dev ? __dirname : process.cwd()
+  const root = dev ? dir : process.cwd()
   const clientRoot = dev ? root : resolve(root, outDir, 'client')
   const serverRoot = dev ? root : resolve(root, outDir, 'server')
 
   const devServer = await createDevServer({
     appType: 'custom',
-    configFile: resolve(__dirname, './vite.config.ts'),
+    configFile: resolve(dir, 'vite.config.ts'),
     root,
     server: {
       middlewareMode: true,
@@ -32,10 +37,12 @@ export async function createServer(args: CreateServerParameters = {}) {
 
   // Middlewares
   if (dev) server.use(devServer.middlewares)
-  if (!dev) server.use(require('compression')())
+  // @ts-expect-error
+  if (!dev) server.use(compression.default())
   if (!dev)
     server.use(
-      require('serve-static')(clientRoot, {
+      // @ts-expect-error
+      serveStatic.default(clientRoot, {
         index: false,
       }),
     )
