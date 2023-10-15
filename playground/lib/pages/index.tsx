@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Head } from 'scood/head'
+import { Head } from 'vocs/head'
 
 export default function Index() {
   return (

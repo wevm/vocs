@@ -1,9 +1,9 @@
 {
-  "name": "scood",
+  "name": "vocs",
   "version": "0.0.0",
   "type": "module",
   "bin": {
-    "scood": "./_lib/cli.js"
+    "vocs": "./_lib/cli.js"
   },
   "main": "./_lib/index.js",
   "exports": {

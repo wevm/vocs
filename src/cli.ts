@@ -3,7 +3,7 @@ import { cac } from 'cac'
 
 import { version } from './version.js'
 
-const cli = cac('scood')
+const cli = cac('vocs')
 
 // dev
 cli

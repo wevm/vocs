@@ -3,13 +3,13 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "scood",
-    "build": "scood build",
-    "serve": "scood serve"
+    "dev": "vocs",
+    "build": "vocs build",
+    "serve": "vocs serve"
   },
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "scood": "workspace:*"
+    "vocs": "workspace:*"
   }
 }
