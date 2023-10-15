@@ -1,0 +1,12 @@
+name: "Install dependencies"
+description: "Prepare repository and all dependencies"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Bun
+      uses: oven-sh/setup-bun@v1
+
+    - name: Install dependencies
+      shell: bash
+      run: bun install --ignore-scripts
