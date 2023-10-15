@@ -1,14 +1,14 @@
-import { defineConfig, type PluginOption } from 'vite'
-import react from '@vitejs/plugin-react'
+import { resolve } from 'node:path'
 import mdx from '@mdx-js/rollup'
+import react from '@vitejs/plugin-react'
+import * as autoprefixer from 'autoprefixer'
 import { globby } from 'globby'
 import * as tailwindcss from 'tailwindcss'
-import * as autoprefixer from 'autoprefixer'
-import { resolve } from 'node:path'
+import { type PluginOption, defineConfig } from 'vite'
 
 const pages = ({ paths: glob }: { paths: string }): PluginOption => {
   const virtualModuleId = 'virtual:pages'
-  const resolvedVirtualModuleId = '\0' + virtualModuleId
+  const resolvedVirtualModuleId = `\0${virtualModuleId}`
 
   let paths: string[] = []
 
@@ -20,17 +20,12 @@ const pages = ({ paths: glob }: { paths: string }): PluginOption => {
     },
     load(id) {
       if (id === resolvedVirtualModuleId) {
-        let code = ''
-        paths.forEach((path, i) => {
-          code += `import page_${i} from "${path}";`
-        })
-        
-        code += 'export const pages = ['
-        paths.forEach((path, i) => {
+        let code = 'export const pages = ['
+        paths.forEach((path) => {
           const replacer = glob.split('*')[0]
           let pagePath = path.replace(replacer, '').replace(/\.(.*)/, '')
           if (pagePath === 'index') pagePath = ''
-          code += `  { path: "/${pagePath}", component: page_${i} },`
+          code += `  { path: "/${pagePath}", lazy: () => import("${path}") },`
         })
         code += ']'
         return code

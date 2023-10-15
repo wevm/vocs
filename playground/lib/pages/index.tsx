@@ -5,10 +5,10 @@ export default function Index() {
   return (
     <div>
       <Helmet>
-        <title>Foo</title>
+        <title>Index</title>
       </Helmet>
-      <h1 className="text-xl">Foo</h1>
-      <Link to="/">Index</Link>
+      <h1 className="text-xl">Hello World!</h1>
+      <Link to="/foo">Foo</Link>
     </div>
   )
 }

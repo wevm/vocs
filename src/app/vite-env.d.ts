@@ -1,11 +1,11 @@
 /// <reference types="vite/client" />
 
 type Page = {
-  component: React.ComponentType;
-  modulePath: string;
-  path: string;
+  modulePath: string
+  lazy: () => Promise<any>
+  path: string
 }
 
 declare module 'virtual:pages' {
-  export const pages: Page[];
+  export const pages: Page[]
 }

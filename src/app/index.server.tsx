@@ -1,18 +1,27 @@
+import type { Request } from '@tinyhttp/app'
 import * as ReactDOMServer from 'react-dom/server'
-import { StaticRouter } from 'react-router-dom/server.js'
 import { Helmet } from 'react-helmet'
-import { pages } from 'virtual:pages'
+import {
+  type StaticHandlerContext,
+  StaticRouterProvider,
+  createStaticHandler,
+  createStaticRouter,
+} from 'react-router-dom/server.js'
 
-import { Routes } from './routes.js'
+import { routes } from './routes.js'
+import { createFetchRequest } from './utils.js'
 
-export function render(path: string) {
-  const page = Object.values(pages).find((route) => route.path === path)
-  if (!page) throw new Error(`No page found for ${path}`)
+export async function render(req: Request) {
+  const { query, dataRoutes } = createStaticHandler(routes)
+  const fetchRequest = createFetchRequest(req)
+  const context = (await query(fetchRequest)) as StaticHandlerContext
+
+  if (context instanceof Response) throw context
+
+  const router = createStaticRouter(dataRoutes, context)
 
   const body = ReactDOMServer.renderToString(
-    <StaticRouter location={path}>
-      <Routes />
-    </StaticRouter>,
+    <StaticRouterProvider router={router} context={context} />,
   )
   const helmet = Helmet.renderStatic()
   const head = `

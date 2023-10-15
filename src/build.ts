@@ -1,18 +1,15 @@
 import { resolve } from 'path'
 import * as vite from 'vite'
 
-type BuildParameters = {
-  outDir?: string
-}
-
-export async function build(args: BuildParameters = {}) {
-  const { outDir = 'dist' } = args
+export async function build() {
+  const outDir = 'dist'
 
   // client
   await vite.build({
     build: {
       emptyOutDir: true,
       outDir: resolve(outDir, 'client'),
+      target: 'esnext',
     },
     root: __dirname,
   })
@@ -23,6 +20,7 @@ export async function build(args: BuildParameters = {}) {
       emptyOutDir: true,
       outDir: resolve(outDir, 'server'),
       ssr: resolve(__dirname, 'app/index.server.tsx'),
+      target: 'esnext',
     },
     root: __dirname,
   })

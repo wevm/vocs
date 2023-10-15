@@ -1,10 +1,12 @@
 import * as ReactDOM from 'react-dom/client'
-import { BrowserRouter } from 'react-router-dom'
-import { Routes } from './routes.js'
+import { RouterProvider, createBrowserRouter } from 'react-router-dom'
+import { routes } from './routes.js'
+import { hydrateLazyRoutes } from './utils.js'
 
-ReactDOM.hydrateRoot(
-  document.getElementById('app')!,
-  <BrowserRouter>
-    <Routes />
-  </BrowserRouter>,
-)
+hydrate()
+
+async function hydrate() {
+  await hydrateLazyRoutes(routes)
+  const router = createBrowserRouter(routes)
+  ReactDOM.hydrateRoot(document.getElementById('app')!, <RouterProvider router={router} />)
+}

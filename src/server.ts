@@ -1,22 +1,23 @@
-import { App } from '@tinyhttp/app'
-import { createServer as createDevServer } from 'vite'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { App } from '@tinyhttp/app'
+import { createServer as createDevServer } from 'vite'
 
 export type CreateServerParameters = {
   dev?: boolean
-  outDir?: string
-  root?: string
 }
 
 export async function createServer(args: CreateServerParameters = {}) {
-  const { dev, outDir = 'dist', root = dev ? __dirname : process.cwd() } = args
+  const { dev } = args
 
+  const outDir = 'dist'
+  const root = dev ? __dirname : process.cwd()
   const clientRoot = dev ? root : resolve(root, outDir, 'client')
   const serverRoot = dev ? root : resolve(root, outDir, 'server')
 
   const devServer = await createDevServer({
     appType: 'custom',
+    configFile: resolve(__dirname, './vite.config.ts'),
     root,
     server: {
       middlewareMode: true,
@@ -56,7 +57,7 @@ export async function createServer(args: CreateServerParameters = {}) {
       })()
 
       const context = { url: '' }
-      const { head, body } = module.render(url, context)
+      const { head, body } = await module.render(req)
 
       if (context.url) return res.redirect(context.url, 301)
 
