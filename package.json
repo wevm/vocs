@@ -18,6 +18,10 @@
     "@types/serve-static": "^1.15.3",
     "bun-types": "^1.0.6",
     "rimraf": "^5.0.5",
+    "simple-git-hooks": "^2.9.0",
     "typescript": "^5.2.2"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "bun run format && bun run lint"
   }
 }
