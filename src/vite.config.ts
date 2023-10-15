@@ -6,7 +6,30 @@ import { globby } from 'globby'
 import * as tailwindcss from 'tailwindcss'
 import { type PluginOption, defineConfig } from 'vite'
 
-const pages = ({ paths: glob }: { paths: string }): PluginOption => {
+export default defineConfig({
+  css: {
+    postcss: {
+      plugins: [
+        (autoprefixer as any).default(),
+        tailwindcss.default({
+          content: [resolve(process.cwd(), './**/*.{html,tsx,ts,js,jsx}')],
+        }),
+      ],
+    },
+  },
+  plugins: [
+    react(),
+    mdx(),
+    pages({ paths: resolve(process.cwd(), './pages/**/*.{md,mdx,ts,tsx,js,jsx}') }),
+  ],
+})
+
+////////////////////////////////////////////////////////////////////////////////////
+// Plugins
+
+type PagesParameters = { paths: string }
+
+function pages({ paths: glob }: PagesParameters): PluginOption {
   const virtualModuleId = 'virtual:pages'
   const resolvedVirtualModuleId = `\0${virtualModuleId}`
 
@@ -36,26 +59,8 @@ const pages = ({ paths: glob }: { paths: string }): PluginOption => {
       paths = await globby(glob)
     },
     handleHotUpdate() {
-      // handle changes
+      // TODO: handle changes
       return
     },
   }
 }
-
-export default defineConfig({
-  css: {
-    postcss: {
-      plugins: [
-        (autoprefixer as any).default(),
-        tailwindcss.default({
-          content: [resolve(process.cwd(), './**/*.{html,tsx,ts,js,jsx}')],
-        }),
-      ],
-    },
-  },
-  plugins: [
-    react(),
-    mdx(),
-    pages({ paths: resolve(process.cwd(), './pages/**/*.{md,mdx,ts,tsx,js,jsx}') }),
-  ],
-})
