@@ -1,12 +1,12 @@
-import { Helmet } from 'react-helmet'
 import { Link } from 'react-router-dom'
+import { Head } from '../../../src/head.js'
 
 export default function Index() {
   return (
     <div>
-      <Helmet>
+      <Head>
         <title>Foo</title>
-      </Helmet>
+      </Head>
       <h1 className="text-xl">Foo</h1>
       <Link to="/">Index</Link>
     </div>

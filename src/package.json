@@ -7,7 +7,8 @@
   },
   "main": "./_lib/index.js",
   "exports": {
-    ".": "./_lib/index.js"
+    ".": "./_lib/index.js",
+    "./head": "./_lib/head.js"
   },
   "peerDependencies": {
     "react": "^18.2.0",
