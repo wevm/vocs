@@ -3,25 +3,24 @@ import mdx from '@mdx-js/rollup'
 import react from '@vitejs/plugin-react'
 import * as autoprefixer from 'autoprefixer'
 import { globby } from 'globby'
+import rehypePrettyCode from 'rehype-pretty-code'
 import remarkFrontmatter from 'remark-frontmatter'
+import remarkGfm from 'remark-gfm'
 import remarkMdxFrontmatter from 'remark-mdx-frontmatter'
-import * as tailwindcss from 'tailwindcss'
 import { type PluginOption, defineConfig } from 'vite'
 
 export default defineConfig({
   css: {
     postcss: {
-      plugins: [
-        (autoprefixer as any).default(),
-        tailwindcss.default({
-          content: [resolve(process.cwd(), './**/*.{html,tsx,ts,js,jsx}')],
-        }),
-      ],
+      plugins: [(autoprefixer as any).default()],
     },
   },
   plugins: [
     react(),
-    mdx({ remarkPlugins: [remarkFrontmatter, remarkMdxFrontmatter] }),
+    mdx({
+      remarkPlugins: [remarkFrontmatter, remarkMdxFrontmatter, remarkGfm],
+      rehypePlugins: [rehypePrettyCode as any],
+    }),
     pages({ paths: resolve(process.cwd(), './pages/**/*.{md,mdx,ts,tsx,js,jsx}') }),
   ],
 })

@@ -1,3 +1,4 @@
+import type { MDXComponents } from 'mdx/types.js'
 import * as React from 'react'
 
 export type Frontmatter = {
@@ -6,7 +7,7 @@ export type Frontmatter = {
 }
 
 export type Module = {
-  default: React.ComponentType
+  default: React.ComponentType<{ components: MDXComponents }>
   frontmatter?: Frontmatter
   head?: React.ReactNode
 }

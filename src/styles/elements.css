@@ -1,0 +1,217 @@
+.vocs *:last-child {
+  margin-bottom: 0px;
+}
+
+/************************************/
+/* Headings & Text                  */
+/************************************/
+
+/** Markdown: "# (Text)" */
+.vocs h1 {
+  font-size: 32px;
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  line-height: 28px;
+  margin-bottom: 24px;
+}
+
+/** Markdown: "## (Text)" */
+.vocs h2 {
+  border-top: 1px solid var(--vocs-c-border);
+  font-size: 24px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 32px;
+  margin-top: 32px;
+  margin-bottom: 20px;
+  padding-top: 32px;
+}
+
+/** Markdown: "### (Text)" */
+.vocs h3 {
+  letter-spacing: -0.01em;
+  line-height: 28px;
+  font-size: 20px;
+  font-weight: 500;
+  padding-top: 18px;
+  margin-bottom: 18px;
+  margin-top: 18px;
+}
+
+.vocs h2+h3 {
+  padding-top: 12px;
+}
+
+/** Markdown: "#### (Text)" */
+.vocs h4 {
+  line-height: 24px;
+  font-size: 18px;
+  font-weight: 500;
+  padding-top: 16px;
+  margin-bottom: 16px;
+  margin-top: 16px;
+}
+
+/** Markdown: "##### (Text)" */
+.vocs h5 {
+  font-weight: 500;
+  line-height: 24px;
+  padding-top: 16px;
+  margin-bottom: 16px;
+  margin-top: 16px;
+}
+
+/** Markdown: "####### (Text)" */
+.vocs h6 {
+  font-weight: 500;
+  padding-top: 16px;
+  margin-bottom: 16px;
+  margin-top: 16px;
+}
+
+/** Markdown: "(Text)" */
+.vocs p {
+  line-height: 28px;
+  margin-bottom: 16px;
+}
+
+/** Markdown: "**(Text)**" | "__(Text)__" */
+.vocs strong {
+  font-weight: 500;
+}
+
+/** Sibling overrides **/
+.vocs h2+h3,
+.vocs h3+h4,
+.vocs h4+h5,
+.vocs h5+h6 {
+  padding-top: 0px;
+}
+
+/************************************/
+/* Link                             */
+/************************************/
+
+.vocs a {
+  color: var(--vocs-c-accent);
+  font-weight: 400;
+  transition: color 0.25s;
+
+  &:hover {
+    text-underline-offset: 2px;
+    text-decoration: underline;
+  }
+}
+
+/************************************/
+/* Code                             */
+/************************************/
+
+/* TODO */
+
+.vocs [data-rehype-pretty-code-fragment] {
+  margin-bottom: 16px;
+}
+
+.vocs pre {
+  margin-bottom: 16px;
+}
+
+/************************************/
+/* Lists                            */
+/************************************/
+
+/** Markdown: "* Text" */
+.vocs ul {
+  list-style: disc;
+  padding-left: 1.25rem;
+  margin-bottom: 16px;
+}
+
+/** Markdown: "1. Text" */
+.vocs ol {
+  list-style: decimal;
+  padding-left: 1.25rem;
+  margin-bottom: 16px;
+}
+
+/** Sibling overrides **/
+.vocs li+li {
+  padding-top: 12px;
+}
+
+/** Direct descendant overrides **/
+.vocs li>ol,
+.vocs li>ul {
+  padding-top: 12px;
+}
+
+/** Descendant overrides **/
+.vocs ol ul,
+.vocs ul ul,
+.vocs ul ol,
+.vocs ol ol {
+  padding-bottom: 0px;
+}
+
+/************************************/
+/* Blockquote                       */
+/************************************/
+
+/** Markdown: "> (Text)" */
+.vocs blockquote {
+  border-left: 2px solid var(--vocs-c-border);
+  padding-left: 16px;
+  margin-bottom: 16px;
+}
+
+.vocs blockquote>p {
+  color: var(--vocs-c-text-tertiary);
+}
+
+/************************************/
+/* Table                            */
+/************************************/
+
+/** Markdown: "| (Text) | (Text) |" */
+.vocs table {
+  display: block;
+  border-collapse: collapse;
+  overflow-x: auto;
+  margin-bottom: 24px;
+}
+
+.vocs tr {
+  border-top: 1px solid var(--vocs-c-border);
+}
+
+.vocs tr:nth-child(2n) {
+  background-color: var(--vocs-c-background-surface);
+}
+
+.vocs td {
+  border: 1px solid var(--vocs-c-border);
+  padding: 12px 16px;
+}
+
+.vocs th {
+  border: 1px solid var(--vocs-c-border);
+  background-color: var(--vocs-c-background-surface);
+  color: var(--vocs-c-text-tertiary);
+  font-size: 14px;
+  font-weight: 400;
+  padding: 12px 16px;
+  text-align: left;
+}
+
+.vocs th[align="center"] {
+  text-align: center;
+}
+
+.vocs th[align="right"] {
+  text-align: right;
+}
+
+.vocs td {
+  font-size: 14px;
+}
