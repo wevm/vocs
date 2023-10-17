@@ -11,7 +11,6 @@
 :root {
   --vocs-color_white: rgba(255, 255, 255, 1);
   --vocs-color_black: rgba(0, 0, 0, 1);
-
   --vocs-color_accent: var(--iris-11);
   --vocs-color_accent-hover: var(--iris-12);
   --vocs-color_accent-tint: var(--iris-3);
@@ -25,9 +24,6 @@
   --vocs-color_text-3: var(--gray-10);
   --vocs-color_text-4: var(--gray-8);
 
-  --vocs-color_code-highlight-background: var(--vocs-color_background-3);
-  --vocs-color_code-highlight-border: var(--gray-7);
-
   &.dark {
     --vocs-color_accent-hover: var(--iris-10);
     --vocs-color_background: var(--mauve-3);
@@ -36,10 +32,34 @@
     --vocs-color_background-4: var(--mauve-6);
     --vocs-color_border: var(--mauve-6);
     --vocs-color_text: var(--white-a11);
-    --vocs-color_text-2: var(--white-a10);
-    --vocs-color_text-3: var(--white-a9);
+    --vocs-color_text-2: var(--white-a9);
+    --vocs-color_text-3: var(--white-a8);
     --vocs-color_text-4: var(--white-a5);
+  }
+}
 
+/* Semantic colors */
+:root {
+  --vocs-color_blockquote-border: var(--vocs-color_border);
+  --vocs-color_blockquote-text: var(--vocs-color_text-3);
+
+  --vocs-color_inline-code: var(--vocs-color_accent);
+  --vocs-color_inline-code-background: var(--vocs-color_accent-tint);
+  --vocs-color_code-block-background: var(--vocs-color_background-2);
+  --vocs-color_code-highlight-background: var(--vocs-color_background-3);
+  --vocs-color_code-highlight-border: var(--gray-7);
+  --vocs-color_line-number: var(--vocs-color_text-4);
+
+  --vocs-color_hr: var(--vocs-color_border);
+
+  --vocs-color_link: var(--vocs-color_accent);
+  --vocs-color_link-hover: var(--vocs-color_accent-hover);
+
+  --vocs-color_table-border: var(--vocs-color_border);
+  --vocs-color_table-header-background: var(--vocs-color_background-2);
+  --vocs-color_table-header-text: var(--vocs-color_text-2);
+
+  &.dark {
     --vocs-color_code-highlight-background: var(--vocs-color_background-4);
     --vocs-color_code-highlight-border: var(--mauve-9);
   }

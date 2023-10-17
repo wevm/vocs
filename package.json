@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "rimraf src/_lib src/tsconfig.build.* && tsc -p tsconfig.build.json && bun scripts/postbuild.ts",
+    "dev": "cd playground/dev && bun run dev",
     "format": "biome format . --write",
     "lint": "biome lint . --apply-unsafe",
     "prepare": "bun x simple-git-hooks",

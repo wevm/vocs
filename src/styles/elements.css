@@ -100,11 +100,11 @@
 /************************************/
 
 .vocs a {
-  color: var(--vocs-color_accent);
+  color: var(--vocs-color_link);
   font-weight: var(--vocs--fontWeight-medium);
 
   &:hover {
-    color: var(--vocs-color_accent-hover);
+    color: var(--vocs-color_link-hover);
     text-underline-offset: 2px;
     text-decoration: underline;
   }
@@ -114,11 +114,9 @@
 /* Code                             */
 /************************************/
 
-/* TODO */
-
 .vocs :not(pre, [data-rehype-pretty-code-fragment])>code {
-  background-color: var(--vocs-color_accent-tint);
-  color: var(--vocs-color_accent);
+  background-color: var(--vocs-color_inline-code-background);
+  color: var(--vocs-color_inline-code);
 }
 
 .vocs :not(pre)>code {
@@ -127,13 +125,13 @@
   padding: var(--vocs-space_3) var(--vocs-space_6);
 }
 
-
-.vocs a>code {
+.vocs.vocs a>code {
+  color: var(--vocs-color_link);
   text-decoration: underline;
   text-underline-offset: var(--vocs-space_2);
 
   &:hover {
-    color: var(--vocs-color_accent-hover);
+    color: var(--vocs-color_link-hover);
   }
 }
 
@@ -165,7 +163,7 @@
   }
 
   & pre {
-    background-color: var(--vocs-color_background-2) !important;
+    background-color: var(--vocs-color_code-block-background) !important;
     border-radius: var(--vocs-borderRadius_4);
     padding: var(--vocs-space_20) var(--vocs-space_0);
   }
@@ -184,7 +182,7 @@
     }
 
     & [data-line]::before {
-      color: var(--vocs-color_text-4);
+      color: var(--vocs-color_line-number);
       content: counter(line);
       counter-increment: line;
       display: inline-block;
@@ -255,13 +253,13 @@
 
 /** Markdown: "> (Text)" */
 .vocs blockquote {
-  border-left: 2px solid var(--vocs-color_border);
+  border-left: 2px solid var(--vocs-color_blockquote-border);
   padding-left: var(--vocs-space_16);
   margin-bottom: var(--vocs-space_16);
 }
 
 .vocs blockquote>p {
-  color: var(--vocs-color_text-3);
+  color: var(--vocs-color_blockquote-text);
 }
 
 /************************************/
@@ -277,7 +275,7 @@
 }
 
 .vocs tr {
-  border-top: 1px solid var(--vocs-color_border);
+  border-top: 1px solid var(--vocs-color_table-border);
 }
 
 .vocs tr:nth-child(2n) {
@@ -285,14 +283,14 @@
 }
 
 .vocs td {
-  border: 1px solid var(--vocs-color_border);
+  border: 1px solid var(--vocs-color_table-border);
   padding: var(--vocs-space_12) var(--vocs-space_16);
 }
 
 .vocs th {
-  border: 1px solid var(--vocs-color_border);
-  background-color: var(--vocs-color_background-2);
-  color: var(--vocs-color_text-3);
+  border: 1px solid var(--vocs-color_table-border);
+  background-color: var(--vocs-color_table-header-background);
+  color: var(--vocs-color_table-header-text);
   font-size: var(--vocs-fontSize_th);
   font-weight: 400;
   padding: var(--vocs-space_12) var(--vocs-space_16);
@@ -316,6 +314,6 @@
 /************************************/
 
 .vocs hr {
-  border-top: 1px solid var(--vocs-color_border);
+  border-top: 1px solid var(--vocs-color_hr);
   margin-bottom: var(--vocs-space_16);
 }
