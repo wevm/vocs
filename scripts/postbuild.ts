@@ -1,16 +1,13 @@
 // TODO: Probably don't do this?
 
-import { copyFileSync, readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { copy, copyFileSync, readFileSync, writeFileSync } from 'fs-extra'
 
 copyFileSync(
   resolve(import.meta.dir, '../src/index.html'),
   resolve(import.meta.dir, '../src/_lib/index.html'),
 )
-copyFileSync(
-  resolve(import.meta.dir, '../src/index.css'),
-  resolve(import.meta.dir, '../src/_lib/index.css'),
-)
+copy(resolve(import.meta.dir, '../src/styles'), resolve(import.meta.dir, '../src/_lib/styles'))
 
 const htmlFilePath = resolve(import.meta.dir, '../src/_lib/index.html')
 const htmlFile = readFileSync(htmlFilePath, 'utf-8')

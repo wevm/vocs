@@ -49,8 +49,6 @@ export async function createServer(args: CreateServerParameters = {}) {
 
   // Static files
   // @ts-expect-error
-  server.use(serveStatic.default(resolve(__dirname, 'public')))
-  // @ts-expect-error
   server.use(serveStatic.default(resolve(root, 'public')))
 
   // React → HTML
