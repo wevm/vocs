@@ -8,7 +8,7 @@ import { Example } from '../components/Example'
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce vestibulum ante non neque convallis tempor. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Nam a iaculis libero. Suspendisse bibendum placerat enim, vitae iaculis sapien tincidunt vel. Nunc nunc dui, varius eget diam vitae, sagittis rutrum ante. Vestibulum ut nulla in ante tincidunt lacinia. Suspendisse ex orci, elementum vitae enim sed, pellentesque fermentum tortor. In bibendum sapien at nisi pharetra tincidunt. Etiam eleifend lacus dictum lorem ornare euismod. Nunc ullamcorper nunc mi, ut volutpat libero gravida id. Pellentesque cursus mi id tortor convallis eleifend.
 
-## Heading 2
+## Heading 2 
 
 ### Heading 3
 
@@ -113,28 +113,55 @@ Reference-style:
 
 [logo]: https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Logo Title Text 2"
 
-## Code and Syntax Highlighting
+## `Code` and Syntax Highlighting
 
 Inline `code` has `back-ticks around` it.
 
-```ts {1}
+Inline [`code`]() with link.
+
+### `heading3` heading
+
+#### `heading4` heading
+
+##### `heading5` heading
+
+###### `heading6` heading
+
+Inline `console.log("hello world"){:js}` code
+
+```ts {1} 
 type Example = string
 const example: Example = 'example'
 ```
+ 
+```ts showLineNumbers {2,3,6-9}
+// 1. Import modules.
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
 
-```js
-const s = "JavaScript syntax highlighting";
-console.log(s);
+// 2. Set up your client with desired chain & transport.
+const client = createPublicClient({
+  chain: mainnet,
+  transport: http(),
+})
+
+// 3. Consume an action!
+const blockNumber = await client.getBlockNumber()
 ```
- 
-```python
-s = "Python syntax highlighting"
-print s
-```
- 
-```
-No language indicated, so no syntax highlighting. 
-But let's throw in a <b>tag</b>.
+
+```ts /mainnet/1-2 /client/2-3
+// 1. Import modules.
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+// 2. Set up your client with desired chain & transport.
+const client = createPublicClient({
+  chain: mainnet,
+  transport: http(),
+})
+
+// 3. Consume an action!
+const blockNumber = await client.getBlockNumber()
 ```
 
 ## Blockquote

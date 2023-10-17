@@ -5,29 +5,114 @@
 @import "@radix-ui/colors/gray.css";
 @import "@radix-ui/colors/gray-dark.css";
 @import "@radix-ui/colors/black-alpha.css";
+@import "@radix-ui/colors/white-alpha.css";
 
-/* Color */
+/* Primitive colors */
 :root {
-  --vocs-c-accent: var(--iris-11);
-  --vocs-c-background: white;
-  --vocs-c-background-surface: var(--gray-2);
-  --vocs-c-border: var(--black-a2);
-  --vocs-c-text: var(--gray-12);
-  --vocs-c-text-secondary: var(--gray-11);
-  --vocs-c-text-tertiary: var(--gray-10);
+  --vocs-color_white: rgba(255, 255, 255, 1);
+  --vocs-color_black: rgba(0, 0, 0, 1);
+
+  --vocs-color_accent: var(--iris-11);
+  --vocs-color_accent-hover: var(--iris-12);
+  --vocs-color_accent-tint: var(--iris-3);
+  --vocs-color_background: var(--vocs-color_white);
+  --vocs-color_background-2: var(--gray-2);
+  --vocs-color_background-3: var(--gray-3);
+  --vocs-color_background-4: var(--gray-4);
+  --vocs-color_border: var(--black-a2);
+  --vocs-color_text: var(--gray-12);
+  --vocs-color_text-2: var(--gray-11);
+  --vocs-color_text-3: var(--gray-10);
+  --vocs-color_text-4: var(--gray-8);
+
+  --vocs-color_code-highlight-background: var(--vocs-color_background-3);
+  --vocs-color_code-highlight-border: var(--gray-7);
 
   &.dark {
-    --vocs-c-background: var(--mauve-3);
-    --vocs-c-background-surface: var(--mauve-4);
-    --vocs-c-border: var(--mauve-6);
-    --vocs-c-text: rgba(255, 255, 255, 0.9);
-    --vocs-c-text-secondary: rgba(255, 255, 255, 0.75);
-    --vocs-c-text-tertiary: rgba(255, 255, 255, 0.6);
+    --vocs-color_accent-hover: var(--iris-10);
+    --vocs-color_background: var(--mauve-3);
+    --vocs-color_background-2: var(--mauve-4);
+    --vocs-color_background-3: var(--mauve-5);
+    --vocs-color_background-4: var(--mauve-6);
+    --vocs-color_border: var(--mauve-6);
+    --vocs-color_text: var(--white-a11);
+    --vocs-color_text-2: var(--white-a10);
+    --vocs-color_text-3: var(--white-a9);
+    --vocs-color_text-4: var(--white-a5);
+
+    --vocs-color_code-highlight-background: var(--vocs-color_background-4);
+    --vocs-color_code-highlight-border: var(--mauve-9);
   }
+}
+
+/* Border radii */
+:root {
+  --vocs-borderRadius_0: 0px;
+  --vocs-borderRadius_2: 2px;
+  --vocs-borderRadius_4: 4px;
 }
 
 /* Fonts */
 :root {
-  --vocs-fontFamily: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  --vocs-fontFamily-mono: monospace;
+  --vocs-fontFamily_default: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  --vocs-fontFamily_mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace
+}
+
+/* Font sizes */
+:root {
+  --vocs-fontSize_root: 16px;
+
+  --vocs-fontSize_32: 2rem;
+  --vocs-fontSize_24: 1.5rem;
+  --vocs-fontSize_20: 1.25rem;
+  --vocs-fontSize_18: 1.125rem;
+  --vocs-fontSize_16: 1rem;
+  --vocs-fontSize_15: 0.9375rem;
+  --vocs-fontSize_14: 0.875rem;
+
+  --vocs-fontSize_h1: var(--vocs-fontSize_32);
+  --vocs-fontSize_h2: var(--vocs-fontSize_24);
+  --vocs-fontSize_h3: var(--vocs-fontSize_20);
+  --vocs-fontSize_h4: var(--vocs-fontSize_18);
+  --vocs-fontSize_h5: var(--vocs-fontSize_16);
+  --vocs-fontSize_h6: var(--vocs-fontSize_16);
+  --vocs-fontSize_code: 0.9375em;
+  --vocs-fontSize_codeBlock: var(--vocs-fontSize_15);
+  --vocs-fontSize_lineNumber: var(--vocs-fontSize_15);
+  --vocs-fontSize_th: var(--vocs-fontSize_14);
+  --vocs-fontSize_td: var(--vocs-fontSize_14);
+}
+
+/* Font weights */
+:root {
+  --vocs--fontWeight-regular: 300;
+  --vocs--fontWeight-medium: 400;
+  --vocs--fontWeight-semibold: 500;
+}
+
+
+/* Line height */
+:root {
+  --vocs-lineHeight-code: 1.75em;
+  --vocs-lineHeight-heading: 1.25em;
+  --vocs-lineHeight-paragraph: 1.75em;
+}
+
+/* Spacing */
+:root {
+  --vocs-space_0: 0px;
+  --vocs-space_1: 1px;
+  --vocs-space_2: 0.125rem;
+  --vocs-space_3: 0.1875rem;
+  --vocs-space_4: 0.25rem;
+  --vocs-space_6: 0.325rem;
+  --vocs-space_8: 0.5rem;
+  --vocs-space_12: 0.75rem;
+  --vocs-space_16: 1rem;
+  --vocs-space_18: 1.125rem;
+  --vocs-space_20: 1.25rem;
+  --vocs-space_22: 1.375rem;
+  --vocs-space_24: 1.5rem;
+  --vocs-space_28: 1.75rem;
+  --vocs-space_32: 2rem;
 }

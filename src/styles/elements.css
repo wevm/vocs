@@ -1,5 +1,9 @@
 .vocs *:last-child {
-  margin-bottom: 0px;
+  margin-bottom: var(--vocs-space_0);
+}
+
+.vocs * {
+  transition: color 0.1s, background-color 0.1s;
 }
 
 /************************************/
@@ -8,76 +12,79 @@
 
 /** Markdown: "# (Text)" */
 .vocs h1 {
-  font-size: 32px;
-  font-weight: 500;
+  font-size: var(--vocs-fontSize_h1);
+  font-weight: var(--vocs--fontWeight-semibold);
   letter-spacing: -0.025em;
-  line-height: 28px;
-  margin-bottom: 24px;
+  line-height: var(--vocs-lineHeight-heading);
+  margin-bottom: var(--vocs-space_24);
 }
 
 /** Markdown: "## (Text)" */
 .vocs h2 {
-  border-top: 1px solid var(--vocs-c-border);
-  font-size: 24px;
-  font-weight: 500;
+  border-top: 1px solid var(--vocs-color_border);
+  font-size: var(--vocs-fontSize_h2);
+  font-weight: var(--vocs--fontWeight-semibold);
   letter-spacing: -0.02em;
-  line-height: 32px;
-  margin-top: 32px;
-  margin-bottom: 20px;
-  padding-top: 32px;
+  line-height: var(--vocs-lineHeight-heading);
+  margin-top: var(--vocs-space_32);
+  margin-bottom: var(--vocs-space_20);
+  padding-top: var(--vocs-space_32);
 }
 
 /** Markdown: "### (Text)" */
 .vocs h3 {
   letter-spacing: -0.01em;
-  line-height: 28px;
-  font-size: 20px;
-  font-weight: 500;
-  padding-top: 18px;
-  margin-bottom: 18px;
-  margin-top: 18px;
+  font-size: var(--vocs-fontSize_h3);
+  line-height: var(--vocs-lineHeight-heading);
+  font-weight: var(--vocs--fontWeight-semibold);
+  padding-top: var(--vocs-space_18);
+  margin-bottom: var(--vocs-space_18);
+  margin-top: var(--vocs-space_18);
 }
 
 .vocs h2+h3 {
-  padding-top: 12px;
+  padding-top: var(--vocs-space_12);
 }
 
 /** Markdown: "#### (Text)" */
 .vocs h4 {
-  line-height: 24px;
-  font-size: 18px;
-  font-weight: 500;
-  padding-top: 16px;
-  margin-bottom: 16px;
-  margin-top: 16px;
+  line-height: var(--vocs-lineHeight-heading);
+  font-size: var(--vocs-fontSize_h4);
+  font-weight: var(--vocs--fontWeight-semibold);
+  padding-top: var(--vocs-space_16);
+  margin-bottom: var(--vocs-space_16);
+  margin-top: var(--vocs-space_16);
 }
 
 /** Markdown: "##### (Text)" */
 .vocs h5 {
-  font-weight: 500;
-  line-height: 24px;
-  padding-top: 16px;
-  margin-bottom: 16px;
-  margin-top: 16px;
+  font-size: var(--vocs-fontSize_h5);
+  font-weight: var(--vocs--fontWeight-semibold);
+  line-height: var(--vocs-lineHeight-heading);
+  padding-top: var(--vocs-space_16);
+  margin-bottom: var(--vocs-space_16);
+  margin-top: var(--vocs-space_16);
 }
 
 /** Markdown: "####### (Text)" */
 .vocs h6 {
-  font-weight: 500;
-  padding-top: 16px;
-  margin-bottom: 16px;
-  margin-top: 16px;
+  line-height: var(--vocs-lineHeight-heading);
+  font-size: var(--vocs-fontSize_h6);
+  font-weight: var(--vocs--fontWeight-semibold);
+  padding-top: var(--vocs-space_16);
+  margin-bottom: var(--vocs-space_16);
+  margin-top: var(--vocs-space_16);
 }
 
 /** Markdown: "(Text)" */
 .vocs p {
-  line-height: 28px;
-  margin-bottom: 16px;
+  line-height: var(--vocs-lineHeight-paragraph);
+  margin-bottom: var(--vocs-space_16);
 }
 
 /** Markdown: "**(Text)**" | "__(Text)__" */
 .vocs strong {
-  font-weight: 500;
+  font-weight: var(--vocs--fontWeight-semibold);
 }
 
 /** Sibling overrides **/
@@ -85,7 +92,7 @@
 .vocs h3+h4,
 .vocs h4+h5,
 .vocs h5+h6 {
-  padding-top: 0px;
+  padding-top: var(--vocs-space_0);
 }
 
 /************************************/
@@ -93,11 +100,11 @@
 /************************************/
 
 .vocs a {
-  color: var(--vocs-c-accent);
-  font-weight: 400;
-  transition: color 0.25s;
+  color: var(--vocs-color_accent);
+  font-weight: var(--vocs--fontWeight-medium);
 
   &:hover {
+    color: var(--vocs-color_accent-hover);
     text-underline-offset: 2px;
     text-decoration: underline;
   }
@@ -109,12 +116,100 @@
 
 /* TODO */
 
+.vocs :not(pre, [data-rehype-pretty-code-fragment])>code {
+  background-color: var(--vocs-color_accent-tint);
+  color: var(--vocs-color_accent);
+}
+
+.vocs :not(pre)>code {
+  border-radius: var(--vocs-borderRadius_4);
+  font-size: var(--vocs-fontSize_code);
+  padding: var(--vocs-space_3) var(--vocs-space_6);
+}
+
+
+.vocs a>code {
+  text-decoration: underline;
+  text-underline-offset: var(--vocs-space_2);
+
+  &:hover {
+    color: var(--vocs-color_accent-hover);
+  }
+}
+
+:root:not(.dark) {
+
+  & pre[data-theme='dark'],
+  & code[data-theme='dark'] {
+    display: none;
+  }
+}
+
+:root.dark {
+
+  & pre[data-theme='light'],
+  & code[data-theme='light'] {
+    display: none;
+  }
+}
+
 .vocs [data-rehype-pretty-code-fragment] {
-  margin-bottom: 16px;
+  margin-bottom: var(--vocs-space_16);
+
+  & code {
+    font-size: var(--vocs-fontSize_codeBlock);
+  }
+
+  &>code {
+    background-color: var(--vocs-color_code-highlight-background) !important;
+  }
+
+  & pre {
+    background-color: var(--vocs-color_background-2) !important;
+    border-radius: var(--vocs-borderRadius_4);
+    padding: var(--vocs-space_20) var(--vocs-space_0);
+  }
+
+  & [data-line] {
+    border-left: 2px solid transparent;
+    padding: var(--vocs-space_0) var(--vocs-space_22);
+    line-height: var(--vocs-lineHeight-code);
+  }
+
+  & [data-line-numbers] {
+    counter-reset: line;
+
+    & [data-line] {
+      padding: var(--vocs-space_0) var(--vocs-space_16);
+    }
+
+    & [data-line]::before {
+      color: var(--vocs-color_text-4);
+      content: counter(line);
+      counter-increment: line;
+      display: inline-block;
+      font-size: var(--vocs-fontSize_lineNumber);
+      margin-right: var(--vocs-space_16);
+      text-align: right;
+      width: 1rem;
+    }
+  }
+
+  & [data-highlighted-line] {
+    background-color: var(--vocs-color_code-highlight-background);
+    border-left: 2px solid var(--vocs-color_code-highlight-border);
+    box-sizing: content-box;
+  }
+
+  & [data-highlighted-chars] {
+    border-radius: var(--vocs-borderRadius_2);
+    background-color: var(--vocs-color_code-highlight-background);
+    box-shadow: 0 0 0 4px var(--vocs-color_code-highlight-background);
+  }
 }
 
 .vocs pre {
-  margin-bottom: 16px;
+  margin-bottom: var(--vocs-space_16);
 }
 
 /************************************/
@@ -122,28 +217,28 @@
 /************************************/
 
 /** Markdown: "* Text" */
-.vocs ul {
+.vocs ul:not(.contains-task-list) {
   list-style: disc;
-  padding-left: 1.25rem;
-  margin-bottom: 16px;
+  padding-left: var(--vocs-space_20);
+  margin-bottom: var(--vocs-space_16);
 }
 
 /** Markdown: "1. Text" */
-.vocs ol {
+.vocs ol:not(.contains-task-list) {
   list-style: decimal;
-  padding-left: 1.25rem;
-  margin-bottom: 16px;
+  padding-left: var(--vocs-space_20);
+  margin-bottom: var(--vocs-space_16);
 }
 
 /** Sibling overrides **/
 .vocs li+li {
-  padding-top: 12px;
+  padding-top: var(--vocs-space_12);
 }
 
 /** Direct descendant overrides **/
 .vocs li>ol,
 .vocs li>ul {
-  padding-top: 12px;
+  padding-top: var(--vocs-space_12);
 }
 
 /** Descendant overrides **/
@@ -151,7 +246,7 @@
 .vocs ul ul,
 .vocs ul ol,
 .vocs ol ol {
-  padding-bottom: 0px;
+  padding-bottom: var(--vocs-space_0);
 }
 
 /************************************/
@@ -160,13 +255,13 @@
 
 /** Markdown: "> (Text)" */
 .vocs blockquote {
-  border-left: 2px solid var(--vocs-c-border);
-  padding-left: 16px;
-  margin-bottom: 16px;
+  border-left: 2px solid var(--vocs-color_border);
+  padding-left: var(--vocs-space_16);
+  margin-bottom: var(--vocs-space_16);
 }
 
 .vocs blockquote>p {
-  color: var(--vocs-c-text-tertiary);
+  color: var(--vocs-color_text-3);
 }
 
 /************************************/
@@ -178,29 +273,29 @@
   display: block;
   border-collapse: collapse;
   overflow-x: auto;
-  margin-bottom: 24px;
+  margin-bottom: var(--vocs-space_24);
 }
 
 .vocs tr {
-  border-top: 1px solid var(--vocs-c-border);
+  border-top: 1px solid var(--vocs-color_border);
 }
 
 .vocs tr:nth-child(2n) {
-  background-color: var(--vocs-c-background-surface);
+  background-color: var(--vocs-color_background-2);
 }
 
 .vocs td {
-  border: 1px solid var(--vocs-c-border);
-  padding: 12px 16px;
+  border: 1px solid var(--vocs-color_border);
+  padding: var(--vocs-space_12) var(--vocs-space_16);
 }
 
 .vocs th {
-  border: 1px solid var(--vocs-c-border);
-  background-color: var(--vocs-c-background-surface);
-  color: var(--vocs-c-text-tertiary);
-  font-size: 14px;
+  border: 1px solid var(--vocs-color_border);
+  background-color: var(--vocs-color_background-2);
+  color: var(--vocs-color_text-3);
+  font-size: var(--vocs-fontSize_th);
   font-weight: 400;
-  padding: 12px 16px;
+  padding: var(--vocs-space_12) var(--vocs-space_16);
   text-align: left;
 }
 
@@ -213,5 +308,14 @@
 }
 
 .vocs td {
-  font-size: 14px;
+  font-size: var(--vocs-fontSize_td);
+}
+
+/************************************/
+/* Line Break                       */
+/************************************/
+
+.vocs hr {
+  border-top: 1px solid var(--vocs-color_border);
+  margin-bottom: var(--vocs-space_16);
 }

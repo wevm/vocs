@@ -19,7 +19,18 @@ export default defineConfig({
     react(),
     mdx({
       remarkPlugins: [remarkFrontmatter, remarkMdxFrontmatter, remarkGfm],
-      rehypePlugins: [rehypePrettyCode as any],
+      rehypePlugins: [
+        [
+          rehypePrettyCode as any,
+          {
+            keepBackground: false,
+            theme: {
+              dark: 'github-dark-dimmed',
+              light: 'github-light',
+            },
+          },
+        ],
+      ],
     }),
     pages({ paths: resolve(process.cwd(), './pages/**/*.{md,mdx,ts,tsx,js,jsx}') }),
   ],
