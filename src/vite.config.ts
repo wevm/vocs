@@ -60,7 +60,8 @@ function pages({ paths: glob }: PagesParameters): PluginOption {
           const type = path.split('.').pop()?.match(/(mdx|md)/) ? 'mdx' : 'jsx'
           const replacer = glob.split('*')[0]
           let pagePath = path.replace(replacer, '').replace(/\.(.*)/, '')
-          if (pagePath.endsWith('index')) pagePath = pagePath.replace('index', '').replace(/\/$/, '')
+          if (pagePath.endsWith('index'))
+            pagePath = pagePath.replace('index', '').replace(/\/$/, '')
           code += `  { lazy: () => import("${path}"), path: "/${pagePath}", type: "${type}" },`
         })
         code += ']'
