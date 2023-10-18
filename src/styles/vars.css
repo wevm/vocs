@@ -105,9 +105,9 @@
 
 /* Font weights */
 :root {
-  --vocs--fontWeight-regular: 300;
-  --vocs--fontWeight-medium: 400;
-  --vocs--fontWeight-semibold: 500;
+  --vocs-fontWeight-regular: 300;
+  --vocs-fontWeight-medium: 400;
+  --vocs-fontWeight-semibold: 500;
 }
 
 
@@ -115,6 +115,7 @@
 :root {
   --vocs-lineHeight-code: 1.75em;
   --vocs-lineHeight-heading: 1.25em;
+  --vocs-lineHeight-list: 1.5em;
   --vocs-lineHeight-paragraph: 1.75em;
 }
 
@@ -135,4 +136,13 @@
   --vocs-space_24: 1.5rem;
   --vocs-space_28: 1.75rem;
   --vocs-space_32: 2rem;
+  --vocs-space_40: 2.5rem;
+  --vocs-space_48: 3rem;
+  --vocs-space_56: 3.5rem;
+  --vocs-space_64: 4rem;
+}
+
+/* Viewports */
+:root {
+  --vocs-viewport_book: 70ch;
 }

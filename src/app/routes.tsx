@@ -1,11 +1,14 @@
 import type { MDXComponents } from 'mdx/types.js'
 import { Helmet } from 'react-helmet'
-import type { RouteObject } from 'react-router-dom'
+import { type RouteObject } from 'react-router-dom'
 import { pages } from 'virtual:pages'
 
+import { A } from './components/A.js'
 import { FrontmatterHead } from './components/FrontmatterHead.js'
 
-const components: MDXComponents = {}
+const components: MDXComponents = {
+  a: A,
+}
 
 export const routes = pages.map((page) => ({
   path: page.path,
@@ -17,8 +20,10 @@ export const routes = pages.map((page) => ({
         <>
           {head && <Helmet>{head}</Helmet>}
           {frontmatter && <FrontmatterHead frontmatter={frontmatter} />}
-          <div className="vocs" style={{ maxWidth: '768px', margin: 'auto', padding: '60px 0' }}>
-            <route.default components={components} />
+          <div className="vocs">
+            <div className="content">
+              <route.default components={components} />
+            </div>
           </div>
         </>
       ),

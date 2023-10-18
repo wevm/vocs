@@ -3,6 +3,7 @@
 :root {
   background-color: var(--vocs-color_background);
   color: var(--vocs-color_text);
+  line-height: var(--vocs-lineHeight-paragraph);
   font-size: var(--vocs-fontSize-root);
   font-weight: var(--vocs-fontWeight-regular);
 }

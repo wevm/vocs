@@ -13,7 +13,7 @@
 /** Markdown: "# (Text)" */
 .vocs h1 {
   font-size: var(--vocs-fontSize_h1);
-  font-weight: var(--vocs--fontWeight-semibold);
+  font-weight: var(--vocs-fontWeight-semibold);
   letter-spacing: -0.025em;
   line-height: var(--vocs-lineHeight-heading);
   margin-bottom: var(--vocs-space_24);
@@ -23,7 +23,7 @@
 .vocs h2 {
   border-top: 1px solid var(--vocs-color_border);
   font-size: var(--vocs-fontSize_h2);
-  font-weight: var(--vocs--fontWeight-semibold);
+  font-weight: var(--vocs-fontWeight-semibold);
   letter-spacing: -0.02em;
   line-height: var(--vocs-lineHeight-heading);
   margin-top: var(--vocs-space_32);
@@ -36,7 +36,7 @@
   letter-spacing: -0.01em;
   font-size: var(--vocs-fontSize_h3);
   line-height: var(--vocs-lineHeight-heading);
-  font-weight: var(--vocs--fontWeight-semibold);
+  font-weight: var(--vocs-fontWeight-semibold);
   padding-top: var(--vocs-space_18);
   margin-bottom: var(--vocs-space_18);
   margin-top: var(--vocs-space_18);
@@ -50,7 +50,7 @@
 .vocs h4 {
   line-height: var(--vocs-lineHeight-heading);
   font-size: var(--vocs-fontSize_h4);
-  font-weight: var(--vocs--fontWeight-semibold);
+  font-weight: var(--vocs-fontWeight-semibold);
   padding-top: var(--vocs-space_16);
   margin-bottom: var(--vocs-space_16);
   margin-top: var(--vocs-space_16);
@@ -59,7 +59,7 @@
 /** Markdown: "##### (Text)" */
 .vocs h5 {
   font-size: var(--vocs-fontSize_h5);
-  font-weight: var(--vocs--fontWeight-semibold);
+  font-weight: var(--vocs-fontWeight-semibold);
   line-height: var(--vocs-lineHeight-heading);
   padding-top: var(--vocs-space_16);
   margin-bottom: var(--vocs-space_16);
@@ -70,7 +70,7 @@
 .vocs h6 {
   line-height: var(--vocs-lineHeight-heading);
   font-size: var(--vocs-fontSize_h6);
-  font-weight: var(--vocs--fontWeight-semibold);
+  font-weight: var(--vocs-fontWeight-semibold);
   padding-top: var(--vocs-space_16);
   margin-bottom: var(--vocs-space_16);
   margin-top: var(--vocs-space_16);
@@ -84,7 +84,7 @@
 
 /** Markdown: "**(Text)**" | "__(Text)__" */
 .vocs strong {
-  font-weight: var(--vocs--fontWeight-semibold);
+  font-weight: var(--vocs-fontWeight-semibold);
 }
 
 /** Sibling overrides **/
@@ -101,7 +101,7 @@
 
 .vocs a {
   color: var(--vocs-color_link);
-  font-weight: var(--vocs--fontWeight-medium);
+  font-weight: var(--vocs-fontWeight-medium);
 
   &:hover {
     color: var(--vocs-color_link-hover);
@@ -213,6 +213,11 @@
 /************************************/
 /* Lists                            */
 /************************************/
+
+.vocs ul,
+.vocs ol {
+  line-height: var(--vocs-lineHeight-list);
+}
 
 /** Markdown: "* Text" */
 .vocs ul:not(.contains-task-list) {
