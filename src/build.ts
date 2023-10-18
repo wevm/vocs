@@ -1,30 +1,33 @@
-import { resolve } from 'node:path'
+import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import * as vite from 'vite'
 
-const dir = resolve(fileURLToPath(import.meta.url), '..')
+const __dirname = dirname(fileURLToPath(import.meta.url))
 
-export async function build() {
-  const outDir = 'dist'
+type BuildParameters = {
+  outDir?: string
+  ssr?: boolean
+}
 
+export async function build({ outDir = 'dist', ssr = false }: BuildParameters = {}) {
   // client
   await vite.build({
     build: {
       emptyOutDir: true,
-      outDir: resolve(outDir, 'client'),
+      outDir: resolve(outDir, ssr ? 'client' : ''),
       target: 'esnext',
     },
-    root: dir,
+    root: __dirname,
   })
 
   // server
   await vite.build({
     build: {
-      emptyOutDir: true,
-      outDir: resolve(outDir, 'server'),
-      ssr: resolve(dir, 'app/index.server.tsx'),
+      emptyOutDir: ssr,
+      outDir: resolve(outDir, ssr ? 'server' : ''),
+      ssr: resolve(__dirname, 'app/index.server.tsx'),
       target: 'esnext',
     },
-    root: dir,
+    root: __dirname,
   })
 }
