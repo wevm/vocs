@@ -121,8 +121,8 @@ Inline [`code`]() with link.
 
 Inline `console.log("hello world"){:js}` code
 
-```ts 
-type Example = string // [!code hl]
+```ts {1} 
+type Example = string
 const example: Example = 'example'
 ```
  
@@ -153,37 +153,6 @@ const client = createPublicClient({
 })
 
 // 3. Consume an action!
-const blockNumber = await client.getBlockNumber()
-```
-
-```ts
-// 1. Import modules.
-import { createPublicClient, http } from 'viem' 
-import { mainnet } from 'viem/chains'
-
-// 2. Set up your client with desired chain & transport.
-const client = createPublicClient({
-  chain: mainnet,
-  transport: http(),
-})
-
-// 3. Consume an action! // [!code focus]
-const blockNumber = await client.getBlockNumber() // [!code focus]
-```
-
-```ts
-// 1. Import modules.
-import { createPublicClient } from 'viem' // [!code --]
-import { createPublicClient, http } from 'viem' // [!code ++]
-import { mainnet } from 'viem/chains'
-
-// 2. Set up your client with desired chain & transport.
-const client = createPublicClient({
-  chain: mainnet,
-  transport: http(),
-})
-
-// 3. Consume an action! 
 const blockNumber = await client.getBlockNumber()
 ```
 

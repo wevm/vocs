@@ -1,5 +1,11 @@
 .vocs article {
-  max-width: var(--vocs-viewport_book);
+  max-width: calc(var(--vocs-viewport_book) + (var(--vocs-space_16) * 2));
   margin: auto;
-  padding: var(--vocs-space_64) var(--vocs-space_0);
+  padding: var(--vocs-space_64) var(--vocs-space_16);
+}
+
+@media screen and (max-width: 800px) {
+  .vocs article {
+    padding: var(--vocs-space_32) var(--vocs-space_16);
+  }
 }

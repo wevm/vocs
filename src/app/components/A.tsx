@@ -5,5 +5,7 @@ export function A(
 ) {
   const { href } = props
   if (href?.match(/^www|https?/)) return <a {...props} target="_blank" rel="noopener noreferrer" />
-  return <Link {...(props as LinkProps)} to={props.href!} />
+  const [before, after] = props.href!.split('#')
+  const to = `${before}.html${after || ''}`
+  return <Link {...(props as LinkProps)} to={to} />
 }

@@ -169,6 +169,7 @@
   & pre {
     background-color: var(--vocs-color_code-block-background) !important;
     border-radius: var(--vocs-borderRadius_4);
+    overflow-x: scroll;
     padding: var(--vocs-space_20) var(--vocs-space_0);
   }
 
@@ -197,7 +198,8 @@
     }
   }
 
-  & [data-highlighted-line] {
+  & [data-highlighted-line],
+  & .has-highlight {
     background-color: var(--vocs-color_code-highlight-background);
     border-left: 2px solid var(--vocs-color_code-highlight-border);
     box-sizing: content-box;
@@ -207,6 +209,50 @@
     border-radius: var(--vocs-borderRadius_2);
     background-color: var(--vocs-color_code-highlight-background);
     box-shadow: 0 0 0 4px var(--vocs-color_code-highlight-background);
+  }
+
+  & .has-focused-lines [data-line]:not(.has-focus) {
+    filter: grayscale(1);
+    opacity: 0.3;
+    transition: filter 0.2s, opacity 0.2s;
+  }
+
+  &:hover .has-focused-lines [data-line]:not(.has-focus) {
+    filter: grayscale(0);
+    opacity: 1;
+    transition: filter 0.2s, opacity 0.2s;
+  }
+
+  & .has-diff {
+    position: relative;
+  }
+
+  & [data-line].diff:before {
+    position: absolute;
+    left: 10px;
+  }
+
+  & [data-line].diff.add {
+    background-color: rgba(16, 185, 129, .16);
+  }
+
+  & [data-line].diff.add:before {
+    content: "+";
+    color: #3dd68c;
+  }
+
+  & [data-line].diff.remove {
+    background-color: rgba(244, 63, 94, 0.16);
+    opacity: 0.6;
+  }
+
+  & [data-line].diff.remove>span {
+    filter: grayscale(1);
+  }
+
+  & [data-line].diff.remove:before {
+    content: "-";
+    color: #f66f81;
   }
 }
 
@@ -334,7 +380,7 @@
 
 .vocs td {
   border: 1px solid var(--vocs-color_table-border);
-  padding: var(--vocs-space_12) var(--vocs-space_16);
+  padding: var(--vocs-space_8) var(--vocs-space_12);
 }
 
 .vocs th {
@@ -343,7 +389,7 @@
   color: var(--vocs-color_table-header-text);
   font-size: var(--vocs-fontSize_th);
   font-weight: 400;
-  padding: var(--vocs-space_12) var(--vocs-space_16);
+  padding: var(--vocs-space_8) var(--vocs-space_12);
   text-align: left;
 }
 

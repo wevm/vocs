@@ -7,6 +7,12 @@ import remarkDirective from 'remark-directive'
 import remarkFrontmatter from 'remark-frontmatter'
 import remarkGfm from 'remark-gfm'
 import remarkMdxFrontmatter from 'remark-mdx-frontmatter'
+import {
+  createDiffProcessor,
+  createFocusProcessor,
+  createHighlightProcessor,
+  getHighlighter,
+} from 'shiki-processor'
 import { defineConfig } from 'vite'
 
 import { remarkCodeGroup } from './remark-plugins/code-group.js'
@@ -33,6 +39,16 @@ export default defineConfig({
           rehypePrettyCode as any,
           {
             keepBackground: false,
+            getHighlighter(options: any) {
+              return getHighlighter({
+                ...options,
+                processors: [
+                  createDiffProcessor(),
+                  createFocusProcessor(),
+                  createHighlightProcessor(),
+                ],
+              })
+            },
             theme: {
               dark: 'github-dark-dimmed',
               light: 'github-light',
