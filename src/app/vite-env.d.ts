@@ -1,5 +1,5 @@
 /// <reference types="vite/client" />
 
-declare module 'virtual:pages' {
-  export const pages: import('./types.js').Page[]
+declare module 'virtual:routes' {
+  export const routes: import('./types.js').Route[]
 }

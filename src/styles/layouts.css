@@ -1,4 +1,4 @@
-.vocs .content {
+.vocs article {
   max-width: var(--vocs-viewport_book);
   margin: auto;
   padding: var(--vocs-space_64) var(--vocs-space_0);

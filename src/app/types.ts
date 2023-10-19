@@ -12,7 +12,7 @@ export type Module = {
   head?: React.ReactNode
 }
 
-export type Page = {
+export type Route = {
   modulePath: string
   lazy: () => Promise<Module>
   path: string

@@ -56,6 +56,10 @@
   margin-top: var(--vocs-space_16);
 }
 
+.vocs h3+h4 {
+  padding-top: var(--vocs-space_0);
+}
+
 /** Markdown: "##### (Text)" */
 .vocs h5 {
   font-size: var(--vocs-fontSize_h5);
@@ -64,6 +68,10 @@
   padding-top: var(--vocs-space_16);
   margin-bottom: var(--vocs-space_16);
   margin-top: var(--vocs-space_16);
+}
+
+.vocs h4+h5 {
+  padding-top: var(--vocs-space_0);
 }
 
 /** Markdown: "####### (Text)" */
@@ -76,6 +84,10 @@
   margin-top: var(--vocs-space_16);
 }
 
+.vocs h5+h6 {
+  padding-top: var(--vocs-space_0);
+}
+
 /** Markdown: "(Text)" */
 .vocs p {
   line-height: var(--vocs-lineHeight-paragraph);
@@ -85,14 +97,6 @@
 /** Markdown: "**(Text)**" | "__(Text)__" */
 .vocs strong {
   font-weight: var(--vocs-fontWeight-semibold);
-}
-
-/** Sibling overrides **/
-.vocs h2+h3,
-.vocs h3+h4,
-.vocs h4+h5,
-.vocs h5+h6 {
-  padding-top: var(--vocs-space_0);
 }
 
 /************************************/
@@ -208,6 +212,47 @@
 
 .vocs pre {
   margin-bottom: var(--vocs-space_16);
+}
+
+/************************************/
+/* Code Group                       */
+/************************************/
+
+.vocs .code-group {
+  margin-bottom: var(--vocs-space_16);
+}
+
+.vocs .code-group [data-rehype-pretty-code-fragment],
+.vocs .code-group pre {
+  margin-bottom: var(--vocs-space_0);
+}
+
+.vocs .code-group {
+  background-color: var(--vocs-color_code-block-background);
+  border-radius: var(--vocs-borderRadius_4);
+}
+
+.vocs .code-group--tabs-list {
+  border-bottom: 1px solid var(--vocs-color_border);
+  display: flex;
+  padding: var(--vocs-space_0) var(--vocs-space_14);
+}
+
+.vocs .code-group--tabs-trigger {
+  border-bottom: 2px solid transparent;
+  color: var(--vocs-color_text-3);
+  font-size: var(--vocs-fontSize_14);
+  font-weight: var(--vocs-fontWeight-medium);
+  padding: var(--vocs-space_8) var(--vocs-space_8) var(--vocs-space_6) var(--vocs-space_8);
+}
+
+.vocs .code-group--tabs-trigger[data-state='active'] {
+  border-bottom: 2px solid var(--vocs-color_accent);
+  color: var(--vocs-color_text);
+}
+
+.vocs .code-group--tabs-content:not([data-pretty-code="true"]) {
+  padding: var(--vocs-space_20) var(--vocs-space_22);
 }
 
 /************************************/

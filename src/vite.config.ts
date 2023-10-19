@@ -2,12 +2,15 @@ import { resolve } from 'node:path'
 import mdx from '@mdx-js/rollup'
 import react from '@vitejs/plugin-react'
 import * as autoprefixer from 'autoprefixer'
-import { globby } from 'globby'
 import rehypePrettyCode from 'rehype-pretty-code'
+import remarkDirective from 'remark-directive'
 import remarkFrontmatter from 'remark-frontmatter'
 import remarkGfm from 'remark-gfm'
 import remarkMdxFrontmatter from 'remark-mdx-frontmatter'
-import { type PluginOption, defineConfig } from 'vite'
+import { defineConfig } from 'vite'
+
+import { remarkCodeGroup } from './remark-plugins/code-group.js'
+import { routes } from './vite-plugins/routes.js'
 
 export default defineConfig({
   css: {
@@ -18,7 +21,13 @@ export default defineConfig({
   plugins: [
     react(),
     mdx({
-      remarkPlugins: [remarkFrontmatter, remarkMdxFrontmatter, remarkGfm],
+      remarkPlugins: [
+        remarkDirective,
+        remarkFrontmatter,
+        remarkMdxFrontmatter,
+        remarkGfm,
+        remarkCodeGroup,
+      ],
       rehypePlugins: [
         [
           rehypePrettyCode as any,
@@ -32,49 +41,6 @@ export default defineConfig({
         ],
       ],
     }),
-    pages({ paths: resolve(process.cwd(), './pages/**/*.{md,mdx,ts,tsx,js,jsx}') }),
+    routes({ paths: resolve(process.cwd(), './pages/**/*.{md,mdx,ts,tsx,js,jsx}') }),
   ],
 })
-
-////////////////////////////////////////////////////////////////////////////////////
-// Plugins
-
-type PagesParameters = { paths: string }
-
-function pages({ paths: glob }: PagesParameters): PluginOption {
-  const virtualModuleId = 'virtual:pages'
-  const resolvedVirtualModuleId = `\0${virtualModuleId}`
-
-  let paths: string[] = []
-
-  return {
-    name: 'pages',
-    resolveId(id) {
-      if (id === virtualModuleId) return resolvedVirtualModuleId
-      return
-    },
-    load(id) {
-      if (id === resolvedVirtualModuleId) {
-        let code = 'export const pages = ['
-        paths.forEach((path) => {
-          const type = path.split('.').pop()?.match(/(mdx|md)/) ? 'mdx' : 'jsx'
-          const replacer = glob.split('*')[0]
-          let pagePath = path.replace(replacer, '').replace(/\.(.*)/, '')
-          if (pagePath.endsWith('index'))
-            pagePath = pagePath.replace('index', '').replace(/\/$/, '')
-          code += `  { lazy: () => import("${path}"), path: "/${pagePath}", type: "${type}" },`
-        })
-        code += ']'
-        return code
-      }
-      return
-    },
-    async buildStart() {
-      paths = await globby(glob)
-    },
-    handleHotUpdate() {
-      // TODO: handle changes
-      return
-    },
-  }
-}

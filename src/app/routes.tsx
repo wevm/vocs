@@ -1,19 +1,24 @@
 import type { MDXComponents } from 'mdx/types.js'
 import { Helmet } from 'react-helmet'
 import { type RouteObject } from 'react-router-dom'
-import { pages } from 'virtual:pages'
+import { routes as routes_virtual } from 'virtual:routes'
 
 import { A } from './components/A.js'
+import { CodeGroup } from './components/CodeGroup.js'
 import { FrontmatterHead } from './components/FrontmatterHead.js'
 
 const components: MDXComponents = {
   a: A,
+  div: (props) => {
+    if (props.className === 'code-group') return <CodeGroup {...(props as any)} />
+    return <div {...props} />
+  },
 }
 
-export const routes = pages.map((page) => ({
-  path: page.path,
+export const routes = routes_virtual.map((route_virtual) => ({
+  path: route_virtual.path,
   lazy: async () => {
-    const { frontmatter, head, ...route } = await page.lazy()
+    const { frontmatter, head, ...route } = await route_virtual.lazy()
     return {
       ...route,
       element: (
@@ -21,9 +26,9 @@ export const routes = pages.map((page) => ({
           {head && <Helmet>{head}</Helmet>}
           {frontmatter && <FrontmatterHead frontmatter={frontmatter} />}
           <div className="vocs">
-            <div className="content">
+            <article>
               <route.default components={components} />
-            </div>
+            </article>
           </div>
         </>
       ),

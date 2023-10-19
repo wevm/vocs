@@ -17,6 +17,7 @@
         "noNonNullAssertion": "off"
       },
       "suspicious": {
+        "noAssignInExpressions": "off",
         "noExplicitAny": "off"
       }
     }

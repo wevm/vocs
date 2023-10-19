@@ -6,6 +6,12 @@
   border-style: solid;
 }
 
+*:focus-visible {
+  outline: 2px solid var(--vocs-color_accent);
+  outline-offset: 2px;
+  outline-style: dashed;
+}
+
 html,
 body {
   line-height: 1.5;
@@ -39,6 +45,7 @@ h5,
 h6 {
   font-size: inherit;
   font-weight: inherit;
+  text-wrap: balance;
 }
 
 a {
