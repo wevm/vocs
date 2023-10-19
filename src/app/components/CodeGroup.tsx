@@ -13,7 +13,11 @@ export function CodeGroup({ children }: { children: ReactElement[] }) {
     <Tabs.Root className="code-group" defaultValue={tabs[0].title}>
       <Tabs.List className="code-group--tabs-list" aria-label="Code group">
         {tabs.map(({ title }, i) => (
-          <Tabs.Trigger className="code-group--tabs-trigger" value={title || i.toString()}>
+          <Tabs.Trigger
+            key={title || i.toString()}
+            className="code-group--tabs-trigger"
+            value={title || i.toString()}
+          >
             {title}
           </Tabs.Trigger>
         ))}
@@ -22,6 +26,7 @@ export function CodeGroup({ children }: { children: ReactElement[] }) {
         const isPrettyCode = content.props && 'data-rehype-pretty-code-fragment' in content.props
         return (
           <Tabs.Content
+            key={title || i.toString()}
             className="code-group--tabs-content"
             data-pretty-code={isPrettyCode}
             value={title || i.toString()}
