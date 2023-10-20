@@ -14,7 +14,7 @@
 .vocs header>h1 {
   font-size: var(--vocs-fontSize_h1);
   font-weight: var(--vocs-fontWeight-semibold);
-  letter-spacing: -0.025em;
+  letter-spacing: -0.02em;
   line-height: var(--vocs-lineHeight-heading);
 }
 
@@ -22,7 +22,7 @@
   color: var(--vocs-color_text-3);
   font-size: var(--vocs-fontSize_h3);
   font-weight: var(--vocs-fontWeight-medium);
-  letter-spacing: -0.025em;
+  letter-spacing: -0.02em;
   line-height: var(--vocs-lineHeight-heading);
   margin-top: var(--vocs-space_8);
 }
@@ -51,7 +51,6 @@
 
 /** Markdown: "### (Text)" */
 .vocs h3 {
-  letter-spacing: -0.01em;
   font-size: var(--vocs-fontSize_h3);
   line-height: var(--vocs-lineHeight-heading);
   font-weight: var(--vocs-fontWeight-semibold);
@@ -329,22 +328,19 @@
 }
 
 /** Markdown: "* Text" */
-.vocs ul:not(.contains-task-list) {
+.vocs ul {
   list-style: disc;
   padding-left: var(--vocs-space_24);
   margin-bottom: var(--vocs-space_16);
 }
 
 /** Markdown: "1. Text" */
-.vocs ol:not(.contains-task-list) {
+.vocs ol {
   list-style: decimal;
   padding-left: var(--vocs-space_20);
   margin-bottom: var(--vocs-space_16);
 }
 
-.vocs li {
-  padding-left: var(--vocs-space_8);
-}
 
 /** Sibling overrides **/
 .vocs li+li {
@@ -362,7 +358,13 @@
 .vocs ul ul,
 .vocs ul ol,
 .vocs ol ol {
+  padding-left: var(--vocs-space_16) !important;
   padding-bottom: var(--vocs-space_0);
+}
+
+.vocs .contains-task-list {
+  list-style: none;
+  padding-left: var(--vocs-space_12);
 }
 
 /************************************/
