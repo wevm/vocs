@@ -16,6 +16,7 @@ import {
 import { defineConfig } from 'vite'
 
 import { remarkCodeGroup } from './remark-plugins/code-group.js'
+import { remarkSubheading } from './remark-plugins/subheading.js'
 import { routes } from './vite-plugins/routes.js'
 
 export default defineConfig({
@@ -33,6 +34,7 @@ export default defineConfig({
         remarkMdxFrontmatter,
         remarkGfm,
         remarkCodeGroup,
+        remarkSubheading,
       ],
       rehypePlugins: [
         [

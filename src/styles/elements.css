@@ -11,24 +11,42 @@
 /************************************/
 
 /** Markdown: "# (Text)" */
-.vocs h1 {
+.vocs header>h1 {
   font-size: var(--vocs-fontSize_h1);
   font-weight: var(--vocs-fontWeight-semibold);
   letter-spacing: -0.025em;
   line-height: var(--vocs-lineHeight-heading);
-  margin-bottom: var(--vocs-space_24);
+}
+
+.vocs header>[role="doc-subtitle"] {
+  color: var(--vocs-color_text-3);
+  font-size: var(--vocs-fontSize_h3);
+  font-weight: var(--vocs-fontWeight-medium);
+  letter-spacing: -0.025em;
+  line-height: var(--vocs-lineHeight-heading);
+  margin-top: var(--vocs-space_8);
+}
+
+.vocs header {
+  margin-bottom: var(--vocs-space_28);
+  padding-bottom: var(--vocs-space_28);
+  border-bottom: 1px solid var(--vocs-color_border);
 }
 
 /** Markdown: "## (Text)" */
-.vocs h2 {
+.vocs :not(header)+h2,
+.vocs h2:is(:first-child) {
   border-top: 1px solid var(--vocs-color_border);
+  margin-top: var(--vocs-space_56);
+  padding-top: var(--vocs-space_24);
+}
+
+.vocs h2 {
   font-size: var(--vocs-fontSize_h2);
   font-weight: var(--vocs-fontWeight-semibold);
   letter-spacing: -0.02em;
   line-height: var(--vocs-lineHeight-heading);
-  margin-top: var(--vocs-space_32);
   margin-bottom: var(--vocs-space_20);
-  padding-top: var(--vocs-space_32);
 }
 
 /** Markdown: "### (Text)" */
@@ -106,11 +124,11 @@
 .vocs a {
   color: var(--vocs-color_link);
   font-weight: var(--vocs-fontWeight-medium);
+  text-underline-offset: var(--vocs-space_2);
+  text-decoration: underline;
 
   &:hover {
     color: var(--vocs-color_link-hover);
-    text-underline-offset: 2px;
-    text-decoration: underline;
   }
 }
 
@@ -313,7 +331,7 @@
 /** Markdown: "* Text" */
 .vocs ul:not(.contains-task-list) {
   list-style: disc;
-  padding-left: var(--vocs-space_20);
+  padding-left: var(--vocs-space_24);
   margin-bottom: var(--vocs-space_16);
 }
 
@@ -322,6 +340,10 @@
   list-style: decimal;
   padding-left: var(--vocs-space_20);
   margin-bottom: var(--vocs-space_16);
+}
+
+.vocs li {
+  padding-left: var(--vocs-space_8);
 }
 
 /** Sibling overrides **/

@@ -6,7 +6,9 @@ import { Example } from '../components/Example'
 
 [Go to Viem example](./viem)
 
-# Heading 1
+[Go to Public Client example](./public-client)
+
+# Heading 1 [This is a subheading]
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce vestibulum ante non neque convallis tempor. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Nam a iaculis libero. Suspendisse bibendum placerat enim, vitae iaculis sapien tincidunt vel. Nunc nunc dui, varius eget diam vitae, sagittis rutrum ante. Vestibulum ut nulla in ante tincidunt lacinia. Suspendisse ex orci, elementum vitae enim sed, pellentesque fermentum tortor. In bibendum sapien at nisi pharetra tincidunt. Etiam eleifend lacus dictum lorem ornare euismod. Nunc ullamcorper nunc mi, ut volutpat libero gravida id. Pellentesque cursus mi id tortor convallis eleifend.
 
@@ -185,6 +187,20 @@ const client = createPublicClient({
 
 // 3. Consume an action! 
 const blockNumber = await client.getBlockNumber()
+```
+
+```ts twoslash
+interface IdLabel {id: number, /* some fields */ }
+interface NameLabel {name: string, /* other fields */ }
+type NameOrId<T extends number | string> = T extends number ? IdLabel : NameLabel;
+// This comment should not be included
+
+// ---cut---
+function createLabel<T extends number | string>(idOrName: T): NameOrId<T> {
+  throw "unimplemented"
+}
+
+let a = createLabel("typescript");
 ```
 
 ## Code group

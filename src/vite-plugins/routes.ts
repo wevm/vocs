@@ -25,7 +25,8 @@ export function routes({ paths: glob }: RoutesParameters): PluginOption {
           if (pagePath.endsWith('index'))
             pagePath = pagePath.replace('index', '').replace(/\/$/, '')
           code += `  { lazy: () => import("${path}"), path: "/${pagePath}", type: "${type}" },`
-          code += `  { lazy: () => import("${path}"), path: "/${pagePath}.html", type: "${type}" },`
+          if (pagePath)
+            code += `  { lazy: () => import("${path}"), path: "/${pagePath}.html", type: "${type}" },`
         })
         code += ']'
         return code
