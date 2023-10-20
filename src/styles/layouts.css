@@ -4,8 +4,30 @@
   padding: var(--vocs-space_64) var(--vocs-space_16);
 }
 
-@media screen and (max-width: 800px) {
+@media screen and (max-width: 70ch) {
   .vocs article {
-    padding: var(--vocs-space_32) var(--vocs-space_16);
+    padding: var(--vocs-space_48) var(--vocs-space_16);
+
+    & pre {
+      margin-left: calc(var(--vocs-space_16) * -1);
+      margin-right: calc(var(--vocs-space_16) * -1);
+
+      && [data-line] {
+        padding: var(--vocs-space_0) var(--vocs-space_16);
+      }
+
+      && [data-line].diff:before {
+        left: 6px;
+      }
+    }
+
+    & .code-group {
+      margin-left: calc(var(--vocs-space_16) * -1);
+      margin-right: calc(var(--vocs-space_16) * -1);
+
+      && [data-line] {
+        padding: var(--vocs-space_0) var(--vocs-space_32);
+      }
+    }
   }
 }

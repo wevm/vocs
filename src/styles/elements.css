@@ -19,9 +19,9 @@
 }
 
 .vocs header>[role="doc-subtitle"] {
-  color: var(--vocs-color_text-3);
-  font-size: var(--vocs-fontSize_h3);
-  font-weight: var(--vocs-fontWeight-medium);
+  color: var(--vocs-color_text-2);
+  font-size: var(--vocs-fontSize_subtitle);
+  font-weight: var(--vocs-fontWeight-regular);
   letter-spacing: -0.02em;
   line-height: var(--vocs-lineHeight-heading);
   margin-top: var(--vocs-space_8);
@@ -316,6 +316,49 @@
 
 .vocs .code-group--tabs-content:not([data-pretty-code="true"]) {
   padding: var(--vocs-space_20) var(--vocs-space_22);
+}
+
+.vocs .callout {
+  border-radius: var(--vocs-borderRadius_4);
+  font-size: 14px;
+  padding: var(--vocs-space_16) var(--vocs-space_20);
+  margin-bottom: var(--vocs-space_16);
+}
+
+.vocs .callout.note {
+  background-color: var(--vocs-color_note-background);
+  border: 1px solid var(--vocs-color_note-border);
+  color: var(--vocs-color_note-text);
+}
+
+.vocs .callout.info {
+  background-color: var(--vocs-color_info-background);
+  border: 1px solid var(--vocs-color_info-border);
+  color: var(--vocs-color_info-text);
+}
+
+.vocs .callout.warning {
+  background-color: var(--vocs-color_warning-background);
+  border: 1px solid var(--vocs-color_warning-border);
+  color: var(--vocs-color_warning-text);
+}
+
+.vocs .callout.danger {
+  background-color: var(--vocs-color_danger-background);
+  border: 1px solid var(--vocs-color_danger-border);
+  color: var(--vocs-color_danger-text);
+}
+
+.vocs .callout.tip {
+  background-color: var(--vocs-color_tip-background);
+  border: 1px solid var(--vocs-color_tip-border);
+  color: var(--vocs-color_tip-text);
+}
+
+.vocs .callout.success {
+  background-color: var(--vocs-color_success-background);
+  border: 1px solid var(--vocs-color_success-border);
+  color: var(--vocs-color_success-text);
 }
 
 /************************************/

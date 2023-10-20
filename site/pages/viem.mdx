@@ -2,7 +2,8 @@
 title: Viem Example
 ---
 
-# Getting Started
+
+# Getting Started [How to get up and running with Viem]
 
 ## Overview
 
@@ -39,25 +40,25 @@ bun i viem
 
 Firstly, set up your [Client](/docs/clients/intro) with a desired [Transport](/docs/clients/intro) & [Chain](/docs/clients/chains).
 
-```tsx {4-7}
+```tsx
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
-const client = createPublicClient({
-  chain: mainnet,
-  transport: http(),
-})
+const client = createPublicClient({ // [!code hl]
+  chain: mainnet, // [!code hl]
+  transport: http(), // [!code hl]
+}) // [!code hl]
 ```
 
-> TODO: Callout component for below
-
+:::callout
 In a production app, it is highly recommended to pass through your authenticated RPC provider URL (Alchemy, Infura, Ankr, etc). If no URL is provided, viem will default to a public RPC provider. [Read more](/docs/clients/transports/http.html#usage).
+:::
 
 ### 2. Consume Actions
 
 Now that you have a Client set up, you can now interact with Ethereum and consume [Actions](/docs/actions/public/introduction)!
 
-```tsx {9}
+```tsx 
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -66,5 +67,5 @@ const client = createPublicClient({
   transport: http(),
 })
 
-const blockNumber = await client.getBlockNumber()
+const blockNumber = await client.getBlockNumber() // [!code focus]
 ```

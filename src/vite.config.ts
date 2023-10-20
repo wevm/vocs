@@ -15,6 +15,7 @@ import {
 } from 'shiki-processor'
 import { defineConfig } from 'vite'
 
+import { remarkCallout } from './remark-plugins/callout.js'
 import { remarkCodeGroup } from './remark-plugins/code-group.js'
 import { remarkSubheading } from './remark-plugins/subheading.js'
 import { routes } from './vite-plugins/routes.js'
@@ -33,6 +34,7 @@ export default defineConfig({
         remarkFrontmatter,
         remarkMdxFrontmatter,
         remarkGfm,
+        remarkCallout,
         remarkCodeGroup,
         remarkSubheading,
       ],

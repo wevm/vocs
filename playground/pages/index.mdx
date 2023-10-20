@@ -54,6 +54,32 @@ Combined emphasis with **asterisks and _underscores_**.
 
 Strikethrough uses two tildes. ~~Scratch this.~~
 
+## Callouts
+
+:::note
+This is a note callout.
+:::
+
+:::info
+This is an info callout.
+:::
+
+:::warning
+This is a warning callout.
+:::
+
+:::danger
+This is a danger callout.
+:::
+
+:::tip
+This is a tip callout.
+:::
+
+:::success
+This is a success callout.
+:::
+
 ## Lists
 
 ### Ordered list
@@ -206,6 +232,10 @@ function createLabel<T extends number | string>(idOrName: T): NameOrId<T> {
 
 let a = createLabel("typescript");
 ```
+
+:::tip[Tip:]
+Make sure to do the thing that does stuff.
+:::
 
 ## Code group
 
