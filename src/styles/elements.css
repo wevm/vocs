@@ -2,10 +2,6 @@
   margin-bottom: var(--vocs-space_0);
 }
 
-.vocs * {
-  transition: color 0.1s, background-color 0.1s;
-}
-
 /************************************/
 /* Headings & Text                  */
 /************************************/
@@ -156,7 +152,7 @@
   }
 }
 
-:root:not(.dark) {
+@media (prefers-color-scheme: light) {
 
   & pre[data-theme='dark'],
   & code[data-theme='dark'] {
@@ -164,7 +160,7 @@
   }
 }
 
-:root.dark {
+@media (prefers-color-scheme: dark) {
 
   & pre[data-theme='light'],
   & code[data-theme='light'] {

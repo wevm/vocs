@@ -6,6 +6,7 @@ import { routes as routes_virtual } from 'virtual:routes'
 import { A } from './components/A.js'
 import { CodeGroup } from './components/CodeGroup.js'
 import { FrontmatterHead } from './components/FrontmatterHead.js'
+import { Main } from './main.js'
 
 const components: MDXComponents = {
   a: A,
@@ -25,11 +26,9 @@ export const routes = routes_virtual.map((route_virtual) => ({
         <>
           {head && <Helmet>{head}</Helmet>}
           {frontmatter && <FrontmatterHead frontmatter={frontmatter} />}
-          <div className="vocs">
-            <article>
-              <route.default components={components} />
-            </article>
-          </div>
+          <Main>
+            <route.default components={components} />
+          </Main>
         </>
       ),
     } satisfies RouteObject

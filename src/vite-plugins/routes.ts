@@ -18,8 +18,13 @@ export function routes({ paths: glob }: RoutesParameters): PluginOption {
     load(id) {
       if (id === resolvedVirtualModuleId) {
         let code = 'export const routes = ['
-        paths.forEach((path) => {
-          const type = path.split('.').pop()?.match(/(mdx|md)/) ? 'mdx' : 'jsx'
+        for (const path of paths) {
+          const type = path
+            .split('.')
+            .pop()
+            ?.match(/(mdx|md)/)
+            ? 'mdx'
+            : 'jsx'
           const replacer = glob.split('*')[0]
           let pagePath = path.replace(replacer, '').replace(/\.(.*)/, '')
           if (pagePath.endsWith('index'))
@@ -27,7 +32,7 @@ export function routes({ paths: glob }: RoutesParameters): PluginOption {
           code += `  { lazy: () => import("${path}"), path: "/${pagePath}", type: "${type}" },`
           if (pagePath)
             code += `  { lazy: () => import("${path}"), path: "/${pagePath}.html", type: "${type}" },`
-        })
+        }
         code += ']'
         return code
       }
