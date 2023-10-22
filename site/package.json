@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "vocs",
     "build": "vocs build",
-    "serve": "vocs serve"
+    "preview": "vocs preview"
   },
   "dependencies": {
     "react": "^18.2.0",

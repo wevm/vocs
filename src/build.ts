@@ -2,20 +2,20 @@ import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import * as vite from 'vite'
 
+import { prerender } from './vite-plugins/prerender.js'
+
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
 type BuildParameters = {
   outDir?: string
-  ssr?: boolean
 }
 
-export async function build({ outDir = 'dist', ssr = false }: BuildParameters = {}) {
+export async function build({ outDir = 'dist' }: BuildParameters = {}) {
   // client
   await vite.build({
     build: {
       emptyOutDir: true,
-      outDir: resolve(outDir, ssr ? 'client' : ''),
-      target: 'esnext',
+      outDir: resolve(outDir),
     },
     root: __dirname,
   })
@@ -23,11 +23,11 @@ export async function build({ outDir = 'dist', ssr = false }: BuildParameters = 
   // server
   await vite.build({
     build: {
-      emptyOutDir: ssr,
-      outDir: resolve(outDir, ssr ? 'server' : ''),
+      emptyOutDir: false,
+      outDir: resolve(outDir),
       ssr: resolve(__dirname, 'app/index.server.tsx'),
-      target: 'esnext',
     },
+    plugins: [prerender({ outDir })],
     root: __dirname,
   })
 
@@ -40,7 +40,7 @@ export async function build({ outDir = 'dist', ssr = false }: BuildParameters = 
         entry: [resolve(__dirname, './app/utils/initialize-theme.ts')],
       },
       minify: true,
-      outDir: resolve(outDir, ssr ? 'client' : ''),
+      outDir: resolve(outDir),
       emptyOutDir: false,
     },
     configFile: undefined,

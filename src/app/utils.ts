@@ -2,7 +2,7 @@ import type { Request } from '@tinyhttp/app'
 import { type RouteObject, matchRoutes } from 'react-router-dom'
 
 export function createFetchRequest(req: Request) {
-  const origin = `${req.protocol}://${req.get('host')}`
+  const origin = `${req.protocol}://${req.headers.host}`
   const url = new URL(req.originalUrl || req.url, origin)
 
   const controller = new AbortController()

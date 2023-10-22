@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 import { cac } from 'cac'
 
-import { prerender } from './prerender.js'
 import { version } from './version.js'
 
 const cli = cac('vocs')
@@ -11,28 +10,24 @@ cli
   .command('[root]')
   .alias('dev')
   .action(async () => {
-    const { createServer } = await import('./server.js')
-    createServer({ dev: true, ssr: true })
+    const { createDevServer } = await import('./dev-server.js')
+    const server = await createDevServer()
+    await server.listen()
+    server.printUrls()
   })
 
 // build
-cli
-  .command('build')
-  .option('--ssr', 'Build for SSR')
-  .action(async (args) => {
-    const { build } = await import('./build.js')
-    await build({ ssr: args.ssr })
-    if (!args.ssr) await prerender()
-  })
+cli.command('build').action(async () => {
+  const { build } = await import('./build.js')
+  await build()
+})
 
-// serve
-cli
-  .command('serve')
-  .option('--ssr', 'Serve for SSR')
-  .action(async (args) => {
-    const { createServer } = await import('./server.js')
-    createServer({ ssr: args.ssr })
-  })
+// preview
+cli.command('preview').action(async () => {
+  const { preview } = await import('./preview.js')
+  const server = await preview()
+  server.printUrls()
+})
 
 cli.help()
 cli.version(version)
