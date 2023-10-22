@@ -16,7 +16,7 @@ import { remarkCallout } from './remark/callout.js'
 import { remarkCodeGroup } from './remark/code-group.js'
 import { remarkSubheading } from './remark/subheading.js'
 
-export function mdx(): PluginOption {
+export function mdx() {
   return mdxPlugin({
     remarkPlugins: [
       remarkDirective,
@@ -49,5 +49,5 @@ export function mdx(): PluginOption {
         },
       ],
     ],
-  })
+  }) as PluginOption
 }

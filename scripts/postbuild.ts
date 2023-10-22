@@ -26,6 +26,7 @@ function rewriteExtensions(dir: string) {
       continue
     }
     if (path.endsWith('.map')) continue
+    if (path.endsWith('root.js')) continue
     const fileContent = readFileSync(path, 'utf-8')
     writeFileSync(path, fileContent.replace(/\.(tsx|ts)/g, '.js'))
   }

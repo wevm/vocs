@@ -1,20 +1,16 @@
 import react from '@vitejs/plugin-react'
-import * as autoprefixer from 'autoprefixer'
 import { defineConfig } from 'vite'
 
+import { css } from './plugins/css.js'
 import { mdx } from './plugins/mdx.js'
+import { root } from './plugins/root.js'
 import { routes } from './plugins/routes.js'
 
 export default defineConfig({
-  css: {
-    postcss: {
-      plugins: [(autoprefixer as any).default()],
-    },
-  },
+  plugins: [react(), css(), mdx(), routes(), root()],
   server: {
     fs: {
       allow: ['..'],
     },
   },
-  plugins: [react(), mdx(), routes()],
 })

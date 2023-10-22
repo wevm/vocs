@@ -1,10 +1,10 @@
 {
-  "workspaces": ["playground/*", "src"],
+  "workspaces": ["playgrounds/*", "src"],
   "private": true,
   "type": "module",
   "scripts": {
     "build": "rimraf src/_lib src/tsconfig.build.* && tsc -p tsconfig.build.json && bun scripts/postbuild.ts",
-    "dev": "cd playground/dev && bun run dev",
+    "dev": "cd playgrounds/default && bun run dev",
     "format": "biome format . --write",
     "lint": "biome lint . --apply-unsafe",
     "prepare": "bun x simple-git-hooks",
