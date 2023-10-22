@@ -2,7 +2,7 @@ import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import * as vite from 'vite'
 
-import { prerender } from './vite-plugins/prerender.js'
+import { prerender } from './plugins/prerender.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -25,7 +25,7 @@ export async function build({ outDir = 'dist' }: BuildParameters = {}) {
     build: {
       emptyOutDir: false,
       outDir: resolve(outDir),
-      ssr: resolve(__dirname, 'app/index.server.tsx'),
+      ssr: resolve(__dirname, '../app/index.server.tsx'),
     },
     plugins: [prerender({ outDir })],
     root: __dirname,
@@ -37,7 +37,7 @@ export async function build({ outDir = 'dist' }: BuildParameters = {}) {
       lib: {
         formats: ['iife'],
         name: 'theme',
-        entry: [resolve(__dirname, './app/utils/initialize-theme.ts')],
+        entry: [resolve(__dirname, '../app/utils/initialize-theme.ts')],
       },
       minify: true,
       outDir: resolve(outDir),

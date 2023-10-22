@@ -10,7 +10,7 @@ cli
   .command('[root]')
   .alias('dev')
   .action(async () => {
-    const { createDevServer } = await import('./dev-server.js')
+    const { createDevServer } = await import('./vite/dev-server.js')
     const server = await createDevServer()
     await server.listen()
     server.printUrls()
@@ -18,13 +18,13 @@ cli
 
 // build
 cli.command('build').action(async () => {
-  const { build } = await import('./build.js')
+  const { build } = await import('./vite/build.js')
   await build()
 })
 
 // preview
 cli.command('preview').action(async () => {
-  const { preview } = await import('./preview.js')
+  const { preview } = await import('./vite/preview.js')
   const server = await preview()
   server.printUrls()
 })

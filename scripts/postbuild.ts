@@ -5,8 +5,8 @@ import { resolve } from 'node:path'
 import { copy, copyFileSync, readFileSync, writeFileSync } from 'fs-extra'
 
 copyFileSync(
-  resolve(import.meta.dir, '../src/index.html'),
-  resolve(import.meta.dir, '../src/_lib/index.html'),
+  resolve(import.meta.dir, '../src/vite/index.html'),
+  resolve(import.meta.dir, '../src/_lib/vite/index.html'),
 )
 copy(
   resolve(import.meta.dir, '../src/app/styles'),

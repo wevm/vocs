@@ -24,7 +24,7 @@ export function prerender({ outDir = 'dist' }: PrerenderPluginParameters): Plugi
         const html = template
           .replace('<!--body-->', body)
           .replace('<!--head-->', head)
-          .replace('/app/utils/initialize-theme.ts', '/initialize-theme.iife.js')
+          .replace('../app/utils/initialize-theme.ts', '/initialize-theme.iife.js')
         const filePath = `${route.endsWith('/') ? `${route}index` : route}.html`.replace(/^\//, '')
         const path = resolve(outDir_resolved, filePath)
         const pathDir = dirname(path)

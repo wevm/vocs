@@ -15,15 +15,20 @@ import {
 } from 'shiki-processor'
 import { defineConfig } from 'vite'
 
-import { remarkCallout } from './remark-plugins/callout.js'
-import { remarkCodeGroup } from './remark-plugins/code-group.js'
-import { remarkSubheading } from './remark-plugins/subheading.js'
-import { routes } from './vite-plugins/routes.js'
+import { routes } from './plugins/routes.js'
+import { remarkCallout } from './remark/callout.js'
+import { remarkCodeGroup } from './remark/code-group.js'
+import { remarkSubheading } from './remark/subheading.js'
 
 export default defineConfig({
   css: {
     postcss: {
       plugins: [(autoprefixer as any).default()],
+    },
+  },
+  server: {
+    fs: {
+      allow: ['..'],
     },
   },
   plugins: [

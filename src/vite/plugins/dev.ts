@@ -27,9 +27,14 @@ export function dev(): PluginOption {
 
             const indexHtml = readFileSync(resolve(__dirname, '../index.html'), 'utf-8')
             const template = await server.transformIndexHtml(url!, indexHtml)
-            const module = await server.ssrLoadModule(resolve(__dirname, '../app/index.server.tsx'))
+            const module = await server.ssrLoadModule(
+              resolve(__dirname, '../../app/index.server.tsx'),
+            )
             const { head, body } = await module.render(req)
-            const html = template.replace('<!--body-->', body).replace('<!--head-->', head)
+            const html = template
+              .replace(/\.\.\/app/g, `/@fs${resolve(__dirname, '../../app')}`)
+              .replace('<!--body-->', body)
+              .replace('<!--head-->', head)
             res.end(html)
           } finally {
             next()
