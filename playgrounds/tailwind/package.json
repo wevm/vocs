@@ -1,6 +1,6 @@
 {
-  "name": "playground-tailwind",
-  "version": "0.0.0",
+  "name": "playgrounds-tailwind",
+  "private": true,
   "type": "module",
   "scripts": {
     "dev": "bun ../../src/cli.ts",
