@@ -30,4 +30,19 @@ export async function build({ outDir = 'dist', ssr = false }: BuildParameters = 
     },
     root: __dirname,
   })
+
+  // initialize theme script
+  await vite.build({
+    build: {
+      lib: {
+        formats: ['iife'],
+        name: 'theme',
+        entry: [resolve(__dirname, './app/utils/initialize-theme.ts')],
+      },
+      minify: true,
+      outDir: resolve(outDir, ssr ? 'client' : ''),
+      emptyOutDir: false,
+    },
+    configFile: undefined,
+  })
 }
