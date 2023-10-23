@@ -37,6 +37,8 @@
         border-radius: 0px;
         margin-left: calc(var(--vocs-space_16) * -1);
         margin-right: calc(var(--vocs-space_16) * -1);
+        padding-left: var(--vocs-space_16);
+        padding-right: var(--vocs-space_16);
       }
     }
   }
