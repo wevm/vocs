@@ -2,6 +2,7 @@
   .vocs article {
     max-width: calc(var(--vocs-viewport_book) + (var(--vocs-space_16) * 2));
     margin: auto;
+    overflow-x: hidden;
     padding: var(--vocs-space_64) var(--vocs-space_16);
   }
 
