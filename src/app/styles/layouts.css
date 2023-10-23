@@ -10,6 +10,7 @@
       padding: var(--vocs-space_48) var(--vocs-space_16);
 
       & pre {
+        border-radius: 0px;
         margin-left: calc(var(--vocs-space_16) * -1);
         margin-right: calc(var(--vocs-space_16) * -1);
 
@@ -23,12 +24,19 @@
       }
 
       & .code-group {
+        border-radius: 0px;
         margin-left: calc(var(--vocs-space_16) * -1);
         margin-right: calc(var(--vocs-space_16) * -1);
 
         && [data-line] {
           padding: var(--vocs-space_0) var(--vocs-space_32);
         }
+      }
+
+      & [data-rehype-pretty-code-title] {
+        border-radius: 0px;
+        margin-left: calc(var(--vocs-space_16) * -1);
+        margin-right: calc(var(--vocs-space_16) * -1);
       }
     }
   }
