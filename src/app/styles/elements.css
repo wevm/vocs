@@ -108,6 +108,14 @@
     margin-bottom: var(--vocs-space_16);
   }
 
+  .vocs h2+p,
+  .vocs h3+p,
+  .vocs h4+p,
+  .vocs h5+p,
+  .vocs h6+p {
+    margin-top: calc(var(--vocs-space_8) * -1);
+  }
+
   /** Markdown: "**(Text)**" | "__(Text)__" */
   .vocs strong {
     font-weight: var(--vocs-fontWeight-semibold);

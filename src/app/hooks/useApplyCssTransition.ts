@@ -9,7 +9,7 @@ export function useApplyCssTransition() {
   useEffect(() => {
     function set() {
       const style = document.createElement('style')
-      style.textContent = '* { transition: color 0.1s, background-color 0.1s; }'
+      style.textContent = '@layer elements { * { transition: color 0.1s, background-color 0.1s; } }'
       document.head.appendChild(style)
     }
     if (engine.name === 'WebKit') setTimeout(set, 500)
