@@ -1,235 +1,238 @@
-*,
-::before,
-::after {
-  box-sizing: border-box;
-  border-width: 0;
-  border-style: solid;
-}
+@layer reset {
 
-*:focus-visible {
-  outline: 2px solid var(--vocs-color_accent);
-  outline-offset: 2px;
-  outline-style: dashed;
-}
+  *,
+  ::before,
+  ::after {
+    box-sizing: border-box;
+    border-width: 0;
+    border-style: solid;
+  }
 
-html,
-body {
-  line-height: 1.5;
-  -webkit-text-size-adjust: 100%;
-  tab-size: 4;
-  font-family: var(--vocs-fontFamily_default);
-  font-feature-settings: "rlig" 1, "calt" 1;
-  font-size: 16px;
-  line-height: inherit;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  text-rendering: optimizeLegibility;
-}
+  *:focus-visible {
+    outline: 2px solid var(--vocs-color_accent);
+    outline-offset: 2px;
+    outline-style: dashed;
+  }
 
-hr {
-  height: 0;
-  color: inherit;
-  border-top-width: 1px;
-}
+  html,
+  body {
+    line-height: 1.5;
+    -webkit-text-size-adjust: 100%;
+    tab-size: 4;
+    font-family: var(--vocs-fontFamily_default);
+    font-feature-settings: "rlig" 1, "calt" 1;
+    font-size: 16px;
+    line-height: inherit;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    text-rendering: optimizeLegibility;
+  }
 
-abbr:where([title]) {
-  text-decoration: underline dotted;
-}
+  hr {
+    height: 0;
+    color: inherit;
+    border-top-width: 1px;
+  }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-size: inherit;
-  font-weight: inherit;
-  text-wrap: balance;
-}
+  abbr:where([title]) {
+    text-decoration: underline dotted;
+  }
 
-a {
-  color: inherit;
-  text-decoration: inherit;
-}
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-size: inherit;
+    font-weight: inherit;
+    text-wrap: balance;
+  }
 
-b,
-strong {
-  font-weight: bolder;
-}
+  a {
+    color: inherit;
+    text-decoration: inherit;
+  }
 
-code,
-kbd,
-samp,
-pre {
-  font-family: var(--vocs-fontFamily_mono);
-  font-size: 1em;
-}
+  b,
+  strong {
+    font-weight: bolder;
+  }
 
-small {
-  font-size: 80%;
-}
+  code,
+  kbd,
+  samp,
+  pre {
+    font-family: var(--vocs-fontFamily_mono);
+    font-size: 1em;
+  }
 
-sub,
-sup {
-  font-size: 75%;
-  line-height: 0;
-  position: relative;
-  vertical-align: baseline;
-}
+  small {
+    font-size: 80%;
+  }
 
-sub {
-  bottom: -0.25em;
-}
+  sub,
+  sup {
+    font-size: 75%;
+    line-height: 0;
+    position: relative;
+    vertical-align: baseline;
+  }
 
-sup {
-  top: -0.5em;
-}
+  sub {
+    bottom: -0.25em;
+  }
 
-table {
-  text-indent: 0;
-  border-color: inherit;
-  border-collapse: collapse;
-}
+  sup {
+    top: -0.5em;
+  }
 
-button,
-input,
-optgroup,
-select,
-textarea {
-  font-family: inherit;
-  font-feature-settings: inherit;
-  font-variation-settings: inherit;
-  font-size: 100%;
-  font-weight: inherit;
-  line-height: inherit;
-  color: inherit;
-  margin: 0;
-  padding: 0;
-}
+  table {
+    text-indent: 0;
+    border-color: inherit;
+    border-collapse: collapse;
+  }
 
-button,
-select {
-  text-transform: none;
-}
+  button,
+  input,
+  optgroup,
+  select,
+  textarea {
+    font-family: inherit;
+    font-feature-settings: inherit;
+    font-variation-settings: inherit;
+    font-size: 100%;
+    font-weight: inherit;
+    line-height: inherit;
+    color: inherit;
+    margin: 0;
+    padding: 0;
+  }
 
-button,
-[type='button'],
-[type='reset'],
-[type='submit'] {
-  -webkit-appearance: button;
-  background-color: transparent;
-  background-image: none;
-}
+  button,
+  select {
+    text-transform: none;
+  }
 
-:-moz-focusring {
-  outline: auto;
-}
+  button,
+  [type='button'],
+  [type='reset'],
+  [type='submit'] {
+    -webkit-appearance: button;
+    background-color: transparent;
+    background-image: none;
+  }
 
-:-moz-ui-invalid {
-  box-shadow: none;
-}
+  :-moz-focusring {
+    outline: auto;
+  }
 
-progress {
-  vertical-align: baseline;
-}
+  :-moz-ui-invalid {
+    box-shadow: none;
+  }
 
-::-webkit-inner-spin-button,
-::-webkit-outer-spin-button {
-  height: auto;
-}
+  progress {
+    vertical-align: baseline;
+  }
 
-[type='search'] {
-  -webkit-appearance: textfield;
-  outline-offset: -2px;
-}
+  ::-webkit-inner-spin-button,
+  ::-webkit-outer-spin-button {
+    height: auto;
+  }
 
-::-webkit-search-decoration {
-  -webkit-appearance: none;
-}
+  [type='search'] {
+    -webkit-appearance: textfield;
+    outline-offset: -2px;
+  }
 
-::-webkit-file-upload-button {
-  -webkit-appearance: button;
-  font: inherit;
-}
+  ::-webkit-search-decoration {
+    -webkit-appearance: none;
+  }
 
-summary {
-  display: list-item;
-}
+  ::-webkit-file-upload-button {
+    -webkit-appearance: button;
+    font: inherit;
+  }
 
-blockquote,
-dl,
-dd,
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-hr,
-figure,
-p,
-pre {
-  margin: 0;
-}
+  summary {
+    display: list-item;
+  }
 
-fieldset {
-  margin: 0;
-  padding: 0;
-}
+  blockquote,
+  dl,
+  dd,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  hr,
+  figure,
+  p,
+  pre {
+    margin: 0;
+  }
 
-legend {
-  padding: 0;
-}
+  fieldset {
+    margin: 0;
+    padding: 0;
+  }
 
-ol,
-ul,
-menu {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
+  legend {
+    padding: 0;
+  }
 
-dialog {
-  padding: 0;
-}
+  ol,
+  ul,
+  menu {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
 
-textarea {
-  resize: vertical;
-}
+  dialog {
+    padding: 0;
+  }
 
-input::placeholder,
-textarea::placeholder {
-  opacity: 1;
-}
+  textarea {
+    resize: vertical;
+  }
 
-button,
-[role="button"] {
-  cursor: pointer;
-}
+  input::placeholder,
+  textarea::placeholder {
+    opacity: 1;
+  }
 
-:disabled {
-  cursor: default;
-}
+  button,
+  [role="button"] {
+    cursor: pointer;
+  }
 
-img,
-svg,
-video,
-canvas,
-audio,
-iframe,
-embed,
-object {
-  display: block;
-  vertical-align: middle;
-}
+  :disabled {
+    cursor: default;
+  }
 
-img,
-video {
-  max-width: 100%;
-  height: auto;
-}
+  img,
+  svg,
+  video,
+  canvas,
+  audio,
+  iframe,
+  embed,
+  object {
+    display: block;
+    vertical-align: middle;
+  }
 
-[hidden] {
-  display: none;
+  img,
+  video {
+    max-width: 100%;
+    height: auto;
+  }
+
+  [hidden] {
+    display: none;
+  }
 }

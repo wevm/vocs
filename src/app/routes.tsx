@@ -1,11 +1,9 @@
 import type { MDXComponents } from 'mdx/types.js'
-import { Helmet } from 'react-helmet'
 import { type RouteObject } from 'react-router-dom'
 import { routes as routes_virtual } from 'virtual:routes'
 
 import { A } from './components/A.js'
 import { CodeGroup } from './components/CodeGroup.js'
-import { FrontmatterHead } from './components/FrontmatterHead.js'
 import { Root } from './root.js'
 
 const components: MDXComponents = {
@@ -23,15 +21,11 @@ export const routes = routes_virtual.map((route_virtual) => ({
     return {
       ...route,
       element: (
-        <>
-          {head && <Helmet>{head}</Helmet>}
-          {frontmatter && <FrontmatterHead frontmatter={frontmatter} />}
-          <Root>
-            <article>
-              <route.default components={components} />
-            </article>
-          </Root>
-        </>
+        <Root frontmatter={frontmatter} head={head} path={route_virtual.path}>
+          <article>
+            <route.default components={components} />
+          </article>
+        </Root>
       ),
     } satisfies RouteObject
   },

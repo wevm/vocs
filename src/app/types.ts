@@ -3,6 +3,7 @@ import * as React from 'react'
 
 export type Frontmatter = {
   [key: string]: unknown
+  description?: string
   title?: string
 }
 

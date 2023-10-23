@@ -5,7 +5,7 @@ import type { PluginOption } from 'vite'
 type RoutesParameters = { paths?: string }
 
 export function routes({
-  paths: glob = resolve(process.cwd(), './pages/**/*.{md,mdx,ts,tsx,js,jsx}'),
+  paths: glob = resolve(process.cwd(), './docs/**/*.{md,mdx,ts,tsx,js,jsx}'),
 }: RoutesParameters = {}): PluginOption {
   const virtualModuleId = 'virtual:routes'
   const resolvedVirtualModuleId = `\0${virtualModuleId}`

@@ -3,13 +3,12 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vocs",
-    "build": "vocs build",
-    "preview": "vocs preview"
+    "dev": "bun ../src/cli.ts",
+    "build": "NODE_ENV=production bun ../src/cli.ts build",
+    "preview": "bun ../src/cli.ts preview"
   },
   "dependencies": {
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "vocs": "workspace:*"
+    "react-dom": "^18.2.0"
   }
 }

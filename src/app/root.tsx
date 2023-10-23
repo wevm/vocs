@@ -1,12 +1,32 @@
 import { type ReactNode } from 'react'
-import { useApplyCssTransition } from './hooks/useApplyCssTransition.js'
-import { Root as AppRoot } from 'virtual:root'
+import { Helmet } from 'react-helmet'
+import { Root as ConsumerRoot } from 'virtual:root'
 
-export function Root({ children }: { children: ReactNode }) {
+import { ScrollRestoration } from 'react-router-dom'
+import { FrontmatterHead } from './components/FrontmatterHead.js'
+import { useApplyCssTransition } from './hooks/useApplyCssTransition.js'
+import type { Module } from './types.js'
+
+export function Root({
+  children,
+  head,
+  frontmatter,
+  path,
+}: {
+  children: ReactNode
+  head: Module['head']
+  frontmatter: Module['frontmatter']
+  path: string
+}) {
   useApplyCssTransition()
   return (
-    <AppRoot>
-      <div className="vocs">{children}</div>
-    </AppRoot>
+    <>
+      {head && <Helmet>{head}</Helmet>}
+      {frontmatter && <FrontmatterHead frontmatter={frontmatter} />}
+      {typeof window !== 'undefined' && <ScrollRestoration />}
+      <ConsumerRoot frontmatter={frontmatter} path={path}>
+        <div className="vocs">{children}</div>
+      </ConsumerRoot>
+    </>
   )
 }

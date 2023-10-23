@@ -1,9 +1,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
 
-:root {
-  background-color: var(--vocs-color_background);
-  color: var(--vocs-color_text);
-  line-height: var(--vocs-lineHeight-paragraph);
-  font-size: var(--vocs-fontSize-root);
-  font-weight: var(--vocs-fontWeight-regular);
+@layer global {
+  :root {
+    background-color: var(--vocs-color_background);
+    color: var(--vocs-color_text);
+    line-height: var(--vocs-lineHeight-paragraph);
+    font-size: var(--vocs-fontSize-root);
+    font-weight: var(--vocs-fontWeight-regular);
+  }
 }

@@ -1,5 +1,5 @@
 import type { Request } from '@tinyhttp/app'
-import * as ReactDOMServer from 'react-dom/server'
+import { renderToString } from 'react-dom/server'
 import { Helmet } from 'react-helmet'
 import { Route, Routes } from 'react-router-dom'
 import {
@@ -24,7 +24,7 @@ export async function prerender(location: string) {
     }),
   )
 
-  const body = ReactDOMServer.renderToString(
+  const body = renderToString(
     <StaticRouter location={location}>
       <Routes>
         {unwrappedRoutes.map((route) => (
@@ -46,9 +46,7 @@ export async function render(req: Request) {
 
   const router = createStaticRouter(dataRoutes, context)
 
-  const body = ReactDOMServer.renderToString(
-    <StaticRouterProvider router={router} context={context} />,
-  )
+  const body = renderToString(<StaticRouterProvider router={router} context={context} />)
 
   return { head: head(), body }
 }

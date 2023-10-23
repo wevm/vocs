@@ -16,7 +16,7 @@ export function prerender({ outDir = 'dist' }: PrerenderPluginParameters): Plugi
       const mod = await import(resolve(outDir_resolved, 'index.server.js'))
 
       // Get routes to prerender.
-      const routes = getRoutes(resolve(root, 'pages'))
+      const routes = getRoutes(resolve(root, 'docs'))
 
       // Prerender each route.
       for (const route of routes) {

@@ -3,6 +3,7 @@ import { resolve } from 'node:path'
 import * as autoprefixer from 'autoprefixer'
 import * as tailwindcss from 'tailwindcss'
 import type { PluginOption } from 'vite'
+import { postcssRawStyles } from './postcss/rawStyles.js'
 
 export function css(): PluginOption {
   const tailwindConfig = findTailwindConfig()
@@ -14,6 +15,7 @@ export function css(): PluginOption {
         css: {
           postcss: {
             plugins: [
+              postcssRawStyles(),
               (autoprefixer as any).default(),
               tailwindConfig
                 ? tailwindcss.default({

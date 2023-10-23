@@ -5,11 +5,15 @@
   "scripts": {
     "dev": "bun ../../src/cli.ts",
     "build": "NODE_ENV=production bun ../../src/cli.ts build",
-    "preview": "bun ../../src/cli.ts preview"
+    "preview": "bun ../../src/cli.ts preview",
+    "dist:dev": "vocs",
+    "dist:build": "NODE_ENV=production vocs build",
+    "dist:preview": "vocs preview"
   },
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^6.17.0"
+    "react-router-dom": "^6.17.0",
+    "vocs": "workspace:*"
   }
 }
