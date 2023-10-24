@@ -1,5 +1,5 @@
 ---
-"vocs": minor
+"vocs": patch
 ---
 
-Initial release
+Initial
