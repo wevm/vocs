@@ -7,7 +7,7 @@
     "docs:dev": "cd site && bun run dev",
     "docs:build": "cd site && bun run build",
     "format": "biome format . --write",
-    "lint": "biome lint . --apply-unsafe",
+    "lint": "biome lint . --apply-unsafe && stylelint --fix src/**/*.css",
     "playground": "cd playgrounds/default && bun run dev",
     "prepare": "bun x simple-git-hooks",
     "typecheck": "tsc --noEmit"
@@ -25,6 +25,8 @@
     "fs-extra": "^11.1.1",
     "rimraf": "^5.0.5",
     "simple-git-hooks": "^2.9.0",
+    "stylelint": "^15.11.0",
+    "stylelint-config-standard": "^34.0.0",
     "typescript": "^5.2.2"
   },
   "simple-git-hooks": {

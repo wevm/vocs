@@ -21,7 +21,5 @@
   "[typescriptreact]": {
     "editor.defaultFormatter": "biomejs.biome"
   },
-  "[css]": {
-    "editor.defaultFormatter": "vscode.css-language-features"
-  }
+  "css.validate": false
 }

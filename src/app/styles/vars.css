@@ -1,31 +1,30 @@
-@import "@radix-ui/colors/blue.css";
-@import "@radix-ui/colors/blue-dark.css";
-@import "@radix-ui/colors/blue-alpha.css";
-@import "@radix-ui/colors/yellow.css";
-@import "@radix-ui/colors/yellow-dark.css";
-@import "@radix-ui/colors/yellow-alpha.css";
-@import "@radix-ui/colors/red.css";
-@import "@radix-ui/colors/red-dark.css";
-@import "@radix-ui/colors/red-alpha.css";
-@import "@radix-ui/colors/green.css";
-@import "@radix-ui/colors/green-dark.css";
-@import "@radix-ui/colors/green-alpha.css";
-@import "@radix-ui/colors/iris.css";
-@import "@radix-ui/colors/iris-dark.css";
-@import "@radix-ui/colors/iris-alpha.css";
-@import "@radix-ui/colors/mauve.css";
-@import "@radix-ui/colors/mauve-dark.css";
-@import "@radix-ui/colors/gray.css";
-@import "@radix-ui/colors/gray-dark.css";
-@import "@radix-ui/colors/black-alpha.css";
-@import "@radix-ui/colors/white-alpha.css";
+@import url("@radix-ui/colors/blue.css");
+@import url("@radix-ui/colors/blue-dark.css");
+@import url("@radix-ui/colors/blue-alpha.css");
+@import url("@radix-ui/colors/yellow.css");
+@import url("@radix-ui/colors/yellow-dark.css");
+@import url("@radix-ui/colors/yellow-alpha.css");
+@import url("@radix-ui/colors/red.css");
+@import url("@radix-ui/colors/red-dark.css");
+@import url("@radix-ui/colors/red-alpha.css");
+@import url("@radix-ui/colors/green.css");
+@import url("@radix-ui/colors/green-dark.css");
+@import url("@radix-ui/colors/green-alpha.css");
+@import url("@radix-ui/colors/iris.css");
+@import url("@radix-ui/colors/iris-dark.css");
+@import url("@radix-ui/colors/iris-alpha.css");
+@import url("@radix-ui/colors/mauve.css");
+@import url("@radix-ui/colors/mauve-dark.css");
+@import url("@radix-ui/colors/gray.css");
+@import url("@radix-ui/colors/gray-dark.css");
+@import url("@radix-ui/colors/black-alpha.css");
+@import url("@radix-ui/colors/white-alpha.css");
 
 @layer vars {
-
   /* Primitive colors */
   :root {
-    --vocs-color_white: rgba(255, 255, 255, 1);
-    --vocs-color_black: rgba(0, 0, 0, 1);
+    --vocs-color_white: rgba(255 255 255 / 100%);
+    --vocs-color_black: rgba(0 0 0 / 100%);
     --vocs-color_accent: var(--iris-11);
     --vocs-color_accent-hover: var(--iris-12);
     --vocs-color_accent-tint: var(--iris-3);
@@ -55,9 +54,11 @@
 
   /* Semantic colors */
   :root {
+    /* Blockquotes */
     --vocs-color_blockquote-border: var(--vocs-color_border);
     --vocs-color_blockquote-text: var(--vocs-color_text-3);
 
+    /* Callouts */
     --vocs-color_danger-background: var(--red-a2);
     --vocs-color_danger-border: var(--red-a4);
     --vocs-color_danger-text: var(--red-11);
@@ -77,6 +78,7 @@
     --vocs-color_warning-border: var(--yellow-a5);
     --vocs-color_warning-text: var(--yellow-11);
 
+    /* Code */
     --vocs-color_inline-code: var(--vocs-color_accent);
     --vocs-color_inline-code-background: var(--vocs-color_accent-tint);
     --vocs-color_code-block-background: var(--vocs-color_background-2);
@@ -84,11 +86,14 @@
     --vocs-color_code-highlight-border: var(--gray-7);
     --vocs-color_line-number: var(--vocs-color_text-4);
 
+    /* Line breaks */
     --vocs-color_hr: var(--vocs-color_border);
 
+    /* Links */
     --vocs-color_link: var(--vocs-color_accent);
     --vocs-color_link-hover: var(--vocs-color_accent-hover);
 
+    /* Tables */
     --vocs-color_table-border: var(--vocs-color_border);
     --vocs-color_table-header-background: var(--vocs-color_background-2);
     --vocs-color_table-header-text: var(--vocs-color_text-2);
@@ -96,7 +101,6 @@
     &.dark {
       --vocs-color_code-highlight-background: var(--vocs-color_background-4);
       --vocs-color_code-highlight-border: var(--mauve-9);
-
       --vocs-color_danger-background: var(--red-a3);
       --vocs-color_info-background: var(--blue-a3);
       --vocs-color_success-background: var(--green-a3);
@@ -122,7 +126,6 @@
   /* Font sizes */
   :root {
     --vocs-fontSize_root: 16px;
-
     --vocs-fontSize_32: 2rem;
     --vocs-fontSize_24: 1.5rem;
     --vocs-fontSize_20: 1.25rem;
@@ -130,7 +133,6 @@
     --vocs-fontSize_16: 1rem;
     --vocs-fontSize_15: 0.9375rem;
     --vocs-fontSize_14: 0.875rem;
-
     --vocs-fontSize_h1: var(--vocs-fontSize_32);
     --vocs-fontSize_h2: var(--vocs-fontSize_24);
     --vocs-fontSize_h3: var(--vocs-fontSize_20);
