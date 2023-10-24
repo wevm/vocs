@@ -4,12 +4,14 @@ import { routes as routes_virtual } from 'virtual:routes'
 
 import { A } from './components/A.js'
 import { CodeGroup } from './components/CodeGroup.js'
+import { CodeTitle } from './components/CodeTitle.js'
 import { Root } from './root.js'
 
 const components: MDXComponents = {
   a: A,
   div: (props) => {
     if (props.className === 'code-group') return <CodeGroup {...(props as any)} />
+    if ('data-rehype-pretty-code-title' in props) return <CodeTitle {...(props as any)} />
     return <div {...props} />
   },
 }
