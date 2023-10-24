@@ -84,9 +84,9 @@ export function kebabcase(str: string) {
 export function detectPackageManager() {
   const userAgent = process.env.npm_config_user_agent
   if (!userAgent) return 'npm'
+  if (userAgent.includes('bun')) return 'bun'
+  if (userAgent.includes('yarn')) return 'yarn'
   if (userAgent.includes('pnpm')) return 'pnpm'
   if (userAgent.includes('npm')) return 'npm'
-  if (userAgent.includes('yarn')) return 'yarn'
-  if (userAgent.includes('bun')) return 'bun'
   return 'npm'
 }
