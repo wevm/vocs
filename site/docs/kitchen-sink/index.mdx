@@ -136,22 +136,22 @@ Inline `code` has `back-ticks around` it.
 
 Inline [`code`]() with link.
 
-### `heading3` heading
+Inline `console.log("hello world"){:js}` highlighted code
 
-#### `heading4` heading
+```plaintext
+wowee plain text!
+```
 
-##### `heading5` heading
+```bash [Terminal]
+npm i vocs
+```
 
-###### `heading6` heading
-
-Inline `console.log("hello world"){:js}` code
-
-```ts 
+```ts [example.ts]
 type Example = string // [!code hl]
 const example: Example = 'example'
 ```
  
-```ts showLineNumbers {2,3,6-9}
+```ts [Line Highlight & Numbers] showLineNumbers {2,3,6-9}
 // 1. Import modules.
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
@@ -166,7 +166,7 @@ const client = createPublicClient({
 const blockNumber = await client.getBlockNumber()
 ```
 
-```ts /mainnet/1-2 /client/2-3
+```ts [Word Focus] /mainnet/1-2 /client/2-3
 // 1. Import modules.
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
@@ -181,7 +181,7 @@ const client = createPublicClient({
 const blockNumber = await client.getBlockNumber()
 ```
 
-```ts
+```ts [Line Focus]
 // 1. Import modules.
 import { createPublicClient, http } from 'viem' 
 import { mainnet } from 'viem/chains'
@@ -196,7 +196,7 @@ const client = createPublicClient({
 const blockNumber = await client.getBlockNumber() // [!code focus]
 ```
 
-```ts
+```ts [Diff]
 // 1. Import modules.
 import { createPublicClient } from 'viem' // [!code --]
 import { createPublicClient, http } from 'viem' // [!code ++]
@@ -210,20 +210,6 @@ const client = createPublicClient({
 
 // 3. Consume an action! 
 const blockNumber = await client.getBlockNumber()
-```
-
-```ts twoslash
-interface IdLabel {id: number, /* some fields */ }
-interface NameLabel {name: string, /* other fields */ }
-type NameOrId<T extends number | string> = T extends number ? IdLabel : NameLabel;
-// This comment should not be included
-
-// ---cut---
-function createLabel<T extends number | string>(idOrName: T): NameOrId<T> {
-  throw "unimplemented"
-}
-
-let a = createLabel("typescript");
 ```
 
 :::tip[Tip:]
