@@ -39,6 +39,7 @@ jobs:
           cd src 
           npm publish --tag $(git branch --show-current | tr -cs '[:alnum:]-' '-' | tr '[:upper:]' '[:lower:]' | sed 's/-$//')
           cd ../create-vocs 
+          sed -i -e 's/workspace:\*/main/g' package.json
           npm publish --tag $(git branch --show-current | tr -cs '[:alnum:]-' '-' | tr '[:upper:]' '[:lower:]' | sed 's/-$//')
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
