@@ -4,6 +4,9 @@
   "type": "module",
   "scripts": {
     "build": "rimraf src/_lib src/tsconfig.build.* && tsc -p tsconfig.build.json && bun scripts/postbuild.ts",
+    "changeset": "changeset",
+    "changeset:publish": "bun run build && changeset publish",
+    "changeset:version": "changeset version && bun install --lockfile-only && bun scripts/postversion.ts",
     "docs:dev": "cd site && bun run dev",
     "docs:build": "cd site && bun run build",
     "format": "biome format . --write",
@@ -22,6 +25,8 @@
     "@types/react-helmet": "^6.1.7",
     "@types/serve-static": "^1.15.3",
     "bun-types": "^1.0.6",
+    "@changesets/changelog-github": "^0.4.8",
+    "@changesets/cli": "^2.26.2",
     "fs-extra": "^11.1.1",
     "rimraf": "^5.0.5",
     "simple-git-hooks": "^2.9.0",
