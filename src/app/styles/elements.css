@@ -319,6 +319,7 @@
   }
 
   .vocs .code-group--tabs-list {
+    background-color: var(--vocs-color_code-block-background);
     border-bottom: 1px solid var(--vocs-color_border);
     display: flex;
     padding: var(--vocs-space_0) var(--vocs-space_14);
