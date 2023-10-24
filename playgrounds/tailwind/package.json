@@ -4,9 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "bun ../../src/cli.ts",
-    "build": "NODE_ENV=production bun ../../src/cli.ts build",
-    "preview": "bun ../../src/cli.ts preview"
+    "dev": "bun ../../src/cli/index.ts",
+    "build": "NODE_ENV=production bun ../../src/cli/index.ts build",
+    "preview": "bun ../../src/cli/index.ts preview"
   },
   "dependencies": {
     "react": "^18.2.0",

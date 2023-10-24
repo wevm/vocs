@@ -2,6 +2,8 @@ import { accessSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { default as autoprefixer } from 'autoprefixer'
 import { default as tailwindcss } from 'tailwindcss'
+// @ts-expect-error
+import { default as tailwindcssNesting } from 'tailwindcss/nesting'
 import type { PluginOption } from 'vite'
 import { postcssRawStyles } from './postcss/rawStyles.js'
 
@@ -17,6 +19,7 @@ export function css(): PluginOption {
             plugins: [
               postcssRawStyles(),
               autoprefixer(),
+              tailwindcssNesting(),
               tailwindConfig
                 ? (tailwindcss as any)({
                     config: tailwindConfig,
