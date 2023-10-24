@@ -22,6 +22,7 @@
     letter-spacing: -0.02em;
     line-height: var(--vocs-lineHeight-heading);
     margin-top: var(--vocs-space_8);
+    text-wrap: balance;
   }
 
   .vocs header {
