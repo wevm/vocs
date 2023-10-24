@@ -4,13 +4,22 @@ import { readdirSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { copy, copyFileSync, readFileSync, writeFileSync } from 'fs-extra'
 
+// Copy index.html
 copyFileSync(
   resolve(import.meta.dir, '../src/vite/index.html'),
   resolve(import.meta.dir, '../src/_lib/vite/index.html'),
 )
+
+// Copy styles
 copy(
   resolve(import.meta.dir, '../src/app/styles'),
   resolve(import.meta.dir, '../src/_lib/app/styles'),
+)
+
+// Copy CLI init templates
+copy(
+  resolve(import.meta.dir, '../src/cli/templates'),
+  resolve(import.meta.dir, '../src/_lib/cli/templates'),
 )
 
 rewriteExtensions(resolve(import.meta.dir, '../src/_lib'))

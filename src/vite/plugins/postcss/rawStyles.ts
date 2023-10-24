@@ -1,9 +1,7 @@
-// @ts-expect-error
-import * as postcssPrefixSelector from 'postcss-prefix-selector'
+import { default as postcssPrefixSelector } from 'postcss-prefix-selector'
 
 export function postcssRawStyles() {
-  // @ts-expect-error
-  return postcssPrefixSelector.default({
+  return postcssPrefixSelector({
     prefix: ':not([data-vocs-raw])',
     includeFiles: [/elements\.css/, /layouts\.css/],
     transform(prefix: string, selector_: string) {

@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import * as serveStatic from 'serve-static'
+import { default as serveStatic } from 'serve-static'
 import type { PluginOption } from 'vite'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -17,8 +17,7 @@ export function dev(): PluginOption {
     },
     configureServer(server) {
       return () => {
-        // @ts-expect-error
-        server.middlewares.use(serveStatic.default(resolve(process.cwd(), 'public')))
+        server.middlewares.use(serveStatic(resolve(process.cwd(), 'public')))
         server.middlewares.use(async (req, res, next) => {
           const url = req.url && cleanUrl(req.url)
 

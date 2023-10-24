@@ -22,7 +22,7 @@
 
     // Interop constraints
     "esModuleInterop": false,
-    "allowSyntheticDefaultImports": false,
+    "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "verbatimModuleSyntax": true,
     "importHelpers": true, // This is only used for build validation. Since we do not have `tslib` installed, this will fail if we accidentally make use of anything that'd require injection of helpers.

@@ -1,7 +1,7 @@
 import { accessSync } from 'node:fs'
 import { resolve } from 'node:path'
-import * as autoprefixer from 'autoprefixer'
-import * as tailwindcss from 'tailwindcss'
+import { default as autoprefixer } from 'autoprefixer'
+import { default as tailwindcss } from 'tailwindcss'
 import type { PluginOption } from 'vite'
 import { postcssRawStyles } from './postcss/rawStyles.js'
 
@@ -16,9 +16,9 @@ export function css(): PluginOption {
           postcss: {
             plugins: [
               postcssRawStyles(),
-              (autoprefixer as any).default(),
+              autoprefixer(),
               tailwindConfig
-                ? tailwindcss.default({
+                ? (tailwindcss as any)({
                     config: tailwindConfig,
                   })
                 : undefined,

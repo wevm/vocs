@@ -4,9 +4,11 @@
   "type": "module",
   "scripts": {
     "build": "rimraf src/_lib src/tsconfig.build.* && tsc -p tsconfig.build.json && bun scripts/postbuild.ts",
-    "dev": "cd playgrounds/default && bun run dev",
+    "docs:dev": "cd site && bun run dev",
+    "docs:build": "cd site && bun run build",
     "format": "biome format . --write",
     "lint": "biome lint . --apply-unsafe",
+    "playground": "cd playgrounds/default && bun run dev",
     "prepare": "bun x simple-git-hooks",
     "typecheck": "tsc --noEmit"
   },
