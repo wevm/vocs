@@ -1,9 +1,10 @@
 {
-  "workspaces": ["playgrounds/*", "src"],
+  "workspaces": ["create-vocs", "playgrounds/*", "src"],
   "private": true,
   "type": "module",
   "scripts": {
     "build": "rimraf src/_lib src/tsconfig.build.* && tsc -p tsconfig.build.json && bun scripts/postbuild.ts",
+    "build:create-vocs": "rimraf create-vocs/_lib && tsc -p create-vocs/tsconfig.build.json",
     "changeset": "changeset",
     "changeset:publish": "bun run build && changeset publish",
     "changeset:version": "changeset version && bun install --lockfile-only && bun scripts/postversion.ts",

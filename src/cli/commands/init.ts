@@ -2,6 +2,7 @@
 
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import type { CAC } from 'cac'
 // @ts-expect-error
 import { detect } from 'detect-package-manager'
 import { execa } from 'execa'
@@ -11,6 +12,19 @@ import { default as prompts } from 'prompts'
 type InitParameters = { name: string; git: boolean; install: boolean }
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
+
+export function cli_init(cli: CAC) {
+  return cli
+    .option('-n, --name [name]', 'Name of project')
+    .option(
+      '-i, --install [false|npm|pnpm|yarn|bun]',
+      'Install dependencies (and optionally force package manager)',
+      {
+        default: true,
+      },
+    )
+    .option('-g, --git', 'Initialize git repository', { default: true })
+}
 
 export async function init(options: InitParameters) {
   const templateDir = resolve(__dirname, '../templates/default')
@@ -49,8 +63,9 @@ export async function init(options: InitParameters) {
   if (options.install) {
     const packageManager =
       typeof options.install === 'string' ? options.install : detectPackageManager()
-    await execa(packageManager, ['install', packageManager === 'npm' ? '--quiet' : '--silent'], {
+    await execa(packageManager, ['install'], {
       cwd: destDir,
+      stdout: 'inherit',
       env: {
         ...process.env,
         ADBLOCK: '1',

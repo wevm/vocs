@@ -1,0 +1,13 @@
+{
+  // This file is used to compile the for cjs and esm (see package.json build scripts). It should exclude all test files.
+  "extends": "../tsconfig.base.json",
+  "include": ["index.ts"],
+  "compilerOptions": {
+    "declaration": true,
+    "declarationMap": true,
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "outDir": "./_lib",
+    "sourceMap": true
+  }
+}
