@@ -318,6 +318,12 @@
       opacity: 1;
     }
 
+    & button.copy:focus-visible {
+      background-color: var(--vocs-color_background-3);
+      opacity: 1;
+      transition: background-color 0.05s;
+    }
+
     & button.copy:hover:active {
       background-color: var(--vocs-color_background-2);
     }
