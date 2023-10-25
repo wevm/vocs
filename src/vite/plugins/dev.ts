@@ -13,7 +13,7 @@ export function dev(): PluginOption {
   return {
     name: 'dev',
     load(id) {
-      if (id.includes(process.cwd()) && id.endsWith('.css')) cssPaths.add(id)
+      if (id.endsWith('.css')) cssPaths.add(id)
     },
     configureServer(server) {
       return () => {
