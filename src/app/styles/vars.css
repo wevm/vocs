@@ -45,10 +45,10 @@
       --vocs-color_background-3: var(--mauve-5);
       --vocs-color_background-4: var(--mauve-6);
       --vocs-color_border: var(--mauve-6);
-      --vocs-color_text: var(--white-a11);
-      --vocs-color_text-2: var(--white-a9);
-      --vocs-color_text-3: var(--white-a8);
-      --vocs-color_text-4: var(--white-a5);
+      --vocs-color_text: #e9e9ea;
+      --vocs-color_text-2: #bdbdbe;
+      --vocs-color_text-3: #a7a7a8;
+      --vocs-color_text-4: #656567;
     }
   }
 

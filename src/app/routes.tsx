@@ -2,18 +2,15 @@ import type { MDXComponents } from 'mdx/types.js'
 import { type RouteObject } from 'react-router-dom'
 import { routes as routes_virtual } from 'virtual:routes'
 
-import { A } from './components/A.js'
-import { CodeGroup } from './components/CodeGroup.js'
-import { CodeTitle } from './components/CodeTitle.js'
+import { A } from './components/mdx/A.js'
+import { Div } from './components/mdx/Div.js'
+import { Pre } from './components/mdx/Pre.js'
 import { Root } from './root.js'
 
 const components: MDXComponents = {
   a: A,
-  div: (props) => {
-    if (props.className === 'code-group') return <CodeGroup {...(props as any)} />
-    if ('data-rehype-pretty-code-title' in props) return <CodeTitle {...(props as any)} />
-    return <div {...props} />
-  },
+  div: Div,
+  pre: Pre,
 }
 
 export const routes = routes_virtual.map((route_virtual) => ({

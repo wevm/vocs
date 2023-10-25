@@ -189,6 +189,7 @@
       border-radius: var(--vocs-borderRadius_4);
       overflow-x: scroll;
       padding: var(--vocs-space_20) var(--vocs-space_0);
+      position: relative;
     }
 
     & [data-rehype-pretty-code-title] {
@@ -287,6 +288,38 @@
     & [data-line].diff.remove::before {
       content: "-";
       color: #f66f81;
+    }
+
+    & button.copy {
+      align-items: center;
+      background-color: color-mix(in srgb, var(--vocs-color_background-2) 75%, transparent);
+      backdrop-filter: blur(1px);
+      border: 1px solid var(--vocs-color_border);
+      border-radius: var(--vocs-borderRadius_4);
+      color: var(--vocs-color_text-3);
+      display: flex;
+      justify-content: center;
+      position: absolute;
+      right: var(--vocs-space_18);
+      top: var(--vocs-space_18);
+      opacity: 0;
+      height: 32px;
+      width: 32px;
+      transition: background-color 0.15s, opacity 0.15s;
+      z-index: 1;
+    }
+
+    & button.copy:hover {
+      background-color: var(--vocs-color_background-3);
+      transition: background-color 0.05s;
+    }
+
+    &:hover button.copy {
+      opacity: 1;
+    }
+
+    & button.copy:hover:active {
+      background-color: var(--vocs-color_background-2);
     }
   }
 
