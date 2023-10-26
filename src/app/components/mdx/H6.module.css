@@ -1,0 +1,19 @@
+.root {
+  line-height: var(--vocs-lineHeight-heading);
+  font-size: var(--vocs-fontSize_h6);
+  font-weight: var(--vocs-fontWeight-semibold);
+}
+
+.root:not(:first-child) {
+  padding-top: var(--vocs-space_16);
+  margin-top: var(--vocs-space_16);
+}
+
+.root:not(:last-child) {
+  margin-bottom: var(--vocs-space_16);
+}
+
+
+:global(.vocs-h5)+.root {
+  padding-top: var(--vocs-space_0);
+}

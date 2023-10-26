@@ -1,11 +1,10 @@
 import { accessSync } from 'node:fs'
-import { resolve } from 'node:path'
+import { basename, resolve } from 'node:path'
 import { default as autoprefixer } from 'autoprefixer'
 import { default as tailwindcss } from 'tailwindcss'
-// @ts-expect-error
 import { default as tailwindcssNesting } from 'tailwindcss/nesting'
 import type { PluginOption } from 'vite'
-import { postcssRawStyles } from './postcss/rawStyles.js'
+import { kebabcase } from '../../utils/kebabcase.js'
 
 export function css(): PluginOption {
   const tailwindConfig = findTailwindConfig()
@@ -15,9 +14,15 @@ export function css(): PluginOption {
     config() {
       return {
         css: {
+          modules: {
+            generateScopedName(classname_, filename) {
+              const classname = classname_ === 'root' ? undefined : classname_
+              const scope = kebabcase(basename(filename).replace('.module.css', '')).split('?')[0]
+              return `vocs-${scope}${classname ? `--${classname}` : ''}`
+            },
+          },
           postcss: {
             plugins: [
-              postcssRawStyles(),
               autoprefixer(),
               tailwindcssNesting(),
               tailwindConfig

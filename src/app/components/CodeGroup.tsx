@@ -1,6 +1,8 @@
 import * as Tabs from '@radix-ui/react-tabs'
 import type { ReactElement } from 'react'
 
+import styles from './CodeGroup.module.css'
+
 export function CodeGroup({ children }: { children: ReactElement[] }) {
   const tabs = children.map((child_) => {
     const child = child_.props['data-title'] ? child_ : child_.props.children
@@ -10,12 +12,12 @@ export function CodeGroup({ children }: { children: ReactElement[] }) {
     return { title, content }
   })
   return (
-    <Tabs.Root className="code-group" defaultValue={tabs[0].title}>
-      <Tabs.List className="code-group--tabs-list" aria-label="Code group">
+    <Tabs.Root className={styles.root} defaultValue={tabs[0].title}>
+      <Tabs.List className={styles['tabs-list']} aria-label="Code group">
         {tabs.map(({ title }, i) => (
           <Tabs.Trigger
             key={title || i.toString()}
-            className="code-group--tabs-trigger"
+            className={styles['tabs-trigger']}
             value={title || i.toString()}
           >
             {title}
@@ -27,7 +29,7 @@ export function CodeGroup({ children }: { children: ReactElement[] }) {
         return (
           <Tabs.Content
             key={title || i.toString()}
-            className="code-group--tabs-content"
+            className={styles['tabs-content']}
             data-pretty-code={isPrettyCode}
             value={title || i.toString()}
           >

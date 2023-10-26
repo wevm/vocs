@@ -1,0 +1,10 @@
+.root {
+  color: var(--vocs-color_link);
+  font-weight: var(--vocs-fontWeight-medium);
+  text-underline-offset: var(--vocs-space_2);
+  text-decoration: underline;
+}
+
+.root:hover {
+  color: var(--vocs-color_link-hover);
+}

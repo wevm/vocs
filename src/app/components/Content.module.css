@@ -1,0 +1,20 @@
+.root {
+  max-width: calc(var(--vocs-viewport_book) + (var(--vocs-space_16) * 2));
+  margin: auto;
+  overflow-x: hidden;
+  padding: var(--vocs-space_64) var(--vocs-space_16);
+}
+
+.root > *:not(:last-child) {
+  margin-bottom: var(--vocs-space_16);
+}
+
+.root *:last-child {
+  margin-bottom: var(--vocs-space_0);
+}
+
+@media screen and (width <= 70ch) {
+  .root {
+    padding: var(--vocs-space_48) var(--vocs-space_16);
+  }
+}

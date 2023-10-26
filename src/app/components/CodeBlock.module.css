@@ -1,0 +1,100 @@
+.root {}
+
+.root code {
+  font-size: var(--vocs-fontSize_codeBlock);
+}
+
+.root pre {
+  background-color: var(--vocs-color_code-block-background) !important;
+  border-radius: var(--vocs-borderRadius_4);
+  overflow-x: scroll;
+  padding: var(--vocs-space_20) var(--vocs-space_0);
+  position: relative;
+}
+
+.root [data-rehype-pretty-code-title]+pre {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.root [data-line] {
+  border-left: 2px solid transparent;
+  padding: var(--vocs-space_0) var(--vocs-space_22);
+  line-height: var(--vocs-lineHeight-code);
+}
+
+.root [data-line-numbers] {
+  counter-reset: line;
+
+  & [data-line] {
+    padding: var(--vocs-space_0) var(--vocs-space_16);
+  }
+
+  & [data-line]::before {
+    color: var(--vocs-color_line-number);
+    content: counter(line);
+    counter-increment: line;
+    display: inline-block;
+    font-size: var(--vocs-fontSize_lineNumber);
+    margin-right: var(--vocs-space_16);
+    text-align: right;
+    width: 1rem;
+  }
+}
+
+.root [data-highlighted-line],
+.root :global(.has-highlight) {
+  background-color: var(--vocs-color_code-highlight-background);
+  border-left: 2px solid var(--vocs-color_code-highlight-border);
+  box-sizing: content-box;
+}
+
+.root [data-highlighted-chars] {
+  border-radius: var(--vocs-borderRadius_2);
+  background-color: var(--vocs-color_code-highlight-background);
+  box-shadow: 0 0 0 4px var(--vocs-color_code-highlight-background);
+}
+
+.root :global(.has-diff) {
+  position: relative;
+}
+
+.root [data-line]:global(.diff)::before {
+  position: absolute;
+  left: 10px;
+}
+
+.root [data-line]:global(.diff):global(.add) {
+  background-color: rgb(16 185 129 / 16%);
+}
+
+.root [data-line]:global(.diff):global(.add)::before {
+  content: "+";
+  color: #3dd68c;
+}
+
+.root [data-line]:global(.diff):global(.remove) {
+  background-color: rgb(244 63 94 / 16%);
+  opacity: 0.6;
+}
+
+.root [data-line]:global(.diff):global(.remove)>span {
+  filter: grayscale(1);
+}
+
+.root [data-line]:global(.diff):global(.remove)::before {
+  content: "-";
+  color: #f66f81;
+}
+
+.root :global(.has-focused-lines) [data-line]:not(:global(.has-focus)) {
+  filter: grayscale(1);
+  opacity: 0.3;
+  transition: filter 0.2s, opacity 0.2s;
+}
+
+.root:hover :global(.has-focused-lines) [data-line]:not(:global(.has-focus)) {
+  filter: grayscale(0);
+  opacity: 1;
+  transition: filter 0.2s, opacity 0.2s;
+}

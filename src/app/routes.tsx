@@ -1,17 +1,9 @@
-import type { MDXComponents } from 'mdx/types.js'
 import { type RouteObject } from 'react-router-dom'
 import { routes as routes_virtual } from 'virtual:routes'
 
-import { A } from './components/mdx/A.js'
-import { Div } from './components/mdx/Div.js'
-import { Pre } from './components/mdx/Pre.js'
+import { Content } from './components/Content.js'
+import { components } from './components/mdx/index.js'
 import { Root } from './root.js'
-
-const components: MDXComponents = {
-  a: A,
-  div: Div,
-  pre: Pre,
-}
 
 export const routes = routes_virtual.map((route_virtual) => ({
   path: route_virtual.path,
@@ -21,9 +13,9 @@ export const routes = routes_virtual.map((route_virtual) => ({
       ...route,
       element: (
         <Root frontmatter={frontmatter} head={head} path={route_virtual.path}>
-          <article>
+          <Content>
             <route.default components={components} />
-          </article>
+          </Content>
         </Root>
       ),
     } satisfies RouteObject
