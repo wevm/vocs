@@ -1,0 +1,17 @@
+.root {}
+
+@media screen and (width <= 70ch) {
+  .root {
+    border-radius: 0;
+    margin-left: calc(var(--vocs-space_16) * -1);
+    margin-right: calc(var(--vocs-space_16) * -1);
+  
+    & [data-line] {
+      padding: var(--vocs-space_0) var(--vocs-space_16);
+    }
+  
+    & [data-line]:global(.diff)::before {
+      left: 6px;
+    }
+  }
+}

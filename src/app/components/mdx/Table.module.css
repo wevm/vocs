@@ -1,0 +1,6 @@
+.root {
+  display: block;
+  border-collapse: collapse;
+  overflow-x: auto;
+  margin-bottom: var(--vocs-space_24);
+}

@@ -1,0 +1,9 @@
+.root {
+  border-left: 2px solid var(--vocs-color_blockquote-border);
+  padding-left: var(--vocs-space_16);
+  margin-bottom: var(--vocs-space_16);
+}
+
+.root>:global(.vocs-p) {
+  color: var(--vocs-color_blockquote-text);
+}

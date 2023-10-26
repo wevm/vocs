@@ -8,4 +8,17 @@
     font-size: var(--vocs-fontSize-root);
     font-weight: var(--vocs-fontWeight-regular);
   }
+
+  :root:not(.dark) pre[data-theme='dark'],
+  :root:not(.dark) code[data-theme='dark'],
+  :root:not(.dark) div[data-theme='dark'] {
+    display: none !important;
+  }
+  
+
+  :root.dark pre[data-theme='light'],
+  :root.dark code[data-theme='light'],
+  :root.dark div[data-theme='light'] {
+    display: none !important;
+  }
 }

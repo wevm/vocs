@@ -26,11 +26,6 @@ export function remarkCallout() {
       const data = node.data || (node.data = {})
       const tagName = 'aside'
 
-      node.attributes = {
-        ...node.attributes,
-        class: `callout${node.name !== 'callout' ? ` ${node.name}` : ''}`,
-      }
-
       if (label) {
         node.children = node.children.filter((child: any) => !child.data?.directiveLabel)
         ;(node.children[0] as any).children.unshift({
@@ -40,7 +35,10 @@ export function remarkCallout() {
       }
 
       data.hName = tagName
-      data.hProperties = h(tagName, node.attributes || {}).properties
+      data.hProperties = {
+        ...h(tagName, node.attributes || {}).properties,
+        'data-callout': node.name !== 'callout' ? node.name : true,
+      }
     })
   }
 }

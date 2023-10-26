@@ -1,0 +1,8 @@
+.root {
+  border-bottom: 1px solid var(--vocs-color_border);
+}
+
+.root:not(:last-child) {
+  margin-bottom: var(--vocs-space_28);
+  padding-bottom: var(--vocs-space_28);
+}

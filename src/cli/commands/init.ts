@@ -9,6 +9,8 @@ import { execa } from 'execa'
 import { default as fs } from 'fs-extra'
 import { default as prompts } from 'prompts'
 
+import { kebabcase } from '../../utils/kebabcase.js'
+
 type InitParameters = { name: string; git: boolean; install: boolean }
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -87,13 +89,6 @@ export async function init(options: InitParameters) {
   }
 
   console.log('Done!')
-}
-
-export function kebabcase(str: string) {
-  return str
-    .match(/[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+/g)
-    ?.join('-')
-    .toLowerCase()
 }
 
 export function detectPackageManager() {

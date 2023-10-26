@@ -9,11 +9,11 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const cleanUrl = (url: string): string => url.replace(/#.*$/s, '').replace(/\?.*$/s, '')
 
 export function dev(): PluginOption {
-  const cssPaths = new Set()
+  const styleSet = new Set()
   return {
     name: 'dev',
-    load(id) {
-      if (id.endsWith('.css')) cssPaths.add(id)
+    transform(styles, id) {
+      if (id.endsWith('.css')) styleSet.add(styles)
     },
     configureServer(server) {
       return () => {
@@ -38,11 +38,9 @@ export function dev(): PluginOption {
             )
             const render = await module.render(req)
 
-            const css = [...cssPaths]
-              .map((path) => `<link rel="stylesheet" href="/@fs${path}">`)
-              .join('')
+            const styles = [...styleSet].map((style) => `<style>${style}</style>`).join('')
 
-            const head = `${render.head}${css}`
+            const head = `${render.head}${styles}`
             const body = render.body
 
             const html = template

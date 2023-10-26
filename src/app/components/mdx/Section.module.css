@@ -1,0 +1,16 @@
+.root {
+  border-top: 1px solid var(--vocs-color_border);
+  margin-top: var(--vocs-space_56);
+  padding-top: var(--vocs-space_24);
+}
+
+.root a {
+  color: var(--vocs-color_link);
+  font-weight: var(--vocs-fontWeight-medium);
+  text-underline-offset: var(--vocs-space_2);
+  text-decoration: underline;
+}
+
+.root a:hover {
+  color: var(--vocs-color_link-hover);
+}

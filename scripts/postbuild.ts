@@ -3,6 +3,7 @@
 import { readdirSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { copy, copyFileSync, readFileSync, writeFileSync } from 'fs-extra'
+import { globbySync } from 'globby'
 
 // Copy index.html
 copyFileSync(
@@ -15,6 +16,12 @@ copy(
   resolve(import.meta.dir, '../src/app/styles'),
   resolve(import.meta.dir, '../src/_lib/app/styles'),
 )
+
+// Copy CSS modules
+const files = globbySync(resolve(import.meta.dir, '../src/app/**/*.module.css'))
+for (const file of files) {
+  copyFileSync(file, file.replace('/app/', '/_lib/app/'))
+}
 
 // Copy CLI init templates
 copy(

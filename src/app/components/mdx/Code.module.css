@@ -1,0 +1,24 @@
+:not(:global(.vocs-pre))>.root {
+  border-radius: var(--vocs-borderRadius_4);
+  font-size: var(--vocs-fontSize_code);
+  padding: var(--vocs-space_3) var(--vocs-space_6);
+}
+
+:not(:global(.vocs-pre), [data-rehype-pretty-code-fragment])>.root {
+  background-color: var(--vocs-color_inline-code-background);
+  color: var(--vocs-color_inline-code);
+}
+
+[data-rehype-pretty-code-fragment]>.root {
+  background-color: var(--vocs-color_code-highlight-background) !important;
+}
+
+:global(.vocs-a)>.root {
+  color: var(--vocs-color_link);
+  text-decoration: underline;
+  text-underline-offset: var(--vocs-space_2);
+
+  &:hover {
+    color: var(--vocs-color_link-hover);
+  }
+}

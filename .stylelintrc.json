@@ -1,6 +1,7 @@
 {
-  "extends": ["stylelint-config-standard"],
+  "extends": ["stylelint-config-standard", "stylelint-config-css-modules"],
   "rules": {
+    "block-no-empty": null,
     "comment-empty-line-before": null,
     "comment-whitespace-inside": null,
     "custom-property-pattern": null,

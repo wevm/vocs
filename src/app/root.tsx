@@ -25,7 +25,7 @@ export function Root({
       {frontmatter && <FrontmatterHead frontmatter={frontmatter} />}
       {typeof window !== 'undefined' && <ScrollRestoration />}
       <ConsumerRoot frontmatter={frontmatter} path={path}>
-        <div className="vocs">{children}</div>
+        {children}
       </ConsumerRoot>
     </>
   )

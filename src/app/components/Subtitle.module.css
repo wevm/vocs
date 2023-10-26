@@ -1,0 +1,9 @@
+.root {
+  color: var(--vocs-color_text-2);
+  font-size: var(--vocs-fontSize_subtitle);
+  font-weight: var(--vocs-fontWeight-regular);
+  letter-spacing: -0.02em;
+  line-height: var(--vocs-lineHeight-heading);
+  margin-top: var(--vocs-space_8);
+  text-wrap: balance;
+}
