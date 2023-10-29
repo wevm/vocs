@@ -1,7 +1,7 @@
 import { Checkmark } from './svgs/Checkmark.js'
 import { Copy } from './svgs/Copy.js'
 
-import styles from './CopyButton.module.css'
+import * as styles from './CopyButton.css.js'
 
 export function CopyButton({ copy, copied }: { copy: () => void; copied: boolean }) {
   return (

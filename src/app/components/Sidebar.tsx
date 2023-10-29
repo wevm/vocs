@@ -2,13 +2,14 @@ import type { MouseEventHandler, ReactNode } from 'react'
 import { Link, useMatch } from 'react-router-dom'
 import { config } from 'virtual:config'
 
-import styles from './Sidebar.module.css'
+import * as styles from './Sidebar.css.js'
 
 export function Sidebar({
   onClickSidebarItem,
 }: { onClickSidebarItem?: MouseEventHandler<HTMLAnchorElement> }) {
   const { sidebar } = config
 
+  if (!sidebar) return null
   return (
     <aside className={styles.root}>
       <div className={styles.title}>Vocs</div>

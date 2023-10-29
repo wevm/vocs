@@ -2,7 +2,7 @@ import { clsx } from 'clsx'
 import { type DetailedHTMLProps, type HTMLAttributes } from 'react'
 
 import { Footnotes } from '../Footnotes.js'
-import styles from './Section.module.css'
+import * as styles from './Section.css.js'
 
 export function Section(props: DetailedHTMLProps<HTMLAttributes<HTMLElement>, HTMLElement>) {
   if ('data-footnotes' in props)

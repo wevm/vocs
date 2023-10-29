@@ -1,7 +1,0 @@
-.root {
-  border-top: 1px solid var(--vocs-color_table-border);
-}
-
-.root:nth-child(2n) {
-  background-color: var(--vocs-color_background-2);
-}

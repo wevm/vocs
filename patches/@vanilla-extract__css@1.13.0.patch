@@ -1,0 +1,51 @@
+diff --git a/dist/vanilla-extract-css.cjs.dev.js b/dist/vanilla-extract-css.cjs.dev.js
+index f509eb77b464fad333d16dc1fce66ceebfe8740a..334e5a9d8cd9cec6380f608e12cf7c89c6a1026d 100644
+--- a/dist/vanilla-extract-css.cjs.dev.js
++++ b/dist/vanilla-extract-css.cjs.dev.js
+@@ -192,9 +192,9 @@ function generateIdentifier(arg) {
+       filePath,
+       packageName
+     });
+-    if (!identifier.match(/^[A-Z_][0-9A-Z_]+$/i)) {
+-      throw new Error("Identifier function returned invalid indentifier: \"".concat(identifier, "\""));
+-    }
++    // if (!identifier.match(/^[A-Z_][0-9A-Z_]+$/i)) {
++    //   throw new Error("Identifier function returned invalid indentifier: \"".concat(identifier, "\""));
++    // }
+     return identifier;
+   }
+   return normalizeIdentifier(identifier);
+diff --git a/dist/vanilla-extract-css.cjs.prod.js b/dist/vanilla-extract-css.cjs.prod.js
+index 1ac0bff1c20cd4cbcb6135f39a55cdc9fddb4ad1..bff1771ecb82e92f36a6b42cbfce8a965bbd7eeb 100644
+--- a/dist/vanilla-extract-css.cjs.prod.js
++++ b/dist/vanilla-extract-css.cjs.prod.js
+@@ -192,9 +192,9 @@ function generateIdentifier(arg) {
+       filePath,
+       packageName
+     });
+-    if (!identifier.match(/^[A-Z_][0-9A-Z_]+$/i)) {
+-      throw new Error("Identifier function returned invalid indentifier: \"".concat(identifier, "\""));
+-    }
++    // if (!identifier.match(/^[A-Z_][0-9A-Z_]+$/i)) {
++    //   throw new Error("Identifier function returned invalid indentifier: \"".concat(identifier, "\""));
++    // }
+     return identifier;
+   }
+   return normalizeIdentifier(identifier);
+diff --git a/dist/vanilla-extract-css.esm.js b/dist/vanilla-extract-css.esm.js
+index 3ca31f5a8acb9f791bf3baf17d29d3e4c965701c..03c4975faaa3a0fd52eaed359dfd9d05d26efa9b 100644
+--- a/dist/vanilla-extract-css.esm.js
++++ b/dist/vanilla-extract-css.esm.js
+@@ -180,9 +180,9 @@ function generateIdentifier(arg) {
+       filePath,
+       packageName
+     });
+-    if (!identifier.match(/^[A-Z_][0-9A-Z_]+$/i)) {
+-      throw new Error("Identifier function returned invalid indentifier: \"".concat(identifier, "\""));
+-    }
++    // if (!identifier.match(/^[A-Z_][0-9A-Z_]+$/i)) {
++    //   throw new Error("Identifier function returned invalid indentifier: \"".concat(identifier, "\""));
++    // }
+     return identifier;
+   }
+   return normalizeIdentifier(identifier);

@@ -1,7 +1,7 @@
 import * as Tabs from '@radix-ui/react-tabs'
 import type { ReactElement } from 'react'
 
-import styles from './CodeGroup.module.css'
+import * as styles from './CodeGroup.css.js'
 
 export function CodeGroup({ children }: { children: ReactElement[] }) {
   const tabs = children.map((child_) => {

@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 
 import { Content } from '../components/Content.js'
 import { ContentOnly } from './ContentOnly.js'
-import styles from './Layout.module.css'
+import * as styles from './Layout.css.js'
 import { WithSidebar } from './WithSidebar.js'
 
 export type LayoutType = 'content-only' | 'with-sidebar'

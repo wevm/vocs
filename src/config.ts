@@ -1,5 +1,5 @@
 export type Config = {
-  sidebar: Sidebar
+  sidebar?: Sidebar
 }
 
 export function defineConfig(config: Config) {

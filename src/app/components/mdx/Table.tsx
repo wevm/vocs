@@ -1,7 +1,7 @@
 import { clsx } from 'clsx'
 import { type DetailedHTMLProps, type HTMLAttributes } from 'react'
 
-import styles from './Table.module.css'
+import * as styles from './Table.css.js'
 
 export function Table(
   props: DetailedHTMLProps<HTMLAttributes<HTMLTableElement>, HTMLTableElement>,

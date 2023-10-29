@@ -1,6 +1,0 @@
-.root {
-  background-color: var(--vocs-color_background);
-  max-width: var(--vocs-content_width);
-  overflow-x: hidden;
-  padding: var(--vocs-content_vertical-padding) var(--vocs-content_horizontal-padding);
-}

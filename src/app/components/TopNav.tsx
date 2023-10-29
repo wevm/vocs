@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom'
 import { config } from 'virtual:config'
 
 import type { Sidebar, SidebarItem } from '../../config.js'
-import styles from './TopNav.module.css'
+import * as styles from './TopNav.css.js'
 import { Menu } from './svgs/Menu.js'
 
 export function UpperTopNav() {
@@ -16,15 +16,17 @@ export function UpperTopNav() {
 
 export function LowerTopNav({ MenuTrigger }: { MenuTrigger: React.ElementType }) {
   const { pathname } = useLocation()
-  console.log('hmm')
   const sidebarItem = useMemo(
     () =>
-      getSidebarItemFromPathname({
-        sidebar: config.sidebar,
-        pathname,
-      }),
+      config.sidebar
+        ? getSidebarItemFromPathname({
+            sidebar: config.sidebar,
+            pathname,
+          })
+        : undefined,
     [pathname],
   )
+  if (!sidebarItem) return null
   return (
     <div className={styles.lower}>
       <div className={styles.lowerLeft}>

@@ -1,8 +1,8 @@
 import { type ReactNode } from 'react'
 import { Helmet } from 'react-helmet'
+import { ScrollRestoration } from 'react-router-dom'
 import { Root as ConsumerRoot } from 'virtual:root'
 
-import { ScrollRestoration } from 'react-router-dom'
 import { FrontmatterHead } from './components/FrontmatterHead.js'
 import { useApplyCssTransition } from './hooks/useApplyCssTransition.js'
 import type { Module } from './types.js'

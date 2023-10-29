@@ -1,7 +1,7 @@
 import { clsx } from 'clsx'
 import { type DetailedHTMLProps, type HTMLAttributes } from 'react'
 
-import styles from './HorizontalRule.module.css'
+import * as styles from './HorizontalRule.css.js'
 
 export function HorizontalRule(
   props: DetailedHTMLProps<HTMLAttributes<HTMLHRElement>, HTMLHRElement>,

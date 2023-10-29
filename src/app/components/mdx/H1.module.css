@@ -1,6 +1,0 @@
-.root {
-  font-size: var(--vocs-fontSize_h1);
-  font-weight: var(--vocs-fontWeight-semibold);
-  letter-spacing: -0.02em;
-  line-height: var(--vocs-lineHeight-heading);
-}

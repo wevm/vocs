@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { type PluginOption, loadConfigFromFile } from 'vite'
 
@@ -17,6 +18,8 @@ export function vocsConfig({
     },
     async load(id) {
       if (id === resolvedVirtualModuleId) {
+        if (!existsSync(configFile)) return 'export const config = {}'
+
         const result = await loadConfigFromFile(
           // TODO: do these need to be modified? probably when we accept vite config.
           { command: 'serve', mode: 'development' },

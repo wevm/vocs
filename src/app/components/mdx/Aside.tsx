@@ -2,7 +2,7 @@ import { clsx } from 'clsx'
 import { type DetailedHTMLProps, type HTMLAttributes } from 'react'
 
 import { Callout } from '../Callout.js'
-import styles from './Aside.module.css'
+import * as styles from './Aside.css.js'
 
 export function Aside(props: DetailedHTMLProps<HTMLAttributes<HTMLElement>, HTMLElement>) {
   const className = clsx(props.className, styles.root)

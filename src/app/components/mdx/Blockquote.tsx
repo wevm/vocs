@@ -1,7 +1,7 @@
 import { clsx } from 'clsx'
 import { type BlockquoteHTMLAttributes, type DetailedHTMLProps } from 'react'
 
-import styles from './Blockquote.module.css'
+import * as styles from './Blockquote.css.js'
 
 export function Blockquote(
   props: DetailedHTMLProps<BlockquoteHTMLAttributes<HTMLQuoteElement>, HTMLQuoteElement>,

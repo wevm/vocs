@@ -3,7 +3,7 @@ import { type DetailedHTMLProps, type HTMLAttributes } from 'react'
 
 import { useCopyCode } from '../../hooks/useCopyCode.js'
 import { CopyButton } from '../CopyButton.js'
-import styles from './Pre.module.css'
+import * as styles from './Pre.css.js'
 
 export function Pre({
   children,

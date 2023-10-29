@@ -34,7 +34,7 @@ jobs:
         with:
           commit: 'chore: version package'
           title: 'chore: version package'
-          version: bun run changeset:version
+          version: pnpm changeset:version
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -55,7 +55,7 @@ jobs:
         uses: changesets/action@v1
         with:
           createGithubReleases: ${{ github.ref == 'refs/heads/main' }}
-          publish: bun run changeset:publish
+          publish: pnpm changeset:publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

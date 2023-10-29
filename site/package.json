@@ -3,9 +3,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "bun ../src/cli/index.ts dev",
-    "build": "NODE_ENV=production bun ../src/cli/index.ts build",
-    "preview": "bun ../src/cli/index.ts preview"
+    "dev": "node --loader @swc-node/register/esm ../src/cli/index.ts dev",
+    "build": "NODE_ENV=production node --loader @swc-node/register/esm ../src/cli/index.ts build",
+    "preview": "node --loader @swc-node/register/esm ../src/cli/index.ts preview"
   },
   "dependencies": {
     "react": "^18.2.0",

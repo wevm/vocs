@@ -1,7 +1,7 @@
 import { clsx } from 'clsx'
 import { type DetailedHTMLProps, type HTMLAttributes } from 'react'
 
-import styles from './CodeBlock.module.css'
+import * as styles from './CodeBlock.css.js'
 
 export function CodeBlock(
   props: DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>,

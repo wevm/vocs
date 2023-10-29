@@ -1,7 +1,7 @@
 import { clsx } from 'clsx'
 import { type DetailedHTMLProps, type HTMLAttributes } from 'react'
 
-import styles from './Paragraph.module.css'
+import * as styles from './Paragraph.css.js'
 
 export function Paragraph(
   props: DetailedHTMLProps<HTMLAttributes<HTMLParagraphElement>, HTMLParagraphElement>,

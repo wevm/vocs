@@ -1,3 +1,5 @@
+import './styles/index.css.js'
+
 import type { Request } from '@tinyhttp/app'
 import { renderToString } from 'react-dom/server'
 import { Helmet } from 'react-helmet'

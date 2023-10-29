@@ -1,6 +1,6 @@
 import { clsx } from 'clsx'
 
-import styles from './CodeTitle.module.css'
+import * as styles from './CodeTitle.css.js'
 import { File } from './svgs/File.js'
 import { Terminal } from './svgs/Terminal.js'
 

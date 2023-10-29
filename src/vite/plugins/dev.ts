@@ -18,6 +18,7 @@ export function dev(): PluginOption {
     configureServer(server) {
       return () => {
         server.middlewares.use(serveStatic(resolve(process.cwd(), 'public')))
+        server.middlewares.use(serveStatic(resolve(__dirname, '../../app/public')))
         server.middlewares.use(async (req, res, next) => {
           const url = req.url && cleanUrl(req.url)
 

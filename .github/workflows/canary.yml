@@ -32,7 +32,7 @@ jobs:
           bun ../scripts/postversion.ts
 
       - name: Build
-        run: bun run build
+        run: pnpm build
 
       - name: Publish to npm
         run: | 

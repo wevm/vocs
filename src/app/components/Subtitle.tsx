@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 
-import styles from './Subtitle.module.css'
+import * as styles from './Subtitle.css.js'
 
 export function Subtitle({ children }: { children: ReactNode }) {
   return (

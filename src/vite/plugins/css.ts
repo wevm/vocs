@@ -1,10 +1,9 @@
 import { accessSync } from 'node:fs'
-import { basename, resolve } from 'node:path'
+import { resolve } from 'node:path'
 import { default as autoprefixer } from 'autoprefixer'
 import { default as tailwindcss } from 'tailwindcss'
 import { default as tailwindcssNesting } from 'tailwindcss/nesting'
 import type { PluginOption } from 'vite'
-import { kebabcase } from '../../utils/kebabcase.js'
 
 export function css(): PluginOption {
   const tailwindConfig = findTailwindConfig()
@@ -14,13 +13,6 @@ export function css(): PluginOption {
     config() {
       return {
         css: {
-          modules: {
-            generateScopedName(classname_, filename) {
-              const classname = classname_ === 'root' ? undefined : kebabcase(classname_)
-              const scope = kebabcase(basename(filename).replace('.module.css', '')).split('?')[0]
-              return `vocs-${scope}${classname ? `--${classname}` : ''}`
-            },
-          },
           postcss: {
             plugins: [
               autoprefixer(),

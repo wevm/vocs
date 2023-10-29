@@ -1,7 +1,7 @@
 import { clsx } from 'clsx'
 import { type DetailedHTMLProps, type HTMLAttributes } from 'react'
 
-import styles from './Strong.module.css'
+import * as styles from './Strong.css.js'
 
 export function Strong(props: DetailedHTMLProps<HTMLAttributes<HTMLElement>, HTMLElement>) {
   return <strong {...props} className={clsx(props.className, styles.root)} />

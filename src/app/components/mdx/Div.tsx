@@ -5,7 +5,7 @@ import { CodeBlock } from '../CodeBlock.js'
 import { CodeGroup } from '../CodeGroup.js'
 import { CodeTitle } from '../CodeTitle.js'
 import { Subtitle } from '../Subtitle.js'
-import styles from './Div.module.css'
+import * as styles from './Div.css.js'
 
 export function Div(props: DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>) {
   const className = clsx(props.className, styles.root)

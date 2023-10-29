@@ -1,19 +1,18 @@
 {
-  "workspaces": ["create-vocs", "playgrounds/*", "src"],
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "bun run build:vocs && bun run build:create-vocs",
-    "build:vocs": "rimraf src/_lib src/tsconfig.build.* && tsc -p tsconfig.build.json && bun scripts/postbuild.ts && chmod +x node_modules/.bin/vocs",
+    "build": "pnpm build:vocs && pnpm build:create-vocs",
+    "build:vocs": "rimraf src/_lib src/tsconfig.build.* && tsc -p tsconfig.build.json && bun scripts/postbuild.ts",
     "build:create-vocs": "rimraf create-vocs/_lib && tsc -p create-vocs/tsconfig.build.json",
     "changeset": "changeset",
-    "changeset:publish": "bun run build && changeset publish",
-    "changeset:version": "changeset version && bun install --lockfile-only && bun scripts/postversion.ts",
-    "docs:dev": "cd site && bun run dev",
-    "docs:build": "cd site && bun run build",
+    "changeset:publish": "pnpm build && changeset publish",
+    "changeset:version": "changeset version && pnpm install --lockfile-only && bun scripts/postversion.ts",
+    "docs:dev": "pnpm --filter site dev",
+    "docs:build": "pnpm --filter site build",
     "format": "biome format . --write",
-    "lint": "biome lint . --apply-unsafe && stylelint --fix src/**/*.css",
-    "playground": "cd playgrounds/default && bun run dev",
+    "lint": "biome lint . --apply-unsafe",
+    "playground": "pnpm --filter playgrounds/default dev",
     "prepare": "bun x simple-git-hooks",
     "typecheck": "tsc --noEmit"
   },
@@ -21,6 +20,7 @@
     "@biomejs/biome": "^1.3.1",
     "@changesets/changelog-github": "^0.4.8",
     "@changesets/cli": "^2.26.2",
+    "@swc-node/register": "^1.6.8",
     "@types/compression": "^1.7.3",
     "@types/fs-extra": "^11.0.2",
     "@types/node": "^20.8.5",
@@ -33,12 +33,15 @@
     "globby": "^13.2.2",
     "rimraf": "^5.0.5",
     "simple-git-hooks": "^2.9.0",
-    "stylelint": "^15.11.0",
-    "stylelint-config-css-modules": "^4.3.0",
-    "stylelint-config-standard": "^34.0.0",
     "typescript": "^5.2.2"
   },
   "simple-git-hooks": {
-    "pre-commit": "bun run format && bun run lint"
+    "pre-commit": "pnpm format && pnpm lint"
+  },
+  "packageManager": "pnpm@8.10.0",
+  "pnpm": {
+    "patchedDependencies": {
+      "@vanilla-extract/css@1.13.0": "patches/@vanilla-extract__css@1.13.0.patch"
+    }
   }
 }

@@ -5,7 +5,7 @@ import { type ReactNode, useState } from 'react'
 import { Sidebar } from '../components/Sidebar.js'
 import { SidebarDrawer } from '../components/SidebarDrawer.js'
 import { LowerTopNav, UpperTopNav } from '../components/TopNav.js'
-import styles from './WithSidebar.module.css'
+import * as styles from './WithSidebar.css.js'
 
 export function WithSidebar({
   children,

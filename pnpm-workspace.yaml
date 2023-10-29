@@ -1,0 +1,5 @@
+packages:
+  - 'create-vocs'
+  - 'playgrounds/*'
+  - 'site'
+  - 'src'

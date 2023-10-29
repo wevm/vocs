@@ -1,7 +1,7 @@
 import { clsx } from 'clsx'
 import { Link, type LinkProps } from 'react-router-dom'
 
-import styles from './Anchor.module.css'
+import * as styles from './Anchor.css.js'
 
 export function Anchor(
   props: React.DetailedHTMLProps<React.AnchorHTMLAttributes<HTMLAnchorElement>, HTMLAnchorElement>,

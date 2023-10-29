@@ -1,3 +1,5 @@
+import './styles/index.css.js'
+
 import { hydrateRoot } from 'react-dom/client'
 import { RouterProvider, createBrowserRouter } from 'react-router-dom'
 import { routes } from './routes.js'
