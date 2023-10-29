@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { cac } from 'cac'
-import { cliInit, version } from '../src/internal.js'
+import { cliInit, version } from 'vocs/internal'
 
 const cli = cac('create-vocs')
 
