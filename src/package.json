@@ -20,6 +20,7 @@
     "@mdx-js/react": "^2.3.0",
     "@mdx-js/rollup": "^2.3.0",
     "@radix-ui/colors": "^3.0.0",
+    "@radix-ui/react-dialog": "^1.0.5",
     "@radix-ui/react-tabs": "^1.0.4",
     "@tinyhttp/app": "^2.2.0",
     "@vitejs/plugin-react": "4.1.0",

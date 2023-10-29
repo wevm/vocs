@@ -7,7 +7,7 @@
     "dev": "bun ../../src/cli/index.ts",
     "build": "NODE_ENV=production bun ../../src/cli/index.ts build",
     "preview": "bun ../../src/cli/index.ts preview",
-    "dist:dev": "vocs",
+    "dist:dev": "vocs dev",
     "dist:build": "NODE_ENV=production vocs build",
     "dist:preview": "vocs preview"
   },

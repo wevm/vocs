@@ -37,7 +37,7 @@ export async function build({ outDir = 'dist' }: BuildParameters = {}) {
       lib: {
         formats: ['iife'],
         name: 'theme',
-        entry: [resolve(__dirname, '../app/utils/initialize-theme.ts')],
+        entry: [resolve(__dirname, '../app/utils/initializeTheme.ts')],
       },
       minify: true,
       outDir: resolve(outDir),

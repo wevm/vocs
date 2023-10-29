@@ -9,6 +9,12 @@
     font-weight: var(--vocs-fontWeight-regular);
   }
 
+  @media screen and (width <= 720px) {
+    :root {
+      background-color: var(--vocs-color_background-dark);
+    }
+  }
+
   :root:not(.dark) pre[data-theme='dark'],
   :root:not(.dark) code[data-theme='dark'],
   :root:not(.dark) div[data-theme='dark'] {
@@ -20,5 +26,13 @@
   :root.dark code[data-theme='light'],
   :root.dark div[data-theme='light'] {
     display: none !important;
+  }
+
+  .vocs-content > *:not(:last-child) {
+    margin-bottom: var(--vocs-space_16);
+  }
+  
+  .vocs-content *:last-child {
+    margin-bottom: var(--vocs-space_0);
   }
 }

@@ -13,11 +13,11 @@ export function CodeGroup({ children }: { children: ReactElement[] }) {
   })
   return (
     <Tabs.Root className={styles.root} defaultValue={tabs[0].title}>
-      <Tabs.List className={styles['tabs-list']} aria-label="Code group">
+      <Tabs.List className={styles.tabsList} aria-label="Code group">
         {tabs.map(({ title }, i) => (
           <Tabs.Trigger
             key={title || i.toString()}
-            className={styles['tabs-trigger']}
+            className={styles.tabsTrigger}
             value={title || i.toString()}
           >
             {title}
@@ -29,7 +29,7 @@ export function CodeGroup({ children }: { children: ReactElement[] }) {
         return (
           <Tabs.Content
             key={title || i.toString()}
-            className={styles['tabs-content']}
+            className={styles.tabsContent}
             data-pretty-code={isPrettyCode}
             value={title || i.toString()}
           >

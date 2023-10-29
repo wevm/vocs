@@ -6,9 +6,16 @@ import { dev } from './plugins/dev.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
-export async function createDevServer() {
+export type CreateDevServerParameters = {
+  host?: boolean
+}
+
+export async function createDevServer(params: CreateDevServerParameters = {}) {
   return createServer({
     root: __dirname,
+    server: {
+      host: params.host,
+    },
     plugins: [dev()],
   })
 }

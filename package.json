@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "bun run build:vocs && bun run build:create-vocs",
-    "build:vocs": "rimraf src/_lib src/tsconfig.build.* && tsc -p tsconfig.build.json && bun scripts/postbuild.ts",
+    "build:vocs": "rimraf src/_lib src/tsconfig.build.* && tsc -p tsconfig.build.json && bun scripts/postbuild.ts && chmod +x node_modules/.bin/vocs",
     "build:create-vocs": "rimraf create-vocs/_lib && tsc -p create-vocs/tsconfig.build.json",
     "changeset": "changeset",
     "changeset:publish": "bun run build && changeset publish",

@@ -16,7 +16,7 @@ export function css(): PluginOption {
         css: {
           modules: {
             generateScopedName(classname_, filename) {
-              const classname = classname_ === 'root' ? undefined : classname_
+              const classname = classname_ === 'root' ? undefined : kebabcase(classname_)
               const scope = kebabcase(basename(filename).replace('.module.css', '')).split('?')[0]
               return `vocs-${scope}${classname ? `--${classname}` : ''}`
             },

@@ -1,0 +1,42 @@
+.breadcrumb {
+  font-size: var(--vocs-fontSize_14);
+  font-weight: var(--vocs-fontWeight-medium);
+}
+
+.upper {
+  align-items: center;
+  background: var(--vocs-color_background-dark);
+  border-bottom: 1px solid var(--vocs-color_border);
+  display: flex;
+  height: 100%;
+  padding: 0 var(--vocs-content_horizontal-padding);
+  width: 100%;
+}
+
+.lower {
+  align-items: center;
+  background: var(--vocs-color_background-dark);
+  border-bottom: 1px solid var(--vocs-color_border);
+  display: flex;
+  height: 100%;
+  padding: 0 var(--vocs-content_horizontal-padding);
+  width: 100%;
+}
+
+.lowerLeft {
+  align-items: center;
+  display: flex;
+  gap: var(--vocs-space_4);
+}
+
+.menuTrigger {
+  align-items: center;
+  display: flex;
+  gap: var(--vocs-space_12);
+}
+
+.title {
+  font-size: var(--vocs-fontSize_18);
+  font-weight: var(--vocs-fontWeight-semibold);
+  line-height: var(--vocs-lineHeight-heading);
+}

@@ -1,0 +1,42 @@
+import type { MouseEventHandler, ReactNode } from 'react'
+import { Link, useMatch } from 'react-router-dom'
+import { config } from 'virtual:config'
+
+import styles from './Sidebar.module.css'
+
+export function Sidebar({
+  onClickSidebarItem,
+}: { onClickSidebarItem?: MouseEventHandler<HTMLAnchorElement> }) {
+  const { sidebar } = config
+
+  return (
+    <aside className={styles.root}>
+      <div className={styles.title}>Vocs</div>
+      <nav>
+        <section className={styles.section}>
+          {/* <span className={styles.sectionTitle}>Introduction</span> */}
+          <div className={styles.items}>
+            {sidebar.map((item) => (
+              <SidebarItem key={item.path!} onClick={onClickSidebarItem} path={item.path!}>
+                {item.title}
+              </SidebarItem>
+            ))}
+          </div>
+        </section>
+      </nav>
+    </aside>
+  )
+}
+
+function SidebarItem({
+  children,
+  onClick,
+  path,
+}: { children: ReactNode; onClick?: MouseEventHandler<HTMLAnchorElement>; path: string }) {
+  const match = useMatch(path)
+  return (
+    <Link data-active={Boolean(match)} onClick={onClick} className={styles.item} to={path!}>
+      {children}
+    </Link>
+  )
+}

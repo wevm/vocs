@@ -28,11 +28,11 @@ export function cli_init(cli: CAC) {
     .option('-g, --git', 'Initialize git repository', { default: true })
 }
 
-export async function init(options: InitParameters) {
+export async function init(params: InitParameters) {
   const templateDir = resolve(__dirname, '../templates/default')
 
   const displayName =
-    options.name ||
+    params.name ||
     ((
       await prompts({
         type: 'text',
@@ -62,9 +62,9 @@ export async function init(options: InitParameters) {
   fs.writeJsonSync(resolve(destDir, 'package.json'), pkgJson, { spaces: 2 })
 
   //  Install dependencies
-  if (options.install) {
+  if (params.install) {
     const packageManager =
-      typeof options.install === 'string' ? options.install : detectPackageManager()
+      typeof params.install === 'string' ? params.install : detectPackageManager()
     await execa(packageManager, ['install'], {
       cwd: destDir,
       stdout: 'inherit',
@@ -80,7 +80,7 @@ export async function init(options: InitParameters) {
   }
 
   // Create git repository
-  if (options.git) {
+  if (params.git) {
     await execa('git', ['init'], { cwd: destDir })
     await execa('git', ['add', '.'], { cwd: destDir })
     await execa('git', ['commit', '--no-verify', '--message', 'initial commit'], {

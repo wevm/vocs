@@ -1,0 +1,61 @@
+.root {
+  --left-gutter-width: max(calc((100vw - var(--vocs-content_width)) / 2), var(--vocs-sidebar_width));
+}
+
+.content {
+  margin-left: var(--left-gutter-width);
+}
+
+@media screen and (width <= 1080px) {
+  .content {
+    display: flex;
+    margin-left: unset;
+    margin-right: unset;
+  }
+}
+
+.gutterLeft {
+  background-color: var(--vocs-color_background-dark);
+  justify-content: flex-end;
+  display: flex;
+  height: 100vh;
+  position: fixed;
+  width: var(--left-gutter-width);
+  z-index: var(--vocs-z-index_gutterLeft);
+}
+
+@media screen and (width <= 1080px) {
+  .gutterLeft {
+    display: none;
+  }
+}
+
+.gutterTopLower {
+  align-items: center;
+  display: none;
+  position: sticky;
+  top: 0;
+  height: var(--vocs-topNav_lowerHeight);
+  width: 100vw;
+  z-index: var(--vocs-z-index_gutterTop);
+}
+
+@media screen and (width <= 1080px) {
+  .gutterTopLower {
+    display: flex;
+  }
+}
+
+.gutterTopUpper {
+  align-items: center;
+  display: none;
+  height: var(--vocs-topNav_upperHeight);
+  width: 100vw;
+  z-index: var(--vocs-z-index_gutterTop);
+}
+
+@media screen and (width <= 1080px) {
+  .gutterTopUpper {
+    display: flex;
+  }
+}

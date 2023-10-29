@@ -12,7 +12,7 @@
   padding: var(--vocs-space_8) var(--vocs-space_24);
 }
 
-@media screen and (width <= 70ch) {
+@media screen and (width <= 720px) {
   .root {
     border-radius: 0;
     margin-left: calc(var(--vocs-space_16) * -1);

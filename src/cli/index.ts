@@ -9,7 +9,7 @@ import { version } from './version.js'
 
 const cli = cac('vocs')
 
-cli_dev(cli).command('[root]').alias('dev').action(dev)
+cli_dev(cli).command('dev').action(dev)
 cli_init(cli).command('init').action(init)
 cli_build(cli).command('build').action(build)
 cli_preview(cli).command('preview').action(preview)

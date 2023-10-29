@@ -11,7 +11,7 @@ import {
 } from 'react-router-dom/server.js'
 
 import { routes } from './routes.js'
-import { createFetchRequest } from './utils.js'
+import { createFetchRequest } from './utils/createFetchRequest.js'
 
 export async function prerender(location: string) {
   const unwrappedRoutes = await Promise.all(

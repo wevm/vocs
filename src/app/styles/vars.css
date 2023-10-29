@@ -32,7 +32,8 @@
     --vocs-color_background-2: var(--gray-2);
     --vocs-color_background-3: var(--gray-3);
     --vocs-color_background-4: var(--gray-4);
-    --vocs-color_border: var(--black-a2);
+    --vocs-color_background-dark: var(--gray-2);
+    --vocs-color_border: var(--black-a1);
     --vocs-color_text: var(--gray-12);
     --vocs-color_text-2: var(--gray-11);
     --vocs-color_text-3: var(--gray-10);
@@ -44,7 +45,8 @@
       --vocs-color_background-2: var(--mauve-4);
       --vocs-color_background-3: var(--mauve-5);
       --vocs-color_background-4: var(--mauve-6);
-      --vocs-color_border: var(--mauve-6);
+      --vocs-color_background-dark: #1e1d1f;
+      --vocs-color_border: var(--mauve-5);
       --vocs-color_text: #e9e9ea;
       --vocs-color_text-2: #bdbdbe;
       --vocs-color_text-3: #a7a7a8;
@@ -133,6 +135,9 @@
     --vocs-fontSize_16: 1rem;
     --vocs-fontSize_15: 0.9375rem;
     --vocs-fontSize_14: 0.875rem;
+    --vocs-fontSize_12: 0.75rem;
+    --vocs-fontSize_11: 0.6875rem;
+    --vocs-fontSize_9: 0.5625rem;
     --vocs-fontSize_h1: var(--vocs-fontSize_32);
     --vocs-fontSize_h2: var(--vocs-fontSize_24);
     --vocs-fontSize_h3: var(--vocs-fontSize_20);
@@ -161,6 +166,7 @@
     --vocs-lineHeight-heading: 1.25em;
     --vocs-lineHeight-list: 1.5em;
     --vocs-lineHeight-paragraph: 1.75em;
+    --vocs-lineHeight-sidebarItem: 1.825em;
   }
 
   /* Spacing */
@@ -185,10 +191,43 @@
     --vocs-space_48: 3rem;
     --vocs-space_56: 3.5rem;
     --vocs-space_64: 4rem;
+    --vocs-space_72: 4.5rem;
+    --vocs-space_80: 5rem;
   }
 
-  /* Viewports */
+  /* Z-indexes */
   :root {
-    --vocs-viewport_book: 70ch;
+    --vocs-z-index_surface: 1;
+    --vocs-z-index_gutterTop: 2;
+    --vocs-z-index_gutterLeft: 3;
+    --vocs-z-index_backdrop: 69420;
+    --vocs-z-index_drawer: 69421;
+  }
+
+  /* Misc. */
+  :root {
+    --vocs-content_vertical-padding: var(--vocs-space_80);
+    --vocs-content_horizontal-padding: var(--vocs-space_48);
+    --vocs-content_width: calc(70ch + (var(--vocs-content_horizontal-padding) * 2));
+    --vocs-sidebar_horizontal-padding: var(--vocs-space_24);
+    --vocs-sidebar_width: 300px;
+    --vocs-topNav_upperHeight: 60px;
+    --vocs-topNav_lowerHeight: 40px;
+  }
+
+  @media screen and (width <= 1080px) {
+    :root {
+      --vocs-content_vertical-padding: var(--vocs-space_48);
+      --vocs-content_horizontal-padding: var(--vocs-space_24);
+      --vocs-sidebar_horizontal-padding: var(--vocs-space_24);
+    }
+  }
+
+  @media screen and (width <= 720px) {
+    :root {
+      --vocs-content_vertical-padding: var(--vocs-space_24);
+      --vocs-content_horizontal-padding: var(--vocs-space_16);
+      --vocs-sidebar_horizontal-padding: var(--vocs-space_16);
+    }
   }
 }
