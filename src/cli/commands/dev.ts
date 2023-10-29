@@ -1,10 +1,4 @@
-import type { CAC } from 'cac'
-
 type DevParameters = { host?: boolean }
-
-export function cli_dev(cli: CAC) {
-  return cli.option('-h, --host', 'Expose host URL')
-}
 
 export async function dev(params: DevParameters = {}) {
   const { createDevServer } = await import('../../vite/dev-server.js')

@@ -16,6 +16,7 @@
     "react-dom": "^18.2.0"
   },
   "dependencies": {
+    "@clack/prompts": "^0.7.0",
     "@jmoxey/rehype-pretty-code": "^0.10.2-1",
     "@mdx-js/react": "^2.3.0",
     "@mdx-js/rollup": "^2.3.0",
@@ -40,7 +41,6 @@
     "mdast-util-to-hast": "^13.0.2",
     "minimatch": "^9.0.3",
     "postcss": "^8.4.31",
-    "prompts": "^2.4.2",
     "react-helmet": "^6.1.0",
     "react-router-dom": "^6.16.0",
     "rehype-class-names": "^1.0.14",
@@ -59,7 +59,6 @@
   "devDependencies": {
     "@types/fs-extra": "^11.0.2",
     "@types/postcss-prefix-selector": "^1.16.2",
-    "@types/prompts": "^2.4.7",
     "@types/ua-parser-js": "^0.7.38"
   }
 }

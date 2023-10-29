@@ -2,12 +2,11 @@
 
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import type { CAC } from 'cac'
+import { text } from '@clack/prompts'
 // @ts-expect-error
 import { detect } from 'detect-package-manager'
 import { execa } from 'execa'
 import { default as fs } from 'fs-extra'
-import { default as prompts } from 'prompts'
 
 import { kebabcase } from '../../utils/kebabcase.js'
 
@@ -15,33 +14,19 @@ type InitParameters = { name: string; git: boolean; install: boolean }
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
-export function cli_init(cli: CAC) {
-  return cli
-    .option('-n, --name [name]', 'Name of project')
-    .option(
-      '-i, --install [false|npm|pnpm|yarn|bun]',
-      'Install dependencies (and optionally force package manager)',
-      {
-        default: true,
-      },
-    )
-    .option('-g, --git', 'Initialize git repository', { default: true })
-}
-
 export async function init(params: InitParameters) {
   const templateDir = resolve(__dirname, '../templates/default')
 
   const displayName =
     params.name ||
-    ((
-      await prompts({
-        type: 'text',
-        name: 'displayName',
-        message: 'Enter the name of your project',
-        validate: (value) => (value ? true : 'Please enter a name'),
-      })
-    ).displayName as string)
-  const name = kebabcase(displayName) as string
+    ((await text({
+      message: 'Enter the name of your project',
+      validate(value) {
+        if (!value) return 'Please enter a name.'
+        return
+      },
+    })) as string)
+  const name = kebabcase(displayName)
 
   const destDir = resolve(process.cwd(), name)
 
