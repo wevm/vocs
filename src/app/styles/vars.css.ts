@@ -428,7 +428,7 @@ globalStyle(':root', {
     [viewportVars['max-720px']]: {
       vars: {
         [contentVars.horizontalPadding]: spaceVars['16'],
-        [contentVars.verticalPadding]: spaceVars['24'],
+        [contentVars.verticalPadding]: spaceVars['32'],
         [sidebarVars.horizontalPadding]: spaceVars['16'],
       },
     },

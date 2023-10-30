@@ -1,23 +1,29 @@
 import { keyframes, style } from '@vanilla-extract/css'
 import { sidebarVars, viewportVars, zIndexVars } from '../styles/vars.css.js'
 
-const expand = keyframes({
-  from: {
-    left: `calc(-1 * ${sidebarVars.width})`,
+const expand = keyframes(
+  {
+    from: {
+      left: `calc(-1 * ${sidebarVars.width})`,
+    },
+    to: {
+      left: 0,
+    },
   },
-  to: {
-    left: 0,
-  },
-})
+  'expand',
+)
 
-const fadeIn = keyframes({
-  from: {
-    opacity: 0,
+const fadeIn = keyframes(
+  {
+    from: {
+      opacity: 0,
+    },
+    to: {
+      opacity: 1,
+    },
   },
-  to: {
-    opacity: 1,
-  },
-})
+  'fadeIn',
+)
 
 export const root = style({
   display: 'none',
