@@ -25,8 +25,8 @@ export const root = style({
           marginRight: `calc(-1 * ${spaceVars['16']})`,
         },
       },
-    }
-  }
+    },
+  },
 })
 
 export const note = style(
