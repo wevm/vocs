@@ -7,6 +7,7 @@ import {
   lineHeightVars,
   primitiveColorVars,
   spaceVars,
+  viewportVars,
 } from './vars.css.js'
 
 const globalLayer = layer('global')
@@ -19,6 +20,11 @@ globalStyle(':root', {
       lineHeight: lineHeightVars.paragraph,
       fontSize: fontSizeVars.root,
       fontWeight: fontWeightVars.regular,
+    },
+  },
+  '@media': {
+    [viewportVars['max-720px']]: {
+      backgroundColor: primitiveColorVars.backgroundDark,
     },
   },
 })

@@ -19,6 +19,7 @@ export const root = style({
 export const content = style(
   {
     marginLeft: leftGutterWidthVar,
+    minHeight: `calc(100vh - (${topNavVars.lowerHeight} + ${topNavVars.upperHeight}))`,
     '@media': {
       [viewportVars['max-1080px']]: {
         display: 'flex',

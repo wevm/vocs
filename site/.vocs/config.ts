@@ -11,4 +11,5 @@ export default defineConfig({
       path: '/kitchen-sink',
     },
   ],
+  title: 'Vocs',
 })

@@ -16,23 +16,29 @@ export function UpperTopNav() {
 
 export function LowerTopNav({ MenuTrigger }: { MenuTrigger: React.ElementType }) {
   const { pathname } = useLocation()
-  const sidebarItem = useMemo(
-    () =>
-      config.sidebar
-        ? getSidebarItemFromPathname({
-            sidebar: config.sidebar,
-            pathname,
-          })
-        : undefined,
-    [pathname],
-  )
-  if (!sidebarItem) return null
+
+  const sidebarItemTitle = useMemo(() => {
+    if (!config.sidebar) return
+    const sidebarItem = getSidebarItemFromPathname({
+      sidebar: config.sidebar,
+      pathname,
+    })
+    return sidebarItem?.title
+  }, [pathname])
+
+  const contentTitle = useMemo(() => {
+    if (typeof window === 'undefined') return
+    return document.querySelector('.vocs_Content h1')?.textContent
+  }, [])
+
+  const title = sidebarItemTitle || contentTitle
+
   return (
     <div className={styles.lower}>
       <div className={styles.lowerLeft}>
         <MenuTrigger className={styles.menuTrigger}>
           <Menu width={14} height={14} />
-          <div className={styles.breadcrumb}>{sidebarItem.title}</div>
+          <div className={styles.breadcrumb}>{title}</div>
         </MenuTrigger>
       </div>
     </div>
