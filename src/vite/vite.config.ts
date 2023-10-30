@@ -3,7 +3,6 @@ import { vanillaExtractPlugin } from '@vanilla-extract/vite-plugin'
 import react from '@vitejs/plugin-react'
 import { defineConfig, splitVendorChunkPlugin } from 'vite'
 
-import { kebabcase } from '../utils/kebabcase.js'
 import { css } from './plugins/css.js'
 import { mdx } from './plugins/mdx.js'
 import { root } from './plugins/root.js'
@@ -17,8 +16,8 @@ export default defineConfig({
     react(),
     vanillaExtractPlugin({
       identifiers({ filePath, debugId }) {
-        const scope = kebabcase(basename(filePath).replace('.css.ts', ''))
-        return `vocs-${scope}${debugId ? `_${debugId}` : ''}`
+        const scope = basename(filePath).replace('.css.ts', '')
+        return `vocs_${scope}${debugId ? `_${debugId}` : ''}`
       },
       emitCssInSsr: true,
     }),

@@ -38,10 +38,5 @@
   "simple-git-hooks": {
     "pre-commit": "pnpm format && pnpm lint"
   },
-  "packageManager": "pnpm@8.10.0",
-  "pnpm": {
-    "patchedDependencies": {
-      "@vanilla-extract/css@1.13.0": "patches/@vanilla-extract__css@1.13.0.patch"
-    }
-  }
+  "packageManager": "pnpm@8.10.0"
 }

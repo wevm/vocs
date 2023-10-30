@@ -4,11 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-patchedDependencies:
-  '@vanilla-extract/css@1.13.0':
-    hash: jd33tgy3z4wnfugkm43perxgpm
-    path: patches/@vanilla-extract__css@1.13.0.patch
-
 importers:
 
   .:
@@ -148,7 +143,7 @@ importers:
         version: 2.2.1
       '@vanilla-extract/css':
         specifier: ^1.13.0
-        version: 1.13.0(patch_hash=jd33tgy3z4wnfugkm43perxgpm)
+        version: 1.13.0
       '@vanilla-extract/vite-plugin':
         specifier: ^3.9.0
         version: 3.9.0(@types/node@20.8.9)(vite@4.4.11)
@@ -2356,7 +2351,7 @@ packages:
       - supports-color
     dev: false
 
-  /@vanilla-extract/css@1.13.0(patch_hash=jd33tgy3z4wnfugkm43perxgpm):
+  /@vanilla-extract/css@1.13.0:
     resolution: {integrity: sha512-JFFBXhnJrPlGqHBabagXqo5ghXw9mtV270ycIGyLDZG8NAK5eRwAYkMowAxuzK7wZSm67GnETWYB7b0AUmyttg==}
     dependencies:
       '@emotion/hash': 0.9.1
@@ -2371,7 +2366,6 @@ packages:
       media-query-parser: 2.0.2
       outdent: 0.8.0
     dev: false
-    patched: true
 
   /@vanilla-extract/integration@6.2.2(@types/node@20.8.9):
     resolution: {integrity: sha512-gV3qPFjFap1+IrPeuFy+tEZOq7l7ifJf1ik/kluDWhPr1ffsFG9puq1/jjJ4rod1BIC79Q5ZWPNvBInHyxfCew==}
@@ -2379,7 +2373,7 @@ packages:
       '@babel/core': 7.23.2
       '@babel/plugin-syntax-typescript': 7.22.5(@babel/core@7.23.2)
       '@vanilla-extract/babel-plugin-debug-ids': 1.0.3
-      '@vanilla-extract/css': 1.13.0(patch_hash=jd33tgy3z4wnfugkm43perxgpm)
+      '@vanilla-extract/css': 1.13.0
       esbuild: 0.17.6
       eval: 0.1.8
       find-up: 5.0.0
