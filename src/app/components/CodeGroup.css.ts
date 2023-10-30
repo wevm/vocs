@@ -46,8 +46,11 @@ export const tabsTrigger = style(
     fontWeight: fontWeightVars.medium,
     padding: `${spaceVars['8']} ${spaceVars['8']} ${spaceVars['6']} ${spaceVars['8']}`,
     selectors: {
+      '&:hover': {
+        color: primitiveColorVars.text,
+      },
       '&[data-state="active"]': {
-        borderBottom: `2px solid ${primitiveColorVars.border}`,
+        borderBottom: `2px solid ${primitiveColorVars.borderAccent}`,
         color: primitiveColorVars.text,
       },
     },
