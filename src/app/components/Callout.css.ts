@@ -1,4 +1,5 @@
 import { style } from '@vanilla-extract/css'
+
 import {
   borderRadiusVars,
   fontSizeVars,
@@ -6,21 +7,26 @@ import {
   spaceVars,
   viewportVars,
 } from '../styles/vars.css.js'
+import { content as stepContent } from './Step.css.js'
 
 export const root = style({
   borderRadius: borderRadiusVars['4'],
   fontSize: fontSizeVars['14'],
   padding: `${spaceVars['16']} ${spaceVars['20']}`,
   marginBottom: spaceVars['16'],
-  '@media': {
-    [viewportVars['max-720px']]: {
-      borderRadius: 0,
-      borderLeftWidth: 0,
-      borderRightWidth: 0,
-      marginLeft: `calc(-1 * ${spaceVars['16']})`,
-      marginRight: `calc(-1 * ${spaceVars['16']})`,
-    },
-  },
+  selectors: {
+    [`:not(${stepContent}) > &`]: {
+      '@media': {
+        [viewportVars['max-720px']]: {
+          borderRadius: 0,
+          borderLeftWidth: 0,
+          borderRightWidth: 0,
+          marginLeft: `calc(-1 * ${spaceVars['16']})`,
+          marginRight: `calc(-1 * ${spaceVars['16']})`,
+        },
+      },
+    }
+  }
 })
 
 export const note = style(
