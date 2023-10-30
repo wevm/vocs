@@ -16,7 +16,7 @@ globalStyle(['*', '::before', '::after'].join(','), {
 globalStyle('*:focus-visible', {
   '@layer': {
     [resetLayer]: {
-      outline: `2px solid ${primitiveColorVars.accent}`,
+      outline: `2px solid ${primitiveColorVars.borderAccent}`,
       outlineOffset: '2px',
       outlineStyle: 'dashed',
     },

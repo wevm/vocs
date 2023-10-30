@@ -47,7 +47,7 @@ export const tabsTrigger = style(
     padding: `${spaceVars['8']} ${spaceVars['8']} ${spaceVars['6']} ${spaceVars['8']}`,
     selectors: {
       '&[data-state="active"]': {
-        borderBottom: `2px solid ${primitiveColorVars.accent}`,
+        borderBottom: `2px solid ${primitiveColorVars.border}`,
         color: primitiveColorVars.text,
       },
     },

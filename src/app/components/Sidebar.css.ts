@@ -31,7 +31,7 @@ export const item = style(
         color: primitiveColorVars.text,
       },
       '&[data-active="true"]': {
-        color: primitiveColorVars.text,
+        color: primitiveColorVars.textAccent,
       },
     },
   },
