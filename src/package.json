@@ -9,7 +9,8 @@
   "exports": {
     ".": "./_lib/index.js",
     "./head": "./_lib/head.js",
-    "./internal": "./_lib/internal.js"
+    "./internal": "./_lib/internal.js",
+    "./react": "./_lib/react.js"
   },
   "peerDependencies": {
     "react": "^18.2.0",

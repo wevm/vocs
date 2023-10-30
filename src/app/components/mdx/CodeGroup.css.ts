@@ -15,8 +15,6 @@ export const root = style({
   '@media': {
     [viewportVars['max-720px']]: {
       borderRadius: 0,
-      marginLeft: `calc(-1 * ${spaceVars['16']})`,
-      marginRight: `calc(-1 * ${spaceVars['16']})`,
     },
   },
 })
@@ -32,6 +30,8 @@ export const tabsList = style(
     '@media': {
       [viewportVars['max-720px']]: {
         padding: `${spaceVars['0']} ${spaceVars['8']}`,
+        marginLeft: `calc(-1 * ${spaceVars['16']})`,
+        marginRight: `calc(-1 * ${spaceVars['16']})`,
       },
     },
   },
@@ -60,12 +60,15 @@ export const tabsTrigger = style(
 
 export const tabsContent = style(
   {
+    backgroundColor: semanticColorVars.codeBlockBackground,
     selectors: {
       '&:not([data-pretty-code="true"])': {
         padding: `${spaceVars['20']} ${spaceVars['22']}`,
         '@media': {
           [viewportVars['max-720px']]: {
             padding: `${spaceVars['20']} ${spaceVars['16']}`,
+            marginLeft: `calc(-1 * ${spaceVars['16']})`,
+            marginRight: `calc(-1 * ${spaceVars['16']})`,
           },
         },
       },

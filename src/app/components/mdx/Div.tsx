@@ -6,6 +6,7 @@ import { CodeGroup } from './CodeGroup.js'
 import { CodeTitle } from './CodeTitle.js'
 import * as styles from './Div.css.js'
 import { Subtitle } from './Subtitle.js'
+import { Steps } from './Steps.js'
 
 export function Div(props: DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>) {
   const className = clsx(props.className, styles.root)
@@ -15,6 +16,7 @@ export function Div(props: DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTM
     return <CodeTitle {...(props as any)} className={className} />
   if ('data-rehype-pretty-code-fragment' in props)
     return <CodeBlock {...(props as any)} className={className} />
+  if ('data-vocs-steps' in props) return <Steps {...(props as any)} className={className} />
   if (props.role === 'doc-subtitle') return <Subtitle {...(props as any)} />
   return <div {...props} className={className} />
 }

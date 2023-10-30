@@ -114,6 +114,9 @@ importers:
       react-dom:
         specifier: ^18.2.0
         version: 18.2.0(react@18.2.0)
+      vocs:
+        specifier: workspace:*
+        version: link:../src
 
   src:
     dependencies:

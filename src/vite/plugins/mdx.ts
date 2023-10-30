@@ -16,6 +16,7 @@ import { remarkCallout } from './remark/callout.js'
 import { remarkCodeGroup } from './remark/code-group.js'
 import { remarkCode } from './remark/code.js'
 import { remarkInferFrontmatter } from './remark/inferred-frontmatter.js'
+import { remarkSteps } from './remark/steps.js'
 import { remarkStrongBlock } from './remark/strong-block.js'
 import { remarkSubheading } from './remark/subheading.js'
 
@@ -30,6 +31,7 @@ export function mdx() {
       remarkCallout,
       remarkCode,
       remarkCodeGroup,
+      remarkSteps,
       remarkStrongBlock,
       remarkSubheading,
     ],

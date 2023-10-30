@@ -8,7 +8,7 @@ export function remarkCode() {
   return (tree: Root) => {
     visit(tree, (node, _, parent) => {
       if (node.type !== 'code') return
-      if (parent?.type === 'containerDirective') return
+      if (parent?.type === 'containerDirective' && parent.name !== 'steps') return
 
       const [match, title] = node.meta?.match(/\[(.*)\]/) || []
       if (match) node.meta = node.meta?.replace(match, `title=\"${title}\"`)
