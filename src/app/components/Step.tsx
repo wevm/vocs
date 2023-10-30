@@ -27,7 +27,7 @@ export function Step({ children, className, title, titleLevel = 2 }: StepProps) 
 
   return (
     <div className={clsx(className, styles.root)}>
-      <Element className={styles.title}>{title}</Element>
+      {typeof title === 'string' ? <Element className={styles.title}>{title}</Element> : title}
       <div className={styles.content}>{children}</div>
     </div>
   )

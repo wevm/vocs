@@ -1,7 +1,8 @@
-import type { ReactNode } from 'react'
+import { cloneElement, type ReactNode } from 'react'
 
 import { Steps as Steps_ } from '../Steps.js'
 import { Step } from '../Step.js'
+import * as stepStyles from '../Step.css.js'
 
 export function Steps({ children }: { children: ReactNode }) {
   if (!Array.isArray(children)) return null
@@ -12,8 +13,7 @@ export function Steps({ children }: { children: ReactNode }) {
         return (
           <Step
             key={i}
-            title={title.props.children}
-            titleLevel={parseInt(props['data-depth']) as any}
+            title={cloneElement(title, { className: stepStyles.title })}
           >
             {children}
           </Step>

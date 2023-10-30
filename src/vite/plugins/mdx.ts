@@ -1,4 +1,6 @@
+import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import rehypePrettyCode from '@jmoxey/rehype-pretty-code'
+import rehypeSlug from 'rehype-slug'
 import mdxPlugin from '@mdx-js/rollup'
 import remarkDirective from 'remark-directive'
 import remarkFrontmatter from 'remark-frontmatter'
@@ -56,6 +58,8 @@ export function mdx() {
           },
         },
       ],
+      rehypeSlug,
+      rehypeAutolinkHeadings,
     ],
   }) as PluginOption
 }
