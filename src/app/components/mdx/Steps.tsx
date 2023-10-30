@@ -11,10 +11,7 @@ export function Steps({ children }: { children: ReactNode }) {
       {children.map(({ props }, i) => {
         const [title, ...children] = props.children
         return (
-          <Step
-            key={i}
-            title={cloneElement(title, { className: stepStyles.title })}
-          >
+          <Step key={i} title={cloneElement(title, { className: stepStyles.title })}>
             {children}
           </Step>
         )
