@@ -1,11 +1,11 @@
 import { clsx } from 'clsx'
 import { type DetailedHTMLProps, type HTMLAttributes } from 'react'
 
-import { CodeBlock } from '../CodeBlock.js'
-import { CodeGroup } from '../CodeGroup.js'
-import { CodeTitle } from '../CodeTitle.js'
-import { Subtitle } from '../Subtitle.js'
+import { CodeBlock } from './CodeBlock.js'
+import { CodeGroup } from './CodeGroup.js'
+import { CodeTitle } from './CodeTitle.js'
 import * as styles from './Div.css.js'
+import { Subtitle } from './Subtitle.js'
 
 export function Div(props: DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>) {
   const className = clsx(props.className, styles.root)

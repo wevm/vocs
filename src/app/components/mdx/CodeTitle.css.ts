@@ -7,7 +7,7 @@ import {
   semanticColorVars,
   spaceVars,
   viewportVars,
-} from '../styles/vars.css.js'
+} from '../../styles/vars.css.js'
 
 export const root = style({
   alignItems: 'center',

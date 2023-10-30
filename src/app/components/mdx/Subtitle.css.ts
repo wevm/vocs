@@ -5,7 +5,7 @@ import {
   lineHeightVars,
   primitiveColorVars,
   spaceVars,
-} from '../styles/vars.css.js'
+} from '../../styles/vars.css.js'
 
 export const root = style({
   color: primitiveColorVars.text2,

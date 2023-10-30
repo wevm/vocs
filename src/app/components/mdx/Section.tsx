@@ -1,7 +1,7 @@
 import { clsx } from 'clsx'
 import { type DetailedHTMLProps, type HTMLAttributes } from 'react'
 
-import { Footnotes } from '../Footnotes.js'
+import { Footnotes } from './Footnotes.js'
 import * as styles from './Section.css.js'
 
 export function Section(props: DetailedHTMLProps<HTMLAttributes<HTMLElement>, HTMLElement>) {

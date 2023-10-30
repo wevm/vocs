@@ -5,7 +5,7 @@ import {
   lineHeightVars,
   semanticColorVars,
   spaceVars,
-} from '../styles/vars.css.js'
+} from '../../styles/vars.css.js'
 
 export const root = style({})
 

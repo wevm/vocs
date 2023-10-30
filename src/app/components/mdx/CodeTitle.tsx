@@ -1,8 +1,8 @@
 import { clsx } from 'clsx'
 
+import { File } from '../svgs/File.js'
+import { Terminal } from '../svgs/Terminal.js'
 import * as styles from './CodeTitle.css.js'
-import { File } from './svgs/File.js'
-import { Terminal } from './svgs/Terminal.js'
 
 export function CodeTitle({
   children,
