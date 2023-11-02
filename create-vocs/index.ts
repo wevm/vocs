@@ -1,1 +1,1 @@
-export { init, type InitParameters } from './init'
+export { init, type InitParameters } from './init.js'

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { cac } from 'cac'
-import { type InitParameters, init } from './init'
+import { type InitParameters, init } from './init.js'
 import pkg from './package.json'
 
 const cli = cac('create-vocs')
