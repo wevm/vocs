@@ -62,12 +62,21 @@ importers:
 
   create-vocs:
     dependencies:
+      '@clack/prompts':
+        specifier: ^0.7.0
+        version: 0.7.0
       cac:
         specifier: ^6.7.14
         version: 6.7.14
-      vocs:
-        specifier: workspace:*
-        version: link:../src
+      detect-package-manager:
+        specifier: ^3.0.1
+        version: 3.0.1
+      fs-extra:
+        specifier: ^11.1.1
+        version: 11.1.1
+      picocolors:
+        specifier: ^1.0.0
+        version: 1.0.0
 
   playgrounds/default:
     dependencies:
@@ -120,9 +129,6 @@ importers:
 
   src:
     dependencies:
-      '@clack/prompts':
-        specifier: ^0.7.0
-        version: 0.7.0
       '@mdx-js/react':
         specifier: ^3.0.0
         version: 3.0.0(@types/react@18.2.33)(react@18.2.0)
@@ -162,12 +168,9 @@ importers:
       compression:
         specifier: ^1.7.4
         version: 1.7.4
-      detect-package-manager:
-        specifier: ^3.0.1
-        version: 3.0.1
-      fs-extra:
-        specifier: ^11.1.1
-        version: 11.1.1
+      create-vocs:
+        specifier: workspace:*
+        version: link:../create-vocs
       globby:
         specifier: ^13.2.2
         version: 13.2.2
@@ -183,9 +186,6 @@ importers:
       minimatch:
         specifier: ^9.0.3
         version: 9.0.3
-      picocolors:
-        specifier: ^1.0.0
-        version: 1.0.0
       postcss:
         specifier: ^8.4.31
         version: 8.4.31

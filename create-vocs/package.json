@@ -3,10 +3,17 @@
   "version": "0.0.0",
   "type": "module",
   "bin": {
-    "create-vocs": "./_lib/index.js"
+    "create-vocs": "./_lib/bin.js"
+  },
+  "main": "./_lib/index.js",
+  "exports": {
+    ".": "./_lib/index.js"
   },
   "dependencies": {
+    "@clack/prompts": "^0.7.0",
     "cac": "^6.7.14",
-    "vocs": "workspace:*"
+    "detect-package-manager": "^3.0.1",
+    "fs-extra": "^11.1.1",
+    "picocolors": "^1.0.0"
   }
 }

@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 import { cac } from 'cac'
+import { init } from 'create-vocs'
 
 import { build } from './commands/build.js'
 import { dev } from './commands/dev.js'
-import { init } from './commands/init.js'
 import { preview } from './commands/preview.js'
 import { version } from './version.js'
 

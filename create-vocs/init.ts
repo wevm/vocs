@@ -1,5 +1,3 @@
-// TODO: spice it up
-
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { intro, log, outro, text } from '@clack/prompts'
@@ -8,9 +6,7 @@ import { detect } from 'detect-package-manager'
 import { default as fs } from 'fs-extra'
 import pc from 'picocolors'
 
-import { kebabcase } from '../../utils/kebabcase.js'
-
-type InitParameters = { name: string }
+export type InitParameters = { name: string }
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -62,7 +58,7 @@ export async function init(params: InitParameters) {
 
 type PackageManager = 'npm' | 'yarn' | 'pnpm' | 'bun'
 
-export function detectPackageManager(): PackageManager {
+function detectPackageManager(): PackageManager {
   const userAgent = process.env.npm_config_user_agent
   if (!userAgent) return 'npm'
   if (userAgent.includes('bun')) return 'bun'
@@ -84,4 +80,11 @@ function pkgManagerRunCommand(pkgManager: PackageManager, command: string) {
   if (pkgManager === 'yarn') return `yarn ${command}`
   if (pkgManager === 'pnpm') return `pnpm ${command}`
   return `npm run ${command}`
+}
+
+function kebabcase(str: string) {
+  return str
+    .replace(/([a-z])([A-Z])/g, '$1-$2')
+    .replace(/[\s_]+/g, '-')
+    .toLowerCase()
 }

@@ -10,10 +10,10 @@ copyFileSync(
   resolve(import.meta.dir, '../src/_lib/vite/index.html'),
 )
 
-// Copy CLI init templates
+// Copy create-vocs templates
 copy(
-  resolve(import.meta.dir, '../src/cli/templates'),
-  resolve(import.meta.dir, '../src/_lib/cli/templates'),
+  resolve(import.meta.dir, '../create-vocs/templates'),
+  resolve(import.meta.dir, '../create-vocs/_lib/templates'),
 )
 
 rewriteExtensions(resolve(import.meta.dir, '../src/_lib'))
