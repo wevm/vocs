@@ -4,17 +4,7 @@ import { cliInit, version } from 'vocs/internal'
 
 const cli = cac('create-vocs')
 
-cli
-  .usage('[options]')
-  .option('-n, --name [name]', 'Name of project')
-  .option(
-    '-i, --install [false|npm|pnpm|yarn|bun]',
-    'Install dependencies (and optionally force package manager)',
-    {
-      default: true,
-    },
-  )
-  .option('-g, --git', 'Initialize git repository', { default: true })
+cli.usage('[options]').option('-n, --name [name]', 'Name of project')
 
 cli.help()
 cli.version(version)

@@ -2,19 +2,21 @@
 
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { text } from '@clack/prompts'
+import { intro, log, outro, text } from '@clack/prompts'
 // @ts-expect-error
 import { detect } from 'detect-package-manager'
-import { execa } from 'execa'
 import { default as fs } from 'fs-extra'
+import pc from 'picocolors'
 
 import { kebabcase } from '../../utils/kebabcase.js'
 
-type InitParameters = { name: string; git: boolean; install: boolean }
+type InitParameters = { name: string }
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
 export async function init(params: InitParameters) {
+  intro('Welcome to Vocs!')
+
   const templateDir = resolve(__dirname, '../templates/default')
 
   const displayName =
@@ -30,8 +32,6 @@ export async function init(params: InitParameters) {
 
   const destDir = resolve(process.cwd(), name)
 
-  console.log(`Scaffolding project in ${name}...`)
-
   // Copy contents
   fs.copySync(templateDir, destDir)
 
@@ -46,37 +46,23 @@ export async function init(params: InitParameters) {
   pkgJson.name = name
   fs.writeJsonSync(resolve(destDir, 'package.json'), pkgJson, { spaces: 2 })
 
-  //  Install dependencies
-  if (params.install) {
-    const packageManager =
-      typeof params.install === 'string' ? params.install : detectPackageManager()
-    await execa(packageManager, ['install'], {
-      cwd: destDir,
-      stdout: 'inherit',
-      env: {
-        ...process.env,
-        ADBLOCK: '1',
-        DISABLE_OPENCOLLECTIVE: '1',
-        // we set NODE_ENV to development as pnpm skips dev
-        // dependencies when production
-        NODE_ENV: 'development',
-      },
-    })
-  }
+  // Wrap up
+  log.success(`Project successfully scaffolded in ${pc.blue(destDir)}!`)
 
-  // Create git repository
-  if (params.git) {
-    await execa('git', ['init'], { cwd: destDir })
-    await execa('git', ['add', '.'], { cwd: destDir })
-    await execa('git', ['commit', '--no-verify', '--message', 'initial commit'], {
-      cwd: destDir,
-    })
-  }
+  const pkgManager = detectPackageManager()
 
-  console.log('Done!')
+  log.message('Next steps:')
+  log.step(`1. ${pc.blue(`cd ./${name}`)} - Navigate to project`)
+  log.step(`2. ${pc.blue(pkgManagerInstallCommand(pkgManager))} - Install dependencies`)
+  log.step(`3. ${pc.blue(pkgManagerRunCommand(pkgManager, 'dev'))} - Start dev server`)
+  log.step(`4. Head to ${pc.blue('http://localhost:5173')}`)
+
+  outro('Happy documenting! 📝')
 }
 
-export function detectPackageManager() {
+type PackageManager = 'npm' | 'yarn' | 'pnpm' | 'bun'
+
+export function detectPackageManager(): PackageManager {
   const userAgent = process.env.npm_config_user_agent
   if (!userAgent) return 'npm'
   if (userAgent.includes('bun')) return 'bun'
@@ -84,4 +70,18 @@ export function detectPackageManager() {
   if (userAgent.includes('pnpm')) return 'pnpm'
   if (userAgent.includes('npm')) return 'npm'
   return 'npm'
+}
+
+function pkgManagerInstallCommand(pkgManager: PackageManager) {
+  if (pkgManager === 'bun') return 'bun install'
+  if (pkgManager === 'yarn') return 'yarn'
+  if (pkgManager === 'pnpm') return 'pnpm install'
+  return 'npm install'
+}
+
+function pkgManagerRunCommand(pkgManager: PackageManager, command: string) {
+  if (pkgManager === 'bun') return `bun run ${command}`
+  if (pkgManager === 'yarn') return `yarn ${command}`
+  if (pkgManager === 'pnpm') return `pnpm ${command}`
+  return `npm run ${command}`
 }

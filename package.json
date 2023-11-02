@@ -13,7 +13,7 @@
     "format": "biome format . --write",
     "lint": "biome lint . --apply-unsafe",
     "playground": "pnpm --filter playgrounds/default dev",
-    "prepare": "bun x simple-git-hooks",
+    "prepare": "simple-git-hooks",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
