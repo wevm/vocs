@@ -4,6 +4,7 @@ import { Anchor } from './Anchor.js'
 import { Aside } from './Aside.js'
 import { Blockquote } from './Blockquote.js'
 import { Code } from './Code.js'
+import { Details } from './Details.js'
 import { Div } from './Div.js'
 import { H1 } from './H1.js'
 import { H2 } from './H2.js'
@@ -19,6 +20,7 @@ import { Paragraph } from './Paragraph.js'
 import { Pre } from './Pre.js'
 import { Section } from './Section.js'
 import { Strong } from './Strong.js'
+import { Summary } from './Summary.js'
 import { Table } from './Table.js'
 import { TableCell } from './TableCell.js'
 import { TableHeader } from './TableHeader.js'
@@ -29,6 +31,7 @@ export const components: MDXComponents = {
   aside: Aside,
   blockquote: Blockquote,
   code: Code,
+  details: Details,
   div: Div,
   pre: Pre,
   header: Header,
@@ -44,6 +47,7 @@ export const components: MDXComponents = {
   p: Paragraph,
   section: Section,
   strong: Strong,
+  summary: Summary,
   table: Table,
   td: TableCell,
   th: TableHeader,
