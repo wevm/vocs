@@ -28,9 +28,15 @@ export function remarkCallout() {
 
       if (label) {
         node.children = node.children.filter((child: any) => !child.data?.directiveLabel)
-        ;(node.children[0] as any).children.unshift({
-          type: 'strong',
-          children: [{ type: 'text', value: `${label} ` }],
+        node.children.unshift({
+          type: 'paragraph',
+          data: { hProperties: { 'data-callout-title': true } },
+          children: [
+            {
+              type: 'strong',
+              children: [{ type: 'text', value: label }],
+            },
+          ],
         })
       }
 
