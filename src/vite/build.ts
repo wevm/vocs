@@ -1,5 +1,6 @@
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { default as fs } from 'fs-extra'
 import * as vite from 'vite'
 
 import { prerender } from './plugins/prerender.js'
@@ -30,6 +31,9 @@ export async function build({ outDir = 'dist' }: BuildParameters = {}) {
     plugins: [prerender({ outDir })],
     root: __dirname,
   })
+
+  // copy public folder
+  fs.copySync(resolve(__dirname, '../app/public'), resolve(outDir))
 
   // initialize theme script
   await vite.build({
