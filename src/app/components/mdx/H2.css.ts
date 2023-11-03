@@ -1,18 +1,10 @@
-import { style } from '@vanilla-extract/css'
-import {
-  fontSizeVars,
-  fontWeightVars,
-  lineHeightVars,
-  primitiveColorVars,
-  spaceVars,
-} from '../../styles/vars.css.js'
+import { globalStyle, style } from '@vanilla-extract/css'
+import { fontSizeVars, primitiveColorVars, spaceVars } from '../../styles/vars.css.js'
 import { root as header } from './Header.css.js'
 
 export const root = style({
   fontSize: fontSizeVars.h2,
-  fontWeight: fontWeightVars.semibold,
   letterSpacing: '-0.02em',
-  lineHeight: lineHeightVars.heading,
   selectors: {
     '&:not(:last-child)': {
       marginBottom: spaceVars['24'],

@@ -1,11 +1,9 @@
 import { style } from '@vanilla-extract/css'
-import { fontSizeVars, fontWeightVars, lineHeightVars, spaceVars } from '../../styles/vars.css.js'
+import { fontSizeVars, spaceVars } from '../../styles/vars.css.js'
 import { root as H4 } from './H4.css.js'
 
 export const root = style({
   fontSize: fontSizeVars.h5,
-  fontWeight: fontWeightVars.semibold,
-  lineHeight: lineHeightVars.heading,
   selectors: {
     '&:not(:first-child)': {
       marginTop: spaceVars['16'],

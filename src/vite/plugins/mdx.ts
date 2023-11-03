@@ -1,4 +1,5 @@
 import mdxPlugin from '@mdx-js/rollup'
+import { h } from 'hastscript'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import rehypePrettyCode from 'rehype-pretty-code'
 import rehypeSlug from 'rehype-slug'
@@ -61,7 +62,19 @@ export function mdx() {
         },
       ],
       rehypeSlug,
-      rehypeAutolinkHeadings,
+      [
+        rehypeAutolinkHeadings,
+        {
+          behavior: 'append',
+          content() {
+            return [
+              h('div', {
+                dataAutolinkIcon: true,
+              }),
+            ]
+          },
+        },
+      ],
     ],
   }) as PluginOption
 }
