@@ -1,11 +1,9 @@
 import type { MDXComponents } from 'mdx/types.js'
 import * as React from 'react'
-import type { LayoutType } from './layouts/Layout.js'
 
 export type Frontmatter = {
   [key: string]: unknown
   description?: string
-  layout?: LayoutType
   title?: string
 }
 
