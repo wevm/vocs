@@ -1,4 +1,4 @@
-import { globalStyle, style } from '@vanilla-extract/css'
+import { style } from '@vanilla-extract/css'
 import { fontSizeVars, primitiveColorVars, spaceVars } from '../../styles/vars.css.js'
 import { root as header } from './Header.css.js'
 
