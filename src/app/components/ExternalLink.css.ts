@@ -9,7 +9,7 @@ export const root = style({
       height: '0.5em',
       marginLeft: '0.325em',
       width: '0.5em',
-      mask: 'url(/icons/arrow-diagonal.svg) no-repeat center / contain',
+      mask: 'url(/.vocs/icons/arrow-diagonal.svg) no-repeat center / contain',
     },
   },
 })

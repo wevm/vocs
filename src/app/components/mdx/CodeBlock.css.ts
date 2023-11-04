@@ -3,6 +3,7 @@ import {
   borderRadiusVars,
   fontSizeVars,
   lineHeightVars,
+  primitiveColorVars,
   semanticColorVars,
   spaceVars,
 } from '../../styles/vars.css.js'
@@ -73,16 +74,16 @@ globalStyle(`${root} [data-line].diff::before`, {
 })
 
 globalStyle(`${root} [data-line].diff.add`, {
-  backgroundColor: 'rgb(16 185 129 / 16%)',
+  backgroundColor: primitiveColorVars.backgroundGreenTint2,
 })
 
 globalStyle(`${root} [data-line].diff.add::before`, {
   content: '+',
-  color: '#3dd68c',
+  color: primitiveColorVars.textGreen,
 })
 
 globalStyle(`${root} [data-line].diff.remove`, {
-  backgroundColor: 'rgb(244 63 94 / 16%)',
+  backgroundColor: primitiveColorVars.backgroundRedTint2,
   opacity: '0.6',
 })
 
@@ -92,7 +93,7 @@ globalStyle(`${root} [data-line].diff.remove > span`, {
 
 globalStyle(`${root} [data-line].diff.remove::before`, {
   content: '-',
-  color: '#f66f81',
+  color: primitiveColorVars.textRed,
 })
 
 globalStyle(`${root} .has-focused-lines [data-line]:not(.has-focus)`, {

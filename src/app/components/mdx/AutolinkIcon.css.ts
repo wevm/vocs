@@ -8,7 +8,7 @@ export const root = style({
   display: 'inline-block',
   height: '0.8em',
   width: '0.8em',
-  mask: 'url(/icons/link.svg) no-repeat center / contain',
+  mask: 'url(/.vocs/icons/link.svg) no-repeat center / contain',
   selectors: {
     [`${Autolink}:hover &`]: {
       backgroundColor: primitiveColorVars.textAccentHover,

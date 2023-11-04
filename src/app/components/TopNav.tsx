@@ -3,8 +3,8 @@ import { useLocation } from 'react-router-dom'
 import { config } from 'virtual:config'
 
 import type { Sidebar, SidebarItem } from '../../config.js'
+import { Icon } from './Icon.js'
 import * as styles from './TopNav.css.js'
-import { Menu } from './svgs/Menu.js'
 
 export function UpperTopNav() {
   return (
@@ -37,7 +37,7 @@ export function LowerTopNav({ MenuTrigger }: { MenuTrigger: React.ElementType })
     <div className={styles.lower}>
       <div className={styles.lowerLeft}>
         <MenuTrigger className={styles.menuTrigger}>
-          <Menu width={14} height={14} />
+          <Icon label="Menu" src="/.vocs/icons/menu.svg" size="14px" />
           <div className={styles.breadcrumb}>{title}</div>
         </MenuTrigger>
       </div>
