@@ -50,12 +50,15 @@ export function Outline({
   }, [headingElements, maxLevel, minLevel])
 
   const [activeId, setActiveId] = useState<string | null>(hash.replace('#', ''))
+
+  // As the user scrolls the page, we want to make the corresponding outline item active.
   useEffect(() => {
     if (typeof window === 'undefined') return
 
     const observer = new IntersectionObserver(
       ([entry]) => {
         const id = entry.target.id
+
         if (entry.isIntersecting) setActiveId(id)
         else {
           const box = entry.target.getBoundingClientRect()
@@ -76,6 +79,20 @@ export function Outline({
 
     return () => observer.disconnect()
   }, [activeId, items])
+
+  // When the user hits the bottom of the page, we want to make the last outline item active.
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) setActiveId(items[items.length - 1].id)
+      else setActiveId(items[items.length - 2].id)
+    })
+
+    observer.observe(document.querySelector('[data-bottom-observer]')!)
+
+    return () => observer.disconnect()
+  }, [items])
 
   if (items.length === 0) return null
 
