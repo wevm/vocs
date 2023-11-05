@@ -25,7 +25,6 @@ export const content = style(
     '@media': {
       [viewportVars['max-1080px']]: {
         display: 'flex',
-        flexDirection: 'column',
         marginLeft: 'unset',
         marginRight: 'unset',
       },

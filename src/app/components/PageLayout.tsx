@@ -29,8 +29,8 @@ export function PageLayout({
         </div>
         <div className={styles.content}>
           <Content>{children}</Content>
-          <div data-bottom-observer />
         </div>
+        <div data-bottom-observer />
         <div className={styles.gutterRight}>
           <Outline />
         </div>
