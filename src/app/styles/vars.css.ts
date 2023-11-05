@@ -229,6 +229,7 @@ export const fontSizeVars = createGlobalThemeContract(
     '9': '9',
     '11': '11',
     '12': '12',
+    '13': '13',
     '14': '14',
     '15': '15',
     '16': '16',
@@ -256,6 +257,7 @@ createGlobalTheme(':root', fontSizeVars, {
   '9': '0.5625rem',
   '11': '0.6875rem',
   '12': '0.75rem',
+  '13': '0.8125rem',
   '14': '0.875rem',
   '15': '0.9375rem',
   '16': '1rem',
@@ -296,6 +298,7 @@ export const lineHeightVars = createGlobalThemeContract(
     code: 'code',
     heading: 'heading',
     listItem: 'listItem',
+    outlineItem: 'outlineItem',
     paragraph: 'paragraph',
     sidebarItem: 'sidebarItem',
   },
@@ -305,6 +308,7 @@ createGlobalTheme(':root', lineHeightVars, {
   code: '1.75em',
   heading: '1.25em',
   listItem: '2.25em',
+  outlineItem: '1.5em',
   paragraph: '1.75em',
   sidebarItem: '1.825em',
 })
@@ -366,6 +370,7 @@ createGlobalTheme(':root', spaceVars, {
 export const viewportVars = {
   'max-720px': 'screen and (width <= 720px)',
   'max-1080px': 'screen and (width <= 1080px)',
+  'max-1280px': 'screen and (width <= 1280px)',
 }
 
 export const zIndexVars = createGlobalThemeContract(
@@ -373,6 +378,7 @@ export const zIndexVars = createGlobalThemeContract(
     backdrop: 'backdrop',
     drawer: 'drawer',
     gutterLeft: 'gutterLeft',
+    gutterRight: 'gutterRight',
     gutterTop: 'gutterTop',
     surface: 'surface',
   },
@@ -381,6 +387,7 @@ export const zIndexVars = createGlobalThemeContract(
 createGlobalTheme(':root', zIndexVars, {
   backdrop: '69420',
   drawer: '69421',
+  gutterRight: '3',
   gutterLeft: '3',
   gutterTop: '2',
   surface: '1',

@@ -3,12 +3,13 @@ import {
   contentVars,
   primitiveColorVars,
   sidebarVars,
+  spaceVars,
   topNavVars,
   viewportVars,
   zIndexVars,
 } from '../styles/vars.css.js'
 
-const leftGutterWidthVar = createVar()
+const leftGutterWidthVar = createVar('leftGutterWidth')
 
 export const root = style({
   vars: {
@@ -19,6 +20,7 @@ export const root = style({
 export const content = style(
   {
     marginLeft: leftGutterWidthVar,
+    maxWidth: contentVars.width,
     minHeight: `calc(100vh - (${topNavVars.lowerHeight} + ${topNavVars.upperHeight}))`,
     '@media': {
       [viewportVars['max-1080px']]: {
@@ -81,4 +83,24 @@ export const gutterTopUpper = style(
     },
   },
   'gutterTopUpper',
+)
+
+export const gutterRight = style(
+  {
+    display: 'flex',
+    height: '100vh',
+    overflow: 'scroll',
+    padding: `${contentVars.verticalPadding} ${spaceVars['24']} 0 0`,
+    position: 'fixed',
+    top: '0',
+    right: '0',
+    width: `calc(100vw - ${contentVars.width} - ${leftGutterWidthVar})`,
+    zIndex: zIndexVars.gutterRight,
+    '@media': {
+      [viewportVars['max-1280px']]: {
+        display: 'none',
+      },
+    },
+  },
+  'gutterRight',
 )
