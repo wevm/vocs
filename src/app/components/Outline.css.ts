@@ -18,7 +18,7 @@ export const nav = style(
     display: 'flex',
     flexDirection: 'column',
     paddingLeft: spaceVars[16],
-    gap: spaceVars[4],
+    gap: spaceVars[8],
   },
   'nav',
 )
@@ -47,6 +47,7 @@ export const items = style(
 export const item = style(
   {
     lineHeight: lineHeightVars.outlineItem,
+    marginBottom: spaceVars[8],
   },
   'item',
 )

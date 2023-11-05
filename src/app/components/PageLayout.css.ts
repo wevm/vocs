@@ -25,8 +25,8 @@ export const content = style(
     '@media': {
       [viewportVars['max-1080px']]: {
         display: 'flex',
-        marginLeft: 'unset',
-        marginRight: 'unset',
+        marginLeft: 'auto',
+        marginRight: 'auto',
       },
     },
   },

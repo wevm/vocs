@@ -308,7 +308,7 @@ createGlobalTheme(':root', lineHeightVars, {
   code: '1.75em',
   heading: '1.25em',
   listItem: '2.25em',
-  outlineItem: '1.5em',
+  outlineItem: '1em',
   paragraph: '1.75em',
   sidebarItem: '1.825em',
 })
