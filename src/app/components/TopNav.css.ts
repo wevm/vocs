@@ -1,4 +1,4 @@
-import { style } from '@vanilla-extract/css'
+import { keyframes, style } from '@vanilla-extract/css'
 import {
   contentVars,
   fontSizeVars,
@@ -8,12 +8,16 @@ import {
   spaceVars,
 } from '../styles/vars.css.js'
 
-export const breadcrumb = style(
+const fadeIn = keyframes(
   {
-    fontSize: fontSizeVars['14'],
-    fontWeight: fontWeightVars.medium,
+    from: {
+      opacity: 0,
+    },
+    to: {
+      opacity: 1,
+    },
   },
-  'breadcrumb',
+  'fadeIn',
 )
 
 export const upper = style(
@@ -35,6 +39,9 @@ export const lower = style(
     backgroundColor: primitiveColorVars.backgroundDark,
     borderBottom: `1px solid ${primitiveColorVars.border}`,
     display: 'flex',
+    justifyContent: 'space-between',
+    fontSize: fontSizeVars['13'],
+    fontWeight: fontWeightVars.medium,
     height: '100%',
     padding: `${spaceVars['0']} ${contentVars.horizontalPadding}`,
     width: '100%',
@@ -42,22 +49,49 @@ export const lower = style(
   'lower',
 )
 
-export const lowerLeft = style(
-  {
-    alignItems: 'center',
-    display: 'flex',
-    gap: spaceVars['4'],
-  },
-  'lowerLeft',
-)
-
-export const menuTrigger = style(
+export const lowerGroup = style(
   {
     alignItems: 'center',
     display: 'flex',
     gap: spaceVars['12'],
   },
+  'lowerGroup',
+)
+
+export const lowerItem = style({}, 'lowerItem')
+
+export const menuTrigger = style(
+  {
+    alignItems: 'center',
+    display: 'flex',
+    gap: spaceVars['8'],
+  },
   'menuTrigger',
+)
+
+export const outlineTrigger = style(
+  {
+    animation: `${fadeIn} 500ms cubic-bezier(0.16, 1, 0.3, 1)`,
+    alignItems: 'center',
+    color: primitiveColorVars.text2,
+    display: 'flex',
+    gap: spaceVars['6'],
+    selectors: {
+      '&[data-state="open"]': {
+        color: primitiveColorVars.textAccent,
+      },
+    },
+  },
+  'outlineTrigger',
+)
+
+export const separator = style(
+  {
+    backgroundColor: primitiveColorVars.border,
+    height: '1.75em',
+    width: '1px',
+  },
+  'separator',
 )
 
 export const title = style(

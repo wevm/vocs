@@ -380,6 +380,7 @@ export const zIndexVars = createGlobalThemeContract(
     gutterLeft: 'gutterLeft',
     gutterRight: 'gutterRight',
     gutterTop: 'gutterTop',
+    popover: 'popover',
     surface: 'surface',
   },
   getVarName('zIndex'),
@@ -390,6 +391,7 @@ createGlobalTheme(':root', zIndexVars, {
   gutterRight: '3',
   gutterLeft: '3',
   gutterTop: '2',
+  popover: '69422',
   surface: '1',
 })
 

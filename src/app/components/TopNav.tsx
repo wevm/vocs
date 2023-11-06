@@ -14,7 +14,15 @@ export function UpperTopNav() {
   )
 }
 
-export function LowerTopNav({ MenuTrigger }: { MenuTrigger: React.ElementType }) {
+export function LowerTopNav({
+  enableScrollToTop,
+  MenuTrigger,
+  OutlineTrigger,
+}: {
+  enableScrollToTop?: boolean
+  MenuTrigger: React.ElementType
+  OutlineTrigger: React.ElementType
+}) {
   const { pathname } = useLocation()
 
   const sidebarItemTitle = useMemo(() => {
@@ -35,11 +43,36 @@ export function LowerTopNav({ MenuTrigger }: { MenuTrigger: React.ElementType })
 
   return (
     <div className={styles.lower}>
-      <div className={styles.lowerLeft}>
-        <MenuTrigger className={styles.menuTrigger}>
-          <Icon label="Menu" src="/.vocs/icons/menu.svg" size="14px" />
-          <div className={styles.breadcrumb}>{title}</div>
-        </MenuTrigger>
+      <div className={styles.lowerGroup}>
+        <div className={styles.lowerItem}>
+          <MenuTrigger className={styles.menuTrigger}>
+            <Icon label="Menu" src="/.vocs/icons/menu.svg" size="13px" />
+            {title}
+          </MenuTrigger>
+        </div>
+      </div>
+      <div className={styles.lowerGroup}>
+        {enableScrollToTop && (
+          <>
+            <div className={styles.lowerItem}>
+              <button
+                className={styles.outlineTrigger}
+                onClick={() => window.scrollTo({ behavior: 'smooth', top: 0 })}
+                type="button"
+              >
+                Top
+                <Icon label="Scroll to top" src="/.vocs/icons/chevron-up.svg" size="10px" />
+              </button>
+            </div>
+            <div className={styles.separator} />
+          </>
+        )}
+        <div className={styles.lowerItem}>
+          <OutlineTrigger className={styles.outlineTrigger}>
+            On this page
+            <Icon label="On this page" src="/.vocs/icons/chevron-right.svg" size="10px" />
+          </OutlineTrigger>
+        </div>
       </div>
     </div>
   )

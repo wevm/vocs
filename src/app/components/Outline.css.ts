@@ -1,5 +1,7 @@
 import { style } from '@vanilla-extract/css'
 
+import { gutterRight as PageLayout_gutterRight } from './PageLayout.css.js'
+
 import {
   fontSizeVars,
   fontWeightVars,
@@ -8,17 +10,19 @@ import {
   spaceVars,
 } from '../styles/vars.css.js'
 
-export const root = style({
-  width: '100%',
-})
+export const root = style({})
 
 export const nav = style(
   {
-    borderLeft: `1px solid ${primitiveColorVars.border}`,
     display: 'flex',
     flexDirection: 'column',
-    paddingLeft: spaceVars[16],
     gap: spaceVars[8],
+    selectors: {
+      [`${PageLayout_gutterRight} &`]: {
+        borderLeft: `1px solid ${primitiveColorVars.border}`,
+        paddingLeft: spaceVars[16],
+      },
+    },
   },
   'nav',
 )

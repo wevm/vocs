@@ -1,5 +1,5 @@
 import { keyframes, style } from '@vanilla-extract/css'
-import { sidebarVars, viewportVars, zIndexVars } from '../styles/vars.css.js'
+import { sidebarVars, zIndexVars } from '../styles/vars.css.js'
 
 const expand = keyframes(
   {
@@ -26,7 +26,6 @@ const fadeIn = keyframes(
 )
 
 export const root = style({
-  display: 'none',
   top: 0,
   left: 0,
   position: 'fixed',
@@ -34,11 +33,6 @@ export const root = style({
   height: '100vh',
   zIndex: zIndexVars.drawer,
   animation: `${expand} 150ms cubic-bezier(0.16, 1, 0.3, 1)`,
-  '@media': {
-    [viewportVars['max-1080px']]: {
-      display: 'initial',
-    },
-  },
 })
 
 export const backdrop = style(
@@ -48,11 +42,6 @@ export const backdrop = style(
     inset: 0,
     zIndex: zIndexVars.backdrop,
     animation: `${fadeIn} 150ms cubic-bezier(0.16, 1, 0.3, 1)`,
-    '@media': {
-      [viewportVars['max-1080px']]: {
-        display: 'initial',
-      },
-    },
   },
   'backdrop',
 )

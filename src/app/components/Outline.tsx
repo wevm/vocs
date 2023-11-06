@@ -14,7 +14,16 @@ type OutlineItems = {
 export function Outline({
   minLevel = 2,
   maxLevel = 3,
-}: { minLevel?: number; maxLevel?: number } = {}) {
+  highlightActive = true,
+  onClickItem,
+  showTitle = true,
+}: {
+  minLevel?: number
+  maxLevel?: number
+  highlightActive?: boolean
+  onClickItem?: () => void
+  showTitle?: boolean
+} = {}) {
   const { pathname, hash } = useLocation()
 
   const [headingElements, setHeadingElements] = useState<Element[]>([])
@@ -100,10 +109,11 @@ export function Outline({
   return (
     <aside className={styles.root}>
       <nav className={styles.nav}>
-        <h2 className={styles.heading}>On this page</h2>
+        {showTitle && <h2 className={styles.heading}>On this page</h2>}
         <Items
-          activeId={activeId}
+          activeId={highlightActive ? activeId : null}
           items={items}
+          onClickItem={onClickItem}
           levelItems={levelItems}
           setActiveId={setActiveId}
         />
@@ -116,11 +126,13 @@ function Items({
   activeId,
   items,
   levelItems,
+  onClickItem,
   setActiveId,
 }: {
   activeId: string | null
   items: OutlineItems
   levelItems: OutlineItems
+  onClickItem?: () => void
   setActiveId: (id: string) => void
 }) {
   return (
@@ -151,7 +163,10 @@ function Items({
               <a
                 data-active={isActive}
                 href={hash}
-                onClick={() => setActiveId(id)}
+                onClick={() => {
+                  onClickItem?.()
+                  setActiveId(id)
+                }}
                 className={styles.link}
               >
                 {text}

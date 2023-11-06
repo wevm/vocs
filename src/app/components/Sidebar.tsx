@@ -4,9 +4,7 @@ import { config } from 'virtual:config'
 
 import * as styles from './Sidebar.css.js'
 
-export function Sidebar({
-  onClickSidebarItem,
-}: { onClickSidebarItem?: MouseEventHandler<HTMLAnchorElement> }) {
+export function Sidebar({ onClickItem }: { onClickItem?: MouseEventHandler<HTMLAnchorElement> }) {
   const { sidebar } = config
 
   if (!sidebar) return null
@@ -18,7 +16,7 @@ export function Sidebar({
           {/* <span className={styles.sectionTitle}>Introduction</span> */}
           <div className={styles.items}>
             {sidebar.map((item) => (
-              <SidebarItem key={item.path!} onClick={onClickSidebarItem} path={item.path!}>
+              <SidebarItem key={item.path!} onClick={onClickItem} path={item.path!}>
                 {item.title}
               </SidebarItem>
             ))}

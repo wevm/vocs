@@ -104,3 +104,27 @@ export const gutterRight = style(
   },
   'gutterRight',
 )
+
+export const outlinePopover = style(
+  {
+    display: 'none',
+    '@media': {
+      [viewportVars['max-1080px']]: {
+        display: 'block',
+      },
+    },
+  },
+  'outlinePopover',
+)
+
+export const sidebarDrawer = style(
+  {
+    display: 'none',
+    '@media': {
+      [viewportVars['max-1080px']]: {
+        display: 'block',
+      },
+    },
+  },
+  'sidebarDrawer',
+)
