@@ -2,9 +2,10 @@ import { type ReactNode, useState } from 'react'
 import { useInView } from 'react-intersection-observer'
 
 import { Content } from '../components/Content.js'
+import { MobileTopNav } from '../components/MobileTopNav.js'
 import { Sidebar } from '../components/Sidebar.js'
 import { SidebarDrawer } from '../components/SidebarDrawer.js'
-import { LowerTopNav, UpperTopNav } from '../components/TopNav.js'
+import { DesktopTopNav } from './DesktopTopNav.js'
 import { Outline } from './Outline.js'
 import * as styles from './PageLayout.css.js'
 import { Popover } from './Popover.js'
@@ -27,13 +28,16 @@ export function PageLayout({
       <div className={styles.gutterLeft}>
         <Sidebar />
       </div>
-      <div ref={ref} className={styles.gutterTopUpper}>
-        <UpperTopNav />
+      <div ref={ref} className={styles.gutterTop}>
+        <DesktopTopNav />
+        <MobileTopNav />
       </div>
-      <div className={styles.gutterTopLower}>
+      <div className={styles.gutterTopCurtain}>
+        <DesktopTopNav.Curtain />
+
         <SidebarDrawer.Root open={isSidebarOpen} onOpenChange={setSidebarOpen}>
           <Popover.Root open={isOutlineOpen} onOpenChange={setOutlineOpen}>
-            <LowerTopNav
+            <MobileTopNav.Curtain
               enableScrollToTop={!inView}
               MenuTrigger={SidebarDrawer.Trigger}
               OutlineTrigger={Popover.Trigger}

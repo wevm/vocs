@@ -4,17 +4,19 @@ import { config } from 'virtual:config'
 
 import type { Sidebar, SidebarItem } from '../../config.js'
 import { Icon } from './Icon.js'
-import * as styles from './TopNav.css.js'
+import * as styles from './MobileTopNav.css.js'
 
-export function UpperTopNav() {
+MobileTopNav.Curtain = Curtain
+
+export function MobileTopNav() {
   return (
-    <div className={styles.upper}>
+    <div className={styles.root}>
       <div className={styles.title}>Vocs</div>
     </div>
   )
 }
 
-export function LowerTopNav({
+export function Curtain({
   enableScrollToTop,
   MenuTrigger,
   OutlineTrigger,
@@ -42,19 +44,19 @@ export function LowerTopNav({
   const title = sidebarItemTitle || contentTitle
 
   return (
-    <div className={styles.lower}>
-      <div className={styles.lowerGroup}>
-        <div className={styles.lowerItem}>
+    <div className={styles.curtain}>
+      <div className={styles.curtainGroup}>
+        <div className={styles.curtainItem}>
           <MenuTrigger className={styles.menuTrigger}>
             <Icon label="Menu" src="/.vocs/icons/menu.svg" size="13px" />
             {title}
           </MenuTrigger>
         </div>
       </div>
-      <div className={styles.lowerGroup}>
+      <div className={styles.curtainGroup}>
         {enableScrollToTop && (
           <>
-            <div className={styles.lowerItem}>
+            <div className={styles.curtainItem}>
               <button
                 className={styles.outlineTrigger}
                 onClick={() => window.scrollTo({ behavior: 'smooth', top: 0 })}
@@ -67,7 +69,7 @@ export function LowerTopNav({
             <div className={styles.separator} />
           </>
         )}
-        <div className={styles.lowerItem}>
+        <div className={styles.curtainItem}>
           <OutlineTrigger className={styles.outlineTrigger}>
             On this page
             <Icon label="On this page" src="/.vocs/icons/chevron-right.svg" size="10px" />

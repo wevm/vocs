@@ -369,8 +369,11 @@ createGlobalTheme(':root', spaceVars, {
 
 export const viewportVars = {
   'max-720px': 'screen and (width <= 720px)',
+  'min-720px': 'screen and (width > 720px)',
   'max-1080px': 'screen and (width <= 1080px)',
+  'min-1080px': 'screen and (width > 1080px)',
   'max-1280px': 'screen and (width <= 1280px)',
+  'min-1280px': 'screen and (width > 1280px)',
 }
 
 export const zIndexVars = createGlobalThemeContract(
@@ -408,7 +411,7 @@ export const contentVars = createGlobalThemeContract(
 )
 createGlobalTheme(':root', contentVars, {
   horizontalPadding: spaceVars['48'],
-  verticalPadding: spaceVars['80'],
+  verticalPadding: spaceVars['48'],
   width: `calc(70ch + (${contentVars.horizontalPadding} * 2))`,
 })
 
@@ -426,14 +429,14 @@ createGlobalTheme(':root', sidebarVars, {
 
 export const topNavVars = createGlobalThemeContract(
   {
-    upperHeight: 'upperHeight',
-    lowerHeight: 'lowerHeight',
+    height: 'height',
+    curtainHeight: 'curtainHeight',
   },
   getVarName('topNav'),
 )
 createGlobalTheme(':root', topNavVars, {
-  upperHeight: '60px',
-  lowerHeight: '40px',
+  height: '60px',
+  curtainHeight: '40px',
 })
 
 globalStyle(':root', {

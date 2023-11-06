@@ -1,5 +1,12 @@
 import { style } from '@vanilla-extract/css'
-import { fontWeightVars, lineHeightVars, topNavVars, viewportVars } from '../../styles/vars.css.js'
+import {
+  fontWeightVars,
+  lineHeightVars,
+  spaceVars,
+  topNavVars,
+  viewportVars,
+} from '../../styles/vars.css.js'
+import { root as Header } from './Header.css.js'
 
 export const root = style({
   alignItems: 'center',
@@ -16,8 +23,21 @@ export const slugTarget = style(
     top: '0px',
     visibility: 'hidden',
     '@media': {
+      [viewportVars['min-1080px']]: {
+        top: `calc(-1 * (${topNavVars.height}))`,
+        selectors: {
+          [`${Header} &, ${Header} + ${root} &`]: {
+            top: `calc(-1 * (${topNavVars.height} + ${spaceVars['24']}))`,
+          },
+        },
+      },
       [viewportVars['max-1080px']]: {
-        top: `calc(-1 * ${topNavVars.lowerHeight})`,
+        top: `calc(-1 * ${topNavVars.curtainHeight})`,
+        selectors: {
+          [`${Header} &, ${Header} + ${root} &`]: {
+            top: `calc(-1 * calc(${topNavVars.curtainHeight} + ${spaceVars['24']}))`,
+          },
+        },
       },
     },
   },

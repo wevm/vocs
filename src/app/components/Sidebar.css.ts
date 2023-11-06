@@ -69,7 +69,7 @@ export const title = style(
     alignItems: 'center',
     borderBottom: `1px solid ${primitiveColorVars.border}`,
     display: 'flex',
-    height: topNavVars.upperHeight,
+    height: topNavVars.height,
     fontSize: fontSizeVars['18'],
     fontWeight: fontWeightVars.semibold,
     lineHeight: lineHeightVars.heading,

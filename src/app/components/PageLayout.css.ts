@@ -21,8 +21,11 @@ export const content = style(
   {
     marginLeft: leftGutterWidthVar,
     maxWidth: contentVars.width,
-    minHeight: `calc(100vh - (${topNavVars.lowerHeight} + ${topNavVars.upperHeight}))`,
+    minHeight: `calc(100vh - (${topNavVars.height} + ${topNavVars.curtainHeight}))`,
     '@media': {
+      [viewportVars['min-1080px']]: {
+        paddingTop: topNavVars.height,
+      },
       [viewportVars['max-1080px']]: {
         display: 'flex',
         marginLeft: 'auto',
@@ -51,38 +54,45 @@ export const gutterLeft = style(
   'gutterLeft',
 )
 
-export const gutterTopLower = style(
+export const gutterTop = style(
   {
     alignItems: 'center',
-    display: 'none',
-    position: 'sticky',
-    top: 0,
-    height: topNavVars.lowerHeight,
+    height: topNavVars.height,
     width: '100vw',
     zIndex: zIndexVars.gutterTop,
     '@media': {
+      [viewportVars['min-1080px']]: {
+        marginLeft: leftGutterWidthVar,
+        position: 'fixed',
+        top: 0,
+      },
       [viewportVars['max-1080px']]: {
-        display: 'flex',
+        position: 'initial',
       },
     },
   },
-  'gutterTopLower',
+  'gutterTop',
 )
 
-export const gutterTopUpper = style(
+export const gutterTopCurtain = style(
   {
-    alignItems: 'center',
-    display: 'none',
-    height: topNavVars.upperHeight,
+    display: 'flex',
+    height: topNavVars.curtainHeight,
     width: '100vw',
     zIndex: zIndexVars.gutterTop,
     '@media': {
+      [viewportVars['min-1080px']]: {
+        marginLeft: leftGutterWidthVar,
+        position: 'fixed',
+        top: topNavVars.height,
+      },
       [viewportVars['max-1080px']]: {
-        display: 'flex',
+        position: 'sticky',
+        top: 0,
       },
     },
   },
-  'gutterTopUpper',
+  'gutterTopCurtain',
 )
 
 export const gutterRight = style(
@@ -90,7 +100,7 @@ export const gutterRight = style(
     display: 'flex',
     height: '100vh',
     overflow: 'scroll',
-    padding: `${contentVars.verticalPadding} ${spaceVars['24']} 0 0`,
+    padding: `calc(${contentVars.verticalPadding} + ${topNavVars.height}) ${spaceVars['24']} 0 0`,
     position: 'fixed',
     top: '0',
     right: '0',

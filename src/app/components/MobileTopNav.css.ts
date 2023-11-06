@@ -6,6 +6,7 @@ import {
   lineHeightVars,
   primitiveColorVars,
   spaceVars,
+  viewportVars,
 } from '../styles/vars.css.js'
 
 const fadeIn = keyframes(
@@ -20,45 +21,52 @@ const fadeIn = keyframes(
   'fadeIn',
 )
 
-export const upper = style(
-  {
-    alignItems: 'center',
-    backgroundColor: primitiveColorVars.backgroundDark,
-    borderBottom: `1px solid ${primitiveColorVars.border}`,
-    display: 'flex',
-    height: '100%',
-    padding: `${spaceVars['0']} ${contentVars.horizontalPadding}`,
-    width: '100%',
+export const root = style({
+  alignItems: 'center',
+  backgroundColor: primitiveColorVars.backgroundDark,
+  borderBottom: `1px solid ${primitiveColorVars.border}`,
+  display: 'none',
+  height: '100%',
+  padding: `${spaceVars['0']} ${contentVars.horizontalPadding}`,
+  width: '100%',
+  '@media': {
+    [viewportVars['max-1080px']]: {
+      display: 'flex',
+    },
   },
-  'upper',
-)
+})
 
-export const lower = style(
+export const curtain = style(
   {
     alignItems: 'center',
     backgroundColor: primitiveColorVars.backgroundDark,
     borderBottom: `1px solid ${primitiveColorVars.border}`,
-    display: 'flex',
+    display: 'none',
     justifyContent: 'space-between',
     fontSize: fontSizeVars['13'],
     fontWeight: fontWeightVars.medium,
     height: '100%',
     padding: `${spaceVars['0']} ${contentVars.horizontalPadding}`,
     width: '100%',
+    '@media': {
+      [viewportVars['max-1080px']]: {
+        display: 'flex',
+      },
+    },
   },
-  'lower',
+  'curtain',
 )
 
-export const lowerGroup = style(
+export const curtainGroup = style(
   {
     alignItems: 'center',
     display: 'flex',
     gap: spaceVars['12'],
   },
-  'lowerGroup',
+  'curtainGroup',
 )
 
-export const lowerItem = style({}, 'lowerItem')
+export const curtainItem = style({}, 'curtainItem')
 
 export const menuTrigger = style(
   {
