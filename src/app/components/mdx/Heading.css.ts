@@ -10,7 +10,6 @@ import { root as Header } from './Header.css.js'
 
 export const root = style({
   alignItems: 'center',
-  display: 'flex',
   fontWeight: fontWeightVars.semibold,
   gap: '0.25em',
   lineHeight: lineHeightVars.heading,

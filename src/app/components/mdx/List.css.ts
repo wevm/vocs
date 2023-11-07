@@ -25,6 +25,11 @@ export const unordered = style(
     listStyle: 'disc',
     paddingLeft: spaceVars['24'],
     marginBottom: spaceVars['16'],
+    selectors: {
+      '& &': {
+        listStyle: 'circle',
+      },
+    },
   },
   'unordered',
 )
@@ -38,6 +43,7 @@ globalStyle(
   ].join(','),
   {
     marginBottom: spaceVars['0'],
+    paddingTop: spaceVars['8'],
     paddingLeft: spaceVars['16'],
     paddingBottom: spaceVars['0'],
   },

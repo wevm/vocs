@@ -1,6 +1,7 @@
 import { globalStyle, style } from '@vanilla-extract/css'
 
 import { fontWeightVars, semanticColorVars, spaceVars } from '../../styles/vars.css.js'
+import { danger, info, success, tip, warning } from '../Callout.css.js'
 import { root as Section } from './Section.css.js'
 
 export const root = style({
@@ -9,6 +10,36 @@ export const root = style({
   textUnderlineOffset: spaceVars['2'],
   textDecoration: 'underline',
   selectors: {
+    [`${danger} &`]: {
+      color: semanticColorVars.dangerText,
+    },
+    [`${danger} &:hover`]: {
+      color: semanticColorVars.dangerTextHover,
+    },
+    [`${info} &`]: {
+      color: semanticColorVars.infoText,
+    },
+    [`${info} &:hover`]: {
+      color: semanticColorVars.infoTextHover,
+    },
+    [`${success} &`]: {
+      color: semanticColorVars.successText,
+    },
+    [`${success} &:hover`]: {
+      color: semanticColorVars.successTextHover,
+    },
+    [`${tip} &`]: {
+      color: semanticColorVars.tipText,
+    },
+    [`${tip} &:hover`]: {
+      color: semanticColorVars.tipTextHover,
+    },
+    [`${warning} &`]: {
+      color: semanticColorVars.warningText,
+    },
+    [`${warning} &:hover`]: {
+      color: semanticColorVars.warningTextHover,
+    },
     '&:hover': {
       color: semanticColorVars.linkHover,
     },

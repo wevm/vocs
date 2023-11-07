@@ -3,10 +3,12 @@ import { style } from '@vanilla-extract/css'
 import {
   borderRadiusVars,
   fontSizeVars,
+  primitiveColorVars,
   semanticColorVars,
   spaceVars,
 } from '../../styles/vars.css.js'
 import { root as Anchor } from './Anchor.css.js'
+import { root as Heading } from './Heading.css.js'
 import { root as Pre } from './Pre.css.js'
 
 export const root = style({
@@ -16,7 +18,7 @@ export const root = style({
       fontSize: fontSizeVars.code,
       padding: `${spaceVars['3']} ${spaceVars['6']}`,
     },
-    [`:not(${Pre}, [data-rehype-pretty-code-fragment])>&`]: {
+    [`:not(${Pre}, ${Heading}, [data-rehype-pretty-code-fragment])>&`]: {
       backgroundColor: semanticColorVars.inlineCodeBackground,
       color: semanticColorVars.inlineCode,
     },
@@ -30,6 +32,10 @@ export const root = style({
     },
     [`${Anchor}>&:hover`]: {
       color: semanticColorVars.linkHover,
+    },
+    [`${Heading}>&`]: {
+      backgroundColor: primitiveColorVars.background3,
+      color: primitiveColorVars.text,
     },
   },
 })

@@ -10,7 +10,7 @@ export function Sidebar({ onClickItem }: { onClickItem?: MouseEventHandler<HTMLA
   if (!sidebar) return null
   return (
     <aside className={styles.root}>
-      <div className={styles.title}>Vocs</div>
+      <div className={styles.title}>{config.title}</div>
       <nav>
         <section className={styles.section}>
           {/* <span className={styles.sectionTitle}>Introduction</span> */}
