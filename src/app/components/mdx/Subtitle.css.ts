@@ -13,7 +13,7 @@ export const root = style({
   fontWeight: fontWeightVars.regular,
   letterSpacing: '-0.02em',
   lineHeight: lineHeightVars.heading,
-  marginTop: spaceVars['8'],
+  marginTop: spaceVars['4'],
   // @ts-expect-error
   textWrap: 'balance',
 })
