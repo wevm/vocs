@@ -115,6 +115,21 @@ importers:
         specifier: ^3.3.3
         version: 3.3.5
 
+  playgrounds/viem:
+    dependencies:
+      react:
+        specifier: ^18.2.0
+        version: 18.2.0
+      react-dom:
+        specifier: ^18.2.0
+        version: 18.2.0(react@18.2.0)
+      react-router-dom:
+        specifier: ^6.17.0
+        version: 6.17.0(react-dom@18.2.0)(react@18.2.0)
+      vocs:
+        specifier: workspace:*
+        version: link:../../src
+
   site:
     dependencies:
       react:
