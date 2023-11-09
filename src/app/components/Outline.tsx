@@ -1,6 +1,7 @@
 import { Fragment, useEffect, useMemo, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 
+import { debounce } from '../utils/debounce.js'
 import * as styles from './Outline.css.js'
 import { root as Heading, slugTarget } from './mdx/Heading.css.js'
 
@@ -8,6 +9,7 @@ type OutlineItems = {
   id: string
   level: number
   slugTargetElement: Element
+  topOffset: number
   text: string | null
 }[]
 
@@ -42,9 +44,12 @@ export function Outline({
         const slugTargetElement = element.querySelector(`.${slugTarget}`)
         if (!slugTargetElement) return null
 
+        const box = slugTargetElement.getBoundingClientRect()
+
         const id = slugTargetElement.id
         const level = Number(element.tagName[1])
         const text = element.textContent
+        const topOffset = window.scrollY + box.top
 
         if (level < minLevel || level > maxLevel) return null
 
@@ -53,6 +58,7 @@ export function Outline({
           level,
           slugTargetElement,
           text,
+          topOffset,
         }
       })
       .filter(Boolean) as OutlineItems
@@ -101,6 +107,38 @@ export function Outline({
     observer.observe(document.querySelector('[data-bottom-observer]')!)
 
     return () => observer.disconnect()
+  }, [items])
+
+  // Intersection observers are a bit unreliable for fast scrolling,
+  // use scroll event listener to sync active item.
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const callback = debounce(() => {
+      if (window.scrollY === 0) {
+        setActiveId(items[0].id)
+        return
+      }
+
+      if (
+        window.scrollY + document.documentElement.clientHeight >=
+        document.documentElement.scrollHeight
+      ) {
+        setActiveId(items[items.length - 1].id)
+        return
+      }
+
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i]
+        if (window.scrollY < item.topOffset) {
+          setActiveId(items[i - 1]?.id)
+          break
+        }
+      }
+    }, 100)
+
+    window.addEventListener('scroll', callback)
+    return () => window.removeEventListener('scroll', callback)
   }, [items])
 
   if (items.length === 0) return null
