@@ -6,9 +6,30 @@ import {
   primitiveColorVars,
   semanticColorVars,
   spaceVars,
+  viewportVars,
 } from '../../styles/vars.css.js'
+import { root as CodeGroup } from './CodeGroup.css.js'
 
-export const root = style({})
+export const root = style({
+  border: `1px solid ${semanticColorVars.codeInlineBorder}`,
+  borderRadius: borderRadiusVars['4'],
+  '@media': {
+    [viewportVars['max-720px']]: {
+      borderRadius: 0,
+      borderRight: 'none',
+      borderLeft: 'none',
+      marginLeft: `calc(-1 * ${spaceVars['16']})`,
+      marginRight: `calc(-1 * ${spaceVars['16']})`,
+    },
+  },
+  selectors: {
+    [`${CodeGroup} &`]: {
+      border: 'none',
+      marginLeft: 'unset',
+      marginRight: 'unset',
+    },
+  },
+})
 
 globalStyle(`${root} code`, {
   fontSize: fontSizeVars.codeBlock,
@@ -23,6 +44,7 @@ globalStyle(`${root} pre`, {
 })
 
 globalStyle(`${root} [data-rehype-pretty-code-title]+pre`, {
+  borderTop: 'none',
   borderTopLeftRadius: 0,
   borderTopRightRadius: 0,
 })
@@ -60,8 +82,8 @@ globalStyle(`${root} [data-highlighted-line], ${root} .has-highlight`, {
 
 globalStyle(`${root} [data-highlighted-chars]`, {
   borderRadius: borderRadiusVars['2'],
-  backgroundColor: semanticColorVars.codeHighlightBackground,
-  boxShadow: `0 0 0 4px ${semanticColorVars.codeHighlightBackground}`,
+  backgroundColor: semanticColorVars.codeCharacterHighlightBackground,
+  boxShadow: `0 0 0 4px ${semanticColorVars.codeCharacterHighlightBackground}`,
 })
 
 globalStyle(`${root} .has-diff`, {
@@ -106,4 +128,20 @@ globalStyle(`${root}:hover .has-focused-lines [data-line]:not(.has-focus)`, {
   filter: 'grayscale(0)',
   opacity: '1',
   transition: 'filter 0.2s, opacity 0.2s',
+})
+
+globalStyle(`${root} [data-line]`, {
+  '@media': {
+    [viewportVars['max-720px']]: {
+      padding: `0 ${spaceVars['16']}`,
+    },
+  },
+})
+
+globalStyle(`${root} [data-line].diff::before`, {
+  '@media': {
+    [viewportVars['max-720px']]: {
+      left: spaceVars['6'],
+    },
+  },
 })

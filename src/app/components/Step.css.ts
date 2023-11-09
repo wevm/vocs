@@ -1,12 +1,13 @@
 import { globalStyle, style } from '@vanilla-extract/css'
 
 import { fontWeightVars, primitiveColorVars, spaceVars, viewportVars } from '../styles/vars.css.js'
+import { root as CodeGroup } from './mdx/CodeGroup.css.js'
+import { root as CodeTitle } from './mdx/CodeTitle.css.js'
 import { root as H2 } from './mdx/H2.css.js'
 import { root as H3 } from './mdx/H3.css.js'
 import { root as H4 } from './mdx/H4.css.js'
 import { root as H5 } from './mdx/H5.css.js'
 import { root as H6 } from './mdx/H6.css.js'
-import { root as CodeGroup, tabsList } from './mdx/CodeGroup.css.js'
 
 export const root = style({
   selectors: {
@@ -22,7 +23,7 @@ export const title = style(
     position: 'relative',
     '::before': {
       alignItems: 'center',
-      backgroundColor: primitiveColorVars.background4,
+      backgroundColor: primitiveColorVars.background5,
       borderRadius: '100%',
       border: `0.5em solid ${primitiveColorVars.background}`,
       boxSizing: 'content-box',
@@ -36,7 +37,7 @@ export const title = style(
       justifyContent: 'center',
       left: 'calc(-25.125px - 1.45em)',
       position: 'absolute',
-      top: '-0.5em',
+      top: '-0.25em',
       width: '2em',
     },
   },
@@ -67,7 +68,7 @@ globalStyle(`${content} [data-rehype-pretty-code-fragment]`, {
     [viewportVars['max-720px']]: {
       borderTop: `6px solid ${primitiveColorVars.background}`,
       borderBottom: `6px solid ${primitiveColorVars.background}`,
-      marginLeft: `calc(-1 * ${spaceVars['28']} - 2px)`,
+      marginLeft: `calc(-1 * ${spaceVars['44']} - 2px)`,
     },
   },
 })
@@ -75,17 +76,7 @@ globalStyle(`${content} [data-rehype-pretty-code-fragment]`, {
 globalStyle(`${content} ${CodeGroup}`, {
   '@media': {
     [viewportVars['max-720px']]: {
-      marginLeft: 0,
-      marginRight: 0,
-    },
-  },
-})
-
-globalStyle(`${content} ${tabsList}`, {
-  '@media': {
-    [viewportVars['max-720px']]: {
-      borderTop: `6px solid ${primitiveColorVars.background}`,
-      marginLeft: `calc(-1 * ${spaceVars['44']})`,
+      marginLeft: `calc(-1 * ${spaceVars['44']} - 2px)`,
       marginRight: `calc(-1 * ${spaceVars['16']})`,
     },
   },
@@ -95,6 +86,14 @@ globalStyle(`${content} ${CodeGroup} [data-rehype-pretty-code-fragment]`, {
   '@media': {
     [viewportVars['max-720px']]: {
       borderTop: 'none',
+    },
+  },
+})
+
+globalStyle(`${content} ${CodeTitle}`, {
+  '@media': {
+    [viewportVars['max-720px']]: {
+      borderTop: `1px solid ${primitiveColorVars.border}`,
     },
   },
 })

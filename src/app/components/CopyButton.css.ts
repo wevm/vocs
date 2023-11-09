@@ -22,11 +22,11 @@ export const root = style({
   zIndex: zIndexVars.surface,
   selectors: {
     '&:hover': {
-      backgroundColor: primitiveColorVars.background3,
+      backgroundColor: primitiveColorVars.background4,
       transition: 'background-color 0.05s',
     },
     '&:focus-visible': {
-      backgroundColor: primitiveColorVars.background3,
+      backgroundColor: primitiveColorVars.background4,
       opacity: 1,
       transition: 'background-color 0.05s',
     },

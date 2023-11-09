@@ -11,17 +11,23 @@ import {
 
 export const root = style({
   backgroundColor: semanticColorVars.codeBlockBackground,
+  border: `1px solid ${semanticColorVars.codeInlineBorder}`,
   borderRadius: borderRadiusVars['4'],
+  overflow: 'auto',
   '@media': {
     [viewportVars['max-720px']]: {
       borderRadius: 0,
+      borderRight: 'none',
+      borderLeft: 'none',
+      marginLeft: `calc(-1 * ${spaceVars['16']})`,
+      marginRight: `calc(-1 * ${spaceVars['16']})`,
     },
   },
 })
 
 export const tabsList = style(
   {
-    backgroundColor: semanticColorVars.codeBlockBackground,
+    backgroundColor: semanticColorVars.codeTitleBackground,
     borderBottom: `1px solid ${primitiveColorVars.border}`,
     borderTopLeftRadius: borderRadiusVars['4'],
     borderTopRightRadius: borderRadiusVars['4'],
@@ -30,8 +36,6 @@ export const tabsList = style(
     '@media': {
       [viewportVars['max-720px']]: {
         padding: `${spaceVars['0']} ${spaceVars['8']}`,
-        marginLeft: `calc(-1 * ${spaceVars['16']})`,
-        marginRight: `calc(-1 * ${spaceVars['16']})`,
       },
     },
   },
@@ -67,8 +71,6 @@ export const tabsContent = style(
         '@media': {
           [viewportVars['max-720px']]: {
             padding: `${spaceVars['20']} ${spaceVars['16']}`,
-            marginLeft: `calc(-1 * ${spaceVars['16']})`,
-            marginRight: `calc(-1 * ${spaceVars['16']})`,
           },
         },
       },

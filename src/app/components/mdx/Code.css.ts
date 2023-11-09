@@ -18,12 +18,10 @@ export const root = style({
       fontSize: fontSizeVars.code,
       padding: `${spaceVars['3']} ${spaceVars['6']}`,
     },
-    [`:not(${Pre}, ${Heading}, [data-rehype-pretty-code-fragment])>&`]: {
-      backgroundColor: semanticColorVars.inlineCodeBackground,
-      color: semanticColorVars.inlineCode,
-    },
-    '[data-rehype-pretty-code-fragment]>&': {
-      backgroundColor: semanticColorVars.codeHighlightBackground,
+    [`:not(${Pre})>&`]: {
+      backgroundColor: semanticColorVars.codeInlineBackground,
+      border: `1px solid ${semanticColorVars.codeInlineBorder}`,
+      color: semanticColorVars.codeInlineText,
     },
     [`${Anchor}>&`]: {
       color: semanticColorVars.link,
@@ -32,10 +30,6 @@ export const root = style({
     },
     [`${Anchor}>&:hover`]: {
       color: semanticColorVars.linkHover,
-    },
-    [`${Heading}>&`]: {
-      backgroundColor: primitiveColorVars.background3,
-      color: primitiveColorVars.text,
     },
   },
 })

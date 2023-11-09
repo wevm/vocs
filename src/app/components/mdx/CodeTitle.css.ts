@@ -11,9 +11,7 @@ import {
 
 export const root = style({
   alignItems: 'center',
-  backgroundColor: semanticColorVars.codeBlockBackground,
-  borderTopLeftRadius: borderRadiusVars['4'],
-  borderTopRightRadius: borderRadiusVars['4'],
+  backgroundColor: semanticColorVars.codeTitleBackground,
   borderBottom: `1px solid ${primitiveColorVars.border}`,
   color: primitiveColorVars.text3,
   display: 'flex',
@@ -24,8 +22,6 @@ export const root = style({
   '@media': {
     [viewportVars['max-720px']]: {
       borderRadius: 0,
-      marginLeft: `calc(-1 * ${spaceVars['16']})`,
-      marginRight: `calc(-1 * ${spaceVars['16']})`,
       paddingLeft: spaceVars['16'],
       paddingRight: spaceVars['16'],
     },
