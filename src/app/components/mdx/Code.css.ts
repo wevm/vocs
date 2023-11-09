@@ -3,12 +3,10 @@ import { style } from '@vanilla-extract/css'
 import {
   borderRadiusVars,
   fontSizeVars,
-  primitiveColorVars,
   semanticColorVars,
   spaceVars,
 } from '../../styles/vars.css.js'
 import { root as Anchor } from './Anchor.css.js'
-import { root as Heading } from './Heading.css.js'
 import { root as Pre } from './Pre.css.js'
 
 export const root = style({

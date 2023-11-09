@@ -1,6 +1,5 @@
 import { style } from '@vanilla-extract/css'
 import {
-  borderRadiusVars,
   fontSizeVars,
   fontWeightVars,
   primitiveColorVars,
