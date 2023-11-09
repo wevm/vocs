@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useMemo, useState } from 'react'
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 
 import { debounce } from '../utils/debounce.js'
@@ -26,6 +26,8 @@ export function Outline({
   onClickItem?: () => void
   showTitle?: boolean
 } = {}) {
+  const active = useRef(true)
+
   const { pathname, hash } = useLocation()
 
   const [headingElements, setHeadingElements] = useState<Element[]>([])
@@ -72,6 +74,8 @@ export function Outline({
 
     const observer = new IntersectionObserver(
       ([entry]) => {
+        if (!active.current) return
+
         const id = entry.target.id
 
         if (entry.isIntersecting) setActiveId(id)
@@ -100,6 +104,8 @@ export function Outline({
     if (typeof window === 'undefined') return
 
     const observer = new IntersectionObserver(([entry]) => {
+      if (!active.current) return
+
       if (entry.isIntersecting) setActiveId(items[items.length - 1].id)
       else setActiveId(items[items.length - 2].id)
     })
@@ -115,6 +121,8 @@ export function Outline({
     if (typeof window === 'undefined') return
 
     const callback = debounce(() => {
+      if (!active.current) return
+
       if (window.scrollY === 0) {
         setActiveId(items[0].id)
         return
@@ -151,7 +159,13 @@ export function Outline({
         <Items
           activeId={highlightActive ? activeId : null}
           items={items}
-          onClickItem={onClickItem}
+          onClickItem={() => {
+            onClickItem?.()
+            active.current = false
+            setTimeout(() => {
+              active.current = true
+            }, 500)
+          }}
           levelItems={levelItems}
           setActiveId={setActiveId}
         />
@@ -215,6 +229,7 @@ function Items({
                 activeId={activeId}
                 levelItems={nextLevelItems}
                 items={items}
+                onClickItem={onClickItem}
                 setActiveId={setActiveId}
               />
             )}

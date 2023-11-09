@@ -6,6 +6,8 @@ import {
   topNavVars,
   viewportVars,
 } from '../../styles/vars.css.js'
+
+import { title as Step_title } from '../Step.css.js'
 import { root as Header } from './Header.css.js'
 
 export const root = style({
@@ -25,7 +27,7 @@ export const slugTarget = style(
       [viewportVars['min-1080px']]: {
         top: `calc(-1 * (${topNavVars.height}))`,
         selectors: {
-          [`${Header} &, ${Header} + ${root} &`]: {
+          [`${Header} &, ${Step_title} &, ${Header} + ${root} &`]: {
             top: `calc(-1 * (${topNavVars.height} + ${spaceVars['24']}))`,
           },
         },
