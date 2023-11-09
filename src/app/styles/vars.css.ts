@@ -425,9 +425,9 @@ export const zIndexVars = createGlobalThemeContract(
 createGlobalTheme(':root', zIndexVars, {
   backdrop: '69420',
   drawer: '69421',
-  gutterRight: '3',
-  gutterLeft: '3',
-  gutterTop: '2',
+  gutterRight: '2',
+  gutterLeft: '4',
+  gutterTop: '3',
   popover: '69422',
   surface: '1',
 })
@@ -474,12 +474,14 @@ createGlobalTheme(':root', sidebarVars, {
 export const topNavVars = createGlobalThemeContract(
   {
     height: 'height',
+    horizontalPadding: 'horizontalPadding',
     curtainHeight: 'curtainHeight',
   },
   getVarName('topNav'),
 )
 createGlobalTheme(':root', topNavVars, {
   height: '60px',
+  horizontalPadding: contentVars.horizontalPadding,
   curtainHeight: '40px',
 })
 

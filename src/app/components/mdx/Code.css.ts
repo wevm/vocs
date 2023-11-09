@@ -12,14 +12,12 @@ import { root as Pre } from './Pre.css.js'
 export const root = style({
   selectors: {
     [`:not(${Pre})>&`]: {
-      borderRadius: borderRadiusVars['4'],
-      fontSize: fontSizeVars.code,
-      padding: `${spaceVars['3']} ${spaceVars['6']}`,
-    },
-    [`:not(${Pre})>&`]: {
       backgroundColor: semanticColorVars.codeInlineBackground,
       border: `1px solid ${semanticColorVars.codeInlineBorder}`,
+      borderRadius: borderRadiusVars['4'],
       color: semanticColorVars.codeInlineText,
+      fontSize: fontSizeVars.code,
+      padding: `${spaceVars['3']} ${spaceVars['6']}`,
     },
     [`${Anchor}>&`]: {
       color: semanticColorVars.link,

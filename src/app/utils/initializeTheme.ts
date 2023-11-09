@@ -1,7 +1,7 @@
 const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
 
 const storedTheme = localStorage.getItem('vocs.theme')
-const theme = storedTheme || darkModeMediaQuery.matches ? 'dark' : 'light'
+const theme = storedTheme || (darkModeMediaQuery.matches ? 'dark' : 'light')
 
 if (theme === 'dark') document.documentElement.classList.add('dark')
 

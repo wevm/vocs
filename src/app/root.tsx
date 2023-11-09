@@ -4,7 +4,6 @@ import { ScrollRestoration } from 'react-router-dom'
 import { Root as ConsumerRoot } from 'virtual:root'
 
 import { FrontmatterHead } from './components/FrontmatterHead.js'
-import { useApplyCssTransition } from './hooks/useApplyCssTransition.js'
 import type { Module } from './types.js'
 
 export function Root({
@@ -18,7 +17,6 @@ export function Root({
   frontmatter: Module['frontmatter']
   path: string
 }) {
-  useApplyCssTransition()
   return (
     <>
       {head && <Helmet>{head}</Helmet>}

@@ -62,7 +62,8 @@ export const gutterTop = style(
     zIndex: zIndexVars.gutterTop,
     '@media': {
       [viewportVars['min-1080px']]: {
-        marginLeft: leftGutterWidthVar,
+        paddingLeft: leftGutterWidthVar,
+        paddingRight: `calc(${leftGutterWidthVar} - ${sidebarVars.width})`,
         position: 'fixed',
         top: 0,
       },
