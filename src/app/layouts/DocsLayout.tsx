@@ -2,15 +2,15 @@ import { type ReactNode, useState } from 'react'
 import { useInView } from 'react-intersection-observer'
 
 import { Content } from '../components/Content.js'
+import { DesktopTopNav } from '../components/DesktopTopNav.js'
 import { MobileTopNav } from '../components/MobileTopNav.js'
+import { Outline } from '../components/Outline.js'
+import { Popover } from '../components/Popover.js'
 import { Sidebar } from '../components/Sidebar.js'
 import { SidebarDrawer } from '../components/SidebarDrawer.js'
-import { DesktopTopNav } from './DesktopTopNav.js'
-import { Outline } from './Outline.js'
-import * as styles from './PageLayout.css.js'
-import { Popover } from './Popover.js'
+import * as styles from './DocsLayout.css.js'
 
-export function PageLayout({
+export function DocsLayout({
   children,
 }: {
   children: ReactNode

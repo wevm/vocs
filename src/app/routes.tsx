@@ -1,8 +1,8 @@
 import { type RouteObject } from 'react-router-dom'
 import { routes as routes_virtual } from 'virtual:routes'
 
-import { PageLayout } from './components/PageLayout.js'
 import { components } from './components/mdx/index.js'
+import { DocsLayout } from './layouts/DocsLayout.js'
 import { Root } from './root.js'
 
 export const routes = routes_virtual.map((route_virtual) => ({
@@ -14,9 +14,9 @@ export const routes = routes_virtual.map((route_virtual) => ({
       ...route,
       element: (
         <Root frontmatter={frontmatter} head={head} path={route_virtual.path}>
-          <PageLayout>
+          <DocsLayout>
             <route.default components={components} />
-          </PageLayout>
+          </DocsLayout>
         </Root>
       ),
     } satisfies RouteObject

@@ -1,6 +1,6 @@
 import { style } from '@vanilla-extract/css'
 
-import { gutterRight as PageLayout_gutterRight } from './PageLayout.css.js'
+import { gutterRight as DocsLayout_gutterRight } from '../layouts/DocsLayout.css.js'
 
 import {
   fontSizeVars,
@@ -18,7 +18,7 @@ export const nav = style(
     flexDirection: 'column',
     gap: spaceVars[8],
     selectors: {
-      [`${PageLayout_gutterRight} &`]: {
+      [`${DocsLayout_gutterRight} &`]: {
         borderLeft: `1px solid ${primitiveColorVars.border}`,
         paddingLeft: spaceVars[16],
       },
