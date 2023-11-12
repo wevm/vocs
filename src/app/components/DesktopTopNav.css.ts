@@ -25,14 +25,6 @@ export const button = style(
   {
     borderRadius: borderRadiusVars[4],
     padding: spaceVars[8],
-    selectors: {
-      '&:hover': {
-        backgroundColor: primitiveColorVars.background3,
-      },
-      '&:hover:active': {
-        backgroundColor: primitiveColorVars.background2,
-      },
-    },
   },
   'button',
 )
@@ -52,6 +44,32 @@ export const curtain = style(
   'curtain',
 )
 
+export const divider = style(
+  {
+    backgroundColor: primitiveColorVars.border,
+    height: '35%',
+    width: '1px',
+  },
+  'divider',
+)
+
+export const group = style({ alignItems: 'center', display: 'flex' }, 'group')
+
+export const icon = style(
+  {
+    color: primitiveColorVars.text2,
+    selectors: {
+      [`${button}:hover &`]: {
+        color: primitiveColorVars.text,
+      },
+    },
+  },
+  'icon',
+)
+
 export const item = style({ alignItems: 'center', display: 'flex', height: '100%' }, 'item')
 
-export const section = style({ alignItems: 'center', display: 'flex', height: '100%' }, 'section')
+export const section = style(
+  { alignItems: 'center', display: 'flex', height: '100%', gap: spaceVars[16] },
+  'section',
+)
