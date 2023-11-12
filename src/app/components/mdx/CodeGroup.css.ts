@@ -35,6 +35,7 @@ export const tabsList = style(
     padding: `${spaceVars['0']} ${spaceVars['14']}`,
     '@media': {
       [viewportVars['max-720px']]: {
+        borderRadius: 0,
         padding: `${spaceVars['0']} ${spaceVars['8']}`,
       },
     },

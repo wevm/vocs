@@ -41,6 +41,11 @@ globalStyle(`${root} pre`, {
   overflowX: 'scroll',
   padding: `${spaceVars['20']} ${spaceVars['0']}`,
   position: 'relative',
+  '@media': {
+    [viewportVars['max-720px']]: {
+      borderRadius: 0,
+    },
+  },
 })
 
 globalStyle(`${root} [data-rehype-pretty-code-title]+pre`, {

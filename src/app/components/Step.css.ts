@@ -1,13 +1,14 @@
 import { globalStyle, style } from '@vanilla-extract/css'
 
 import { fontWeightVars, primitiveColorVars, spaceVars, viewportVars } from '../styles/vars.css.js'
-import { root as CodeGroup } from './mdx/CodeGroup.css.js'
+import { root as CodeGroup, tabsList } from './mdx/CodeGroup.css.js'
 import { root as CodeTitle } from './mdx/CodeTitle.css.js'
 import { root as H2 } from './mdx/H2.css.js'
 import { root as H3 } from './mdx/H3.css.js'
 import { root as H4 } from './mdx/H4.css.js'
 import { root as H5 } from './mdx/H5.css.js'
 import { root as H6 } from './mdx/H6.css.js'
+import { root as Pre } from './mdx/Pre.css.js'
 
 export const root = style({
   selectors: {
@@ -63,7 +64,7 @@ globalStyle(`${content} > *:last-child`, {
   marginBottom: spaceVars['0'],
 })
 
-globalStyle(`${content} [data-rehype-pretty-code-fragment]`, {
+globalStyle(`${content} [data-rehype-pretty-code-fragment], ${content} ${CodeGroup}`, {
   '@media': {
     [viewportVars['max-720px']]: {
       borderTop: `6px solid ${primitiveColorVars.background}`,
@@ -90,10 +91,18 @@ globalStyle(`${content} ${CodeGroup} [data-rehype-pretty-code-fragment]`, {
   },
 })
 
-globalStyle(`${content} ${CodeTitle}`, {
+globalStyle(`${content} ${CodeTitle}, ${content} ${tabsList}`, {
   '@media': {
     [viewportVars['max-720px']]: {
       borderTop: `1px solid ${primitiveColorVars.border}`,
+    },
+  },
+})
+
+globalStyle(`${content} ${Pre}`, {
+  '@media': {
+    [viewportVars['max-720px']]: {
+      borderBottom: `1px solid ${primitiveColorVars.border}`,
     },
   },
 })

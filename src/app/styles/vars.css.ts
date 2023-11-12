@@ -69,7 +69,7 @@ createGlobalTheme(':root', primitiveColorVars, {
   backgroundRedTint: globalColors.redA.redA2,
   backgroundRedTint2: globalColors.redA.redA3,
   backgroundYellowTint: globalColors.yellowA.yellowA2,
-  border: globalColors.blackA.blackA1,
+  border: '#ececec',
   border2: globalColors.gray.gray7,
   borderAccent: globalColors.amber.amber11,
   borderBlue: globalColors.blueA.blueA4,
