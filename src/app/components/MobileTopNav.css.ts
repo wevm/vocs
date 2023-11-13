@@ -106,7 +106,6 @@ export const logo = style(
 export const logoImage = style(
   {
     height: '30%',
-    width: 'fit-content',
   },
   'logoImage',
 )
@@ -146,10 +145,7 @@ export const outlineTrigger = style(
   'outlineTrigger',
 )
 
-export const section = style(
-  { alignItems: 'center', display: 'flex', height: '100%', gap: spaceVars[16] },
-  'section',
-)
+export const section = style({ display: 'flex', height: '100%', gap: spaceVars[16] }, 'section')
 
 export const separator = style(
   {
