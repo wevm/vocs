@@ -271,9 +271,6 @@ importers:
         specifier: 4.4.11
         version: 4.4.11(@types/node@20.8.9)
     devDependencies:
-      '@types/fs-extra':
-        specifier: ^11.0.2
-        version: 11.0.3
       '@types/mdast':
         specifier: ^4.0.2
         version: 4.0.2
