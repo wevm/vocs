@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 
 declare module 'virtual:config' {
-  export const config: import('../config.js').Config
+  export const config: import('../config.js').ParsedConfig
 }
 
 declare module 'virtual:routes' {

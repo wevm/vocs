@@ -445,7 +445,7 @@ export const contentVars = createGlobalThemeContract(
 )
 createGlobalTheme(':root', contentVars, {
   horizontalPadding: spaceVars['48'],
-  verticalPadding: spaceVars['48'],
+  verticalPadding: spaceVars['12'],
   width: `calc(70ch + (${contentVars.horizontalPadding} * 2))`,
 })
 
@@ -492,13 +492,15 @@ globalStyle(':root', {
         [contentVars.verticalPadding]: spaceVars['48'],
         [contentVars.horizontalPadding]: spaceVars['24'],
         [sidebarVars.horizontalPadding]: spaceVars['24'],
+        [sidebarVars.width]: '340px',
+        [topNavVars.height]: '48px',
       },
     },
     [viewportVars['max-720px']]: {
       vars: {
         [contentVars.horizontalPadding]: spaceVars['16'],
         [contentVars.verticalPadding]: spaceVars['32'],
-        [sidebarVars.horizontalPadding]: spaceVars['16'],
+        [sidebarVars.horizontalPadding]: spaceVars['24'],
       },
     },
   },

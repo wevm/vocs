@@ -101,7 +101,7 @@ export const gutterRight = style(
     display: 'flex',
     height: '100vh',
     overflow: 'scroll',
-    padding: `calc(${contentVars.verticalPadding} + ${topNavVars.height}) ${spaceVars['24']} 0 0`,
+    padding: `calc(${contentVars.verticalPadding} + ${topNavVars.height} + ${spaceVars['8']}) ${spaceVars['24']} 0 0`,
     position: 'fixed',
     top: '0',
     right: '0',

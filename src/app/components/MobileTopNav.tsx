@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
 import { config } from 'virtual:config'
 
-import type { Sidebar, SidebarItem } from '../../config.js'
+import type { ParsedSocialItem, Sidebar, SidebarItem } from '../../config.js'
 import { Icon } from './Icon.js'
 import * as styles from './MobileTopNav.css.js'
 
@@ -11,8 +11,36 @@ MobileTopNav.Curtain = Curtain
 export function MobileTopNav() {
   return (
     <div className={styles.root}>
-      <div className={styles.title}>Vocs</div>
+      <div className={styles.section}>
+        <div className={styles.title}>{config.title}</div>
+      </div>
+      <div className={styles.section}>
+        <div className={styles.group}>
+          {config.socials?.map((social, i) => (
+            <SocialButton key={i} {...social} />
+          ))}
+        </div>
+      </div>
     </div>
+  )
+}
+
+const sizesForIcons = {
+  discord: '21px',
+  github: '18px',
+  x: '16px',
+} satisfies Record<ParsedSocialItem['type'], string>
+
+function SocialButton({ icon, label, link }: ParsedSocialItem) {
+  return (
+    <a className={styles.button} href={link} target="_blank" rel="noopener noreferrer">
+      <Icon
+        className={styles.icon}
+        label={label}
+        size={sizesForIcons[icon] || '18px'}
+        src={`/.vocs/icons/${icon}.svg`}
+      />
+    </a>
   )
 }
 

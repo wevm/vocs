@@ -7,16 +7,22 @@ import {
   sidebarVars,
   spaceVars,
   topNavVars,
+  viewportVars,
 } from '../styles/vars.css.js'
 
 export const root = style({
   backgroundColor: primitiveColorVars.backgroundDark,
   display: 'flex',
   flexDirection: 'column',
-  gap: spaceVars['16'],
   height: '100vh',
+  gap: spaceVars['12'],
   padding: `${spaceVars['0']} ${sidebarVars.horizontalPadding}`,
   width: sidebarVars.width,
+  '@media': {
+    'screen and (max-width: 1080px)': {
+      width: '100%',
+    },
+  },
 })
 
 export const item = style(
@@ -46,6 +52,22 @@ export const items = style(
   'items',
 )
 
+export const navigation = style(
+  {
+    selectors: {
+      '&:first-child': {
+        paddingTop: spaceVars['16'],
+      },
+    },
+    '@media': {
+      [viewportVars['max-1080px']]: {
+        paddingTop: spaceVars['24'],
+      },
+    },
+  },
+  'navigation',
+)
+
 export const section = style(
   {
     display: 'flex',
@@ -64,6 +86,47 @@ export const sectionTitle = style(
   'sectionTitle',
 )
 
+export const socialLink = style(
+  {
+    alignItems: 'center',
+    display: 'flex',
+    color: primitiveColorVars.text3,
+    gap: spaceVars['8'],
+    fontSize: fontSizeVars['14'],
+    fontWeight: fontWeightVars.medium,
+    selectors: {
+      '&:hover': {
+        color: primitiveColorVars.text,
+      },
+    },
+  },
+  'socialLink',
+)
+
+export const socialLinkIcon = style(
+  {
+    display: 'flex',
+    justifyContent: 'center',
+    width: '16px',
+  },
+  'socialLinkIcon',
+)
+
+export const socials = style(
+  {
+    borderTop: `1px solid ${primitiveColorVars.border}`,
+    display: 'flex',
+    flexDirection: 'column',
+    paddingTop: spaceVars['12'],
+    '@media': {
+      [viewportVars['min-1080px']]: {
+        display: 'none',
+      },
+    },
+  },
+  'socials',
+)
+
 export const title = style(
   {
     alignItems: 'center',
@@ -73,6 +136,11 @@ export const title = style(
     fontSize: fontSizeVars['18'],
     fontWeight: fontWeightVars.semibold,
     lineHeight: lineHeightVars.heading,
+    '@media': {
+      'screen and (max-width: 1080px)': {
+        display: 'none',
+      },
+    },
   },
   'title',
 )

@@ -1,5 +1,6 @@
 import { keyframes, style } from '@vanilla-extract/css'
 import {
+  borderRadiusVars,
   contentVars,
   fontSizeVars,
   fontWeightVars,
@@ -27,6 +28,7 @@ export const root = style({
   borderBottom: `1px solid ${primitiveColorVars.border}`,
   display: 'none',
   height: '100%',
+  justifyContent: 'space-between',
   padding: `${spaceVars['0']} ${contentVars.horizontalPadding}`,
   width: '100%',
   '@media': {
@@ -35,6 +37,14 @@ export const root = style({
     },
   },
 })
+
+export const button = style(
+  {
+    borderRadius: borderRadiusVars[4],
+    padding: spaceVars[8],
+  },
+  'button',
+)
 
 export const curtain = style(
   {
@@ -68,6 +78,20 @@ export const curtainGroup = style(
 
 export const curtainItem = style({}, 'curtainItem')
 
+export const group = style({ alignItems: 'center', display: 'flex' }, 'group')
+
+export const icon = style(
+  {
+    color: primitiveColorVars.text2,
+    selectors: {
+      [`${button}:hover &`]: {
+        color: primitiveColorVars.text,
+      },
+    },
+  },
+  'icon',
+)
+
 export const menuTrigger = style(
   {
     alignItems: 'center',
@@ -91,6 +115,11 @@ export const outlineTrigger = style(
     },
   },
   'outlineTrigger',
+)
+
+export const section = style(
+  { alignItems: 'center', display: 'flex', height: '100%', gap: spaceVars[16] },
+  'section',
 )
 
 export const separator = style(
