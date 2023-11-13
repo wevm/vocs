@@ -1,6 +1,10 @@
 import { defineConfig } from '../../src/index.js'
 
 export default defineConfig({
+  logoUrl: {
+    light: '/vocs-logo-light.svg',
+    dark: '/vocs-logo-dark.svg',
+  },
   socials: [
     {
       icon: 'discord',

@@ -1,4 +1,4 @@
-import { keyframes, style } from '@vanilla-extract/css'
+import { globalStyle, keyframes, style } from '@vanilla-extract/css'
 import {
   borderRadiusVars,
   contentVars,
@@ -7,6 +7,7 @@ import {
   lineHeightVars,
   primitiveColorVars,
   spaceVars,
+  topNavVars,
   viewportVars,
 } from '../styles/vars.css.js'
 
@@ -91,6 +92,34 @@ export const icon = style(
   },
   'icon',
 )
+
+export const logo = style(
+  {
+    alignItems: 'center',
+    borderBottom: `1px solid ${primitiveColorVars.border}`,
+    display: 'flex',
+    height: topNavVars.height,
+  },
+  'logo',
+)
+
+export const logoImage = style(
+  {
+    height: '30%',
+    width: 'fit-content',
+  },
+  'logoImage',
+)
+
+export const logoDark = style({}, 'logoDark')
+globalStyle(`:root:not(.dark) ${logoDark}`, {
+  display: 'none',
+})
+
+export const logoLight = style({}, 'logoLight')
+globalStyle(`:root.dark ${logoLight}`, {
+  display: 'none',
+})
 
 export const menuTrigger = style(
   {

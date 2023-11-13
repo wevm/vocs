@@ -1,3 +1,4 @@
+import clsx from 'clsx'
 import { useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
 import { config } from 'virtual:config'
@@ -12,7 +13,30 @@ export function MobileTopNav() {
   return (
     <div className={styles.root}>
       <div className={styles.section}>
-        <div className={styles.title}>{config.title}</div>
+        <div className={styles.logo}>
+          {config.logoUrl ? (
+            <>
+              {typeof config.logoUrl === 'string' ? (
+                <img alt="Logo" className={styles.logoImage} src={config.logoUrl} />
+              ) : (
+                <>
+                  <img
+                    alt="Logo"
+                    className={clsx(styles.logoImage, styles.logoDark)}
+                    src={config.logoUrl.dark}
+                  />
+                  <img
+                    alt="Logo"
+                    className={clsx(styles.logoImage, styles.logoLight)}
+                    src={config.logoUrl.light}
+                  />
+                </>
+              )}
+            </>
+          ) : (
+            <div className={styles.title}>{config.title}</div>
+          )}
+        </div>
       </div>
       <div className={styles.section}>
         <div className={styles.group}>

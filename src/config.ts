@@ -2,6 +2,8 @@ type RequiredBy<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>
 
 export type Config<parsed extends boolean = false> = RequiredBy<
   {
+    /** Logo URL. */
+    logoUrl?: LogoUrl
     /** Navigation displayed on the sidebar. */
     sidebar?: Sidebar
     /** Social links displayed in the top navigation. */
@@ -38,6 +40,8 @@ function parseSocials(socials: Socials): ParsedSocials {
 
 //////////////////////////////////////////////////////
 // Types
+
+export type LogoUrl = string | { light: string; dark: string }
 
 export type SidebarItem = {
   /** Title to display on the sidebar. */

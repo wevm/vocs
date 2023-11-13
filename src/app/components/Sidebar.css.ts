@@ -1,4 +1,4 @@
-import { style } from '@vanilla-extract/css'
+import { globalStyle, style } from '@vanilla-extract/css'
 import {
   fontSizeVars,
   fontWeightVars,
@@ -51,6 +51,39 @@ export const items = style(
   },
   'items',
 )
+
+export const logo = style(
+  {
+    alignItems: 'center',
+    borderBottom: `1px solid ${primitiveColorVars.border}`,
+    display: 'flex',
+    height: topNavVars.height,
+    '@media': {
+      'screen and (max-width: 1080px)': {
+        display: 'none',
+      },
+    },
+  },
+  'logo',
+)
+
+export const logoImage = style(
+  {
+    height: '30%',
+    width: 'fit-content',
+  },
+  'logoImage',
+)
+
+export const logoDark = style({}, 'logoDark')
+globalStyle(`:root:not(.dark) ${logoDark}`, {
+  display: 'none',
+})
+
+export const logoLight = style({}, 'logoLight')
+globalStyle(`:root.dark ${logoLight}`, {
+  display: 'none',
+})
 
 export const navigation = style(
   {
@@ -129,18 +162,9 @@ export const socials = style(
 
 export const title = style(
   {
-    alignItems: 'center',
-    borderBottom: `1px solid ${primitiveColorVars.border}`,
-    display: 'flex',
-    height: topNavVars.height,
     fontSize: fontSizeVars['18'],
     fontWeight: fontWeightVars.semibold,
     lineHeight: lineHeightVars.heading,
-    '@media': {
-      'screen and (max-width: 1080px)': {
-        display: 'none',
-      },
-    },
   },
   'title',
 )
