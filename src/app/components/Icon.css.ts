@@ -4,8 +4,8 @@ export const sizeVar = createVar('size')
 export const srcVar = createVar('src')
 
 export const root = style({
-  backgroundColor: 'currentColor',
-  mask: `${srcVar} no-repeat center / contain`,
+  alignItems: 'center',
+  display: 'flex',
   height: sizeVar,
   width: sizeVar,
 })

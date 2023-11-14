@@ -1,4 +1,4 @@
-import { globalStyle, keyframes, style } from '@vanilla-extract/css'
+import { keyframes, style } from '@vanilla-extract/css'
 import {
   borderRadiusVars,
   contentVars,
@@ -109,16 +109,6 @@ export const logoImage = style(
   },
   'logoImage',
 )
-
-export const logoDark = style({}, 'logoDark')
-globalStyle(`:root:not(.dark) ${logoDark}`, {
-  display: 'none',
-})
-
-export const logoLight = style({}, 'logoLight')
-globalStyle(`:root.dark ${logoLight}`, {
-  display: 'none',
-})
 
 export const menuTrigger = style(
   {

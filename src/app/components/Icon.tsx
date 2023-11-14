@@ -6,12 +6,12 @@ import * as styles from './Icon.css.js'
 export type IconProps = {
   className?: string
   label: string
+  icon: React.ElementType
   size?: string
-  src: string
   style?: React.CSSProperties
 }
 
-export function Icon({ className, label, size = '1em', src, style }: IconProps) {
+export function Icon({ className, label, icon: Icon, size = '1em', style }: IconProps) {
   return (
     <div
       aria-label={label}
@@ -19,8 +19,10 @@ export function Icon({ className, label, size = '1em', src, style }: IconProps) 
       role="img"
       style={{
         ...style,
-        ...assignInlineVars({ [styles.sizeVar]: size, [styles.srcVar]: `url(${src})` }),
+        ...assignInlineVars({ [styles.sizeVar]: size }),
       }}
-    />
+    >
+      <Icon height={size} width={size} />
+    </div>
   )
 }

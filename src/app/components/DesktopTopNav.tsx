@@ -1,9 +1,17 @@
 import { config } from 'virtual:config'
 
+import clsx from 'clsx'
+import type { ComponentType } from 'react'
 import type { ParsedSocialItem } from '../../config.js'
 import { useTheme } from '../hooks/useTheme.js'
+import { visibleDark, visibleLight } from '../styles/utils.css.js'
 import * as styles from './DesktopTopNav.css.js'
 import { Icon } from './Icon.js'
+import { Discord } from './icons/Discord.js'
+import { GitHub } from './icons/GitHub.js'
+import { Moon } from './icons/Moon.js'
+import { Sun } from './icons/Sun.js'
+import { X } from './icons/X.js'
 
 DesktopTopNav.Curtain = Curtain
 
@@ -39,25 +47,28 @@ export function Curtain() {
 }
 
 function ThemeToggleButton() {
-  const { toggle, theme } = useTheme()
+  const { toggle } = useTheme()
   return (
     <button className={styles.button} onClick={toggle} type="button">
-      {theme === 'dark' ? (
-        <Icon className={styles.icon} size="20px" label="Light" src="/.vocs/icons/sun.svg" />
-      ) : (
-        <Icon
-          className={styles.icon}
-          size="20px"
-          label="Dark"
-          src="/.vocs/icons/moon.svg"
-          style={{ marginTop: '-2px' }}
-        />
-      )}
+      <Icon className={clsx(styles.icon, visibleDark)} size="20px" label="Light" icon={Sun} />
+      <Icon
+        className={clsx(styles.icon, visibleLight)}
+        size="20px"
+        label="Dark"
+        icon={Moon}
+        style={{ marginTop: '-2px' }}
+      />
     </button>
   )
 }
 
-const sizesForIcons = {
+const iconsForIcon = {
+  discord: Discord,
+  github: GitHub,
+  x: X,
+} satisfies Record<ParsedSocialItem['type'], ComponentType>
+
+const sizesForType = {
   discord: '23px',
   github: '20px',
   x: '18px',
@@ -69,8 +80,8 @@ function SocialButton({ icon, label, link }: ParsedSocialItem) {
       <Icon
         className={styles.icon}
         label={label}
-        size={sizesForIcons[icon] || '20px'}
-        src={`/.vocs/icons/${icon}.svg`}
+        icon={iconsForIcon[icon]}
+        size={sizesForType[icon] || '20px'}
       />
     </a>
   )

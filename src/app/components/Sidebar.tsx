@@ -1,11 +1,14 @@
 import clsx from 'clsx'
-import type { MouseEventHandler, ReactNode } from 'react'
+import type { ComponentType, MouseEventHandler, ReactNode } from 'react'
 import { Link, useMatch } from 'react-router-dom'
 import { config } from 'virtual:config'
 
 import type { ParsedSocialItem } from '../../config.js'
 import { Icon } from './Icon.js'
 import * as styles from './Sidebar.css.js'
+import { Discord } from './icons/Discord.js'
+import { GitHub } from './icons/GitHub.js'
+import { X } from './icons/X.js'
 
 export function Sidebar({ onClickItem }: { onClickItem?: MouseEventHandler<HTMLAnchorElement> }) {
   const { sidebar } = config
@@ -75,7 +78,13 @@ function SidebarItem({
   )
 }
 
-const sizesForIcons = {
+const iconsForIcon = {
+  discord: Discord,
+  github: GitHub,
+  x: X,
+} satisfies Record<ParsedSocialItem['type'], ComponentType>
+
+const sizesForTypes = {
   discord: '16px',
   github: '16px',
   x: '14px',
@@ -85,7 +94,7 @@ function SocialLink({ label, icon, link, type }: ParsedSocialItem) {
   return (
     <a className={styles.socialLink} href={link} rel="noopener noreferrer" target="_blank">
       <div className={styles.socialLinkIcon}>
-        <Icon label={label} src={`/.vocs/icons/${icon}.svg`} size={sizesForIcons[type]} />
+        <Icon label={label} icon={iconsForIcon[icon]} size={sizesForTypes[type]} />
       </div>{' '}
       {label}
     </a>
