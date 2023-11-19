@@ -106,14 +106,16 @@ export function Outline({
     const observer = new IntersectionObserver(([entry]) => {
       if (!active.current) return
 
-      if (entry.isIntersecting) setActiveId(items[items.length - 1].id)
-      else setActiveId(items[items.length - 2].id)
+      const lastItemId = items[items.length - 1].id
+
+      if (entry.isIntersecting) setActiveId(lastItemId)
+      else if (activeId === lastItemId) setActiveId(items[items.length - 2].id)
     })
 
     observer.observe(document.querySelector('[data-bottom-observer]')!)
 
     return () => observer.disconnect()
-  }, [items])
+  }, [activeId, items])
 
   // Intersection observers are a bit unreliable for fast scrolling,
   // use scroll event listener to sync active item.
@@ -150,6 +152,8 @@ export function Outline({
   }, [items])
 
   if (items.length === 0) return null
+
+  console.log(activeId)
 
   const levelItems = items.filter((item) => item.level === minLevel)
   return (

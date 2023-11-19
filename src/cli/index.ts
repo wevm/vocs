@@ -11,7 +11,11 @@ export const cli = cac('vocs')
 
 cli.command('[root]').alias('dev').option('-h, --host', 'Expose host URL').action(dev)
 cli.command('init').option('-n, --name [name]', 'Name of project').action(init)
-cli.command('build').action(build)
+cli
+  .command('build')
+  .option('-l, --logLevel [level]', 'info | warn | error | silent')
+  .option('-o, --outDir [dir]', 'output directory (default: dist)')
+  .action(build)
 cli.command('preview').action(preview)
 
 cli.help()

@@ -1,8 +1,6 @@
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { intro, log, outro, text } from '@clack/prompts'
-// @ts-expect-error
-import { detect } from 'detect-package-manager'
 import { default as fs } from 'fs-extra'
 import pc from 'picocolors'
 

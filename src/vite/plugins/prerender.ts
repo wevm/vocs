@@ -1,12 +1,13 @@
 import { mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
-import { dirname, resolve } from 'node:path'
-import type { PluginOption } from 'vite'
+import { dirname, relative, resolve } from 'node:path'
+import pc from 'picocolors'
+import { type Logger, type PluginOption } from 'vite'
 
 const root = process.cwd()
 
-type PrerenderPluginParameters = { outDir?: string }
+type PrerenderPluginParameters = { logger?: Logger; outDir?: string }
 
-export function prerender({ outDir = 'dist' }: PrerenderPluginParameters): PluginOption {
+export function prerender({ logger, outDir = 'dist' }: PrerenderPluginParameters): PluginOption {
   return {
     name: 'prerender',
     async closeBundle() {
@@ -18,6 +19,7 @@ export function prerender({ outDir = 'dist' }: PrerenderPluginParameters): Plugi
       // Get routes to prerender.
       const routes = getRoutes(resolve(root, 'docs'))
 
+      logger?.info(`\n${pc.green('✓')} ${routes.length} pages prerendered.`)
       // Prerender each route.
       for (const route of routes) {
         const { head, body } = await mod.prerender(route)
@@ -31,7 +33,9 @@ export function prerender({ outDir = 'dist' }: PrerenderPluginParameters): Plugi
 
         if (!isDir(pathDir)) mkdirSync(pathDir, { recursive: true })
         writeFileSync(path, html)
-        console.log('Prerendered:', path)
+
+        const fileName = path.split('/').pop()!
+        logger?.info(`${pc.dim(relative(root, path).replace(fileName, ''))}${pc.cyan(fileName)}`)
       }
     },
   }

@@ -7,46 +7,79 @@ import { prerender } from './plugins/prerender.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
-type BuildParameters = {
+export type BuildParameters = {
+  logger?: vite.Logger
+  hooks?: {
+    onClientBuildStart?: () => void
+    onClientBuildEnd?: (
+      output: vite.Rollup.RollupOutput | vite.Rollup.RollupOutput[] | vite.Rollup.RollupWatcher,
+    ) => void
+    onPrerenderBuildStart?: () => void
+    onPrerenderBuildEnd?: (
+      output: vite.Rollup.RollupOutput | vite.Rollup.RollupOutput[] | vite.Rollup.RollupWatcher,
+    ) => void
+    onScriptsBuildStart?: () => void
+    onScriptsBuildEnd?: () => void
+  }
+  logLevel?: vite.LogLevel
   outDir?: string
 }
 
-export async function build({ outDir = 'dist' }: BuildParameters = {}) {
+export async function build({
+  logger,
+  hooks,
+  logLevel = 'silent',
+  outDir = 'dist',
+}: BuildParameters = {}) {
   // client
-  await vite.build({
-    build: {
-      emptyOutDir: true,
-      outDir: resolve(outDir),
-    },
-    root: __dirname,
-  })
+  await Promise.all([
+    (async () => {
+      hooks?.onClientBuildStart?.()
+      const output = await vite.build({
+        build: {
+          emptyOutDir: true,
+          outDir: resolve(outDir),
+        },
+        root: __dirname,
+        logLevel,
+      })
+      hooks?.onClientBuildEnd?.(output)
+      return output
+    })(),
+    (async () => {
+      hooks?.onScriptsBuildStart?.()
+      await vite.build({
+        build: {
+          lib: {
+            formats: ['iife'],
+            name: 'theme',
+            entry: [resolve(__dirname, '../app/utils/initializeTheme.ts')],
+          },
+          minify: true,
+          outDir: resolve(outDir),
+          emptyOutDir: false,
+        },
+        configFile: undefined,
+        logLevel,
+      })
+      hooks?.onScriptsBuildEnd?.()
+    })(),
+  ])
 
-  // server
-  await vite.build({
+  // prerender
+  hooks?.onPrerenderBuildStart?.()
+  const output_prerender = await vite.build({
     build: {
       emptyOutDir: false,
       outDir: resolve(outDir),
       ssr: resolve(__dirname, '../app/index.server.tsx'),
     },
-    plugins: [prerender({ outDir })],
+    logLevel,
+    plugins: [prerender({ logger: logLevel === 'info' ? logger : undefined, outDir })],
     root: __dirname,
   })
+  hooks?.onPrerenderBuildEnd?.(output_prerender)
 
   // copy public folder
   fs.copySync(resolve(__dirname, '../app/public'), resolve(outDir))
-
-  // initialize theme script
-  await vite.build({
-    build: {
-      lib: {
-        formats: ['iife'],
-        name: 'theme',
-        entry: [resolve(__dirname, '../app/utils/initializeTheme.ts')],
-      },
-      minify: true,
-      outDir: resolve(outDir),
-      emptyOutDir: false,
-    },
-    configFile: undefined,
-  })
 }
