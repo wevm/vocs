@@ -32,39 +32,16 @@ export async function build({
   outDir = 'dist',
 }: BuildParameters = {}) {
   // client
-  await Promise.all([
-    (async () => {
-      hooks?.onClientBuildStart?.()
-      const output = await vite.build({
-        build: {
-          emptyOutDir: true,
-          outDir: resolve(outDir),
-        },
-        root: __dirname,
-        logLevel,
-      })
-      hooks?.onClientBuildEnd?.(output)
-      return output
-    })(),
-    (async () => {
-      hooks?.onScriptsBuildStart?.()
-      await vite.build({
-        build: {
-          lib: {
-            formats: ['iife'],
-            name: 'theme',
-            entry: [resolve(__dirname, '../app/utils/initializeTheme.ts')],
-          },
-          minify: true,
-          outDir: resolve(outDir),
-          emptyOutDir: false,
-        },
-        configFile: undefined,
-        logLevel,
-      })
-      hooks?.onScriptsBuildEnd?.()
-    })(),
-  ])
+  hooks?.onClientBuildStart?.()
+  const output_client = await vite.build({
+    build: {
+      emptyOutDir: true,
+      outDir: resolve(outDir),
+    },
+    root: __dirname,
+    logLevel,
+  })
+  hooks?.onClientBuildEnd?.(output_client)
 
   // prerender
   hooks?.onPrerenderBuildStart?.()
@@ -82,4 +59,21 @@ export async function build({
 
   // copy public folder
   fs.copySync(resolve(__dirname, '../app/public'), resolve(outDir))
+
+  hooks?.onScriptsBuildStart?.()
+  await vite.build({
+    build: {
+      lib: {
+        formats: ['iife'],
+        name: 'theme',
+        entry: [resolve(__dirname, '../app/utils/initializeTheme.ts')],
+      },
+      minify: true,
+      outDir: resolve(outDir),
+      emptyOutDir: false,
+    },
+    configFile: undefined,
+    logLevel,
+  })
+  hooks?.onScriptsBuildEnd?.()
 }
