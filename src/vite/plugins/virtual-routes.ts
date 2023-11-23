@@ -1,24 +1,28 @@
-import { resolve } from 'node:path'
 import { globby } from 'globby'
 import type { PluginOption } from 'vite'
+import { resolveVocsConfig } from '../utils.js'
 
-type RoutesParameters = { paths?: string }
-
-export function routes({
-  paths: glob = resolve(process.cwd(), './docs/**/*.{md,mdx,ts,tsx,js,jsx}'),
-}: RoutesParameters = {}): PluginOption {
+export function virtualRoutes(): PluginOption {
   const virtualModuleId = 'virtual:routes'
   const resolvedVirtualModuleId = `\0${virtualModuleId}`
 
+  let glob: string
   let paths: string[] = []
 
   return {
     name: 'routes',
+    async configureServer(server) {
+      const { config } = await resolveVocsConfig()
+      const { pagesPath } = config
+      server.watcher.add(pagesPath)
+      server.watcher.on('add', () => server.restart())
+      server.watcher.on('unlink', () => server.restart())
+    },
     resolveId(id) {
       if (id === virtualModuleId) return resolvedVirtualModuleId
       return
     },
-    load(id) {
+    async load(id) {
       if (id === resolvedVirtualModuleId) {
         let code = 'export const routes = ['
         for (const path of paths) {
@@ -42,6 +46,9 @@ export function routes({
       return
     },
     async buildStart() {
+      const { config } = await resolveVocsConfig()
+      const { pagesPath } = config
+      glob = `${pagesPath}/**/*.{md,mdx,ts,tsx,js,jsx}`
       paths = await globby(glob)
     },
     handleHotUpdate() {

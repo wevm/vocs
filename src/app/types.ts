@@ -14,7 +14,6 @@ export type Module = {
 }
 
 export type Route = {
-  modulePath: string
   lazy: () => Promise<Module>
   path: string
   type: 'mdx' | 'jsx'

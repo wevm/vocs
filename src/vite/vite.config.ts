@@ -5,14 +5,14 @@ import { defineConfig, splitVendorChunkPlugin } from 'vite'
 
 import { css } from './plugins/css.js'
 import { mdx } from './plugins/mdx.js'
-import { root } from './plugins/root.js'
-import { routes } from './plugins/routes.js'
-import { vocsConfig } from './plugins/vocs-config.js'
+import { virtualConfig } from './plugins/virtual-config.js'
+import { virtualRoot } from './plugins/virtual-root.js'
+import { virtualRoutes } from './plugins/virtual-routes.js'
 
 export default defineConfig({
   plugins: [
     splitVendorChunkPlugin(),
-    vocsConfig(),
+    virtualConfig(),
     react(),
     vanillaExtractPlugin({
       identifiers({ filePath, debugId }) {
@@ -23,8 +23,8 @@ export default defineConfig({
     }),
     css(),
     mdx(),
-    routes(),
-    root(),
+    virtualRoutes(),
+    virtualRoot(),
   ],
   server: {
     fs: {

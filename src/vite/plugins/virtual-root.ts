@@ -4,7 +4,7 @@ import type { PluginOption } from 'vite'
 
 type RoutesParameters = { root?: string }
 
-export function root({
+export function virtualRoot({
   root = resolve(process.cwd(), './root.tsx'),
 }: RoutesParameters = {}): PluginOption {
   const virtualModuleId = 'virtual:root'

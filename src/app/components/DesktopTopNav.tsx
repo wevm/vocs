@@ -1,8 +1,7 @@
-import { config } from 'virtual:config'
-
 import clsx from 'clsx'
 import type { ComponentType } from 'react'
 import type { ParsedSocialItem } from '../../config.js'
+import { useConfig } from '../hooks/useConfig.js'
 import { useTheme } from '../hooks/useTheme.js'
 import { visibleDark, visibleLight } from '../styles/utils.css.js'
 import * as styles from './DesktopTopNav.css.js'
@@ -16,6 +15,7 @@ import { X } from './icons/X.js'
 DesktopTopNav.Curtain = Curtain
 
 export function DesktopTopNav() {
+  const config = useConfig()
   return (
     <div className={styles.root}>
       <div className={styles.section} />

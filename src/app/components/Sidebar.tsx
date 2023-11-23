@@ -1,9 +1,9 @@
 import clsx from 'clsx'
 import type { ComponentType, MouseEventHandler, ReactNode } from 'react'
 import { Link, useMatch } from 'react-router-dom'
-import { config } from 'virtual:config'
 
 import type { ParsedSocialItem } from '../../config.js'
+import { useConfig } from '../hooks/useConfig.js'
 import { Icon } from './Icon.js'
 import * as styles from './Sidebar.css.js'
 import { Discord } from './icons/Discord.js'
@@ -11,6 +11,7 @@ import { GitHub } from './icons/GitHub.js'
 import { X } from './icons/X.js'
 
 export function Sidebar({ onClickItem }: { onClickItem?: MouseEventHandler<HTMLAnchorElement> }) {
+  const config = useConfig()
   const { sidebar } = config
 
   if (!sidebar) return null

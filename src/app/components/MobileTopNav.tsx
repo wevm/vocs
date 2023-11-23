@@ -1,9 +1,9 @@
 import clsx from 'clsx'
 import { type ComponentType, useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
-import { config } from 'virtual:config'
 
 import type { ParsedSocialItem, Sidebar, SidebarItem } from '../../config.js'
+import { useConfig } from '../hooks/useConfig.js'
 import { visibleDark, visibleLight } from '../styles/utils.css.js'
 import { Icon } from './Icon.js'
 import * as styles from './MobileTopNav.css.js'
@@ -17,6 +17,7 @@ import { X } from './icons/X.js'
 MobileTopNav.Curtain = Curtain
 
 export function MobileTopNav() {
+  const config = useConfig()
   return (
     <div className={styles.root}>
       <div className={styles.section}>
@@ -90,6 +91,7 @@ export function Curtain({
   MenuTrigger: React.ElementType
   OutlineTrigger: React.ElementType
 }) {
+  const config = useConfig()
   const { pathname } = useLocation()
 
   const sidebarItemTitle = useMemo(() => {
@@ -99,7 +101,7 @@ export function Curtain({
       pathname,
     })
     return sidebarItem?.title
-  }, [pathname])
+  }, [config, pathname])
 
   const contentTitle = useMemo(() => {
     if (typeof window === 'undefined') return
