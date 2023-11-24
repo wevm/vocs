@@ -3,8 +3,6 @@ import { Helmet } from 'react-helmet'
 import { ScrollRestoration } from 'react-router-dom'
 import { Root as ConsumerRoot } from 'virtual:root'
 
-import type { IconUrl } from '../config.js'
-import { FrontmatterHead } from './components/FrontmatterHead.js'
 import { useConfig } from './hooks/useConfig.js'
 import type { Module } from './types.js'
 
@@ -19,8 +17,7 @@ export function Root({
 }) {
   return (
     <>
-      <HelmetHead />
-      {frontmatter && <FrontmatterHead frontmatter={frontmatter} />}
+      <Head frontmatter={frontmatter} />
       {typeof window !== 'undefined' && <ScrollRestoration />}
       <ConsumerRoot frontmatter={frontmatter} path={path}>
         {children}
@@ -29,31 +26,44 @@ export function Root({
   )
 }
 
-function HelmetHead() {
+function Head({ frontmatter }: { frontmatter: Module['frontmatter'] }) {
   const config = useConfig()
+
   const { iconUrl } = config
+  const { title, description = config.description } = frontmatter || {}
 
-  return <>{iconUrl && <IconTags iconUrl={iconUrl} />}</>
-}
-
-function IconTags({ iconUrl }: { iconUrl: IconUrl }) {
-  if (typeof iconUrl === 'string')
-    return (
-      <Helmet>
-        <link rel="icon" href={iconUrl} type={getIconType(iconUrl)} />
-      </Helmet>
-    )
+  const enableTitleTemplate = config.title && config.title.toLowerCase() !== title?.toLowerCase()
 
   return (
-    <Helmet>
-      <link rel="icon" href={iconUrl.light} type={getIconType(iconUrl.light)} />
-      <link
-        rel="icon"
-        href={iconUrl.dark}
-        type={getIconType(iconUrl.dark)}
-        media="(prefers-color-scheme: dark)"
-      />
-    </Helmet>
+    <>
+      <Helmet
+        defaultTitle={config.title}
+        titleTemplate={enableTitleTemplate ? `%s – ${config.title}` : undefined}
+      >
+        {title && <title>{title}</title>}
+        {description && <meta name="description" content={description} />}
+      </Helmet>
+
+      {iconUrl && (
+        <>
+          {typeof iconUrl === 'string' ? (
+            <Helmet>
+              <link rel="icon" href={iconUrl} type={getIconType(iconUrl)} />
+            </Helmet>
+          ) : (
+            <Helmet>
+              <link rel="icon" href={iconUrl.light} type={getIconType(iconUrl.light)} />
+              <link
+                rel="icon"
+                href={iconUrl.dark}
+                type={getIconType(iconUrl.dark)}
+                media="(prefers-color-scheme: dark)"
+              />
+            </Helmet>
+          )}
+        </>
+      )}
+    </>
   )
 }
 

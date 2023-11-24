@@ -1,6 +1,7 @@
 import { defineConfig } from './src/index.js'
 
 export default defineConfig({
+  description: 'Static documentation generator powered by Vite and React',
   iconUrl: {
     light: '/vocs-icon-light.svg',
     dark: '/vocs-icon-dark.svg',

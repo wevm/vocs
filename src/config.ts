@@ -7,6 +7,10 @@ type RequiredProperties = 'root' | 'title'
 export type Config<parsed extends boolean = false> = RequiredBy<
   {
     /**
+     * General description for the documentation.
+     */
+    description?: string
+    /**
      * Additional tags to include in the `<head>` tag of the page HTML.
      */
     head?: ReactElement
