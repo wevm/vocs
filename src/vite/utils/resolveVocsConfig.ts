@@ -3,7 +3,7 @@ import { resolve } from 'node:path'
 import { type ConfigEnv, loadConfigFromFile } from 'vite'
 import { type ParsedConfig, defaultConfig } from '../../config.js'
 
-const extensions = ['js', 'ts', 'mjs', 'mts']
+const extensions = ['js', 'jsx', 'ts', 'tsx', 'mjs', 'mts']
 const defaultConfigPaths = ['.vocs/config', 'vocs.config']
 
 type ResolveVocsConfigParameters = {

@@ -1,9 +1,15 @@
+import type { ReactElement } from 'react'
+
 type RequiredBy<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>
 
 type RequiredProperties = 'root' | 'title'
 
 export type Config<parsed extends boolean = false> = RequiredBy<
   {
+    /**
+     * Additional tags to include in the `<head>` tag of the page HTML.
+     */
+    head?: ReactElement
     /**
      * Logo URL.
      */
@@ -34,8 +40,14 @@ export type Config<parsed extends boolean = false> = RequiredBy<
 >
 export type ParsedConfig = Config<true>
 
-export function defineConfig({ root = 'docs', title = 'Docs', ...config }: Config): ParsedConfig {
+export function defineConfig({
+  head,
+  root = 'docs',
+  title = 'Docs',
+  ...config
+}: Config): ParsedConfig {
   return {
+    head,
     root,
     title,
     ...config,
