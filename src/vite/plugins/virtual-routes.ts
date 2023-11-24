@@ -1,7 +1,8 @@
 import { resolve } from 'node:path'
 import { globby } from 'globby'
 import type { PluginOption } from 'vite'
-import { resolveVocsConfig } from '../utils.js'
+
+import { resolveVocsConfig } from '../utils/resolveVocsConfig.js'
 
 export function virtualRoutes(): PluginOption {
   const virtualModuleId = 'virtual:routes'
@@ -16,9 +17,11 @@ export function virtualRoutes(): PluginOption {
       const { config } = await resolveVocsConfig()
       const { root } = config
       const pagesPath = resolve(root, 'pages')
-      server.watcher.add(pagesPath)
-      server.watcher.on('add', () => server.restart())
-      server.watcher.on('unlink', () => server.restart())
+      if (pagesPath) {
+        server.watcher.add(pagesPath)
+        server.watcher.on('add', () => server.restart())
+        server.watcher.on('unlink', () => server.restart())
+      }
     },
     resolveId(id) {
       if (id === virtualModuleId) return resolvedVirtualModuleId

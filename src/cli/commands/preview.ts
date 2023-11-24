@@ -11,5 +11,8 @@ export async function preview() {
   logger.info('')
   logger.info(`  ${pc.green('[running]')} ${pc.bold('vocs')}@${pc.dim(`v${version}`)}`)
   logger.info('')
-  server.printUrls()
+
+  logger.info(
+    `  ${pc.green('➜')}  ${pc.bold('Local')}:   ${pc.cyan(`http://localhost:${server.port}`)}`,
+  )
 }

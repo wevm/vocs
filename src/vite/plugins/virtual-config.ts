@@ -1,5 +1,6 @@
 import { type PluginOption } from 'vite'
-import { resolveVocsConfig } from '../utils.js'
+
+import { resolveVocsConfig } from '../utils/resolveVocsConfig.js'
 
 export function virtualConfig(): PluginOption {
   const virtualModuleId = 'virtual:config'

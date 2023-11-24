@@ -5,12 +5,15 @@ import { default as tailwindcss } from 'tailwindcss'
 import { default as tailwindcssNesting } from 'tailwindcss/nesting'
 import type { PluginOption } from 'vite'
 
-export function css(): PluginOption {
-  const tailwindConfig = findTailwindConfig()
+import { resolveVocsConfig } from '../utils/resolveVocsConfig.js'
 
+export function css(): PluginOption {
   return {
     name: 'css',
-    config() {
+    async config() {
+      const { config } = await resolveVocsConfig()
+      const { root } = config
+      const tailwindConfig = findTailwindConfig({ root })
       return {
         css: {
           postcss: {
@@ -33,7 +36,7 @@ export function css(): PluginOption {
 //////////////////////////////////////////////////
 // Tailwind
 
-export function findTailwindConfig() {
+export function findTailwindConfig({ root }: { root: string }) {
   const configFiles = [
     './tailwind.config.js',
     './tailwind.config.cjs',
@@ -42,7 +45,7 @@ export function findTailwindConfig() {
   ]
   for (const configFile of configFiles) {
     try {
-      const configPath = resolve(process.cwd(), configFile)
+      const configPath = resolve(root, configFile)
       accessSync(configPath)
       return configPath
     } catch (err) {}

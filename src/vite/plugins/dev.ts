@@ -3,7 +3,8 @@ import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { default as serveStatic } from 'serve-static'
 import type { PluginOption } from 'vite'
-import { resolveVocsConfig } from '../utils.js'
+
+import { resolveVocsConfig } from '../utils/resolveVocsConfig.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 

@@ -1,18 +1,37 @@
-import { dirname, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
-import { preview as vitePreview } from 'vite'
+import { resolve } from 'node:path'
+import { serve } from '@hono/node-server'
+import { Hono } from 'hono'
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
+import { resolveVocsConfig } from './utils/resolveVocsConfig.js'
+import { serveStatic } from './utils/serveStatic.js'
 
 type PreviewParameters = {
   outDir?: string
 }
 
 export async function preview({ outDir = 'dist' }: PreviewParameters = {}) {
-  return vitePreview({
-    root: __dirname,
-    build: {
-      outDir: resolve(process.cwd(), outDir),
-    },
+  const { config } = await resolveVocsConfig()
+  const { root } = config
+
+  const app = new Hono()
+  app.use('/*', serveStatic({ root: resolve(root, outDir) }))
+
+  return new Promise<ReturnType<typeof serve> & { port: number }>((res) => {
+    async function createServer(port = 4173) {
+      process.on('uncaughtException', (err: any) => {
+        if (err.code !== 'EADDRINUSE') throw err
+        process.removeAllListeners()
+        createServer(port + 1)
+      })
+
+      const server = serve({
+        fetch: app.fetch,
+        port,
+      }).on('listening', () => {
+        res(Object.assign(server, { port }))
+      })
+    }
+
+    createServer()
   })
 }

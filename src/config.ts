@@ -34,6 +34,8 @@ export function defineConfig({
   }
 }
 
+export const defaultConfig = defineConfig({})
+
 //////////////////////////////////////////////////////
 // Parsers
 
