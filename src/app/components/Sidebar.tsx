@@ -18,28 +18,30 @@ export function Sidebar({ onClickItem }: { onClickItem?: MouseEventHandler<HTMLA
   return (
     <aside className={styles.root}>
       <div className={styles.logo}>
-        {config.logoUrl ? (
-          <>
-            {typeof config.logoUrl === 'string' ? (
-              <img alt="Logo" className={styles.logoImage} src={config.logoUrl} />
-            ) : (
-              <>
-                <img
-                  alt="Logo"
-                  className={clsx(styles.logoImage, styles.logoDark)}
-                  src={config.logoUrl.dark}
-                />
-                <img
-                  alt="Logo"
-                  className={clsx(styles.logoImage, styles.logoLight)}
-                  src={config.logoUrl.light}
-                />
-              </>
-            )}
-          </>
-        ) : (
-          <div className={styles.title}>{config.title}</div>
-        )}
+        <Link to="/" style={{ alignItems: 'center', display: 'flex', height: '100%' }}>
+          {config.logoUrl ? (
+            <>
+              {typeof config.logoUrl === 'string' ? (
+                <img alt="Logo" className={styles.logoImage} src={config.logoUrl} />
+              ) : (
+                <>
+                  <img
+                    alt="Logo"
+                    className={clsx(styles.logoImage, styles.logoDark)}
+                    src={config.logoUrl.dark}
+                  />
+                  <img
+                    alt="Logo"
+                    className={clsx(styles.logoImage, styles.logoLight)}
+                    src={config.logoUrl.light}
+                  />
+                </>
+              )}
+            </>
+          ) : (
+            <div className={styles.title}>{config.title}</div>
+          )}
+        </Link>
       </div>
       <nav className={styles.navigation}>
         <section className={styles.section}>
