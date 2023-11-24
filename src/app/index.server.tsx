@@ -37,7 +37,7 @@ export async function prerender(location: string) {
     </StaticRouter>,
   )
 
-  return { head: head(), body }
+  return { head: await head(), body }
 }
 
 export async function render(req: Request) {
