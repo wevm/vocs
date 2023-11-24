@@ -51,10 +51,7 @@ export const serveStatic = (options: ServeStaticOptions = { root: '' }): Middlew
 
     path = `/${path}`
 
-    if (!existsSync(path)) {
-      console.log('hmm')
-      return next()
-    }
+    if (!existsSync(path)) return next()
 
     const mimeType = getMimeType(path)
     if (mimeType) {

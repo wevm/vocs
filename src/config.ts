@@ -1,31 +1,40 @@
-import { resolve } from 'node:path'
-
 type RequiredBy<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>
 
 type RequiredProperties = 'root' | 'title'
 
 export type Config<parsed extends boolean = false> = RequiredBy<
   {
-    /** Logo URL. */
+    /**
+     * Logo URL.
+     */
     logoUrl?: LogoUrl
-    /** Path to documentation pages. @default "./docs" */
+    /**
+     * Documentation root directory. Can be an absolute path, or a path relative from
+     * the location of the config file itself.
+     *
+     * @default "docs"
+     */
     root?: string
-    /** Navigation displayed on the sidebar. */
+    /**
+     * Navigation displayed on the sidebar.
+     */
     sidebar?: Sidebar
-    /** Social links displayed in the top navigation. */
+    /**
+     * Social links displayed in the top navigation.
+     */
     socials?: parsed extends true ? ParsedSocials : Socials
-    /** Title for your documentation. @default "Docs" */
+    /**
+     * Documentation title.
+     *
+     * @default "Docs"
+     */
     title?: string
   },
   parsed extends true ? RequiredProperties : never
 >
 export type ParsedConfig = Config<true>
 
-export function defineConfig({
-  root = resolve(process.cwd(), './docs'),
-  title = 'Docs',
-  ...config
-}: Config): ParsedConfig {
+export function defineConfig({ root = 'docs', title = 'Docs', ...config }: Config): ParsedConfig {
   return {
     root,
     title,
