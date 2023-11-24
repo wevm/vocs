@@ -2,14 +2,14 @@ import { resolve } from 'node:path'
 
 type RequiredBy<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>
 
-type RequiredProperties = 'pagesPath' | 'title'
+type RequiredProperties = 'root' | 'title'
 
 export type Config<parsed extends boolean = false> = RequiredBy<
   {
     /** Logo URL. */
     logoUrl?: LogoUrl
     /** Path to documentation pages. @default "./docs" */
-    pagesPath?: string
+    root?: string
     /** Navigation displayed on the sidebar. */
     sidebar?: Sidebar
     /** Social links displayed in the top navigation. */
@@ -22,12 +22,12 @@ export type Config<parsed extends boolean = false> = RequiredBy<
 export type ParsedConfig = Config<true>
 
 export function defineConfig({
-  pagesPath = resolve(process.cwd(), './docs'),
+  root = resolve(process.cwd(), './docs'),
   title = 'Docs',
   ...config
 }: Config): ParsedConfig {
   return {
-    pagesPath,
+    root,
     title,
     ...config,
     socials: parseSocials(config.socials ?? []),

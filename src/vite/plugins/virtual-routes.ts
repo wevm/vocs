@@ -1,3 +1,4 @@
+import { resolve } from 'node:path'
 import { globby } from 'globby'
 import type { PluginOption } from 'vite'
 import { resolveVocsConfig } from '../utils.js'
@@ -13,7 +14,8 @@ export function virtualRoutes(): PluginOption {
     name: 'routes',
     async configureServer(server) {
       const { config } = await resolveVocsConfig()
-      const { pagesPath } = config
+      const { root } = config
+      const pagesPath = resolve(root, 'pages')
       server.watcher.add(pagesPath)
       server.watcher.on('add', () => server.restart())
       server.watcher.on('unlink', () => server.restart())
@@ -47,7 +49,8 @@ export function virtualRoutes(): PluginOption {
     },
     async buildStart() {
       const { config } = await resolveVocsConfig()
-      const { pagesPath } = config
+      const { root } = config
+      const pagesPath = resolve(root, 'pages')
       glob = `${pagesPath}/**/*.{md,mdx,ts,tsx,js,jsx}`
       paths = await globby(glob)
     },

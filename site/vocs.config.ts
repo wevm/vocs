@@ -1,4 +1,4 @@
-import { defineConfig } from '../../src/index.js'
+import { defineConfig } from '../src/index.js'
 
 export default defineConfig({
   logoUrl: {

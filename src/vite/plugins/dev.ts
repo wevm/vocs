@@ -3,6 +3,7 @@ import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { default as serveStatic } from 'serve-static'
 import type { PluginOption } from 'vite'
+import { resolveVocsConfig } from '../utils.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -15,8 +16,10 @@ export function dev(): PluginOption {
     transform(styles, id) {
       if (id.endsWith('.css')) styleSet.set(id, styles)
     },
-    configureServer(server) {
-      server.middlewares.use(serveStatic(resolve(process.cwd(), 'public')))
+    async configureServer(server) {
+      const { config } = await resolveVocsConfig()
+      const { root } = config
+      server.middlewares.use(serveStatic(resolve(root, 'public')))
       server.middlewares.use(serveStatic(resolve(__dirname, '../../app/public')))
       return () => {
         server.middlewares.use(async (req, res, next) => {
