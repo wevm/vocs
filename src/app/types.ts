@@ -10,7 +10,6 @@ export type Frontmatter = {
 export type Module = {
   default: React.ComponentType<{ components: MDXComponents }>
   frontmatter?: Frontmatter
-  head?: React.ReactNode
 }
 
 export type Route = {

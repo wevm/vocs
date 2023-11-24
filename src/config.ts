@@ -11,6 +11,10 @@ export type Config<parsed extends boolean = false> = RequiredBy<
      */
     head?: ReactElement
     /**
+     * Icon URL.
+     */
+    iconUrl?: IconUrl
+    /**
      * Logo URL.
      */
     logoUrl?: LogoUrl
@@ -78,6 +82,8 @@ function parseSocials(socials: Socials): ParsedSocials {
 
 //////////////////////////////////////////////////////
 // Types
+
+export type IconUrl = string | { light: string; dark: string }
 
 export type LogoUrl = string | { light: string; dark: string }
 
