@@ -38,7 +38,7 @@ function Head({ frontmatter }: { frontmatter: Module['frontmatter'] }) {
     <>
       <Helmet
         defaultTitle={config.title}
-        titleTemplate={enableTitleTemplate ? `%s – ${config.title}` : undefined}
+        titleTemplate={enableTitleTemplate ? config.titleTemplate : undefined}
       >
         {title && <title>{title}</title>}
         {description && <meta name="description" content={description} />}

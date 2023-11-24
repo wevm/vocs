@@ -2,7 +2,7 @@ import type { ReactElement } from 'react'
 
 type RequiredBy<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>
 
-type RequiredProperties = 'root' | 'title'
+type RequiredProperties = 'root' | 'title' | 'titleTemplate'
 
 export type Config<parsed extends boolean = false> = RequiredBy<
   {
@@ -43,6 +43,12 @@ export type Config<parsed extends boolean = false> = RequiredBy<
      * @default "Docs"
      */
     title?: string
+    /**
+     * Template for the page title.
+     *
+     * @default `%s – ${title}`
+     */
+    titleTemplate?: string
   },
   parsed extends true ? RequiredProperties : never
 >
@@ -52,12 +58,14 @@ export function defineConfig({
   head,
   root = 'docs',
   title = 'Docs',
+  titleTemplate = `%s – ${title}`,
   ...config
 }: Config): ParsedConfig {
   return {
     head,
     root,
     title,
+    titleTemplate,
     ...config,
     socials: parseSocials(config.socials ?? []),
   }
