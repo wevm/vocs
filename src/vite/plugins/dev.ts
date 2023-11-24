@@ -16,9 +16,9 @@ export function dev(): PluginOption {
       if (id.endsWith('.css')) styleSet.set(id, styles)
     },
     configureServer(server) {
+      server.middlewares.use(serveStatic(resolve(process.cwd(), 'public')))
+      server.middlewares.use(serveStatic(resolve(__dirname, '../../app/public')))
       return () => {
-        server.middlewares.use(serveStatic(resolve(process.cwd(), 'public')))
-        server.middlewares.use(serveStatic(resolve(__dirname, '../../app/public')))
         server.middlewares.use(async (req, res, next) => {
           const url = req.url && cleanUrl(req.url)
 

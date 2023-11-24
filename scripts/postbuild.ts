@@ -10,6 +10,12 @@ copyFileSync(
   resolve(import.meta.dir, '../src/_lib/vite/index.html'),
 )
 
+// Copy public folder
+copy(
+  resolve(import.meta.dir, '../src/app/public'),
+  resolve(import.meta.dir, '../src/_lib/app/public'),
+)
+
 // Copy create-vocs templates
 copy(
   resolve(import.meta.dir, '../create-vocs/templates'),
