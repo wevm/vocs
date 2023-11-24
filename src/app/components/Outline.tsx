@@ -153,8 +153,6 @@ export function Outline({
 
   if (items.length === 0) return null
 
-  console.log(activeId)
-
   const levelItems = items.filter((item) => item.level === minLevel)
   return (
     <aside className={styles.root}>

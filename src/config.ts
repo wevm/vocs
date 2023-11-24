@@ -1,4 +1,4 @@
-import { resolve } from 'node:path'
+import type { ReactElement } from 'react'
 
 type RequiredBy<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>
 
@@ -6,15 +6,38 @@ type RequiredProperties = 'root' | 'title'
 
 export type Config<parsed extends boolean = false> = RequiredBy<
   {
-    /** Logo URL. */
+    /**
+     * Additional tags to include in the `<head>` tag of the page HTML.
+     */
+    head?: ReactElement
+    /**
+     * Icon URL.
+     */
+    iconUrl?: IconUrl
+    /**
+     * Logo URL.
+     */
     logoUrl?: LogoUrl
-    /** Path to documentation pages. @default "./docs" */
+    /**
+     * Documentation root directory. Can be an absolute path, or a path relative from
+     * the location of the config file itself.
+     *
+     * @default "docs"
+     */
     root?: string
-    /** Navigation displayed on the sidebar. */
+    /**
+     * Navigation displayed on the sidebar.
+     */
     sidebar?: Sidebar
-    /** Social links displayed in the top navigation. */
+    /**
+     * Social links displayed in the top navigation.
+     */
     socials?: parsed extends true ? ParsedSocials : Socials
-    /** Title for your documentation. @default "Docs" */
+    /**
+     * Documentation title.
+     *
+     * @default "Docs"
+     */
     title?: string
   },
   parsed extends true ? RequiredProperties : never
@@ -22,17 +45,21 @@ export type Config<parsed extends boolean = false> = RequiredBy<
 export type ParsedConfig = Config<true>
 
 export function defineConfig({
-  root = resolve(process.cwd(), './docs'),
+  head,
+  root = 'docs',
   title = 'Docs',
   ...config
 }: Config): ParsedConfig {
   return {
+    head,
     root,
     title,
     ...config,
     socials: parseSocials(config.socials ?? []),
   }
 }
+
+export const defaultConfig = defineConfig({})
 
 //////////////////////////////////////////////////////
 // Parsers
@@ -55,6 +82,8 @@ function parseSocials(socials: Socials): ParsedSocials {
 
 //////////////////////////////////////////////////////
 // Types
+
+export type IconUrl = string | { light: string; dark: string }
 
 export type LogoUrl = string | { light: string; dark: string }
 

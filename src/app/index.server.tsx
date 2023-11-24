@@ -1,6 +1,6 @@
 import './styles/index.css.js'
 
-import type { Request } from '@tinyhttp/app'
+import type { ReactElement } from 'react'
 import { renderToString } from 'react-dom/server'
 import { Helmet } from 'react-helmet'
 import { Route, Routes } from 'react-router-dom'
@@ -12,6 +12,7 @@ import {
   createStaticRouter,
 } from 'react-router-dom/server.js'
 
+import { resolveVocsConfig } from '../vite/utils/resolveVocsConfig.js'
 import { routes } from './routes.js'
 import { createFetchRequest } from './utils/createFetchRequest.js'
 
@@ -36,7 +37,7 @@ export async function prerender(location: string) {
     </StaticRouter>,
   )
 
-  return { head: head(), body }
+  return { head: await head(), body }
 }
 
 export async function render(req: Request) {
@@ -50,10 +51,13 @@ export async function render(req: Request) {
 
   const body = renderToString(<StaticRouterProvider router={router} context={context} />)
 
-  return { head: head(), body }
+  return { head: await head(), body }
 }
 
-function head() {
+async function head() {
+  const { config } = await resolveVocsConfig()
+  const { head } = config
+
   const helmet = Helmet.renderStatic()
 
   return `
@@ -62,5 +66,6 @@ function head() {
     ${helmet.link.toString()}
     ${helmet.style.toString()}
     ${helmet.script.toString()}
+    ${renderToString(head as ReactElement)}
   `
 }

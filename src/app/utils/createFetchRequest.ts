@@ -1,6 +1,4 @@
-import type { Request } from '@tinyhttp/app'
-
-export function createFetchRequest(req: Request) {
+export function createFetchRequest(req: any) {
   const origin = `${req.protocol}://${req.headers.host}`
   const url = new URL(req.originalUrl || req.url, origin)
 
@@ -12,7 +10,7 @@ export function createFetchRequest(req: Request) {
   for (const [key, values] of Object.entries(req.headers)) {
     if (values) {
       if (Array.isArray(values)) for (const value of values) headers.append(key, value)
-      else headers.set(key, values)
+      else headers.set(key, values as any)
     }
   }
 

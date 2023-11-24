@@ -8,12 +8,12 @@ import { Root } from './root.js'
 export const routes = routes_virtual.map((route_virtual) => ({
   path: route_virtual.path,
   lazy: async () => {
-    const { frontmatter, head, ...route } = await route_virtual.lazy()
+    const { frontmatter, ...route } = await route_virtual.lazy()
 
     return {
       ...route,
       element: (
-        <Root frontmatter={frontmatter} head={head} path={route_virtual.path}>
+        <Root frontmatter={frontmatter} path={route_virtual.path}>
           <DocsLayout>
             <route.default components={components} />
           </DocsLayout>
