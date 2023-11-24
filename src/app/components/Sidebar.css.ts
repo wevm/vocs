@@ -70,7 +70,7 @@ export const logo = style(
 export const logoImage = style(
   {
     height: '30%',
-    width: 'fit-content',
+    width: 'max-content',
   },
   'logoImage',
 )
