@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 import { cac } from 'cac'
-import { init } from 'create-vocs'
 
 import { build } from './commands/build.js'
 import { dev } from './commands/dev.js'
@@ -10,7 +9,6 @@ import { version } from './version.js'
 export const cli = cac('vocs')
 
 cli.command('[root]').alias('dev').option('-h, --host', 'Expose host URL').action(dev)
-cli.command('init').option('-n, --name [name]', 'Name of project').action(init)
 cli
   .command('build')
   .option('-l, --logLevel [level]', 'info | warn | error | silent')

@@ -4,11 +4,11 @@ import react from '@vitejs/plugin-react'
 import { defineConfig, splitVendorChunkPlugin } from 'vite'
 
 import { css } from './plugins/css.js'
+// import { docgen } from './plugins/docgen.js'
 import { mdx } from './plugins/mdx.js'
 import { virtualConfig } from './plugins/virtual-config.js'
 import { virtualRoot } from './plugins/virtual-root.js'
 import { virtualRoutes } from './plugins/virtual-routes.js'
-import { docgen } from './plugins/docgen.js'
 
 export default defineConfig({
   plugins: [
@@ -23,7 +23,7 @@ export default defineConfig({
       emitCssInSsr: true,
     }),
     css(),
-    docgen(),
+    // docgen(),
     mdx(),
     virtualRoutes(),
     virtualRoot(),

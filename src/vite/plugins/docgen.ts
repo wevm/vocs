@@ -9,7 +9,7 @@ export function docgen(): PluginOption {
   return {
     name: 'docgen',
     async configureServer(server) {
-      const project = new Project({ tsConfigFilePath: '../tsconfig.json' })
+      const project = new Project({ tsConfigFilePath: 'tsconfig.json' })
       const sourceFiles = project.getSourceFiles()
       if (sourceFiles.length) {
         const rootDirs = new Set<string>()
@@ -45,7 +45,7 @@ export function docgen(): PluginOption {
 }
 
 function getFiles() {
-  const project = new Project({ tsConfigFilePath: '../tsconfig.json' })
+  const project = new Project({ tsConfigFilePath: 'tsconfig.json' })
   const sourceFiles = project.getSourceFiles()
 
   const files: Record<string, string> = {}
