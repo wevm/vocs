@@ -1,13 +1,13 @@
-import { Project, Structure, forEachStructureChild, StructureKind } from 'ts-morph'
+import { Project, Structure, StructureKind, forEachStructureChild } from 'ts-morph'
 
 import { useDocgen } from '../hooks/useDocgen.js'
+import { Code } from './mdx/Code.js'
 import { H2 } from './mdx/H2.js'
 import { H3 } from './mdx/H3.js'
 import { H4 } from './mdx/H4.js'
 import { Paragraph } from './mdx/Paragraph.js'
-import { Code } from './mdx/Code.js'
 
-type DocgenProps = { path: string }
+export type DocgenProps = { path: string }
 
 export function Docgen(props: DocgenProps) {
   const docgen = useDocgen()

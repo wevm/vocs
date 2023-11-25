@@ -9,8 +9,7 @@
   "exports": {
     ".": "./_lib/index.js",
     "./components": "./_lib/components.js",
-    "./head": "./_lib/head.js",
-    "./react": "./_lib/react.js"
+    "./head": "./_lib/head.js"
   },
   "peerDependencies": {
     "react": "^18.2.0",
