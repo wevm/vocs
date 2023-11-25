@@ -50,3 +50,8 @@ globalStyle(`${Content} > *:not(:last-child)`, {
 globalStyle(`${Content} > *:last-child`, {
   marginBottom: spaceVars['0'],
 })
+
+globalStyle('#app[aria-hidden="true"]', {
+  background: primitiveColorVars.background,
+  filter: 'brightness(0.5)',
+})

@@ -6,6 +6,5 @@ export const root = style({
   border: `1px solid ${primitiveColorVars.border}`,
   borderRadius: borderRadiusVars[4],
   margin: `0 ${spaceVars[6]}`,
-  padding: spaceVars[16],
   zIndex: zIndexVars.popover,
 })

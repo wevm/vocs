@@ -1,13 +1,11 @@
-import { type ReactNode, useState } from 'react'
+import type { ReactNode } from 'react'
 import { useInView } from 'react-intersection-observer'
 
 import { Content } from '../components/Content.js'
 import { DesktopTopNav } from '../components/DesktopTopNav.js'
 import { MobileTopNav } from '../components/MobileTopNav.js'
 import { Outline } from '../components/Outline.js'
-import { Popover } from '../components/Popover.js'
 import { Sidebar } from '../components/Sidebar.js'
-import { SidebarDrawer } from '../components/SidebarDrawer.js'
 import * as styles from './DocsLayout.css.js'
 
 export function DocsLayout({
@@ -15,9 +13,6 @@ export function DocsLayout({
 }: {
   children: ReactNode
 }) {
-  const [isOutlineOpen, setOutlineOpen] = useState(false)
-  const [isSidebarOpen, setSidebarOpen] = useState(false)
-
   const { ref, inView } = useInView({
     initialInView: true,
     rootMargin: '100px 0px 0px 0px',
@@ -26,7 +21,7 @@ export function DocsLayout({
   return (
     <div className={styles.root}>
       <div className={styles.gutterLeft}>
-        <Sidebar />
+        <Sidebar className={styles.sidebar} />
       </div>
       <div ref={ref} className={styles.gutterTop}>
         <DesktopTopNav />
@@ -34,26 +29,7 @@ export function DocsLayout({
       </div>
       <div className={styles.gutterTopCurtain}>
         <DesktopTopNav.Curtain />
-
-        <SidebarDrawer.Root open={isSidebarOpen} onOpenChange={setSidebarOpen}>
-          <Popover.Root open={isOutlineOpen} onOpenChange={setOutlineOpen}>
-            <MobileTopNav.Curtain
-              enableScrollToTop={!inView}
-              MenuTrigger={SidebarDrawer.Trigger}
-              OutlineTrigger={Popover.Trigger}
-            />
-            <SidebarDrawer className={styles.sidebarDrawer}>
-              <Sidebar onClickItem={() => setSidebarOpen(false)} />
-            </SidebarDrawer>
-            <Popover className={styles.outlinePopover}>
-              <Outline
-                onClickItem={() => setOutlineOpen(false)}
-                highlightActive={false}
-                showTitle={false}
-              />
-            </Popover>
-          </Popover.Root>
-        </SidebarDrawer.Root>
+        <MobileTopNav.Curtain enableScrollToTop={!inView} />
       </div>
       <div className={styles.content}>
         <Content>{children}</Content>

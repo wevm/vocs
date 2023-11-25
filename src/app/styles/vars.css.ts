@@ -462,12 +462,14 @@ createGlobalTheme(':root', outlineVars, {
 export const sidebarVars = createGlobalThemeContract(
   {
     horizontalPadding: 'horizontalPadding',
+    verticalPadding: 'verticalPadding',
     width: 'width',
   },
   getVarName('sidebar'),
 )
 createGlobalTheme(':root', sidebarVars, {
   horizontalPadding: spaceVars['24'],
+  verticalPadding: spaceVars['0'],
   width: '300px',
 })
 
@@ -491,8 +493,9 @@ globalStyle(':root', {
       vars: {
         [contentVars.verticalPadding]: spaceVars['48'],
         [contentVars.horizontalPadding]: spaceVars['24'],
-        [sidebarVars.horizontalPadding]: spaceVars['24'],
-        [sidebarVars.width]: '340px',
+        [sidebarVars.horizontalPadding]: spaceVars['16'],
+        [sidebarVars.verticalPadding]: spaceVars['16'],
+        [sidebarVars.width]: '300px',
         [topNavVars.height]: '48px',
       },
     },
@@ -500,7 +503,6 @@ globalStyle(':root', {
       vars: {
         [contentVars.horizontalPadding]: spaceVars['16'],
         [contentVars.verticalPadding]: spaceVars['32'],
-        [sidebarVars.horizontalPadding]: spaceVars['24'],
       },
     },
   },

@@ -6,6 +6,7 @@ import {
   fontWeightVars,
   lineHeightVars,
   primitiveColorVars,
+  sidebarVars,
   spaceVars,
   topNavVars,
   viewportVars,
@@ -135,6 +136,21 @@ export const outlineTrigger = style(
   'outlineTrigger',
 )
 
+export const outlinePopover = style(
+  {
+    display: 'none',
+    overflowY: 'scroll',
+    padding: spaceVars['16'],
+    maxHeight: '80vh',
+    '@media': {
+      [viewportVars['max-1080px']]: {
+        display: 'block',
+      },
+    },
+  },
+  'outlinePopover',
+)
+
 export const section = style({ display: 'flex', height: '100%', gap: spaceVars[16] }, 'section')
 
 export const separator = style(
@@ -144,6 +160,22 @@ export const separator = style(
     width: '1px',
   },
   'separator',
+)
+
+export const sidebarPopover = style(
+  {
+    display: 'none',
+    overflowY: 'scroll',
+    padding: `${sidebarVars.verticalPadding} ${sidebarVars.horizontalPadding}`,
+    maxHeight: '80vh',
+    width: sidebarVars.width,
+    '@media': {
+      [viewportVars['max-1080px']]: {
+        display: 'block',
+      },
+    },
+  },
+  'sidebarPopover',
 )
 
 export const title = style(

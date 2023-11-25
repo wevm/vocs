@@ -10,13 +10,16 @@ import { Discord } from './icons/Discord.js'
 import { GitHub } from './icons/GitHub.js'
 import { X } from './icons/X.js'
 
-export function Sidebar({ onClickItem }: { onClickItem?: MouseEventHandler<HTMLAnchorElement> }) {
+export function Sidebar({
+  className,
+  onClickItem,
+}: { className?: string; onClickItem?: MouseEventHandler<HTMLAnchorElement> }) {
   const config = useConfig()
   const { sidebar } = config
 
   if (!sidebar) return null
   return (
-    <aside className={styles.root}>
+    <aside className={clsx(styles.root, className)}>
       <div className={styles.logo}>
         <Link to="/" style={{ alignItems: 'center', display: 'flex', height: '100%' }}>
           {config.logoUrl ? (

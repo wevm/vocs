@@ -11,12 +11,9 @@ import {
 } from '../styles/vars.css.js'
 
 export const root = style({
-  backgroundColor: primitiveColorVars.backgroundDark,
   display: 'flex',
   flexDirection: 'column',
-  height: '100vh',
   gap: spaceVars['12'],
-  padding: `${spaceVars['0']} ${sidebarVars.horizontalPadding}`,
   width: sidebarVars.width,
   '@media': {
     'screen and (max-width: 1080px)': {
@@ -90,11 +87,6 @@ export const navigation = style(
     selectors: {
       '&:first-child': {
         paddingTop: spaceVars['16'],
-      },
-    },
-    '@media': {
-      [viewportVars['max-1080px']]: {
-        paddingTop: spaceVars['24'],
       },
     },
   },

@@ -119,6 +119,8 @@ export const gutterRight = style(
 export const outlinePopover = style(
   {
     display: 'none',
+    overflowY: 'scroll',
+    height: `calc(100vh - ${topNavVars.height} - ${topNavVars.curtainHeight})`,
     '@media': {
       [viewportVars['max-1080px']]: {
         display: 'block',
@@ -126,6 +128,13 @@ export const outlinePopover = style(
     },
   },
   'outlinePopover',
+)
+
+export const sidebar = style(
+  {
+    padding: `${spaceVars['0']} ${sidebarVars.horizontalPadding}`,
+  },
+  'sidebar',
 )
 
 export const sidebarDrawer = style(
