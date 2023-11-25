@@ -14,6 +14,7 @@
     "format": "biome format . --write",
     "lint": "biome lint . --apply-unsafe",
     "playground": "pnpm --filter playgrounds/default dev",
+    "preconstruct": "bun run scripts/preconstruct.ts",
     "prepare": "simple-git-hooks && pnpm build",
     "typecheck": "tsc --noEmit"
   },
@@ -29,6 +30,7 @@
     "@types/react-dom": "^18.2.13",
     "@types/react-helmet": "^6.1.7",
     "@types/serve-static": "^1.15.3",
+    "bun": "^1.0.14",
     "bun-types": "^1.0.6",
     "fs-extra": "^11.1.1",
     "globby": "^13.2.2",

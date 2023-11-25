@@ -41,6 +41,9 @@ importers:
       '@types/serve-static':
         specifier: ^1.15.3
         version: 1.15.4
+      bun:
+        specifier: ^1.0.14
+        version: 1.0.14
       bun-types:
         specifier: ^1.0.6
         version: 1.0.7
@@ -261,6 +264,9 @@ importers:
       tailwindcss:
         specifier: ^3.3.3
         version: 3.3.5
+      ts-morph:
+        specifier: ^20.0.0
+        version: 20.0.0
       ua-parser-js:
         specifier: ^1.0.36
         version: 1.0.37
@@ -1677,6 +1683,54 @@ packages:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.15.0
 
+  /@oven/bun-darwin-aarch64@1.0.14:
+    resolution: {integrity: sha512-dx3oMSyok9hMR+0uZTSF+OwGYvrJbiRpx/4MxRDtasBgCqLO8YvI0TKtPYPx+hRHfQKKRR6hRIMcG8kwLVkEJQ==}
+    cpu: [arm64]
+    os: [darwin]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /@oven/bun-darwin-x64-baseline@1.0.14:
+    resolution: {integrity: sha512-x6QRBPygKHhxO19NpdTMX2nbQfbqiLB6XOcTZ4927MBx1af74f111yC1lZ4DzLQhqD7BORMoqtVL7hluVuGGWQ==}
+    cpu: [x64]
+    os: [darwin]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /@oven/bun-darwin-x64@1.0.14:
+    resolution: {integrity: sha512-FydMlmFmWF009mqXpHe2rkl+7AEptNKBtN3u0Jz1UtGfWYQhAmTSNLNr8bvFBT2vV5wA1GAan5p3/HNjM9+djA==}
+    cpu: [x64]
+    os: [darwin]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /@oven/bun-linux-aarch64@1.0.14:
+    resolution: {integrity: sha512-biM4wx1dGr4X3O1LzrNwRBk+A6uIrCy08xFg7UqWRFXbVPWAf6DwKiRBGnrIIziit2OCza4aRM3GgN/2aylr+A==}
+    cpu: [arm64]
+    os: [linux]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /@oven/bun-linux-x64-baseline@1.0.14:
+    resolution: {integrity: sha512-Qxipp8jXaJdf/iVEPtZZMA7yK8OXhm74daaP7eU+mUMwgLVyjhj8LSCT8xWZkrjR7GK3UZJhJJJllSZ847pXDQ==}
+    cpu: [x64]
+    os: [linux]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /@oven/bun-linux-x64@1.0.14:
+    resolution: {integrity: sha512-Boe49aboUOffHw4HQ39hgtnxWJJmJpMrLVwPCWhPXxaOcraOgfv5zoGh5h7Ic210lZEDE8difqY7y5uE0TsmUQ==}
+    cpu: [x64]
+    os: [linux]
+    requiresBuild: true
+    dev: true
+    optional: true
+
   /@pkgjs/parseargs@0.11.0:
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
     engines: {node: '>=14'}
@@ -2455,6 +2509,15 @@ packages:
     resolution: {integrity: sha512-myfUej5naTBWnqOCc/MdVOLVjXUXtIA+NpDrDBKJtLLg2shUjBu3cZmB/85RyitKc55+lUUyl7oRfLOvkr2hsw==}
     dev: true
 
+  /@ts-morph/common@0.21.0:
+    resolution: {integrity: sha512-ES110Mmne5Vi4ypUKrtVQfXFDtCsDXiUiGxF6ILVlE90dDD4fdpC1LSjydl/ml7xJWKSDZwUYD2zkOePMSrPBA==}
+    dependencies:
+      fast-glob: 3.3.1
+      minimatch: 7.4.6
+      mkdirp: 2.1.6
+      path-browserify: 1.0.1
+    dev: false
+
   /@types/acorn@4.0.6:
     resolution: {integrity: sha512-veQTnWP+1D/xbxVrPC3zHnCZRjSrKfhbMUlEA43iMZLu7EsnTtkJklIuwrCPbOi8YkvDQAiW05VQQFvvz9oieQ==}
     dependencies:
@@ -3037,6 +3100,21 @@ packages:
     resolution: {integrity: sha512-zlIp+SCutbbugs6xDy+3WC3KO3zKySpF/bRfiTk/VJUdKt+WHAzlCtLplS7XglRYDFzhRhlzXMW/R5BHkw+u2Q==}
     dev: true
 
+  /bun@1.0.14:
+    resolution: {integrity: sha512-fOi0SscF/yIv2Hl0iuD/YG/SgiH5stKsKO8RDRMDB9ZTQM3enq9sUhz2bCj3hf+4HVMcMQoOtrnT8SQAdqve6A==}
+    cpu: [arm64, x64]
+    os: [darwin, linux]
+    hasBin: true
+    requiresBuild: true
+    optionalDependencies:
+      '@oven/bun-darwin-aarch64': 1.0.14
+      '@oven/bun-darwin-x64': 1.0.14
+      '@oven/bun-darwin-x64-baseline': 1.0.14
+      '@oven/bun-linux-aarch64': 1.0.14
+      '@oven/bun-linux-x64': 1.0.14
+      '@oven/bun-linux-x64-baseline': 1.0.14
+    dev: true
+
   /bytes@3.0.0:
     resolution: {integrity: sha512-pMhOfFDPiv9t5jjIXkHosWmkSyQbvsgEVNkz0ERHbuLh2T/7j4Mqqpz523Fe8MVY89KC6Sh/QfS2sM+SjgFDcw==}
     engines: {node: '>= 0.8'}
@@ -3176,6 +3254,10 @@ packages:
   /clsx@2.0.0:
     resolution: {integrity: sha512-rQ1+kcj+ttHG0MKVGBUXwayCCF1oh39BF5COIpRzuCEv8Mwjv0XucrI2ExNTOn9IlLifGClWQcU9BrZORvtw6Q==}
     engines: {node: '>=6'}
+    dev: false
+
+  /code-block-writer@12.0.0:
+    resolution: {integrity: sha512-q4dMFMlXtKR3XNBHyMHt/3pwYNA69EDk00lloMOaaUMKPUXBw6lpXtbu3MMVG6/uOihGnRDOlkyqsONEUj60+w==}
     dev: false
 
   /collapse-white-space@2.1.0:
@@ -5306,6 +5388,13 @@ packages:
     dependencies:
       brace-expansion: 1.1.11
 
+  /minimatch@7.4.6:
+    resolution: {integrity: sha512-sBz8G/YjVniEz6lKPNpKxXwazJe4c19fEfV2GDMX6AjFz+MX9uDWIZW8XreVhkFW3fkIdTv/gxWr/Kks5FFAVw==}
+    engines: {node: '>=10'}
+    dependencies:
+      brace-expansion: 2.0.1
+    dev: false
+
   /minimatch@9.0.3:
     resolution: {integrity: sha512-RHiac9mvaRw0x3AYRgDC1CxAP7HTcNrrECeA8YYJeWnpo+2Q5CegtZjaotWTWxDG3UeGA1coE05iH1mPjT/2mg==}
     engines: {node: '>=16 || 14 >=14.17'}
@@ -5330,6 +5419,12 @@ packages:
     resolution: {integrity: sha512-VC5fg6ySUscaWUpI4gxCBTQMH2RdUpNrk+MsbpCYtIvf9SBJdiUey4qE7BXviJsJR4nDQxCZ+3yaYNW3guz/Pw==}
     engines: {node: '>= 8.0.0'}
     dev: true
+
+  /mkdirp@2.1.6:
+    resolution: {integrity: sha512-+hEnITedc8LAtIP9u3HJDFIdcLV2vXP33sqLLIzkv1Db1zO/1OxbvYf0Y1OC/S/Qo5dxHXepofhmxL02PsKe+A==}
+    engines: {node: '>=10'}
+    hasBin: true
+    dev: false
 
   /mlly@1.4.2:
     resolution: {integrity: sha512-i/Ykufi2t1EZ6NaPLdfnZk2AX8cs0d+mTzVKuPfqPKPatxLApaBoxJQ9x1/uckXtrS/U5oisPMDkNs0yQTaBRg==}
@@ -5576,6 +5671,10 @@ packages:
   /parseurl@1.3.3:
     resolution: {integrity: sha512-CiyeOxFT/JZyN5m0z9PfXw4SCBJ6Sygz1Dpl0wqjlhDEGGBP1GnsUVEL0p63hoG1fcj3fHynXi9NYO4nWOL+qQ==}
     engines: {node: '>= 0.8'}
+    dev: false
+
+  /path-browserify@1.0.1:
+    resolution: {integrity: sha512-b7uo2UCUOYZcnF/3ID0lulOJi/bafxa1xPe7ZPsammBSpjSWQkjNxlt635YGS2MiR9GjvuXCtz2emr3jbsz98g==}
     dev: false
 
   /path-exists@4.0.0:
@@ -6704,6 +6803,13 @@ packages:
 
   /ts-interface-checker@0.1.13:
     resolution: {integrity: sha512-Y/arvbn+rrz3JCKl9C4kVNfTfSm2/mEp5FSz5EsZSANGPSlQrpRI5M4PKF+mJnE52jOO90PnPSc3Ur3bTQw0gA==}
+
+  /ts-morph@20.0.0:
+    resolution: {integrity: sha512-JVmEJy2Wow5n/84I3igthL9sudQ8qzjh/6i4tmYCm6IqYyKFlNbJZi7oBdjyqcWSWYRu3CtL0xbT6fS03ESZIg==}
+    dependencies:
+      '@ts-morph/common': 0.21.0
+      code-block-writer: 12.0.0
+    dev: false
 
   /tslib@2.6.2:
     resolution: {integrity: sha512-AEYxH93jGFPn/a2iVAwW87VuUIkR1FVUKB77NwMF7nBTDkDrrT/Hpt/IrCJ0QXhW27jTBDcf5ZY7w6RiqTMw2Q==}
