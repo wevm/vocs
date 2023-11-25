@@ -1,10 +1,8 @@
-import clsx from 'clsx'
 import { type ComponentType, useMemo, useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 
 import type * as Config from '../../config.js'
 import { useConfig } from '../hooks/useConfig.js'
-import { visibleDark, visibleLight } from '../styles/utils.css.js'
 import { Icon } from './Icon.js'
 import * as styles from './MobileTopNav.css.js'
 import { Outline } from './Outline.js'
@@ -16,6 +14,7 @@ import { Discord } from './icons/Discord.js'
 import { GitHub } from './icons/GitHub.js'
 import { Menu } from './icons/Menu.js'
 import { X } from './icons/X.js'
+import { Logo } from './Logo.js'
 
 MobileTopNav.Curtain = Curtain
 
@@ -25,28 +24,9 @@ export function MobileTopNav() {
     <div className={styles.root}>
       <div className={styles.section}>
         <div className={styles.logo}>
-          {config.logoUrl ? (
-            <>
-              {typeof config.logoUrl === 'string' ? (
-                <img alt="Logo" className={styles.logoImage} src={config.logoUrl} />
-              ) : (
-                <>
-                  <img
-                    alt="Logo"
-                    className={clsx(styles.logoImage, visibleDark)}
-                    src={config.logoUrl.dark}
-                  />
-                  <img
-                    alt="Logo"
-                    className={clsx(styles.logoImage, visibleLight)}
-                    src={config.logoUrl.light}
-                  />
-                </>
-              )}
-            </>
-          ) : (
-            <div className={styles.title}>{config.title}</div>
-          )}
+          <Link to="/" style={{ alignItems: 'center', display: 'flex', height: '100%' }}>
+            <Logo />
+          </Link>
         </div>
       </div>
       <div className={styles.section}>

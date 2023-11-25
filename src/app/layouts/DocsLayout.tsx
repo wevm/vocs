@@ -8,6 +8,7 @@ import { Footer } from '../components/Footer.js'
 import { MobileTopNav } from '../components/MobileTopNav.js'
 import { Outline } from '../components/Outline.js'
 import { Sidebar } from '../components/Sidebar.js'
+import { SkipLink, skipLinkId } from '../components/SkipLink.js'
 import { useConfig } from '../hooks/useConfig.js'
 import { usePageData } from '../hooks/usePageData.js'
 import * as styles from './DocsLayout.css.js'
@@ -38,6 +39,7 @@ export function DocsLayout({
 
   return (
     <div className={styles.root}>
+      <SkipLink />
       {showSidebar && (
         <div className={styles.gutterLeft}>
           <Sidebar className={styles.sidebar} />
@@ -59,7 +61,10 @@ export function DocsLayout({
         <DesktopTopNav.Curtain />
         <MobileTopNav.Curtain enableScrollToTop={!inView} />
       </div>
-      <div className={clsx(styles.content, showSidebar && styles.content_withSidebar)}>
+      <div
+        id={skipLinkId}
+        className={clsx(styles.content, showSidebar && styles.content_withSidebar)}
+      >
         <Content>{children}</Content>
         <Footer />
       </div>

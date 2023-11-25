@@ -63,6 +63,7 @@ export const logo = style(
     alignItems: 'center',
     display: 'flex',
     height: topNavVars.height,
+    paddingTop: spaceVars[4],
   },
   'logo',
 )
