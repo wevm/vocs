@@ -12,8 +12,14 @@ export type Module = {
   frontmatter?: Frontmatter
 }
 
+export type PageData = {
+  filePath: string
+  frontmatter?: Frontmatter
+}
+
 export type Route = {
+  filePath: string
   lazy: () => Promise<Module>
   path: string
-  type: 'mdx' | 'jsx'
+  type: 'jsx' | 'mdx'
 }

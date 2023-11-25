@@ -11,7 +11,21 @@ export type Config<parsed extends boolean = false> = RequiredBy<
      */
     description?: string
     /**
-     * Base font face.
+     * Edit location for the documentation.
+     */
+    editLink?: {
+      /**
+       * Link pattern
+       */
+      pattern: string | (() => string)
+      /**
+       * Link text
+       *
+       * @default "Edit page"
+       */
+      text?: string
+    }
+    /* Base font face.
      *
      * @default { google: "Inter" }
      */
