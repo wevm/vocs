@@ -27,7 +27,6 @@ export const content = style(
         paddingTop: topNavVars.height,
       },
       [viewportVars['max-1080px']]: {
-        display: 'flex',
         marginLeft: 'auto',
         marginRight: 'auto',
       },

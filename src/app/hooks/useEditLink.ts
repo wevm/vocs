@@ -4,7 +4,7 @@ import { useConfig } from './useConfig.js'
 import { usePageData } from './usePageData.js'
 
 export function useEditLink() {
-  const { filePath } = usePageData()
+  const pageData = usePageData()
   const config = useConfig()
 
   return useMemo(() => {
@@ -13,8 +13,8 @@ export function useEditLink() {
     let url: string
     // TODO: pattern as function
     if (typeof pattern === 'function') url = ''
-    else url = pattern.replace(/:path/g, filePath)
+    else url = pattern.replace(/:path/g, pageData.filePath)
 
     return { url, text }
-  }, [config.editLink, filePath])
+  }, [config.editLink, pageData.filePath])
 }

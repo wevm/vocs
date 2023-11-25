@@ -13,15 +13,12 @@ export const routes = routes_virtual.map((route_virtual) => ({
     return {
       ...route,
       element: (
-        <Root frontmatter={frontmatter} path={route_virtual.path}>
+        <Root filePath={route_virtual.filePath} frontmatter={frontmatter} path={route_virtual.path}>
           <DocsLayout>
             <route.default components={components} />
           </DocsLayout>
         </Root>
       ),
-      loader() {
-        return { filePath: route_virtual.filePath, frontmatter }
-      },
     } satisfies RouteObject
   },
 })) satisfies RouteObject[]

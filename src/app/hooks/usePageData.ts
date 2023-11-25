@@ -1,7 +1,17 @@
-import { useLoaderData } from 'react-router-dom'
+import { useContext, createContext } from 'react'
 
-import type { PageData } from '../types.js'
+import { type Module } from '../types.js'
 
-export function usePageData(): PageData {
-  return useLoaderData() as PageData
+export function usePageData() {
+  const pageData = useContext(PageDataContext)
+  if (!pageData) throw new Error('`usePageData` must be used within `PageDataContext.Provider`.')
+  return pageData
 }
+
+export const PageDataContext = createContext<
+  | {
+      filePath: string
+      frontmatter: Module['frontmatter']
+    }
+  | undefined
+>(undefined)

@@ -4,23 +4,24 @@ import { ScrollRestoration } from 'react-router-dom'
 import { Root as ConsumerRoot } from 'virtual:root'
 
 import { useConfig } from './hooks/useConfig.js'
-import type { Module } from './types.js'
+import { type Module } from './types.js'
+import { PageDataContext } from './hooks/usePageData.js'
 
-export function Root({
-  children,
-  frontmatter,
-  path,
-}: {
+export function Root(props: {
   children: ReactNode
+  filePath: string
   frontmatter: Module['frontmatter']
   path: string
 }) {
+  const { children, filePath, frontmatter, path } = props
   return (
     <>
       <Head frontmatter={frontmatter} />
       {typeof window !== 'undefined' && <ScrollRestoration />}
       <ConsumerRoot frontmatter={frontmatter} path={path}>
-        {children}
+        <PageDataContext.Provider value={{ filePath, frontmatter }}>
+          {children}
+        </PageDataContext.Provider>
       </ConsumerRoot>
     </>
   )
