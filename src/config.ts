@@ -2,7 +2,7 @@ import type { ReactElement } from 'react'
 
 type RequiredBy<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>
 
-type RequiredProperties = 'root' | 'title' | 'titleTemplate'
+type RequiredProperties = 'font' | 'root' | 'title' | 'titleTemplate'
 
 export type Config<parsed extends boolean = false> = RequiredBy<
   {
@@ -10,6 +10,12 @@ export type Config<parsed extends boolean = false> = RequiredBy<
      * General description for the documentation.
      */
     description?: string
+    /**
+     * Base font face.
+     *
+     * @default { google: "Inter" }
+     */
+    font?: Font
     /**
      * Additional tags to include in the `<head>` tag of the page HTML.
      */
@@ -55,6 +61,7 @@ export type Config<parsed extends boolean = false> = RequiredBy<
 export type ParsedConfig = Config<true>
 
 export function defineConfig({
+  font = { google: 'Inter' },
   head,
   root = 'docs',
   title = 'Docs',
@@ -62,6 +69,7 @@ export function defineConfig({
   ...config
 }: Config): ParsedConfig {
   return {
+    font,
     head,
     root,
     title,
@@ -94,6 +102,11 @@ function parseSocials(socials: Socials): ParsedSocials {
 
 //////////////////////////////////////////////////////
 // Types
+
+export type Font = {
+  /** Name of the Google Font to use. */
+  google?: string
+}
 
 export type IconUrl = string | { light: string; dark: string }
 

@@ -29,21 +29,29 @@ export function Root({
 function Head({ frontmatter }: { frontmatter: Module['frontmatter'] }) {
   const config = useConfig()
 
-  const { iconUrl } = config
+  const { font, iconUrl } = config
   const { title, description = config.description } = frontmatter || {}
 
   const enableTitleTemplate = config.title && config.title.toLowerCase() !== title?.toLowerCase()
 
   return (
     <>
+      {/* Title */}
       <Helmet
         defaultTitle={config.title}
         titleTemplate={enableTitleTemplate ? config.titleTemplate : undefined}
       >
         {title && <title>{title}</title>}
-        {description && <meta name="description" content={description} />}
       </Helmet>
 
+      {/* Description */}
+      {description && (
+        <Helmet>
+          <meta name="description" content={description} />
+        </Helmet>
+      )}
+
+      {/* Icons */}
       {iconUrl && (
         <>
           {typeof iconUrl === 'string' ? (
@@ -58,6 +66,22 @@ function Head({ frontmatter }: { frontmatter: Module['frontmatter'] }) {
                 href={iconUrl.dark}
                 type={getIconType(iconUrl.dark)}
                 media="(prefers-color-scheme: dark)"
+              />
+            </Helmet>
+          )}
+        </>
+      )}
+
+      {/* Fonts */}
+      {font && (
+        <>
+          {font.google && (
+            <Helmet>
+              <link rel="preconnect" href="https://fonts.googleapis.com" />
+              <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+              <link
+                href={`https://fonts.googleapis.com/css2?family=${font.google}:wght@300;400;500&display=swap`}
+                rel="stylesheet"
               />
             </Helmet>
           )}
