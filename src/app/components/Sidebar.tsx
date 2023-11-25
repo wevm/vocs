@@ -5,6 +5,7 @@ import { Link, useMatch } from 'react-router-dom'
 import type { ParsedSocialItem } from '../../config.js'
 import { useConfig } from '../hooks/useConfig.js'
 import { Icon } from './Icon.js'
+import { Logo } from './Logo.js'
 import * as styles from './Sidebar.css.js'
 import { Discord } from './icons/Discord.js'
 import { GitHub } from './icons/GitHub.js'
@@ -20,31 +21,13 @@ export function Sidebar({
   if (!sidebar) return null
   return (
     <aside className={clsx(styles.root, className)}>
-      <div className={styles.logo}>
-        <Link to="/" style={{ alignItems: 'center', display: 'flex', height: '100%' }}>
-          {config.logoUrl ? (
-            <>
-              {typeof config.logoUrl === 'string' ? (
-                <img alt="Logo" className={styles.logoImage} src={config.logoUrl} />
-              ) : (
-                <>
-                  <img
-                    alt="Logo"
-                    className={clsx(styles.logoImage, styles.logoDark)}
-                    src={config.logoUrl.dark}
-                  />
-                  <img
-                    alt="Logo"
-                    className={clsx(styles.logoImage, styles.logoLight)}
-                    src={config.logoUrl.light}
-                  />
-                </>
-              )}
-            </>
-          ) : (
-            <div className={styles.title}>{config.title}</div>
-          )}
-        </Link>
+      <div className={styles.logoWrapper}>
+        <div className={styles.logo}>
+          <Link to="/" style={{ alignItems: 'center', display: 'flex', height: '100%' }}>
+            <Logo />
+          </Link>
+        </div>
+        <div className={styles.divider} />
       </div>
       <nav className={styles.navigation}>
         <section className={styles.section}>

@@ -22,6 +22,15 @@ export const root = style({
   },
 })
 
+export const divider = style(
+  {
+    backgroundColor: primitiveColorVars.border,
+    width: '100%',
+    height: '1px',
+  },
+  'divider',
+)
+
 export const item = style(
   {
     color: primitiveColorVars.text3,
@@ -52,35 +61,22 @@ export const items = style(
 export const logo = style(
   {
     alignItems: 'center',
-    borderBottom: `1px solid ${primitiveColorVars.border}`,
     display: 'flex',
     height: topNavVars.height,
+  },
+  'logo',
+)
+
+export const logoWrapper = style(
+  {
     '@media': {
       'screen and (max-width: 1080px)': {
         display: 'none',
       },
     },
   },
-  'logo',
+  'logoWrapper',
 )
-
-export const logoImage = style(
-  {
-    height: '30%',
-    width: 'max-content',
-  },
-  'logoImage',
-)
-
-export const logoDark = style({}, 'logoDark')
-globalStyle(`:root:not(.dark) ${logoDark}`, {
-  display: 'none',
-})
-
-export const logoLight = style({}, 'logoLight')
-globalStyle(`:root.dark ${logoLight}`, {
-  display: 'none',
-})
 
 export const navigation = style(
   {
@@ -150,13 +146,4 @@ export const socials = style(
     },
   },
   'socials',
-)
-
-export const title = style(
-  {
-    fontSize: fontSizeVars['18'],
-    fontWeight: fontWeightVars.semibold,
-    lineHeight: lineHeightVars.heading,
-  },
-  'title',
 )

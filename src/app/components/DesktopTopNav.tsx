@@ -6,6 +6,7 @@ import { useTheme } from '../hooks/useTheme.js'
 import { visibleDark, visibleLight } from '../styles/utils.css.js'
 import * as styles from './DesktopTopNav.css.js'
 import { Icon } from './Icon.js'
+import { Logo } from './Logo.js'
 import { Discord } from './icons/Discord.js'
 import { GitHub } from './icons/GitHub.js'
 import { Moon } from './icons/Moon.js'
@@ -18,6 +19,11 @@ export function DesktopTopNav() {
   const config = useConfig()
   return (
     <div className={styles.root}>
+      <div className={styles.logoWrapper}>
+        <div className={styles.logo}>
+          <Logo />
+        </div>
+      </div>
       <div className={styles.section} />
       <div className={styles.section}>
         {config.socials && (

@@ -1,7 +1,9 @@
 import { style } from '@vanilla-extract/css'
+import { leftGutterWidthVar } from '../layouts/DocsLayout.css.js'
 import {
   borderRadiusVars,
   primitiveColorVars,
+  sidebarVars,
   spaceVars,
   topNavVars,
   viewportVars,
@@ -68,6 +70,27 @@ export const icon = style(
 )
 
 export const item = style({ alignItems: 'center', display: 'flex', height: '100%' }, 'item')
+
+export const logo = style(
+  {
+    paddingLeft: sidebarVars.horizontalPadding,
+    paddingRight: sidebarVars.horizontalPadding,
+    width: sidebarVars.width,
+  },
+  'logo',
+)
+
+export const logoWrapper = style(
+  {
+    display: 'flex',
+    height: '100%',
+    justifyContent: 'flex-end',
+    left: 0,
+    position: 'absolute',
+    width: leftGutterWidthVar,
+  },
+  'logoWrapper',
+)
 
 export const section = style(
   { alignItems: 'center', display: 'flex', height: '100%', gap: spaceVars[16] },

@@ -4,6 +4,8 @@ import * as React from 'react'
 export type Frontmatter = {
   [key: string]: unknown
   description?: string
+  outline?: boolean
+  sidebar?: boolean
   title?: string
 }
 

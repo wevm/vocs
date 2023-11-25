@@ -9,7 +9,7 @@ import {
   zIndexVars,
 } from '../styles/vars.css.js'
 
-const leftGutterWidthVar = createVar('leftGutterWidth')
+export const leftGutterWidthVar = createVar('leftGutterWidth')
 
 export const root = style({
   vars: {
@@ -19,7 +19,8 @@ export const root = style({
 
 export const content = style(
   {
-    marginLeft: leftGutterWidthVar,
+    marginLeft: 'auto',
+    marginRight: 'auto',
     maxWidth: contentVars.width,
     minHeight: `calc(100vh - (${topNavVars.height} + ${topNavVars.curtainHeight}))`,
     '@media': {
@@ -33,6 +34,14 @@ export const content = style(
     },
   },
   'content',
+)
+
+export const content_withSidebar = style(
+  {
+    marginLeft: leftGutterWidthVar,
+    marginRight: 'unset',
+  },
+  'content_withSidebar',
 )
 
 export const gutterLeft = style(
@@ -61,7 +70,7 @@ export const gutterTop = style(
     zIndex: zIndexVars.gutterTop,
     '@media': {
       [viewportVars['min-1080px']]: {
-        paddingLeft: leftGutterWidthVar,
+        paddingLeft: `calc(${leftGutterWidthVar} - ${sidebarVars.width})`,
         paddingRight: `calc(${leftGutterWidthVar} - ${sidebarVars.width})`,
         position: 'fixed',
         top: 0,
@@ -74,6 +83,17 @@ export const gutterTop = style(
   'gutterTop',
 )
 
+export const gutterTop_withSidebar = style(
+  {
+    '@media': {
+      [viewportVars['min-1080px']]: {
+        paddingLeft: leftGutterWidthVar,
+      },
+    },
+  },
+  'gutterTop_withSidebar',
+)
+
 export const gutterTopCurtain = style(
   {
     display: 'flex',
@@ -82,7 +102,6 @@ export const gutterTopCurtain = style(
     zIndex: zIndexVars.gutterTop,
     '@media': {
       [viewportVars['min-1080px']]: {
-        marginLeft: leftGutterWidthVar,
         position: 'fixed',
         top: topNavVars.height,
       },
@@ -95,6 +114,17 @@ export const gutterTopCurtain = style(
   'gutterTopCurtain',
 )
 
+export const gutterTopCurtain_withSidebar = style(
+  {
+    '@media': {
+      [viewportVars['min-1080px']]: {
+        marginLeft: leftGutterWidthVar,
+      },
+    },
+  },
+  'gutterTopCurtain_withSidebar',
+)
+
 export const gutterRight = style(
   {
     display: 'flex',
@@ -104,7 +134,7 @@ export const gutterRight = style(
     position: 'fixed',
     top: '0',
     right: '0',
-    width: `calc(100vw - ${contentVars.width} - ${leftGutterWidthVar})`,
+    width: `calc((100vw - ${contentVars.width}) / 2)`,
     zIndex: zIndexVars.gutterRight,
     '@media': {
       [viewportVars['max-1280px']]: {
@@ -113,6 +143,13 @@ export const gutterRight = style(
     },
   },
   'gutterRight',
+)
+
+export const gutterRight_withSidebar = style(
+  {
+    width: `calc(100vw - ${contentVars.width} - ${leftGutterWidthVar})`,
+  },
+  'gutterRight_withSidebar',
 )
 
 export const outlinePopover = style(
