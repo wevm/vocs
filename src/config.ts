@@ -11,6 +11,16 @@ export type Config<parsed extends boolean = false> = RequiredBy<
      */
     description?: string
     /**
+     * Edit location for the documentation.
+     */
+    editLink?: {
+      pattern: string | (() => string)
+      /**
+       * @default "Edit page"
+       */
+      text?: string
+    }
+    /**
      * Additional tags to include in the `<head>` tag of the page HTML.
      */
     head?: ReactElement

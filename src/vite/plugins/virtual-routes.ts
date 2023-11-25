@@ -1,4 +1,4 @@
-import { resolve } from 'node:path'
+import { extname, resolve } from 'node:path'
 import { globby } from 'globby'
 import type { PluginOption } from 'vite'
 
@@ -29,21 +29,23 @@ export function virtualRoutes(): PluginOption {
     },
     async load(id) {
       if (id === resolvedVirtualModuleId) {
+        const { config } = await resolveVocsConfig()
+        const { root } = config
+        const pagesPath = resolve(root, 'pages')
+
         let code = 'export const routes = ['
         for (const path of paths) {
-          const type = path
-            .split('.')
-            .pop()
-            ?.match(/(mdx|md)/)
-            ? 'mdx'
-            : 'jsx'
+          const filePath = path.replace(`${pagesPath}/`, '')
+
+          const type = extname(path).match(/(mdx|md)/) ? 'mdx' : 'jsx'
           const replacer = glob.split('*')[0]
+
           let pagePath = path.replace(replacer, '').replace(/\.(.*)/, '')
           if (pagePath.endsWith('index'))
             pagePath = pagePath.replace('index', '').replace(/\/$/, '')
-          code += `  { lazy: () => import("${path}"), path: "/${pagePath}", type: "${type}" },`
+          code += `  { lazy: () => import("${path}"), path: "/${pagePath}", type: "${type}", loader() { return { filePath: "${filePath}" } } },`
           if (pagePath)
-            code += `  { lazy: () => import("${path}"), path: "/${pagePath}.html", type: "${type}" },`
+            code += `  { lazy: () => import("${path}"), path: "/${pagePath}.html", type: "${type}", loader() { return { filePath: "${filePath}" }} },`
         }
         code += ']'
         return code

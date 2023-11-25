@@ -2,6 +2,10 @@ import { defineConfig } from './src/index.js'
 
 export default defineConfig({
   description: 'Static documentation generator powered by Vite and React',
+  editLink: {
+    pattern: 'https://github.com/wagmi-dev/vocs/edit/main/site/pages/:path',
+    text: 'Edit on GitHub',
+  },
   iconUrl: {
     light: '/vocs-icon-light.svg',
     dark: '/vocs-icon-dark.svg',

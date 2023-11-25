@@ -3,6 +3,7 @@ import { useInView } from 'react-intersection-observer'
 
 import { Content } from '../components/Content.js'
 import { DesktopTopNav } from '../components/DesktopTopNav.js'
+import { Footer } from '../components/Footer.js'
 import { MobileTopNav } from '../components/MobileTopNav.js'
 import { Outline } from '../components/Outline.js'
 import { Popover } from '../components/Popover.js'
@@ -57,6 +58,7 @@ export function DocsLayout({
       </div>
       <div className={styles.content}>
         <Content>{children}</Content>
+        <Footer />
       </div>
       <div data-bottom-observer />
       <div className={styles.gutterRight}>

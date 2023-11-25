@@ -4,3 +4,4 @@ node_modules
 _lib
 tsconfig.tsbuildinfo
 tsconfig.*.tsbuildinfo
+vocs.config.ts.timestamp-*
