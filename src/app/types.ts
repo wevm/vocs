@@ -14,11 +14,12 @@ export type Module = {
 
 export type PageData = {
   filePath: string
+  frontmatter?: Frontmatter
 }
 
 export type Route = {
+  filePath: string
   lazy: () => Promise<Module>
-  loader: () => Promise<PageData>
   path: string
   type: 'jsx' | 'mdx'
 }

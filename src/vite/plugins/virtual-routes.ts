@@ -35,17 +35,17 @@ export function virtualRoutes(): PluginOption {
 
         let code = 'export const routes = ['
         for (const path of paths) {
-          const filePath = path.replace(`${pagesPath}/`, '')
-
           const type = extname(path).match(/(mdx|md)/) ? 'mdx' : 'jsx'
           const replacer = glob.split('*')[0]
+
+          const filePath = path.replace(`${pagesPath}/`, '')
 
           let pagePath = path.replace(replacer, '').replace(/\.(.*)/, '')
           if (pagePath.endsWith('index'))
             pagePath = pagePath.replace('index', '').replace(/\/$/, '')
-          code += `  { lazy: () => import("${path}"), path: "/${pagePath}", type: "${type}", loader() { return { filePath: "${filePath}" } } },`
+          code += `  { lazy: () => import("${path}"), path: "/${pagePath}", type: "${type}", filePath: "${filePath}" },`
           if (pagePath)
-            code += `  { lazy: () => import("${path}"), path: "/${pagePath}.html", type: "${type}", loader() { return { filePath: "${filePath}" }} },`
+            code += `  { lazy: () => import("${path}"), path: "/${pagePath}.html", type: "${type}", filePath: "${filePath}" },`
         }
         code += ']'
         return code

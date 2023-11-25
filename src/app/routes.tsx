@@ -19,7 +19,9 @@ export const routes = routes_virtual.map((route_virtual) => ({
           </DocsLayout>
         </Root>
       ),
-      loader: route_virtual.loader,
+      loader() {
+        return { filePath: route_virtual.filePath, frontmatter }
+      },
     } satisfies RouteObject
   },
 })) satisfies RouteObject[]
