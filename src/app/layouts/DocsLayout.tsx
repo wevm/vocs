@@ -24,11 +24,17 @@ export function DocsLayout({
   const { frontmatter } = usePageData()
 
   const showOutline = (() => {
-    if (frontmatter && 'outline' in frontmatter) return frontmatter.outline
+    if (frontmatter) {
+      if ('outline' in frontmatter) return frontmatter.outline
+      if (frontmatter.layout === 'blog') return false
+    }
     return true
   })()
   const showSidebar = (() => {
-    if (frontmatter && 'sidebar' in frontmatter) return frontmatter.sidebar
+    if (frontmatter) {
+      if ('sidebar' in frontmatter) return frontmatter.sidebar
+      if (frontmatter.layout === 'blog') return false
+    }
     return Boolean(sidebar)
   })()
 

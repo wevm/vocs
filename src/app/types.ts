@@ -3,7 +3,10 @@ import * as React from 'react'
 
 export type Frontmatter = {
   [key: string]: unknown
+  authors?: string | string[]
+  date?: string
   description?: string
+  layout?: 'blog'
   outline?: boolean
   sidebar?: boolean
   title?: string
