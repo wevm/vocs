@@ -1,6 +1,6 @@
 import clsx from 'clsx'
 import { type ComponentType } from 'react'
-import { Link as RRLink, matchPath, useLocation } from 'react-router-dom'
+import { Link as RRLink, useLocation } from 'react-router-dom'
 
 import type { ParsedSocialItem } from '../../config.js'
 import { useConfig } from '../hooks/useConfig.js'
