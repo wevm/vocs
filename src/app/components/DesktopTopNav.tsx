@@ -1,6 +1,6 @@
 import clsx from 'clsx'
-import { Link } from 'react-router-dom'
 import { type ComponentType } from 'react'
+import { Link } from 'react-router-dom'
 
 import type { ParsedSocialItem } from '../../config.js'
 import { useConfig } from '../hooks/useConfig.js'
@@ -23,7 +23,10 @@ export function DesktopTopNav() {
     <div className={styles.root}>
       <div className={styles.logoWrapper}>
         <div className={styles.logo}>
-          <Link to="/" style={{ alignItems: 'center', display: 'flex', height: '100%' }}>
+          <Link
+            to="/"
+            style={{ alignItems: 'center', display: 'flex', height: '56px', marginTop: '4px' }}
+          >
             <Logo />
           </Link>
         </div>
