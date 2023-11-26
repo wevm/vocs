@@ -1,6 +1,14 @@
 import type { MDXComponents } from 'mdx/types.js'
 import * as React from 'react'
 
+export type BlogPost = {
+  authors?: string | string[]
+  date?: string
+  path: string
+  title: string
+  description: string
+}
+
 export type Frontmatter = {
   [key: string]: unknown
   authors?: string | string[]

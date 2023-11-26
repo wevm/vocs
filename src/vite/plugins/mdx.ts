@@ -16,6 +16,7 @@ import {
 import { type PluginOption } from 'vite'
 
 import { remarkAuthors } from './remark/authors.js'
+import { remarkBlogPosts } from './remark/blog-posts.js'
 import { remarkCallout } from './remark/callout.js'
 import { remarkCodeGroup } from './remark/code-group.js'
 import { remarkCode } from './remark/code.js'
@@ -25,23 +26,26 @@ import { remarkSteps } from './remark/steps.js'
 import { remarkStrongBlock } from './remark/strong-block.js'
 import { remarkSubheading } from './remark/subheading.js'
 
+export const remarkPlugins = [
+  remarkDirective,
+  remarkInferFrontmatter,
+  remarkFrontmatter,
+  remarkMdxFrontmatter,
+  remarkGfm,
+  remarkBlogPosts,
+  remarkCallout,
+  remarkCode,
+  remarkCodeGroup,
+  remarkDetails,
+  remarkSteps,
+  remarkStrongBlock,
+  remarkSubheading,
+  remarkAuthors,
+]
+
 export function mdx(): PluginOption {
   return mdxPlugin({
-    remarkPlugins: [
-      remarkDirective,
-      remarkInferFrontmatter,
-      remarkFrontmatter,
-      remarkMdxFrontmatter,
-      remarkGfm,
-      remarkCallout,
-      remarkCode,
-      remarkCodeGroup,
-      remarkDetails,
-      remarkSteps,
-      remarkStrongBlock,
-      remarkSubheading,
-      remarkAuthors,
-    ],
+    remarkPlugins,
     rehypePlugins: [
       [
         rehypePrettyCode as any,

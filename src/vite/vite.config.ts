@@ -5,6 +5,7 @@ import { defineConfig, splitVendorChunkPlugin } from 'vite'
 
 import { css } from './plugins/css.js'
 import { mdx } from './plugins/mdx.js'
+import { virtualBlog } from './plugins/virtual-blog.js'
 import { virtualConfig } from './plugins/virtual-config.js'
 import { virtualRoot } from './plugins/virtual-root.js'
 import { virtualRoutes } from './plugins/virtual-routes.js'
@@ -23,6 +24,7 @@ export default defineConfig({
     }),
     css(),
     mdx(),
+    virtualBlog(),
     virtualRoutes(),
     virtualRoot(),
   ],

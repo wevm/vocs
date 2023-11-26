@@ -1,4 +1,4 @@
-import { Fragment } from 'react'
+import { Fragment, useMemo } from 'react'
 import { usePageData } from '../hooks/usePageData.js'
 import * as styles from './Authors.css.js'
 
@@ -12,16 +12,26 @@ export function Authors(props: AuthorsProps) {
 
   const { authors: authors_ = frontmatter?.authors, date = frontmatter?.date } = props
 
-  const authors = (() => {
+  const authors = useMemo(() => {
     if (!authors_) return undefined
     if (Array.isArray(authors_)) return authors_
     return authors_.split(',').map((author) => author.trim())
-  })()
+  }, [authors_])
+
+  const formattedDate = useMemo(() => {
+    if (!date) return null
+    const dateObject = new Date(date)
+    return dateObject.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    })
+  }, [date])
 
   return (
     <div className={styles.root}>
-      {date}
-      {authors && date ? ' by ' : 'By '}
+      {formattedDate}
+      {authors && formattedDate ? ' by ' : 'By '}
       <span className={styles.authors}>
         {authors?.map((author, index) => {
           const { text, url } = parseAuthor(author)

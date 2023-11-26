@@ -2,10 +2,17 @@ import type { ReactElement } from 'react'
 
 type RequiredBy<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>
 
-type RequiredProperties = 'font' | 'root' | 'title' | 'titleTemplate'
+type RequiredProperties = 'blogDir' | 'font' | 'root' | 'title' | 'titleTemplate'
 
 export type Config<parsed extends boolean = false> = RequiredBy<
   {
+    /**
+     * Path to blog pages relative to project root.
+     * Used to extract posts from the filesystem.
+     *
+     * @default "./pages/blog"
+     */
+    blogDir?: string
     /**
      * General description for the documentation.
      */
@@ -75,6 +82,7 @@ export type Config<parsed extends boolean = false> = RequiredBy<
 export type ParsedConfig = Config<true>
 
 export function defineConfig({
+  blogDir = './pages/blog',
   font = { google: 'Inter' },
   head,
   root = 'docs',
@@ -83,6 +91,7 @@ export function defineConfig({
   ...config
 }: Config): ParsedConfig {
   return {
+    blogDir,
     font,
     head,
     root,

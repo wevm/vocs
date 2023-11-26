@@ -1,5 +1,9 @@
 /// <reference types="vite/client" />
 
+declare module 'virtual:blog' {
+  export const posts: import('./types.js').BlogPost[]
+}
+
 declare module 'virtual:config' {
   export const config: import('../config.js').ParsedConfig
 }

@@ -2,6 +2,7 @@ import { clsx } from 'clsx'
 import { type DetailedHTMLProps, type HTMLAttributes } from 'react'
 
 import { Authors } from '../Authors.js'
+import { BlogPosts } from '../BlogPosts.js'
 import { AutolinkIcon } from './AutolinkIcon.js'
 import { CodeBlock } from './CodeBlock.js'
 import { CodeGroup } from './CodeGroup.js'
@@ -15,6 +16,7 @@ export function Div(props: DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTM
   if (props.className === 'code-group')
     return <CodeGroup {...(props as any)} className={className} />
   if ('data-authors' in props) return <Authors />
+  if ('data-blog-posts' in props) return <BlogPosts />
   if ('data-autolink-icon' in props)
     return <AutolinkIcon {...(props as any)} className={className} />
   if ('data-rehype-pretty-code-title' in props)
