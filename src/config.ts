@@ -20,18 +20,7 @@ export type Config<parsed extends boolean = false> = RequiredBy<
     /**
      * Edit location for the documentation.
      */
-    editLink?: {
-      /**
-       * Link pattern
-       */
-      pattern: string | (() => string)
-      /**
-       * Link text
-       *
-       * @default "Edit page"
-       */
-      text?: string
-    }
+    editLink?: EditLink
     /* Base font face.
      *
      * @default { google: "Inter" }
@@ -76,6 +65,10 @@ export type Config<parsed extends boolean = false> = RequiredBy<
      * @default `%s – ${title}`
      */
     titleTemplate?: string
+    /**
+     * Navigation displayed on the top.
+     */
+    topNav?: TopNav
   },
   parsed extends true ? RequiredProperties : never
 >
@@ -126,6 +119,19 @@ function parseSocials(socials: Socials): ParsedSocials {
 //////////////////////////////////////////////////////
 // Types
 
+export type EditLink = {
+  /**
+   * Link pattern
+   */
+  pattern: string | (() => string)
+  /**
+   * Link text
+   *
+   * @default "Edit page"
+   */
+  text?: string
+}
+
 export type Font = {
   /** Name of the Google Font to use. */
   google?: string
@@ -139,7 +145,8 @@ export type SidebarItem = {
   /** Title to display on the sidebar. */
   title: string
   /** Optional pathname to the target documentation page. */
-  path?: string
+  // TODO: support external links
+  link?: string
   /** Optional children to nest under this item. */
   children?: SidebarItem[]
 }
@@ -162,3 +169,11 @@ export type ParsedSocialItem = Required<SocialItem> & {
 
 export type Socials = SocialItem[]
 export type ParsedSocials = ParsedSocialItem[]
+
+export type TopNavItem = {
+  title: string
+  link: string
+  // TODO: children
+  // children?: TopNavItem[]
+}
+export type TopNav = TopNavItem[]

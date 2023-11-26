@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 
 import type * as Config from '../../config.js'
 import { useConfig } from '../hooks/useConfig.js'
+import { usePageData } from '../hooks/usePageData.js'
 import { Icon } from './Icon.js'
 import { Logo } from './Logo.js'
 import * as styles from './MobileTopNav.css.js'
@@ -71,6 +72,7 @@ export function Curtain({
   enableScrollToTop?: boolean
 }) {
   const config = useConfig()
+  const { frontmatter = {} } = usePageData()
   const { pathname } = useLocation()
 
   const [isOutlineOpen, setOutlineOpen] = useState(false)
@@ -123,17 +125,19 @@ export function Curtain({
             <div className={styles.separator} />
           </>
         )}
-        <div className={styles.curtainItem}>
-          <Popover.Root modal open={isOutlineOpen} onOpenChange={setOutlineOpen}>
-            <Popover.Trigger className={styles.outlineTrigger}>
-              On this page
-              <Icon label="On this page" icon={ChevronRight} size="10px" />
-            </Popover.Trigger>
-            <Popover className={styles.outlinePopover}>
-              <Outline onClickItem={() => setOutlineOpen(false)} showTitle={false} />
-            </Popover>
-          </Popover.Root>
-        </div>
+        {frontmatter.layout !== 'blog' && (
+          <div className={styles.curtainItem}>
+            <Popover.Root modal open={isOutlineOpen} onOpenChange={setOutlineOpen}>
+              <Popover.Trigger className={styles.outlineTrigger}>
+                On this page
+                <Icon label="On this page" icon={ChevronRight} size="10px" />
+              </Popover.Trigger>
+              <Popover className={styles.outlinePopover}>
+                <Outline onClickItem={() => setOutlineOpen(false)} showTitle={false} />
+              </Popover>
+            </Popover.Root>
+          </div>
+        )}
       </div>
     </div>
   )
@@ -145,7 +149,7 @@ function getSidebarItemFromPathname({
 }: { sidebar: Config.Sidebar; pathname: string }): Config.SidebarItem {
   const pathname = pathname_.replace(/(.+)\/$/, '$1')
   return sidebar.find((item) => {
-    if (item.path === pathname) return true
+    if (item.link === pathname) return true
     if (item.children) return getSidebarItemFromPathname({ sidebar, pathname })
     return false
   }) as Config.SidebarItem

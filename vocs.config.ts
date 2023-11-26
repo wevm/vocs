@@ -32,12 +32,16 @@ export default defineConfig({
   sidebar: [
     {
       title: 'Overview',
-      path: '/',
+      link: '/',
     },
     {
       title: 'Kitchen Sink',
-      path: '/kitchen-sink',
+      link: '/kitchen-sink',
     },
   ],
   title: 'Vocs',
+  topNav: [
+    { title: 'Guide & API', link: '/' },
+    { title: 'Blog', link: '/blog' },
+  ],
 })

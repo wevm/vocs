@@ -1,7 +1,6 @@
 import { clsx } from 'clsx'
-import { Link, type LinkProps } from 'react-router-dom'
 
-import { ExternalLink } from '../ExternalLink.js'
+import { Link } from '../Link.js'
 import * as styles from './Anchor.css.js'
 import { Autolink } from './Autolink.js'
 
@@ -17,14 +16,5 @@ export function Anchor(
   // ID links
   if (href?.match(/^#/)) return <a className={clsx(props.className, styles.root)} {...props} />
 
-  // External links
-  if (href?.match(/^www|https?/))
-    return <ExternalLink className={clsx(props.className, styles.root)} {...props} />
-
-  // Internal links
-  const [before, after] = href!.split('#')
-  const to = `${before ? `${before}${before !== '/' ? '.html' : ''}` : ''}${
-    after ? `#${after}` : ''
-  }`
-  return <Link {...(props as LinkProps)} className={clsx(props.className, styles.root)} to={to} />
+  return <Link className={clsx(props.className, styles.root)} {...props} />
 }

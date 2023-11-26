@@ -34,7 +34,7 @@ export function Sidebar({
           {/* <span className={styles.sectionTitle}>Introduction</span> */}
           <div className={styles.items}>
             {sidebar.map((item) => (
-              <SidebarItem key={item.path!} onClick={onClickItem} path={item.path!}>
+              <SidebarItem key={item.link!} onClick={onClickItem} path={item.link!}>
                 {item.title}
               </SidebarItem>
             ))}
