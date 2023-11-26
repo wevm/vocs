@@ -1,6 +1,7 @@
 import { clsx } from 'clsx'
 import { type DetailedHTMLProps, type HTMLAttributes } from 'react'
 
+import { usePageData } from '../../hooks/usePageData.js'
 import { Authors } from '../Authors.js'
 import { BlogPosts } from '../BlogPosts.js'
 import { AutolinkIcon } from './AutolinkIcon.js'
@@ -12,12 +13,16 @@ import { Steps } from './Steps.js'
 import { Subtitle } from './Subtitle.js'
 
 export function Div(props: DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>) {
+  const { frontmatter } = usePageData()
+  const { layout } = frontmatter || {}
+
   const className = clsx(props.className, styles.root)
+
   if (props.className === 'code-group')
     return <CodeGroup {...(props as any)} className={className} />
   if ('data-authors' in props) return <Authors />
   if ('data-blog-posts' in props) return <BlogPosts />
-  if ('data-autolink-icon' in props)
+  if ('data-autolink-icon' in props && layout !== 'blog')
     return <AutolinkIcon {...(props as any)} className={className} />
   if ('data-rehype-pretty-code-title' in props)
     return <CodeTitle {...(props as any)} className={className} />
