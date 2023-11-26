@@ -4,6 +4,7 @@ import { Link, useLocation } from 'react-router-dom'
 import type * as Config from '../../config.js'
 import { useConfig } from '../hooks/useConfig.js'
 import { Icon } from './Icon.js'
+import { Logo } from './Logo.js'
 import * as styles from './MobileTopNav.css.js'
 import { Outline } from './Outline.js'
 import { Popover } from './Popover.js'
@@ -14,7 +15,6 @@ import { Discord } from './icons/Discord.js'
 import { GitHub } from './icons/GitHub.js'
 import { Menu } from './icons/Menu.js'
 import { X } from './icons/X.js'
-import { Logo } from './Logo.js'
 
 MobileTopNav.Curtain = Curtain
 

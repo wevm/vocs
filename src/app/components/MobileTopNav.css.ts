@@ -151,7 +151,14 @@ export const outlinePopover = style(
   'outlinePopover',
 )
 
-export const section = style({ display: 'flex', height: '100%', gap: spaceVars[16] }, 'section')
+export const section = style(
+  {
+    display: 'flex',
+    height: '100%',
+    gap: spaceVars[16],
+  },
+  'section',
+)
 
 export const separator = style(
   {

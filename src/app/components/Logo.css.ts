@@ -4,7 +4,7 @@ import { fontSizeVars, fontWeightVars, lineHeightVars } from '../styles/vars.css
 export const logoImage = style(
   {
     height: '30%',
-    width: 'max-content',
+    width: 'auto',
   },
   'logoImage',
 )

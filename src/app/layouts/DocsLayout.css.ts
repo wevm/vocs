@@ -12,6 +12,7 @@ import {
 export const leftGutterWidthVar = createVar('leftGutterWidth')
 
 export const root = style({
+  overflowX: 'hidden',
   vars: {
     [leftGutterWidthVar]: `max(calc((100vw - ${contentVars.width}) / 2), ${sidebarVars.width})`,
   },
@@ -19,6 +20,7 @@ export const root = style({
 
 export const content = style(
   {
+    backgroundColor: primitiveColorVars.background,
     marginLeft: 'auto',
     marginRight: 'auto',
     maxWidth: contentVars.width,

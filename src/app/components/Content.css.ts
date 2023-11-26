@@ -6,5 +6,5 @@ export const root = style({
   maxWidth: contentVars.width,
   overflowX: 'hidden',
   padding: `${contentVars.verticalPadding} ${contentVars.horizontalPadding}`,
-  width: contentVars.width,
+  width: '100%',
 })
