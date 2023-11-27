@@ -116,6 +116,14 @@ export const gutterTopCurtain = style(
   'gutterTopCurtain',
 )
 
+export const gutterTopCurtain_blog = style(
+  {
+    background: 'unset',
+    display: 'none',
+  },
+  'gutterTopCurtain_blog',
+)
+
 export const gutterTopCurtain_withSidebar = style(
   {
     '@media': {

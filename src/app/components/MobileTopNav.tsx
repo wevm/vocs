@@ -1,15 +1,18 @@
+import clsx from 'clsx'
 import { type ComponentType, useMemo, useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link as RRLink, useLocation } from 'react-router-dom'
 
 import type * as Config from '../../config.js'
 import { useConfig } from '../hooks/useConfig.js'
 import { usePageData } from '../hooks/usePageData.js'
 import { Icon } from './Icon.js'
+import { Link } from './Link.js'
 import { Logo } from './Logo.js'
 import * as styles from './MobileTopNav.css.js'
 import { Outline } from './Outline.js'
 import { Popover } from './Popover.js'
 import { Sidebar } from './Sidebar.js'
+import { ChevronDown } from './icons/ChevronDown.js'
 import { ChevronRight } from './icons/ChevronRight.js'
 import { ChevronUp } from './icons/ChevronUp.js'
 import { Discord } from './icons/Discord.js'
@@ -21,16 +24,37 @@ MobileTopNav.Curtain = Curtain
 
 export function MobileTopNav() {
   const config = useConfig()
+
+  const { pathname } = useLocation()
+  const activeItem = config?.topNav
+    ?.filter((item) => pathname.replace(/\.html$/, '').startsWith(item.link))
+    .slice(-1)[0]
+
   return (
     <div className={styles.root}>
       <div className={styles.section}>
         <div className={styles.logo}>
-          <Link to="/" style={{ alignItems: 'center', display: 'flex', height: '100%' }}>
+          <RRLink to="/" style={{ alignItems: 'center', display: 'flex', height: '100%' }}>
             <Logo />
-          </Link>
+          </RRLink>
         </div>
       </div>
       <div className={styles.section}>
+        {config.topNav && (
+          <>
+            <div className={clsx(styles.group)}>
+              <div className={clsx(styles.navigation)}>
+                <Navigation activeItem={activeItem} items={config.topNav} />
+              </div>
+              {activeItem && (
+                <div className={clsx(styles.navigation, styles.navigation_compact)}>
+                  <CompactNavigation activeItem={activeItem} items={config.topNav} />
+                </div>
+              )}
+              <div className={styles.divider} />
+            </div>
+          </>
+        )}
         <div className={styles.group}>
           {config.socials?.map((social, i) => (
             <SocialButton key={i} {...social} />
@@ -38,6 +62,53 @@ export function MobileTopNav() {
         </div>
       </div>
     </div>
+  )
+}
+
+function Navigation({
+  activeItem,
+  items,
+}: { activeItem?: Config.TopNavItem; items: Config.TopNavItem[] }) {
+  return items.map((item) => (
+    <Link
+      key={item.link!}
+      data-active={item.link === activeItem?.link}
+      className={clsx(styles.navigationItem)}
+      href={item.link!}
+      variant="styleless"
+    >
+      {item.title}
+    </Link>
+  ))
+}
+
+function CompactNavigation({
+  activeItem,
+  items,
+}: { activeItem: Config.TopNavItem; items: Config.TopNavItem[] }) {
+  const [showPopover, setShowPopover] = useState(false)
+
+  return (
+    <Popover.Root modal open={showPopover} onOpenChange={setShowPopover}>
+      <Popover.Trigger className={clsx(styles.menuTrigger, styles.navigationItem)}>
+        {activeItem.title}
+        <Icon label="Menu" icon={ChevronDown} size="11px" />
+      </Popover.Trigger>
+      <Popover className={styles.topNavPopover}>
+        {items.map((item) => (
+          <Link
+            key={item.link!}
+            data-active={item.link === activeItem?.link}
+            className={clsx(styles.navigationItem)}
+            href={item.link!}
+            onClick={() => setShowPopover(false)}
+            variant="styleless"
+          >
+            {item.title}
+          </Link>
+        ))}
+      </Popover>
+    </Popover.Root>
   )
 }
 
@@ -79,34 +150,38 @@ export function Curtain({
   const [isSidebarOpen, setSidebarOpen] = useState(false)
 
   const sidebarItemTitle = useMemo(() => {
-    if (!config.sidebar) return
+    if (!config.sidebar || frontmatter.layout === 'blog') return
     const sidebarItem = getSidebarItemFromPathname({
       sidebar: config.sidebar,
       pathname,
     })
     return sidebarItem?.title
-  }, [config, pathname])
+  }, [config, frontmatter, pathname])
 
   const contentTitle = useMemo(() => {
     if (typeof window === 'undefined') return
     return document.querySelector('.vocs_Content h1')?.textContent
   }, [])
 
-  const title = sidebarItemTitle || contentTitle
+  const title = sidebarItemTitle || frontmatter.title || contentTitle
 
   return (
     <div className={styles.curtain}>
       <div className={styles.curtainGroup}>
         <div className={styles.curtainItem}>
-          <Popover.Root modal open={isSidebarOpen} onOpenChange={setSidebarOpen}>
-            <Popover.Trigger className={styles.menuTrigger}>
-              <Icon label="Menu" icon={Menu} size="13px" />
-              {title}
-            </Popover.Trigger>
-            <Popover className={styles.sidebarPopover}>
-              <Sidebar onClickItem={() => setSidebarOpen(false)} />
-            </Popover>
-          </Popover.Root>
+          {frontmatter.layout === 'blog' ? (
+            title
+          ) : (
+            <Popover.Root modal open={isSidebarOpen} onOpenChange={setSidebarOpen}>
+              <Popover.Trigger className={styles.menuTrigger}>
+                <Icon label="Menu" icon={Menu} size="13px" />
+                {title}
+              </Popover.Trigger>
+              <Popover className={styles.sidebarPopover}>
+                <Sidebar onClickItem={() => setSidebarOpen(false)} />
+              </Popover>
+            </Popover.Root>
+          )}
         </div>
       </div>
       <div className={styles.curtainGroup}>

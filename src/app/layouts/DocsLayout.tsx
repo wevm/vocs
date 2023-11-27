@@ -62,6 +62,7 @@ export function DocsLayout({
         className={clsx(
           styles.gutterTopCurtain,
           showSidebar && styles.gutterTopCurtain_withSidebar,
+          frontmatter?.layout === 'blog' && styles.gutterTopCurtain_blog,
         )}
       >
         <DesktopTopNav.Curtain />

@@ -80,7 +80,16 @@ export const curtainGroup = style(
 
 export const curtainItem = style({}, 'curtainItem')
 
-export const group = style({ alignItems: 'center', display: 'flex' }, 'group')
+export const divider = style(
+  {
+    backgroundColor: primitiveColorVars.border,
+    height: '35%',
+    width: '1px',
+  },
+  'divider',
+)
+
+export const group = style({ alignItems: 'center', display: 'flex', height: '100%' }, 'group')
 
 export const icon = style(
   {
@@ -120,6 +129,46 @@ export const menuTrigger = style(
   'menuTrigger',
 )
 
+export const navigation_compact = style({}, 'navigation_compact')
+
+export const navigation = style(
+  {
+    display: 'flex',
+    gap: spaceVars[20],
+    marginRight: spaceVars[20],
+    selectors: {
+      [`&:not(${navigation_compact})`]: {
+        '@media': {
+          [viewportVars['max-720px']]: {
+            display: 'none',
+          },
+        },
+      },
+      [`&${navigation_compact}`]: {
+        '@media': {
+          [viewportVars['min-720px']]: {
+            display: 'none',
+          },
+        },
+      },
+    },
+  },
+  'navigation',
+)
+
+export const navigationItem = style(
+  {
+    fontSize: fontSizeVars[14],
+    fontWeight: fontWeightVars.medium,
+    selectors: {
+      '&:hover': { color: primitiveColorVars.textAccent },
+      '&[data-active="true"]': { color: primitiveColorVars.textAccent },
+      '&[data-state="open"]': { color: primitiveColorVars.textAccent },
+    },
+  },
+  'navigationItem',
+)
+
 export const outlineTrigger = style(
   {
     animation: `${fadeIn} 500ms cubic-bezier(0.16, 1, 0.3, 1)`,
@@ -153,6 +202,7 @@ export const outlinePopover = style(
 
 export const section = style(
   {
+    alignItems: 'center',
     display: 'flex',
     height: '100%',
     gap: spaceVars[16],
@@ -192,4 +242,21 @@ export const title = style(
     lineHeight: lineHeightVars.heading,
   },
   'title',
+)
+
+export const topNavPopover = style(
+  {
+    display: 'none',
+    overflowY: 'scroll',
+    padding: `${sidebarVars.verticalPadding} ${sidebarVars.horizontalPadding}`,
+    maxHeight: '80vh',
+    width: sidebarVars.width,
+    '@media': {
+      [viewportVars['max-1080px']]: {
+        display: 'flex',
+        flexDirection: 'column',
+      },
+    },
+  },
+  'topNavPopover',
 )
