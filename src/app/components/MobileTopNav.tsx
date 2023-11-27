@@ -267,7 +267,7 @@ function getSidebarItemFromPathname({
   const pathname = pathname_.replace(/(.+)\/$/, '$1')
   return sidebar.find((item) => {
     if (item.link === pathname) return true
-    if (item.children) return getSidebarItemFromPathname({ sidebar, pathname })
+    if (item.items) return getSidebarItemFromPathname({ sidebar, pathname })
     return false
   }) as Config.SidebarItem
 }

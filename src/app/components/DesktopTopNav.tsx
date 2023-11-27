@@ -42,7 +42,7 @@ export function DesktopTopNav() {
             <div className={styles.divider} />
           </>
         )}
-        {config.socials && (
+        {config.socials && config.socials?.length > 0 && (
           <>
             <div style={{ marginLeft: '-8px', marginRight: '-8px' }}>
               <div className={styles.group}>
