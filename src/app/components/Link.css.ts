@@ -1,6 +1,12 @@
 import { style } from '@vanilla-extract/css'
 
-import { fontWeightVars, semanticColorVars, spaceVars } from '../styles/vars.css.js'
+import {
+  fontWeightVars,
+  primitiveColorVars,
+  semanticColorVars,
+  spaceVars,
+} from '../styles/vars.css.js'
+import { arrowColor } from './ExternalLink.css.js'
 
 export const root = style({})
 
@@ -17,4 +23,20 @@ export const accent_underlined = style(
     },
   },
   'accent_underlined',
+)
+
+export const styleless = style(
+  {
+    selectors: {
+      '&:hover': {
+        vars: {
+          [arrowColor]: semanticColorVars.linkHover,
+        },
+      },
+    },
+    vars: {
+      [arrowColor]: primitiveColorVars.text3,
+    },
+  },
+  'styleless',
 )

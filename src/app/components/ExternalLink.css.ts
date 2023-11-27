@@ -1,10 +1,13 @@
-import { style } from '@vanilla-extract/css'
+import { createVar, style } from '@vanilla-extract/css'
+
+export const arrowColor = createVar()
 
 export const root = style({
   selectors: {
     '&::after': {
       backgroundColor: 'currentColor',
       content: '',
+      color: arrowColor,
       display: 'inline-block',
       height: '0.5em',
       marginLeft: '0.325em',

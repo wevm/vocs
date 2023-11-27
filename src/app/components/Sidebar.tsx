@@ -35,7 +35,7 @@ export function Sidebar({
           <div className={styles.items}>
             {sidebar.map((item) => (
               <SidebarItem key={item.link!} onClick={onClickItem} path={item.link!}>
-                {item.title}
+                {item.text}
               </SidebarItem>
             ))}
           </div>

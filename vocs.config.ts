@@ -1,4 +1,5 @@
 import { defineConfig } from './src/index.js'
+import { version } from './src/package.json'
 
 export default defineConfig({
   description: 'Static documentation generator powered by Vite and React',
@@ -31,17 +32,30 @@ export default defineConfig({
   ],
   sidebar: [
     {
-      title: 'Overview',
+      text: 'Overview',
       link: '/',
     },
     {
-      title: 'Kitchen Sink',
+      text: 'Kitchen Sink',
       link: '/kitchen-sink',
     },
   ],
   title: 'Vocs',
   topNav: [
-    { title: 'Guide & API', link: '/' },
-    { title: 'Blog', link: '/blog' },
+    { text: 'Guide & API', link: '/' },
+    { text: 'Blog', link: '/blog' },
+    {
+      text: version,
+      children: [
+        {
+          text: 'Changelog',
+          link: 'https://github.com/wevm/vocs/blob/main/src/CHANGELOG.md',
+        },
+        {
+          text: 'Contributing',
+          link: 'https://github.com/wevm/vocs/blob/main/.github/CONTRIBUTING.md',
+        },
+      ],
+    },
   ],
 })

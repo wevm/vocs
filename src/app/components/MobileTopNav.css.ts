@@ -133,8 +133,6 @@ export const navigation_compact = style({}, 'navigation_compact')
 
 export const navigation = style(
   {
-    display: 'flex',
-    gap: spaceVars[20],
     marginRight: spaceVars[20],
     selectors: {
       [`&:not(${navigation_compact})`]: {
@@ -154,6 +152,14 @@ export const navigation = style(
     },
   },
   'navigation',
+)
+
+export const navigationList = style(
+  {
+    display: 'flex',
+    gap: spaceVars[20],
+  },
+  'navigationList',
 )
 
 export const navigationItem = style(

@@ -1,5 +1,6 @@
 import { clsx } from 'clsx'
 
+import { forwardRef } from 'react'
 import * as styles from './ExternalLink.css.js'
 
 export type ExternalLinkProps = React.DetailedHTMLProps<
@@ -7,16 +8,19 @@ export type ExternalLinkProps = React.DetailedHTMLProps<
   HTMLAnchorElement
 >
 
-export function ExternalLink({ className, children, href, ...props }: ExternalLinkProps) {
-  return (
-    <a
-      className={clsx(className, styles.root)}
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      {...props}
-    >
-      {children}
-    </a>
-  )
-}
+export const ExternalLink = forwardRef(
+  ({ className, children, href, ...props }: ExternalLinkProps, ref) => {
+    return (
+      <a
+        ref={ref as any}
+        className={clsx(className, styles.root)}
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        {...props}
+      >
+        {children}
+      </a>
+    )
+  },
+)

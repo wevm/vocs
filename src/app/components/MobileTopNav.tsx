@@ -9,6 +9,7 @@ import { Icon } from './Icon.js'
 import { Link } from './Link.js'
 import { Logo } from './Logo.js'
 import * as styles from './MobileTopNav.css.js'
+import * as NavigationMenu from './NavigationMenu.js'
 import { Outline } from './Outline.js'
 import { Popover } from './Popover.js'
 import { Sidebar } from './Sidebar.js'
@@ -27,7 +28,7 @@ export function MobileTopNav() {
 
   const { pathname } = useLocation()
   const activeItem = config?.topNav
-    ?.filter((item) => pathname.replace(/\.html$/, '').startsWith(item.link))
+    ?.filter((item) => (item.link ? pathname.replace(/\.html$/, '').startsWith(item.link) : false))
     .slice(-1)[0]
 
   return (
@@ -43,14 +44,8 @@ export function MobileTopNav() {
         {config.topNav && (
           <>
             <div className={clsx(styles.group)}>
-              <div className={clsx(styles.navigation)}>
-                <Navigation activeItem={activeItem} items={config.topNav} />
-              </div>
-              {activeItem && (
-                <div className={clsx(styles.navigation, styles.navigation_compact)}>
-                  <CompactNavigation activeItem={activeItem} items={config.topNav} />
-                </div>
-              )}
+              <Navigation activeItem={activeItem} items={config.topNav} />
+              {activeItem && <CompactNavigation activeItem={activeItem} items={config.topNav} />}
               <div className={styles.divider} />
             </div>
           </>
@@ -69,17 +64,32 @@ function Navigation({
   activeItem,
   items,
 }: { activeItem?: Config.TopNavItem; items: Config.TopNavItem[] }) {
-  return items.map((item) => (
-    <Link
-      key={item.link!}
-      data-active={item.link === activeItem?.link}
-      className={clsx(styles.navigationItem)}
-      href={item.link!}
-      variant="styleless"
-    >
-      {item.title}
-    </Link>
-  ))
+  return (
+    <NavigationMenu.Root className={styles.navigation}>
+      <NavigationMenu.List>
+        {items.map((item, i) =>
+          item.link ? (
+            <NavigationMenu.Link key={i} active={item.link === activeItem?.link} href={item.link!}>
+              {item.text}
+            </NavigationMenu.Link>
+          ) : (
+            <NavigationMenu.Item key={i}>
+              <NavigationMenu.Trigger>{item.text}</NavigationMenu.Trigger>
+              <NavigationMenu.Content>
+                <ul>
+                  {item.children?.map((child, i) => (
+                    <NavigationMenu.Link key={i} href={child.link!}>
+                      {child.text}
+                    </NavigationMenu.Link>
+                  ))}
+                </ul>
+              </NavigationMenu.Content>
+            </NavigationMenu.Item>
+          ),
+        )}
+      </NavigationMenu.List>
+    </NavigationMenu.Root>
+  )
 }
 
 function CompactNavigation({
@@ -89,26 +99,28 @@ function CompactNavigation({
   const [showPopover, setShowPopover] = useState(false)
 
   return (
-    <Popover.Root modal open={showPopover} onOpenChange={setShowPopover}>
-      <Popover.Trigger className={clsx(styles.menuTrigger, styles.navigationItem)}>
-        {activeItem.title}
-        <Icon label="Menu" icon={ChevronDown} size="11px" />
-      </Popover.Trigger>
-      <Popover className={styles.topNavPopover}>
-        {items.map((item) => (
-          <Link
-            key={item.link!}
-            data-active={item.link === activeItem?.link}
-            className={clsx(styles.navigationItem)}
-            href={item.link!}
-            onClick={() => setShowPopover(false)}
-            variant="styleless"
-          >
-            {item.title}
-          </Link>
-        ))}
-      </Popover>
-    </Popover.Root>
+    <div className={clsx(styles.navigation, styles.navigation_compact)}>
+      <Popover.Root modal open={showPopover} onOpenChange={setShowPopover}>
+        <Popover.Trigger className={clsx(styles.menuTrigger, styles.navigationItem)}>
+          {activeItem.text}
+          <Icon label="Menu" icon={ChevronDown} size="11px" />
+        </Popover.Trigger>
+        <Popover className={styles.topNavPopover}>
+          {items.map((item, i) => (
+            <Link
+              key={i}
+              data-active={item.link === activeItem?.link}
+              className={clsx(styles.navigationItem)}
+              href={item.link!}
+              onClick={() => setShowPopover(false)}
+              variant="styleless"
+            >
+              {item.text}
+            </Link>
+          ))}
+        </Popover>
+      </Popover.Root>
+    </div>
   )
 }
 
@@ -155,7 +167,7 @@ export function Curtain({
       sidebar: config.sidebar,
       pathname,
     })
-    return sidebarItem?.title
+    return sidebarItem?.text
   }, [config, frontmatter, pathname])
 
   const contentTitle = useMemo(() => {
