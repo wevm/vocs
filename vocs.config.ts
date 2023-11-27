@@ -48,6 +48,64 @@ export default defineConfig({
         },
       ],
     },
+    {
+      text: 'Item 1.0',
+      items: [
+        {
+          text: 'Item 1.1',
+          link: '/api/item1.1',
+        },
+        {
+          text: 'Item 1.2',
+          link: '/api/item1.2',
+          items: [
+            {
+              text: 'Item 1.2.1',
+              link: '/api/item1.2.1',
+            },
+            {
+              text: 'Item 1.2.2',
+              link: '/api/item1.2.2',
+              items: [
+                {
+                  text: 'Item 1.2.2.1',
+                  link: '/api/item1.2.2.1',
+                },
+                {
+                  text: 'Item 1.2.2.2',
+                  link: '/api/item1.2.2.2',
+                },
+              ],
+            },
+            {
+              text: 'Item 1.2.3',
+              link: '/api/item1.2.3',
+            },
+          ],
+        },
+        {
+          text: 'Item 1.3',
+          link: '/api/item1.3',
+        },
+        {
+          text: 'Item 1.4',
+          link: '/api/item1.4',
+        },
+      ],
+    },
+    {
+      text: 'Item 2.0',
+      items: [
+        {
+          text: 'Item 2.1',
+          link: '/api/item2.1',
+        },
+        {
+          text: 'Item 2.2',
+          link: '/api/item2.1',
+        },
+      ],
+    },
   ],
   title: 'Vocs',
   topNav: [

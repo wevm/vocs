@@ -82,13 +82,13 @@ function SidebarItem(props: {
             <Link
               data-active={Boolean(match)}
               onClick={onClick}
-              className={styles.sectionTitle}
+              className={clsx(depth === 0 ? styles.sectionTitle : styles.item)}
               to={item.link}
             >
               {item.text}
             </Link>
           ) : (
-            <div className={styles.sectionTitle}>{item.text}</div>
+            <div className={clsx(depth === 0 ? styles.sectionTitle : styles.item)}>{item.text}</div>
           ))}
 
         {item.items &&
@@ -106,7 +106,7 @@ function SidebarItem(props: {
     )
 
   return (
-    <div>
+    <>
       {item.link ? (
         <Link data-active={Boolean(match)} onClick={onClick} className={styles.item} to={item.link}>
           {item.text}
@@ -114,6 +114,6 @@ function SidebarItem(props: {
       ) : (
         <div className={styles.item}>{item.text}</div>
       )}
-    </div>
+    </>
   )
 }

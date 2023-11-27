@@ -112,13 +112,13 @@ export const section = style(
   {
     display: 'flex',
     flexDirection: 'column',
-    gap: spaceVars['4'],
   },
   'section',
 )
 
 export const level = style(
   {
+    borderLeft: `1px solid ${primitiveColorVars.border}`,
     paddingLeft: spaceVars['16'],
   },
   'level',
@@ -129,6 +129,7 @@ export const sectionTitle = style(
     fontSize: fontSizeVars['14'],
     fontWeight: fontWeightVars.semibold,
     letterSpacing: '0.25px',
+    marginBottom: spaceVars['4'],
   },
   'sectionTitle',
 )
