@@ -14,7 +14,7 @@ export type Frontmatter = {
   authors?: string | string[]
   date?: string
   description?: string
-  layout?: 'blog'
+  layout?: 'minimal'
   outline?: boolean
   sidebar?: boolean
   title?: string

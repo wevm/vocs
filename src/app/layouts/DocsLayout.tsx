@@ -26,14 +26,14 @@ export function DocsLayout({
   const showOutline = (() => {
     if (frontmatter) {
       if ('outline' in frontmatter) return frontmatter.outline
-      if (frontmatter.layout === 'blog') return false
+      if (frontmatter.layout === 'minimal') return false
     }
     return true
   })()
   const showSidebar = (() => {
     if (frontmatter) {
       if ('sidebar' in frontmatter) return frontmatter.sidebar
-      if (frontmatter.layout === 'blog') return false
+      if (frontmatter.layout === 'minimal') return false
     }
     return Boolean(sidebar)
   })()
@@ -62,7 +62,7 @@ export function DocsLayout({
         className={clsx(
           styles.gutterTopCurtain,
           showSidebar && styles.gutterTopCurtain_withSidebar,
-          frontmatter?.layout === 'blog' && styles.gutterTopCurtain_blog,
+          frontmatter?.layout === 'minimal' && styles.gutterTopCurtain_blog,
         )}
       >
         <DesktopTopNav.Curtain />

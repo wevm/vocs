@@ -192,7 +192,7 @@ export function Curtain({
   const [isSidebarOpen, setSidebarOpen] = useState(false)
 
   const sidebarItemTitle = useMemo(() => {
-    if (!config.sidebar || frontmatter.layout === 'blog') return
+    if (!config.sidebar || frontmatter.layout === 'minimal') return
     const sidebarItem = getSidebarItemFromPathname({
       sidebar: config.sidebar,
       pathname,
@@ -211,7 +211,7 @@ export function Curtain({
     <div className={styles.curtain}>
       <div className={styles.curtainGroup}>
         <div className={styles.curtainItem}>
-          {frontmatter.layout === 'blog' ? (
+          {frontmatter.layout === 'minimal' ? (
             title
           ) : (
             <Popover.Root modal open={isSidebarOpen} onOpenChange={setSidebarOpen}>
@@ -242,7 +242,7 @@ export function Curtain({
             <div className={styles.separator} />
           </>
         )}
-        {frontmatter.layout !== 'blog' && (
+        {frontmatter.layout !== 'minimal' && (
           <div className={styles.curtainItem}>
             <Popover.Root modal open={isOutlineOpen} onOpenChange={setOutlineOpen}>
               <Popover.Trigger className={styles.outlineTrigger}>

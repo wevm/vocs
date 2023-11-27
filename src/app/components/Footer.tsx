@@ -10,7 +10,7 @@ export function Footer() {
 
   return (
     <footer className={styles.root}>
-      {layout !== 'blog' && (
+      {layout !== 'minimal' && (
         <a
           className={styles.editLink}
           href={editLink.url}

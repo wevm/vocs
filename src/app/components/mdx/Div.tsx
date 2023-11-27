@@ -22,7 +22,7 @@ export function Div(props: DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTM
     return <CodeGroup {...(props as any)} className={className} />
   if ('data-authors' in props) return <Authors />
   if ('data-blog-posts' in props) return <BlogPosts />
-  if ('data-autolink-icon' in props && layout !== 'blog')
+  if ('data-autolink-icon' in props && layout !== 'minimal')
     return <AutolinkIcon {...(props as any)} className={className} />
   if ('data-rehype-pretty-code-title' in props)
     return <CodeTitle {...(props as any)} className={className} />
