@@ -17,11 +17,17 @@ export const root = style({
   paddingTop: spaceVars['64'],
   textAlign: 'center',
   gap: spaceVars['32'],
+  '@media': {
+    [viewportVars['max-720px']]: {
+      paddingTop: spaceVars['32'],
+    },
+  },
 })
 
 export const logo = style(
   {
     display: 'flex',
+    justifyContent: 'center',
     height: '48px',
     '@media': {
       [viewportVars['max-720px']]: {

@@ -32,7 +32,7 @@ export default defineConfig({
   ],
   sidebar: [
     {
-      text: 'Overview',
+      text: 'Getting Started',
       link: '/docs',
     },
     {
