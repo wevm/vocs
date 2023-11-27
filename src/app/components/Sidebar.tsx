@@ -5,8 +5,9 @@ import {
   useCallback,
   type MouseEvent,
   useState,
+  useMemo,
 } from 'react'
-import { Link, useMatch } from 'react-router-dom'
+import { Link, useLocation, useMatch } from 'react-router-dom'
 
 import { type SidebarItem as SidebarItemType } from '../../config.js'
 import { useConfig } from '../hooks/useConfig.js'
@@ -76,6 +77,7 @@ function SidebarItem(props: {
 }) {
   const { depth, item, onClick } = props
 
+  const { pathname } = useLocation()
   const match = useMatch(item.link ?? '')
 
   const [collapsed, setCollapsed] = useState(() => item.collapsed ?? false)
@@ -97,12 +99,16 @@ function SidebarItem(props: {
     [item.link],
   )
 
+  const hasActiveChildItem = useMemo(() => {
+    return item.items?.some((item) => item.link === pathname) ?? false
+  }, [item.items, pathname])
+
   if (item.items)
     return (
       <section
         className={clsx(
           styles.section,
-          depth === 0 ? (collapsed ? styles.levelCollapsed : styles.level) : styles.levelInset,
+          depth === 0 && (collapsed ? styles.levelCollapsed : styles.level),
         )}
       >
         <div
@@ -121,7 +127,10 @@ function SidebarItem(props: {
               <Link
                 data-active={Boolean(match)}
                 onClick={onClick}
-                className={clsx(depth === 0 ? styles.sectionTitle : styles.item)}
+                className={clsx(
+                  depth === 0 ? styles.sectionTitle : styles.item,
+                  hasActiveChildItem && styles.sectionHeaderActive,
+                )}
                 to={item.link}
               >
                 {item.text}
@@ -149,7 +158,10 @@ function SidebarItem(props: {
           )}
         </div>
 
-        <div className={styles.items} style={collapsed ? { display: 'none' } : {}}>
+        <div
+          className={clsx(styles.items, depth !== 0 && styles.levelInset)}
+          style={collapsed ? { display: 'none' } : {}}
+        >
           {item.items &&
             item.items.length > 0 &&
             depth < 5 &&
@@ -174,6 +186,8 @@ function SidebarItem(props: {
       ) : (
         <div className={styles.item}>{item.text}</div>
       )}
+
+      <div className="indicator" />
     </>
   )
 }

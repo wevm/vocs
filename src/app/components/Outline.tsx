@@ -106,7 +106,7 @@ export function Outline({
     const observer = new IntersectionObserver(([entry]) => {
       if (!active.current) return
 
-      const lastItemId = items[items.length - 1].id
+      const lastItemId = items[items.length - 1]?.id
 
       if (entry.isIntersecting) setActiveId(lastItemId)
       else if (activeId === lastItemId) setActiveId(items[items.length - 2].id)
@@ -134,7 +134,7 @@ export function Outline({
         window.scrollY + document.documentElement.clientHeight >=
         document.documentElement.scrollHeight
       ) {
-        setActiveId(items[items.length - 1].id)
+        setActiveId(items[items.length - 1]?.id)
         return
       }
 

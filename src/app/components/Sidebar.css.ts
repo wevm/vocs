@@ -4,6 +4,7 @@ import {
   fontWeightVars,
   lineHeightVars,
   primitiveColorVars,
+  semanticColorVars,
   sidebarVars,
   spaceVars,
   topNavVars,
@@ -153,6 +154,13 @@ export const sectionHeader = style(
     justifyContent: 'space-between',
   },
   'sectionHeader',
+)
+
+export const sectionHeaderActive = style(
+  {
+    color: primitiveColorVars.text,
+  },
+  'sectionHeaderActive',
 )
 
 export const sectionTitle = style(
