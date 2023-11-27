@@ -11,6 +11,9 @@ import { virtualRoot } from './plugins/virtual-root.js'
 import { virtualRoutes } from './plugins/virtual-routes.js'
 
 export default defineConfig({
+  build: {
+    cssCodeSplit: false,
+  },
   plugins: [
     splitVendorChunkPlugin(),
     virtualConfig(),
