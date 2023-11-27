@@ -1,24 +1,25 @@
 import clsx from 'clsx'
-import type { ComponentType, MouseEventHandler, ReactNode } from 'react'
+import { type MouseEventHandler } from 'react'
 import { Link, useMatch } from 'react-router-dom'
 
-import type { ParsedSocialItem } from '../../config.js'
+import { type SidebarItem as SidebarItemType } from '../../config.js'
 import { useConfig } from '../hooks/useConfig.js'
-import { Icon } from './Icon.js'
 import { Logo } from './Logo.js'
 import * as styles from './Sidebar.css.js'
-import { Discord } from './icons/Discord.js'
-import { GitHub } from './icons/GitHub.js'
-import { X } from './icons/X.js'
 
-export function Sidebar({
-  className,
-  onClickItem,
-}: { className?: string; onClickItem?: MouseEventHandler<HTMLAnchorElement> }) {
+export function Sidebar(props: {
+  className?: string
+  onClickItem?: MouseEventHandler<HTMLAnchorElement>
+}) {
+  const { className, onClickItem } = props
+
   const config = useConfig()
   const { sidebar } = config
 
   if (!sidebar) return null
+
+  const groups = getSidebarGroups(sidebar)
+
   return (
     <aside className={clsx(styles.root, className)}>
       <div className={styles.logoWrapper}>
@@ -29,63 +30,91 @@ export function Sidebar({
         </div>
         <div className={styles.divider} />
       </div>
+
       <nav className={styles.navigation}>
-        <section className={styles.section}>
-          {/* <span className={styles.sectionTitle}>Introduction</span> */}
-          <div className={styles.items}>
-            {sidebar.map((item) => (
-              <SidebarItem key={item.link!} onClick={onClickItem} path={item.link!}>
-                {item.title}
-              </SidebarItem>
-            ))}
-          </div>
-        </section>
+        <div className={styles.items}>
+          {groups.map((item) => (
+            <div className={styles.group} key={item.link ?? item.title}>
+              <SidebarItem depth={0} item={item} onClick={onClickItem} />
+            </div>
+          ))}
+        </div>
       </nav>
-      {config.socials && (
-        <>
-          <div className={styles.socials}>
-            {config.socials.map((item) => (
-              <SocialLink key={item.link} {...item} />
-            ))}
-          </div>
-        </>
-      )}
     </aside>
   )
 }
 
-function SidebarItem({
-  children,
-  onClick,
-  path,
-}: { children: ReactNode; onClick?: MouseEventHandler<HTMLAnchorElement>; path: string }) {
-  const match = useMatch(path)
-  return (
-    <Link data-active={Boolean(match)} onClick={onClick} className={styles.item} to={path!}>
-      {children}
-    </Link>
-  )
+function getSidebarGroups(sidebar: SidebarItemType[]): SidebarItemType[] {
+  const groups: SidebarItemType[] = []
+
+  let lastGroupIndex = 0
+
+  for (const index in sidebar) {
+    const item = sidebar[index]
+
+    if (item.items) {
+      lastGroupIndex = groups.push(item)
+      continue
+    }
+
+    if (!groups[lastGroupIndex]) {
+      groups.push({ items: [item] })
+    } else {
+      groups[lastGroupIndex]!.items!.push(item)
+    }
+  }
+
+  return groups
 }
 
-const iconsForIcon = {
-  discord: Discord,
-  github: GitHub,
-  x: X,
-} satisfies Record<ParsedSocialItem['type'], ComponentType>
+function SidebarItem(props: {
+  depth: number
+  item: SidebarItemType
+  onClick?: MouseEventHandler<HTMLAnchorElement>
+}) {
+  const { depth, item, onClick } = props
 
-const sizesForTypes = {
-  discord: '16px',
-  github: '16px',
-  x: '14px',
-} satisfies Record<ParsedSocialItem['type'], string>
+  const match = useMatch(item.link ?? '')
 
-function SocialLink({ label, icon, link, type }: ParsedSocialItem) {
+  if (item.items)
+    return (
+      <section className={clsx(styles.section, depth !== 0 && styles.level)}>
+        {item.link ? (
+          <Link
+            data-active={Boolean(match)}
+            onClick={onClick}
+            className={styles.sectionTitle}
+            to={item.link}
+          >
+            {item.title}
+          </Link>
+        ) : (
+          <div className={styles.sectionTitle}>{item.title}</div>
+        )}
+
+        {item.items &&
+          item.items.length > 0 &&
+          depth < 5 &&
+          item.items.map((item) => (
+            <SidebarItem
+              depth={depth + 1}
+              item={item}
+              key={item.link ?? item.title}
+              onClick={onClick}
+            />
+          ))}
+      </section>
+    )
+
   return (
-    <a className={styles.socialLink} href={link} rel="noopener noreferrer" target="_blank">
-      <div className={styles.socialLinkIcon}>
-        <Icon label={label} icon={iconsForIcon[icon]} size={sizesForTypes[type]} />
-      </div>{' '}
-      {label}
-    </a>
+    <div>
+      {item.link ? (
+        <Link data-active={Boolean(match)} onClick={onClick} className={styles.item} to={item.link}>
+          {item.title}
+        </Link>
+      ) : (
+        <div className={styles.item}>{item.title}</div>
+      )}
+    </div>
   )
 }

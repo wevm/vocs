@@ -148,7 +148,7 @@ export type SidebarItem = {
   // TODO: support external links
   link?: string
   /** Optional children to nest under this item. */
-  children?: SidebarItem[]
+  items?: SidebarItem[]
 }
 
 export type Sidebar = SidebarItem[]

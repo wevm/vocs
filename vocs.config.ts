@@ -38,6 +38,15 @@ export default defineConfig({
       title: 'Kitchen Sink',
       link: '/kitchen-sink',
     },
+    {
+      title: 'API',
+      items: [
+        {
+          title: 'defineConfig',
+          link: '/api/defineConfig',
+        },
+      ],
+    },
   ],
   title: 'Vocs',
   topNav: [

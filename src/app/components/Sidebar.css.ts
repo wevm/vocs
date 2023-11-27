@@ -7,7 +7,6 @@ import {
   sidebarVars,
   spaceVars,
   topNavVars,
-  viewportVars,
 } from '../styles/vars.css.js'
 
 export const root = style({
@@ -81,6 +80,7 @@ export const logoWrapper = style(
 
 export const navigation = style(
   {
+    outline: 0,
     selectors: {
       '&:first-child': {
         paddingTop: spaceVars['16'],
@@ -88,6 +88,24 @@ export const navigation = style(
     },
   },
   'navigation',
+)
+
+export const group = style(
+  {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: spaceVars['4'],
+    get selectors() {
+      return {
+        [`${group} + ${group}`]: {
+          borderTop: `1px solid ${primitiveColorVars.border}`,
+          paddingTop: spaceVars['12'],
+          marginTop: spaceVars['24'],
+        },
+      }
+    },
+  },
+  'group',
 )
 
 export const section = style(
@@ -99,6 +117,13 @@ export const section = style(
   'section',
 )
 
+export const level = style(
+  {
+    paddingLeft: spaceVars['16'],
+  },
+  'level',
+)
+
 export const sectionTitle = style(
   {
     fontSize: fontSizeVars['14'],
@@ -106,45 +131,4 @@ export const sectionTitle = style(
     letterSpacing: '0.25px',
   },
   'sectionTitle',
-)
-
-export const socialLink = style(
-  {
-    alignItems: 'center',
-    display: 'flex',
-    color: primitiveColorVars.text3,
-    gap: spaceVars['8'],
-    fontSize: fontSizeVars['14'],
-    fontWeight: fontWeightVars.medium,
-    selectors: {
-      '&:hover': {
-        color: primitiveColorVars.text,
-      },
-    },
-  },
-  'socialLink',
-)
-
-export const socialLinkIcon = style(
-  {
-    display: 'flex',
-    justifyContent: 'center',
-    width: '16px',
-  },
-  'socialLinkIcon',
-)
-
-export const socials = style(
-  {
-    borderTop: `1px solid ${primitiveColorVars.border}`,
-    display: 'flex',
-    flexDirection: 'column',
-    paddingTop: spaceVars['12'],
-    '@media': {
-      [viewportVars['min-1080px']]: {
-        display: 'none',
-      },
-    },
-  },
-  'socials',
 )
