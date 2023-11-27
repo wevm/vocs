@@ -51,6 +51,7 @@ export function DocsLayout({
           <Sidebar className={styles.sidebar} />
         </div>
       )}
+
       <div
         ref={ref}
         className={clsx(styles.gutterTop, showSidebar && styles.gutterTop_withSidebar)}
@@ -58,6 +59,7 @@ export function DocsLayout({
         <DesktopTopNav />
         <MobileTopNav />
       </div>
+
       <div
         className={clsx(
           styles.gutterTopCurtain,
@@ -68,6 +70,13 @@ export function DocsLayout({
         <DesktopTopNav.Curtain />
         <MobileTopNav.Curtain enableScrollToTop={!inView} />
       </div>
+
+      {showOutline && (
+        <div className={clsx(styles.gutterRight, showSidebar && styles.gutterRight_withSidebar)}>
+          <Outline />
+        </div>
+      )}
+
       <div
         id={skipLinkId}
         className={clsx(styles.content, showSidebar && styles.content_withSidebar)}
@@ -76,11 +85,6 @@ export function DocsLayout({
         <Footer />
       </div>
       <div data-bottom-observer />
-      {showOutline && (
-        <div className={clsx(styles.gutterRight, showSidebar && styles.gutterRight_withSidebar)}>
-          <Outline />
-        </div>
-      )}
     </div>
   )
 }

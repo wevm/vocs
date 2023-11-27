@@ -118,13 +118,13 @@ export const section = style(
   {
     display: 'flex',
     flexDirection: 'column',
-    gap: spaceVars['4'],
   },
   'section',
 )
 
 export const level = style(
   {
+    gap: spaceVars['4'],
     paddingBottom: spaceVars['24'],
   },
   'level',
@@ -132,6 +132,7 @@ export const level = style(
 
 export const levelCollapsed = style(
   {
+    gap: spaceVars['4'],
     paddingBottom: spaceVars['12'],
   },
   'levelCollapsed',
