@@ -1,3 +1,4 @@
+import * as Accordion from '@radix-ui/react-accordion'
 import clsx from 'clsx'
 import { type ComponentType, useMemo, useState } from 'react'
 import { Link as RRLink, useLocation } from 'react-router-dom'
@@ -106,18 +107,47 @@ function CompactNavigation({
           <Icon label="Menu" icon={ChevronDown} size="11px" />
         </Popover.Trigger>
         <Popover className={styles.topNavPopover}>
-          {items.map((item, i) => (
-            <Link
-              key={i}
-              data-active={item.link === activeItem?.link}
-              className={clsx(styles.navigationItem)}
-              href={item.link!}
-              onClick={() => setShowPopover(false)}
-              variant="styleless"
-            >
-              {item.text}
-            </Link>
-          ))}
+          <Accordion.Root
+            type="single"
+            collapsible
+            style={{ display: 'flex', flexDirection: 'column' }}
+          >
+            {items.map((item, i) =>
+              item.link ? (
+                <Link
+                  key={i}
+                  data-active={item.link === activeItem?.link}
+                  className={styles.navigationItem}
+                  href={item.link!}
+                  onClick={() => setShowPopover(false)}
+                  variant="styleless"
+                >
+                  {item.text}
+                </Link>
+              ) : (
+                <Accordion.Item value="item">
+                  <Accordion.Trigger
+                    className={clsx(styles.navigationItem, styles.navigationTrigger)}
+                  >
+                    {item.text}
+                  </Accordion.Trigger>
+                  <Accordion.Content className={styles.navigationContent}>
+                    {item.children?.map((child, i) => (
+                      <Link
+                        key={i}
+                        className={styles.navigationItem}
+                        href={child.link!}
+                        onClick={() => setShowPopover(false)}
+                        variant="styleless"
+                      >
+                        {child.text}
+                      </Link>
+                    ))}
+                  </Accordion.Content>
+                </Accordion.Item>
+              ),
+            )}
+          </Accordion.Root>
         </Popover>
       </Popover.Root>
     </div>
