@@ -33,9 +33,9 @@ export function Sidebar(props: {
 
       <nav className={styles.navigation}>
         <div className={styles.items}>
-          {groups.map((item) => (
-            <div className={styles.group} key={item.link ?? item.title}>
-              <SidebarItem depth={0} item={item} onClick={onClickItem} />
+          {groups.map((group) => (
+            <div className={styles.group} key={group.link ?? group.text}>
+              <SidebarItem depth={0} item={group} onClick={onClickItem} />
             </div>
           ))}
         </div>
@@ -49,18 +49,16 @@ function getSidebarGroups(sidebar: SidebarItemType[]): SidebarItemType[] {
 
   let lastGroupIndex = 0
 
-  for (const index in sidebar) {
-    const item = sidebar[index]
-
+  for (const item of sidebar) {
     if (item.items) {
       lastGroupIndex = groups.push(item)
       continue
     }
 
     if (!groups[lastGroupIndex]) {
-      groups.push({ items: [item] })
+      groups.push({ text: '', items: [item] })
     } else {
-      groups[lastGroupIndex]!.items!.push(item)
+      groups[lastGroupIndex].items!.push(item)
     }
   }
 
@@ -79,18 +77,19 @@ function SidebarItem(props: {
   if (item.items)
     return (
       <section className={clsx(styles.section, depth !== 0 && styles.level)}>
-        {item.link ? (
-          <Link
-            data-active={Boolean(match)}
-            onClick={onClick}
-            className={styles.sectionTitle}
-            to={item.link}
-          >
-            {item.title}
-          </Link>
-        ) : (
-          <div className={styles.sectionTitle}>{item.title}</div>
-        )}
+        {item.text &&
+          (item.link ? (
+            <Link
+              data-active={Boolean(match)}
+              onClick={onClick}
+              className={styles.sectionTitle}
+              to={item.link}
+            >
+              {item.text}
+            </Link>
+          ) : (
+            <div className={styles.sectionTitle}>{item.text}</div>
+          ))}
 
         {item.items &&
           item.items.length > 0 &&
@@ -99,7 +98,7 @@ function SidebarItem(props: {
             <SidebarItem
               depth={depth + 1}
               item={item}
-              key={item.link ?? item.title}
+              key={item.link ?? item.text}
               onClick={onClick}
             />
           ))}
@@ -110,10 +109,10 @@ function SidebarItem(props: {
     <div>
       {item.link ? (
         <Link data-active={Boolean(match)} onClick={onClick} className={styles.item} to={item.link}>
-          {item.title}
+          {item.text}
         </Link>
       ) : (
-        <div className={styles.item}>{item.title}</div>
+        <div className={styles.item}>{item.text}</div>
       )}
     </div>
   )

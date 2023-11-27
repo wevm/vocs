@@ -40,10 +40,10 @@ export default defineConfig({
       link: '/kitchen-sink',
     },
     {
-      title: 'API',
+      text: 'API',
       items: [
         {
-          title: 'defineConfig',
+          text: 'defineConfig',
           link: '/api/defineConfig',
         },
       ],
