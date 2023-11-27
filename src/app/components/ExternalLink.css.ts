@@ -1,6 +1,6 @@
 import { createVar, style } from '@vanilla-extract/css'
 
-export const arrowColor = createVar()
+export const arrowColor = createVar('arrowColor')
 
 export const root = style({
   selectors: {

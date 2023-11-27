@@ -33,9 +33,7 @@ export const Link = forwardRef((props: LinkProps, ref) => {
 
   // Internal links
   const [before, after] = (href || '').split('#')
-  const to = `${before ? `${before}${before !== '/' ? '.html' : ''}` : ''}${
-    after ? `#${after}` : ''
-  }`
+  const to = `${before ? before : ''}${after ? `#${after}` : ''}`
   return (
     <RRLink
       {...(props as RRLinkProps)}

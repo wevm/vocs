@@ -27,13 +27,6 @@ export const accent_underlined = style(
 
 export const styleless = style(
   {
-    selectors: {
-      '&:hover': {
-        vars: {
-          [arrowColor]: semanticColorVars.linkHover,
-        },
-      },
-    },
     vars: {
       [arrowColor]: primitiveColorVars.text3,
     },

@@ -11,7 +11,7 @@ import { Link, useLocation, useMatch } from 'react-router-dom'
 
 import { type SidebarItem as SidebarItemType } from '../../config.js'
 import { useConfig } from '../hooks/useConfig.js'
-import { Logo } from './Logo.js'
+import { NavLogo } from './NavLogo.js'
 import * as styles from './Sidebar.css.js'
 import { ChevronRight } from './icons/ChevronRight.js'
 import { Icon } from './Icon.js'
@@ -34,7 +34,7 @@ export function Sidebar(props: {
       <div className={styles.logoWrapper}>
         <div className={styles.logo}>
           <Link to="/" style={{ alignItems: 'center', display: 'flex', height: '100%' }}>
-            <Logo />
+            <NavLogo />
           </Link>
         </div>
         <div className={styles.divider} />

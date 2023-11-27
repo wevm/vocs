@@ -1,7 +1,7 @@
 import { globalStyle, style } from '@vanilla-extract/css'
 
 import { fontWeightVars, primitiveColorVars, spaceVars, viewportVars } from '../styles/vars.css.js'
-import { root as CodeGroup, tabsList } from './mdx/CodeGroup.css.js'
+import { list, root as Tabs } from './Tabs.css.js'
 import { root as CodeTitle } from './mdx/CodeTitle.css.js'
 import { root as H2 } from './mdx/H2.css.js'
 import { root as H3 } from './mdx/H3.css.js'
@@ -64,7 +64,7 @@ globalStyle(`${content} > *:last-child`, {
   marginBottom: spaceVars['0'],
 })
 
-globalStyle(`${content} [data-rehype-pretty-code-fragment], ${content} ${CodeGroup}`, {
+globalStyle(`${content} [data-rehype-pretty-code-fragment], ${content} ${Tabs}`, {
   '@media': {
     [viewportVars['max-720px']]: {
       borderTop: `6px solid ${primitiveColorVars.background}`,
@@ -74,7 +74,7 @@ globalStyle(`${content} [data-rehype-pretty-code-fragment], ${content} ${CodeGro
   },
 })
 
-globalStyle(`${content} ${CodeGroup}`, {
+globalStyle(`${content} ${Tabs}`, {
   '@media': {
     [viewportVars['max-720px']]: {
       marginLeft: `calc(-1 * ${spaceVars['44']} - 2px)`,
@@ -83,7 +83,7 @@ globalStyle(`${content} ${CodeGroup}`, {
   },
 })
 
-globalStyle(`${content} ${CodeGroup} [data-rehype-pretty-code-fragment]`, {
+globalStyle(`${content} ${Tabs} [data-rehype-pretty-code-fragment]`, {
   '@media': {
     [viewportVars['max-720px']]: {
       borderTop: 'none',
@@ -91,7 +91,7 @@ globalStyle(`${content} ${CodeGroup} [data-rehype-pretty-code-fragment]`, {
   },
 })
 
-globalStyle(`${content} ${CodeTitle}, ${content} ${tabsList}`, {
+globalStyle(`${content} ${CodeTitle}, ${content} ${list}`, {
   '@media': {
     [viewportVars['max-720px']]: {
       borderTop: `1px solid ${primitiveColorVars.border}`,

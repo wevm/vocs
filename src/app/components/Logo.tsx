@@ -3,30 +3,28 @@ import clsx from 'clsx'
 import { useConfig } from '../hooks/useConfig.js'
 import * as styles from './Logo.css.js'
 
-export function Logo() {
-  const config = useConfig()
+export function Logo({ className }: { className?: string }) {
+  const { logoUrl } = useConfig()
 
-  if (config.logoUrl)
-    return (
-      <>
-        {typeof config.logoUrl === 'string' ? (
-          <img alt="Logo" className={styles.logoImage} src={config.logoUrl} />
-        ) : (
-          <>
-            <img
-              alt="Logo"
-              className={clsx(styles.logoImage, styles.logoDark)}
-              src={config.logoUrl.dark}
-            />
-            <img
-              alt="Logo"
-              className={clsx(styles.logoImage, styles.logoLight)}
-              src={config.logoUrl.light}
-            />
-          </>
-        )}
-      </>
-    )
-
-  return <div className={styles.title}>{config.title}</div>
+  if (!logoUrl) return null
+  return (
+    <>
+      {typeof logoUrl === 'string' ? (
+        <img alt="Logo" className={clsx(className, styles.root)} src={logoUrl} />
+      ) : (
+        <>
+          <img
+            alt="Logo"
+            className={clsx(className, styles.root, styles.logoDark)}
+            src={logoUrl.dark}
+          />
+          <img
+            alt="Logo"
+            className={clsx(className, styles.root, styles.logoLight)}
+            src={logoUrl.light}
+          />
+        </>
+      )}
+    </>
+  )
 }

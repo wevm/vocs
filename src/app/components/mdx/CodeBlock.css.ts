@@ -8,7 +8,7 @@ import {
   spaceVars,
   viewportVars,
 } from '../../styles/vars.css.js'
-import { root as CodeGroup } from './CodeGroup.css.js'
+import { root as Tabs } from '../Tabs.css.js'
 
 export const root = style({
   border: `1px solid ${semanticColorVars.codeInlineBorder}`,
@@ -23,7 +23,7 @@ export const root = style({
     },
   },
   selectors: {
-    [`${CodeGroup} &`]: {
+    [`${Tabs} &`]: {
       border: 'none',
       marginLeft: 'unset',
       marginRight: 'unset',

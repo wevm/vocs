@@ -8,8 +8,8 @@ import { useConfig } from '../hooks/useConfig.js'
 import { usePageData } from '../hooks/usePageData.js'
 import { Icon } from './Icon.js'
 import { Link } from './Link.js'
-import { Logo } from './Logo.js'
 import * as styles from './MobileTopNav.css.js'
+import { NavLogo } from './NavLogo.js'
 import * as NavigationMenu from './NavigationMenu.js'
 import { Outline } from './Outline.js'
 import { Popover } from './Popover.js'
@@ -25,6 +25,7 @@ import { X } from './icons/X.js'
 MobileTopNav.Curtain = Curtain
 
 export function MobileTopNav() {
+  const { frontmatter = {} } = usePageData()
   const config = useConfig()
 
   const { pathname } = useLocation()
@@ -35,14 +36,16 @@ export function MobileTopNav() {
   return (
     <div className={styles.root}>
       <div className={styles.section}>
-        <div className={styles.logo}>
-          <RRLink to="/" style={{ alignItems: 'center', display: 'flex', height: '100%' }}>
-            <Logo />
-          </RRLink>
-        </div>
+        {(frontmatter.logo || !('logo' in frontmatter)) && (
+          <div className={styles.logo}>
+            <RRLink to="/" style={{ alignItems: 'center', display: 'flex', height: '100%' }}>
+              <NavLogo />
+            </RRLink>
+          </div>
+        )}
       </div>
       <div className={styles.section}>
-        {config.topNav && (
+        {config.topNav && activeItem && (
           <>
             <div className={clsx(styles.group)}>
               <Navigation activeItem={activeItem} items={config.topNav} />

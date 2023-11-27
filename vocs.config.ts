@@ -33,18 +33,18 @@ export default defineConfig({
   sidebar: [
     {
       text: 'Overview',
-      link: '/',
+      link: '/docs',
     },
     {
       text: 'Kitchen Sink',
-      link: '/kitchen-sink',
+      link: '/docs/kitchen-sink',
     },
     {
       text: 'API',
       items: [
         {
           text: 'defineConfig',
-          link: '/api/defineConfig',
+          link: '/docs/defineConfig',
         },
       ],
     },
@@ -111,7 +111,7 @@ export default defineConfig({
   ],
   title: 'Vocs',
   topNav: [
-    { text: 'Guide & API', link: '/' },
+    { text: 'Guide & API', link: '/docs' },
     { text: 'Blog', link: '/blog' },
     {
       text: version,

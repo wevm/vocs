@@ -1,0 +1,99 @@
+# Vocs [Static documentation generator powered by Vite and React]
+
+## Overview
+
+Vocs is a static documentation generator powered by [Vite](https://vitejs.dev) and [React](https://react.dev).
+
+Write your content in [Markdown](#TODO) or [MDX](#TODO), and Vocs will generate a static site with a default theme.
+
+## Quick Start
+
+Scaffold a new project with the command line:
+
+:::code-group
+
+```bash [npm]
+npm init vocs
+```
+
+```bash [pnpm]
+pnpm create vocs
+```
+
+```bash [yarn]
+yarn create vocs
+```
+
+```bash [bun]
+bun x vocs init -i bun
+```
+
+:::
+
+## Manual Installation
+
+You can install Vocs in an existing project, or start from scratch, by installing Vocs as a dependency.
+
+::::steps
+
+### Install
+
+First, we will install `vocs` as a dependency in our project.
+
+:::code-group
+
+```bash [npm]
+npm i vocs
+```
+
+```bash [pnpm]
+pnpm i vocs
+```
+
+```bash [yarn]
+yarn add vocs
+```
+
+```bash [bun]
+bun i vocs
+```
+
+:::
+
+### Add Scripts to `package.json`
+
+After that, let's add some scripts to our `package.json` for Vocs.
+
+```json [package.json]
+{
+  "name": "example",
+  "version": "0.0.0",
+  "scripts": { // [!code focus]
+    "docs:dev": "vocs dev", // [!code focus] 
+    "docs:build": "vocs build", // [!code focus]
+    "docs:preview": "vocs preview" // [!code focus]
+  } // [!code focus]
+}
+```
+
+### Build your First Page
+
+Create a directory called `docs`, and add a file inside of it called `index.mdx`:
+
+```markdown [docs/index.mdx]
+# Hello, World! [This is my first page]
+
+Welcome to my docs. 
+```
+
+### Run
+
+Next, run the development server:
+
+```bash [Terminal]
+npm run dev
+```
+
+Then open up your browser to `http://localhost:5173`, and you can see your first page!
+
+::::

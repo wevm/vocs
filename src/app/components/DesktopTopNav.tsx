@@ -4,11 +4,12 @@ import { Link as RRLink, useLocation } from 'react-router-dom'
 
 import type { ParsedSocialItem } from '../../config.js'
 import { useConfig } from '../hooks/useConfig.js'
+import { usePageData } from '../hooks/usePageData.js'
 import { useTheme } from '../hooks/useTheme.js'
 import { visibleDark, visibleLight } from '../styles/utils.css.js'
 import * as styles from './DesktopTopNav.css.js'
 import { Icon } from './Icon.js'
-import { Logo } from './Logo.js'
+import { NavLogo } from './NavLogo.js'
 import * as NavigationMenu from './NavigationMenu.js'
 import { Discord } from './icons/Discord.js'
 import { GitHub } from './icons/GitHub.js'
@@ -19,19 +20,22 @@ import { X } from './icons/X.js'
 DesktopTopNav.Curtain = Curtain
 
 export function DesktopTopNav() {
+  const { frontmatter = {} } = usePageData()
   const config = useConfig()
   return (
     <div className={styles.root}>
-      <div className={styles.logoWrapper}>
-        <div className={styles.logo}>
-          <RRLink
-            to="/"
-            style={{ alignItems: 'center', display: 'flex', height: '56px', marginTop: '4px' }}
-          >
-            <Logo />
-          </RRLink>
+      {(frontmatter.logo || !('logo' in frontmatter)) && (
+        <div className={styles.logoWrapper}>
+          <div className={styles.logo}>
+            <RRLink
+              to="/"
+              style={{ alignItems: 'center', display: 'flex', height: '56px', marginTop: '4px' }}
+            >
+              <NavLogo />
+            </RRLink>
+          </div>
         </div>
-      </div>
+      )}
       <div className={styles.section} />
       <div className={styles.section}>
         {config.topNav && (

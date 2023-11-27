@@ -4,7 +4,6 @@ import {
   fontWeightVars,
   lineHeightVars,
   primitiveColorVars,
-  semanticColorVars,
   sidebarVars,
   spaceVars,
   topNavVars,

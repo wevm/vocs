@@ -15,6 +15,7 @@ export type Frontmatter = {
   date?: string
   description?: string
   layout?: 'minimal'
+  logo?: boolean
   outline?: boolean
   sidebar?: boolean
   title?: string
