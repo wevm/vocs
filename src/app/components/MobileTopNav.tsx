@@ -263,11 +263,14 @@ export function Curtain({
 function getSidebarItemFromPathname({
   sidebar,
   pathname: pathname_,
-}: { sidebar: Config.Sidebar; pathname: string }): Config.SidebarItem {
+}: { sidebar: Config.Sidebar; pathname: string }): Config.SidebarItem | undefined {
   const pathname = pathname_.replace(/(.+)\/$/, '$1')
-  return sidebar.find((item) => {
-    if (item.link === pathname) return true
-    if (item.items) return getSidebarItemFromPathname({ sidebar, pathname })
-    return false
-  }) as Config.SidebarItem
+  for (const item of sidebar) {
+    if (item.link === pathname) return item
+    if (item.items) {
+      const childItem = getSidebarItemFromPathname({ sidebar: item.items, pathname })
+      if (childItem) return childItem
+    }
+  }
+  return undefined
 }
