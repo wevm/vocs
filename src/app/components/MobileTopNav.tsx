@@ -125,7 +125,7 @@ function CompactNavigation({
                   {item.text}
                 </Link>
               ) : (
-                <Accordion.Item value="item">
+                <Accordion.Item key={i} value="item">
                   <Accordion.Trigger
                     className={clsx(styles.navigationItem, styles.navigationTrigger)}
                   >
