@@ -142,6 +142,7 @@ export type IconUrl = string | { light: string; dark: string }
 export type LogoUrl = string | { light: string; dark: string }
 
 export type SidebarItem = {
+  collapsed?: boolean
   /** Text to display on the sidebar. */
   text: string
   /** Optional pathname to the target documentation page. */

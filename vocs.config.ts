@@ -50,6 +50,8 @@ export default defineConfig({
     },
     {
       text: 'Item 1.0',
+      link: '/blank',
+      collapsed: false,
       items: [
         {
           text: 'Item 1.1',
@@ -66,6 +68,7 @@ export default defineConfig({
             {
               text: 'Item 1.2.2',
               link: '/api/item1.2.2',
+              collapsed: false,
               items: [
                 {
                   text: 'Item 1.2.2.1',
@@ -102,7 +105,7 @@ export default defineConfig({
         },
         {
           text: 'Item 2.2',
-          link: '/api/item2.1',
+          link: '/api/item2.2',
         },
       ],
     },
