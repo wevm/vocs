@@ -7,12 +7,14 @@ import {
   sidebarVars,
   spaceVars,
   topNavVars,
+  zIndexVars,
 } from '../styles/vars.css.js'
 
 export const root = style({
   display: 'flex',
   flexDirection: 'column',
   gap: spaceVars['12'],
+  overflow: 'scroll',
   width: sidebarVars.width,
   '@media': {
     'screen and (max-width: 1080px)': {
@@ -99,6 +101,10 @@ export const logo = style(
 
 export const logoWrapper = style(
   {
+    backgroundColor: primitiveColorVars.backgroundDark,
+    position: 'sticky',
+    top: 0,
+    zIndex: zIndexVars.gutterTopCurtain,
     '@media': {
       'screen and (max-width: 1080px)': {
         display: 'none',
