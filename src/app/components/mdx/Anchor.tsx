@@ -1,12 +1,17 @@
 import { clsx } from 'clsx'
+import type { ReactNode } from 'react'
 
 import { Link } from '../Link.js'
 import * as styles from './Anchor.css.js'
 import { Autolink } from './Autolink.js'
 
-export function Anchor(
-  props: React.DetailedHTMLProps<React.AnchorHTMLAttributes<HTMLAnchorElement>, HTMLAnchorElement>,
-) {
+type AnchorProps = {
+  children: ReactNode
+  className?: string
+  href?: string
+}
+
+export function Anchor(props: AnchorProps) {
   const { children, href } = props
 
   // Heading slug links

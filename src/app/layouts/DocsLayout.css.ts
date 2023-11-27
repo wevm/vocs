@@ -101,7 +101,7 @@ export const gutterTopCurtain = style(
     display: 'flex',
     height: topNavVars.curtainHeight,
     width: '100vw',
-    zIndex: zIndexVars.gutterTop,
+    zIndex: zIndexVars.gutterTopCurtain,
     '@media': {
       [viewportVars['min-1080px']]: {
         position: 'fixed',

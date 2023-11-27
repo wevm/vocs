@@ -27,7 +27,7 @@ import { TableHeader } from './TableHeader.js'
 import { TableRow } from './TableRow.js'
 
 export const components: MDXComponents = {
-  a: Anchor,
+  a: Anchor as any,
   aside: Aside,
   blockquote: Blockquote,
   code: Code,

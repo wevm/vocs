@@ -8,8 +8,8 @@ import { useTheme } from '../hooks/useTheme.js'
 import { visibleDark, visibleLight } from '../styles/utils.css.js'
 import * as styles from './DesktopTopNav.css.js'
 import { Icon } from './Icon.js'
-import { Link } from './Link.js'
 import { Logo } from './Logo.js'
+import * as NavigationMenu from './NavigationMenu.js'
 import { Discord } from './icons/Discord.js'
 import { GitHub } from './icons/GitHub.js'
 import { Moon } from './icons/Moon.js'
@@ -78,23 +78,39 @@ function Navigation() {
 
   const { pathname } = useLocation()
   const activeItem = topNav
-    .filter((item) => pathname.replace(/\.html$/, '').startsWith(item.link))
+    .filter((item) => (item.link ? pathname.replace(/\.html$/, '').startsWith(item.link) : false))
     .slice(-1)[0]
 
   return (
-    <div className={styles.navigation}>
-      {topNav.map((item) => (
-        <Link
-          key={item.link!}
-          data-active={item.link === activeItem?.link}
-          className={clsx(styles.item, styles.navigationItem)}
-          href={item.link!}
-          variant="styleless"
-        >
-          {item.title}
-        </Link>
-      ))}
-    </div>
+    <NavigationMenu.Root>
+      <NavigationMenu.List>
+        {topNav.map((item, i) =>
+          item.link ? (
+            <NavigationMenu.Link
+              key={i}
+              active={item.link === activeItem?.link}
+              className={styles.item}
+              href={item.link!}
+            >
+              {item.text}
+            </NavigationMenu.Link>
+          ) : (
+            <NavigationMenu.Item key={i} className={styles.item}>
+              <NavigationMenu.Trigger>{item.text}</NavigationMenu.Trigger>
+              <NavigationMenu.Content>
+                <ul>
+                  {item.children?.map((child, i) => (
+                    <NavigationMenu.Link key={i} href={child.link!}>
+                      {child.text}
+                    </NavigationMenu.Link>
+                  ))}
+                </ul>
+              </NavigationMenu.Content>
+            </NavigationMenu.Item>
+          ),
+        )}
+      </NavigationMenu.List>
+    </NavigationMenu.Root>
   )
 }
 

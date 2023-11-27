@@ -142,8 +142,8 @@ export type IconUrl = string | { light: string; dark: string }
 export type LogoUrl = string | { light: string; dark: string }
 
 export type SidebarItem = {
-  /** Title to display on the sidebar. */
-  title: string
+  /** Text to display on the sidebar. */
+  text: string
   /** Optional pathname to the target documentation page. */
   // TODO: support external links
   link?: string
@@ -171,9 +171,6 @@ export type Socials = SocialItem[]
 export type ParsedSocials = ParsedSocialItem[]
 
 export type TopNavItem = {
-  title: string
-  link: string
-  // TODO: children
-  // children?: TopNavItem[]
-}
+  text: string
+} & ({ link: string; children?: never } | { link?: string; children: TopNavItem[] })
 export type TopNav = TopNavItem[]

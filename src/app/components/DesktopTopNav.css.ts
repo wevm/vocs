@@ -2,8 +2,6 @@ import { style } from '@vanilla-extract/css'
 import { leftGutterWidthVar } from '../layouts/DocsLayout.css.js'
 import {
   borderRadiusVars,
-  fontSizeVars,
-  fontWeightVars,
   primitiveColorVars,
   sidebarVars,
   spaceVars,
@@ -92,26 +90,6 @@ export const logoWrapper = style(
     width: leftGutterWidthVar,
   },
   'logoWrapper',
-)
-
-export const navigation = style(
-  {
-    display: 'flex',
-    gap: spaceVars[20],
-  },
-  'navigation',
-)
-
-export const navigationItem = style(
-  {
-    fontSize: fontSizeVars[14],
-    fontWeight: fontWeightVars.medium,
-    selectors: {
-      '&:hover': { color: primitiveColorVars.textAccent },
-      '&[data-active="true"]': { color: primitiveColorVars.textAccent },
-    },
-  },
-  'navigationItem',
 )
 
 export const section = style(

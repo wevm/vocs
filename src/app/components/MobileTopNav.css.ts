@@ -133,8 +133,6 @@ export const navigation_compact = style({}, 'navigation_compact')
 
 export const navigation = style(
   {
-    display: 'flex',
-    gap: spaceVars[20],
     marginRight: spaceVars[20],
     selectors: {
       [`&:not(${navigation_compact})`]: {
@@ -156,10 +154,23 @@ export const navigation = style(
   'navigation',
 )
 
+export const navigationContent = style(
+  {
+    display: 'flex',
+    flexDirection: 'column',
+    marginLeft: spaceVars[8],
+  },
+  'navigationContent',
+)
+
 export const navigationItem = style(
   {
+    alignItems: 'center',
+    display: 'flex',
+    justifyContent: 'flex-start',
     fontSize: fontSizeVars[14],
     fontWeight: fontWeightVars.medium,
+    width: '100%',
     selectors: {
       '&:hover': { color: primitiveColorVars.textAccent },
       '&[data-active="true"]': { color: primitiveColorVars.textAccent },
@@ -167,6 +178,26 @@ export const navigationItem = style(
     },
   },
   'navigationItem',
+)
+
+export const navigationTrigger = style(
+  {
+    selectors: {
+      '&::after': {
+        backgroundColor: 'currentColor',
+        content: '',
+        display: 'inline-block',
+        height: '0.625em',
+        marginLeft: '0.325em',
+        width: '0.625em',
+        mask: 'url(/.vocs/icons/chevron-down.svg) no-repeat center / contain',
+      },
+      '&[data-state="open"]::after': {
+        mask: 'url(/.vocs/icons/chevron-up.svg) no-repeat center / contain',
+      },
+    },
+  },
+  'trigger',
 )
 
 export const outlineTrigger = style(
