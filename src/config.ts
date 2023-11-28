@@ -21,7 +21,8 @@ export type Config<parsed extends boolean = false> = RequiredBy<
      * Edit location for the documentation.
      */
     editLink?: EditLink
-    /* Base font face.
+    /**
+     * Base font face.
      *
      * @default { google: "Inter" }
      */
@@ -142,6 +143,7 @@ export type IconUrl = string | { light: string; dark: string }
 export type LogoUrl = string | { light: string; dark: string }
 
 export type SidebarItem = {
+  /** Whether or not to collapse the sidebar item by default. */
   collapsed?: boolean
   /** Text to display on the sidebar. */
   text: string

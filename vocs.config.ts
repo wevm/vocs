@@ -43,68 +43,8 @@ export default defineConfig({
       text: 'API',
       items: [
         {
-          text: 'defineConfig',
-          link: '/docs/defineConfig',
-        },
-      ],
-    },
-    {
-      text: 'Item 1.0',
-      collapsed: false,
-      items: [
-        {
-          text: 'Item 1.1',
-          link: '/test/itema',
-        },
-        {
-          text: 'Item 1.2',
-          link: '/test/itemb',
-          items: [
-            {
-              text: 'Item 1.2.1',
-              link: '/test/itemc',
-            },
-            {
-              text: 'Item 1.2.2',
-              link: '/test/itemd',
-              collapsed: false,
-              items: [
-                {
-                  text: 'Item 1.2.2.1',
-                  link: '/test/iteme',
-                },
-                {
-                  text: 'Item 1.2.2.2',
-                  link: '/test/itemf',
-                },
-              ],
-            },
-            {
-              text: 'Item 1.2.3',
-              link: '/test/itemg',
-            },
-          ],
-        },
-        {
-          text: 'Item 1.3',
-          link: '/test/itemh',
-        },
-        {
-          text: 'Item 1.4',
-          link: '/test/itemi',
-        },
-      ],
-    },
-    {
-      text: 'Item 2.0',
-      items: [
-        {
-          text: 'Item 2.1',
-          link: '/test/itemj',
-        },
-        {
-          text: 'Item 2.2',
-          link: '/test/itemk',
+          text: 'Config',
+          link: '/docs/api/config',
         },
       ],
     },

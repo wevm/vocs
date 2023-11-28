@@ -352,7 +352,7 @@ export const lineHeightVars = createGlobalThemeContract(
 createGlobalTheme(':root', lineHeightVars, {
   code: '1.75em',
   heading: '1.5em',
-  listItem: '1.75em',
+  listItem: '1.5em',
   outlineItem: '1em',
   paragraph: '1.75em',
   sidebarItem: '1.825em',

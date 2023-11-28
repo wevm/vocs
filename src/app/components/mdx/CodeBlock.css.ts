@@ -124,7 +124,7 @@ globalStyle(`${root} [data-line].diff.remove::before`, {
 })
 
 globalStyle(`${root} .has-focused-lines [data-line]:not(.has-focus)`, {
-  filter: 'grayscale(1)',
+  filter: 'grayscale(0.5)',
   opacity: '0.3',
   transition: 'filter 0.2s, opacity 0.2s',
 })

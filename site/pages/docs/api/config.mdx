@@ -1,0 +1,349 @@
+# Config [Define global metadata for your documentation]
+
+Vocs uses a configuration file (`vocs.config.ts`) to define global metadata for your documentation. This includes things like the site title, description, logo, sidebar, and more for your project. 
+
+## Initialize Config File
+
+The Vocs config can be defined in a `vocs.config.ts` file at the root of your project.
+
+:::code-group
+
+```txt [Directory Structure]
+viem/
+├── docs/
+├── node_modules/
+├── src/
+├── package.json
+└── vocs.config.ts // [!code ++]
+```
+
+```ts [vocs.config.ts]
+import { defineConfig } from 'vocs'
+
+export default defineConfig({
+  title: 'Viem'
+})
+```
+
+:::
+
+## Parameters
+
+### blogDir
+
+- **Type:** `string`
+- **Default:** `"./pages/blog"`
+
+Path to blog pages relative to project root. Used to extract posts from the filesystem.
+
+```ts
+import { defineConfig } from 'vocs'
+
+export default defineConfig({
+  blogDir: './pages/writings' // [!code focus]
+  title: 'Viem'
+})
+```
+
+### description
+
+- **Type:** `string`
+
+General description for the documentation.
+
+```ts
+import { defineConfig } from 'vocs'
+
+export default defineConfig({
+  description: 'Build reliable apps & libraries with lightweight, composable, and type-safe modules that interface with Ethereum.' // [!code focus]
+  title: 'Viem'
+})
+```
+
+### editLink
+
+- **Type:** `EditLink`
+
+Edit location for the documentation.
+
+```ts
+import { defineConfig } from 'vocs'
+
+export default defineConfig({
+  editLink: { // [!code focus]
+    pattern: 'https://github.com/wevm/viem/edit/main/site/pages/:path' // [!code focus]
+    text: 'Edit on GitHub' // [!code focus]
+  }, // [!code focus]
+  title: 'Viem'
+})
+```
+
+#### editLink.pattern
+
+- **Type:** `string | (() => string)`
+
+Edit link pattern.
+
+```ts
+import { defineConfig } from 'vocs'
+
+export default defineConfig({
+  editLink: { // [!code focus]
+    pattern: 'https://github.com/wevm/viem/edit/main/site/pages/:path' // [!code focus]
+  }, // [!code focus]
+  title: 'Viem'
+})
+```
+
+#### editLink.text
+
+- **Type:** `string`
+
+Edit link text.
+
+```ts
+import { defineConfig } from 'vocs'
+
+export default defineConfig({
+  editLink: { // [!code focus]
+    pattern: 'https://github.com/wevm/viem/edit/main/site/pages/:path' 
+    text: 'Edit on GitHub' // [!code focus]
+  }, // [!code focus]
+  title: 'Viem'
+})
+```
+
+### font
+
+- **Type:** `{ google: string }`
+
+Base font face.
+
+:::warning
+Only Google Fonts are supported at the moment.
+:::
+
+```ts
+import { defineConfig } from 'vocs'
+
+export default defineConfig({
+  font: { // [!code focus]
+    google: 'Inter' // [!code focus]
+  }, // [!code focus]
+  title: 'Viem'
+})
+```
+
+### head
+
+- **Type:** `ReactElement`
+
+Additional tags to include in the `<head>` tag of the page HTML.
+
+:::note
+When using this property with JSX, remember to rename the config file extension to `.tsx` or `.jsx`.
+:::
+
+```tsx
+import { defineConfig } from 'vocs'
+
+export default defineConfig({
+  head: ( // [!code focus]
+    <> // [!code focus]
+      <meta property="og:type" content="website" /> // [!code focus]
+      <meta property="og:title" content="viem · TypeScript Interface for Ethereum" /> // [!code focus]
+      <meta property="og:image" content="https://viem.sh/og-image.png" /> // [!code focus]
+      <meta property="og:url" content="https://viem.sh" /> // [!code focus]
+      <meta property="og:description" content="Build reliable Ethereum apps & libraries with lightweight, composable, & type-safe modules from viem." /> // [!code focus]
+    </> // [!code focus]
+  ), // [!code focus]
+  title: 'Viem'
+})
+```
+
+### iconUrl
+
+- **Type:** `string | { light: string; dark: string }`
+
+Icon URL. Used as the website's favicon.
+
+:::info[Note]
+Assets need to be placed in the `public` directory.
+:::
+
+```tsx
+import { defineConfig } from 'vocs'
+
+export default defineConfig({
+  iconUrl: '/icon.svg' // [!code focus]
+  title: 'Viem'
+})
+```
+
+You can also specify icons for light and dark mode.
+
+```tsx
+import { defineConfig } from 'vocs'
+
+export default defineConfig({
+  iconUrl: { // [!code focus]
+    light: '/icon-light.svg' // [!code focus]
+    dark: '/icon-dark.svg' // [!code focus]
+  }, // [!code focus]
+  title: 'Viem'
+})
+```
+
+### logoUrl
+
+- **Type:** `string | { light: string; dark: string }`
+
+Logo URL. Used for the sidebar and mobile top nav header image.
+
+:::info[Note]
+Assets need to be placed in the `public` directory.
+:::
+
+```tsx
+import { defineConfig } from 'vocs'
+
+export default defineConfig({
+  logoUrl: '/logo.svg' // [!code focus]
+  title: 'Viem'
+})
+```
+
+You can also specify logos for light and dark mode.
+
+```tsx
+import { defineConfig } from 'vocs'
+
+export default defineConfig({
+  logoUrl: { // [!code focus]
+    light: '/logo-light.svg' // [!code focus]
+    dark: '/logo-dark.svg' // [!code focus]
+  }, // [!code focus]
+  title: 'Viem'
+})
+```
+
+### root
+
+- **Type:** `string`
+- **Default:** `"docs"`
+
+Documentation root directory. Can be an absolute path, or a path relative from the location of the config file itself.
+
+```tsx
+import { defineConfig } from 'vocs'
+
+export default defineConfig({
+  root: 'site', // [!code focus]
+  title: 'Viem'
+})
+```
+
+### sidebar
+
+- **Type:** `Sidebar`
+
+Navigation displayed on the sidebar.
+
+```tsx
+import { defineConfig } from 'vocs'
+
+export default defineConfig({
+  sidebar: [ // [!code focus]
+    { // [!code focus]
+      text: 'Getting Started', // [!code focus]
+      link: '/docs', // [!code focus]
+    }, // [!code focus]
+    { // [!code focus]
+      text: 'API', // [!code focus]
+      collapsed: true, // [!code focus]
+      items: [ // [!code focus]
+        { // [!code focus]
+          text: 'Config', // [!code focus]
+          link: '/docs/api/config', // [!code focus]
+        }, // [!code focus]
+      ], // [!code focus]
+    } // [!code focus]
+  ], // [!code focus]
+  title: 'Viem'
+})
+```
+
+### socials
+
+- **Type:** `Socials`
+
+Social links displayed in the top navigation.
+
+Supports **Discord**, **GitHub**, and **X**.
+
+```tsx
+import { defineConfig } from 'vocs'
+
+export default defineConfig({
+  socials: [ // [!code focus]
+    { // [!code focus]
+      icon: 'github', // [!code focus]
+      link: 'https://github.com/wevm/viem', // [!code focus]
+    }, // [!code focus]
+    { // [!code focus]
+      icon: 'x', // [!code focus]
+      link: 'https://twitter.com/wevm_dev', // [!code focus]
+    }, // [!code focus]
+  ], // [!code focus]
+  title: 'Viem'
+})
+```
+
+### title
+
+- **Type:** `string`
+- **Default:** `"Docs"`
+
+Documentation title.
+
+```tsx
+import { defineConfig } from 'vocs'
+
+export default defineConfig({
+  title: 'Viem' // [!code focus]
+})
+```
+
+### titleTemplate
+
+- **Type:** `string`
+- **Default:** `"%s – Docs"`
+
+Template for the page title.
+
+```tsx
+import { defineConfig } from 'vocs'
+
+export default defineConfig({
+  title: 'Viem',
+  titleTemplate: '%s – Viem' // [!code focus]
+})
+```
+
+### topNav
+
+- **Type:** `TopNav`
+
+Navigation displayed on the top.
+
+```tsx
+import { defineConfig } from 'vocs'
+
+export default defineConfig({
+  title: 'Viem',
+  topNav: [ // [!code focus]
+    { text: 'Guide & API', link: '/docs' }, // [!code focus]
+    { text: 'Blog', link: '/blog' }, // [!code focus]
+  ] // [!code focus]
+})
+```

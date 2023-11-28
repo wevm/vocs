@@ -10,12 +10,17 @@ import { root as H6 } from './H6.css.js'
 
 export const root = style({
   lineHeight: lineHeightVars.paragraph,
-  selectors: {
-    [`${Blockquote}>&`]: {
-      color: semanticColorVars.blockquoteText,
-    },
-    [`${H2}+&,${H3}+&,${H4}+&,${H5}+&,${H6}+&`]: {
-      marginTop: `calc(${spaceVars['8']} * -1)`,
-    },
+  get selectors() {
+    return {
+      [`${Blockquote}>&`]: {
+        color: semanticColorVars.blockquoteText,
+      },
+      [`${H2}+&,${H3}+&,${H4}+&,${H5}+&,${H6}+&`]: {
+        marginTop: `calc(${spaceVars['8']} * -1)`,
+      },
+      [`${root} + ${root}`]: {
+        marginTop: `calc(-1 * ${spaceVars['8']})`,
+      },
+    }
   },
 })

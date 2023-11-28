@@ -1,7 +1,15 @@
 import { globalStyle, style } from '@vanilla-extract/css'
-import { spaceVars } from '../../styles/vars.css.js'
 
-export const root = style({})
+import { spaceVars } from '../../styles/vars.css.js'
+import { root as Paragraph } from './Paragraph.css.js'
+
+export const root = style({
+  selectors: {
+    [`${Paragraph} + &`]: {
+      marginTop: `calc(-1 * ${spaceVars['8']})`,
+    },
+  },
+})
 
 export const ordered = style(
   {
