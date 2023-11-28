@@ -2,7 +2,7 @@ import type { ReactElement } from 'react'
 
 type RequiredBy<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>
 
-type RequiredProperties = 'blogDir' | 'font' | 'root' | 'title' | 'titleTemplate'
+type RequiredProperties = 'blogDir' | 'root' | 'title' | 'titleTemplate'
 
 export type Config<parsed extends boolean = false> = RequiredBy<
   {
@@ -76,7 +76,7 @@ export type ParsedConfig = Config<true>
 
 export function defineConfig({
   blogDir = './pages/blog',
-  font = { google: 'Inter' },
+  font,
   head,
   root = 'docs',
   title = 'Docs',
