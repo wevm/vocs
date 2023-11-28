@@ -51,3 +51,35 @@ export const searchCommand = style(
   },
   'searchCommand',
 )
+
+export const dialogOverlay = style(
+  {
+    WebkitBackdropFilter: 'blur(0.25rem)',
+    backdropFilter: 'blur(0.25rem)',
+    position: 'fixed',
+    inset: 0,
+    animation: 'overlayShow 150ms cubic-bezier(0.16, 1, 0.3, 1)',
+  },
+  'dialogOverlay',
+)
+
+// TODO: Box shadow
+export const dialogContent = style(
+  {
+    backgroundColor: primitiveColorVars.background,
+    border: `1px solid ${primitiveColorVars.backgroundDark}`,
+    borderRadius: borderRadiusVars[8],
+    position: 'fixed',
+    top: '0',
+    left: '50%',
+    transform: 'translate(-50%)',
+    width: '90vw',
+    maxWidth: '40rem',
+    maxHeight: '90vh',
+    marginTop: spaceVars[64],
+    minHeight: '15rem',
+    padding: '1.5rem',
+    animation: 'contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1)',
+  },
+  'dialogContent',
+)

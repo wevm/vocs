@@ -21,6 +21,7 @@ import { Discord } from './icons/Discord.js'
 import { GitHub } from './icons/GitHub.js'
 import { Menu } from './icons/Menu.js'
 import { X } from './icons/X.js'
+import { MobileSearch } from './MobileSearch.js'
 
 MobileTopNav.Curtain = Curtain
 
@@ -44,7 +45,10 @@ export function MobileTopNav() {
           </div>
         )}
       </div>
+
       <div className={styles.section}>
+        <MobileSearch />
+
         {config.topNav && activeItem && (
           <>
             <div className={clsx(styles.group)}>
@@ -54,6 +58,7 @@ export function MobileTopNav() {
             </div>
           </>
         )}
+
         <div className={styles.group}>
           {config.socials?.map((social, i) => (
             <SocialButton key={i} {...social} />

@@ -1,11 +1,12 @@
-import { useState, useEffect } from 'react'
-import { MagnifyingGlassIcon } from '@radix-ui/react-icons'
+import { useEffect, useState } from 'react'
+import { Cross2Icon, MagnifyingGlassIcon } from '@radix-ui/react-icons'
+import * as Dialog from '@radix-ui/react-dialog'
 
-import { PageFind } from './Pagefind.js'
+import { Pagefind } from './Pagefind.js'
 import * as styles from './DesktopSearch.css.js'
 
 export function DesktopSearch() {
-  const [isOpen, setIsSearchOpen] = useState(false)
+  const [open, setOpen] = useState(false)
 
   useEffect(() => {
     function keyDownHandler(event: KeyboardEvent) {
@@ -14,12 +15,12 @@ export function DesktopSearch() {
         (['input', 'select', 'textarea'].includes(document.activeElement.tagName.toLowerCase()) ||
           document.activeElement.isContentEditable)
 
-      if (event.key === '/' && !isOpen && !isInput) {
-        console.log('slash')
-        setIsSearchOpen(true)
+      if (event.key === '/' && !open && !isInput) {
+        event.preventDefault()
+        setOpen(true)
       } else if (event.metaKey === true && event.key === 'k') {
-        console.log('meta + k')
-        setIsSearchOpen((x) => !x)
+        event.preventDefault()
+        setOpen((x) => !x)
       }
     }
 
@@ -27,26 +28,43 @@ export function DesktopSearch() {
     return () => {
       window.removeEventListener('keydown', keyDownHandler)
     }
-  }, [isOpen])
+  }, [open])
 
   return (
     <>
-      <button className={styles.search} type="button" onClick={() => setIsSearchOpen(true)}>
-        <MagnifyingGlassIcon style={{ marginTop: 2 }} />
-        Search
-        <div className={styles.searchCommand}>
-          <div
-            style={{
-              background: 'currentColor',
-              transform: 'rotate(45deg)',
-              width: 1.5,
-              borderRadius: 2,
-              height: '100%',
-            }}
-          />
-        </div>
-      </button>
-      <PageFind isOpen={isOpen} onClose={() => setIsSearchOpen(false)} />
+      <Dialog.Root open={open} onOpenChange={setOpen}>
+        <Dialog.Trigger asChild>
+          <button className={styles.search} type="button">
+            <MagnifyingGlassIcon style={{ marginTop: 2 }} />
+            Search
+            <div className={styles.searchCommand}>
+              <div
+                style={{
+                  background: 'currentColor',
+                  transform: 'rotate(45deg)',
+                  width: 1.5,
+                  borderRadius: 2,
+                  height: '100%',
+                }}
+              />
+            </div>
+          </button>
+        </Dialog.Trigger>
+
+        <Dialog.Portal>
+          <Dialog.Overlay className={styles.dialogOverlay} />
+          <Dialog.Content className={styles.dialogContent} aria-describedby={undefined}>
+            <Dialog.Close asChild>
+              <button className="IconButton" aria-label="Close" type="button">
+                <Cross2Icon />
+              </button>
+            </Dialog.Close>
+
+            <Dialog.Title>Search</Dialog.Title>
+            <Pagefind />
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
     </>
   )
 }
