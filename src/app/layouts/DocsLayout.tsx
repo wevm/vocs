@@ -21,7 +21,7 @@ export function DocsLayout({
   const config = useConfig()
   const { sidebar } = config
 
-  const { frontmatter } = usePageData()
+  const { frontmatter = {} } = usePageData()
 
   const showOutline = (() => {
     if (frontmatter) {
@@ -54,7 +54,10 @@ export function DocsLayout({
 
       <div
         ref={ref}
-        className={clsx(styles.gutterTop, showSidebar && styles.gutterTop_withSidebar)}
+        className={clsx(
+          styles.gutterTop,
+          (frontmatter?.logo || !('logo' in frontmatter)) && styles.gutterTop_offsetLeftGutter,
+        )}
       >
         <DesktopTopNav />
         <MobileTopNav />

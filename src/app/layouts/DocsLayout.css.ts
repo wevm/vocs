@@ -85,7 +85,7 @@ export const gutterTop = style(
   'gutterTop',
 )
 
-export const gutterTop_withSidebar = style(
+export const gutterTop_offsetLeftGutter = style(
   {
     '@media': {
       [viewportVars['min-1080px']]: {
@@ -93,7 +93,7 @@ export const gutterTop_withSidebar = style(
       },
     },
   },
-  'gutterTop_withSidebar',
+  'gutterTop_offsetLeftGutter',
 )
 
 export const gutterTopCurtain = style(
