@@ -244,6 +244,7 @@ export const borderRadiusVars = createGlobalThemeContract(
     '0': '0',
     '2': '2',
     '4': '4',
+    '8': '8',
   },
   getVarName('borderRadius'),
 )
@@ -251,6 +252,7 @@ createGlobalTheme(':root', borderRadiusVars, {
   '0': '0',
   '2': '2px',
   '4': '4px',
+  '8': '8px',
 })
 
 export const fontFamilyVars = createGlobalThemeContract(
@@ -456,7 +458,7 @@ export const contentVars = createGlobalThemeContract(
 )
 createGlobalTheme(':root', contentVars, {
   horizontalPadding: spaceVars['48'],
-  verticalPadding: spaceVars['12'],
+  verticalPadding: spaceVars['32'],
   width: `calc(70ch + (${contentVars.horizontalPadding} * 2))`,
 })
 

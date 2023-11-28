@@ -16,14 +16,18 @@ import { GitHub } from './icons/GitHub.js'
 import { Moon } from './icons/Moon.js'
 import { Sun } from './icons/Sun.js'
 import { X } from './icons/X.js'
+import { DesktopSearch } from './DesktopSearch.js'
 
 DesktopTopNav.Curtain = Curtain
 
 export function DesktopTopNav() {
   const { frontmatter = {} } = usePageData()
   const config = useConfig()
+
   return (
     <div className={styles.root}>
+      <DesktopSearch />
+
       {(frontmatter.logo || !('logo' in frontmatter)) && (
         <div className={styles.logoWrapper}>
           <div className={styles.logo}>
@@ -36,7 +40,9 @@ export function DesktopTopNav() {
           </div>
         </div>
       )}
+
       <div className={styles.section} />
+
       <div className={styles.section}>
         {config.topNav && (
           <>
@@ -46,6 +52,7 @@ export function DesktopTopNav() {
             <div className={styles.divider} />
           </>
         )}
+
         {config.socials && config.socials?.length > 0 && (
           <>
             <div style={{ marginLeft: '-8px', marginRight: '-8px' }}>
@@ -60,6 +67,7 @@ export function DesktopTopNav() {
             <div className={styles.divider} />
           </>
         )}
+
         <div style={{ marginLeft: '-8px', marginRight: '-8px' }}>
           <div className={styles.group}>
             <div className={styles.item}>
