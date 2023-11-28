@@ -46,6 +46,10 @@ export default defineConfig({
           text: 'Config',
           link: '/docs/api/config',
         },
+        {
+          text: 'Frontmatter',
+          link: '/docs/api/frontmatter',
+        },
       ],
     },
   ],

@@ -1,0 +1,130 @@
+# Frontmatter [Define page-specific metadata]
+
+You can set page-specific metadata such as the page title and description in the frontmatter of Markdown pages. The frontmatter is a YAML block encapulated in a `---` separator at the top of the page.
+
+```md [example.md]
+---
+title: Example
+description: This is an example page.
+---
+
+# Hello world
+
+This is me.
+```
+
+## authors
+
+- **Type:** `string[]`
+
+Authors of the page. Used by the [`::authors` markdown directive](/TODO).
+
+```md
+---
+authors: // [!code focus]
+  - [jxom](https://x.com/jxom) // [!code focus]
+  - [awkweb](https://x.com/awkweb) // [!code focus]
+---
+
+# gm
+
+::authors // [!code focus]
+
+we're so back
+```
+
+## date
+
+- **Type:** `string`
+
+Authors of the page. Used by the [`::authors` markdown directive](/TODO).
+
+```md
+---
+authors: 
+  - [jxom](https://x.com/jxom) 
+  - [awkweb](https://x.com/awkweb) 
+date: 2023-12-01 // [!code focus]
+---
+
+# gm
+
+::authors // [!code focus]
+
+we're so back
+```
+
+## description
+
+- **Type:** `string`
+
+Description of the page. Placed in the `<meta name="description">` tag.
+
+```md
+---
+description: This is an example page.
+---
+```
+
+## layout
+
+- **Type:** `"default" | "minimal"`
+
+Layout of the page.
+
+- `default` - The default layout.
+- `minimal` - A minimal layout with no sidebar or header.
+
+```md
+---
+layout: minimal
+---
+```
+
+## logo
+
+- **Type:** `boolean`
+
+Whether or not to display the logo in the header.
+
+```md
+---
+logo: false
+---
+```
+
+## outline
+
+- **Type:** `boolean`
+
+Whether or not to display the outline.
+
+```md
+---
+outline: false
+---
+```
+
+## sidebar
+
+- **Type:** `boolean`
+
+Whether or not to display the sidebar.
+
+```md
+---
+sidebar: false
+---
+```
+
+## title
+
+- **Type:** `string`
+
+Title of the page. Placed in the `<title>` tag.
+
+```md
+---
+title: Example
+---
+```
