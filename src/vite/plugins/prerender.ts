@@ -29,12 +29,19 @@ export function prerender({ logger, outDir = 'dist' }: PrerenderPluginParameters
           .replace('<!--body-->', body)
           .replace('<!--head-->', head)
           .replace('../app/utils/initializeTheme.ts', '/initializeTheme.iife.js')
-        const filePath = `${route.endsWith('/') ? `${route}index` : route}.html`.replace(/^\//, '')
+        const isIndex = route.endsWith('/')
+        const filePath = `${isIndex ? `${route}index` : route}.html`.replace(/^\//, '')
         const path = resolve(outDir_resolved, filePath)
-        const pathDir = dirname(path)
 
+        const pathDir = dirname(path)
         if (!isDir(pathDir)) mkdirSync(pathDir, { recursive: true })
         writeFileSync(path, html)
+
+        if (!isIndex) {
+          const path = resolve(outDir_resolved, route.slice(1))
+          if (!isDir(path)) mkdirSync(path, { recursive: true })
+          writeFileSync(resolve(path, 'index.html'), html)
+        }
 
         const fileName = path.split('/').pop()!
         logger?.info(`${pc.dim(relative(root, path).replace(fileName, ''))}${pc.cyan(fileName)}`)
