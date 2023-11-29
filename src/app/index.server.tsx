@@ -13,6 +13,7 @@ import {
 } from 'react-router-dom/server.js'
 
 import { resolveVocsConfig } from '../vite/utils/resolveVocsConfig.js'
+import { ConfigProvider } from './hooks/useConfig.js'
 import { routes } from './routes.js'
 import { createFetchRequest } from './utils/createFetchRequest.js'
 
@@ -27,14 +28,18 @@ export async function prerender(location: string) {
     }),
   )
 
+  const { config } = await resolveVocsConfig()
+
   const body = renderToString(
-    <StaticRouter location={location}>
-      <Routes>
-        {unwrappedRoutes.map((route) => (
-          <Route key={route.path} path={route.path} element={route.element} />
-        ))}
-      </Routes>
-    </StaticRouter>,
+    <ConfigProvider config={config}>
+      <StaticRouter location={location}>
+        <Routes>
+          {unwrappedRoutes.map((route) => (
+            <Route key={route.path} path={route.path} element={route.element} />
+          ))}
+        </Routes>
+      </StaticRouter>
+    </ConfigProvider>,
   )
 
   return { head: await head(), body }
@@ -49,7 +54,13 @@ export async function render(req: Request) {
 
   const router = createStaticRouter(dataRoutes, context)
 
-  const body = renderToString(<StaticRouterProvider router={router} context={context} />)
+  const { config } = await resolveVocsConfig()
+
+  const body = renderToString(
+    <ConfigProvider config={config}>
+      <StaticRouterProvider router={router} context={context} />
+    </ConfigProvider>,
+  )
 
   return { head: await head(), body }
 }

@@ -1,20 +1,20 @@
 import clsx from 'clsx'
 import {
-  type MouseEventHandler,
   type KeyboardEvent,
-  useCallback,
   type MouseEvent,
-  useState,
+  type MouseEventHandler,
+  useCallback,
   useMemo,
+  useState,
 } from 'react'
 import { Link, useLocation, useMatch } from 'react-router-dom'
 
 import { type SidebarItem as SidebarItemType } from '../../config.js'
 import { useConfig } from '../hooks/useConfig.js'
+import { Icon } from './Icon.js'
 import { NavLogo } from './NavLogo.js'
 import * as styles from './Sidebar.css.js'
 import { ChevronRight } from './icons/ChevronRight.js'
-import { Icon } from './Icon.js'
 
 export function Sidebar(props: {
   className?: string
@@ -42,8 +42,8 @@ export function Sidebar(props: {
 
       <nav className={styles.navigation}>
         <div className={styles.items}>
-          {groups.map((group) => (
-            <div className={styles.group} key={group.link ?? group.text}>
+          {groups.map((group, i) => (
+            <div className={styles.group} key={i}>
               <SidebarItem depth={0} item={group} onClick={onClickItem} />
             </div>
           ))}
@@ -165,13 +165,8 @@ function SidebarItem(props: {
           {item.items &&
             item.items.length > 0 &&
             depth < 5 &&
-            item.items.map((item) => (
-              <SidebarItem
-                depth={depth + 1}
-                item={item}
-                key={item.link ?? item.text}
-                onClick={onClick}
-              />
+            item.items.map((item, i) => (
+              <SidebarItem depth={depth + 1} item={item} key={i} onClick={onClick} />
             ))}
         </div>
       </section>
