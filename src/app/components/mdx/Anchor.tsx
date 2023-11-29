@@ -15,7 +15,12 @@ export function Anchor(props: AnchorProps) {
   const { children, href } = props
 
   // Heading slug links
-  if (children && typeof children === 'object' && 'props' in children)
+  if (
+    children &&
+    typeof children === 'object' &&
+    'props' in children &&
+    children.props['data-autolink-icon']
+  )
     return <Autolink className={clsx(props.className, styles.root)} {...props} />
 
   // ID links

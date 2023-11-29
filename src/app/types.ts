@@ -16,7 +16,7 @@ export type Frontmatter = {
   description?: string
   layout?: 'minimal'
   logo?: boolean
-  outline?: boolean
+  outline?: number | boolean
   sidebar?: boolean
   title?: string
 }

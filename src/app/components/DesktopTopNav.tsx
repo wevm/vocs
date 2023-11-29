@@ -7,6 +7,7 @@ import { useConfig } from '../hooks/useConfig.js'
 import { usePageData } from '../hooks/usePageData.js'
 import { useTheme } from '../hooks/useTheme.js'
 import { visibleDark, visibleLight } from '../styles/utils.css.js'
+import { DesktopSearch } from './DesktopSearch.js'
 import * as styles from './DesktopTopNav.css.js'
 import { Icon } from './Icon.js'
 import { NavLogo } from './NavLogo.js'
@@ -16,7 +17,6 @@ import { GitHub } from './icons/GitHub.js'
 import { Moon } from './icons/Moon.js'
 import { Sun } from './icons/Sun.js'
 import { X } from './icons/X.js'
-import { DesktopSearch } from './DesktopSearch.js'
 
 DesktopTopNav.Curtain = Curtain
 
@@ -24,11 +24,18 @@ export function DesktopTopNav() {
   const { frontmatter = {} } = usePageData()
   const config = useConfig()
 
+  const showLogo = (() => {
+    if ('sidebar' in frontmatter) return frontmatter.sidebar === false
+    if ('logo' in frontmatter) return frontmatter.logo === true
+    if (frontmatter.layout === 'minimal') return true
+    return false
+  })()
+
   return (
     <div className={styles.root}>
       <DesktopSearch />
 
-      {(frontmatter.logo || !('logo' in frontmatter)) && (
+      {showLogo && (
         <div className={styles.logoWrapper}>
           <div className={styles.logo}>
             <RRLink

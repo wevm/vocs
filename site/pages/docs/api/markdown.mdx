@@ -1,0 +1,643 @@
+import { Example } from '../../../components/Example'
+
+# Markdown [Features and syntax of Markdown in Vocs]
+
+## Blockquote
+
+:::code-group
+
+<div data-title="Preview">
+> Blockquotes are very handy in email to emulate reply text.
+> This line is part of the same quote.
+
+> This is a very long line that will still be quoted properly when it wraps. Oh boy let's keep writing to make sure this is long enough to actually wrap for everyone. Oh, you can *put* **Markdown** into a blockquote. 
+</div>
+
+```md [Code]
+> Blockquotes are very handy in email to emulate reply text.
+> This line is part of the same quote.
+
+> This is a very long line that will still be quoted properly when it wraps. Oh boy let's keep writing to make sure this is long enough to actually wrap for everyone. Oh, you can *put* **Markdown** into a blockquote. 
+```
+
+:::
+
+## Callouts
+
+::::code-group
+
+<div data-title="Preview">
+:::note
+This is a note callout. [Link](https://google.com)
+:::
+
+:::info
+This is an info callout. [Link](https://google.com)
+:::
+
+:::warning
+This is a warning callout. [Link](https://google.com)
+:::
+
+:::danger
+This is a danger callout. [Link](https://google.com)
+:::
+
+:::tip
+This is a tip callout. [Link](https://google.com)
+:::
+
+:::success
+This is a success callout. [Link](https://google.com)
+:::
+
+:::tip[Handy Tip]
+This is a tip callout with title.
+:::
+</div>
+
+```md [Code]
+:::note
+This is a note callout. [Link](https://google.com)
+:::
+
+:::info
+This is an info callout. [Link](https://google.com)
+:::
+
+:::warning
+This is a warning callout. [Link](https://google.com)
+:::
+
+:::danger
+This is a danger callout. [Link](https://google.com)
+:::
+
+:::tip
+This is a tip callout. [Link](https://google.com)
+:::
+
+:::success
+This is a success callout. [Link](https://google.com)
+:::
+
+:::tip[Handy Tip]
+This is a tip callout with title.
+:::
+
+```
+
+::::
+
+## Code Blocks
+
+### Default
+
+#### Preview
+
+```js
+console.log("hello world")
+```
+
+#### Code
+
+````md
+```js
+console.log("hello world")
+```
+````
+
+### Titles
+
+#### Preview
+
+```bash [Terminal]
+npm i vocs
+```
+
+#### Code
+
+````md
+```bash [Terminal]
+npm i vocs
+```
+````
+
+### Line focus
+
+#### Preview
+
+```ts [Line Focus]
+// 1. Import modules.
+import { createPublicClient, http } from 'viem' 
+import { mainnet } from 'viem/chains'
+
+// 2. Set up your client with desired chain & transport.
+const client = createPublicClient({
+  chain: mainnet,
+  transport: http(),
+})
+
+// 3. Consume an action! // [!code focus]
+const blockNumber = await client.getBlockNumber() // [!code focus]
+```
+
+#### Code
+
+````md
+```ts [Line Focus]
+// 1. Import modules.
+import { createPublicClient, http } from 'viem' 
+import { mainnet } from 'viem/chains'
+
+// 2. Set up your client with desired chain & transport.
+const client = createPublicClient({
+  chain: mainnet,
+  transport: http(),
+})
+
+// 3. Consume an action! !! [!code focus]
+const blockNumber = await client.getBlockNumber() !! [!code focus]
+```
+````
+
+### Line highlights
+
+#### Preview
+
+```ts [example.ts]
+type Example = string // [!code hl]
+const example: Example = 'example'
+```
+
+#### Code
+
+````md
+```ts [example.ts]
+type Example = string !! [!code hl]
+const example: Example = 'example'
+```
+````
+
+### Line numbers
+
+#### Preview
+ 
+```ts [Line Highlight & Numbers] showLineNumbers {2,3,6-9}
+// 1. Import modules.
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+// 2. Set up your client with desired chain & transport.
+const client = createPublicClient({
+  chain: mainnet,
+  transport: http(),
+})
+
+// 3. Consume an action!
+const blockNumber = await client.getBlockNumber()
+```
+
+#### Code
+
+````md
+```ts [Line Highlight & Numbers] showLineNumbers {2,3,6-9}
+// 1. Import modules.
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+// 2. Set up your client with desired chain & transport.
+const client = createPublicClient({
+  chain: mainnet,
+  transport: http(),
+})
+
+// 3. Consume an action!
+const blockNumber = await client.getBlockNumber()
+```
+````
+
+### Word focus
+
+#### Preview
+
+```ts [Word Focus] /mainnet/1-2 /client/2-3
+// 1. Import modules.
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+// 2. Set up your client with desired chain & transport.
+const client = createPublicClient({
+  chain: mainnet,
+  transport: http(),
+})
+
+// 3. Consume an action!
+const blockNumber = await client.getBlockNumber()
+```
+
+#### Code
+
+````md
+```ts [Word Focus] /mainnet/1-2 /client/2-3
+// 1. Import modules.
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+// 2. Set up your client with desired chain & transport.
+const client = createPublicClient({
+  chain: mainnet,
+  transport: http(),
+})
+
+// 3. Consume an action!
+const blockNumber = await client.getBlockNumber()
+```
+````
+
+#### Diffs
+
+##### Preview
+
+```ts [Diff]
+// 1. Import modules.
+import { createPublicClient } from 'viem' // [!code --]
+import { createPublicClient, http } from 'viem' // [!code ++]
+import { mainnet } from 'viem/chains'
+
+// 2. Set up your client with desired chain & transport.
+const client = createPublicClient({
+  chain: mainnet,
+  transport: http(),
+})
+
+// 3. Consume an action! 
+const blockNumber = await client.getBlockNumber()
+```
+
+#### Code
+
+````md
+```ts [Diff]
+// 1. Import modules.
+import { createPublicClient } from 'viem' !! [!code --]
+import { createPublicClient, http } from 'viem' !! [!code ++]
+import { mainnet } from 'viem/chains'
+
+// 2. Set up your client with desired chain & transport.
+const client = createPublicClient({
+  chain: mainnet,
+  transport: http(),
+})
+
+// 3. Consume an action! 
+const blockNumber = await client.getBlockNumber()
+```
+````
+
+## Code Groups
+
+#### Preview
+
+:::code-group
+```bash [npm]
+npm i viem
+```
+
+```bash [pnpm]
+pnpm i viem
+```
+
+```bash [bun]
+bun i viem
+```
+:::
+
+#### Code
+
+````md
+:::code-group
+
+```bash [npm]
+npm i viem
+```
+
+```bash [pnpm]
+pnpm i viem
+```
+
+```bash [bun]
+bun i viem
+```
+
+:::
+````
+
+### HTML/React Previews
+
+#### Preview
+
+:::code-group
+
+<div data-title="Preview">
+  <Example />
+</div>
+
+```tsx [example.tsx]
+<div>test</div>
+```
+
+:::
+
+
+#### Code
+
+````mdx
+import { Example } from './components/Example'
+
+:::code-group
+
+<div data-title="Preview">
+  <Example />
+</div>
+
+```tsx [example.tsx]
+<div>test</div>
+```
+
+:::
+````
+
+## Details
+
+:::::code-group
+
+<div data-title="Preview">
+:::details[See more]
+gotcha!
+:::
+
+<div style={{ height: '16px' }} />
+
+::::note
+:::details
+gotcha!
+:::
+::::
+
+::::danger[Error]
+An error occurred!
+
+:::details[Stack trace]
+gotcha!
+:::
+::::
+</div>
+
+```md [Code]
+:::details[See more]
+gotcha!
+:::
+
+::::note
+:::details
+gotcha!
+:::
+::::
+
+::::danger[Error]
+An error occurred!
+
+:::details[Stack trace]
+gotcha!
+:::
+::::
+```
+
+:::::
+
+## Emphasis
+
+:::code-group
+
+<div data-title="Preview">
+<p>Emphasis, aka italics, with *asterisks* or _underscores_.</p>
+
+<p>Strong emphasis, aka bold, with **asterisks** or __underscores__.</p>
+
+<p>Combined emphasis with **asterisks and _underscores_**.</p>
+
+<p>Strikethrough uses two tildes. ~~Scratch this.~~</p>
+</div>
+
+```md [Code]
+Emphasis, aka italics, with *asterisks* or _underscores_.
+
+Strong emphasis, aka bold, with **asterisks** or __underscores__.
+
+Combined emphasis with **asterisks and _underscores_**.
+
+Strikethrough uses two tildes. ~~Scratch this.~~
+```
+
+:::
+
+## Headings
+
+Headings are rendered as `<h1>` to `<h6>` tags corresponding to the number of `#` characters in the heading.
+
+```md
+# Heading 1
+
+## Heading 2
+
+### Heading 3
+
+#### Heading 4
+
+##### Heading 5
+
+###### Heading 6
+```
+
+## Images
+
+:::code-group
+
+<div data-title="Preview">
+![alt text](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Logo Title Text 1")
+</div>
+
+```md [Code]
+![alt text](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Logo Title Text 1")
+```
+
+:::
+
+## Inline Code
+
+:::code-group
+
+<div data-title="Preview">
+<p>Inline `code` has `back-ticks around` it.</p>
+
+<p>Inline [`code`]() with link.</p>
+
+Inline `console.log("hello world"){:js}` highlighted code
+</div>
+
+```md [Code]
+Inline `code` has `back-ticks around` it.
+
+Inline [`code`]() with link.
+
+Inline `console.log("hello world"){:js}` highlighted code
+```
+
+:::
+
+## Links
+
+:::code-group
+
+<div data-title="Preview">
+<p>[Internal link](/api/config)</p>
+
+<p>[External link](https://google.com)</p>
+
+<p>www.example.com, https://example.com, and contact@example.com.</p>
+</div>
+
+```md [Code]
+[Internal link](/api/config)
+
+[External link](https://google.com)
+
+www.example.com, https://example.com, and contact@example.com.
+```
+
+:::
+
+## Lists
+
+:::code-group
+
+<div data-title="Preview">
+1. First ordered list item
+2. Another item
+    - Unordered sub-list.
+      - Unordered sub-list.
+        - Unordered sub-list.
+      - Unordered sub-list.
+    - Unordered sub-list.
+    - Unordered sub-list.
+3. Actual numbers don't matter, just that it's a number
+    1. Ordered sub-list
+        1. Ordered sub-list
+    2. Ordered sub-list
+    3. Ordered sub-list
+4. And another item.
+</div>
+
+```md [Code]
+1. First ordered list item
+2. Another item
+    - Unordered sub-list.
+      - Unordered sub-list.
+        - Unordered sub-list.
+      - Unordered sub-list.
+    - Unordered sub-list.
+    - Unordered sub-list.
+3. Actual numbers don't matter, just that it's a number
+    1. Ordered sub-list
+        1. Ordered sub-list
+    2. Ordered sub-list
+    3. Ordered sub-list
+4. And another item.
+```
+
+:::
+
+## Steps
+
+#### Preview
+
+::::steps
+##### Step one
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce vestibulum ante non neque convallis tempor. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Nam a iaculis libero.
+
+##### Step two
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce vestibulum ante non neque convallis tempor. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Nam a iaculis libero.
+
+:::code-group
+```tsx [console.log]
+console.log('hello world')
+```
+
+```tsx [alert]
+alert('hello world')
+```
+:::
+
+:::info
+test
+:::
+
+##### Step three
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce vestibulum ante non neque convallis tempor. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Nam a iaculis libero.
+::::
+
+#### Code
+
+````md
+::::steps
+### Step one
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce vestibulum ante non neque convallis tempor. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Nam a iaculis libero.
+
+### Step two
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce vestibulum ante non neque convallis tempor. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Nam a iaculis libero.
+
+:::code-group
+```tsx [console.log]
+console.log('hello world')
+```
+
+```tsx [alert]
+alert('hello world')
+```
+:::
+
+:::info
+test
+:::
+
+### Step three
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce vestibulum ante non neque convallis tempor. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Nam a iaculis libero.
+::::
+````
+
+## Tables
+
+#### Preview
+
+| Tables        | Are           | Cool  |
+| ------------- |:-------------:| -----:|
+| col 3 is      | right-aligned | $1600 |
+| col 2 is      | centered      |   $12 |
+| zebra stripes | are neat      |    $1 |
+
+#### Code
+
+```md
+| Tables        | Are           | Cool  |
+| ------------- |:-------------:| -----:|
+| col 3 is      | right-aligned | $1600 |
+| col 2 is      | centered      |   $12 |
+| zebra stripes | are neat      |    $1 |
+```

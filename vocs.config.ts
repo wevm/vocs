@@ -50,6 +50,10 @@ export default defineConfig({
           text: 'Frontmatter',
           link: '/docs/api/frontmatter',
         },
+        {
+          text: 'Markdown',
+          link: '/docs/api/markdown',
+        },
       ],
     },
   ],
