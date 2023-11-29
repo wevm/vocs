@@ -71,6 +71,15 @@ async function head() {
 
   const helmet = Helmet.renderStatic()
 
+  let meta = helmet.meta.toString()
+  const match = helmet.meta.toString().match(/property="og:image" content="(.*)"/)
+  if (match?.[1]) {
+    meta = meta.replace(
+      /property="og:image" content="(.*)"/,
+      `property="og:image" content="${match[1].replace(/&amp;/g, '&')}"`,
+    )
+  }
+
   return `
     ${helmet.title.toString()}
     ${helmet.meta.toString()}

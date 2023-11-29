@@ -7,6 +7,13 @@ type RequiredProperties = 'blogDir' | 'root' | 'title' | 'titleTemplate'
 export type Config<parsed extends boolean = false> = RequiredBy<
   {
     /**
+     * Base URL.
+     *
+     * @example
+     * https://viem.sh
+     */
+    baseUrl?: string
+    /**
      * Path to blog pages relative to project root.
      * Used to extract posts from the filesystem.
      *
@@ -39,6 +46,14 @@ export type Config<parsed extends boolean = false> = RequiredBy<
      * Logo URL.
      */
     logoUrl?: LogoUrl
+    /**
+     * OG Image URL. `null` to disable.
+     *
+     * Template variables: `%logo`, `%title`, `%description`
+     *
+     * @default "https://vocs.dev/api/og?logo=%logo&title=%title&description=%description"
+     */
+    ogImageUrl?: string
     /**
      * Documentation root directory. Can be an absolute path, or a path relative from
      * the location of the config file itself.
@@ -79,6 +94,7 @@ export function defineConfig({
   blogDir = './pages/blog',
   font,
   head,
+  ogImageUrl = 'https://vocs.dev/api/og?logo=%logo&title=%title&description=%description',
   root = 'docs',
   title = 'Docs',
   titleTemplate = `%s – ${title}`,
@@ -88,6 +104,7 @@ export function defineConfig({
     blogDir,
     font,
     head,
+    ogImageUrl,
     root,
     title,
     titleTemplate,

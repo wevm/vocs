@@ -4,8 +4,8 @@ import { ScrollRestoration } from 'react-router-dom'
 import { Root as ConsumerRoot } from 'virtual:root'
 
 import { useConfig } from './hooks/useConfig.js'
-import { type Module } from './types.js'
 import { PageDataContext } from './hooks/usePageData.js'
+import { type Module } from './types.js'
 
 export function Root(props: {
   children: ReactNode
@@ -30,7 +30,7 @@ export function Root(props: {
 function Head({ frontmatter }: { frontmatter: Module['frontmatter'] }) {
   const config = useConfig()
 
-  const { font, iconUrl } = config
+  const { baseUrl, font, iconUrl, logoUrl, ogImageUrl } = config
   const { title, description = config.description } = frontmatter || {}
 
   const enableTitleTemplate = config.title && config.title.toLowerCase() !== title?.toLowerCase()
@@ -42,13 +42,19 @@ function Head({ frontmatter }: { frontmatter: Module['frontmatter'] }) {
         defaultTitle={config.title}
         titleTemplate={enableTitleTemplate ? config.titleTemplate : undefined}
       >
-        {title && <title>{title}</title>}
+        {title && (
+          <>
+            <title>{title}</title>
+            <meta property="og:title" content={title} />
+          </>
+        )}
       </Helmet>
 
       {/* Description */}
       {description && (
         <Helmet>
           <meta name="description" content={description} />
+          <meta property="og:description" content={description} />
         </Helmet>
       )}
 
@@ -71,6 +77,34 @@ function Head({ frontmatter }: { frontmatter: Module['frontmatter'] }) {
             </Helmet>
           )}
         </>
+      )}
+
+      <Helmet>
+        <meta property="og:type" content="website" />
+      </Helmet>
+
+      {/* Base URL */}
+      {baseUrl && (
+        <Helmet>
+          <base href={baseUrl} />
+          <meta property="og:url" content={baseUrl} />
+        </Helmet>
+      )}
+
+      {/* OG Image */}
+      {ogImageUrl && (
+        <Helmet>
+          <meta
+            property="og:image"
+            content={ogImageUrl
+              .replace(
+                '%logo',
+                `${baseUrl}${typeof logoUrl === 'string' ? logoUrl : logoUrl?.dark || ''}`,
+              )
+              .replace('%title', title || config.title || '')
+              .replace('%description', description || '')}
+          />
+        </Helmet>
       )}
 
       {/* Fonts */}

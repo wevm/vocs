@@ -29,9 +29,7 @@ export default async function handler(request: Request) {
       {logo && <img src={logo} height="40px" />}
       <div style={{ fontSize: '32px', fontWeight: 'bold', marginTop: 48 }}>{title}</div>
       {description && (
-        <div style={{ opacity: 0.8, fontSize: '24px', marginTop: 12 }}>
-          Define global metadata for your documentation
-        </div>
+        <div style={{ opacity: 0.8, fontSize: '24px', marginTop: 12 }}>{description}</div>
       )}
     </div>,
     {
