@@ -92,6 +92,9 @@ function Head({ frontmatter }: { frontmatter: Module['frontmatter'] }) {
           rel="stylesheet"
         />
       )}
+
+      {/* Twitter */}
+      <meta name="twitter:card" content="summary_large_image" />
     </Helmet>
   )
 }
