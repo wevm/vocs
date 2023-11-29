@@ -36,10 +36,6 @@ export default defineConfig({
       link: '/docs',
     },
     {
-      text: 'Kitchen Sink',
-      link: '/docs/kitchen-sink',
-    },
-    {
       text: 'API',
       items: [
         {
