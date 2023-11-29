@@ -5,6 +5,7 @@ import * as vite from 'vite'
 
 import { prerender } from './plugins/prerender.js'
 import { resolveVocsConfig } from './utils/resolveVocsConfig.js'
+import { spawn } from 'child_process'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -69,6 +70,7 @@ export async function build({
   fs.copySync(resolve(__dirname, '../app/public'), outDir_resolved)
 
   hooks?.onScriptsBuildStart?.()
+
   await vite.build({
     build: {
       lib: {
@@ -83,5 +85,16 @@ export async function build({
     configFile: undefined,
     logLevel,
   })
+
+  // TODO: Custom logging
+  const cwd = dirname(fileURLToPath(import.meta.url))
+  await new Promise<void>((resolve) => {
+    spawn('npx', ['-y', 'pagefind', '--site', outDir_resolved], {
+      stdio: 'inherit',
+      shell: true,
+      cwd,
+    }).on('close', () => resolve())
+  })
+
   hooks?.onScriptsBuildEnd?.()
 }
