@@ -1,5 +1,6 @@
 packages:
   - 'create-vocs'
+  - 'og'
   - 'playgrounds/*'
   - 'site'
   - 'src'

@@ -30,6 +30,7 @@
     "@types/react-dom": "^18.2.13",
     "@types/react-helmet": "^6.1.7",
     "@types/serve-static": "^1.15.3",
+    "@vercel/og": "^0.5.20",
     "bun": "^1.0.14",
     "bun-types": "^1.0.6",
     "fs-extra": "^11.1.1",
@@ -39,7 +40,8 @@
     "react-dom": "^18.2.0",
     "rimraf": "^5.0.5",
     "simple-git-hooks": "^2.9.0",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "vercel": "^32.5.6"
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm format && pnpm lint"
