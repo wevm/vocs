@@ -1,6 +1,7 @@
 import { clsx } from 'clsx'
 import { forwardRef } from 'react'
 import { Link as RRLink, type LinkProps as RRLinkProps } from 'react-router-dom'
+import { routes as routes_virtual } from 'virtual:routes'
 
 import { ExternalLink } from './ExternalLink.js'
 import * as styles from './Link.css.js'
@@ -38,6 +39,8 @@ export const Link = forwardRef((props: LinkProps, ref) => {
     <RRLink
       {...(props as RRLinkProps)}
       ref={ref as any}
+      onFocus={() => routes_virtual.find((route_virtual) => route_virtual.path === to)?.lazy()}
+      onMouseOver={() => routes_virtual.find((route_virtual) => route_virtual.path === to)?.lazy()}
       className={clsx(
         props.className,
         styles.root,

@@ -8,6 +8,7 @@ import {
   useState,
 } from 'react'
 import { Link, useLocation, useMatch } from 'react-router-dom'
+import { routes as routes_virtual } from 'virtual:routes'
 
 import { type SidebarItem as SidebarItemType } from '../../config.js'
 import { useConfig } from '../hooks/useConfig.js'
@@ -127,6 +128,12 @@ function SidebarItem(props: {
               <Link
                 data-active={Boolean(match)}
                 onClick={onClick}
+                onFocus={() =>
+                  routes_virtual.find((route_virtual) => route_virtual.path === item.link)?.lazy()
+                }
+                onMouseOver={() =>
+                  routes_virtual.find((route_virtual) => route_virtual.path === item.link)?.lazy()
+                }
                 className={clsx(
                   depth === 0 ? styles.sectionTitle : styles.item,
                   hasActiveChildItem && styles.sectionHeaderActive,
@@ -175,7 +182,18 @@ function SidebarItem(props: {
   return (
     <>
       {item.link ? (
-        <Link data-active={Boolean(match)} onClick={onClick} className={styles.item} to={item.link}>
+        <Link
+          data-active={Boolean(match)}
+          onClick={onClick}
+          onFocus={() =>
+            routes_virtual.find((route_virtual) => route_virtual.path === item.link)?.lazy()
+          }
+          onMouseOver={() =>
+            routes_virtual.find((route_virtual) => route_virtual.path === item.link)?.lazy()
+          }
+          className={styles.item}
+          to={item.link}
+        >
           {item.text}
         </Link>
       ) : (
