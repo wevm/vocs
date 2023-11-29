@@ -28,11 +28,11 @@ export default async function handler(request: Request) {
     >
       {/* biome-ignore lint/a11y/useAltText: */}
       {logo && <img src={logo} height="60px" style={{ marginTop: 48 }} />}
-      <div style={{ fontSize: '36px', fontWeight: 'bold', marginTop: 48, marginBottom: -12 }}>
+      <div style={{ fontSize: '42px', fontWeight: 'bold', marginTop: 48, marginBottom: -12 }}>
         {title}
       </div>
       {description && (
-        <div style={{ opacity: 0.8, fontSize: '24px', marginTop: 24 }}>{description}</div>
+        <div style={{ opacity: 0.8, fontSize: '32px', marginTop: 24 }}>{description}</div>
       )}
     </div>,
     {

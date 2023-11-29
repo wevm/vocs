@@ -36,93 +36,63 @@ function Head({ frontmatter }: { frontmatter: Module['frontmatter'] }) {
   const enableTitleTemplate = config.title && config.title.toLowerCase() !== title?.toLowerCase()
 
   return (
-    <>
+    <Helmet
+      defaultTitle={config.title}
+      titleTemplate={enableTitleTemplate ? config.titleTemplate : undefined}
+    >
       {/* Title */}
-      <Helmet
-        defaultTitle={config.title}
-        titleTemplate={enableTitleTemplate ? config.titleTemplate : undefined}
-      >
-        {title && (
-          <>
-            <title>{title}</title>
-            <meta property="og:title" content={title} />
-          </>
-        )}
-      </Helmet>
-
-      {/* Description */}
-      {description && (
-        <Helmet>
-          <meta name="description" content={description} />
-          <meta property="og:description" content={description} />
-        </Helmet>
-      )}
-
-      {/* Icons */}
-      {iconUrl && (
-        <>
-          {typeof iconUrl === 'string' ? (
-            <Helmet>
-              <link rel="icon" href={iconUrl} type={getIconType(iconUrl)} />
-            </Helmet>
-          ) : (
-            <Helmet>
-              <link rel="icon" href={iconUrl.light} type={getIconType(iconUrl.light)} />
-              <link
-                rel="icon"
-                href={iconUrl.dark}
-                type={getIconType(iconUrl.dark)}
-                media="(prefers-color-scheme: dark)"
-              />
-            </Helmet>
-          )}
-        </>
-      )}
-
-      <Helmet>
-        <meta property="og:type" content="website" />
-      </Helmet>
+      {title && <title>{title}</title>}
 
       {/* Base URL */}
-      {baseUrl && (
-        <Helmet>
-          <base href={baseUrl} />
-          <meta property="og:url" content={baseUrl} />
-        </Helmet>
+      {baseUrl && <base href={baseUrl} />}
+
+      {/* Description */}
+      {description !== 'undefined' && <meta name="description" content={description} />}
+
+      {/* Icons */}
+      {iconUrl && typeof iconUrl === 'string' && (
+        <link rel="icon" href={iconUrl} type={getIconType(iconUrl)} />
+      )}
+      {iconUrl && typeof iconUrl !== 'string' && (
+        <link rel="icon" href={iconUrl.light} type={getIconType(iconUrl.light)} />
+      )}
+      {iconUrl && typeof iconUrl !== 'string' && (
+        <link
+          rel="icon"
+          href={iconUrl.dark}
+          type={getIconType(iconUrl.dark)}
+          media="(prefers-color-scheme: dark)"
+        />
       )}
 
-      {/* OG Image */}
+      {/* Open Graph */}
+      <meta property="og:type" content="website" />
+      <meta property="og:title" content={title || config.title} />
+      {baseUrl && <meta property="og:url" content={baseUrl} />}
+      {description !== 'undefined' && <meta property="og:description" content={description} />}
       {ogImageUrl && (
-        <Helmet>
-          <meta
-            property="og:image"
-            content={ogImageUrl
-              .replace(
-                '%logo',
-                `${baseUrl}${typeof logoUrl === 'string' ? logoUrl : logoUrl?.dark || ''}`,
-              )
-              .replace('%title', title || config.title || '')
-              .replace('%description', description || '')}
-          />
-        </Helmet>
+        <meta
+          property="og:image"
+          content={ogImageUrl
+            .replace(
+              '%logo',
+              `${baseUrl}${typeof logoUrl === 'string' ? logoUrl : logoUrl?.dark || ''}`,
+            )
+            .replace('%title', title || config.title || '')
+            .replace('%description', (description !== 'undefined' ? description : '') || '')}
+        />
       )}
 
       {/* Fonts */}
-      {font && (
-        <>
-          {font.google && (
-            <Helmet>
-              <link rel="preconnect" href="https://fonts.googleapis.com" />
-              <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-              <link
-                href={`https://fonts.googleapis.com/css2?family=${font.google}:wght@300;400;500&display=swap`}
-                rel="stylesheet"
-              />
-            </Helmet>
-          )}
-        </>
+      {font?.google && <link rel="preconnect" href="https://fonts.googleapis.com" />}
+      {font?.google && <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />}
+      {font?.google && (
+        <link
+          href={`https://fonts.googleapis.com/css2?family=${font.google}:wght@300;400;500&display=swap`}
+          rel="stylesheet"
+        />
       )}
-    </>
+    </Helmet>
   )
 }
 
