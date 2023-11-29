@@ -82,7 +82,7 @@ async function head() {
 
   return `
     ${helmet.title.toString()}
-    ${helmet.meta.toString()}
+    ${meta}
     ${helmet.link.toString()}
     ${helmet.style.toString()}
     ${helmet.script.toString()}
