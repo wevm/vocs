@@ -15,11 +15,9 @@ export function Pagefind(props: { id?: string }) {
       const { PagefindUI } = await import('@pagefind/default-ui')
       new PagefindUI({
         element: `#${id}`,
-        processResult(result: { url: string }) {
-          result.url = result.url.replace('.html', '')
-          return result
-        },
         showSubResults: true,
+        showImages: false,
+        resetStyles: false,
       })
     })
   }, [id])
