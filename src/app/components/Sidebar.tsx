@@ -7,13 +7,13 @@ import {
   useMemo,
   useState,
 } from 'react'
-import { Link, useLocation, useMatch } from 'react-router-dom'
-import { routes as routes_virtual } from 'virtual:routes'
+import { useLocation, useMatch } from 'react-router-dom'
 
 import { type SidebarItem as SidebarItemType } from '../../config.js'
-import { useConfig } from '../hooks/useConfig.js'
+import { useSidebar } from '../hooks/useSidebar.js'
 import { Icon } from './Icon.js'
 import { NavLogo } from './NavLogo.js'
+import { RouterLink } from './RouterLink.js'
 import * as styles from './Sidebar.css.js'
 import { ChevronRight } from './icons/ChevronRight.js'
 
@@ -23,8 +23,7 @@ export function Sidebar(props: {
 }) {
   const { className, onClickItem } = props
 
-  const config = useConfig()
-  const { sidebar } = config
+  const sidebar = useSidebar()
 
   if (!sidebar) return null
 
@@ -34,9 +33,9 @@ export function Sidebar(props: {
     <aside className={clsx(styles.root, className)}>
       <div className={styles.logoWrapper}>
         <div className={styles.logo}>
-          <Link to="/" style={{ alignItems: 'center', display: 'flex', height: '100%' }}>
+          <RouterLink to="/" style={{ alignItems: 'center', display: 'flex', height: '100%' }}>
             <NavLogo />
-          </Link>
+          </RouterLink>
         </div>
         <div className={styles.divider} />
       </div>
@@ -125,15 +124,9 @@ function SidebarItem(props: {
         >
           {item.text &&
             (item.link ? (
-              <Link
+              <RouterLink
                 data-active={Boolean(match)}
                 onClick={onClick}
-                onFocus={() =>
-                  routes_virtual.find((route_virtual) => route_virtual.path === item.link)?.lazy()
-                }
-                onMouseOver={() =>
-                  routes_virtual.find((route_virtual) => route_virtual.path === item.link)?.lazy()
-                }
                 className={clsx(
                   depth === 0 ? styles.sectionTitle : styles.item,
                   hasActiveChildItem && styles.sectionHeaderActive,
@@ -141,7 +134,7 @@ function SidebarItem(props: {
                 to={item.link}
               >
                 {item.text}
-              </Link>
+              </RouterLink>
             ) : (
               <div className={clsx(depth === 0 ? styles.sectionTitle : styles.item)}>
                 {item.text}
@@ -182,20 +175,14 @@ function SidebarItem(props: {
   return (
     <>
       {item.link ? (
-        <Link
+        <RouterLink
           data-active={Boolean(match)}
           onClick={onClick}
-          onFocus={() =>
-            routes_virtual.find((route_virtual) => route_virtual.path === item.link)?.lazy()
-          }
-          onMouseOver={() =>
-            routes_virtual.find((route_virtual) => route_virtual.path === item.link)?.lazy()
-          }
           className={styles.item}
           to={item.link}
         >
           {item.text}
-        </Link>
+        </RouterLink>
       ) : (
         <div className={styles.item}>{item.text}</div>
       )}

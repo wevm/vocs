@@ -1,6 +1,6 @@
 import clsx from 'clsx'
 import { type ComponentType } from 'react'
-import { Link as RRLink, useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 
 import type { ParsedSocialItem } from '../../config.js'
 import { useConfig } from '../hooks/useConfig.js'
@@ -12,6 +12,7 @@ import * as styles from './DesktopTopNav.css.js'
 import { Icon } from './Icon.js'
 import { NavLogo } from './NavLogo.js'
 import * as NavigationMenu from './NavigationMenu.js'
+import { RouterLink } from './RouterLink.js'
 import { Discord } from './icons/Discord.js'
 import { GitHub } from './icons/GitHub.js'
 import { Moon } from './icons/Moon.js'
@@ -38,12 +39,12 @@ export function DesktopTopNav() {
       {showLogo && (
         <div className={styles.logoWrapper}>
           <div className={styles.logo}>
-            <RRLink
+            <RouterLink
               to="/"
               style={{ alignItems: 'center', display: 'flex', height: '56px', marginTop: '4px' }}
             >
               <NavLogo />
-            </RRLink>
+            </RouterLink>
           </div>
         </div>
       )}

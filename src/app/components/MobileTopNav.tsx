@@ -1,18 +1,21 @@
 import * as Accordion from '@radix-ui/react-accordion'
 import clsx from 'clsx'
 import { type ComponentType, useMemo, useState } from 'react'
-import { Link as RRLink, useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 
 import type * as Config from '../../config.js'
 import { useConfig } from '../hooks/useConfig.js'
 import { usePageData } from '../hooks/usePageData.js'
+import { useSidebar } from '../hooks/useSidebar.js'
 import { Icon } from './Icon.js'
 import { Link } from './Link.js'
+import { MobileSearch } from './MobileSearch.js'
 import * as styles from './MobileTopNav.css.js'
 import { NavLogo } from './NavLogo.js'
 import * as NavigationMenu from './NavigationMenu.js'
 import { Outline } from './Outline.js'
 import { Popover } from './Popover.js'
+import { RouterLink } from './RouterLink.js'
 import { Sidebar } from './Sidebar.js'
 import { ChevronDown } from './icons/ChevronDown.js'
 import { ChevronRight } from './icons/ChevronRight.js'
@@ -21,7 +24,6 @@ import { Discord } from './icons/Discord.js'
 import { GitHub } from './icons/GitHub.js'
 import { Menu } from './icons/Menu.js'
 import { X } from './icons/X.js'
-import { MobileSearch } from './MobileSearch.js'
 
 MobileTopNav.Curtain = Curtain
 
@@ -39,9 +41,9 @@ export function MobileTopNav() {
       <div className={styles.section}>
         {(frontmatter.logo || !('logo' in frontmatter)) && (
           <div className={styles.logo}>
-            <RRLink to="/" style={{ alignItems: 'center', display: 'flex', height: '100%' }}>
+            <RouterLink to="/" style={{ alignItems: 'center', display: 'flex', height: '100%' }}>
               <NavLogo />
-            </RRLink>
+            </RouterLink>
           </div>
         )}
       </div>
@@ -192,21 +194,21 @@ export function Curtain({
 }: {
   enableScrollToTop?: boolean
 }) {
-  const config = useConfig()
-  const { frontmatter = {} } = usePageData()
   const { pathname } = useLocation()
+  const { frontmatter = {} } = usePageData()
+  const sidebar = useSidebar()
 
   const [isOutlineOpen, setOutlineOpen] = useState(false)
   const [isSidebarOpen, setSidebarOpen] = useState(false)
 
   const sidebarItemTitle = useMemo(() => {
-    if (!config.sidebar || frontmatter.layout === 'minimal') return
+    if (!sidebar || frontmatter.layout === 'minimal') return
     const sidebarItem = getSidebarItemFromPathname({
-      sidebar: config.sidebar,
+      sidebar,
       pathname,
     })
     return sidebarItem?.text
-  }, [config, frontmatter, pathname])
+  }, [frontmatter, pathname, sidebar])
 
   const contentTitle = useMemo(() => {
     if (typeof window === 'undefined') return
@@ -271,7 +273,7 @@ export function Curtain({
 function getSidebarItemFromPathname({
   sidebar,
   pathname: pathname_,
-}: { sidebar: Config.Sidebar; pathname: string }): Config.SidebarItem | undefined {
+}: { sidebar: Config.SidebarItem[]; pathname: string }): Config.SidebarItem | undefined {
   const pathname = pathname_.replace(/(.+)\/$/, '$1')
   for (const item of sidebar) {
     if (item.link === pathname) return item

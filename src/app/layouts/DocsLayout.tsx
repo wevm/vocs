@@ -9,8 +9,8 @@ import { MobileTopNav } from '../components/MobileTopNav.js'
 import { Outline } from '../components/Outline.js'
 import { Sidebar } from '../components/Sidebar.js'
 import { SkipLink, skipLinkId } from '../components/SkipLink.js'
-import { useConfig } from '../hooks/useConfig.js'
 import { usePageData } from '../hooks/usePageData.js'
+import { useSidebar } from '../hooks/useSidebar.js'
 import * as styles from './DocsLayout.css.js'
 
 export function DocsLayout({
@@ -18,8 +18,7 @@ export function DocsLayout({
 }: {
   children: ReactNode
 }) {
-  const config = useConfig()
-  const { sidebar } = config
+  const sidebar = useSidebar()
 
   const { frontmatter = {} } = usePageData()
 

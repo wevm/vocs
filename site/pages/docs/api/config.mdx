@@ -273,6 +273,28 @@ export default defineConfig({
 })
 ```
 
+You can also specify an object for the sidebar with paths as keys and sidebar items as values.
+
+This will render a different sidebar depending on the path the user is on.
+
+```tsx
+import { defineConfig } from 'vocs'
+
+export default defineConfig({
+  sidebar: { // [!code focus]
+    '/guide': [{ // [!code focus]
+      text: 'Getting Started', // [!code focus]
+      link: '/guide', // [!code focus]
+    }], // [!code focus]
+    '/api': [{ // [!code focus]
+      text: 'Config', // [!code focus]
+      link: '/api/config', // [!code focus]
+    }], // [!code focus]
+  } // [!code focus]
+  title: 'Viem'
+})
+```
+
 ### socials
 
 - **Type:** `Socials`

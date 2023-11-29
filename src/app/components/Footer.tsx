@@ -2,9 +2,9 @@ import clsx from 'clsx'
 import { useEffect, useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import type { SidebarItem } from '../../config.js'
-import { useConfig } from '../hooks/useConfig.js'
 import { useEditLink } from '../hooks/useEditLink.js'
 import { usePageData } from '../hooks/usePageData.js'
+import { useSidebar } from '../hooks/useSidebar.js'
 import * as styles from './Footer.css.js'
 import { Icon } from './Icon.js'
 import { Link } from './Link.js'
@@ -40,7 +40,7 @@ function EditLink() {
 }
 
 function Navigation() {
-  const { sidebar } = useConfig()
+  const sidebar = useSidebar()
 
   const { pathname } = useLocation()
   const flattenedSidebar = useMemo(
