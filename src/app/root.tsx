@@ -4,6 +4,7 @@ import { ScrollRestoration } from 'react-router-dom'
 import { Root as ConsumerRoot } from 'virtual:root'
 
 import { useConfig } from './hooks/useConfig.js'
+import { useOgImageUrl } from './hooks/useOgImageUrl.js'
 import { PageDataContext } from './hooks/usePageData.js'
 import { type Module } from './types.js'
 
@@ -29,8 +30,9 @@ export function Root(props: {
 
 function Head({ frontmatter }: { frontmatter: Module['frontmatter'] }) {
   const config = useConfig()
+  const ogImageUrl = useOgImageUrl()
 
-  const { baseUrl, font, iconUrl, logoUrl, ogImageUrl } = config
+  const { baseUrl, font, iconUrl, logoUrl } = config
   const { title, description = config.description } = frontmatter || {}
 
   const enableTitleTemplate = config.title && config.title.toLowerCase() !== title?.toLowerCase()
@@ -78,7 +80,7 @@ function Head({ frontmatter }: { frontmatter: Module['frontmatter'] }) {
               '%logo',
               `${baseUrl}${typeof logoUrl === 'string' ? logoUrl : logoUrl?.dark || ''}`,
             )
-            .replace('%title', title || config.title || '')
+            .replace('%title', title || '')
             .replace('%description', (description !== 'undefined' ? description : '') || '')}
         />
       )}

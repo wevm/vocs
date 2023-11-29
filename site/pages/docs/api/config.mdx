@@ -227,6 +227,37 @@ export default defineConfig({
 })
 ```
 
+### ogImageUrl
+
+- **Type:** `string | { [path: string]: string }`
+
+OG Image URL. `null` to disable.
+
+```tsx
+import { defineConfig } from 'vocs'
+
+export default defineConfig({
+  ogImageUrl: 'https://vocs.dev/api/og?logo=%logo&title=%title&description=%description', // [!code focus]
+  title: 'Viem'
+})
+```
+
+You can also specify an object for the `ogImageUrl` with paths as keys.
+
+This will render a different OG image depending on the path the user is on.
+
+```tsx
+import { defineConfig } from 'vocs'
+
+export default defineConfig({
+  ogImageUrl: { // [!code focus]
+    '/': 'https://vocs.dev/og-image.png', // [!code focus]
+    '/docs': 'https://vocs.dev/api/og?logo=%logo&title=%title&description=%description', // [!code focus]
+  }, // [!code focus]
+  title: 'Viem'
+})
+```
+
 ### root
 
 - **Type:** `string`
