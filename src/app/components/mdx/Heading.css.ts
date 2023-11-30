@@ -2,6 +2,7 @@ import { style } from '@vanilla-extract/css'
 import {
   fontWeightVars,
   lineHeightVars,
+  primitiveColorVars,
   spaceVars,
   topNavVars,
   viewportVars,
@@ -12,6 +13,7 @@ import { root as Header } from './Header.css.js'
 
 export const root = style({
   alignItems: 'center',
+  color: primitiveColorVars.heading,
   fontWeight: fontWeightVars.semibold,
   gap: '0.25em',
   lineHeight: lineHeightVars.heading,
