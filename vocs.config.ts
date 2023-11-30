@@ -41,7 +41,35 @@ export default defineConfig({
       link: '/docs/structure',
     },
     {
+      text: 'Guides',
+      collapsed: false,
+      items: [
+        {
+          text: 'Sidebar & Top Navigation',
+        },
+        {
+          text: 'Theming',
+        },
+        {
+          text: 'CSS & Styling',
+        },
+        {
+          text: 'Dynamic OG Images',
+        },
+        {
+          text: 'Blog',
+        },
+        {
+          text: 'Internationalization (i18n)',
+        },
+        {
+          text: 'Tailwind CSS',
+        },
+      ],
+    },
+    {
       text: 'API',
+      collapsed: false,
       items: [
         {
           text: 'Config',

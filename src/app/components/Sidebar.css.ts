@@ -2,7 +2,6 @@ import { style } from '@vanilla-extract/css'
 import {
   fontSizeVars,
   fontWeightVars,
-  lineHeightVars,
   primitiveColorVars,
   sidebarVars,
   spaceVars,
@@ -74,7 +73,6 @@ export const item = style(
     color: primitiveColorVars.text3,
     fontSize: fontSizeVars['14'],
     fontWeight: fontWeightVars.medium,
-    lineHeight: lineHeightVars.sidebarItem,
     letterSpacing: '0.25px',
     width: '100%',
     selectors: {

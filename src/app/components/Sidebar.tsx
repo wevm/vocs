@@ -111,52 +111,57 @@ function SidebarItem(props: {
           depth === 0 && (collapsed ? styles.levelCollapsed : styles.level),
         )}
       >
-        <div
-          className={styles.sectionHeader}
-          {...(isCollapsable && !item.link
-            ? {
-                role: 'button',
-                tabIndex: 0,
-                onClick: onCollapseInteraction,
-                onKeyDown: onCollapseInteraction,
-              }
-            : {})}
-        >
-          {item.text &&
-            (item.link ? (
-              <RouterLink
-                data-active={Boolean(match)}
-                onClick={onClick}
-                className={clsx(
-                  depth === 0 ? styles.sectionTitle : styles.item,
-                  hasActiveChildItem && styles.sectionHeaderActive,
-                )}
-                to={item.link}
-              >
-                {item.text}
-              </RouterLink>
-            ) : (
-              <div className={clsx(depth === 0 ? styles.sectionTitle : styles.item)}>
-                {item.text}
-              </div>
-            ))}
+        {item.text && (
+          <div
+            className={styles.sectionHeader}
+            {...(isCollapsable && !item.link
+              ? {
+                  role: 'button',
+                  tabIndex: 0,
+                  onClick: onCollapseInteraction,
+                  onKeyDown: onCollapseInteraction,
+                }
+              : {})}
+          >
+            {item.text &&
+              (item.link ? (
+                <RouterLink
+                  data-active={Boolean(match)}
+                  onClick={onClick}
+                  className={clsx(
+                    depth === 0 ? styles.sectionTitle : styles.item,
+                    hasActiveChildItem && styles.sectionHeaderActive,
+                  )}
+                  to={item.link}
+                >
+                  {item.text}
+                </RouterLink>
+              ) : (
+                <div className={clsx(depth === 0 ? styles.sectionTitle : styles.item)}>
+                  {item.text}
+                </div>
+              ))}
 
-          {isCollapsable && (
-            <div
-              role="button"
-              tabIndex={0}
-              onClick={onCollapseTriggerInteraction}
-              onKeyDown={onCollapseTriggerInteraction}
-            >
-              <Icon
-                className={clsx(styles.sectionCollapse, collapsed && styles.sectionCollapseActive)}
-                label="toggle section"
-                icon={ChevronRight}
-                size="10px"
-              />
-            </div>
-          )}
-        </div>
+            {isCollapsable && (
+              <div
+                role="button"
+                tabIndex={0}
+                onClick={onCollapseTriggerInteraction}
+                onKeyDown={onCollapseTriggerInteraction}
+              >
+                <Icon
+                  className={clsx(
+                    styles.sectionCollapse,
+                    collapsed && styles.sectionCollapseActive,
+                  )}
+                  label="toggle section"
+                  icon={ChevronRight}
+                  size="10px"
+                />
+              </div>
+            )}
+          </div>
+        )}
 
         <div
           className={clsx(styles.items, depth !== 0 && styles.levelInset)}
