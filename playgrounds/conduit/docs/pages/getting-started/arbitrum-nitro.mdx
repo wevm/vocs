@@ -1,0 +1,31 @@
+# Arbitrum Nitro
+
+> Conduit allows you to launch a rollup in a fraction of the time with Arbitrum Nitro. Arbitrum’s [documentation](https://docs.arbitrum.io/inside-arbitrum-nitro) will serve you well, but there are Conduit specific details you’ll need to take into account.
+
+Arbitrum Nitro is the one of the premiere rollup implementations on Ethereum. Their technology boasts the usual benefits of rollups, like cheaper fees, in addition to:
+
+- **10-100x cheaper fees** than Ethereum Mainnet
+  - Go even cheaper with [data availability committee support](https://docs.arbitrum.io/inside-anytrust)
+- **Interoperability** with Mainnet through trustless bridging and fraud proofs
+- **Close** **Ethereum Compatibility**, so you can use the same workflows and tooling
+- **[Stylus](https://medium.com/offchainlabs/hello-stylus-6b18fecc3a22)**, which will allow you to write smart contracts in a more performant VM with Rust, C, or other languages that can compile to WASM. These contracts can interoperate synchronously with the EVM.
+
+## FAQ
+
+### How do I withdraw/bridge tokens?
+
+Please see our guide and use of the arbitrum sdk [here](https://github.com/conduitxyz/arbitrum-tutorial).
+
+### Does Arbitrum on Conduit support Stylus?
+
+Yes! Please see the excellent arbitrum stylus docs [here](https://docs.arbitrum.io/stylus/stylus-gentle-introduction).
+
+### How do I deploy Stylus Contracts to by Arbitrum Orbit stack?
+
+Follow arbitrum’s hello world guide [here](https://github.com/OffchainLabs/stylus-hello-world). You’ll then be able to deploy to your stack with:
+
+```bash copy
+cargo stylus deploy \ 
+  --endpoint=https://nitrorpc-[your_conduit_stack_name-here].t.conduit.xyz \ 
+  --private-key=[your_private_key_here]
+```

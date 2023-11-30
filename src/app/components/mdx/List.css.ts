@@ -6,7 +6,7 @@ import { root as Paragraph } from './Paragraph.css.js'
 export const root = style({
   selectors: {
     [`${Paragraph} + &`]: {
-      marginTop: `calc(-1 * ${spaceVars['8']})`,
+      marginTop: `calc(-1 * ${spaceVars['16']})`,
     },
   },
 })

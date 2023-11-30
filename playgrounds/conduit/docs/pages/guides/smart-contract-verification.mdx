@@ -1,0 +1,13 @@
+# Smart Contract Verification
+
+Conduit comes with a Blockscout instance, and you can verify against it with the url:
+
+```txt 
+https://explorer-[your_network_id].t.conduit.xyz/api\?
+```
+
+**Note:** See this [foundry issue](https://github.com/foundry-rs/foundry/issues/5160#issuecomment-1631555377) for why you need to include `\?`
+
+```bash 
+forge verify-contract [address] [contract] --verifier=blockscout --verifier-url=https://explorer-[your_network_id].t.conduit.xyz/api\?
+```

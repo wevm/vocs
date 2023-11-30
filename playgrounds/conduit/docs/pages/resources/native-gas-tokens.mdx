@@ -1,0 +1,50 @@
+# Native Gas Tokens
+
+> Why **not** to use your protocol’s native token as your rollup’s gas token, the exceptions that prove the rule, and a potential alternative for token value accrual.
+
+At Conduit, we’ve been lucky to talk to hundreds of teams and protocols about launching their own rollup. The most common ask we get is:
+
+> **Can we allow our users to pay for gas using our native token?**
+
+These are our answers ⬇️
+
+## No Net New Demand for your Token
+
+If you map out the token flows, there won’t be any net demand. Users buy your token to bridge to your rollup. When they spend gas, the sequencer sells those tokens to try to cover data availability (DA) costs, which are only priced in ETH.
+
+![rollup native gas token flow@2x.png](/rollup-native-gas-token-flow@2x.png)
+
+If the gas costs in your token don’t cover the DA costs, then your protocol foots the bill for the remaining DA cost. You are essentially subsidizing usage on your rollup, but still need to pay DA costs in ETH.
+
+## Cross Domain MEV and Interop
+
+In the long run, cross-domain interop and MEV may become the dominant revenue model for rollup sequencers¹. By forcing users of your rollup to acquire your token, you make it harder for builders/searchers to extract MEV on your chain. Instead of holding one token (ETH) they would need to hold N tokens across N rollups, significantly complicating their token inventory strategy.
+
+In fact, for some systems, like Optimism’s Superchain, having your own token as the gas token would make you incompatible², fragmenting access to your chain and isolating your rollup from the broader ecosystem.
+
+## UX Overhead
+
+Finally, this adds a burdensome UX overhead to your users. All users have ETH because that’s the native token for Ethereum. Requiring them to buy your token first in order to even use your rollup, puts another hurdle in the way of using your app.
+
+## Where it Could Make Sense
+
+If interoperability isn’t important to you and your token has net demand (or is a stablecoin) then it could work. One example might be Eco, whose core users aren’t crypto-natives. Requiring their users to acquire ETH in addition to the Eco stablecoin would represent an additional UX overhead. This is essentially the opposite of what crypto-natives experience.
+
+## A Potential Option for Value Accrual
+
+Perhaps a more sustainable approach to accruing value back to a protocol’s token is to do buybacks with excess sequencer revenues you would earn through your rollup. This may create more sustainable demand for the protocol’s token from the transaction volume on the rollup, and help align incentives more strongly across users and the protocol.
+
+## Other Solutions
+
+Of course, you’d also be able to use meta transactions, relayers, or account abstraction to mimic users paying gas in your protocol token.
+
+---
+
+At Conduit after helping folks like Zora, Public Goods Network, and more navigate getting to mainnet, we’ve been able to see what works and what doesn’t.
+
+If you’d like our advice on the best way to go to market when launching your own rollup, get in touch: andrew@conduit.xyz
+
+## Sources
+
+1. [https://writings.flashbots.net/the-future-of-mev-is-suave/…](https://t.co/K3nEmjpMI9)
+2. [https://app.optimism.io/superchain](https://t.co/ksz6yP1bX5)

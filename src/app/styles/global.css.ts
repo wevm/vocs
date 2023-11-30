@@ -44,7 +44,7 @@ globalStyle(
 )
 
 globalStyle(`${Content} > *:not(:last-child)`, {
-  marginBottom: spaceVars['16'],
+  marginBottom: spaceVars['24'],
 })
 
 globalStyle(`${Content} > *:last-child`, {

@@ -1,0 +1,11 @@
+:root {
+  --vocs-color_textAccent: #29bebd;
+}
+
+:root.dark {
+  --vocs-color_textAccent: #29bebd;
+}
+
+.vocs_NavLogo_logoImage {
+  height: 50% !important;
+}

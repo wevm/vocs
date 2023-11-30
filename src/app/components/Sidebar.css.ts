@@ -123,7 +123,7 @@ export const section = style(
 export const level = style(
   {
     gap: spaceVars['4'],
-    paddingBottom: spaceVars['24'],
+    paddingBottom: spaceVars['12'],
   },
   'level',
 )
