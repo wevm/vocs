@@ -9,6 +9,7 @@ import { virtualBlog } from './plugins/virtual-blog.js'
 import { virtualConfig } from './plugins/virtual-config.js'
 import { virtualRoot } from './plugins/virtual-root.js'
 import { virtualRoutes } from './plugins/virtual-routes.js'
+import { virtualStyles } from './plugins/virtual-styles.js'
 
 export default defineConfig({
   build: {
@@ -30,6 +31,7 @@ export default defineConfig({
     virtualBlog(),
     virtualRoutes(),
     virtualRoot(),
+    virtualStyles(),
   ],
   server: {
     fs: {

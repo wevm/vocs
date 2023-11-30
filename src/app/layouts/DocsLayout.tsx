@@ -34,7 +34,7 @@ export function DocsLayout({
       if ('sidebar' in frontmatter) return frontmatter.sidebar
       if (frontmatter.layout === 'minimal') return false
     }
-    return Boolean(sidebar)
+    return sidebar.length > 0
   })()
 
   const { ref, inView } = useInView({

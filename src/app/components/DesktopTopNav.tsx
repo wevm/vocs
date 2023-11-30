@@ -5,6 +5,7 @@ import { useLocation } from 'react-router-dom'
 import type { ParsedSocialItem } from '../../config.js'
 import { useConfig } from '../hooks/useConfig.js'
 import { usePageData } from '../hooks/usePageData.js'
+import { useSidebar } from '../hooks/useSidebar.js'
 import { useTheme } from '../hooks/useTheme.js'
 import { visibleDark, visibleLight } from '../styles/utils.css.js'
 import { DesktopSearch } from './DesktopSearch.js'
@@ -24,11 +25,13 @@ DesktopTopNav.Curtain = Curtain
 export function DesktopTopNav() {
   const { frontmatter = {} } = usePageData()
   const config = useConfig()
+  const sidebar = useSidebar()
 
   const showLogo = (() => {
     if ('sidebar' in frontmatter) return frontmatter.sidebar === false
     if ('logo' in frontmatter) return frontmatter.logo === true
     if (frontmatter.layout === 'minimal') return true
+    if (sidebar.length === 0) return true
     return false
   })()
 
