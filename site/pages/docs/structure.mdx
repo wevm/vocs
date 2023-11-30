@@ -134,10 +134,45 @@ my-project/
 The `layout.tsx` component could look like:
 
 ```tsx [layout.tsx]
-import './styles.css'
 import { CustomLayout } from './Layout'
 
 export default function Layout({ children }) {
   return <CustomLayout>{children}</CustomLayout>
 }
 ```
+
+## Global Styles
+
+Global styles can be added under a `styles.css` file.
+
+```bash
+my-project/             
+├── docs/
+│   ├── pages/ 
+|   |   ├── index.mdx 
+|   |   └── about.tsx 
+│   └── public/
+│   |   └── favicon.ico
+|   └── styles.css // [!code focus]
+├── node_modules/
+│   ...
+```
+
+The `styles.css` file could look like:
+
+```css [styles.css]
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --vocs-color_background: white;
+}
+
+:root.dark {
+  --vocs-color_background: #232225;
+}
+```
+
+:::tip[Tip]
+You can also utilize the [CSS `@import`](https://vitejs.dev/guide/features.html#import-inlining-and-rebasing) statement to import other CSS files.
+:::
