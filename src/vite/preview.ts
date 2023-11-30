@@ -11,10 +11,10 @@ type PreviewParameters = {
 
 export async function preview({ outDir = 'dist' }: PreviewParameters = {}) {
   const { config } = await resolveVocsConfig()
-  const { root } = config
+  const { rootDir } = config
 
   const app = new Hono()
-  app.use('/*', serveStatic({ root: resolve(root, outDir) }))
+  app.use('/*', serveStatic({ root: resolve(rootDir, outDir) }))
 
   return new Promise<ReturnType<typeof serve> & { port: number }>((res) => {
     async function createServer(port = 4173) {

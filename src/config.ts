@@ -2,7 +2,7 @@ import type { ReactElement } from 'react'
 
 type RequiredBy<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>
 
-type RequiredProperties = 'blogDir' | 'root' | 'title' | 'titleTemplate'
+type RequiredProperties = 'blogDir' | 'rootDir' | 'title' | 'titleTemplate'
 
 export type Config<parsed extends boolean = false> = RequiredBy<
   {
@@ -60,7 +60,7 @@ export type Config<parsed extends boolean = false> = RequiredBy<
      *
      * @default "docs"
      */
-    root?: string
+    rootDir?: string
     /**
      * Navigation displayed on the sidebar.
      */
@@ -95,7 +95,7 @@ export function defineConfig({
   font,
   head,
   ogImageUrl = 'https://vocs.dev/api/og?logo=%logo&title=%title&description=%description',
-  root = 'docs',
+  rootDir = 'docs',
   title = 'Docs',
   titleTemplate = `%s – ${title}`,
   ...config
@@ -105,7 +105,7 @@ export function defineConfig({
     font,
     head,
     ogImageUrl,
-    root,
+    rootDir,
     title,
     titleTemplate,
     ...config,

@@ -23,9 +23,9 @@ export function virtualBlog(): PluginOption {
     async load(id) {
       if (id === resolvedVirtualModuleId) {
         const { config } = await resolveVocsConfig()
-        const { blogDir, root } = config
+        const { blogDir, rootDir } = config
 
-        const blogDir_resolved = resolve(root, blogDir)
+        const blogDir_resolved = resolve(rootDir, blogDir)
 
         const files = await globby(`${blogDir_resolved}/**/*.{md,mdx}`)
 
@@ -78,7 +78,7 @@ export function virtualBlog(): PluginOption {
             return mtime.toISOString()
           })()
 
-          const path = `/${relative(resolve(root, 'pages'), file).replace(/\.(md|mdx)$/, '')}`
+          const path = `/${relative(resolve(rootDir, 'pages'), file).replace(/\.(md|mdx)$/, '')}`
 
           posts.push({
             authors: frontmatter.authors,

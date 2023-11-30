@@ -15,8 +15,8 @@ export function virtualRoutes(): PluginOption {
     name: 'routes',
     async configureServer(server) {
       const { config } = await resolveVocsConfig()
-      const { root } = config
-      const pagesPath = resolve(root, 'pages')
+      const { rootDir } = config
+      const pagesPath = resolve(rootDir, 'pages')
       if (pagesPath) {
         server.watcher.add(pagesPath)
         server.watcher.on('add', () => server.restart())
@@ -30,8 +30,8 @@ export function virtualRoutes(): PluginOption {
     async load(id) {
       if (id === resolvedVirtualModuleId) {
         const { config } = await resolveVocsConfig()
-        const { root } = config
-        const pagesPath = resolve(root, 'pages')
+        const { rootDir } = config
+        const pagesPath = resolve(rootDir, 'pages')
 
         let code = 'export const routes = ['
         for (const path of paths) {
@@ -54,8 +54,8 @@ export function virtualRoutes(): PluginOption {
     },
     async buildStart() {
       const { config } = await resolveVocsConfig()
-      const { root } = config
-      const pagesPath = resolve(root, 'pages')
+      const { rootDir } = config
+      const pagesPath = resolve(rootDir, 'pages')
       glob = `${pagesPath}/**/*.{md,mdx,ts,tsx,js,jsx}`
       paths = await globby(glob)
     },

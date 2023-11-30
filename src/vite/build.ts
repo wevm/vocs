@@ -3,9 +3,9 @@ import { fileURLToPath } from 'node:url'
 import { default as fs } from 'fs-extra'
 import * as vite from 'vite'
 
+import { spawn } from 'child_process'
 import { prerender } from './plugins/prerender.js'
 import { resolveVocsConfig } from './utils/resolveVocsConfig.js'
-import { spawn } from 'child_process'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -34,9 +34,9 @@ export async function build({
   outDir = 'dist',
 }: BuildParameters = {}) {
   const { config } = await resolveVocsConfig()
-  const { root } = config
+  const { rootDir } = config
 
-  const outDir_resolved = resolve(relative(resolve(root, '..'), resolve(root, outDir)))
+  const outDir_resolved = resolve(relative(resolve(rootDir, '..'), resolve(rootDir, outDir)))
 
   // client
   hooks?.onClientBuildStart?.()
@@ -45,7 +45,7 @@ export async function build({
       emptyOutDir: true,
       outDir: outDir_resolved,
     },
-    publicDir: resolve(root, 'public'),
+    publicDir: resolve(rootDir, 'public'),
     root: __dirname,
     logLevel,
   })
@@ -61,7 +61,7 @@ export async function build({
     },
     logLevel,
     plugins: [prerender({ logger: logLevel === 'info' ? logger : undefined, outDir })],
-    publicDir: resolve(root, 'public'),
+    publicDir: resolve(rootDir, 'public'),
     root: __dirname,
   })
   hooks?.onPrerenderBuildEnd?.(output_prerender)

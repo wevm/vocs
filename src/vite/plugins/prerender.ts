@@ -11,15 +11,15 @@ export function prerender({ logger, outDir = 'dist' }: PrerenderPluginParameters
     name: 'prerender',
     async closeBundle() {
       const { config } = await resolveVocsConfig()
-      const { root } = config
+      const { rootDir } = config
 
-      const outDir_resolved = resolve(relative(resolve(root, '..'), resolve(root, outDir)))
+      const outDir_resolved = resolve(relative(resolve(rootDir, '..'), resolve(rootDir, outDir)))
 
       const template = readFileSync(resolve(outDir_resolved, 'index.html'), 'utf-8')
       const mod = await import(resolve(outDir_resolved, 'index.server.js'))
 
       // Get routes to prerender.
-      const routes = getRoutes(resolve(root, 'pages'))
+      const routes = getRoutes(resolve(rootDir, 'pages'))
 
       logger?.info(`\n${pc.green('✓')} ${routes.length} pages prerendered.`)
       // Prerender each route.
@@ -44,7 +44,7 @@ export function prerender({ logger, outDir = 'dist' }: PrerenderPluginParameters
         }
 
         const fileName = path.split('/').pop()!
-        logger?.info(`${pc.dim(relative(root, path).replace(fileName, ''))}${pc.cyan(fileName)}`)
+        logger?.info(`${pc.dim(relative(rootDir, path).replace(fileName, ''))}${pc.cyan(fileName)}`)
       }
     },
   }

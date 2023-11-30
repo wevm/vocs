@@ -19,8 +19,8 @@ export function dev(): PluginOption {
     },
     async configureServer(server) {
       const { config } = await resolveVocsConfig()
-      const { root } = config
-      server.middlewares.use(serveStatic(resolve(root, 'public')))
+      const { rootDir } = config
+      server.middlewares.use(serveStatic(resolve(rootDir, 'public')))
       server.middlewares.use(serveStatic(resolve(__dirname, '../../app/public')))
       return () => {
         server.middlewares.use(async (req, res, next) => {

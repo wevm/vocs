@@ -12,8 +12,8 @@ export function css(): PluginOption {
     name: 'css',
     async config() {
       const { config } = await resolveVocsConfig()
-      const { root } = config
-      const tailwindConfig = findTailwindConfig({ root })
+      const { rootDir } = config
+      const tailwindConfig = findTailwindConfig({ rootDir })
       return {
         css: {
           postcss: {
@@ -36,7 +36,7 @@ export function css(): PluginOption {
 //////////////////////////////////////////////////
 // Tailwind
 
-export function findTailwindConfig({ root }: { root: string }) {
+export function findTailwindConfig({ rootDir }: { rootDir: string }) {
   const configFiles = [
     './tailwind.config.js',
     './tailwind.config.cjs',
@@ -45,7 +45,7 @@ export function findTailwindConfig({ root }: { root: string }) {
   ]
   for (const configFile of configFiles) {
     try {
-      const configPath = resolve(root, configFile)
+      const configPath = resolve(rootDir, configFile)
       accessSync(configPath)
       return configPath
     } catch (err) {}
