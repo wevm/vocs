@@ -16,7 +16,7 @@ export default defineConfig({
     light: '/vocs-logo-light.svg',
     dark: '/vocs-logo-dark.svg',
   },
-  root: 'site',
+  rootDir: 'site',
   socials: [
     {
       icon: 'discord',

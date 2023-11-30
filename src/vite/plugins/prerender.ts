@@ -35,9 +35,9 @@ export function prerender({ logger, outDir = 'dist' }: PrerenderPluginParameters
 
         const pathDir = dirname(path)
         if (!isDir(pathDir)) mkdirSync(pathDir, { recursive: true })
-        writeFileSync(path, html)
 
-        if (!isIndex) {
+        if (isIndex) writeFileSync(path, html)
+        else {
           const path = resolve(outDir_resolved, route.slice(1))
           if (!isDir(path)) mkdirSync(path, { recursive: true })
           writeFileSync(resolve(path, 'index.html'), html)
