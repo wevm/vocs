@@ -19,7 +19,7 @@ export function virtualStyles(): PluginOption {
       const { rootDir } = config
       const rootStyles = resolve(rootDir, 'styles.css')
       if (id === resolvedVirtualModuleId) {
-        if (!existsSync(rootStyles)) return
+        if (!existsSync(rootStyles)) return ''
         return `import "${rootStyles}";`
       }
       return
