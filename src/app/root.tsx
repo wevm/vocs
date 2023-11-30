@@ -46,7 +46,7 @@ function Head({ frontmatter }: { frontmatter: Module['frontmatter'] }) {
       {title && <title>{title}</title>}
 
       {/* Base URL */}
-      {baseUrl && <base href={baseUrl} />}
+      {baseUrl && import.meta.env.PROD && <base href={baseUrl} />}
 
       {/* Description */}
       {description !== 'undefined' && <meta name="description" content={description} />}

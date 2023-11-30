@@ -90,7 +90,7 @@ export async function build({
   const cwd = dirname(fileURLToPath(import.meta.url))
   await new Promise<void>((resolve) => {
     spawn('npx', ['-y', 'pagefind', '--site', outDir_resolved], {
-      stdio: 'inherit',
+      stdio: logLevel === 'info' ? 'inherit' : undefined,
       shell: true,
       cwd,
     }).on('close', () => resolve())

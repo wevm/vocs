@@ -1,8 +1,13 @@
+import { sha256 } from 'crypto-hash'
 import { type ReactNode, createContext, useContext, useEffect, useState } from 'react'
 import type { ParsedConfig } from '../../config.js'
 import { config as virtualConfig } from 'virtual:config'
 
 const ConfigContext = createContext(virtualConfig)
+
+const configHash = import.meta.env.DEV
+  ? (await sha256(JSON.stringify(virtualConfig))).slice(0, 8)
+  : ''
 
 export function ConfigProvider({
   children,
@@ -10,8 +15,8 @@ export function ConfigProvider({
 }: { children: ReactNode; config?: ParsedConfig }) {
   const [config, setConfig] = useState(() => {
     if (initialConfig) return initialConfig
-    if (typeof window !== 'undefined') {
-      const storedConfig = window.localStorage.getItem('vocsConfig')
+    if (typeof window !== 'undefined' && import.meta.env.DEV) {
+      const storedConfig = window.localStorage.getItem(`vocs.config.${configHash}`)
       if (storedConfig) return JSON.parse(storedConfig)
     }
     return virtualConfig
@@ -22,8 +27,8 @@ export function ConfigProvider({
   }, [])
 
   useEffect(() => {
-    if (typeof window !== 'undefined')
-      window.localStorage.setItem('vocsConfig', JSON.stringify(config))
+    if (typeof window !== 'undefined' && import.meta.env.DEV)
+      window.localStorage.setItem(`vocs.config.${configHash}`, JSON.stringify(config))
   }, [config])
 
   return <ConfigContext.Provider value={config}>{children}</ConfigContext.Provider>

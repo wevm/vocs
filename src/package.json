@@ -36,6 +36,7 @@
     "clsx": "^2.0.0",
     "compression": "^1.7.4",
     "create-vocs": "workspace:*",
+    "crypto-hash": "3.0.0",
     "globby": "^13.2.2",
     "hastscript": "^8.0.0",
     "hono": "^3.10.2",
