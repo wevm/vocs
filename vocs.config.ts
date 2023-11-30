@@ -37,6 +37,10 @@ export default defineConfig({
       link: '/docs',
     },
     {
+      text: 'Project Structure',
+      link: '/docs/structure',
+    },
+    {
       text: 'API',
       items: [
         {

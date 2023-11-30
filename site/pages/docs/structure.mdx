@@ -1,0 +1,143 @@
+# Project Structure [Overview of the structure of a Vocs project]
+
+## Overview
+
+A general overview of the structure of a Vocs project:
+
+```bash
+my-project/             # Your project's root directory.
+├── docs/               # The root directory of your documentation. // [!code hl]
+│   ├── pages/          # Directory for your documentation pages (routes). // [!code hl]
+│   │   └── index.mdx   // [!code hl]
+│   └── public/         # Directory for static assets. // [!code hl]
+│       └── favicon.ico // [!code hl]
+├── node_modules/
+├── src/
+├── .gitignore
+├── package.json
+└── vocs.config.ts      # Vocs configuration file. // [!code hl]
+```
+
+Vocs is designed to reside within a [subdirectory](/docs/api/config#rootdir) (default: `"./docs"`) of a larger project (ie. a library). However, it is also possible to use Vocs standalone, and you can [change the root directory](/docs/api/config#rootdir) from `./docs` to `./src` if you wish.
+
+## Configuration File
+
+Vocs uses a configuration file (`vocs.config.ts`) to define global metadata for your documentation. 
+This includes things like the site title, description, logo, sidebar, and more for your project. 
+
+```bash
+my-project/   
+│   ...
+├── .gitignore
+├── package.json
+└── vocs.config.ts  // [!code focus]
+```
+
+A basic `vocs.config.ts` could look like this:
+
+```ts [vocs.config.ts]
+import { defineConfig } from 'vocs'
+ 
+export default defineConfig({
+  description: 'Build reliable apps & libraries with lightweight, \
+    composable, and type-safe modules that interface with Ethereum.' 
+  title: 'Viem'
+})
+```
+
+[Read the Config API](/docs/api/config)
+
+
+## Root Directory
+
+The Root Directory contains all of your documentation pages, static assets, components, etc. 
+By default, Vocs will look for a directory named `./docs` in your project's root directory. 
+You can change this directory by setting the [`rootDir` property](/docs/api/config#rootdir) in your [vocs.config.ts](/docs/api/config).
+
+```bash
+my-project/             
+├── docs/ // [!code focus]
+│   ├── pages/
+│   │   └── index.mdx   
+│   └── public/
+│       └── favicon.ico 
+├── node_modules/
+│   ...
+```
+
+## Routing
+
+Vocs uses file-based routing. This means that each file inside of the `./docs/pages` directory will be treated as a route. 
+Files within the pages directory can be: Markdown or MDX files, or React components (for more customizability).
+
+```bash
+my-project/             
+├── docs/
+│   ├── pages/ // [!code focus]
+|   |   ├── index.mdx // [!code focus]
+|   |   └── about.tsx // [!code focus]
+│   └── public/
+│       └── favicon.ico 
+├── node_modules/
+│   ...
+```
+
+[Read the Routing Guide](#TODO)
+
+## Static Assets
+
+Static assets (images, fonts, etc.) can be placed in the `public` directory.
+
+```bash
+my-project/             
+├── docs/
+│   ├── pages/ 
+|   |   ├── index.mdx 
+|   |   └── about.tsx 
+│   └── public/ // [!code focus]
+│       ├── logo.svg // [!code focus]
+│       └── favicon.ico // [!code focus]
+├── node_modules/
+│   ...
+```
+
+They can be referenced in code like so:
+
+```md [example.mdx]
+![Logo](/logo.svg)
+```
+
+```tsx [Example.tsx]
+<img src="/logo.svg" />
+```
+
+
+## Layout Component
+
+A layout React component can be added to your Vocs root directory. 
+The layout component will be used to wrap all of your documentation pages. 
+This can be useful for adding static CSS files, or further customizing the layout of your documentation.
+
+```bash
+my-project/             
+├── docs/
+│   ├── pages/ 
+|   |   ├── index.mdx 
+|   |   └── about.tsx 
+│   └── public/
+│   |   └── favicon.ico
+|   └── layout.tsx // [!code focus]
+├── node_modules/
+│   ...
+```
+
+The `layout.tsx` component could look like:
+
+```tsx [layout.tsx]
+import './styles.css'
+import { CustomLayout } from './Layout'
+
+export default function Layout({ children }) {
+  return <CustomLayout>{children}</CustomLayout>
+}
+```

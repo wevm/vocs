@@ -17,7 +17,7 @@ export function virtualRoot(): PluginOption {
     async load(id) {
       const { config } = await resolveVocsConfig()
       const { rootDir } = config
-      const rootComponent = resolve(rootDir, 'root.tsx')
+      const rootComponent = resolve(rootDir, 'layout.tsx')
       if (id === resolvedVirtualModuleId) {
         if (!existsSync(rootComponent)) return 'export const Root = ({ children }) => children;'
         return `export { default as Root } from "${rootComponent}";`

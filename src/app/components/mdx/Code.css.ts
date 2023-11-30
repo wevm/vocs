@@ -24,7 +24,7 @@ export const root = style({
       textDecoration: 'underline',
       textUnderlineOffset: spaceVars['2'],
     },
-    [`${Anchor}>&:hover`]: {
+    [`${Anchor}:hover>&`]: {
       color: semanticColorVars.linkHover,
     },
   },
