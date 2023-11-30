@@ -9,7 +9,7 @@ export const root = style({
       marginTop: spaceVars['18'],
       paddingTop: spaceVars['18'],
     },
-    '&:not(:last-child)': {
+    '&&:not(:last-child)': {
       marginBottom: spaceVars['16'],
     },
     [`${H2}+&`]: {

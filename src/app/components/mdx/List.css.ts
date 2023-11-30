@@ -1,12 +1,19 @@
 import { globalStyle, style } from '@vanilla-extract/css'
 
 import { spaceVars } from '../../styles/vars.css.js'
-import { root as Paragraph } from './Paragraph.css.js'
+import { root as H2 } from './H2.css.js'
+import { root as H3 } from './H3.css.js'
+import { root as H4 } from './H4.css.js'
+import { root as H5 } from './H5.css.js'
+import { root as H6 } from './H6.css.js'
 
 export const root = style({
   selectors: {
-    [`${Paragraph} + &`]: {
-      marginTop: `calc(-1 * ${spaceVars['16']})`,
+    [`${H2}+&,${H3}+&,${H4}+&,${H5}+&,${H6}+&`]: {
+      marginTop: `calc(${spaceVars['8']} * -1)`,
+    },
+    '.vocs_Paragraph + &': {
+      marginTop: `calc(-1 * ${spaceVars['8']})`,
     },
   },
 })

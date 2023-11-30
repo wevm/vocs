@@ -6,7 +6,7 @@ export const root = style({
   fontSize: fontSizeVars.h2,
   letterSpacing: '-0.02em',
   selectors: {
-    '&:not(:last-child)': {
+    '&&:not(:last-child)': {
       marginBottom: spaceVars['24'],
     },
     [`:not(${header}) + &:not(:only-child)`]: {

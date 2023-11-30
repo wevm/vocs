@@ -8,7 +8,7 @@ export const root = style({
     '&:not(:first-child)': {
       marginTop: spaceVars['16'],
     },
-    '&:not(:last-child)': {
+    '&&:not(:last-child)': {
       marginBottom: spaceVars['16'],
     },
     [`${H5}+&`]: {

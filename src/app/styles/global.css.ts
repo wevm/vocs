@@ -1,6 +1,8 @@
 import { globalStyle, layer } from '@vanilla-extract/css'
 
+import { root as Callout } from '../components/Callout.css.js'
 import { root as Content } from '../components/Content.css.js'
+import { root as Details } from '../components/mdx/Details.css.js'
 import {
   fontSizeVars,
   fontWeightVars,
@@ -43,11 +45,15 @@ globalStyle(
   },
 )
 
-globalStyle(`${Content} > *:not(:last-child)`, {
+globalStyle(`${Content} > *:not(:last-child), ${Details} > *:not(:last-child)`, {
   marginBottom: spaceVars['24'],
 })
 
-globalStyle(`${Content} > *:last-child`, {
+globalStyle(`${Callout} > *:not(:last-child), ${Callout} > ${Details} > *:not(:last-child)`, {
+  marginBottom: spaceVars['16'],
+})
+
+globalStyle(`${Content} > *:last-child, ${Callout} > *:last-child, ${Details} > *:last-child`, {
   marginBottom: spaceVars['0'],
 })
 
