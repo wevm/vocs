@@ -4,9 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "node --loader @swc-node/register/esm ../../src/cli/index.ts dev",
-    "build": "NODE_ENV=production node --loader @swc-node/register/esm build",
-    "preview": "node --loader @swc-node/register/esm preview"
+    "dev": "node --loader tsx/esm ../../src/cli/index.ts dev",
+    "build": "NODE_ENV=production node --loader tsx/esm build",
+    "preview": "node --loader tsx/esm preview"
   },
   "dependencies": {
     "react": "^18.2.0",
