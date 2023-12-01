@@ -14,17 +14,18 @@ export function virtualStyles(): PluginOption {
     name: 'styles',
     async buildStart() {
       const { config } = await resolveVocsConfig()
-      const { theme, rootDir } = config
-      createThemeStyles({ rootDir, theme })
+      const { theme } = config
+      createThemeStyles({ theme })
     },
     async configureServer(server) {
       const { configPath } = await resolveVocsConfig()
       if (configPath) {
         server.watcher.add(configPath)
-        server.watcher.on('change', async () => {
+        server.watcher.on('change', async (path) => {
+          if (path !== configPath) return
           const { config } = await resolveVocsConfig()
-          const { rootDir, theme } = config
-          createThemeStyles({ rootDir, theme })
+          const { theme } = config
+          createThemeStyles({ theme })
         })
       }
     },
@@ -35,7 +36,7 @@ export function virtualStyles(): PluginOption {
     async load(id) {
       const { config } = await resolveVocsConfig()
       const { rootDir } = config
-      const themeStyles = resolve(rootDir, '.vocs/theme.css')
+      const themeStyles = resolve(__dirname, '../.vocs/theme.css')
       const rootStyles = resolve(rootDir, 'styles.css')
       if (id === resolvedVirtualModuleId) {
         let code = ''
@@ -48,8 +49,8 @@ export function virtualStyles(): PluginOption {
   }
 }
 
-function createThemeStyles({ rootDir, theme }: { rootDir: string; theme: ParsedConfig['theme'] }) {
-  const themeFile = resolve(rootDir, '.vocs/theme.css')
+function createThemeStyles({ theme }: { theme: ParsedConfig['theme'] }) {
+  const themeFile = resolve(__dirname, '../.vocs/theme.css')
 
   if (fs.existsSync(themeFile)) fs.rmSync(themeFile)
   if (!theme) return

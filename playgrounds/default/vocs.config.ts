@@ -6,5 +6,8 @@ export default defineConfig({
       text: 'Introduction',
     },
   ],
+  theme: {
+    accentColor: 'red',
+  },
   title: 'Awesome Docs',
 })

@@ -352,6 +352,211 @@ export default defineConfig({
 })
 ```
 
+### theme
+
+- **Type:** `Theme`
+
+Theme configuration.
+
+[Read more about theming](/theming).
+
+```tsx
+import { defineConfig } from 'vocs'
+
+export default defineConfig({
+  theme: { // [!code focus]
+    accentColor: '#ff0000', // [!code focus]
+    variables: { // [!code focus]
+      color: { // [!code focus]
+        background: { // [!code focus]
+          light: 'white', // [!code focus]
+          dark: 'black' // [!code focus]
+        } // [!code focus]
+      } // [!code focus]
+    } // [!code focus]
+  }, // [!code focus]
+  title: 'Viem'
+})
+```
+
+::::note
+:::details[Theme Reference]
+```ts
+type Theme = {
+  accentColor?: string
+  colorScheme?: 'dark' | 'light' | 'system'
+  variables?: {
+    borderRadius?: {
+      '0': string,
+      '2': string,
+      '4': string,
+      '8': string,
+    },
+    color?: {
+      white: { light: string, dark: string },
+      black: { light: string, dark: string },
+      background: { light: string, dark: string },
+      background2: { light: string, dark: string },
+      background3: { light: string, dark: string },
+      background4: { light: string, dark: string },
+      background5: { light: string, dark: string },
+      backgroundAccent: { light: string, dark: string },
+      backgroundAccentHover: { light: string, dark: string },
+      backgroundAccentText: { light: string, dark: string },
+      backgroundBlueTint: { light: string, dark: string },
+      backgroundDark: { light: string, dark: string },
+      backgroundGreenTint: { light: string, dark: string },
+      backgroundGreenTint2: { light: string, dark: string },
+      backgroundIrisTint: { light: string, dark: string },
+      backgroundRedTint: { light: string, dark: string },
+      backgroundRedTint2: { light: string, dark: string },
+      backgroundYellowTint: { light: string, dark: string },
+      border: { light: string, dark: string },
+      border2: { light: string, dark: string },
+      borderAccent: { light: string, dark: string },
+      borderBlue: { light: string, dark: string },
+      borderGreen: { light: string, dark: string },
+      borderIris: { light: string, dark: string },
+      borderRed: { light: string, dark: string },
+      borderYellow: { light: string, dark: string },
+      heading: { light: string, dark: string },
+      shadow: { light: string, dark: string },
+      text: { light: string, dark: string },
+      text2: { light: string, dark: string },
+      text3: { light: string, dark: string },
+      text4: { light: string, dark: string },
+      textAccent: { light: string, dark: string },
+      textAccentHover: { light: string, dark: string },
+      textBlue: { light: string, dark: string },
+      textBlueHover: { light: string, dark: string },
+      textGreen: { light: string, dark: string },
+      textGreenHover: { light: string, dark: string },
+      textIris: { light: string, dark: string },
+      textIrisHover: { light: string, dark: string },
+      textRed: { light: string, dark: string },
+      textRedHover: { light: string, dark: string },
+      textYellow: { light: string, dark: string },
+      textYellowHover: { light: string, dark: string },
+
+      blockquoteBorder: { light: string, dark: string },
+      blockquoteText: { light: string, dark: string },
+      codeBlockBackground: { light: string, dark: string },
+      codeCharacterHighlightBackground: { light: string, dark: string },
+      codeHighlightBackground: { light: string, dark: string },
+      codeHighlightBorder: { light: string, dark: string },
+      codeInlineBackground: { light: string, dark: string },
+      codeInlineBorder: { light: string, dark: string },
+      codeInlineText: { light: string, dark: string },
+      codeTitleBackground: { light: string, dark: string },
+      dangerBackground: { light: string, dark: string },
+      dangerBorder: { light: string, dark: string },
+      dangerText: { light: string, dark: string },
+      dangerTextHover: { light: string, dark: string },
+      hr: { light: string, dark: string },
+      infoBackground: { light: string, dark: string },
+      infoBorder: { light: string, dark: string },
+      infoText: { light: string, dark: string },
+      infoTextHover: { light: string, dark: string },
+      lineNumber: { light: string, dark: string },
+      link: { light: string, dark: string },
+      linkHover: { light: string, dark: string },
+      noteBackground: { light: string, dark: string },
+      noteBorder: { light: string, dark: string },
+      noteText: { light: string, dark: string },
+      successBackground: { light: string, dark: string },
+      successBorder: { light: string, dark: string },
+      successText: { light: string, dark: string },
+      successTextHover: { light: string, dark: string },
+      tableBorder: { light: string, dark: string },
+      tableHeaderBackground: { light: string, dark: string },
+      tableHeaderText: { light: string, dark: string },
+      tipBackground: { light: string, dark: string },
+      tipBorder: { light: string, dark: string },
+      tipText: { light: string, dark: string },
+      tipTextHover: { light: string, dark: string },
+      warningBackground: { light: string, dark: string },
+      warningBorder: { light: string, dark: string },
+      warningText: { light: string, dark: string },
+      warningTextHover: { light: string, dark: string },
+    },
+    content: {
+      horizontalPadding: string,
+      verticalPadding: string,
+      width: string,
+    },
+    fontFamily: {
+      default: string,
+      mono: string,
+    },
+    fontSize: {
+      root: string,
+      '9': string,
+      '11': string,
+      '12': string,
+      '13': string,
+      '14': string,
+      '15': string,
+      '16': string,
+      '18': string,
+      '20': string,
+      '24': string,
+      '32': string,
+      h1: string,
+      h2: string,
+      h3: string,
+      h4: string,
+      h5: string,
+      h6: string,
+      code: string,
+      codeBlock: string,
+      lineNumber: string,
+      subtitle: string,
+      th: string,
+      td: string,
+    },
+    fontWeight: {
+      regular: string,
+      medium: string,
+      semibold: string,
+    },
+    lineHeight: {
+      code: string,
+      heading: string,
+      listItem: string,
+      outlineItem: string,
+      paragraph: string,
+    },
+    space: {
+      '0': string,
+      '1': string,
+      '2': string,
+      '3': string,
+      '4': string,
+      '6': string,
+      '8': string,
+      '12': string,
+      '14': string,
+      '16': string,
+      '18': string,
+      '20': string,
+      '22': string,
+      '24': string,
+      '28': string,
+      '32': string,
+      '40': string,
+      '44': string,
+      '48': string,
+      '56': string,
+      '64': string,
+      '72': string,
+      '80': string,
+    }
+  }
+}
+```
+:::
+::::
+
 ### title
 
 - **Type:** `string`

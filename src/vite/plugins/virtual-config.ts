@@ -12,7 +12,8 @@ export function virtualConfig(): PluginOption {
       const { configPath } = await resolveVocsConfig()
       if (configPath) {
         server.watcher.add(configPath)
-        server.watcher.on('change', async () => {
+        server.watcher.on('change', async (path) => {
+          if (path !== configPath) return
           server.ws.send('vocs:config', (await resolveVocsConfig()).config)
         })
       }
