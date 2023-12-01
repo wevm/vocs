@@ -3,7 +3,7 @@ import { fontSizeVars, fontWeightVars, lineHeightVars } from '../styles/vars.css
 
 export const logoImage = style(
   {
-    height: '30%',
+    height: '50%',
     width: 'auto',
   },
   'logoImage',

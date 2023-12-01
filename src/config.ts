@@ -1,4 +1,21 @@
+import chroma from 'chroma-js'
 import type { ReactElement } from 'react'
+import type {
+  borderRadiusVars,
+  contentVars,
+  fontFamilyVars,
+  fontSizeVars,
+  fontWeightVars,
+  lineHeightVars,
+  outlineVars,
+  primitiveColorVars,
+  semanticColorVars,
+  sidebarVars,
+  spaceVars,
+  topNavVars,
+  viewportVars,
+  zIndexVars,
+} from './app/styles/vars.css.js'
 
 type RequiredBy<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>
 
@@ -68,7 +85,11 @@ export type Config<parsed extends boolean = false> = RequiredBy<
     /**
      * Social links displayed in the top navigation.
      */
-    socials?: parsed extends true ? ParsedSocials : Socials
+    socials?: Socials<parsed>
+    /**
+     * Theme configuration.
+     */
+    theme?: Theme<parsed>
     /**
      * Documentation title.
      *
@@ -88,6 +109,7 @@ export type Config<parsed extends boolean = false> = RequiredBy<
   },
   parsed extends true ? RequiredProperties : never
 >
+
 export type ParsedConfig = Config<true>
 
 export function defineConfig({
@@ -110,6 +132,7 @@ export function defineConfig({
     titleTemplate,
     ...config,
     socials: parseSocials(config.socials ?? []),
+    theme: parseTheme(config.theme ?? {}),
   }
 }
 
@@ -124,7 +147,7 @@ const socialsMeta = {
   x: { label: 'X (Twitter)', type: 'x' },
 } satisfies Record<SocialItem['icon'], { label: string; type: SocialType }>
 
-function parseSocials(socials: Socials): ParsedSocials {
+function parseSocials(socials: Socials): Socials<true> {
   return socials.map((social) => {
     return {
       icon: social.icon,
@@ -132,6 +155,52 @@ function parseSocials(socials: Socials): ParsedSocials {
       ...socialsMeta[social.icon],
     }
   })
+}
+
+function parseTheme(theme: Theme): Theme<true> {
+  const accentColor = (() => {
+    if (!theme.accentColor) return theme.accentColor
+    if (
+      typeof theme.accentColor === 'object' &&
+      !Object.keys(theme.accentColor).includes('light') &&
+      !Object.keys(theme.accentColor).includes('dark')
+    )
+      return theme.accentColor
+
+    const accentColor = theme.accentColor as string | { light: string; dark: string }
+    const accentColorLight = typeof accentColor === 'object' ? accentColor.light : accentColor
+    const accentColorDark = typeof accentColor === 'object' ? accentColor.dark : accentColor
+    return {
+      backgroundAccent: {
+        dark: accentColorDark,
+        light: accentColorLight,
+      },
+      backgroundAccentHover: {
+        dark: chroma(accentColorDark).darken(0.25).hex(),
+        light: chroma(accentColorLight).darken(0.25).hex(),
+      },
+      backgroundAccentText: {
+        dark: chroma.contrast(accentColorDark, 'white') < 4.5 ? 'black' : 'white',
+        light: chroma.contrast(accentColorLight, 'white') < 4.5 ? 'black' : 'white',
+      },
+      borderAccent: {
+        dark: chroma(accentColorDark).brighten(0.5).hex(),
+        light: chroma(accentColorLight).darken(0.25).hex(),
+      },
+      textAccent: {
+        dark: accentColorDark,
+        light: accentColorLight,
+      },
+      textAccentHover: {
+        dark: chroma(accentColorDark).darken(0.5).hex(),
+        light: chroma(accentColorLight).darken(0.5).hex(),
+      },
+    } satisfies Theme<true>['accentColor']
+  })()
+  return {
+    ...theme,
+    accentColor,
+  } as Theme<true>
 }
 
 //////////////////////////////////////////////////////
@@ -187,8 +256,46 @@ export type ParsedSocialItem = Required<SocialItem> & {
   type: SocialType
 }
 
-export type Socials = SocialItem[]
-export type ParsedSocials = ParsedSocialItem[]
+export type Socials<parsed extends boolean = false> = parsed extends true
+  ? ParsedSocialItem[]
+  : SocialItem[]
+
+export type ThemeVariables<variables extends Record<string, unknown>> = {
+  [key in keyof variables]?: { light: string; dark: string }
+}
+export type Theme<parsed extends boolean = false> = {
+  accentColor?: Exclude<
+    | string
+    | { light: string; dark: string }
+    | ThemeVariables<
+        Pick<
+          typeof primitiveColorVars,
+          | 'backgroundAccent'
+          | 'backgroundAccentHover'
+          | 'backgroundAccentText'
+          | 'borderAccent'
+          | 'textAccent'
+          | 'textAccentHover'
+        >
+      >,
+    parsed extends true ? string | { light: string; dark: string } : never
+  >
+  variables?: {
+    borderRadius?: ThemeVariables<typeof borderRadiusVars>
+    color?: ThemeVariables<typeof primitiveColorVars> & ThemeVariables<typeof semanticColorVars>
+    content?: ThemeVariables<typeof contentVars>
+    fontFamily?: ThemeVariables<typeof fontFamilyVars>
+    fontSize?: ThemeVariables<typeof fontSizeVars>
+    fontWeight?: ThemeVariables<typeof fontWeightVars>
+    lineHeight?: ThemeVariables<typeof lineHeightVars>
+    outline?: ThemeVariables<typeof outlineVars>
+    sidebar?: ThemeVariables<typeof sidebarVars>
+    space?: ThemeVariables<typeof spaceVars>
+    topNav?: ThemeVariables<typeof topNavVars>
+    viewport?: ThemeVariables<typeof viewportVars>
+    zIndex?: ThemeVariables<typeof zIndexVars>
+  }
+}
 
 export type TopNavItem = {
   text: string

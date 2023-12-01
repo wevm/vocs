@@ -102,5 +102,11 @@ export default defineConfig({
     { icon: 'github', link: '' },
     { icon: 'x', link: '' },
   ],
+  theme: {
+    accentColor: {
+      light: 'red',
+      dark: '#ff6868',
+    },
+  },
   title: 'OP Stack Docs',
 })

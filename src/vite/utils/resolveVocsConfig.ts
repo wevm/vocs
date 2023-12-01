@@ -26,8 +26,10 @@ export async function resolveVocsConfig(parameters: ResolveVocsConfigParameters 
 
   const result = await loadConfigFromFile({ command, mode }, configPath)
 
+  const config = (result ? result.config : defaultConfig) as ParsedConfig
+
   return {
-    config: (result ? result.config : defaultConfig) as ParsedConfig,
+    config,
     configPath,
   }
 }

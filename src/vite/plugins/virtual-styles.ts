@@ -1,7 +1,9 @@
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { default as fs } from 'fs-extra'
 import { type PluginOption } from 'vite'
 
+import type { ParsedConfig } from '../../config.js'
 import { resolveVocsConfig } from '../utils/resolveVocsConfig.js'
 
 export function virtualStyles(): PluginOption {
@@ -10,6 +12,22 @@ export function virtualStyles(): PluginOption {
 
   return {
     name: 'styles',
+    async buildStart() {
+      const { config } = await resolveVocsConfig()
+      const { theme, rootDir } = config
+      createThemeStyles({ rootDir, theme })
+    },
+    async configureServer(server) {
+      const { configPath } = await resolveVocsConfig()
+      if (configPath) {
+        server.watcher.add(configPath)
+        server.watcher.on('change', async () => {
+          const { config } = await resolveVocsConfig()
+          const { rootDir, theme } = config
+          createThemeStyles({ rootDir, theme })
+        })
+      }
+    },
     resolveId(id) {
       if (id === virtualModuleId) return resolvedVirtualModuleId
       return
@@ -17,12 +35,57 @@ export function virtualStyles(): PluginOption {
     async load(id) {
       const { config } = await resolveVocsConfig()
       const { rootDir } = config
+      const themeStyles = resolve(rootDir, '.vocs/theme.css')
       const rootStyles = resolve(rootDir, 'styles.css')
       if (id === resolvedVirtualModuleId) {
-        if (!existsSync(rootStyles)) return ''
-        return `import "${rootStyles}";`
+        let code = ''
+        if (existsSync(themeStyles)) code += `import "${themeStyles}";`
+        if (existsSync(rootStyles)) code += `import "${rootStyles}";`
+        return code
       }
       return
     },
   }
+}
+
+function createThemeStyles({ rootDir, theme }: { rootDir: string; theme: ParsedConfig['theme'] }) {
+  const themeFile = resolve(rootDir, '.vocs/theme.css')
+
+  if (fs.existsSync(themeFile)) fs.rmSync(themeFile)
+  if (!theme) return
+
+  fs.createFileSync(themeFile)
+
+  type Variables = {
+    [scope: string]: { [name: string]: { light: string; dark: string } | undefined }
+  }
+  function createVars(variables: Variables) {
+    let code = ''
+    for (const scope in variables) {
+      for (const name in variables[scope]) {
+        const value = variables[scope][name]
+        if (value?.light) code += `:root { --vocs-${scope}_${name}: ${value.light}; }\n`
+        if (value?.dark) code += `:root.dark { --vocs-${scope}_${name}: ${value.dark}; }\n`
+      }
+    }
+    return code
+  }
+
+  const { accentColor, variables } = theme
+
+  if (accentColor)
+    fs.appendFileSync(
+      themeFile,
+      createVars({
+        color: {
+          backgroundAccent: accentColor.backgroundAccent,
+          backgroundAccentHover: accentColor.backgroundAccentHover,
+          backgroundAccentText: accentColor.backgroundAccentText,
+          borderAccent: accentColor.borderAccent,
+          textAccent: accentColor.textAccent,
+          textAccentHover: accentColor.textAccentHover,
+        },
+      }),
+    )
+  if (variables) fs.appendFileSync(themeFile, createVars(variables))
 }

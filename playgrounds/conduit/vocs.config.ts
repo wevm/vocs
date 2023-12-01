@@ -66,6 +66,9 @@ export default defineConfig({
     light: '/logo-light.svg',
     dark: '/logo-dark.svg',
   },
+  theme: {
+    accentColor: '#29bebd',
+  },
   title: 'Conduit',
   topNav: [
     {
