@@ -21,7 +21,10 @@ type RequiredBy<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>
 
 type RequiredProperties = 'blogDir' | 'rootDir' | 'title' | 'titleTemplate'
 
-export type Config<parsed extends boolean = false> = RequiredBy<
+export type Config<
+  parsed extends boolean = false,
+  colorScheme extends ColorScheme = ColorScheme,
+> = RequiredBy<
   {
     /**
      * Base URL.
@@ -89,7 +92,7 @@ export type Config<parsed extends boolean = false> = RequiredBy<
     /**
      * Theme configuration.
      */
-    theme?: Theme<parsed>
+    theme?: Theme<parsed, colorScheme>
     /**
      * Documentation title.
      *
@@ -112,7 +115,7 @@ export type Config<parsed extends boolean = false> = RequiredBy<
 
 export type ParsedConfig = Config<true>
 
-export function defineConfig({
+export function defineConfig<colorScheme extends ColorScheme = undefined>({
   blogDir = './pages/blog',
   font,
   head,
@@ -121,7 +124,7 @@ export function defineConfig({
   title = 'Docs',
   titleTemplate = `%s – ${title}`,
   ...config
-}: Config): ParsedConfig {
+}: Config<false, colorScheme>): ParsedConfig {
   return {
     blogDir,
     font,
@@ -132,7 +135,7 @@ export function defineConfig({
     titleTemplate,
     ...config,
     socials: parseSocials(config.socials ?? []),
-    theme: parseTheme(config.theme ?? {}),
+    theme: parseTheme(config.theme ?? ({} as Theme)),
   }
 }
 
@@ -157,7 +160,9 @@ function parseSocials(socials: Socials): Socials<true> {
   })
 }
 
-function parseTheme(theme: Theme): Theme<true> {
+function parseTheme<colorScheme extends ColorScheme = undefined>(
+  theme: Theme<false, colorScheme>,
+): Theme<true> {
   const accentColor = (() => {
     if (!theme.accentColor) return theme.accentColor
     if (
@@ -205,6 +210,8 @@ function parseTheme(theme: Theme): Theme<true> {
 
 //////////////////////////////////////////////////////
 // Types
+
+export type ColorScheme = 'light' | 'dark' | 'system' | undefined
 
 export type EditLink = {
   /**
@@ -260,40 +267,50 @@ export type Socials<parsed extends boolean = false> = parsed extends true
   ? ParsedSocialItem[]
   : SocialItem[]
 
-export type ThemeVariables<variables extends Record<string, unknown>> = {
-  [key in keyof variables]?: { light: string; dark: string }
+export type ThemeVariables<variables extends Record<string, unknown>, value> = {
+  [key in keyof variables]?: value
 }
-export type Theme<parsed extends boolean = false> = {
+export type Theme<
+  parsed extends boolean = false,
+  colorScheme extends ColorScheme = ColorScheme,
+  ///
+  colorValue = colorScheme extends 'system' | undefined ? { light: string; dark: string } : string,
+> = {
   accentColor?: Exclude<
     | string
-    | { light: string; dark: string }
-    | ThemeVariables<
-        Pick<
-          typeof primitiveColorVars,
-          | 'backgroundAccent'
-          | 'backgroundAccentHover'
-          | 'backgroundAccentText'
-          | 'borderAccent'
-          | 'textAccent'
-          | 'textAccentHover'
+    | (colorScheme extends 'system' | undefined ? { light: string; dark: string } : never)
+    | Required<
+        ThemeVariables<
+          Pick<
+            typeof primitiveColorVars,
+            | 'backgroundAccent'
+            | 'backgroundAccentHover'
+            | 'backgroundAccentText'
+            | 'borderAccent'
+            | 'textAccent'
+            | 'textAccentHover'
+          >,
+          colorValue
         >
       >,
     parsed extends true ? string | { light: string; dark: string } : never
   >
+  colorScheme?: colorScheme
   variables?: {
-    borderRadius?: ThemeVariables<typeof borderRadiusVars>
-    color?: ThemeVariables<typeof primitiveColorVars> & ThemeVariables<typeof semanticColorVars>
-    content?: ThemeVariables<typeof contentVars>
-    fontFamily?: ThemeVariables<typeof fontFamilyVars>
-    fontSize?: ThemeVariables<typeof fontSizeVars>
-    fontWeight?: ThemeVariables<typeof fontWeightVars>
-    lineHeight?: ThemeVariables<typeof lineHeightVars>
-    outline?: ThemeVariables<typeof outlineVars>
-    sidebar?: ThemeVariables<typeof sidebarVars>
-    space?: ThemeVariables<typeof spaceVars>
-    topNav?: ThemeVariables<typeof topNavVars>
-    viewport?: ThemeVariables<typeof viewportVars>
-    zIndex?: ThemeVariables<typeof zIndexVars>
+    borderRadius?: ThemeVariables<typeof borderRadiusVars, string>
+    color?: ThemeVariables<typeof primitiveColorVars, colorValue> &
+      ThemeVariables<typeof semanticColorVars, colorValue>
+    content?: ThemeVariables<typeof contentVars, string>
+    fontFamily?: ThemeVariables<typeof fontFamilyVars, string>
+    fontSize?: ThemeVariables<typeof fontSizeVars, string>
+    fontWeight?: ThemeVariables<typeof fontWeightVars, string>
+    lineHeight?: ThemeVariables<typeof lineHeightVars, string>
+    outline?: ThemeVariables<typeof outlineVars, string>
+    sidebar?: ThemeVariables<typeof sidebarVars, string>
+    space?: ThemeVariables<typeof spaceVars, string>
+    topNav?: ThemeVariables<typeof topNavVars, string>
+    viewport?: ThemeVariables<typeof viewportVars, string>
+    zIndex?: ThemeVariables<typeof zIndexVars, string>
   }
 }
 

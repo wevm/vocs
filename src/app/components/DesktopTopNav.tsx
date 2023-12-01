@@ -75,17 +75,19 @@ export function DesktopTopNav() {
                 ))}
               </div>
             </div>
-            <div className={styles.divider} />
+            {!config.theme?.colorScheme && <div className={styles.divider} />}
           </>
         )}
 
-        <div style={{ marginLeft: '-8px', marginRight: '-8px' }}>
-          <div className={styles.group}>
-            <div className={styles.item}>
-              <ThemeToggleButton />
+        {!config.theme?.colorScheme && (
+          <div style={{ marginLeft: '-8px', marginRight: '-8px' }}>
+            <div className={styles.group}>
+              <div className={styles.item}>
+                <ThemeToggleButton />
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   )

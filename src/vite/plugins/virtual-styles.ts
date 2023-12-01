@@ -3,7 +3,7 @@ import { resolve } from 'node:path'
 import { default as fs } from 'fs-extra'
 import { type PluginOption } from 'vite'
 
-import type { ParsedConfig } from '../../config.js'
+import type { ParsedConfig, Theme } from '../../config.js'
 import { resolveVocsConfig } from '../utils/resolveVocsConfig.js'
 
 export function virtualStyles(): PluginOption {
@@ -56,16 +56,17 @@ function createThemeStyles({ rootDir, theme }: { rootDir: string; theme: ParsedC
 
   fs.createFileSync(themeFile)
 
-  type Variables = {
-    [scope: string]: { [name: string]: { light: string; dark: string } | undefined }
-  }
-  function createVars(variables: Variables) {
+  function createVars(variables: NonNullable<Theme['variables']>) {
     let code = ''
     for (const scope in variables) {
-      for (const name in variables[scope]) {
-        const value = variables[scope][name]
-        if (value?.light) code += `:root { --vocs-${scope}_${name}: ${value.light}; }\n`
-        if (value?.dark) code += `:root.dark { --vocs-${scope}_${name}: ${value.dark}; }\n`
+      for (const name in (variables as any)[scope]) {
+        const value = (variables as any)[scope][name] as string | { light: string; dark: string }
+        if (typeof value === 'string')
+          code += `:root { --vocs-${scope}_${name}: ${value}; }\n:root.dark { --vocs-${scope}_${name}: ${value}; }\n`
+        else {
+          if (value?.light) code += `:root { --vocs-${scope}_${name}: ${value.light}; }\n`
+          if (value?.dark) code += `:root.dark { --vocs-${scope}_${name}: ${value.dark}; }\n`
+        }
       }
     }
     return code
