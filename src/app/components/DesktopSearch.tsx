@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { Cross2Icon, MagnifyingGlassIcon } from '@radix-ui/react-icons'
 import * as Dialog from '@radix-ui/react-dialog'
 
-import { Pagefind } from './Pagefind.js'
 import * as styles from './DesktopSearch.css.js'
 
 export function DesktopSearch() {
@@ -61,7 +60,6 @@ export function DesktopSearch() {
             </Dialog.Close>
 
             <Dialog.Title>Search</Dialog.Title>
-            <Pagefind />
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog.Root>

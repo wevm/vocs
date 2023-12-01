@@ -47,11 +47,6 @@ export const serveStatic = (options: ServeStaticOptions = { root: '' }): Middlew
       defaultDocument: options.index ?? 'index.html',
     })
 
-    // FIXME: getFilePath doesn't support underscores so need to fix pagefind path
-    // https://github.com/honojs/hono/blob/d34343c4a3177befcc95fbe91629561761efdd77/src/utils/filepath.ts#L17
-    const pagefindRegex = /\/pagefind.*\.pf_(?:fragment|index|meta)\/index\.html$/
-    if (path && pagefindRegex.test(path)) path = path.replace('/index.html', '')
-
     if (!path) return next()
 
     path = `/${path}`

@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { Cross2Icon, MagnifyingGlassIcon } from '@radix-ui/react-icons'
 import * as Dialog from '@radix-ui/react-dialog'
 
-import { Pagefind } from './Pagefind.js'
 import * as styles from './MobileSearch.css.js'
 
 export function MobileSearch() {
@@ -26,7 +25,6 @@ export function MobileSearch() {
             </Dialog.Close>
 
             <Dialog.Title>Search</Dialog.Title>
-            <Pagefind />
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog.Root>

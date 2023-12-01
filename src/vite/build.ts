@@ -3,7 +3,6 @@ import { fileURLToPath } from 'node:url'
 import { default as fs } from 'fs-extra'
 import * as vite from 'vite'
 
-import { spawn } from 'child_process'
 import { prerender } from './plugins/prerender.js'
 import { resolveVocsConfig } from './utils/resolveVocsConfig.js'
 
@@ -84,16 +83,6 @@ export async function build({
     },
     configFile: undefined,
     logLevel,
-  })
-
-  // TODO: Custom logging
-  const cwd = dirname(fileURLToPath(import.meta.url))
-  await new Promise<void>((resolve) => {
-    spawn('npx', ['-y', 'pagefind', '--site', outDir_resolved], {
-      stdio: logLevel === 'info' ? 'inherit' : undefined,
-      shell: true,
-      cwd,
-    }).on('close', () => resolve())
   })
 
   hooks?.onScriptsBuildEnd?.()
