@@ -1,6 +1,7 @@
 import { clsx } from 'clsx'
 import { forwardRef } from 'react'
 
+import { useLocation } from 'react-router-dom'
 import { ExternalLink } from './ExternalLink.js'
 import * as styles from './Link.css.js'
 import { RouterLink, type RouterLinkProps } from './RouterLink.js'
@@ -15,6 +16,8 @@ type LinkProps = {
 
 export const Link = forwardRef((props: LinkProps, ref) => {
   const { href, variant = 'accent underlined' } = props
+
+  const { pathname } = useLocation()
 
   // External links
   if (href?.match(/^www|https?/))
@@ -33,7 +36,7 @@ export const Link = forwardRef((props: LinkProps, ref) => {
 
   // Internal links
   const [before, after] = (href || '').split('#')
-  const to = `${before ? before : ''}${after ? `#${after}` : ''}`
+  const to = `${before ? before : pathname}${after ? `#${after}` : ''}`
   return (
     <RouterLink
       {...(props as RouterLinkProps)}

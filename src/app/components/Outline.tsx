@@ -196,6 +196,8 @@ function Items({
   onClickItem?: () => void
   setActiveId: (id: string) => void
 }) {
+  const { pathname } = useLocation()
+
   return (
     <ul className={styles.items}>
       {levelItems.map(({ id, level, text }) => {
@@ -223,7 +225,7 @@ function Items({
               {/* biome-ignore lint/a11y/useValidAnchor: */}
               <a
                 data-active={isActive}
-                href={hash}
+                href={`${pathname}${hash}`}
                 onClick={() => {
                   onClickItem?.()
                   setActiveId(id)

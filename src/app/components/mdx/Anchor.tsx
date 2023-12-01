@@ -1,5 +1,6 @@
 import { clsx } from 'clsx'
 import type { ReactNode } from 'react'
+import { useLocation } from 'react-router-dom'
 
 import { Link } from '../Link.js'
 import * as styles from './Anchor.css.js'
@@ -13,6 +14,7 @@ type AnchorProps = {
 
 export function Anchor(props: AnchorProps) {
   const { children, href } = props
+  const { pathname } = useLocation()
 
   // Heading slug links
   if (
@@ -24,7 +26,10 @@ export function Anchor(props: AnchorProps) {
     return <Autolink className={clsx(props.className, styles.root)} {...props} />
 
   // ID links
-  if (href?.match(/^#/)) return <a className={clsx(props.className, styles.root)} {...props} />
+  if (href?.match(/^#/))
+    return (
+      <a className={clsx(props.className, styles.root)} {...props} href={`${pathname}${href}`} />
+    )
 
   return <Link className={clsx(props.className, styles.root)} {...props} />
 }

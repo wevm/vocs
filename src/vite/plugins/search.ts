@@ -1,19 +1,19 @@
-import * as runtime from 'react/jsx-runtime'
-import debug_ from 'debug'
-import { Fragment } from 'react'
-import { compile, run } from '@mdx-js/mdx'
-import { pathToFileURL } from 'url'
-import { readFile } from 'fs/promises'
 import { existsSync } from 'fs'
+import path from 'path'
+import { pathToFileURL } from 'url'
+import { compile, run } from '@mdx-js/mdx'
+import debug_ from 'debug'
+import { readFile } from 'fs/promises'
+import { globby } from 'globby'
 import MiniSearch from 'minisearch'
+import { Fragment } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
+import * as runtime from 'react/jsx-runtime'
 import { type Plugin, type ViteDevServer } from 'vite'
 
 import { resolveVocsConfig } from '../utils/resolveVocsConfig.js'
 import { slash } from '../utils/slash.js'
 import { rehypePlugins, remarkPlugins } from './mdx.js'
-import { globby } from 'globby'
-import path from 'path'
 
 const searchIndexId = '@searchIndex'
 const searchIndexRequestPath = `/@${searchIndexId}`
@@ -178,8 +178,8 @@ export async function search(): Promise<Plugin> {
   }
 }
 
-const headingRegex = /<h(\d*).*?>(.*?<a.*? href="#.*?".*?>.*?<\/a>)<\/h\1>/gi
-const headingContentRegex = /(.*?)<a.*? href="#(.*?)".*?>.*?<\/a>/i
+const headingRegex = /<h(\d*).*?>(.*?<a.*? href=".*?".*?>.*?<\/a>)<\/h\1>/gi
+const headingContentRegex = /(.*?)<a.*? href=".*?#(.*?)".*?>.*?<\/a>/i
 
 type PageSection = {
   anchor: string
