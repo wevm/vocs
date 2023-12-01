@@ -43,40 +43,35 @@ export const remarkPlugins = [
   remarkAuthors,
 ]
 
+export const rehypePlugins = [
+  rehypeSlug,
+  [
+    rehypePrettyCode,
+    {
+      keepBackground: false,
+      getHighlighter(options: Parameters<typeof getHighlighter>) {
+        return getHighlighter({
+          ...options,
+          processors: [createDiffProcessor(), createFocusProcessor(), createHighlightProcessor()],
+        })
+      },
+      theme: {
+        dark: 'github-dark-dimmed',
+        light: 'github-light',
+      },
+    },
+  ] as any,
+  [
+    rehypeAutolinkHeadings,
+    {
+      behavior: 'append',
+      content() {
+        return [h('div', { dataAutolinkIcon: true })]
+      },
+    },
+  ],
+]
+
 export function mdx(): PluginOption {
-  return mdxPlugin({
-    remarkPlugins,
-    rehypePlugins: [
-      [
-        rehypePrettyCode as any,
-        {
-          keepBackground: false,
-          getHighlighter(options: Parameters<typeof getHighlighter>) {
-            return getHighlighter({
-              ...options,
-              processors: [
-                createDiffProcessor(),
-                createFocusProcessor(),
-                createHighlightProcessor(),
-              ],
-            })
-          },
-          theme: {
-            dark: 'github-dark-dimmed',
-            light: 'github-light',
-          },
-        },
-      ],
-      rehypeSlug,
-      [
-        rehypeAutolinkHeadings,
-        {
-          behavior: 'append',
-          content() {
-            return [h('div', { dataAutolinkIcon: true })]
-          },
-        },
-      ],
-    ],
-  })
+  return mdxPlugin({ remarkPlugins, rehypePlugins })
 }

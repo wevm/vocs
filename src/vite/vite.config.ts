@@ -10,6 +10,7 @@ import { virtualConfig } from './plugins/virtual-config.js'
 import { virtualRoot } from './plugins/virtual-root.js'
 import { virtualRoutes } from './plugins/virtual-routes.js'
 import { virtualStyles } from './plugins/virtual-styles.js'
+import { search } from './plugins/search.js'
 
 export default defineConfig({
   build: {
@@ -28,6 +29,7 @@ export default defineConfig({
     }),
     css(),
     mdx(),
+    search(),
     virtualBlog(),
     virtualRoutes(),
     virtualRoot(),
