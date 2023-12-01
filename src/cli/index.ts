@@ -8,7 +8,12 @@ import { version } from './version.js'
 
 export const cli = cac('vocs')
 
-cli.command('[root]').alias('dev').option('-h, --host', 'Expose host URL').action(dev)
+cli
+  .command('[root]')
+  .alias('dev')
+  .option('-h, --host', 'Expose host URL')
+  .option('-p, --port [number]', 'Port used by the server (default: 5173)')
+  .action(dev)
 cli
   .command('build')
   .option('-l, --logLevel [level]', 'info | warn | error | silent')

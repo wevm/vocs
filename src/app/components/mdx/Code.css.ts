@@ -6,6 +6,7 @@ import {
   semanticColorVars,
   spaceVars,
 } from '../../styles/vars.css.js'
+import { danger, info, success, tip, warning } from '../Callout.css.js'
 import { root as Anchor } from './Anchor.css.js'
 import { root as Pre } from './Pre.css.js'
 
@@ -26,6 +27,21 @@ export const root = style({
     },
     [`${Anchor}:hover>&`]: {
       color: semanticColorVars.linkHover,
+    },
+    [`${danger} &`]: {
+      color: semanticColorVars.dangerText,
+    },
+    [`${info} &`]: {
+      color: semanticColorVars.infoText,
+    },
+    [`${success} &`]: {
+      color: semanticColorVars.successText,
+    },
+    [`${tip} &`]: {
+      color: semanticColorVars.tipText,
+    },
+    [`${warning} &`]: {
+      color: semanticColorVars.warningText,
     },
   },
 })

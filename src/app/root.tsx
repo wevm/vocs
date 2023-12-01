@@ -79,7 +79,9 @@ function Head({ frontmatter }: { frontmatter: Module['frontmatter'] }) {
           content={ogImageUrl
             .replace(
               '%logo',
-              `${baseUrl}${typeof logoUrl === 'string' ? logoUrl : logoUrl?.dark || ''}`,
+              `${baseUrl ? baseUrl : ''}${
+                typeof logoUrl === 'string' ? logoUrl : logoUrl?.dark || ''
+              }`,
             )
             .replace('%title', title || '')
             .replace('%description', (description !== 'undefined' ? description : '') || '')}
