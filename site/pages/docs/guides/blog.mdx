@@ -1,3 +1,84 @@
 # Blog
 
-TODO
+Below are the steps to set up a blog using Vocs.
+
+::::steps
+
+## Set up a post list page
+
+First, create a new directory called `blog/`, and inside of it, create an index page (`index.mdx`).
+
+```bash
+my-project/             
+├── docs/
+│   ├── pages/
+│   │   └── blog/ // [!code ++] // [!code focus]
+|   |       └── index.mdx // [!code ++] // [!code focus]
+│   └── public/
+│       └── favicon.ico 
+├── node_modules/
+│   ...
+```
+
+Inside of `index.mdx`, add the following code:
+
+```md [blog/index.mdx]
+---
+layout: minimal
+---
+
+# Blog
+
+::blog-posts
+```
+
+You have now created a blog post list page. The `::blog-posts` component will automatically generate a list of all blog posts in the `blog/` directory.
+
+## Write a blog post
+
+Now, create a new post in your `blog/` directory named `my-first-post.mdx`.
+
+```bash
+my-project/             
+├── docs/
+│   ├── pages/
+│   │   └── blog/ // [!code focus]
+|   |       ├── index.mdx // [!code focus]
+|   |       └── my-first-post.mdx // [!code ++] // [!code focus]
+│   └── public/
+│       └── favicon.ico 
+├── node_modules/
+│   ...
+```
+
+Inside of the `my-first-post.mdx` file, you can write your blog content:
+
+```md [blog/my-first-post.mdx]
+---
+layout: minimal
+---
+
+# My First Post
+
+Hello everyone, this is my first post!
+```
+
+You can also add `authors` and a `date` to your frontmatter, and then display it in the post.
+
+```md [blog/my-first-post.mdx]
+---
+layout: minimal
+authors: // [!code focus]
+  - "[jxom](https://twitter.com/_jxom)" // [!code focus]
+  - "[awkweb](https://twitter.com/awkweb)" // [!code focus]
+date: 2023-11-25 // [!code focus]
+---
+
+# My First Post
+
+::authors // [!code focus]
+
+Hello everyone, this is my first post!
+```
+
+::::

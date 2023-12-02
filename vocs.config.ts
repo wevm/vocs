@@ -57,16 +57,16 @@ export default defineConfig({
           link: '/docs/guides/styling',
         },
         {
+          text: 'Layouts',
+          link: '/docs/guides/layouts',
+        },
+        {
           text: 'Dynamic OG Images',
           link: '/docs/guides/og-images',
         },
         {
           text: 'Blog',
           link: '/docs/guides/blog',
-        },
-        {
-          text: 'Internationalization (i18n)',
-          link: '/docs/guides/i18n',
         },
       ],
     },

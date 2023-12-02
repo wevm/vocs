@@ -1,0 +1,40 @@
+# Layouts [Customizing the page layout in Vocs]
+
+Vocs comes with two built-in layouts: the **default** docs layout, and a **minimal** layout.
+
+You can specify which layout to use by setting the `layout` property in your frontmatter.
+
+```mdx
+---
+layout: minimal
+---
+
+# A minimal page
+
+This page uses a minimal layout.
+```
+
+:::info
+An example of a `minimal` layout page can be found on the [Blog page](/blog).
+:::
+
+You can also control what elements are displayed on the page:
+
+```mdx
+---
+sidebar: false
+outline: false
+logo: false
+---
+
+This is a page without a sidebar, outline, or logo.
+```
+
+```mdx
+---
+layout: minimal
+logo: false
+---
+
+This is a minimal layout without the logo.
+```
