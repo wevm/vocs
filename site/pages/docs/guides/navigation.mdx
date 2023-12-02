@@ -1,0 +1,113 @@
+# Sidebar & Top Navigation
+
+The sidebar and top navigation are the main ways to navigate through the documentation. 
+
+The sidebar contains the main items to navigate between pages. 
+It is always visible on larger desktop viewports, but for smaller viewports, the sidebar collapses into a hamburger menu.
+
+The top navigation contains higher-level navigation for the documentation, as well as miscellaneous items (social, theme toggle, etc).
+Such higher-level navigation could include links to the main website, blog, examples, etc.
+
+## Configuration
+
+You can configure the sidebar and top navigation via your `vocs.config.ts` file.
+
+### Sidebar
+
+The `sidebar` property is an array of sidebar items. Each sidebar item can have the following properties:
+
+- `text`: The text to display for the sidebar item.
+- `collapsed` (optional): Whether the sidebar item should be collapsed by default.
+- `link` (optional): The link to navigate to.
+- `items` (optional): The child sidebar items to display.
+
+```tsx
+import { defineConfig } from 'vocs'
+
+export default defineConfig({
+  sidebar: [ // [!code focus]
+    { // [!code focus]
+      text: 'Getting Started', // [!code focus]
+      link: '/docs', // [!code focus]
+    }, // [!code focus]
+    { // [!code focus]
+      text: 'API', // [!code focus]
+      collapsed: true, // [!code focus]
+      items: [ // [!code focus]
+        { // [!code focus]
+          text: 'Config', // [!code focus]
+          link: '/docs/api/config', // [!code focus]
+        }, // [!code focus]
+      ], // [!code focus]
+    } // [!code focus]
+  ], // [!code focus]
+  title: 'Viem'
+})
+```
+
+#### Contextual Sidebars
+
+You can also show a different sidebar for each page. This is useful if you want to show a sidebar for a specific section of the documentation.
+
+```tsx
+import { defineConfig } from 'vocs'
+
+export default defineConfig({
+  sidebar: {
+    '/docs/': [ // [!code focus]
+      { 
+        text: 'Getting Started', 
+        link: '/docs', 
+      }, 
+      { 
+        text: 'API', 
+        collapsed: true, 
+        items: [ 
+          { 
+            text: 'Config', 
+            link: '/docs/api/config', 
+          }, 
+        ], 
+      } 
+    ], // [!code focus]
+    '/examples/': [ // [!code focus]
+      { text: 'React', link: '/examples/react' } 
+      { text: 'Vue', link: '/examples/vue' }
+    ] // [!code focus]
+  }
+  title: 'Viem'
+})
+```
+
+### Top Navigation
+
+The `topNav` property is an array of top navigation items. Each top navigation item can have the following properties:
+
+- `text`: The text to display for the top nav item.
+- `link` (optional): The link to navigate to.
+- `items` (optional): The child top nav items to display.
+
+```tsx
+import { defineConfig } from 'vocs'
+
+export default defineConfig({
+  title: 'Viem',
+  topNav: [ // [!code focus]
+    { text: 'Guide & API', link: '/docs' }, // [!code focus]
+    { text: 'Blog', link: '/blog' }, // [!code focus]
+    { // [!code focus]
+      text: version, // [!code focus]
+      children: [ // [!code focus]
+        { // [!code focus]
+          text: 'Changelog', // [!code focus]
+          link: 'https://github.com/wevm/vocs/blob/main/src/CHANGELOG.md', // [!code focus]
+        }, // [!code focus]
+        { // [!code focus]
+          text: 'Contributing', // [!code focus]
+          link: 'https://github.com/wevm/vocs/blob/main/.github/CONTRIBUTING.md', // [!code focus]
+        }, // [!code focus]
+      ], // [!code focus]
+    }, // [!code focus]
+  ], // [!code focus]
+})
+```

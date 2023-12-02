@@ -7,7 +7,6 @@ export const root = style({
   selectors: {
     '&:not(:first-child)': {
       marginTop: spaceVars['16'],
-      paddingTop: spaceVars['4'],
     },
     '&&:not(:last-child)': {
       marginBottom: spaceVars['16'],

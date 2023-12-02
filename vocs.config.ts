@@ -46,24 +46,31 @@ export default defineConfig({
       items: [
         {
           text: 'Sidebar & Top Navigation',
+          link: '/docs/guides/navigation',
         },
         {
           text: 'Theming',
+          link: '/docs/guides/theming',
         },
         {
           text: 'CSS & Styling',
+          link: '/docs/guides/styling',
         },
         {
           text: 'Dynamic OG Images',
+          link: '/docs/guides/og-images',
         },
         {
           text: 'Blog',
+          link: '/docs/guides/blog',
         },
         {
           text: 'Internationalization (i18n)',
+          link: '/docs/guides/i18n',
         },
         {
           text: 'Tailwind CSS',
+          link: '/docs/guides/tailwind',
         },
       ],
     },
