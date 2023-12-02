@@ -283,7 +283,7 @@ importers:
         specifier: ^1.7.4
         version: 1.7.4
       create-vocs:
-        specifier: workspace:*
+        specifier: ^0.0.0
         version: link:../create-vocs
       crypto-hash:
         specifier: 3.0.0
