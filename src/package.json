@@ -35,7 +35,7 @@
     "chroma-js": "^2.4.2",
     "clsx": "^2.0.0",
     "compression": "^1.7.4",
-    "create-vocs": "workspace:*",
+    "create-vocs": "latest",
     "crypto-hash": "3.0.0",
     "globby": "^13.2.2",
     "hastscript": "^8.0.0",
