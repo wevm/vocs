@@ -119,7 +119,7 @@ export function defineConfig<colorScheme extends ColorScheme = undefined>({
   blogDir = './pages/blog',
   font,
   head,
-  ogImageUrl = 'https://vocs.dev/api/og?logo=%logo&title=%title&description=%description',
+  ogImageUrl,
   rootDir = 'docs',
   title = 'Docs',
   titleTemplate = `%s – ${title}`,
