@@ -1,6 +1,6 @@
 {
   "name": "vocs",
-  "version": "0.0.0",
+  "version": "0.0.1-alpha.0",
   "type": "module",
   "bin": {
     "vocs": "./_lib/cli/index.js"
