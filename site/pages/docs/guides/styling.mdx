@@ -1,3 +1,139 @@
 # Styling
 
-TODO
+## Custom CSS & Styles
+
+To add custom CSS, you can create a `styles.css` file in the Vocs root directory.
+This file will be automatically imported into the app.
+
+```bash
+my-project/             
+├── docs/
+│   ├── pages/ 
+|   |   ├── index.mdx 
+|   |   └── about.tsx 
+│   └── public/
+│   |   └── favicon.ico
+|   └── styles.css // [!code focus]
+├── node_modules/
+│   ...
+```
+
+The `styles.css` file could look like:
+
+```css [styles.css]
+body {
+  background-color: #f3f3f3;
+}
+
+.Vocs_H1 {
+  color: red;
+}
+```
+
+:::tip[Tip]
+You can also utilize the [CSS `@import`](https://vitejs.dev/guide/features.html#import-inlining-and-rebasing) statement to import other CSS files.
+:::
+
+#### Importing CSS into layout Component
+
+Alternatively, you can import CSS files directly into your [layout component](/docs/structure#layout-component).
+
+```tsx [layout.tsx]
+import './global.css' // [!code focus]
+import './theme.css' // [!code focus]
+
+export default function Root({ children }) {
+  return children
+}
+```
+
+#### Importing CSS into Markdown
+
+You can also import CSS files directly into your Markdown files.
+
+```mdx [example.md]
+import './theme.css' // [!code focus]
+
+# Hello world
+
+This is me.
+```
+
+## Tailwind CSS
+
+Vocs comes with built-in support for Tailwind CSS.
+
+All you need to do is add a `tailwind.config.cjs` file to your root directory, as well as a `styles.css` file.
+
+::::steps
+
+### Add `tailwind.config.cjs` file
+
+Add a `tailwind.config.cjs` configuration to your project root.
+
+```bash
+my-project/             
+├── docs/
+│   ├── pages/ 
+|   |   ├── index.mdx 
+|   |   └── about.tsx 
+│   └── public/
+│   |   └── favicon.ico
+|   └── tailwind.config.cjs // [!code ++]
+├── node_modules/
+│   ...
+```
+
+With the following content:
+
+```js [tailwind.config.cjs]
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: ['./**/*.{html,md,mdx,tsx,js,jsx}'],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}
+```
+
+### Add `styles.css` file
+
+Then add a `styles.css` file, and import the Tailwind CSS.
+
+```bash
+my-project/             
+├── docs/
+│   ├── pages/ 
+|   |   ├── index.mdx 
+|   |   └── about.tsx 
+│   └── public/
+│   |   └── favicon.ico
+|   └── tailwind.config.cjs
+|   └── styles.css // [!code ++]
+├── node_modules/
+│   ...
+```
+
+```css [styles.css]
+@tailwind components;
+@tailwind utilities;
+```
+
+:::tip[Tip]
+You don't need to import `@tailwind base` as Vocs already applies reset styling.
+:::
+
+### Add some Tailwind CSS
+
+Now you can use Tailwind CSS in any of your Markdown files or React components.
+
+```mdx [example.md]
+# Hello world
+
+This is me.
+
+<p className="text-4xl text-red">With some Tailwind CSS</p>
+```
+
+::::

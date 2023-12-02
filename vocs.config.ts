@@ -68,10 +68,6 @@ export default defineConfig({
           text: 'Internationalization (i18n)',
           link: '/docs/guides/i18n',
         },
-        {
-          text: 'Tailwind CSS',
-          link: '/docs/guides/tailwind',
-        },
       ],
     },
     {
