@@ -2,7 +2,17 @@
   "mode": "pre",
   "tag": "alpha",
   "initialVersions": {
-    "vocs": "0.0.0"
+    "vocs": "0.0.0",
+    "create-vocs": "0.0.0",
+    "playgrounds-conduit": "0.0.0",
+    "playgrounds-default": "0.0.0",
+    "playgrounds-opstack": "0.0.0",
+    "playgrounds-reth": "0.0.0",
+    "playgrounds-tailwind": "0.0.0",
+    "playgrounds-uniswap": "0.0.0",
+    "playgrounds-viem": "0.0.0"
   },
-  "changesets": []
+  "changesets": [
+    "metal-pets-drum"
+  ]
 }
