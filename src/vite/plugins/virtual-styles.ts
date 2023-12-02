@@ -34,17 +34,16 @@ export function virtualStyles(): PluginOption {
       return
     },
     async load(id) {
+      if (id !== resolvedVirtualModuleId) return
+
       const { config } = await resolveVocsConfig()
       const { rootDir } = config
       const themeStyles = resolve(__dirname, '../.vocs/theme.css')
       const rootStyles = resolve(rootDir, 'styles.css')
-      if (id === resolvedVirtualModuleId) {
-        let code = ''
-        if (existsSync(themeStyles)) code += `import "${themeStyles}";`
-        if (existsSync(rootStyles)) code += `import "${rootStyles}";`
-        return code
-      }
-      return
+      let code = ''
+      if (existsSync(themeStyles)) code += `import "${themeStyles}";`
+      if (existsSync(rootStyles)) code += `import "${rootStyles}";`
+      return code
     },
   }
 }
