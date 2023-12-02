@@ -2,4 +2,4 @@
 "vocs": patch
 ---
 
-Initial
+Initial release
