@@ -5,17 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "node --loader tsx/esm ../../src/cli/index.ts dev",
-    "build": "NODE_ENV=production node --loader tsx/esm build",
-    "preview": "node --loader tsx/esm preview"
+    "build": "NODE_ENV=production node --loader tsx/esm ../../src/cli/index.ts build",
+    "preview": "node --loader tsx/esm ../../src/cli/index.ts preview"
   },
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.17.0"
-  },
-  "devDependencies": {
-    "autoprefixer": "^10.4.16",
-    "postcss": "^8.4.31",
-    "tailwindcss": "^3.3.3"
   }
 }

@@ -78,9 +78,9 @@ my-project/
 |   |   ├── index.mdx 
 |   |   └── about.tsx 
 │   └── public/
-│   |   └── favicon.ico
-|   └── tailwind.config.cjs // [!code ++]
+│       └── favicon.ico
 ├── node_modules/
+├── tailwind.config.cjs // [!code ++]
 │   ...
 ```
 
@@ -89,7 +89,7 @@ With the following content:
 ```js [tailwind.config.cjs]
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ['./**/*.{html,md,mdx,tsx,js,jsx}'],
+  content: ['./docs/**/*.{html,md,mdx,tsx,js,jsx}'],
   theme: {
     extend: {},
   },
@@ -109,9 +109,9 @@ my-project/
 |   |   └── about.tsx 
 │   └── public/
 │   |   └── favicon.ico
-|   └── tailwind.config.cjs
 |   └── styles.css // [!code ++]
 ├── node_modules/
+├── tailwind.config.cjs
 │   ...
 ```
 

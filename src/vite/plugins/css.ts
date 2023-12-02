@@ -5,27 +5,19 @@ import { default as tailwindcss } from 'tailwindcss'
 import { default as tailwindcssNesting } from 'tailwindcss/nesting'
 import type { PluginOption } from 'vite'
 
-import { resolveVocsConfig } from '../utils/resolveVocsConfig.js'
-
 export function css(): PluginOption {
   return {
     name: 'css',
     async config() {
-      const { config } = await resolveVocsConfig()
-      const { rootDir } = config
-      const tailwindConfig = findTailwindConfig({ rootDir })
+      const tailwindConfig = findTailwindConfig()
       return {
         css: {
           postcss: {
             plugins: [
               autoprefixer(),
               tailwindcssNesting(),
-              tailwindConfig
-                ? (tailwindcss as any)({
-                    config: tailwindConfig,
-                  })
-                : undefined,
-            ].filter(Boolean),
+              tailwindConfig ? tailwindcss() : null,
+            ].filter(Boolean) as any,
           },
         },
       }
@@ -36,7 +28,7 @@ export function css(): PluginOption {
 //////////////////////////////////////////////////
 // Tailwind
 
-export function findTailwindConfig({ rootDir }: { rootDir: string }) {
+export function findTailwindConfig() {
   const configFiles = [
     './tailwind.config.js',
     './tailwind.config.cjs',
@@ -45,7 +37,7 @@ export function findTailwindConfig({ rootDir }: { rootDir: string }) {
   ]
   for (const configFile of configFiles) {
     try {
-      const configPath = resolve(rootDir, configFile)
+      const configPath = resolve(process.cwd(), configFile)
       accessSync(configPath)
       return configPath
     } catch (err) {}
