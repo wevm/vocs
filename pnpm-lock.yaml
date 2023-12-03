@@ -224,6 +224,9 @@ importers:
       '@mdx-js/rollup':
         specifier: ^3.0.0
         version: 3.0.0(rollup@4.5.2)
+      '@noble/hashes':
+        specifier: ^1.3.2
+        version: 1.3.2
       '@radix-ui/colors':
         specifier: ^3.0.0
         version: 3.0.0
@@ -275,9 +278,6 @@ importers:
       create-vocs:
         specifier: ^0.0.0
         version: link:../create-vocs
-      crypto-hash:
-        specifier: 3.0.0
-        version: 3.0.0
       globby:
         specifier: ^13.2.2
         version: 13.2.2
@@ -1811,6 +1811,11 @@ packages:
       vfile: 6.0.1
     transitivePeerDependencies:
       - supports-color
+    dev: false
+
+  /@noble/hashes@1.3.2:
+    resolution: {integrity: sha512-MVC8EAQp7MvEcm30KWENFjgR+Mkmf+D189XJTkFIlwohU5hcBbn1ZkKq7KVTi2Hme3PMGF390DaL52beVrIihQ==}
+    engines: {node: '>= 16'}
     dev: false
 
   /@nodelib/fs.scandir@2.1.5:
@@ -3873,11 +3878,6 @@ packages:
       path-key: 3.1.1
       shebang-command: 2.0.0
       which: 2.0.2
-
-  /crypto-hash@3.0.0:
-    resolution: {integrity: sha512-5l5xGtzuvGTU28GXxGV1JYVFou68buZWpkV1Fx5hIDRPnfbQ8KzabTlNIuDIeSCYGVPFehupzDqlnbXm2IXmdQ==}
-    engines: {node: '>=18'}
-    dev: false
 
   /css-background-parser@0.1.0:
     resolution: {integrity: sha512-2EZLisiZQ+7m4wwur/qiYJRniHX4K5Tc9w93MT3AS0WS1u5kaZ4FKXlOTBhOjc+CgEgPiGY+fX1yWD8UwpEqUA==}

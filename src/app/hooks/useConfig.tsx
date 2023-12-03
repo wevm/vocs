@@ -1,4 +1,5 @@
-import { sha256 } from 'crypto-hash'
+import { sha256 } from '@noble/hashes/sha256'
+import { bytesToHex } from '@noble/hashes/utils'
 import { type ReactNode, createContext, useContext, useEffect, useState } from 'react'
 import type { ParsedConfig } from '../../config.js'
 import { config as virtualConfig } from 'virtual:config'
@@ -6,7 +7,7 @@ import { config as virtualConfig } from 'virtual:config'
 const ConfigContext = createContext(virtualConfig)
 
 const configHash = import.meta.env.DEV
-  ? (await sha256(JSON.stringify(virtualConfig))).slice(0, 8)
+  ? bytesToHex(sha256(JSON.stringify(virtualConfig))).slice(0, 8)
   : ''
 
 export function ConfigProvider({
