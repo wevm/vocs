@@ -1,10 +1,13 @@
 import { mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import { dirname, relative, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import pc from 'picocolors'
 import { type Logger, type PluginOption } from 'vite'
 import { resolveVocsConfig } from '../utils/resolveVocsConfig.js'
 
 type PrerenderPluginParameters = { logger?: Logger; outDir?: string }
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
 
 export function prerender({ logger, outDir = 'dist' }: PrerenderPluginParameters): PluginOption {
   return {
@@ -16,7 +19,7 @@ export function prerender({ logger, outDir = 'dist' }: PrerenderPluginParameters
       const outDir_resolved = resolve(relative(resolve(rootDir, '..'), resolve(rootDir, outDir)))
 
       const template = readFileSync(resolve(outDir_resolved, 'index.html'), 'utf-8')
-      const mod = await import(resolve(outDir_resolved, 'index.server.js'))
+      const mod = await import(resolve(__dirname, '../.vocs/dist/index.server.js'))
 
       // Get routes to prerender.
       const routes = getRoutes(resolve(rootDir, 'pages'))

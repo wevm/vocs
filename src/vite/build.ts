@@ -55,7 +55,7 @@ export async function build({
   const output_prerender = await vite.build({
     build: {
       emptyOutDir: false,
-      outDir: outDir_resolved,
+      outDir: resolve(__dirname, '.vocs/dist'),
       ssr: resolve(__dirname, '../app/index.server.tsx'),
     },
     logLevel,
