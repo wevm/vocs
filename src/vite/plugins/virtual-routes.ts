@@ -5,7 +5,7 @@ import type { PluginOption } from 'vite'
 import { resolveVocsConfig } from '../utils/resolveVocsConfig.js'
 
 export function virtualRoutes(): PluginOption {
-  const virtualModuleId = 'virtual:routes'
+  const virtualModuleId = '@virtual/routes'
   const resolvedVirtualModuleId = `\0${virtualModuleId}`
 
   let glob: string

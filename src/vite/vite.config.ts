@@ -5,16 +5,21 @@ import { defineConfig, splitVendorChunkPlugin } from 'vite'
 
 import { css } from './plugins/css.js'
 import { mdx } from './plugins/mdx.js'
+import { resolveVocsModules } from './plugins/resolve-vocs-modules.js'
+import { search } from './plugins/search.js'
 import { virtualBlog } from './plugins/virtual-blog.js'
 import { virtualConfig } from './plugins/virtual-config.js'
 import { virtualRoot } from './plugins/virtual-root.js'
 import { virtualRoutes } from './plugins/virtual-routes.js'
 import { virtualStyles } from './plugins/virtual-styles.js'
-import { search } from './plugins/search.js'
 
 export default defineConfig({
   build: {
     cssCodeSplit: false,
+  },
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'react-dom/client', 'chroma-js', 'react-helmet'],
+    exclude: ['vocs'],
   },
   plugins: [
     splitVendorChunkPlugin(),
@@ -29,6 +34,7 @@ export default defineConfig({
     }),
     css(),
     mdx(),
+    resolveVocsModules(),
     search(),
     virtualBlog(),
     virtualRoutes(),

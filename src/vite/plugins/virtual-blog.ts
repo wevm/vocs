@@ -11,7 +11,7 @@ import { resolveVocsConfig } from '../utils/resolveVocsConfig.js'
 import { remarkPlugins } from './mdx.js'
 
 export function virtualBlog(): PluginOption {
-  const virtualModuleId = 'virtual:blog'
+  const virtualModuleId = '@virtual/blog'
   const resolvedVirtualModuleId = `\0${virtualModuleId}`
 
   return {

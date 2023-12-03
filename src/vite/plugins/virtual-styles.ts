@@ -7,7 +7,7 @@ import type { ParsedConfig, Theme } from '../../config.js'
 import { resolveVocsConfig } from '../utils/resolveVocsConfig.js'
 
 export function virtualStyles(): PluginOption {
-  const virtualModuleId = 'virtual:styles'
+  const virtualModuleId = '@virtual/styles'
   const resolvedVirtualModuleId = `\0${virtualModuleId}`
 
   return {

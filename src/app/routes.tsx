@@ -1,5 +1,5 @@
+import { routes as routes_virtual } from '@virtual/routes'
 import { type RouteObject } from 'react-router-dom'
-import { routes as routes_virtual } from 'virtual:routes'
 
 import { components } from './components/mdx/index.js'
 import { DocsLayout } from './layouts/DocsLayout.js'
