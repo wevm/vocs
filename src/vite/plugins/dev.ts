@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url'
 import { default as serveStatic } from 'serve-static'
 import type { PluginOption } from 'vite'
 
+import type { ParsedConfig } from '../../config.js'
 import { resolveVocsConfig } from '../utils/resolveVocsConfig.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -11,11 +12,21 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const cleanUrl = (url: string): string => url.replace(/#.*$/s, '').replace(/\?.*$/s, '')
 
 export function dev(): PluginOption {
+  let config = {} as ParsedConfig
   const styleSet = new Map()
+  const styleOverrideSet = new Map()
   return {
     name: 'dev',
+    async buildStart() {
+      config = (await resolveVocsConfig()).config
+    },
     transform(styles, id) {
-      if (id.endsWith('.css')) styleSet.set(id, styles)
+      const { rootDir } = config
+      if (id.endsWith('.css')) {
+        if (id.endsWith('.vocs/theme.css')) styleOverrideSet.set(id, styles)
+        else if (id === resolve(rootDir, 'styles.css')) styleOverrideSet.set(id, styles)
+        else styleSet.set(id, styles)
+      }
     },
     async configureServer(server) {
       const { config } = await resolveVocsConfig()
@@ -43,7 +54,7 @@ export function dev(): PluginOption {
             )
             const render = await module.render(req)
 
-            const styles = [...styleSet.values()]
+            const styles = [...styleSet.values(), ...styleOverrideSet.values()]
               .map((style) => `<style data-vocs-temp-style="true">${style}</style>`)
               .join('')
 
