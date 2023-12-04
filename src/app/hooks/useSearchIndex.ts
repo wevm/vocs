@@ -1,6 +1,6 @@
+import MiniSearch from 'minisearch'
 import { useEffect, useState } from 'react'
 import { searchIndex as virtualSearchIndex } from 'virtual:searchIndex'
-import MiniSearch, { type SearchResult } from 'minisearch'
 
 export type Result = {
   href: string
@@ -10,7 +10,7 @@ export type Result = {
 }
 
 export function useSearchIndex(): MiniSearch<Result> {
-  const [searchIndex, setSearchIndex] = useState(() =>
+  const [searchIndex, _setSearchIndex] = useState(() =>
     MiniSearch.loadJSON<Result>(virtualSearchIndex, {
       fields: ['title', 'titles', 'text'],
       searchOptions: {

@@ -1,18 +1,17 @@
 import * as Dialog from '@radix-ui/react-dialog'
 import {
   ChevronRightIcon,
-  Cross2Icon,
   ListBulletIcon,
   MagnifyingGlassIcon,
   ResetIcon,
 } from '@radix-ui/react-icons'
 import * as Label from '@radix-ui/react-label'
+import { type SearchResult } from 'minisearch'
 import { useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { type SearchResult } from 'minisearch'
 
 import { useDebounce } from '../hooks/useDebounce.js'
-import { useSearchIndex, type Result } from '../hooks/useSearchIndex.js'
+import { type Result, useSearchIndex } from '../hooks/useSearchIndex.js'
 import { visuallyHidden } from '../styles/utils.css.js'
 import * as styles from './SearchDialog.css.js'
 

@@ -173,6 +173,8 @@ export async function search(): Promise<Plugin> {
         }
         index.add({
           id,
+          // TODO(@jxom): is this meant to be empty? just want to make TS happy.
+          href: '',
           text: section.text,
           title: section.titles.at(-1)!,
           titles: section.titles.slice(0, -1),
