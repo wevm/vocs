@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 import { searchIndex as virtualSearchIndex } from 'virtual:searchIndex'
-import MiniSearch, { type SearchResult } from 'minisearch'
+import MiniSearch from 'minisearch'
 
 export type Result = {
   href: string
+  html: string
   text?: string
   title: string
   titles: string[]
@@ -20,7 +21,7 @@ export function useSearchIndex(): MiniSearch<Result> {
         // ...(theme.value.search?.provider === 'local' &&
         //   theme.value.search.options?.miniSearch?.searchOptions),
       },
-      storeFields: ['href', 'title', 'titles'],
+      storeFields: ['href', 'html', 'text', 'title', 'titles'],
       // ...(theme.value.search?.provider === 'local' &&
       //   theme.value.search.options?.miniSearch?.options),
     }),

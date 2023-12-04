@@ -22,6 +22,7 @@ const debug = debug_('vocs:search')
 
 type IndexObject = {
   href: string
+  html: string
   id: string
   text: string
   title: string
@@ -86,7 +87,7 @@ export async function search(): Promise<Plugin> {
     if (!index) {
       index = new MiniSearch<IndexObject>({
         fields: ['title', 'titles', 'text'],
-        storeFields: ['href', 'title', 'titles'],
+        storeFields: ['href', 'html', 'text', 'title', 'titles'],
         // TODO
         // ...options.miniSearch?.options,
       })
@@ -112,6 +113,7 @@ export async function search(): Promise<Plugin> {
       documents.push(
         ...sections.map((section) => ({
           href: `${href}#${section.anchor}`,
+          html: section.html,
           id: `${fileId}#${section.anchor}`,
           text: section.text,
           title: section.titles.at(-1)!,
@@ -172,6 +174,7 @@ export async function search(): Promise<Plugin> {
           index.discard(id)
         }
         index.add({
+          html: section.html,
           id,
           text: section.text,
           title: section.titles.at(-1)!,
@@ -191,6 +194,7 @@ const headingContentRegex = /(.*?)<a.*? href=".*?#(.*?)".*?>.*?<\/a>/i
 
 type PageSection = {
   anchor: string
+  html: string
   titles: string[]
   text: string
 }
@@ -212,7 +216,7 @@ function splitPageIntoSections(html: string) {
 
     const titles = parentTitles.slice(0, level)
     titles[level] = title
-    sections.push({ anchor, titles, text: getSearchableText(content) })
+    sections.push({ anchor, html: content, titles, text: getSearchableText(content) })
 
     if (level === 0) parentTitles = [title]
     else parentTitles[level] = title

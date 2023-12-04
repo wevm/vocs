@@ -3,6 +3,7 @@ import { globalStyle, style } from '@vanilla-extract/css'
 import {
   borderRadiusVars,
   fontSizeVars,
+  fontWeightVars,
   primitiveColorVars,
   spaceVars,
   viewportVars,
@@ -84,7 +85,7 @@ export const results = style(
   {
     display: 'flex',
     flexDirection: 'column',
-    gap: spaceVars[6],
+    gap: spaceVars[8],
     overflowX: 'hidden',
     overflowY: 'auto',
     overscrollBehavior: 'contain',
@@ -105,6 +106,7 @@ export const title = style(
   {
     alignItems: 'center',
     display: 'flex',
+    fontWeight: fontWeightVars.medium,
     gap: spaceVars[4],
   },
   'title',
@@ -121,7 +123,6 @@ export const result = style(
   {
     border: `1px solid ${primitiveColorVars.border}`,
     borderRadius: borderRadiusVars[4],
-
     width: '100%',
     selectors: {
       '&:focus-within': {
@@ -129,16 +130,36 @@ export const result = style(
       },
     },
   },
-  'searchBox',
+  'result',
 )
 
 globalStyle(`${result} > a`, {
-  alignItems: 'center',
   display: 'flex',
+  flexDirection: 'column',
   gap: spaceVars[8],
   minHeight: spaceVars[36],
   outline: 'none',
-  paddingLeft: spaceVars[8],
-  paddingRight: spaceVars[8],
+  justifyContent: 'center',
+  padding: spaceVars[8],
   width: '100%',
+})
+
+export const resultSelected = style(
+  {
+    borderColor: primitiveColorVars.borderAccent,
+  },
+  'resultSelected',
+)
+
+export const excerpt = style(
+  {
+    maxHeight: '8.75rem',
+    overflow: 'hidden',
+    opacity: 0.5,
+  },
+  'excerpt',
+)
+
+globalStyle(`${resultSelected} ${excerpt}`, {
+  opacity: 1,
 })
