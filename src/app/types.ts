@@ -12,12 +12,18 @@ export type BlogPost = {
 export type Frontmatter = {
   [key: string]: unknown
   authors?: string | string[]
+  content?: {
+    horizontalPadding?: string
+    width?: string
+    verticalPadding?: string
+  }
   date?: string
   description?: string
   layout?: 'minimal'
   logo?: boolean
   outline?: number | boolean
   sidebar?: boolean
+  topNav?: boolean
   title?: string
 }
 

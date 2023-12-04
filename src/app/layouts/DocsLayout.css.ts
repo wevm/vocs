@@ -23,12 +23,9 @@ export const content = style(
     marginLeft: 'auto',
     marginRight: 'auto',
     maxWidth: contentVars.width,
-    minHeight: `calc(100vh - (${topNavVars.height} + ${topNavVars.curtainHeight}))`,
+    minHeight: '100vh',
     overflowX: 'hidden',
     '@media': {
-      [viewportVars['min-1080px']]: {
-        paddingTop: topNavVars.height,
-      },
       [viewportVars['max-1080px']]: {
         marginLeft: 'auto',
         marginRight: 'auto',
@@ -36,6 +33,17 @@ export const content = style(
     },
   },
   'content',
+)
+
+export const content_withTopNav = style(
+  {
+    '@media': {
+      [viewportVars['min-1080px']]: {
+        paddingTop: topNavVars.height,
+      },
+    },
+  },
+  'content_withTopNav',
 )
 
 export const content_withSidebar = style(

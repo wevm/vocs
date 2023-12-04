@@ -4,7 +4,7 @@ import { createGlobalTheme, createGlobalThemeContract, globalStyle } from '@vani
 const white = 'rgba(255 255 255 / 100%)'
 const black = 'rgba(0 0 0 / 100%)'
 
-export const getVarName = (scope: string) => (_: string | null, path: string[]) =>
+const getVarName = (scope: string) => (_: string | null, path: string[]) =>
   `vocs-${scope}_${path.join('-')}`
 
 export const primitiveColorVars = createGlobalThemeContract(

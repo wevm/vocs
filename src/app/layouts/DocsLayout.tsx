@@ -2,6 +2,7 @@ import clsx from 'clsx'
 import type { ReactNode } from 'react'
 import { useInView } from 'react-intersection-observer'
 
+import { assignInlineVars } from '@vanilla-extract/dynamic'
 import { Content } from '../components/Content.js'
 import { DesktopTopNav } from '../components/DesktopTopNav.js'
 import { Footer } from '../components/Footer.js'
@@ -11,6 +12,7 @@ import { Sidebar } from '../components/Sidebar.js'
 import { SkipLink, skipLinkId } from '../components/SkipLink.js'
 import { usePageData } from '../hooks/usePageData.js'
 import { useSidebar } from '../hooks/useSidebar.js'
+import { contentVars } from '../styles/vars.css.js'
 import * as styles from './DocsLayout.css.js'
 
 export function DocsLayout({
@@ -21,6 +23,8 @@ export function DocsLayout({
   const sidebar = useSidebar()
 
   const { frontmatter = {} } = usePageData()
+
+  const { content } = frontmatter
 
   const showOutline = (() => {
     if (frontmatter) {
@@ -35,6 +39,10 @@ export function DocsLayout({
       if (frontmatter.layout === 'minimal') return false
     }
     return sidebar.length > 0
+  })()
+  const showTopNav = (() => {
+    if ('topNav' in frontmatter) return frontmatter.topNav
+    return true
   })()
 
   const { ref, inView } = useInView({
@@ -51,27 +59,31 @@ export function DocsLayout({
         </div>
       )}
 
-      <div
-        ref={ref}
-        className={clsx(
-          styles.gutterTop,
-          (frontmatter?.logo || !('logo' in frontmatter)) && styles.gutterTop_offsetLeftGutter,
-        )}
-      >
-        <DesktopTopNav />
-        <MobileTopNav />
-      </div>
+      {showTopNav && (
+        <>
+          <div
+            ref={ref}
+            className={clsx(
+              styles.gutterTop,
+              (frontmatter?.logo || !('logo' in frontmatter)) && styles.gutterTop_offsetLeftGutter,
+            )}
+          >
+            <DesktopTopNav />
+            <MobileTopNav />
+          </div>
 
-      <div
-        className={clsx(
-          styles.gutterTopCurtain,
-          showSidebar && styles.gutterTopCurtain_withSidebar,
-          frontmatter?.layout === 'minimal' && styles.gutterTopCurtain_blog,
-        )}
-      >
-        <DesktopTopNav.Curtain />
-        <MobileTopNav.Curtain enableScrollToTop={!inView} />
-      </div>
+          <div
+            className={clsx(
+              styles.gutterTopCurtain,
+              showSidebar && styles.gutterTopCurtain_withSidebar,
+              frontmatter?.layout === 'minimal' && styles.gutterTopCurtain_blog,
+            )}
+          >
+            <DesktopTopNav.Curtain />
+            <MobileTopNav.Curtain enableScrollToTop={!inView} />
+          </div>
+        </>
+      )}
 
       {showOutline && (
         <div className={clsx(styles.gutterRight, showSidebar && styles.gutterRight_withSidebar)}>
@@ -81,7 +93,16 @@ export function DocsLayout({
 
       <div
         id={skipLinkId}
-        className={clsx(styles.content, showSidebar && styles.content_withSidebar)}
+        className={clsx(
+          styles.content,
+          showSidebar && styles.content_withSidebar,
+          showTopNav && styles.content_withTopNav,
+        )}
+        style={assignInlineVars({
+          [contentVars.horizontalPadding]: content?.horizontalPadding,
+          [contentVars.width]: content?.width,
+          [contentVars.verticalPadding]: content?.verticalPadding,
+        })}
       >
         <Content>{children}</Content>
         <Footer />
