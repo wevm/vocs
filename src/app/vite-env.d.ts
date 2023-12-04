@@ -15,3 +15,7 @@ declare module 'virtual:routes' {
 declare module 'virtual:root' {
   export const Root: import('react').ElementType
 }
+
+declare module 'virtual:searchIndex' {
+  export const searchIndex: string
+}

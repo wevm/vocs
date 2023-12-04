@@ -247,6 +247,7 @@ export const borderRadiusVars = createGlobalThemeContract(
     '0': '0',
     '2': '2',
     '4': '4',
+    '6': '6',
     '8': '8',
   },
   getVarName('borderRadius'),
@@ -255,6 +256,7 @@ createGlobalTheme(':root', borderRadiusVars, {
   '0': '0',
   '2': '2px',
   '4': '4px',
+  '6': '6px',
   '8': '8px',
 })
 
@@ -377,6 +379,7 @@ export const spaceVars = createGlobalThemeContract(
     '24': '24',
     '28': '28',
     '32': '32',
+    '36': '36',
     '40': '40',
     '44': '44',
     '48': '48',
@@ -404,6 +407,7 @@ createGlobalTheme(':root', spaceVars, {
   '24': '1.5rem',
   '28': '1.75rem',
   '32': '2rem',
+  '36': '2.25rem',
   '40': '2.5rem',
   '44': '2.75rem',
   '48': '3rem',

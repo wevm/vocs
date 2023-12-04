@@ -15,12 +15,13 @@ import { resolveVocsConfig } from '../utils/resolveVocsConfig.js'
 import { slash } from '../utils/slash.js'
 import { rehypePlugins, remarkPlugins } from './mdx.js'
 
-const searchIndexId = '@searchIndex'
-const searchIndexRequestPath = `/@${searchIndexId}`
+const virtualModuleId = 'virtual:searchIndex'
+const resolvedVirtualModuleId = `\0${virtualModuleId}`
 
 const debug = debug_('vocs:search')
 
 type IndexObject = {
+  href: string
   id: string
   text: string
   title: string
@@ -29,6 +30,7 @@ type IndexObject = {
 
 export async function search(): Promise<Plugin> {
   const { config } = await resolveVocsConfig()
+  console.log(resolvedVirtualModuleId)
 
   async function render(file: string) {
     try {
@@ -52,9 +54,10 @@ export async function search(): Promise<Plugin> {
   function onIndexUpdated() {
     if (!server) return
 
-    server.moduleGraph.onFileChange(searchIndexRequestPath)
+    server.moduleGraph.onFileChange(resolvedVirtualModuleId)
     // HMR
-    const mod = server.moduleGraph.getModuleById(searchIndexRequestPath)
+    const mod = server.moduleGraph.getModuleById(resolvedVirtualModuleId)
+    console.log('onIndexUpdated', server.moduleGraph)
     if (!mod) return
 
     server.ws.send({
@@ -83,7 +86,7 @@ export async function search(): Promise<Plugin> {
     if (!index) {
       index = new MiniSearch<IndexObject>({
         fields: ['title', 'titles', 'text'],
-        storeFields: ['title', 'titles'],
+        storeFields: ['href', 'title', 'titles'],
         // TODO
         // ...options.miniSearch?.options,
       })
@@ -93,8 +96,9 @@ export async function search(): Promise<Plugin> {
 
   async function scanForBuild() {
     const pagesDirPath = path.resolve(config.rootDir, 'pages')
-    const pagesPaths = await globby(`${pagesDirPath}/**/*.{md,mdx}`)
+    const relativePagesDirPath = path.relative(config.rootDir, pagesDirPath)
 
+    const pagesPaths = await globby(`${pagesDirPath}/**/*.{md,mdx}`)
     const documents = []
     for (const pagePath of pagesPaths) {
       const fileId = getDocId(pagePath)
@@ -102,8 +106,12 @@ export async function search(): Promise<Plugin> {
       const sections = splitPageIntoSections(rendered)
       if (sections.length === 0) continue
 
+      const relFile = slash(path.relative(config.rootDir, fileId))
+      const href = relFile.replace(relativePagesDirPath, '').replace(/\.(.*)/, '')
+
       documents.push(
         ...sections.map((section) => ({
+          href: `${href}#${section.anchor}`,
           id: `${fileId}#${section.anchor}`,
           text: section.text,
           title: section.titles.at(-1)!,
@@ -129,27 +137,27 @@ export async function search(): Promise<Plugin> {
       },
     }),
     async configureServer(devServer) {
+      console.log('configureServer')
       server = devServer
       await scanForBuild()
       onIndexUpdated()
     },
     resolveId(id) {
-      if (id === searchIndexId) return `${id}`
-      return
+      if (id !== virtualModuleId) return
+      console.log('resolveId', id)
+      return resolvedVirtualModuleId
     },
     async load(id) {
-      if (id === searchIndexRequestPath) {
-        if (process.env.NODE_ENV === 'production') await scanForBuild()
-        return `export default import('${searchIndexId}')`
-      }
+      if (id !== resolvedVirtualModuleId) return
+      console.log('load', id)
 
-      if (id.startsWith(searchIndexRequestPath)) return `export default import('${searchIndexId}')`
-
-      return
+      if (process.env.NODE_ENV === 'production') await scanForBuild()
+      return `export const searchIndex = ${JSON.stringify(JSON.stringify(getIndex()))}`
     },
     async handleHotUpdate({ file }) {
       if (!file.endsWith('.md') && !file.endsWith('.mdx')) return
 
+      console.log('hadleHotUpdate', file)
       const fileId = getDocId(file)
       if (!existsSync(file)) return
 

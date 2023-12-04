@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react'
-import { Cross2Icon, MagnifyingGlassIcon } from '@radix-ui/react-icons'
+import { MagnifyingGlassIcon } from '@radix-ui/react-icons'
 import * as Dialog from '@radix-ui/react-dialog'
 
 import * as styles from './DesktopSearch.css.js'
+import { useSearchIndex } from '../hooks/useSearchIndex.js'
+import { SearchDialog } from './SearchDialog.js'
 
 export function DesktopSearch() {
+  useSearchIndex()
   const [open, setOpen] = useState(false)
 
   useEffect(() => {
@@ -30,39 +33,26 @@ export function DesktopSearch() {
   }, [open])
 
   return (
-    <>
-      <Dialog.Root open={open} onOpenChange={setOpen}>
-        <Dialog.Trigger asChild>
-          <button className={styles.search} type="button">
-            <MagnifyingGlassIcon style={{ marginTop: 2 }} />
-            Search
-            <div className={styles.searchCommand}>
-              <div
-                style={{
-                  background: 'currentColor',
-                  transform: 'rotate(45deg)',
-                  width: 1.5,
-                  borderRadius: 2,
-                  height: '100%',
-                }}
-              />
-            </div>
-          </button>
-        </Dialog.Trigger>
+    <Dialog.Root open={open} onOpenChange={setOpen}>
+      <Dialog.Trigger asChild>
+        <button className={styles.search} type="button">
+          <MagnifyingGlassIcon style={{ marginTop: 2 }} />
+          Search
+          <div className={styles.searchCommand}>
+            <div
+              style={{
+                background: 'currentColor',
+                transform: 'rotate(45deg)',
+                width: 1.5,
+                borderRadius: 2,
+                height: '100%',
+              }}
+            />
+          </div>
+        </button>
+      </Dialog.Trigger>
 
-        <Dialog.Portal>
-          <Dialog.Overlay className={styles.dialogOverlay} />
-          <Dialog.Content className={styles.dialogContent} aria-describedby={undefined}>
-            <Dialog.Close asChild>
-              <button className="IconButton" aria-label="Close" type="button">
-                <Cross2Icon />
-              </button>
-            </Dialog.Close>
-
-            <Dialog.Title>Search</Dialog.Title>
-          </Dialog.Content>
-        </Dialog.Portal>
-      </Dialog.Root>
-    </>
+      <SearchDialog onClose={() => setOpen(false)} />
+    </Dialog.Root>
   )
 }
