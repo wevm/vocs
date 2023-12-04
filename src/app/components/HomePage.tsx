@@ -2,8 +2,8 @@ import clsx from 'clsx'
 import type { ReactNode } from 'react'
 
 import { useConfig } from '../hooks/useConfig.js'
+import { Button as Button_, type ButtonProps } from './Button.js'
 import * as styles from './HomePage.css.js'
-import { Link } from './Link.js'
 import { Logo as Logo_ } from './Logo.js'
 import * as Tabs from './Tabs.js'
 
@@ -39,21 +39,8 @@ export function Buttons({ children, className }: { children: ReactNode; classNam
   return <div className={clsx(className, styles.buttons)}>{children}</div>
 }
 
-export function Button({
-  children,
-  className,
-  href,
-  variant,
-}: { children: ReactNode; className?: string; href?: string; variant: 'accent' }) {
-  return (
-    <Link
-      className={clsx(className, styles.button, variant === 'accent' && styles.button_accent)}
-      href={href}
-      variant="styleless"
-    >
-      {children}
-    </Link>
-  )
+export function Button(props: ButtonProps) {
+  return <Button_ {...props} className={clsx(styles.button, props.className)} />
 }
 
 export function InstallPackage({

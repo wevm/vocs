@@ -10,10 +10,10 @@ export function useEditLink() {
   return useMemo(() => {
     const { pattern = '', text = 'Edit page' } = config.editLink ?? {}
 
-    let url: string
+    let url = ''
     // TODO: pattern as function
     if (typeof pattern === 'function') url = ''
-    else url = pattern.replace(/:path/g, pageData.filePath)
+    else if (pageData.filePath) url = pattern.replace(/:path/g, pageData.filePath)
 
     return { url, text }
   }, [config.editLink, pageData.filePath])

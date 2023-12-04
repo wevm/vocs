@@ -11,7 +11,7 @@ import { type Module } from './types.js'
 
 export function Root(props: {
   children: ReactNode
-  filePath: string
+  filePath?: string
   frontmatter: Module['frontmatter']
   path: string
 }) {

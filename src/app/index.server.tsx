@@ -20,10 +20,10 @@ import { createFetchRequest } from './utils/createFetchRequest.js'
 export async function prerender(location: string) {
   const unwrappedRoutes = await Promise.all(
     routes.map(async (route) => {
-      const lazyRoute = await route.lazy()
+      const element = route.lazy ? (await route.lazy()).element : route.element
       return {
         path: route.path,
-        element: lazyRoute.element,
+        element,
       }
     }),
   )

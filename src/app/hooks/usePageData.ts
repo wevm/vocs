@@ -10,7 +10,7 @@ export function usePageData() {
 
 export const PageDataContext = createContext<
   | {
-      filePath: string
+      filePath?: string
       frontmatter: Module['frontmatter']
     }
   | undefined
