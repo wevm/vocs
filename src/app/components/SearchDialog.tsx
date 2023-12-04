@@ -6,15 +6,15 @@ import {
   ResetIcon,
 } from '@radix-ui/react-icons'
 import * as Label from '@radix-ui/react-label'
+import clsx from 'clsx'
+import { type SearchResult } from 'minisearch'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { type SearchResult } from 'minisearch'
 
 import { useDebounce } from '../hooks/useDebounce.js'
-import { useSearchIndex, type Result } from '../hooks/useSearchIndex.js'
+import { type Result, useSearchIndex } from '../hooks/useSearchIndex.js'
 import { visuallyHidden } from '../styles/utils.css.js'
 import * as styles from './SearchDialog.css.js'
-import clsx from 'clsx'
 
 export function SearchDialog(props: { onClose(): void }) {
   const navigate = useNavigate()
