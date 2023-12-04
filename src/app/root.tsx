@@ -1,8 +1,8 @@
-import { Root as ConsumerRoot } from '@virtual/root'
-import '@virtual/styles'
 import { type ReactNode } from 'react'
 import { Helmet } from 'react-helmet'
 import { ScrollRestoration } from 'react-router-dom'
+import { Root as ConsumerRoot } from 'virtual:root'
+import 'virtual:styles'
 
 import { useConfig } from './hooks/useConfig.js'
 import { useOgImageUrl } from './hooks/useOgImageUrl.js'

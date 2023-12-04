@@ -1,6 +1,6 @@
-import { routes } from '@virtual/routes'
 import { forwardRef } from 'react'
 import { Link, type LinkProps } from 'react-router-dom'
+import { routes } from 'virtual:routes'
 
 export type RouterLinkProps = LinkProps
 

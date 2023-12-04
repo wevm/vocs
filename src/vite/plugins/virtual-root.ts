@@ -5,7 +5,7 @@ import { type PluginOption } from 'vite'
 import { resolveVocsConfig } from '../utils/resolveVocsConfig.js'
 
 export function virtualRoot(): PluginOption {
-  const virtualModuleId = '@virtual/root'
+  const virtualModuleId = 'virtual:root'
   const resolvedVirtualModuleId = `\0${virtualModuleId}`
 
   return {

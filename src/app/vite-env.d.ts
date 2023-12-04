@@ -1,17 +1,17 @@
 /// <reference types="vite/client" />
 
-declare module '@virtual/blog' {
+declare module 'virtual:blog' {
   export const posts: import('./types.js').BlogPost[]
 }
 
-declare module '@virtual/config' {
+declare module 'virtual:config' {
   export const config: import('../config.js').ParsedConfig
 }
 
-declare module '@virtual/routes' {
+declare module 'virtual:routes' {
   export const routes: import('./types.js').Route[]
 }
 
-declare module '@virtual/root' {
+declare module 'virtual:root' {
   export const Root: import('react').ElementType
 }
