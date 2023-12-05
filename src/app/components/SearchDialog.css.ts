@@ -25,7 +25,7 @@ export const root = style({
   position: 'fixed',
   top: 0,
   transform: 'translate(-50%)',
-  width: 'min(100vw - 60px, 900px)',
+  width: 'min(100vw - 60px, 775px)',
 
   '@media': {
     [viewportVars['max-720px']]: {
@@ -83,6 +83,29 @@ export const searchInputIcon = style(
   'searchInputIcon',
 )
 
+export const searchInputIconDesktop = style(
+  {
+    '@media': {
+      [viewportVars['max-720px']]: {
+        display: 'none',
+      },
+    },
+  },
+  'searchInputIconDesktop',
+)
+
+export const searchInputIconMobile = style(
+  {
+    display: 'none',
+    '@media': {
+      [viewportVars['max-720px']]: {
+        display: 'block',
+      },
+    },
+  },
+  'searchInputIconMobile',
+)
+
 export const results = style(
   {
     display: 'flex',
@@ -98,7 +121,7 @@ export const results = style(
 
 export const result = style(
   {
-    border: `1px solid ${primitiveColorVars.border}`,
+    border: `1.5px solid ${primitiveColorVars.border}`,
     borderRadius: borderRadiusVars[4],
     width: '100%',
     selectors: {
@@ -156,6 +179,8 @@ export const titleIcon = style(
   'titleIcon',
 )
 
+export const content = style({ padding: 0 }, 'content')
+
 export const excerpt = style(
   {
     maxHeight: '8.75rem',
@@ -186,6 +211,12 @@ export const searchShortcuts = style(
     display: 'flex',
     gap: spaceVars[18],
     fontSize: fontSizeVars[14],
+
+    '@media': {
+      [viewportVars['max-720px']]: {
+        display: 'none',
+      },
+    },
   },
   'searchShortcuts',
 )

@@ -1,5 +1,6 @@
 import * as Dialog from '@radix-ui/react-dialog'
 import {
+  ArrowLeftIcon,
   ChevronRightIcon,
   ListBulletIcon,
   MagnifyingGlassIcon,
@@ -17,6 +18,7 @@ import { type Result, useSearchIndex } from '../hooks/useSearchIndex.js'
 import { visuallyHidden } from '../styles/utils.css.js'
 import * as styles from './SearchDialog.css.js'
 import { Kbd } from './mdx/Kbd.js'
+import { Content } from './Content.js'
 
 export function SearchDialog(props: { open: boolean; onClose(): void }) {
   const navigate = useNavigate()
@@ -147,10 +149,19 @@ export function SearchDialog(props: { open: boolean; onClose(): void }) {
         <Dialog.Title className={visuallyHidden}>Search</Dialog.Title>
 
         <form className={styles.searchBox}>
+          <button
+            aria-label="Close search dialog"
+            type="button"
+            onClick={() => props.onClose()}
+            className={styles.searchInputIconMobile}
+          >
+            <ArrowLeftIcon className={styles.searchInputIcon} height={20} width={20} />
+          </button>
+
           <Label.Root htmlFor="search-input">
             <MagnifyingGlassIcon
               aria-label="Search"
-              className={styles.searchInputIcon}
+              className={clsx(styles.searchInputIcon, styles.searchInputIconDesktop)}
               height={20}
               width={20}
             />
@@ -237,11 +248,13 @@ export function SearchDialog(props: { open: boolean; onClose(): void }) {
                 </div>
 
                 {showDetailView && result.text?.trim() && (
-                  <div
-                    className={styles.excerpt}
-                    // biome-ignore lint/security/noDangerouslySetInnerHtml:
-                    dangerouslySetInnerHTML={{ __html: result.html }}
-                  />
+                  <Content className={styles.content}>
+                    <div
+                      className={styles.excerpt}
+                      // biome-ignore lint/security/noDangerouslySetInnerHtml:
+                      dangerouslySetInnerHTML={{ __html: result.html }}
+                    />
+                  </Content>
                 )}
               </Link>
             </li>

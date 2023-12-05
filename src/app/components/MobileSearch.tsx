@@ -1,33 +1,22 @@
 import { useState } from 'react'
-import { Cross2Icon, MagnifyingGlassIcon } from '@radix-ui/react-icons'
+import { MagnifyingGlassIcon } from '@radix-ui/react-icons'
 import * as Dialog from '@radix-ui/react-dialog'
 
 import * as styles from './MobileSearch.css.js'
+import { SearchDialog } from './SearchDialog.js'
 
 export function MobileSearch() {
   const [open, setOpen] = useState(false)
 
   return (
-    <>
-      <Dialog.Root open={open} onOpenChange={setOpen}>
-        <Dialog.Trigger asChild>
-          <button className={styles.searchButton} type="button" aria-label="Search">
-            <MagnifyingGlassIcon height={21} width={21} />
-          </button>
-        </Dialog.Trigger>
+    <Dialog.Root open={open} onOpenChange={setOpen}>
+      <Dialog.Trigger asChild>
+        <button className={styles.searchButton} type="button" aria-label="Search">
+          <MagnifyingGlassIcon height={21} width={21} />
+        </button>
+      </Dialog.Trigger>
 
-        <Dialog.Portal>
-          <Dialog.Content aria-describedby={undefined}>
-            <Dialog.Close asChild>
-              <button className="IconButton" aria-label="Close" type="button">
-                <Cross2Icon />
-              </button>
-            </Dialog.Close>
-
-            <Dialog.Title>Search</Dialog.Title>
-          </Dialog.Content>
-        </Dialog.Portal>
-      </Dialog.Root>
-    </>
+      <SearchDialog open={open} onClose={() => setOpen(false)} />
+    </Dialog.Root>
   )
 }
