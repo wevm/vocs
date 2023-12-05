@@ -5,6 +5,7 @@ import {
   fontSizeVars,
   fontWeightVars,
   primitiveColorVars,
+  semanticColorVars,
   spaceVars,
   viewportVars,
 } from '../styles/vars.css.js'
@@ -159,6 +160,16 @@ export const excerpt = style(
   },
   'excerpt',
 )
+
+globalStyle(`${title} mark, ${excerpt} mark`, {
+  backgroundColor: semanticColorVars.searchHighlightBackground,
+  color: semanticColorVars.searchHighlightText,
+  borderRadius: borderRadiusVars[2],
+  paddingBottom: 0,
+  paddingLeft: spaceVars[2],
+  paddingRight: spaceVars[2],
+  paddingTop: 0,
+})
 
 globalStyle(`${resultSelected} ${excerpt}`, {
   opacity: 1,

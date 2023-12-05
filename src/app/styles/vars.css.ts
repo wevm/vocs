@@ -193,6 +193,9 @@ export const semanticColorVars = createGlobalThemeContract(
     link: 'link',
     linkHover: 'linkHover',
 
+    searchHighlightBackground: 'searchHighlightBackground',
+    searchHighlightText: 'searchHighlightText',
+
     tableBorder: 'tableBorder',
     tableHeaderBackground: 'tableHeaderBackground',
     tableHeaderText: 'tableHeaderText',
@@ -237,6 +240,8 @@ createGlobalTheme(':root', semanticColorVars, {
   hr: primitiveColorVars.border,
   link: primitiveColorVars.textAccent,
   linkHover: primitiveColorVars.textAccentHover,
+  searchHighlightBackground: primitiveColorVars.borderAccent,
+  searchHighlightText: primitiveColorVars.background,
   tableBorder: primitiveColorVars.border,
   tableHeaderBackground: primitiveColorVars.background2,
   tableHeaderText: primitiveColorVars.text2,

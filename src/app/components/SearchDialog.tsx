@@ -8,17 +8,19 @@ import {
 import * as Label from '@radix-ui/react-label'
 import clsx from 'clsx'
 import { type SearchResult } from 'minisearch'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import Mark from 'mark.js'
 
 import { useDebounce } from '../hooks/useDebounce.js'
 import { type Result, useSearchIndex } from '../hooks/useSearchIndex.js'
 import { visuallyHidden } from '../styles/utils.css.js'
 import * as styles from './SearchDialog.css.js'
 
-export function SearchDialog(props: { onClose(): void }) {
+export function SearchDialog(props: { open: boolean; onClose(): void }) {
   const navigate = useNavigate()
   const inputRef = useRef<HTMLInputElement>(null)
+  const listRef = useRef<HTMLUListElement>(null)
 
   const [filterText, setFilterText] = useState('') // TODO: Persist query
   const searchTerm = useDebounce(filterText, 200)
@@ -29,41 +31,74 @@ export function SearchDialog(props: { onClose(): void }) {
   const [showDetailView, setShowDetailView] = useState(true) // TODO: Persist query
 
   const results: (SearchResult & Result)[] = useMemo(() => {
-    if (!searchTerm) return []
+    if (!searchTerm) {
+      setSelectedIndex(-1)
+      return []
+    }
+    setSelectedIndex(0)
     return searchIndex.search(searchTerm).slice(0, 16) as (SearchResult & Result)[]
   }, [searchIndex, searchTerm])
+
   const resultsCount = results.length
   const selectedResult = results[selectedIndex]
 
-  // TODO: Make sure modal is open
+  const highlight = useCallback(() => {
+    if (!listRef.current) return
+
+    const terms = new Set<string>()
+    for (const result of results) {
+      for (const term in result.match) {
+        terms.add(term)
+      }
+    }
+
+    const mark = new Mark(listRef.current)
+    mark.unmark({
+      done() {
+        mark?.markRegExp(formMarkRegex(terms))
+      },
+    })
+
+    const excerptElements = listRef.current.querySelectorAll(`.${styles.excerpt}`)
+    for (const element of excerptElements) {
+      element.querySelector('mark[data-markjs="true"]')?.scrollIntoView({ block: 'center' })
+    }
+    listRef.current?.firstElementChild?.scrollIntoView({ block: 'start' })
+  }, [results])
+
   useEffect(() => {
+    if (!props.open) return
+
     function keyDownHandler(event: KeyboardEvent) {
       switch (event.key) {
         case 'ArrowDown': {
           event.preventDefault()
           setSelectedIndex((index) => {
-            const nextIndex = index + 1
-            if (nextIndex >= resultsCount) return 0
+            let nextIndex = index + 1
+            if (nextIndex >= resultsCount) nextIndex = 0
+            const element = listRef.current?.children[nextIndex]
+            element?.scrollIntoView({ block: 'nearest' })
             return nextIndex
           })
           setDisableMouseOver(true)
-          // TODO: scroll to selected item
           break
         }
         case 'ArrowUp': {
           event.preventDefault()
           setSelectedIndex((index) => {
-            const nextIndex = index - 1
-            if (nextIndex < 0) return resultsCount - 1
+            let nextIndex = index - 1
+            if (nextIndex < 0) nextIndex = resultsCount - 1
+            const element = listRef.current?.children[nextIndex]
+            element?.scrollIntoView({ block: 'nearest' })
             return nextIndex
           })
           setDisableMouseOver(true)
-          // TODO: scroll to selected item
           break
         }
         case 'Enter': {
-          event.preventDefault()
+          if (event.target instanceof HTMLButtonElement && event.target.type !== 'submit') return
           if (!selectedResult) return
+          event.preventDefault()
           navigate(selectedResult.href)
           props.onClose()
           break
@@ -75,7 +110,13 @@ export function SearchDialog(props: { onClose(): void }) {
     return () => {
       window.removeEventListener('keydown', keyDownHandler)
     }
-  }, [navigate, resultsCount, selectedResult, props.onClose])
+  }, [navigate, resultsCount, selectedResult, props.open, props.onClose])
+
+  useEffect(() => {
+    if (searchTerm === '') return
+    if (!listRef.current) return
+    highlight()
+  }, [highlight, searchTerm])
 
   return (
     <Dialog.Portal>
@@ -87,6 +128,10 @@ export function SearchDialog(props: { onClose(): void }) {
             event.preventDefault()
             inputRef.current.focus()
           }
+          highlight()
+        }}
+        onCloseAutoFocus={() => {
+          setSelectedIndex(0)
         }}
         className={styles.root}
         aria-describedby={undefined}
@@ -94,10 +139,13 @@ export function SearchDialog(props: { onClose(): void }) {
         <Dialog.Title className={visuallyHidden}>Search</Dialog.Title>
 
         <form className={styles.searchBox}>
-          <MagnifyingGlassIcon className={styles.searchInputIcon} height={20} width={20} />
-
-          <Label.Root className={visuallyHidden} htmlFor="search-input">
-            Search
+          <Label.Root htmlFor="search-input">
+            <MagnifyingGlassIcon
+              aria-label="Search"
+              className={styles.searchInputIcon}
+              height={20}
+              width={20}
+            />
           </Label.Root>
           <input
             ref={inputRef}
@@ -118,7 +166,14 @@ export function SearchDialog(props: { onClose(): void }) {
             <ListBulletIcon className={styles.searchInputIcon} height={20} width={20} />
           </button>
 
-          <button aria-label="Reset search" type="button" onClick={() => setFilterText('')}>
+          <button
+            aria-label="Reset search"
+            type="button"
+            onClick={() => {
+              setFilterText('')
+              inputRef.current?.focus()
+            }}
+          >
             <ResetIcon className={styles.searchInputIcon} height={20} width={20} />
           </button>
         </form>
@@ -127,6 +182,7 @@ export function SearchDialog(props: { onClose(): void }) {
           className={styles.results}
           role={results.length ? 'listbox' : undefined}
           onMouseMove={() => setDisableMouseOver(false)}
+          ref={listRef}
         >
           {searchTerm && results.length === 0 && (
             <li>
@@ -164,11 +220,12 @@ export function SearchDialog(props: { onClose(): void }) {
                         <ChevronRightIcon className={styles.titleIcon} />
                       </span>
                     ))}
-                  <span
-                    // biome-ignore lint/security/noDangerouslySetInnerHtml:
-                    dangerouslySetInnerHTML={{ __html: result.title }}
-                    className={styles.title}
-                  />
+                  <span className={styles.title}>
+                    <span
+                      // biome-ignore lint/security/noDangerouslySetInnerHtml:
+                      dangerouslySetInnerHTML={{ __html: result.title }}
+                    />
+                  </span>
                 </div>
 
                 {showDetailView && result.text?.trim() && (
@@ -184,5 +241,17 @@ export function SearchDialog(props: { onClose(): void }) {
         </ul>
       </Dialog.Content>
     </Dialog.Portal>
+  )
+}
+
+function formMarkRegex(terms: Set<string>) {
+  return new RegExp(
+    [...terms]
+      .sort((a, b) => b.length - a.length)
+      .map((term) => {
+        return `(${term.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&').replace(/-/g, '\\x2d')})`
+      })
+      .join('|'),
+    'gi',
   )
 }

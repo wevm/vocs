@@ -40,6 +40,7 @@
     "globby": "^13.2.2",
     "hastscript": "^8.0.0",
     "hono": "^3.10.2",
+    "mark.js": "^8.11.1",
     "mdast-util-directive": "^3.0.0",
     "mdast-util-to-hast": "^13.0.2",
     "minimatch": "^9.0.3",
@@ -68,6 +69,7 @@
   },
   "devDependencies": {
     "@types/chroma-js": "^2.4.3",
+    "@types/mark.js": "^8.11.12",
     "@types/mdast": "^4.0.3",
     "@types/postcss-prefix-selector": "^1.16.3",
     "@types/ua-parser-js": "^0.7.39"

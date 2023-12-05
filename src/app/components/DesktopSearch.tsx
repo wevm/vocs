@@ -52,7 +52,7 @@ export function DesktopSearch() {
         </button>
       </Dialog.Trigger>
 
-      <SearchDialog onClose={() => setOpen(false)} />
+      <SearchDialog open={open} onClose={() => setOpen(false)} />
     </Dialog.Root>
   )
 }
