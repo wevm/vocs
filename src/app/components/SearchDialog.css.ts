@@ -21,6 +21,7 @@ export const root = style({
   margin: '64px auto',
   maxHeight: 'min(100vh - 128px, 900px)',
   padding: spaceVars[12],
+  paddingBottom: spaceVars[8],
   position: 'fixed',
   top: 0,
   transform: 'translate(-50%)',
@@ -95,31 +96,6 @@ export const results = style(
   'results',
 )
 
-export const titles = style(
-  {
-    display: 'flex',
-    gap: spaceVars[4],
-  },
-  'titles',
-)
-
-export const title = style(
-  {
-    alignItems: 'center',
-    display: 'flex',
-    fontWeight: fontWeightVars.medium,
-    gap: spaceVars[4],
-  },
-  'title',
-)
-
-export const titleIcon = style(
-  {
-    color: primitiveColorVars.text4,
-  },
-  'titleIcon',
-)
-
 export const result = style(
   {
     border: `1px solid ${primitiveColorVars.border}`,
@@ -141,7 +117,7 @@ globalStyle(`${result} > a`, {
   minHeight: spaceVars[36],
   outline: 'none',
   justifyContent: 'center',
-  padding: spaceVars[8],
+  padding: spaceVars[12],
   width: '100%',
 })
 
@@ -150,6 +126,34 @@ export const resultSelected = style(
     borderColor: primitiveColorVars.borderAccent,
   },
   'resultSelected',
+)
+
+export const titles = style(
+  {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: spaceVars[4],
+    lineHeight: '22px',
+  },
+  'titles',
+)
+
+export const title = style(
+  {
+    alignItems: 'center',
+    display: 'flex',
+    fontWeight: fontWeightVars.medium,
+    gap: spaceVars[4],
+    whiteSpace: 'nowrap',
+  },
+  'title',
+)
+
+export const titleIcon = style(
+  {
+    color: primitiveColorVars.text4,
+  },
+  'titleIcon',
 )
 
 export const excerpt = style(
@@ -174,3 +178,24 @@ globalStyle(`${title} mark, ${excerpt} mark`, {
 globalStyle(`${resultSelected} ${excerpt}`, {
   opacity: 1,
 })
+
+export const searchShortcuts = style(
+  {
+    alignItems: 'center',
+    color: primitiveColorVars.text2,
+    display: 'flex',
+    gap: spaceVars[18],
+    fontSize: fontSizeVars[14],
+  },
+  'searchShortcuts',
+)
+
+export const searchShortcutsGroup = style(
+  {
+    alignItems: 'center',
+    display: 'inline-flex',
+    gap: spaceVars[3],
+    marginRight: spaceVars[6],
+  },
+  'searchShortcutsGroup',
+)

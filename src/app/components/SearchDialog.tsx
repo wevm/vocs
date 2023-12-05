@@ -16,6 +16,7 @@ import { useDebounce } from '../hooks/useDebounce.js'
 import { type Result, useSearchIndex } from '../hooks/useSearchIndex.js'
 import { visuallyHidden } from '../styles/utils.css.js'
 import * as styles from './SearchDialog.css.js'
+import { Kbd } from './mdx/Kbd.js'
 
 export function SearchDialog(props: { open: boolean; onClose(): void }) {
   const navigate = useNavigate()
@@ -93,6 +94,13 @@ export function SearchDialog(props: { open: boolean; onClose(): void }) {
             return nextIndex
           })
           setDisableMouseOver(true)
+          break
+        }
+        case 'Backspace': {
+          if (!event.metaKey) return
+          event.preventDefault()
+          setFilterText('')
+          inputRef.current?.focus()
           break
         }
         case 'Enter': {
@@ -239,6 +247,38 @@ export function SearchDialog(props: { open: boolean; onClose(): void }) {
             </li>
           ))}
         </ul>
+
+        <div className={styles.searchShortcuts}>
+          <span>
+            <span className={styles.searchShortcutsGroup}>
+              <Kbd>↑</Kbd>
+              <Kbd>↓</Kbd>
+            </span>
+            to navigate
+          </span>
+
+          <span>
+            <span className={styles.searchShortcutsGroup}>
+              <Kbd>enter</Kbd>
+            </span>
+            to select
+          </span>
+
+          <span>
+            <span className={styles.searchShortcutsGroup}>
+              <Kbd>esc</Kbd>
+            </span>
+            to close
+          </span>
+
+          <span>
+            <span className={styles.searchShortcutsGroup}>
+              <Kbd>⌘</Kbd>
+              <Kbd>⌫</Kbd>
+            </span>
+            to reset
+          </span>
+        </div>
       </Dialog.Content>
     </Dialog.Portal>
   )

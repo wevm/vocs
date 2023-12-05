@@ -14,6 +14,7 @@ import { H5 } from './H5.js'
 import { H6 } from './H6.js'
 import { Header } from './Header.js'
 import { HorizontalRule } from './HorizontalRule.js'
+import { Kbd } from './Kbd.js'
 import { List } from './List.js'
 import { ListItem } from './ListItem.js'
 import { Paragraph } from './Paragraph.js'
@@ -42,6 +43,7 @@ export const components: MDXComponents = {
   h5: H5,
   h6: H6,
   hr: HorizontalRule,
+  kd: Kbd,
   li: ListItem,
   ol: (props) => <List ordered {...props} />,
   p: Paragraph,
