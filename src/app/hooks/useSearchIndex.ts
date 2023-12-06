@@ -30,6 +30,7 @@ export function useSearchIndex(): MiniSearch<Result> {
   useEffect(() => {
     if (!import.meta.hot) return
 
+    // TODO: Update index
     import.meta.hot.accept('virtual:searchIndex', (m) => {
       if (m) {
         console.log('update', m)

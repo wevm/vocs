@@ -14,6 +14,7 @@ import { type Plugin, type ViteDevServer } from 'vite'
 import { resolveVocsConfig } from '../utils/resolveVocsConfig.js'
 import { slash } from '../utils/slash.js'
 import { rehypePlugins, remarkPlugins } from './mdx.js'
+// import { components } from '../../app/components/mdx/index.js'
 
 const virtualModuleId = 'virtual:searchIndex'
 const resolvedVirtualModuleId = `\0${virtualModuleId}`
@@ -31,22 +32,26 @@ type IndexObject = {
 
 export async function search(): Promise<Plugin> {
   const { config } = await resolveVocsConfig()
-  console.log(resolvedVirtualModuleId)
 
   async function render(file: string) {
     try {
-      const src = await readFile(file, 'utf-8')
-      const test = await compile(src, {
+      const md = await readFile(file, 'utf-8')
+      const test = await compile(md, {
         baseUrl: pathToFileURL(file).href,
         outputFormat: 'function-body',
         remarkPlugins,
         rehypePlugins,
       })
       const { default: MDXContent } = await run(test, { ...runtime, Fragment })
-      const html = renderToStaticMarkup(MDXContent({}))
+      const html = renderToStaticMarkup(
+        MDXContent({
+          // TODO: Pass components - vanilla extract and virtual module errors
+          // components,
+        }),
+      )
       return html
     } catch (error) {
-      // TODO: Support imports
+      // TODO: Resolve imports (e.g. virtual modules)
       console.log(file, (error as Error).message)
       return ''
     }
@@ -58,7 +63,6 @@ export async function search(): Promise<Plugin> {
     server.moduleGraph.onFileChange(resolvedVirtualModuleId)
     // HMR
     const mod = server.moduleGraph.getModuleById(resolvedVirtualModuleId)
-    console.log('onIndexUpdated', server.moduleGraph)
     if (!mod) return
 
     server.ws.send({
@@ -139,19 +143,16 @@ export async function search(): Promise<Plugin> {
       },
     }),
     async configureServer(devServer) {
-      console.log('configureServer')
       server = devServer
       await scanForBuild()
       onIndexUpdated()
     },
     resolveId(id) {
       if (id !== virtualModuleId) return
-      console.log('resolveId', id)
       return resolvedVirtualModuleId
     },
     async load(id) {
       if (id !== resolvedVirtualModuleId) return
-      console.log('load', id)
 
       if (process.env.NODE_ENV === 'production') await scanForBuild()
       return `export const searchIndex = ${JSON.stringify(JSON.stringify(getIndex()))}`
@@ -159,7 +160,6 @@ export async function search(): Promise<Plugin> {
     async handleHotUpdate({ file }) {
       if (!file.endsWith('.md') && !file.endsWith('.mdx')) return
 
-      console.log('hadleHotUpdate', file)
       const fileId = getDocId(file)
       if (!existsSync(file)) return
 
@@ -167,17 +167,21 @@ export async function search(): Promise<Plugin> {
       const sections = splitPageIntoSections(rendered)
       if (sections.length === 0) return
 
+      const pagesDirPath = path.resolve(config.rootDir, 'pages')
+      const relativePagesDirPath = path.relative(config.rootDir, pagesDirPath)
+
       const index = getIndex()
       for (const section of sections) {
         const id = `${fileId}#${section.anchor}`
         if (index.has(id)) {
           index.discard(id)
         }
+        const relFile = slash(path.relative(config.rootDir, fileId))
+        const href = relFile.replace(relativePagesDirPath, '').replace(/\.(.*)/, '')
         index.add({
+          href: `${href}#${section.anchor}`,
           html: section.html,
           id,
-          // TODO(@jxom): is this meant to be empty? just want to make TS happy.
-          href: '',
           text: section.text,
           title: section.titles.at(-1)!,
           titles: section.titles.slice(0, -1),

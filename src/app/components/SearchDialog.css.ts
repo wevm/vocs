@@ -8,6 +8,7 @@ import {
   semanticColorVars,
   spaceVars,
   viewportVars,
+  zIndexVars,
 } from '../styles/vars.css.js'
 
 export const root = style({
@@ -15,7 +16,7 @@ export const root = style({
   borderRadius: borderRadiusVars[6],
   display: 'flex',
   flexDirection: 'column',
-  gap: '16px',
+  gap: spaceVars[8],
   height: 'min-content',
   left: '50%',
   margin: '64px auto',
@@ -26,17 +27,30 @@ export const root = style({
   top: 0,
   transform: 'translate(-50%)',
   width: 'min(100vw - 60px, 775px)',
+  zIndex: zIndexVars.backdrop,
 
   '@media': {
     [viewportVars['max-720px']]: {
       borderRadius: 0,
-      height: '100vh',
+      // TODO: Not working
+      height: 'calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom))',
       margin: 0,
-      maxHeight: 'none',
+      maxHeight: 'unset',
       width: '100vw',
     },
   },
 })
+
+export const overlay = style(
+  {
+    // TODO: Refactor to variable
+    background: 'rgba(0, 0, 0, .6)',
+    position: 'fixed',
+    inset: 0,
+    zIndex: zIndexVars.backdrop,
+  },
+  'overlay',
+)
 
 export const searchBox = style(
   {
@@ -47,6 +61,7 @@ export const searchBox = style(
     gap: spaceVars[8],
     paddingLeft: spaceVars[8],
     paddingRight: spaceVars[8],
+    marginBottom: spaceVars[8],
     width: '100%',
     selectors: {
       '&:focus-within': {
@@ -155,8 +170,14 @@ export const titles = style(
   {
     display: 'flex',
     flexWrap: 'wrap',
+    fontWeight: fontWeightVars.medium,
     gap: spaceVars[4],
     lineHeight: '22px',
+    '::before': {
+      color: primitiveColorVars.textAccent,
+      content: '#',
+      marginRight: '2px',
+    },
   },
   'titles',
 )
@@ -165,7 +186,6 @@ export const title = style(
   {
     alignItems: 'center',
     display: 'flex',
-    fontWeight: fontWeightVars.medium,
     gap: spaceVars[4],
     whiteSpace: 'nowrap',
   },
@@ -174,10 +194,15 @@ export const title = style(
 
 export const titleIcon = style(
   {
-    color: primitiveColorVars.text4,
+    color: primitiveColorVars.text,
+    opacity: 0.5,
   },
   'titleIcon',
 )
+
+globalStyle(`${resultSelected} ${title}, ${resultSelected} ${titleIcon}`, {
+  color: primitiveColorVars.textAccent,
+})
 
 export const content = style({ padding: 0 }, 'content')
 
@@ -186,6 +211,32 @@ export const excerpt = style(
     maxHeight: '8.75rem',
     overflow: 'hidden',
     opacity: 0.5,
+    position: 'relative',
+    '::before': {
+      content: '',
+      position: 'absolute',
+      top: '-1px',
+      left: 0,
+      width: '100%',
+      height: '8px',
+      background: `linear-gradient(${primitiveColorVars.background}, transparent)`,
+      zIndex: '1000',
+    },
+    '::after': {
+      content: '',
+      position: 'absolute',
+      bottom: '-1px',
+      left: 0,
+      width: '100%',
+      height: '12px',
+      background: `linear-gradient(transparent, ${primitiveColorVars.background})`,
+      zIndex: '1000',
+    },
+    '@media': {
+      [viewportVars['max-720px']]: {
+        opacity: 1,
+      },
+    },
   },
   'excerpt',
 )

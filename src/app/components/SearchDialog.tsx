@@ -4,7 +4,6 @@ import {
   ChevronRightIcon,
   ListBulletIcon,
   MagnifyingGlassIcon,
-  ResetIcon,
 } from '@radix-ui/react-icons'
 import * as Label from '@radix-ui/react-label'
 import clsx from 'clsx'
@@ -19,19 +18,20 @@ import { visuallyHidden } from '../styles/utils.css.js'
 import * as styles from './SearchDialog.css.js'
 import { Kbd } from './mdx/Kbd.js'
 import { Content } from './Content.js'
+import { useLocalStorage } from '../hooks/useLocalStorage.js'
 
 export function SearchDialog(props: { open: boolean; onClose(): void }) {
   const navigate = useNavigate()
   const inputRef = useRef<HTMLInputElement>(null)
   const listRef = useRef<HTMLUListElement>(null)
 
-  const [filterText, setFilterText] = useState('') // TODO: Persist query
+  const [filterText, setFilterText] = useLocalStorage('filterText', '')
   const searchTerm = useDebounce(filterText, 200)
   const searchIndex = useSearchIndex()
 
   const [selectedIndex, setSelectedIndex] = useState(-1)
   const [disableMouseOver, setDisableMouseOver] = useState(false)
-  const [showDetailView, setShowDetailView] = useState(true) // TODO: Persist query
+  const [showDetailView, setShowDetailView] = useLocalStorage('showDetailView', true)
 
   const results: (SearchResult & Result)[] = useMemo(() => {
     if (!searchTerm) {
@@ -120,7 +120,7 @@ export function SearchDialog(props: { open: boolean; onClose(): void }) {
     return () => {
       window.removeEventListener('keydown', keyDownHandler)
     }
-  }, [navigate, resultsCount, selectedResult, props.open, props.onClose])
+  }, [navigate, resultsCount, setFilterText, selectedResult, props.open, props.onClose])
 
   useEffect(() => {
     if (searchTerm === '') return
@@ -130,7 +130,7 @@ export function SearchDialog(props: { open: boolean; onClose(): void }) {
 
   return (
     <Dialog.Portal>
-      <Dialog.Overlay />
+      <Dialog.Overlay className={styles.overlay} />
 
       <Dialog.Content
         onOpenAutoFocus={(event) => {
@@ -188,12 +188,13 @@ export function SearchDialog(props: { open: boolean; onClose(): void }) {
           <button
             aria-label="Reset search"
             type="button"
+            className={styles.searchInputIcon}
             onClick={() => {
               setFilterText('')
               inputRef.current?.focus()
             }}
           >
-            <ResetIcon className={styles.searchInputIcon} height={20} width={20} />
+            ⌫
           </button>
         </form>
 
@@ -227,7 +228,6 @@ export function SearchDialog(props: { open: boolean; onClose(): void }) {
                 onFocus={() => setSelectedIndex(index)}
               >
                 <div className={styles.titles}>
-                  <span>#</span>
                   {result.titles
                     .filter((title) => Boolean(title))
                     .map((title: string) => (
@@ -248,13 +248,14 @@ export function SearchDialog(props: { open: boolean; onClose(): void }) {
                 </div>
 
                 {showDetailView && result.text?.trim() && (
-                  <Content className={styles.content}>
-                    <div
-                      className={styles.excerpt}
-                      // biome-ignore lint/security/noDangerouslySetInnerHtml:
-                      dangerouslySetInnerHTML={{ __html: result.html }}
-                    />
-                  </Content>
+                  <div className={styles.excerpt}>
+                    <Content className={styles.content}>
+                      <div
+                        // biome-ignore lint/security/noDangerouslySetInnerHtml:
+                        dangerouslySetInnerHTML={{ __html: result.html }}
+                      />
+                    </Content>
+                  </div>
                 )}
               </Link>
             </li>

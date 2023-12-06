@@ -59,5 +59,6 @@ globalStyle(`${Content} > *:last-child, ${Callout} > *:last-child, ${Details} > 
 
 globalStyle('#app[aria-hidden="true"]', {
   background: primitiveColorVars.background,
-  filter: 'brightness(0.5)',
+  // TODO: Do we need this? Breaks layout for dialogs
+  // filter: 'brightness(0.5)',
 })
