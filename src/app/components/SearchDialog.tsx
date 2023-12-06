@@ -7,18 +7,18 @@ import {
 } from '@radix-ui/react-icons'
 import * as Label from '@radix-ui/react-label'
 import clsx from 'clsx'
+import { default as Mark } from 'mark.js'
 import { type SearchResult } from 'minisearch'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import Mark from 'mark.js'
 
 import { useDebounce } from '../hooks/useDebounce.js'
+import { useLocalStorage } from '../hooks/useLocalStorage.js'
 import { type Result, useSearchIndex } from '../hooks/useSearchIndex.js'
 import { visuallyHidden } from '../styles/utils.css.js'
+import { Content } from './Content.js'
 import * as styles from './SearchDialog.css.js'
 import { Kbd } from './mdx/Kbd.js'
-import { Content } from './Content.js'
-import { useLocalStorage } from '../hooks/useLocalStorage.js'
 
 export function SearchDialog(props: { open: boolean; onClose(): void }) {
   const navigate = useNavigate()

@@ -18,7 +18,7 @@ export default defineConfig({
     cssCodeSplit: false,
   },
   optimizeDeps: {
-    include: ['react', 'react-dom', 'react-dom/client', 'chroma-js', 'react-helmet'],
+    include: ['react', 'react-dom', 'react-dom/client', 'chroma-js', 'react-helmet', 'mark.js'],
     exclude: ['vocs'],
   },
   plugins: [
