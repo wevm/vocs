@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 
-import { usePageData } from '../hooks/usePageData.js'
+import { useLayout } from '../hooks/useLayout.js'
 import { debounce } from '../utils/debounce.js'
 import * as styles from './Outline.css.js'
 import { root as Heading, slugTarget } from './mdx/Heading.css.js'
@@ -27,9 +27,9 @@ export function Outline({
   onClickItem?: () => void
   showTitle?: boolean
 } = {}) {
-  const { frontmatter = {} } = usePageData()
+  const { showOutline } = useLayout()
   const maxLevel = (() => {
-    if (typeof frontmatter.outline === 'number') return minLevel + frontmatter.outline - 1
+    if (typeof showOutline === 'number') return minLevel + showOutline - 1
     return maxLevel_
   })()
 

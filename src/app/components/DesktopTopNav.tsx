@@ -4,8 +4,7 @@ import { useLocation } from 'react-router-dom'
 
 import type { ParsedSocialItem } from '../../config.js'
 import { useConfig } from '../hooks/useConfig.js'
-import { usePageData } from '../hooks/usePageData.js'
-import { useSidebar } from '../hooks/useSidebar.js'
+import { useLayout } from '../hooks/useLayout.js'
 import { useTheme } from '../hooks/useTheme.js'
 import { visibleDark, visibleLight } from '../styles/utils.css.js'
 import { DesktopSearch } from './DesktopSearch.js'
@@ -23,20 +22,11 @@ import { X } from './icons/X.js'
 DesktopTopNav.Curtain = Curtain
 
 export function DesktopTopNav() {
-  const { frontmatter = {} } = usePageData()
   const config = useConfig()
-  const sidebar = useSidebar()
-
-  const showLogo = (() => {
-    if ('sidebar' in frontmatter) return frontmatter.sidebar === false
-    if ('logo' in frontmatter) return frontmatter.logo === true
-    if (frontmatter.layout === 'minimal') return true
-    if (sidebar.length === 0) return true
-    return false
-  })()
+  const { showLogo, showSidebar } = useLayout()
 
   return (
-    <div className={styles.root}>
+    <div className={clsx(styles.root, showLogo && !showSidebar && styles.withLogo)}>
       <DesktopSearch />
 
       {showLogo && (
@@ -60,31 +50,35 @@ export function DesktopTopNav() {
             <div className={styles.group}>
               <Navigation />
             </div>
-            <div className={styles.divider} />
+            <div className={clsx(styles.divider, styles.hideCompact)} />
           </>
         )}
 
         {config.socials && config.socials?.length > 0 && (
           <>
-            <div style={{ marginLeft: '-8px', marginRight: '-8px' }}>
-              <div className={styles.group}>
-                {config.socials.map((social, i) => (
-                  <div className={styles.item} key={i}>
-                    <SocialButton {...social} />
-                  </div>
-                ))}
-              </div>
+            <div
+              className={clsx(styles.group, styles.hideCompact)}
+              style={{ marginLeft: '-8px', marginRight: '-8px' }}
+            >
+              {config.socials.map((social, i) => (
+                <div className={styles.item} key={i}>
+                  <SocialButton {...social} />
+                </div>
+              ))}
             </div>
-            {!config.theme?.colorScheme && <div className={styles.divider} />}
+            {!config.theme?.colorScheme && (
+              <div className={clsx(styles.divider, styles.hideCompact)} />
+            )}
           </>
         )}
 
         {!config.theme?.colorScheme && (
-          <div style={{ marginLeft: '-8px', marginRight: '-8px' }}>
-            <div className={styles.group}>
-              <div className={styles.item}>
-                <ThemeToggleButton />
-              </div>
+          <div
+            className={clsx(styles.group, styles.hideCompact)}
+            style={{ marginLeft: '-8px', marginRight: '-8px' }}
+          >
+            <div className={styles.item}>
+              <ThemeToggleButton />
             </div>
           </div>
         )}

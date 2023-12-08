@@ -5,6 +5,7 @@ import { useLocation } from 'react-router-dom'
 
 import type * as Config from '../../config.js'
 import { useConfig } from '../hooks/useConfig.js'
+import { useLayout } from '../hooks/useLayout.js'
 import { usePageData } from '../hooks/usePageData.js'
 import { useSidebar } from '../hooks/useSidebar.js'
 import { Icon } from './Icon.js'
@@ -28,8 +29,8 @@ import { X } from './icons/X.js'
 MobileTopNav.Curtain = Curtain
 
 export function MobileTopNav() {
-  const { frontmatter = {} } = usePageData()
   const config = useConfig()
+  const { showLogo } = useLayout()
 
   const { pathname } = useLocation()
   const activeItem = config?.topNav
@@ -39,29 +40,31 @@ export function MobileTopNav() {
   return (
     <div className={styles.root}>
       <div className={styles.section}>
-        {(frontmatter.logo || !('logo' in frontmatter)) && (
-          <div className={styles.logo}>
-            <RouterLink to="/" style={{ alignItems: 'center', display: 'flex', height: '100%' }}>
-              <NavLogo />
-            </RouterLink>
+        {showLogo && (
+          <div className={styles.group}>
+            <div className={styles.logo}>
+              <RouterLink to="/" style={{ alignItems: 'center', display: 'flex', height: '100%' }}>
+                <NavLogo />
+              </RouterLink>
+            </div>
           </div>
+        )}
+        {config.topNav && activeItem && (
+          <>
+            <div className={styles.group}>
+              <Navigation activeItem={activeItem} items={config.topNav} />
+              {activeItem && <CompactNavigation activeItem={activeItem} items={config.topNav} />}
+            </div>
+          </>
         )}
       </div>
 
       <div className={styles.section}>
-        <MobileSearch />
-
-        {config.topNav && activeItem && (
-          <>
-            <div className={clsx(styles.group)}>
-              <Navigation activeItem={activeItem} items={config.topNav} />
-              {activeItem && <CompactNavigation activeItem={activeItem} items={config.topNav} />}
-              <div className={styles.divider} />
-            </div>
-          </>
-        )}
-
-        <div className={styles.group}>
+        <div className={styles.group} style={{ marginRight: '-8px' }}>
+          <MobileSearch />
+        </div>
+        <div className={styles.divider} />
+        <div className={styles.group} style={{ marginLeft: '-8px' }}>
           {config.socials?.map((social, i) => (
             <SocialButton key={i} {...social} />
           ))}
@@ -195,6 +198,7 @@ export function Curtain({
   enableScrollToTop?: boolean
 }) {
   const { pathname } = useLocation()
+  const { layout, showSidebar } = useLayout()
   const { frontmatter = {} } = usePageData()
   const sidebar = useSidebar()
 
@@ -202,13 +206,13 @@ export function Curtain({
   const [isSidebarOpen, setSidebarOpen] = useState(false)
 
   const sidebarItemTitle = useMemo(() => {
-    if (!sidebar || frontmatter.layout === 'minimal') return
+    if (!sidebar || layout === 'minimal') return
     const sidebarItem = getSidebarItemFromPathname({
       sidebar,
       pathname,
     })
     return sidebarItem?.text
-  }, [frontmatter, pathname, sidebar])
+  }, [layout, pathname, sidebar])
 
   const contentTitle = useMemo(() => {
     if (typeof window === 'undefined') return
@@ -221,9 +225,7 @@ export function Curtain({
     <div className={styles.curtain}>
       <div className={styles.curtainGroup}>
         <div className={styles.curtainItem}>
-          {frontmatter.layout === 'minimal' ? (
-            title
-          ) : (
+          {showSidebar ? (
             <Popover.Root modal open={isSidebarOpen} onOpenChange={setSidebarOpen}>
               <Popover.Trigger className={styles.menuTrigger}>
                 <Icon label="Menu" icon={Menu} size="13px" />
@@ -233,6 +235,8 @@ export function Curtain({
                 <Sidebar onClickItem={() => setSidebarOpen(false)} />
               </Popover>
             </Popover.Root>
+          ) : (
+            title
           )}
         </div>
       </div>
@@ -252,7 +256,7 @@ export function Curtain({
             <div className={styles.separator} />
           </>
         )}
-        {frontmatter.layout !== 'minimal' && (
+        {layout === 'docs' && (
           <div className={styles.curtainItem}>
             <Popover.Root modal open={isOutlineOpen} onOpenChange={setOutlineOpen}>
               <Popover.Trigger className={styles.outlineTrigger}>

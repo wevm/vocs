@@ -10,8 +10,8 @@ import { MobileTopNav } from '../components/MobileTopNav.js'
 import { Outline } from '../components/Outline.js'
 import { Sidebar } from '../components/Sidebar.js'
 import { SkipLink, skipLinkId } from '../components/SkipLink.js'
+import { useLayout } from '../hooks/useLayout.js'
 import { usePageData } from '../hooks/usePageData.js'
-import { useSidebar } from '../hooks/useSidebar.js'
 import { contentVars } from '../styles/vars.css.js'
 import * as styles from './DocsLayout.css.js'
 
@@ -20,30 +20,10 @@ export function DocsLayout({
 }: {
   children: ReactNode
 }) {
-  const sidebar = useSidebar()
-
   const { frontmatter = {} } = usePageData()
-
   const { content } = frontmatter
 
-  const showOutline = (() => {
-    if (frontmatter) {
-      if ('outline' in frontmatter) return frontmatter.outline
-      if (frontmatter.layout === 'minimal') return false
-    }
-    return true
-  })()
-  const showSidebar = (() => {
-    if (frontmatter) {
-      if ('sidebar' in frontmatter) return frontmatter.sidebar
-      if (frontmatter.layout === 'minimal') return false
-    }
-    return sidebar.length > 0
-  })()
-  const showTopNav = (() => {
-    if ('topNav' in frontmatter) return frontmatter.topNav
-    return true
-  })()
+  const { layout, showOutline, showSidebar, showTopNav } = useLayout()
 
   const { ref, inView } = useInView({
     initialInView: true,
@@ -63,10 +43,7 @@ export function DocsLayout({
         <>
           <div
             ref={ref}
-            className={clsx(
-              styles.gutterTop,
-              (frontmatter?.logo || !('logo' in frontmatter)) && styles.gutterTop_offsetLeftGutter,
-            )}
+            className={clsx(styles.gutterTop, showSidebar && styles.gutterTop_offsetLeftGutter)}
           >
             <DesktopTopNav />
             <MobileTopNav />
@@ -76,7 +53,7 @@ export function DocsLayout({
             className={clsx(
               styles.gutterTopCurtain,
               showSidebar && styles.gutterTopCurtain_withSidebar,
-              frontmatter?.layout === 'minimal' && styles.gutterTopCurtain_blog,
+              layout === 'minimal' && styles.gutterTopCurtain_minimal,
             )}
           >
             <DesktopTopNav.Curtain />

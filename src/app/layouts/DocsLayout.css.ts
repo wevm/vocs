@@ -75,6 +75,7 @@ export const gutterLeft = style(
 export const gutterTop = style(
   {
     alignItems: 'center',
+    backgroundColor: `color-mix(in srgb, ${primitiveColorVars.background} 98%, transparent)`,
     height: topNavVars.height,
     width: '100vw',
     zIndex: zIndexVars.gutterTop,
@@ -124,12 +125,12 @@ export const gutterTopCurtain = style(
   'gutterTopCurtain',
 )
 
-export const gutterTopCurtain_blog = style(
+export const gutterTopCurtain_minimal = style(
   {
     background: 'unset',
     display: 'none',
   },
-  'gutterTopCurtain_blog',
+  'gutterTopCurtain_minimal',
 )
 
 export const gutterTopCurtain_withSidebar = style(

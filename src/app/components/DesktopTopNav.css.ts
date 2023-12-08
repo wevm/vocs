@@ -3,6 +3,7 @@ import { style } from '@vanilla-extract/css'
 import { leftGutterWidthVar } from '../layouts/DocsLayout.css.js'
 import {
   borderRadiusVars,
+  contentVars,
   primitiveColorVars,
   sidebarVars,
   spaceVars,
@@ -12,7 +13,6 @@ import {
 
 export const root = style({
   alignItems: 'center',
-  backgroundColor: `color-mix(in srgb, ${primitiveColorVars.background} 98%, transparent)`,
   display: 'flex',
   justifyContent: 'space-between',
   padding: `0 ${topNavVars.horizontalPadding}`,
@@ -23,6 +23,13 @@ export const root = style({
     },
   },
 })
+
+export const withLogo = style(
+  {
+    paddingLeft: `calc(((100% - ${contentVars.width}) / 2) + ${topNavVars.horizontalPadding})`,
+  },
+  'withLogo',
+)
 
 export const button = style(
   {
@@ -57,6 +64,17 @@ export const divider = style(
 )
 
 export const group = style({ alignItems: 'center', display: 'flex' }, 'group')
+
+export const hideCompact = style(
+  {
+    '@media': {
+      [viewportVars['max-1280px']]: {
+        display: 'none',
+      },
+    },
+  },
+  'hideCompact',
+)
 
 export const icon = style(
   {

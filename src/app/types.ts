@@ -19,12 +19,15 @@ export type Frontmatter = {
   }
   date?: string
   description?: string
-  layout?: 'minimal'
-  logo?: boolean
-  outline?: number | boolean
-  sidebar?: boolean
-  topNav?: boolean
   title?: string
+} & Partial<Layout>
+
+export type Layout = {
+  layout: 'minimal' | 'docs'
+  showLogo: boolean
+  showOutline: number | boolean
+  showSidebar: boolean
+  showTopNav: boolean
 }
 
 export type Module = {

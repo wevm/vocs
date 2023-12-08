@@ -3,7 +3,7 @@ import { useEffect, useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import type { SidebarItem } from '../../config.js'
 import { useEditLink } from '../hooks/useEditLink.js'
-import { usePageData } from '../hooks/usePageData.js'
+import { useLayout } from '../hooks/useLayout.js'
 import { useSidebar } from '../hooks/useSidebar.js'
 import * as styles from './Footer.css.js'
 import { Icon } from './Icon.js'
@@ -12,12 +12,11 @@ import { ArrowLeft } from './icons/ArrowLeft.js'
 import { ArrowRight } from './icons/ArrowRight.js'
 
 export function Footer() {
-  const { frontmatter } = usePageData()
-  const { layout } = frontmatter || {}
+  const { layout } = useLayout()
 
   return (
     <footer className={styles.root}>
-      {layout !== 'minimal' && (
+      {layout === 'docs' && (
         <>
           <EditLink />
           <Navigation />
