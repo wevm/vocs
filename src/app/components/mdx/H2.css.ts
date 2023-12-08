@@ -14,5 +14,10 @@ export const root = style({
       marginTop: spaceVars['56'],
       paddingTop: spaceVars['24'],
     },
+    '[data-layout="landing"] &&': {
+      borderTop: 'none',
+      marginTop: spaceVars['24'],
+      paddingTop: 0,
+    },
   },
 })

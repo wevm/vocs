@@ -49,11 +49,14 @@ export function MobileTopNav() {
             </div>
           </div>
         )}
-        {config.topNav && activeItem && (
+        {config.topNav && (
           <>
             <div className={styles.group}>
               <Navigation activeItem={activeItem} items={config.topNav} />
-              {activeItem && <CompactNavigation activeItem={activeItem} items={config.topNav} />}
+              <CompactNavigation
+                activeItem={activeItem ?? config.topNav[0]}
+                items={config.topNav}
+              />
             </div>
           </>
         )}

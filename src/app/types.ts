@@ -23,7 +23,7 @@ export type Frontmatter = {
 } & Partial<Layout>
 
 export type Layout = {
-  layout: 'minimal' | 'docs'
+  layout: 'docs' | 'landing' | 'minimal'
   showLogo: boolean
   showOutline: number | boolean
   showSidebar: boolean

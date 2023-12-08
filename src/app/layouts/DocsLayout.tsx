@@ -31,7 +31,7 @@ export function DocsLayout({
   })
 
   return (
-    <div className={styles.root}>
+    <div className={styles.root} data-layout={layout}>
       <SkipLink />
       {showSidebar && (
         <div className={styles.gutterLeft}>

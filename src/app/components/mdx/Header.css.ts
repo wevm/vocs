@@ -8,5 +8,11 @@ export const root = style({
       marginBottom: spaceVars['28'],
       paddingBottom: spaceVars['28'],
     },
+    '[data-layout="landing"] &': {
+      paddingBottom: spaceVars['16'],
+    },
+    '[data-layout="landing"] &:not(:first-child)': {
+      paddingTop: spaceVars['36'],
+    },
   },
 })

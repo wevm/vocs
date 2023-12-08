@@ -23,6 +23,7 @@ export function useLayout(): Layout {
       if (sidebar.length === 0) return false
       if (typeof showSidebar !== 'undefined') return showSidebar
       if (layout === 'minimal') return false
+      if (layout === 'landing') return false
       return true
     },
     get showTopNav() {
