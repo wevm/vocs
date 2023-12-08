@@ -1,13 +1,6 @@
 import { createVar, style } from '@vanilla-extract/css'
 
-import {
-  borderRadiusVars,
-  contentVars,
-  fontSizeVars,
-  fontWeightVars,
-  primitiveColorVars,
-  spaceVars,
-} from '../styles/vars.css.js'
+import { contentVars, fontSizeVars, fontWeightVars, spaceVars } from '../styles/vars.css.js'
 
 const iconWidthVar = createVar('iconWidth')
 
@@ -83,32 +76,4 @@ export const navigationText = style(
     fontWeight: fontWeightVars.medium,
   },
   'navigationText',
-)
-
-export const navigationShortcut = style(
-  {
-    backgroundColor: primitiveColorVars.background3,
-    borderWidth: '1px 1px 3px',
-    borderColor: primitiveColorVars.background5,
-    borderRadius: borderRadiusVars['4'],
-    fontSize: fontSizeVars['11'],
-    lineHeight: '1em',
-    padding: `${spaceVars['2']} ${spaceVars['4']}`,
-    width: 'fit-content',
-  },
-  'navigationShortcut',
-)
-
-export const navigationShortcut_left = style(
-  {
-    marginLeft: iconWidthVar,
-  },
-  'navigationShortcut_left',
-)
-
-export const navigationShortcut_right = style(
-  {
-    marginRight: iconWidthVar,
-  },
-  'navigationShortcut_right',
 )

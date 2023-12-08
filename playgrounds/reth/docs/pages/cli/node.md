@@ -324,7 +324,7 @@ Builder:
 
 Debug:
       --debug.continuous
-          Prompt the downloader to download blocks one at a time.
+          Prompt the downimport to download blocks one at a time.
           
           NOTE: This is for testing purposes only.
 

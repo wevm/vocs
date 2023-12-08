@@ -8,9 +8,9 @@
     "changeset": "changeset",
     "changeset:publish": "pnpm build && changeset publish",
     "changeset:version": "changeset version && pnpm install --lockfile-only && bun scripts/postversion.ts",
-    "docs:dev": "node --loader tsx/esm ./src/cli/index.ts dev",
-    "docs:build": "NODE_ENV=production node --loader tsx/esm ./src/cli/index.ts build",
-    "docs:preview": "node --loader tsx/esm ./src/cli/index.ts preview",
+    "docs:dev": "node --import tsx/esm ./src/cli/index.ts dev",
+    "docs:build": "NODE_ENV=production node --import tsx/esm ./src/cli/index.ts build",
+    "docs:preview": "node --import tsx/esm ./src/cli/index.ts preview",
     "format": "biome format . --write",
     "lint": "biome lint . --apply-unsafe",
     "playground": "pnpm --filter playgrounds/default dev",
@@ -46,5 +46,8 @@
   "simple-git-hooks": {
     "pre-commit": "pnpm format && pnpm lint"
   },
-  "packageManager": "pnpm@8.10.0"
+  "packageManager": "pnpm@8.10.0",
+  "engines": {
+    "node": ">=20"
+  }
 }

@@ -10,6 +10,7 @@ import { Icon } from './Icon.js'
 import { Link } from './Link.js'
 import { ArrowLeft } from './icons/ArrowLeft.js'
 import { ArrowRight } from './icons/ArrowRight.js'
+import { KeyboardShortcut } from './KeyboardShortcut.js'
 
 export function Footer() {
   const { layout } = useLayout()
@@ -105,9 +106,8 @@ function Navigation() {
             </div>
             {prevPage.text}
           </div>
-          <kbd className={clsx(styles.navigationShortcut, styles.navigationShortcut_left)}>
-            Shift ←
-          </kbd>
+          {/* TODO: Place in hover card */}
+          <KeyboardShortcut description="Previous" keys={['shift', '←']} />
         </Link>
       ) : (
         <div />
@@ -124,9 +124,8 @@ function Navigation() {
               <Icon label="Next" icon={ArrowRight} size="14px" />
             </div>
           </div>
-          <kbd className={clsx(styles.navigationShortcut, styles.navigationShortcut_right)}>
-            Shift →
-          </kbd>
+          {/* TODO: Place in hover card */}
+          <KeyboardShortcut description="Next" keys={['shift', '→']} />
         </Link>
       ) : (
         <div />

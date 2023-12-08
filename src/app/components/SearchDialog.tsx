@@ -18,7 +18,7 @@ import { type Result, useSearchIndex } from '../hooks/useSearchIndex.js'
 import { visuallyHidden } from '../styles/utils.css.js'
 import { Content } from './Content.js'
 import * as styles from './SearchDialog.css.js'
-import { Kbd } from './mdx/Kbd.js'
+import { KeyboardShortcut } from './KeyboardShortcut.js'
 
 export function SearchDialog(props: { open: boolean; onClose(): void }) {
   const navigate = useNavigate()
@@ -263,35 +263,10 @@ export function SearchDialog(props: { open: boolean; onClose(): void }) {
         </ul>
 
         <div className={styles.searchShortcuts}>
-          <span>
-            <span className={styles.searchShortcutsGroup}>
-              <Kbd>↑</Kbd>
-              <Kbd>↓</Kbd>
-            </span>
-            to navigate
-          </span>
-
-          <span>
-            <span className={styles.searchShortcutsGroup}>
-              <Kbd>enter</Kbd>
-            </span>
-            to select
-          </span>
-
-          <span>
-            <span className={styles.searchShortcutsGroup}>
-              <Kbd>esc</Kbd>
-            </span>
-            to close
-          </span>
-
-          <span>
-            <span className={styles.searchShortcutsGroup}>
-              <Kbd>⌘</Kbd>
-              <Kbd>⌫</Kbd>
-            </span>
-            to reset
-          </span>
+          <KeyboardShortcut description="Navigate" keys={['↑', '↓']} />
+          <KeyboardShortcut description="Select" keys={['enter']} />
+          <KeyboardShortcut description="Close" keys={['esc']} />
+          <KeyboardShortcut description="Reset" keys={['⌘', '⌫']} />
         </div>
       </Dialog.Content>
     </Dialog.Portal>

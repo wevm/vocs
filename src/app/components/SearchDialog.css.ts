@@ -77,7 +77,7 @@ export const searchInput = style(
     background: 'transparent',
     display: 'flex',
     fontSize: fontSizeVars[16],
-    height: spaceVars[36],
+    height: spaceVars[40],
     width: '100%',
     selectors: {
       '&:focus': {
@@ -260,7 +260,7 @@ export const searchShortcuts = style(
     alignItems: 'center',
     color: primitiveColorVars.text2,
     display: 'flex',
-    gap: spaceVars[18],
+    gap: spaceVars[20],
     fontSize: fontSizeVars[14],
 
     '@media': {
