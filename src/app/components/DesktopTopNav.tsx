@@ -115,7 +115,9 @@ function Navigation() {
             </NavigationMenu.Link>
           ) : (
             <NavigationMenu.Item key={i} className={styles.item}>
-              <NavigationMenu.Trigger>{item.text}</NavigationMenu.Trigger>
+              <NavigationMenu.Trigger onPointerMove={(e) => e.preventDefault()}>
+                {item.text}
+              </NavigationMenu.Trigger>
               <NavigationMenu.Content>
                 <ul>
                   {item.children?.map((child, i) => (
