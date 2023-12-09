@@ -105,6 +105,18 @@ export const gutterTop_offsetLeftGutter = style(
   'gutterTop_offsetLeftGutter',
 )
 
+export const gutterTop_sticky = style(
+  {
+    '@media': {
+      [viewportVars['max-1080px']]: {
+        position: 'sticky',
+        top: 0,
+      },
+    },
+  },
+  'gutterTop_sticky',
+)
+
 export const gutterTopCurtain = style(
   {
     display: 'flex',
@@ -125,12 +137,12 @@ export const gutterTopCurtain = style(
   'gutterTopCurtain',
 )
 
-export const gutterTopCurtain_minimal = style(
+export const gutterTopCurtain_hidden = style(
   {
     background: 'unset',
     display: 'none',
   },
-  'gutterTopCurtain_minimal',
+  'gutterTopCurtain_hidden',
 )
 
 export const gutterTopCurtain_withSidebar = style(

@@ -53,10 +53,7 @@ export function MobileTopNav() {
           <>
             <div className={styles.group}>
               <Navigation activeItem={activeItem} items={config.topNav} />
-              <CompactNavigation
-                activeItem={activeItem ?? config.topNav[0]}
-                items={config.topNav}
-              />
+              <CompactNavigation activeItem={activeItem} items={config.topNav} />
             </div>
           </>
         )}
@@ -112,60 +109,66 @@ function Navigation({
 function CompactNavigation({
   activeItem,
   items,
-}: { activeItem: Config.TopNavItem; items: Config.TopNavItem[] }) {
+}: { activeItem?: Config.TopNavItem; items: Config.TopNavItem[] }) {
   const [showPopover, setShowPopover] = useState(false)
 
   return (
     <div className={clsx(styles.navigation, styles.navigation_compact)}>
-      <Popover.Root modal open={showPopover} onOpenChange={setShowPopover}>
-        <Popover.Trigger className={clsx(styles.menuTrigger, styles.navigationItem)}>
-          {activeItem.text}
-          <Icon label="Menu" icon={ChevronDown} size="11px" />
-        </Popover.Trigger>
-        <Popover className={styles.topNavPopover}>
-          <Accordion.Root
-            type="single"
-            collapsible
-            style={{ display: 'flex', flexDirection: 'column' }}
-          >
-            {items.map((item, i) =>
-              item.link ? (
-                <Link
-                  key={i}
-                  data-active={item.link === activeItem?.link}
-                  className={styles.navigationItem}
-                  href={item.link!}
-                  onClick={() => setShowPopover(false)}
-                  variant="styleless"
-                >
-                  {item.text}
-                </Link>
-              ) : (
-                <Accordion.Item key={i} value="item">
-                  <Accordion.Trigger
-                    className={clsx(styles.navigationItem, styles.navigationTrigger)}
+      {activeItem ? (
+        <Popover.Root modal open={showPopover} onOpenChange={setShowPopover}>
+          <Popover.Trigger className={clsx(styles.menuTrigger, styles.navigationItem)}>
+            {activeItem.text}
+            <Icon label="Menu" icon={ChevronDown} size="11px" />
+          </Popover.Trigger>
+          <Popover className={styles.topNavPopover}>
+            <Accordion.Root
+              type="single"
+              collapsible
+              style={{ display: 'flex', flexDirection: 'column' }}
+            >
+              {items.map((item, i) =>
+                item.link ? (
+                  <Link
+                    key={i}
+                    data-active={item.link === activeItem?.link}
+                    className={styles.navigationItem}
+                    href={item.link!}
+                    onClick={() => setShowPopover(false)}
+                    variant="styleless"
                   >
                     {item.text}
-                  </Accordion.Trigger>
-                  <Accordion.Content className={styles.navigationContent}>
-                    {item.children?.map((child, i) => (
-                      <Link
-                        key={i}
-                        className={styles.navigationItem}
-                        href={child.link!}
-                        onClick={() => setShowPopover(false)}
-                        variant="styleless"
-                      >
-                        {child.text}
-                      </Link>
-                    ))}
-                  </Accordion.Content>
-                </Accordion.Item>
-              ),
-            )}
-          </Accordion.Root>
-        </Popover>
-      </Popover.Root>
+                  </Link>
+                ) : (
+                  <Accordion.Item key={i} value="item">
+                    <Accordion.Trigger
+                      className={clsx(styles.navigationItem, styles.navigationTrigger)}
+                    >
+                      {item.text}
+                    </Accordion.Trigger>
+                    <Accordion.Content className={styles.navigationContent}>
+                      {item.children?.map((child, i) => (
+                        <Link
+                          key={i}
+                          className={styles.navigationItem}
+                          href={child.link!}
+                          onClick={() => setShowPopover(false)}
+                          variant="styleless"
+                        >
+                          {child.text}
+                        </Link>
+                      ))}
+                    </Accordion.Content>
+                  </Accordion.Item>
+                ),
+              )}
+            </Accordion.Root>
+          </Popover>
+        </Popover.Root>
+      ) : items[0].link ? (
+        <Link className={styles.navigationItem} href={items[0].link} variant="styleless">
+          {items[0].text}
+        </Link>
+      ) : null}
     </div>
   )
 }

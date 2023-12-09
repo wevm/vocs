@@ -43,7 +43,11 @@ export function DocsLayout({
         <>
           <div
             ref={ref}
-            className={clsx(styles.gutterTop, showSidebar && styles.gutterTop_offsetLeftGutter)}
+            className={clsx(
+              styles.gutterTop,
+              showSidebar && styles.gutterTop_offsetLeftGutter,
+              (layout === 'minimal' || layout === 'landing') && styles.gutterTop_sticky,
+            )}
           >
             <DesktopTopNav />
             <MobileTopNav />
@@ -53,7 +57,7 @@ export function DocsLayout({
             className={clsx(
               styles.gutterTopCurtain,
               showSidebar && styles.gutterTopCurtain_withSidebar,
-              layout === 'minimal' && styles.gutterTopCurtain_minimal,
+              (layout === 'minimal' || layout === 'landing') && styles.gutterTopCurtain_hidden,
             )}
           >
             <DesktopTopNav.Curtain />
