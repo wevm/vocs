@@ -10,6 +10,7 @@
     "changeset:version": "changeset version && pnpm install --lockfile-only && bun scripts/postversion.ts",
     "docs:dev": "node --import tsx/esm ./src/cli/index.ts dev",
     "docs:build": "NODE_ENV=production node --import tsx/esm ./src/cli/index.ts build",
+    "docs:build:vercel": "NODE_ENV=production node --loader tsx/esm ./src/cli/index.ts build",
     "docs:preview": "node --import tsx/esm ./src/cli/index.ts preview",
     "format": "biome format . --write",
     "lint": "biome lint . --apply-unsafe",
