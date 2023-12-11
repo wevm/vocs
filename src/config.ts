@@ -90,6 +90,10 @@ export type Config<
      */
     socials?: Socials<parsed>
     /**
+     * Set of sponsors to display on MDX directives and (optionally) the sidebar.
+     */
+    sponsors?: SponsorSet[]
+    /**
      * Theme configuration.
      */
     theme?: Theme<parsed, colorScheme>
@@ -266,6 +270,23 @@ export type ParsedSocialItem = Required<SocialItem> & {
 export type Socials<parsed extends boolean = false> = parsed extends true
   ? ParsedSocialItem[]
   : SocialItem[]
+
+export type Sponsor = {
+  /** The name of the sponsor. */
+  name: string
+  /** The link to the sponsor's website. */
+  link: string
+  /** The image to display for the sponsor. */
+  image: string
+}
+export type SponsorSet = {
+  /** The list of sponsors to display. */
+  items: (Sponsor | null)[][]
+  /** The name of the sponsor set (e.g. "Gold Sponsors", "Collaborators", etc). */
+  name: string
+  /** The height of the sponsor images. */
+  height?: number
+}
 
 export type ThemeVariables<variables extends Record<string, unknown>, value> = {
   [key in keyof variables]?: value

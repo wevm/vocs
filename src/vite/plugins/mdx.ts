@@ -22,6 +22,7 @@ import { remarkCodeGroup } from './remark/code-group.js'
 import { remarkCode } from './remark/code.js'
 import { remarkDetails } from './remark/details.js'
 import { remarkInferFrontmatter } from './remark/inferred-frontmatter.js'
+import { remarkSponsors } from './remark/sponsors.js'
 import { remarkSteps } from './remark/steps.js'
 import { remarkStrongBlock } from './remark/strong-block.js'
 import { remarkSubheading } from './remark/subheading.js'
@@ -37,6 +38,7 @@ export const remarkPlugins = [
   remarkCode,
   remarkCodeGroup,
   remarkDetails,
+  remarkSponsors,
   remarkSteps,
   remarkStrongBlock,
   remarkSubheading,

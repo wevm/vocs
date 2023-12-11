@@ -6,14 +6,14 @@ import * as styles from './ExternalLink.css.js'
 export type ExternalLinkProps = React.DetailedHTMLProps<
   React.AnchorHTMLAttributes<HTMLAnchorElement>,
   HTMLAnchorElement
->
+> & { hideExternalIcon?: boolean }
 
 export const ExternalLink = forwardRef(
-  ({ className, children, href, ...props }: ExternalLinkProps, ref) => {
+  ({ className, children, hideExternalIcon, href, ...props }: ExternalLinkProps, ref) => {
     return (
       <a
         ref={ref as any}
-        className={clsx(className, styles.root)}
+        className={clsx(className, hideExternalIcon ? undefined : styles.root)}
         href={href}
         target="_blank"
         rel="noopener noreferrer"
