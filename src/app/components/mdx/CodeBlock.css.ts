@@ -79,7 +79,7 @@ globalStyle(`${root} [data-line-numbers] [data-line]::before`, {
   width: '1rem',
 })
 
-globalStyle(`${root} [data-highlighted-line], ${root} .has-highlight`, {
+globalStyle(`${root} [data-highlighted-line], ${root} .highlighted`, {
   backgroundColor: semanticColorVars.codeHighlightBackground,
   borderLeft: `2px solid ${semanticColorVars.codeHighlightBorder}`,
   boxSizing: 'content-box',
@@ -123,13 +123,13 @@ globalStyle(`${root} [data-line].diff.remove::before`, {
   color: primitiveColorVars.textRed,
 })
 
-globalStyle(`${root} .has-focused-lines [data-line]:not(.has-focus)`, {
+globalStyle(`${root} .has-focused [data-line]:not(.focused)`, {
   filter: 'grayscale(0.5)',
   opacity: '0.3',
   transition: 'filter 0.2s, opacity 0.2s',
 })
 
-globalStyle(`${root}:hover .has-focused-lines [data-line]:not(.has-focus)`, {
+globalStyle(`${root}:hover .has-focused [data-line]:not(.focused)`, {
   filter: 'grayscale(0)',
   opacity: '1',
   transition: 'filter 0.2s, opacity 0.2s',

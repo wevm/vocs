@@ -4,7 +4,7 @@
 
 A general overview of the structure of a Vocs project:
 
-```bash
+```
 my-project/             # Your project's root directory.
 ├── docs/               # The root directory of your documentation. // [!code hl]
 │   ├── pages/          # Directory for your documentation pages (routes). // [!code hl]
@@ -25,7 +25,7 @@ Vocs is designed to reside within a [subdirectory](/docs/api/config#rootdir) (de
 Vocs uses a configuration file (`vocs.config.ts`) to define global metadata for your documentation. 
 This includes things like the site title, description, logo, sidebar, and more for your project. 
 
-```bash
+```
 my-project/   
 │   ...
 ├── .gitignore
@@ -54,7 +54,7 @@ The Root Directory contains all of your documentation pages, static assets, comp
 By default, Vocs will look for a directory named `./docs` in your project's root directory. 
 You can change this directory by setting the [`rootDir` property](/docs/api/config#rootdir) in your [vocs.config.ts](/docs/api/config).
 
-```bash
+```
 my-project/             
 ├── docs/ // [!code focus]
 │   ├── pages/
@@ -70,7 +70,7 @@ my-project/
 Vocs uses file-based routing. This means that each file inside of the `./docs/pages` directory will be treated as a route. 
 Files within the pages directory can be: Markdown or MDX files, or React components (for more customizability).
 
-```bash
+```
 my-project/             
 ├── docs/
 │   ├── pages/ // [!code focus]
@@ -88,7 +88,7 @@ my-project/
 
 Static assets (images, fonts, etc.) can be placed in the `public` directory.
 
-```bash
+```
 my-project/             
 ├── docs/
 │   ├── pages/ 
@@ -118,7 +118,7 @@ A layout React component can be added to your Vocs root directory.
 The layout component will be used to wrap all of your documentation pages. 
 This can be useful for adding static CSS files, or further customizing the layout of your documentation.
 
-```bash
+```
 my-project/             
 ├── docs/
 │   ├── pages/ 
@@ -145,7 +145,7 @@ export default function Layout({ children }) {
 
 Global styles can be added under a `styles.css` file.
 
-```bash
+```
 my-project/             
 ├── docs/
 │   ├── pages/ 

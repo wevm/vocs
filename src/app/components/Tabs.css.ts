@@ -71,7 +71,7 @@ export const content = style(
   'content',
 )
 
-globalStyle(`${root} [data-rehype-pretty-code-fragment], ${root} pre`, {
+globalStyle(`${root} [data-rehype-pretty-code-figure], ${root} pre`, {
   marginBottom: spaceVars['0'],
 })
 

@@ -21,7 +21,7 @@ export function CodeGroup({ children }: { children: ReactElement[] }) {
         ))}
       </Tabs.List>
       {tabs.map(({ title, content }, i) => {
-        const isPrettyCode = content.props && 'data-rehype-pretty-code-fragment' in content.props
+        const isPrettyCode = content.props && 'data-rehype-pretty-code-figure' in content.props
         return (
           <Tabs.Content
             key={title || i.toString()}

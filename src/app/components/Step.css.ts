@@ -64,7 +64,7 @@ globalStyle(`${content} > *:last-child`, {
   marginBottom: spaceVars['0'],
 })
 
-globalStyle(`${content} [data-rehype-pretty-code-fragment], ${content} ${Tabs}`, {
+globalStyle(`${content} [data-rehype-pretty-code-figure], ${content} ${Tabs}`, {
   '@media': {
     [viewportVars['max-720px']]: {
       borderTop: `6px solid ${primitiveColorVars.background}`,
@@ -83,7 +83,7 @@ globalStyle(`${content} ${Tabs}`, {
   },
 })
 
-globalStyle(`${content} ${Tabs} [data-rehype-pretty-code-fragment]`, {
+globalStyle(`${content} ${Tabs} [data-rehype-pretty-code-figure]`, {
   '@media': {
     [viewportVars['max-720px']]: {
       borderTop: 'none',

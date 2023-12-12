@@ -8,11 +8,10 @@ import remarkFrontmatter from 'remark-frontmatter'
 import remarkGfm from 'remark-gfm'
 import remarkMdxFrontmatter from 'remark-mdx-frontmatter'
 import {
-  createDiffProcessor,
-  createFocusProcessor,
-  createHighlightProcessor,
-  getHighlighter,
-} from 'shiki-processor'
+  transformerNotationDiff,
+  transformerNotationFocus,
+  transformerNotationHighlight,
+} from 'shikiji-transformers'
 import { type PluginOption } from 'vite'
 
 import { remarkAuthors } from './remark/authors.js'
@@ -51,12 +50,11 @@ export const rehypePlugins = [
     rehypePrettyCode,
     {
       keepBackground: false,
-      getHighlighter(options: Parameters<typeof getHighlighter>) {
-        return getHighlighter({
-          ...options,
-          processors: [createDiffProcessor(), createFocusProcessor(), createHighlightProcessor()],
-        })
-      },
+      transformers: [
+        transformerNotationDiff(),
+        transformerNotationFocus(),
+        transformerNotationHighlight(),
+      ],
       theme: {
         dark: 'github-dark-dimmed',
         light: 'github-light',

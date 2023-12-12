@@ -31,19 +31,14 @@ globalStyle(':root', {
   },
 })
 
-globalStyle(
-  [
-    ':root:not(.dark) pre[data-theme="dark"]',
-    ':root:not(.dark) code[data-theme="dark"]',
-    ':root:not(.dark) div[data-theme="dark"]',
-    ':root.dark pre[data-theme="light"]',
-    ':root.dark code[data-theme="light"]',
-    ':root.dark div[data-theme="light"]',
-  ].join(','),
-  {
-    display: 'none',
-  },
-)
+globalStyle(':root:not(.dark) [data-rehype-pretty-code-figure] span:not([data-line])', {
+  color: 'var(--shiki-light)',
+  backgroundColor: 'var(--shiki-light-bg)',
+})
+globalStyle(':root.dark [data-rehype-pretty-code-figure] span:not([data-line])', {
+  color: 'var(--shiki-dark)',
+  backgroundColor: 'var(--shiki-dark-bg)',
+})
 
 globalStyle(`${Content} > *:not(:last-child), ${Details} > *:not(:last-child)`, {
   marginBottom: spaceVars['24'],

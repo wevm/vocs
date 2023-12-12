@@ -6,6 +6,8 @@ import { Blockquote } from './Blockquote.js'
 import { Code } from './Code.js'
 import { Details } from './Details.js'
 import { Div } from './Div.js'
+import { Figcaption } from './Figcaption.js'
+import { Figure } from './Figure.js'
 import { H1 } from './H1.js'
 import { H2 } from './H2.js'
 import { H3 } from './H3.js'
@@ -36,6 +38,8 @@ export const components: MDXComponents = {
   div: Div,
   pre: Pre,
   header: Header,
+  figcaption: Figcaption,
+  figure: Figure,
   h1: H1,
   h2: H2,
   h3: H3,
