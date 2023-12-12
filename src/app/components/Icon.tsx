@@ -11,7 +11,7 @@ export type IconProps = {
   style?: React.CSSProperties
 }
 
-export function Icon({ className, label, icon: Icon, size = '1em', style }: IconProps) {
+export function Icon({ className, label, icon: Icon, size, style }: IconProps) {
   return (
     <div
       aria-label={label}

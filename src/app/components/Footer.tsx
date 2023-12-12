@@ -1,3 +1,4 @@
+import { assignInlineVars } from '@vanilla-extract/dynamic'
 import clsx from 'clsx'
 import { useEffect, useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
@@ -6,6 +7,7 @@ import { useEditLink } from '../hooks/useEditLink.js'
 import { useLayout } from '../hooks/useLayout.js'
 import { useSidebar } from '../hooks/useSidebar.js'
 import * as styles from './Footer.css.js'
+import { sizeVar } from './Icon.css.js'
 import { Icon } from './Icon.js'
 import { KeyboardShortcut } from './KeyboardShortcut.js'
 import { Link } from './Link.js'
@@ -102,8 +104,11 @@ function Navigation() {
           variant="styleless"
         >
           <div className={styles.navigationText}>
-            <div className={clsx(styles.navigationIcon, styles.navigationIcon_left)}>
-              <Icon label="Previous" icon={ArrowLeft} size="14px" />
+            <div
+              className={clsx(styles.navigationIcon, styles.navigationIcon_left)}
+              style={assignInlineVars({ [sizeVar]: '0.75em' })}
+            >
+              <Icon label="Previous" icon={ArrowLeft} />
             </div>
             {prevPage.text}
           </div>
@@ -121,8 +126,11 @@ function Navigation() {
         >
           <div className={styles.navigationText}>
             {nextPage.text}
-            <div className={clsx(styles.navigationIcon, styles.navigationIcon_right)}>
-              <Icon label="Next" icon={ArrowRight} size="14px" />
+            <div
+              className={clsx(styles.navigationIcon, styles.navigationIcon_right)}
+              style={assignInlineVars({ [sizeVar]: '0.75em' })}
+            >
+              <Icon label="Next" icon={ArrowRight} />
             </div>
           </div>
           {/* TODO: Place in hover card */}

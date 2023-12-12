@@ -1,6 +1,12 @@
 import { createVar, style } from '@vanilla-extract/css'
 
-import { contentVars, fontSizeVars, fontWeightVars, spaceVars } from '../styles/vars.css.js'
+import {
+  contentVars,
+  fontSizeVars,
+  fontWeightVars,
+  spaceVars,
+  viewportVars,
+} from '../styles/vars.css.js'
 
 const iconWidthVar = createVar('iconWidth')
 
@@ -11,7 +17,6 @@ export const root = style({
   maxWidth: contentVars.width,
   overflowX: 'hidden',
   padding: `${spaceVars['24']} ${contentVars.horizontalPadding} ${spaceVars['48']}`,
-  width: contentVars.width,
   vars: {
     [iconWidthVar]: '24px',
   },
@@ -40,12 +45,27 @@ export const navigationIcon = style(
   'navigationIcon',
 )
 
-export const navigationIcon_left = style({}, 'navigationIcon_left')
+export const navigationIcon_left = style(
+  {
+    display: 'flex',
+    '@media': {
+      [viewportVars['max-720px']]: {
+        justifyContent: 'center',
+      },
+    },
+  },
+  'navigationIcon_left',
+)
 
 export const navigationIcon_right = style(
   {
     display: 'flex',
     justifyContent: 'flex-end',
+    '@media': {
+      [viewportVars['max-720px']]: {
+        justifyContent: 'center',
+      },
+    },
   },
   'navigationIcon_right',
 )
@@ -74,6 +94,11 @@ export const navigationText = style(
     display: 'flex',
     fontSize: fontSizeVars['18'],
     fontWeight: fontWeightVars.medium,
+    '@media': {
+      [viewportVars['max-720px']]: {
+        fontSize: fontSizeVars['12'],
+      },
+    },
   },
   'navigationText',
 )
