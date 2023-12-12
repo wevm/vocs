@@ -73,7 +73,7 @@ export default defineConfig({
   topNav: [
     {
       text: 'Company',
-      children: [
+      items: [
         {
           text: 'About',
           link: '/about',

@@ -90,7 +90,7 @@ export default defineConfig({
     },
     {
       text: 'More',
-      children: [
+      items: [
         {
           text: 'Give Feedback',
           link: '/feedback',

@@ -120,7 +120,7 @@ function Navigation() {
               </NavigationMenu.Trigger>
               <NavigationMenu.Content>
                 <ul>
-                  {item.children?.map((child, i) => (
+                  {item.items?.map((child, i) => (
                     <NavigationMenu.Link key={i} href={child.link!}>
                       {child.text}
                     </NavigationMenu.Link>

@@ -237,7 +237,7 @@ export default defineConfig({
     { text: 'Blog', link: '/blog' },
     {
       text: version,
-      children: [
+      items: [
         {
           text: 'Changelog',
           link: 'https://github.com/wevm/vocs/blob/main/src/CHANGELOG.md',

@@ -337,5 +337,5 @@ export type Theme<
 
 export type TopNavItem = {
   text: string
-} & ({ link: string; children?: never } | { link?: string; children: TopNavItem[] })
+} & ({ link: string; items?: never } | { link?: string; items: TopNavItem[] })
 export type TopNav = TopNavItem[]

@@ -91,9 +91,9 @@ function Navigation({
               <NavigationMenu.Trigger>{item.text}</NavigationMenu.Trigger>
               <NavigationMenu.Content>
                 <ul>
-                  {item.children?.map((child, i) => (
-                    <NavigationMenu.Link key={i} href={child.link!}>
-                      {child.text}
+                  {item.items?.map((item, i) => (
+                    <NavigationMenu.Link key={i} href={item.link!}>
+                      {item.text}
                     </NavigationMenu.Link>
                   ))}
                 </ul>
@@ -146,15 +146,15 @@ function CompactNavigation({
                       {item.text}
                     </Accordion.Trigger>
                     <Accordion.Content className={styles.navigationContent}>
-                      {item.children?.map((child, i) => (
+                      {item.items?.map((item, i) => (
                         <Link
                           key={i}
                           className={styles.navigationItem}
-                          href={child.link!}
+                          href={item.link!}
                           onClick={() => setShowPopover(false)}
                           variant="styleless"
                         >
-                          {child.text}
+                          {item.text}
                         </Link>
                       ))}
                     </Accordion.Content>
