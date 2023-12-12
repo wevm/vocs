@@ -7,10 +7,10 @@ import { useLayout } from '../hooks/useLayout.js'
 import { useSidebar } from '../hooks/useSidebar.js'
 import * as styles from './Footer.css.js'
 import { Icon } from './Icon.js'
+import { KeyboardShortcut } from './KeyboardShortcut.js'
 import { Link } from './Link.js'
 import { ArrowLeft } from './icons/ArrowLeft.js'
 import { ArrowRight } from './icons/ArrowRight.js'
-import { KeyboardShortcut } from './KeyboardShortcut.js'
 
 export function Footer() {
   const { layout } = useLayout()
@@ -30,6 +30,7 @@ export function Footer() {
 function EditLink() {
   const editLink = useEditLink()
 
+  if (!editLink.url) return null
   return (
     <div>
       <Link className={styles.editLink} href={editLink.url}>
