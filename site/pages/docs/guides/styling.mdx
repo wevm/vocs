@@ -116,13 +116,10 @@ my-project/
 ```
 
 ```css [styles.css]
+@layer vocs_preflight { @tailwind base; }
 @tailwind components;
 @tailwind utilities;
 ```
-
-:::tip[Tip]
-You don't need to import `@tailwind base` as Vocs already applies reset styling.
-:::
 
 ### Add some Tailwind CSS
 
