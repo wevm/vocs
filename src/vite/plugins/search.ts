@@ -52,7 +52,6 @@ export async function search(): Promise<Plugin> {
       return html
     } catch (error) {
       // TODO: Resolve imports (e.g. virtual modules)
-      console.log(file, (error as Error).message)
       return ''
     }
   }

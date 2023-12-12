@@ -30,7 +30,7 @@
     "@radix-ui/react-tabs": "^1.0.4",
     "@vanilla-extract/css": "^1.14.0",
     "@vanilla-extract/dynamic": "^2.1.0",
-    "@vanilla-extract/vite-plugin": "^3.9.2",
+    "@vocs/vanilla-extract-vite-plugin": "^3.9.3-0",
     "@vitejs/plugin-react": "4.2.0",
     "autoprefixer": "^10.4.16",
     "cac": "^6.7.14",

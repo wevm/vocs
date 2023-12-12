@@ -1,6 +1,7 @@
 import { basename } from 'node:path'
-import { vanillaExtractPlugin } from '@vanilla-extract/vite-plugin'
 import react from '@vitejs/plugin-react'
+// TODO: Use `@vanilla-extract/vite-plugin` once https://github.com/vanilla-extract-css/vanilla-extract/issues/1236 is resolved.
+import { vanillaExtractPlugin } from '@vocs/vanilla-extract-vite-plugin'
 import { defineConfig, splitVendorChunkPlugin } from 'vite'
 
 import { css } from './plugins/css.js'
