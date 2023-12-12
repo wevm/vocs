@@ -63,12 +63,16 @@ export function MobileTopNav() {
         <div className={styles.group} style={{ marginRight: '-8px' }}>
           <MobileSearch />
         </div>
-        <div className={styles.divider} />
-        <div className={styles.group} style={{ marginLeft: '-8px' }}>
-          {config.socials?.map((social, i) => (
-            <SocialButton key={i} {...social} />
-          ))}
-        </div>
+        {config.socials && config.socials?.length > 0 && (
+          <>
+            <div className={styles.divider} />
+            <div className={styles.group} style={{ marginLeft: '-8px' }}>
+              {config.socials?.map((social, i) => (
+                <SocialButton key={i} {...social} />
+              ))}
+            </div>
+          </>
+        )}
       </div>
     </div>
   )
