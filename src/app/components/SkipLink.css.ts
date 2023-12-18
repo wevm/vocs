@@ -16,7 +16,7 @@ export const root = style({
   fontWeight: fontWeightVars.semibold,
   left: spaceVars[8],
   padding: `${spaceVars['8']} ${spaceVars['16']}`,
-  position: 'absolute',
+  position: 'fixed',
   textDecoration: 'none',
   top: spaceVars[8],
   zIndex: 999,
