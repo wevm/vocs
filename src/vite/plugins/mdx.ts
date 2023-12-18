@@ -7,13 +7,16 @@ import remarkDirective from 'remark-directive'
 import remarkFrontmatter from 'remark-frontmatter'
 import remarkGfm from 'remark-gfm'
 import remarkMdxFrontmatter from 'remark-mdx-frontmatter'
+import type { ShikijiTransformer } from 'shikiji'
 import {
   transformerNotationDiff,
   transformerNotationFocus,
   transformerNotationHighlight,
 } from 'shikiji-transformers'
+import { rendererRich, transformerTwoSlash } from 'shikiji-twoslash'
 import { type PluginOption } from 'vite'
 
+import type { PluggableList } from 'unified'
 import { remarkAuthors } from './remark/authors.js'
 import { remarkBlogPosts } from './remark/blog-posts.js'
 import { remarkCallout } from './remark/callout.js'
@@ -42,7 +45,7 @@ export const remarkPlugins = [
   remarkStrongBlock,
   remarkSubheading,
   remarkAuthors,
-]
+] satisfies PluggableList
 
 export const rehypePlugins = [
   rehypeSlug,
@@ -54,13 +57,41 @@ export const rehypePlugins = [
         transformerNotationDiff(),
         transformerNotationFocus(),
         transformerNotationHighlight(),
+        transformerTwoSlash({
+          explicitTrigger: true,
+          renderer: rendererRich(),
+        }),
+        {
+          name: 'trim-token',
+          token(hast) {
+            const child = hast.children[0]
+            if (child.type !== 'text') return
+            if (child.value.trim().length === 0) return
+
+            const matches = child.value.match(/^(\s*\W)?(\w*)(\W\s*)?$/)
+            if (!matches) return
+
+            const [_, start, text, end] = matches
+            if (start?.length > 0)
+              hast.children.unshift({
+                type: 'text',
+                value: start,
+              })
+            if (end?.length > 0)
+              hast.children.push({
+                type: 'text',
+                value: end,
+              })
+            child.value = text
+          },
+        } satisfies ShikijiTransformer,
       ],
       theme: {
         dark: 'github-dark-dimmed',
         light: 'github-light',
       },
     },
-  ] as any,
+  ],
   [
     rehypeAutolinkHeadings,
     {
@@ -70,7 +101,7 @@ export const rehypePlugins = [
       },
     },
   ],
-]
+] satisfies PluggableList
 
 export function mdx(): PluginOption {
   return mdxPlugin({ remarkPlugins, rehypePlugins })

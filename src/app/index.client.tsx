@@ -1,3 +1,4 @@
+import 'shikiji-twoslash/style-rich.css'
 import './styles/index.css.js'
 
 import { hydrateRoot } from 'react-dom/client'

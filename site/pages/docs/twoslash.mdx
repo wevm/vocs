@@ -1,0 +1,28 @@
+# Twoslash Playground
+
+```ts twoslash
+const hi = "Hi"
+const msg = `${hi} world` as const
+//    ^?
+
+```
+
+```ts twoslash
+// @errors: 2540
+interface Todo {
+  title: string
+}
+
+const todo: Readonly<Todo> = {
+  title: 'Delete inactive users'.toUpperCase(), // [!code hl]
+//  ^?
+}
+
+todo.title = 'Hello'
+
+Number.parseInt('123', 10)
+//      ^|
+
+
+
+```

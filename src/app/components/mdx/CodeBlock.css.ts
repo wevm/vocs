@@ -59,6 +59,9 @@ globalStyle(`${root} [data-line]`, {
   padding: `${spaceVars['0']} ${spaceVars['22']}`,
   lineHeight: lineHeightVars.code,
 })
+globalStyle(`${root} .twoslash-popup-info [data-line]`, {
+  padding: `${spaceVars['0']} ${spaceVars['4']}`,
+})
 
 globalStyle(`${root} [data-line-numbers]`, {
   counterReset: 'line',
