@@ -1,5 +1,6 @@
-import 'shikiji-twoslash/style-rich.css'
 import './styles/index.css.js'
+
+import 'shikiji-twoslash/style-rich.css'
 
 import { hydrateRoot } from 'react-dom/client'
 import { RouterProvider, createBrowserRouter } from 'react-router-dom'

@@ -1,7 +1,7 @@
 import mdxPlugin from '@mdx-js/rollup'
-import rehypePrettyCode from '@vocs/rehype-pretty-code'
 import { h } from 'hastscript'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
+import rehypePrettyCode from 'rehype-pretty-code'
 import rehypeSlug from 'rehype-slug'
 import remarkDirective from 'remark-directive'
 import remarkFrontmatter from 'remark-frontmatter'
