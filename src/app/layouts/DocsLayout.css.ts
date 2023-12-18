@@ -24,7 +24,6 @@ export const content = style(
     marginRight: 'auto',
     maxWidth: contentVars.width,
     minHeight: '100vh',
-    overflowX: 'hidden',
     '@media': {
       [viewportVars['max-1080px']]: {
         marginLeft: 'auto',

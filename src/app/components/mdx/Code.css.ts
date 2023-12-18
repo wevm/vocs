@@ -43,5 +43,9 @@ export const root = style({
     [`${warning} &`]: {
       color: semanticColorVars.warningText,
     },
+    '.twoslash>&': {
+      // @ts-expect-error
+      textWrap: 'wrap',
+    },
   },
 })

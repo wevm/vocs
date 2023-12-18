@@ -50,6 +50,7 @@ globalStyle(':root.dark [data-rehype-pretty-code-figure] span:not([data-line])',
 // Shikiji Twoslash
 
 globalStyle(':root .twoslash-popup-info', {
+  width: 'max-content',
   vars: {
     '--shiki-light-bg': primitiveColorVars.background2,
   },
@@ -68,14 +69,6 @@ globalStyle('.twoslash', {
 
 globalStyle('.twoslash-completions-unmatched', {
   color: 'var(--twoslash-unmatched-color) !important',
-})
-
-globalStyle('.twoslash-tag-icon', {
-  display: 'none',
-})
-
-globalStyle('.twoslash-popup-info', {
-  marginTop: '4px',
 })
 
 globalStyle('.twoslash-query-presisted > .twoslash-popup-info', {

@@ -2,7 +2,7 @@ import { relative, resolve } from 'node:path'
 import { default as fs } from 'fs-extra'
 import { globby } from 'globby'
 import remarkParse from 'remark-parse'
-import { unified } from 'unified'
+import { type Plugin, unified } from 'unified'
 import { type PluginOption } from 'vite'
 import { parse } from 'yaml'
 
@@ -36,7 +36,7 @@ export function virtualBlog(): PluginOption {
           const contents = fs.readFileSync(file, 'utf-8')
           const parser = unified().use(remarkParse)
           for (const plugin of remarkPlugins) {
-            parser.use(plugin)
+            parser.use(plugin as Plugin)
           }
           const ast = parser.parse(contents)
 

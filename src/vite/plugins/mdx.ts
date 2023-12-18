@@ -7,13 +7,12 @@ import remarkDirective from 'remark-directive'
 import remarkFrontmatter from 'remark-frontmatter'
 import remarkGfm from 'remark-gfm'
 import remarkMdxFrontmatter from 'remark-mdx-frontmatter'
-import type { ShikijiTransformer } from 'shikiji'
 import {
   transformerNotationDiff,
   transformerNotationFocus,
   transformerNotationHighlight,
 } from 'shikiji-transformers'
-import { rendererRich, transformerTwoSlash } from 'shikiji-twoslash'
+import { transformerTwoSlash } from 'shikiji-twoslash'
 import type { PluggableList } from 'unified'
 import { type PluginOption } from 'vite'
 
@@ -28,6 +27,8 @@ import { remarkSponsors } from './remark/sponsors.js'
 import { remarkSteps } from './remark/steps.js'
 import { remarkStrongBlock } from './remark/strong-block.js'
 import { remarkSubheading } from './remark/subheading.js'
+import { transformerSplitIdentifiers } from './shikiji/transformerSplitIdentifiers.js'
+import { twoslashRenderer } from './shikiji/twoslashRenderer.js'
 
 export const remarkPlugins = [
   remarkDirective,
@@ -45,7 +46,7 @@ export const remarkPlugins = [
   remarkStrongBlock,
   remarkSubheading,
   remarkAuthors,
-] satisfies PluggableList
+] as PluggableList
 
 export const rehypePlugins = [
   rehypeSlug,
@@ -59,32 +60,9 @@ export const rehypePlugins = [
         transformerNotationHighlight(),
         transformerTwoSlash({
           explicitTrigger: true,
-          renderer: rendererRich(),
+          renderer: twoslashRenderer(),
         }),
-        {
-          name: 'trim-token',
-          token(hast) {
-            const child = hast.children[0]
-            if (child.type !== 'text') return
-            if (child.value.trim().length === 0) return
-
-            const matches = child.value.match(/^(\s*\W\s*?)?(\w*)(\s*?\W\s*)?$/)
-            if (!matches) return
-
-            const [_, start, text, end] = matches
-            if (start?.length > 0)
-              hast.children.unshift({
-                type: 'text',
-                value: start,
-              })
-            if (end?.length > 0)
-              hast.children.push({
-                type: 'text',
-                value: end,
-              })
-            child.value = text
-          },
-        } satisfies ShikijiTransformer,
+        transformerSplitIdentifiers(),
       ],
       theme: {
         dark: 'github-dark-dimmed',
@@ -101,7 +79,7 @@ export const rehypePlugins = [
       },
     },
   ],
-] satisfies PluggableList
+] as PluggableList
 
 export function mdx(): PluginOption {
   return mdxPlugin({ remarkPlugins, rehypePlugins })

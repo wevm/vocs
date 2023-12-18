@@ -38,7 +38,6 @@ globalStyle(`${root} code`, {
 globalStyle(`${root} pre`, {
   backgroundColor: semanticColorVars.codeBlockBackground,
   borderRadius: borderRadiusVars['4'],
-  overflowX: 'scroll',
   padding: `${spaceVars['20']} ${spaceVars['0']}`,
   position: 'relative',
   '@media': {
@@ -46,6 +45,10 @@ globalStyle(`${root} pre`, {
       borderRadius: 0,
     },
   },
+})
+
+globalStyle(`${root} pre:not(.twoslash)`, {
+  overflowX: 'scroll',
 })
 
 globalStyle(`${root} [data-rehype-pretty-code-title]+pre`, {
