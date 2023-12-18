@@ -198,7 +198,7 @@ export const outlinePopover = style(
 
 export const sidebar = style(
   {
-    padding: `${spaceVars['0']} ${sidebarVars.horizontalPadding}`,
+    padding: `${spaceVars['0']} ${sidebarVars.horizontalPadding} ${spaceVars['24']} ${sidebarVars.horizontalPadding}`,
   },
   'sidebar',
 )
