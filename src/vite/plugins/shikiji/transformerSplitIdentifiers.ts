@@ -6,6 +6,7 @@ export const transformerSplitIdentifiers = (): ShikijiTransformer => ({
     const child = hast.children[0]
     if (child.type !== 'text') return
     if (child.value.trim().length === 0) return
+    if (child.value.match(/\/\/ \[!/)) return
 
     let identifier = false
     let item = ''
