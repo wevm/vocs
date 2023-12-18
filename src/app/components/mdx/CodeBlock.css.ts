@@ -59,6 +59,13 @@ globalStyle(`${root} [data-line]`, {
   padding: `${spaceVars['0']} ${spaceVars['22']}`,
   lineHeight: lineHeightVars.code,
 })
+globalStyle(`${root} .twoslash-popup-info [data-line]`, {
+  padding: `${spaceVars['0']} ${spaceVars['4']}`,
+})
+globalStyle(`${root} .twoslash-error-line, ${root} .twoslash-tag-line`, {
+  borderLeftWidth: 2,
+  padding: `${spaceVars['0']} ${spaceVars['22']}`,
+})
 
 globalStyle(`${root} [data-line-numbers]`, {
   counterReset: 'line',
@@ -135,7 +142,7 @@ globalStyle(`${root}:hover .has-focused [data-line]:not(.focused)`, {
   transition: 'filter 0.2s, opacity 0.2s',
 })
 
-globalStyle(`${root} [data-line]`, {
+globalStyle(`${root} [data-line], ${root} .twoslash-error-line, ${root} .twoslash-tag-line`, {
   '@media': {
     [viewportVars['max-720px']]: {
       padding: `0 ${spaceVars['16']}`,

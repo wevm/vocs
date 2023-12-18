@@ -452,12 +452,12 @@ export const zIndexVars = createGlobalThemeContract(
 createGlobalTheme(':root', zIndexVars, {
   backdrop: '69420',
   drawer: '69421',
-  gutterRight: '2',
-  gutterLeft: '5',
-  gutterTop: '4',
-  gutterTopCurtain: '3',
+  gutterRight: '11',
+  gutterLeft: '14',
+  gutterTop: '13',
+  gutterTopCurtain: '12',
   popover: '69422',
-  surface: '1',
+  surface: '10',
 })
 
 /////////////////////////////////////////////////////////////////////

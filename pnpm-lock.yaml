@@ -260,6 +260,9 @@ importers:
       '@vitejs/plugin-react':
         specifier: 4.2.0
         version: 4.2.0(vite@5.0.2)
+      '@vocs/rehype-pretty-code':
+        specifier: ^0.12.1-0
+        version: 0.12.1-0(shikiji@0.9.9)
       '@vocs/vanilla-extract-vite-plugin':
         specifier: ^3.9.3-0
         version: 3.9.3-0(@types/node@20.8.9)(vite@5.0.2)
@@ -329,9 +332,6 @@ importers:
       rehype-class-names:
         specifier: ^1.0.14
         version: 1.0.14
-      rehype-pretty-code:
-        specifier: ^0.12.1
-        version: 0.12.1(shikiji@0.8.3)
       rehype-slug:
         specifier: ^6.0.0
         version: 6.0.0
@@ -354,11 +354,14 @@ importers:
         specifier: ^1.15.0
         version: 1.15.0
       shikiji:
-        specifier: ~0.8.3
-        version: 0.8.3
+        specifier: ~0.9.9
+        version: 0.9.9
       shikiji-transformers:
-        specifier: ~0.8.3
-        version: 0.8.3
+        specifier: ~0.9.9
+        version: 0.9.9
+      shikiji-twoslash:
+        specifier: ~0.9.9
+        version: 0.9.9(typescript@5.2.2)
       tailwindcss:
         specifier: ^3.3.3
         version: 3.3.5
@@ -2807,6 +2810,13 @@ packages:
       '@types/node': 20.8.9
     dev: true
 
+  /@types/lz-string@1.5.0:
+    resolution: {integrity: sha512-s84fKOrzqqNCAPljhVyC5TjAo6BH4jKHw9NRNFNiRUY5QSgZCmVm5XILlWbisiKl+0OcS7eWihmKGS5akc2iQw==}
+    deprecated: This is a stub types definition. lz-string provides its own type definitions, so you do not need this installed.
+    dependencies:
+      lz-string: 1.5.0
+    dev: false
+
   /@types/mark.js@8.11.12:
     resolution: {integrity: sha512-244ZnaIBpz4c6xutliAnYVZp6xJlmC569jZqnR3ElO1Y01ooYASSVQEqpd2x0A2UfrgVMs5V9/9tUAdZaDMytQ==}
     dependencies:
@@ -2942,6 +2952,28 @@ packages:
 
   /@types/unist@3.0.1:
     resolution: {integrity: sha512-ue/hDUpPjC85m+PM9OQDMZr3LywT+CT6mPsQq8OJtCLiERkGRcQUFvu9XASF5XWqyZFXbf15lvb3JFJ4dRLWPg==}
+
+  /@typescript/twoslash@3.2.4(typescript@5.2.2):
+    resolution: {integrity: sha512-/TCIOuPQaKltzUUT1qJo6mplYwjbAxkaSFvkeZD3FeFt3Ovt+HJi8xisu8rcLyDRmM3VJ0+jAx+AAICwn4Zlhw==}
+    peerDependencies:
+      typescript: '*'
+    dependencies:
+      '@types/lz-string': 1.5.0
+      '@typescript/vfs': 1.5.0
+      debug: 4.3.4
+      lz-string: 1.5.0
+      typescript: 5.2.2
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
+
+  /@typescript/vfs@1.5.0:
+    resolution: {integrity: sha512-AJS307bPgbsZZ9ggCT3wwpg3VbTKMFNHfaY/uF0ahSkYYrPF2dSSKDNIDIQAHm9qJqbLvCsSJH7yN4Vs/CsMMg==}
+    dependencies:
+      debug: 4.3.4
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
 
   /@ungap/structured-clone@1.2.0:
     resolution: {integrity: sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==}
@@ -3210,6 +3242,21 @@ packages:
       vite: 5.0.2(@types/node@20.8.9)
     transitivePeerDependencies:
       - supports-color
+    dev: false
+
+  /@vocs/rehype-pretty-code@0.12.1-0(shikiji@0.9.9):
+    resolution: {integrity: sha512-3s6Q7vSd01Qv4SBRMdHuOkEildGYXDRVYXpPack0PjEHEQJ6yHaptOGiFw+CeMSEqGAoNcs0/pES/AldqOy14A==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      shikiji: ^0.7.0 || ^0.8.0
+    dependencies:
+      '@types/hast': 3.0.3
+      hast-util-to-string: 3.0.0
+      parse-numeric-range: 1.3.0
+      rehype-parse: 9.0.0
+      shikiji: 0.9.9
+      unified: 11.0.4
+      unist-util-visit: 5.0.0
     dev: false
 
   /@vocs/vanilla-extract-vite-plugin@3.9.3-0(@types/node@20.8.9)(vite@5.0.2):
@@ -5083,7 +5130,7 @@ packages:
   /hast-util-from-parse5@8.0.1:
     resolution: {integrity: sha512-Er/Iixbc7IEa7r/XLtuG52zoqn/b3Xng/w6aZQ0xGVxzhw5xUFxcRqdPzP6yFi/4HBYRaifaI5fQ1RH8n0ZeOQ==}
     dependencies:
-      '@types/hast': 3.0.2
+      '@types/hast': 3.0.3
       '@types/unist': 3.0.1
       devlop: 1.1.0
       hastscript: 8.0.0
@@ -5115,24 +5162,6 @@ packages:
     resolution: {integrity: sha512-wkQCkSYoOGCRKERFWcxMVMOcYE2K1AaNLU8DXS9arxnLOUEWbOXKXiJUNzEpqZ3JOKpnha3jkFrumEjVliDe7A==}
     dependencies:
       '@types/hast': 3.0.2
-    dev: false
-
-  /hast-util-raw@9.0.1:
-    resolution: {integrity: sha512-5m1gmba658Q+lO5uqL5YNGQWeh1MYWZbZmWrM5lncdcuiXuo5E2HT/CIOp0rLF8ksfSwiCVJ3twlgVRyTGThGA==}
-    dependencies:
-      '@types/hast': 3.0.3
-      '@types/unist': 3.0.1
-      '@ungap/structured-clone': 1.2.0
-      hast-util-from-parse5: 8.0.1
-      hast-util-to-parse5: 8.0.0
-      html-void-elements: 3.0.0
-      mdast-util-to-hast: 13.0.2
-      parse5: 7.1.2
-      unist-util-position: 5.0.0
-      unist-util-visit: 5.0.0
-      vfile: 6.0.1
-      web-namespaces: 2.0.1
-      zwitch: 2.0.4
     dev: false
 
   /hast-util-select@6.0.1:
@@ -5179,23 +5208,6 @@ packages:
       - supports-color
     dev: false
 
-  /hast-util-to-html@9.0.0:
-    resolution: {integrity: sha512-IVGhNgg7vANuUA2XKrT6sOIIPgaYZnmLx3l/CCOAK0PtgfoHrZwX7jCSYyFxHTrGmC6S9q8aQQekjp4JPZF+cw==}
-    dependencies:
-      '@types/hast': 3.0.3
-      '@types/unist': 3.0.1
-      ccount: 2.0.1
-      comma-separated-tokens: 2.0.3
-      hast-util-raw: 9.0.1
-      hast-util-whitespace: 3.0.0
-      html-void-elements: 3.0.0
-      mdast-util-to-hast: 13.0.2
-      property-information: 6.3.0
-      space-separated-tokens: 2.0.2
-      stringify-entities: 4.0.3
-      zwitch: 2.0.4
-    dev: false
-
   /hast-util-to-jsx-runtime@2.2.0:
     resolution: {integrity: sha512-wSlp23N45CMjDg/BPW8zvhEi3R+8eRE1qFbjEyAUzMCzu2l1Wzwakq+Tlia9nkCtEl5mDxa7nKHsvYJ6Gfn21A==}
     dependencies:
@@ -5208,18 +5220,6 @@ packages:
       style-to-object: 0.4.4
       unist-util-position: 5.0.0
       vfile-message: 4.0.2
-    dev: false
-
-  /hast-util-to-parse5@8.0.0:
-    resolution: {integrity: sha512-3KKrV5ZVI8if87DVSi1vDeByYrkGzg4mEfeu4alwgmmIeARiBLKCZS2uw5Gb6nU9x9Yufyj3iudm6i7nl52PFw==}
-    dependencies:
-      '@types/hast': 3.0.3
-      comma-separated-tokens: 2.0.3
-      devlop: 1.1.0
-      property-information: 6.3.0
-      space-separated-tokens: 2.0.2
-      web-namespaces: 2.0.1
-      zwitch: 2.0.4
     dev: false
 
   /hast-util-to-string@3.0.0:
@@ -5257,10 +5257,6 @@ packages:
   /hosted-git-info@2.8.9:
     resolution: {integrity: sha512-mxIDAb9Lsm6DoOJ7xH+5+X4y1LU/4Hi50L9C5sIswK3JzULS4bwk1FvjdBgvYR4bzT4tuUQiC15FE2f5HbLvYw==}
     dev: true
-
-  /html-void-elements@3.0.0:
-    resolution: {integrity: sha512-bEqo66MRXsUGxWHV5IP0PUiAWwoEjba4VCzg0LjFJBpchPaTfyfCKTG6bc5F8ucKec3q5y6qOdGyYTSBEvhCrg==}
-    dev: false
 
   /http-errors@1.4.0:
     resolution: {integrity: sha512-oLjPqve1tuOl5aRhv8GK5eHpqP1C9fb+Ol+XTLjKfLltE44zdDbEdjPSbU7Ch5rSNsVFqZn97SrMmZLdu1/YMw==}
@@ -5750,6 +5746,11 @@ packages:
     dependencies:
       yallist: 4.0.0
     dev: true
+
+  /lz-string@1.5.0:
+    resolution: {integrity: sha512-h5bgJWpxJNswbU7qCrV0tIKQCaS3blPDrqKWx+QxzuzL1zGUzij9XCWLrSLsJPu5t+eWA/ycetzYAO5IOMcWAQ==}
+    hasBin: true
+    dev: false
 
   /make-dir@3.1.0:
     resolution: {integrity: sha512-g3FeP20LNwhALb/6Cz6Dd4F2ngze0jz7tbzrD2wAV+o9FeNHe4rL+yK2md0J/fiSf1sa1ADhXqi5+oVwOM/eGw==}
@@ -7370,21 +7371,6 @@ packages:
       unified: 11.0.4
     dev: false
 
-  /rehype-pretty-code@0.12.1(shikiji@0.8.3):
-    resolution: {integrity: sha512-QeGvAPTc31KwP52wBjXqdXXfBAhEs6wETNlOcZRkaPKZZo6Alsz0U6yY05cCKQK53xYNeDCClVYDCyVMl3SP1Q==}
-    engines: {node: '>=18'}
-    peerDependencies:
-      shikiji: ^0.7.0 || ^0.8.0
-    dependencies:
-      '@types/hast': 3.0.3
-      hast-util-to-string: 3.0.0
-      parse-numeric-range: 1.3.0
-      rehype-parse: 9.0.0
-      shikiji: 0.8.3
-      unified: 11.0.4
-      unist-util-visit: 5.0.0
-    dev: false
-
   /rehype-slug@6.0.0:
     resolution: {integrity: sha512-lWyvf/jwu+oS5+hL5eClVd3hNdmwM1kAC0BUvEGD19pajQMIzcNUd/k9GsfQ+FfECvX+JE+e9/btsKH0EjJT6A==}
     dependencies:
@@ -7736,16 +7722,30 @@ packages:
     resolution: {integrity: sha512-7++dFhtcx3353uBaq8DDR4NuxBetBzC7ZQOhmTQInHEd6bSrXdiEyzCvG07Z44UYdLShWUyXt5M/yhz8ekcb1A==}
     engines: {node: '>=8'}
 
-  /shikiji-transformers@0.8.3:
-    resolution: {integrity: sha512-vxn73NXYWzFbKz/jRsHyZNzuoOK9W5Vzb4WkoHUF84u1VEU0YSHKkcWgeFdFJHD5kAilTO7dhaeQHHrjbW9y7g==}
-    dependencies:
-      shikiji: 0.8.3
+  /shikiji-core@0.9.9:
+    resolution: {integrity: sha512-qu5Qq7Co6JIMY312J9Ek6WYjXieeyJT/fIqmkcjF4MdnMNlUnhSqPo8/42g5UdPgdyTCwijS7Nhg8DfLSLodkg==}
     dev: false
 
-  /shikiji@0.8.3:
-    resolution: {integrity: sha512-yyZwjuVX8kEs7FzfXe2EIldQQmctms+gziL87W2UcGHN0t3Q14tnz4EI9qnETk/Fm3M6ICTrWVX4IA9N8kNhmw==}
+  /shikiji-transformers@0.9.9:
+    resolution: {integrity: sha512-XlDnE5MYp6gyVond4AlJxw8OFkfacbfkCa3ONtBgPwF2qq24tcoLroiPNXqhMedWUhZLF5LQ30tqA68mGFRRIg==}
     dependencies:
-      hast-util-to-html: 9.0.0
+      shikiji: 0.9.9
+    dev: false
+
+  /shikiji-twoslash@0.9.9(typescript@5.2.2):
+    resolution: {integrity: sha512-O6rMbXBVF2rerLnQOIXufXWeuYVsB+VKNnpIKEzxHuvSbL9JgEI9Uz8bafp9he4diZZd+RKg3l4i5ekAikwjpg==}
+    dependencies:
+      '@typescript/twoslash': 3.2.4(typescript@5.2.2)
+      shikiji-core: 0.9.9
+    transitivePeerDependencies:
+      - supports-color
+      - typescript
+    dev: false
+
+  /shikiji@0.9.9:
+    resolution: {integrity: sha512-/S3unr/0mZTstNOuAmNDEufeimtqeQb8lXvPMLsYfDvqyfmG6334bO2xmDzD0kfxH2y8gnFgSWAJpdEzksmYXg==}
+    dependencies:
+      shikiji-core: 0.9.9
     dev: false
 
   /side-channel@1.0.4:
@@ -8312,7 +8312,6 @@ packages:
     resolution: {integrity: sha512-mI4WrpHsbCIcwT9cF4FZvr80QUeKvsUsUvKDoR+X/7XHQH98xYD8YHZg7ANtz2GtZt/CBq2QJ0thkGJMHfqc1w==}
     engines: {node: '>=14.17'}
     hasBin: true
-    dev: true
 
   /ua-parser-js@1.0.37:
     resolution: {integrity: sha512-bhTyI94tZofjo+Dn8SN6Zv8nBDvyXTymAdM3LDI/0IboIUwTu1rEhW7v2TfiVsoYWgkQ4kOVqnI8APUFbIQIFQ==}

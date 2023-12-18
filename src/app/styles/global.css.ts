@@ -12,6 +12,9 @@ import {
   viewportVars,
 } from './vars.css.js'
 
+////////////////////////////////////////////////////////////////////////
+// Root
+
 const globalLayer = layer('global')
 
 globalStyle(':root', {
@@ -31,6 +34,9 @@ globalStyle(':root', {
   },
 })
 
+////////////////////////////////////////////////////////////////////////
+// Rehype Pretty Code
+
 globalStyle(':root:not(.dark) [data-rehype-pretty-code-figure] span:not([data-line])', {
   color: 'var(--shiki-light)',
   backgroundColor: 'var(--shiki-light-bg)',
@@ -39,6 +45,49 @@ globalStyle(':root.dark [data-rehype-pretty-code-figure] span:not([data-line])',
   color: 'var(--shiki-dark)',
   backgroundColor: 'var(--shiki-dark-bg)',
 })
+
+////////////////////////////////////////////////////////////////////////
+// Shikiji Twoslash
+
+globalStyle(':root .twoslash-popup-info', {
+  vars: {
+    '--shiki-light-bg': primitiveColorVars.background2,
+  },
+})
+globalStyle(':root.dark .twoslash-popup-info', {
+  vars: {
+    '--shiki-dark-bg': primitiveColorVars.background2,
+  },
+})
+
+globalStyle('.twoslash', {
+  vars: {
+    '--twoslash-popup-bg': primitiveColorVars.background2,
+  },
+})
+
+globalStyle('.twoslash-completions-unmatched', {
+  color: 'var(--twoslash-unmatched-color) !important',
+})
+
+globalStyle('.twoslash-tag-icon', {
+  display: 'none',
+})
+
+globalStyle('.twoslash-popup-info', {
+  marginTop: '4px',
+})
+
+globalStyle('.twoslash-query-presisted > .twoslash-popup-info', {
+  zIndex: 1,
+})
+
+globalStyle(':not(.twoslash-query-presisted) > .twoslash-popup-info', {
+  zIndex: 2,
+})
+
+////////////////////////////////////////////////////////////////////////
+// Misc.
 
 globalStyle(`${Content} > *:not(:last-child), ${Details} > *:not(:last-child)`, {
   marginBottom: spaceVars['24'],
