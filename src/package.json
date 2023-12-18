@@ -46,6 +46,7 @@
     "mdast-util-to-hast": "^13.0.2",
     "minimatch": "^9.0.3",
     "minisearch": "^6.3.0",
+    "ora": "^7.0.1",
     "postcss": "^8.4.31",
     "react-helmet": "^6.1.0",
     "react-intersection-observer": "^9.5.3",
