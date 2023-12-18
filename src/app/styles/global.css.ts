@@ -66,6 +66,26 @@ globalStyle('.twoslash', {
   },
 })
 
+globalStyle('.twoslash-completions-unmatched', {
+  color: 'var(--twoslash-unmatched-color) !important',
+})
+
+globalStyle('.twoslash-tag-icon', {
+  display: 'none',
+})
+
+globalStyle('.twoslash-popup-info', {
+  marginTop: '4px',
+})
+
+globalStyle('.twoslash-query-presisted > .twoslash-popup-info', {
+  zIndex: 1,
+})
+
+globalStyle(':not(.twoslash-query-presisted) > .twoslash-popup-info', {
+  zIndex: 2,
+})
+
 ////////////////////////////////////////////////////////////////////////
 // Misc.
 

@@ -8,6 +8,27 @@ const msg = `${hi} world` as const
 ```
 
 ```ts twoslash
+// @filename: maths.ts
+export function absolute(num: number) {
+  if (num < 0) return num * -1;
+  return num;
+}
+// @filename: index.ts
+// ---cut---
+import { absolute } from "./maths"
+const value = absolute(-1)
+//    ^?
+
+
+```
+
+```ts twoslash
+// @errors: 2339
+const welcome = "Tudo bem gente?"
+const words = welcome.contains(" ")
+```
+
+```ts twoslash
 // @errors: 2540
 interface Todo {
   title: string
@@ -25,4 +46,17 @@ Number.parseInt('123', 10)
 
 
 
+```
+
+```ts twoslash
+import { getHighlighterCore } from 'shikiji/core'
+
+const shiki = await getHighlighterCore({})
+// @log: Custom log message
+const a = 1
+// @error: Custom error message
+const b = 1
+// @warn: Custom warning message
+const c = 1
+// @annotate: Custom annotation message
 ```

@@ -260,6 +260,9 @@ importers:
       '@vitejs/plugin-react':
         specifier: 4.2.0
         version: 4.2.0(vite@5.0.2)
+      '@vocs/rehype-pretty-code':
+        specifier: ^0.12.1-0
+        version: 0.12.1-0(shikiji@0.9.9)
       '@vocs/vanilla-extract-vite-plugin':
         specifier: ^3.9.3-0
         version: 3.9.3-0(@types/node@20.8.9)(vite@5.0.2)
@@ -329,9 +332,6 @@ importers:
       rehype-class-names:
         specifier: ^1.0.14
         version: 1.0.14
-      rehype-pretty-code:
-        specifier: ^0.12.1
-        version: 0.12.1(shikiji@0.9.9)
       rehype-slug:
         specifier: ^6.0.0
         version: 6.0.0
@@ -3244,6 +3244,21 @@ packages:
       - supports-color
     dev: false
 
+  /@vocs/rehype-pretty-code@0.12.1-0(shikiji@0.9.9):
+    resolution: {integrity: sha512-3s6Q7vSd01Qv4SBRMdHuOkEildGYXDRVYXpPack0PjEHEQJ6yHaptOGiFw+CeMSEqGAoNcs0/pES/AldqOy14A==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      shikiji: ^0.7.0 || ^0.8.0
+    dependencies:
+      '@types/hast': 3.0.3
+      hast-util-to-string: 3.0.0
+      parse-numeric-range: 1.3.0
+      rehype-parse: 9.0.0
+      shikiji: 0.9.9
+      unified: 11.0.4
+      unist-util-visit: 5.0.0
+    dev: false
+
   /@vocs/vanilla-extract-vite-plugin@3.9.3-0(@types/node@20.8.9)(vite@5.0.2):
     resolution: {integrity: sha512-FfsRecpuCKWcLK9SIk3AOHPkSPmatYb7D/EsK+RkK4CJCc7TCOcOhiiCA4h/0EVyX+AfxUlKmAuJKktED0tx1w==}
     peerDependencies:
@@ -5115,7 +5130,7 @@ packages:
   /hast-util-from-parse5@8.0.1:
     resolution: {integrity: sha512-Er/Iixbc7IEa7r/XLtuG52zoqn/b3Xng/w6aZQ0xGVxzhw5xUFxcRqdPzP6yFi/4HBYRaifaI5fQ1RH8n0ZeOQ==}
     dependencies:
-      '@types/hast': 3.0.2
+      '@types/hast': 3.0.3
       '@types/unist': 3.0.1
       devlop: 1.1.0
       hastscript: 8.0.0
@@ -7354,21 +7369,6 @@ packages:
       '@types/hast': 3.0.3
       hast-util-from-html: 2.0.1
       unified: 11.0.4
-    dev: false
-
-  /rehype-pretty-code@0.12.1(shikiji@0.9.9):
-    resolution: {integrity: sha512-QeGvAPTc31KwP52wBjXqdXXfBAhEs6wETNlOcZRkaPKZZo6Alsz0U6yY05cCKQK53xYNeDCClVYDCyVMl3SP1Q==}
-    engines: {node: '>=18'}
-    peerDependencies:
-      shikiji: ^0.7.0 || ^0.8.0
-    dependencies:
-      '@types/hast': 3.0.3
-      hast-util-to-string: 3.0.0
-      parse-numeric-range: 1.3.0
-      rehype-parse: 9.0.0
-      shikiji: 0.9.9
-      unified: 11.0.4
-      unist-util-visit: 5.0.0
     dev: false
 
   /rehype-slug@6.0.0:

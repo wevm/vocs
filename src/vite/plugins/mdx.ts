@@ -1,7 +1,7 @@
 import mdxPlugin from '@mdx-js/rollup'
+import rehypePrettyCode from '@vocs/rehype-pretty-code'
 import { h } from 'hastscript'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
-import rehypePrettyCode from 'rehype-pretty-code'
 import rehypeSlug from 'rehype-slug'
 import remarkDirective from 'remark-directive'
 import remarkFrontmatter from 'remark-frontmatter'
@@ -14,9 +14,9 @@ import {
   transformerNotationHighlight,
 } from 'shikiji-transformers'
 import { rendererRich, transformerTwoSlash } from 'shikiji-twoslash'
+import type { PluggableList } from 'unified'
 import { type PluginOption } from 'vite'
 
-import type { PluggableList } from 'unified'
 import { remarkAuthors } from './remark/authors.js'
 import { remarkBlogPosts } from './remark/blog-posts.js'
 import { remarkCallout } from './remark/callout.js'
@@ -68,7 +68,7 @@ export const rehypePlugins = [
             if (child.type !== 'text') return
             if (child.value.trim().length === 0) return
 
-            const matches = child.value.match(/^(\s*\W)?(\w*)(\W\s*)?$/)
+            const matches = child.value.match(/^(\s*\W\s*?)?(\w*)(\s*?\W\s*)?$/)
             if (!matches) return
 
             const [_, start, text, end] = matches
