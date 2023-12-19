@@ -28,7 +28,24 @@ export const twoslashVars = createGlobalThemeContract(
 createGlobalTheme(':root', twoslashVars, {
   borderColor: primitiveColorVars.border,
   underlineColor: 'currentColor',
-  popupBackground: primitiveColorVars.backgroundDark,
+  popupBackground: primitiveColorVars.background2,
+  popupShadow: 'rgba(0, 0, 0, 0.08) 0px 1px 4px',
+  matchedColor: 'inherit',
+  unmatchedColor: '#888',
+  cursorColor: '#8888',
+  errorColor: primitiveColorVars.textRed,
+  errorBackground: primitiveColorVars.backgroundRedTint2,
+  tagColor: primitiveColorVars.textBlue,
+  tagBackground: primitiveColorVars.backgroundBlueTint,
+  tagWarnColor: primitiveColorVars.textYellow,
+  tagWarnBackground: primitiveColorVars.backgroundYellowTint,
+  tagAnnotateColor: primitiveColorVars.textGreen,
+  tagAnnotateBackground: primitiveColorVars.backgroundGreenTint2,
+})
+createGlobalTheme(':root.dark', twoslashVars, {
+  borderColor: primitiveColorVars.border2,
+  underlineColor: 'currentColor',
+  popupBackground: primitiveColorVars.background5,
   popupShadow: 'rgba(0, 0, 0, 0.08) 0px 1px 4px',
   matchedColor: 'inherit',
   unmatchedColor: '#888',
@@ -60,7 +77,7 @@ globalStyle(':root .twoslash-popup-info', {
 })
 globalStyle(':root.dark .twoslash-popup-info', {
   vars: {
-    '--shiki-dark-bg': primitiveColorVars.backgroundDark,
+    '--shiki-dark-bg': primitiveColorVars.background5,
   },
 })
 

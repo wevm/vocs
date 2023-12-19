@@ -132,17 +132,21 @@ globalStyle(`${root} [data-line].diff.remove::before`, {
   color: primitiveColorVars.textRed,
 })
 
-globalStyle(`${root} .has-focused [data-line]:not(.focused)`, {
-  filter: 'grayscale(0.5)',
-  opacity: '0.3',
-  transition: 'filter 0.2s, opacity 0.2s',
-})
+globalStyle(
+  `${root} .has-focused > code > [data-line]:not(.focused), ${root} .has-focused > code > .twoslash-meta-line:not(.focused)`,
+  {
+    opacity: '0.3',
+    transition: 'opacity 0.2s',
+  },
+)
 
-globalStyle(`${root}:hover .has-focused [data-line]:not(.focused)`, {
-  filter: 'grayscale(0)',
-  opacity: '1',
-  transition: 'filter 0.2s, opacity 0.2s',
-})
+globalStyle(
+  `${root}:hover .has-focused [data-line]:not(.focused), ${root}:hover .has-focused .twoslash-meta-line:not(.focused)`,
+  {
+    opacity: '1',
+    transition: 'opacity 0.2s',
+  },
+)
 
 globalStyle(`${root} [data-line], ${root} .twoslash-error-line, ${root} .twoslash-tag-line`, {
   '@media': {
