@@ -48,7 +48,10 @@ export function dev(): PluginOption {
             if (typeof url === 'undefined') next()
 
             const indexHtml = readFileSync(resolve(__dirname, '../index.html'), 'utf-8')
-            const template = await server.transformIndexHtml(url!, indexHtml)
+            const template = await server.transformIndexHtml(
+              url!,
+              indexHtml.replace(/\.\.\/app/g, `/@fs${resolve(__dirname, '../../app')}`),
+            )
             const module = await server.ssrLoadModule(
               resolve(__dirname, '../../app/index.server.tsx'),
             )
@@ -61,10 +64,7 @@ export function dev(): PluginOption {
             const head = `${render.head}${styles}`
             const body = render.body
 
-            const html = template
-              .replace('<!--head-->', head)
-              .replace('<!--body-->', body)
-              .replace(/\.\.\/app/g, `/@fs${resolve(__dirname, '../../app')}`)
+            const html = template.replace('<!--head-->', head).replace('<!--body-->', body)
 
             res.end(html)
           } finally {
