@@ -47,9 +47,6 @@ importers:
       bun-types:
         specifier: ^1.0.6
         version: 1.0.7
-      fs-extra:
-        specifier: ^11.1.1
-        version: 11.1.1
       globby:
         specifier: ^13.2.2
         version: 13.2.2
@@ -278,6 +275,9 @@ importers:
       create-vocs:
         specifier: ^0.0.0
         version: link:../create-vocs
+      fs-extra:
+        specifier: ^11.1.1
+        version: 11.1.1
       globby:
         specifier: ^13.2.2
         version: 13.2.2
@@ -4817,6 +4817,7 @@ packages:
       graceful-fs: 4.2.11
       jsonfile: 6.1.0
       universalify: 2.0.0
+    dev: false
 
   /fs-extra@7.0.1:
     resolution: {integrity: sha512-YJDaCJZEnBmcbw13fvdAM9AwNOJwOzrE4pqMqBq5nFiEqXUqHwlK4B+3pUw6JNvfSPtX05xFHtYy/1ni01eGCw==}

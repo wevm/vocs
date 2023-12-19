@@ -39,6 +39,7 @@
     "compression": "^1.7.4",
     "create-vocs": "^0.0.0",
     "globby": "^13.2.2",
+    "fs-extra": "^11.1.1",
     "hastscript": "^8.0.0",
     "hono": "^3.10.2",
     "mark.js": "^8.11.1",
