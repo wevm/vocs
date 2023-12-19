@@ -1,7 +1,5 @@
 import './styles/index.css.js'
 
-import 'shikiji-twoslash/style-rich.css'
-
 import type { ReactElement } from 'react'
 import { renderToString } from 'react-dom/server'
 import { Helmet } from 'react-helmet'

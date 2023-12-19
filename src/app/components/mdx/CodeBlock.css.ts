@@ -66,7 +66,6 @@ globalStyle(`${root} .twoslash-popup-info [data-line]`, {
   padding: `${spaceVars['0']} ${spaceVars['4']}`,
 })
 globalStyle(`${root} .twoslash-error-line, ${root} .twoslash-tag-line`, {
-  borderLeftWidth: 2,
   padding: `${spaceVars['0']} ${spaceVars['22']}`,
 })
 
