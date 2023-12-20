@@ -39,9 +39,11 @@ export function twoslashRenderer(): TwoSlashRenderers {
     nodeQuery(query, node) {
       if (!query.text) return {}
 
+      const text = query.text.match(/.{1,60}/g)
+
       const themedContent = (
         (
-          this.codeToHast(query.text, {
+          this.codeToHast(text?.join('\n')!, {
             ...this.options,
             transformers: [],
             transforms: undefined,
