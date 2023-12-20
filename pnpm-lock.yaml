@@ -245,9 +245,6 @@ importers:
       '@radix-ui/react-tabs':
         specifier: ^1.0.4
         version: 1.0.4(@types/react-dom@18.2.14)(@types/react@18.2.38)(react-dom@18.2.0)(react@18.2.0)
-      '@typescript/twoslash':
-        specifier: ^3.2.4
-        version: 3.2.4(typescript@5.2.2)
       '@vanilla-extract/css':
         specifier: ^1.14.0
         version: 1.14.0
@@ -359,9 +356,6 @@ importers:
       shikiji:
         specifier: ~0.9.9
         version: 0.9.9
-      shikiji-core:
-        specifier: ~0.9.9
-        version: 0.9.9
       shikiji-transformers:
         specifier: ~0.9.9
         version: 0.9.9
@@ -399,9 +393,6 @@ importers:
       '@types/ua-parser-js':
         specifier: ^0.7.39
         version: 0.7.39
-      hast:
-        specifier: ^1.0.0
-        version: 1.0.0
 
 packages:
 
@@ -5225,11 +5216,6 @@ packages:
     dependencies:
       '@types/hast': 3.0.3
     dev: false
-
-  /hast@1.0.0:
-    resolution: {integrity: sha512-vFUqlRV5C+xqP76Wwq2SrM0kipnmpxJm7OfvVXpB35Fp+Fn4MV+ozr+JZr5qFvyR1q/U+Foim2x+3P+x9S1PLA==}
-    deprecated: Renamed to rehype
-    dev: true
 
   /hastscript@8.0.0:
     resolution: {integrity: sha512-dMOtzCEd3ABUeSIISmrETiKuyydk1w0pa+gE/uormcTpSYuaNJPbX1NU3JLyscSLjwAQM8bWMhhIlnCqnRvDTw==}
