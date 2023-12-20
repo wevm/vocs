@@ -162,6 +162,7 @@ export const sectionHeaderActive = style(
 
 export const sectionTitle = style(
   {
+    color: primitiveColorVars.title,
     fontSize: fontSizeVars['14'],
     fontWeight: fontWeightVars.semibold,
     letterSpacing: '0.25px',

@@ -210,6 +210,10 @@ export default defineConfig({
           text: 'Blog',
           link: '/docs/guides/blog',
         },
+        {
+          text: 'Twoslash',
+          link: '/docs/guides/twoslash',
+        },
       ],
     },
     {

@@ -13,7 +13,6 @@ export const root = style({
   backgroundColor: semanticColorVars.codeBlockBackground,
   border: `1px solid ${semanticColorVars.codeInlineBorder}`,
   borderRadius: borderRadiusVars['4'],
-  overflow: 'auto',
 })
 
 export const list = style(

@@ -54,6 +54,7 @@ export const primitiveColorVars = createGlobalThemeContract(
     textRedHover: 'textRedHover',
     textYellow: 'textYellow',
     textYellowHover: 'textYellowHover',
+    title: 'title',
   },
   getVarName('color'),
 )
@@ -103,6 +104,7 @@ createGlobalTheme(':root', primitiveColorVars, {
   textRedHover: globalColors.red.red12,
   textYellow: globalColors.yellow.yellow11,
   textYellowHover: globalColors.yellow.yellow12,
+  title: globalColors.gray.gray12,
 })
 createGlobalTheme(':root.dark', primitiveColorVars, {
   white,
@@ -150,6 +152,7 @@ createGlobalTheme(':root.dark', primitiveColorVars, {
   textRedHover: globalColors.redDark.red10,
   textYellow: globalColors.yellowDark.yellow11,
   textYellowHover: globalColors.amber.amber8,
+  title: white,
 })
 
 export const semanticColorVars = createGlobalThemeContract(

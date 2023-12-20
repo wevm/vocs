@@ -29,6 +29,7 @@ export const nav = style(
 
 export const heading = style(
   {
+    color: primitiveColorVars.title,
     fontSize: fontSizeVars[13],
     fontWeight: fontWeightVars.semibold,
     lineHeight: lineHeightVars.heading,
