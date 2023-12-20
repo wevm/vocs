@@ -13,21 +13,42 @@ One of the key reasons for making Twoslash is the ability to use the TypeScript 
 
 Using `^?` you can pull out type information about a particular identifier in the line of code above it.
 
-```ts twoslash
+:::code-group
+
+```ts [Output] twoslash
 const hi = "Hello"
 const msg = hi + ", world"
 //    ^?
 ```
 
+```ts [Markdown]
+const hi = "Hello"
+const msg = hi + ", world"
+//    ^?
+```
+
+:::
+
+
 ### Completions
 
 Using `^|` you can pull out information about a what the auto-complete looks like at a particular location.
 
-```ts twoslash
+:::code-group
+
+```ts [Output] twoslash
 // @noErrors
 console.e 
 //       ^|
 ```
+
+```ts [Markdown]
+// @noErrors
+console.e 
+//       ^|
+```
+
+:::
 
 ## Errors
 
@@ -108,13 +129,13 @@ The below example only shows a single line.
 :::code-group
 
 ```ts [Output] twoslash
-const level: string = "Danger"
+const level = "Danger"
 // ---cut---
 console.log(level)
 ```
 
 ```ts [Markdown]
-const level: string = "Danger"
+const level = "Danger"
 // ---cut---
 console.log(level)
 ```

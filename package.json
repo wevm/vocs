@@ -15,7 +15,7 @@
     "lint": "biome lint . --apply-unsafe",
     "playground": "pnpm --filter playgrounds/default dev",
     "preconstruct": "bun run scripts/preconstruct.ts",
-    "prepare": "simple-git-hooks && pnpm build",
+    "prepare": "simple-git-hooks",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {

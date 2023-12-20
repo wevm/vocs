@@ -29,6 +29,7 @@ import { remarkStrongBlock } from './remark/strong-block.js'
 import { remarkSubheading } from './remark/subheading.js'
 import { transformerSplitIdentifiers } from './shikiji/transformerSplitIdentifiers.js'
 import { twoslashRenderer } from './shikiji/twoslashRenderer.js'
+import { twoslasher } from './shikiji/twoslasher.js'
 
 export const remarkPlugins = [
   remarkDirective,
@@ -61,6 +62,7 @@ export const rehypePlugins = [
         transformerTwoSlash({
           explicitTrigger: true,
           renderer: twoslashRenderer(),
+          twoslasher,
         }),
         transformerSplitIdentifiers(),
       ],

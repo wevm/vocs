@@ -91,10 +91,12 @@ export function twoslashRenderer(): TwoSlashRenderers {
         tagName: 'span',
         properties: {},
         children: [
-          {
-            type: 'text',
-            value: leftPart,
-          },
+          node.value.trim().length > 0
+            ? {
+                type: 'text',
+                value: leftPart,
+              }
+            : undefined,
           {
             type: 'element',
             tagName: 'span',
@@ -155,7 +157,7 @@ export function twoslashRenderer(): TwoSlashRenderers {
             type: 'text',
             value: rightPart,
           },
-        ],
+        ].filter(Boolean) as any,
       }
     },
 
