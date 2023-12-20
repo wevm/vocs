@@ -10,7 +10,9 @@ import {
   spaceVars,
 } from '../styles/vars.css.js'
 
-export const root = style({})
+export const root = style({
+  width: '100%',
+})
 
 export const nav = style(
   {
@@ -53,6 +55,10 @@ export const item = style(
   {
     lineHeight: lineHeightVars.outlineItem,
     marginBottom: spaceVars[8],
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    // @ts-expect-error
+    textWrap: 'nowrap',
   },
   'item',
 )

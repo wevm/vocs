@@ -225,6 +225,7 @@ export const outlinePopover = style(
     '@media': {
       [viewportVars['max-1080px']]: {
         display: 'block',
+        maxWidth: '300px',
       },
     },
   },
