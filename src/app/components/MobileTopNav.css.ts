@@ -48,6 +48,13 @@ export const button = style(
   'button',
 )
 
+export const content = style(
+  {
+    left: `calc(-1 * ${spaceVars['24']})`,
+  },
+  'content',
+)
+
 export const curtain = style(
   {
     alignItems: 'center',
@@ -101,6 +108,13 @@ export const icon = style(
     },
   },
   'icon',
+)
+
+export const item = style(
+  {
+    position: 'relative',
+  },
+  'item',
 )
 
 export const logo = style(

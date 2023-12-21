@@ -4,6 +4,7 @@ import { type ComponentType, useMemo, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 
 import type * as Config from '../../config.js'
+import { useActiveNavIds } from '../hooks/useActiveNavIds.js'
 import { useConfig } from '../hooks/useConfig.js'
 import { useLayout } from '../hooks/useLayout.js'
 import { usePageData } from '../hooks/usePageData.js'
@@ -32,11 +33,6 @@ export function MobileTopNav() {
   const config = useConfig()
   const { showLogo } = useLayout()
 
-  const { pathname } = useLocation()
-  const activeItem = config?.topNav
-    ?.filter((item) => (item.link ? pathname.replace(/\.html$/, '').startsWith(item.link) : false))
-    .slice(-1)[0]
-
   return (
     <div className={styles.root}>
       <div className={styles.section}>
@@ -52,8 +48,8 @@ export function MobileTopNav() {
         {config.topNav && (
           <>
             <div className={styles.group}>
-              <Navigation activeItem={activeItem} items={config.topNav} />
-              <CompactNavigation activeItem={activeItem} items={config.topNav} />
+              <Navigation items={config.topNav} />
+              <CompactNavigation items={config.topNav} />
             </div>
           </>
         )}
@@ -78,29 +74,27 @@ export function MobileTopNav() {
   )
 }
 
-function Navigation({
-  activeItem,
-  items,
-}: { activeItem?: Config.TopNavItem; items: Config.TopNavItem[] }) {
+function Navigation({ items }: { items: Config.ParsedTopNavItem[] }) {
+  const { pathname } = useLocation()
+  const activeIds = useActiveNavIds({ pathname, items })
   return (
     <NavigationMenu.Root className={styles.navigation}>
       <NavigationMenu.List>
         {items.map((item, i) =>
           item.link ? (
-            <NavigationMenu.Link key={i} active={item.link === activeItem?.link} href={item.link!}>
+            <NavigationMenu.Link key={i} active={activeIds?.includes(item.id)} href={item.link!}>
               {item.text}
             </NavigationMenu.Link>
           ) : (
-            <NavigationMenu.Item key={i}>
-              <NavigationMenu.Trigger>{item.text}</NavigationMenu.Trigger>
-              <NavigationMenu.Content>
-                <ul>
-                  {item.items?.map((item, i) => (
-                    <NavigationMenu.Link key={i} href={item.link!}>
-                      {item.text}
-                    </NavigationMenu.Link>
-                  ))}
-                </ul>
+            <NavigationMenu.Item className={styles.item} key={i}>
+              <NavigationMenu.Trigger
+                active={activeIds?.includes(item.id)}
+                onPointerMove={(e) => e.preventDefault()}
+              >
+                {item.text}
+              </NavigationMenu.Trigger>
+              <NavigationMenu.Content className={styles.content}>
+                <NavigationMenuContent items={item.items || []} />
               </NavigationMenu.Content>
             </NavigationMenu.Item>
           ),
@@ -110,11 +104,26 @@ function Navigation({
   )
 }
 
-function CompactNavigation({
-  activeItem,
-  items,
-}: { activeItem?: Config.TopNavItem; items: Config.TopNavItem[] }) {
+function NavigationMenuContent({ items }: { items: Config.ParsedTopNavItem[] }) {
+  const { pathname } = useLocation()
+  const activeIds = useActiveNavIds({ pathname, items })
+  return (
+    <ul>
+      {items?.map((item, i) => (
+        <NavigationMenu.Link key={i} active={activeIds.includes(item.id)} href={item.link!}>
+          {item.text}
+        </NavigationMenu.Link>
+      ))}
+    </ul>
+  )
+}
+
+function CompactNavigation({ items }: { items: Config.ParsedTopNavItem[] }) {
   const [showPopover, setShowPopover] = useState(false)
+
+  const { pathname } = useLocation()
+  const activeIds = useActiveNavIds({ pathname, items })
+  const activeItem = items.filter((item) => item.id === activeIds[0])[0]
 
   return (
     <div className={clsx(styles.navigation, styles.navigation_compact)}>
@@ -134,7 +143,7 @@ function CompactNavigation({
                 item.link ? (
                   <Link
                     key={i}
-                    data-active={item.link === activeItem?.link}
+                    data-active={activeIds.includes(item.id)}
                     className={styles.navigationItem}
                     href={item.link!}
                     onClick={() => setShowPopover(false)}
@@ -143,9 +152,10 @@ function CompactNavigation({
                     {item.text}
                   </Link>
                 ) : (
-                  <Accordion.Item key={i} value="item">
+                  <Accordion.Item key={i} value={i.toString()}>
                     <Accordion.Trigger
                       className={clsx(styles.navigationItem, styles.navigationTrigger)}
+                      data-active={activeIds.includes(item.id)}
                     >
                       {item.text}
                     </Accordion.Trigger>

@@ -112,7 +112,7 @@ export type Config<
     /**
      * Navigation displayed on the top.
      */
-    topNav?: TopNav
+    topNav?: TopNav<parsed>
   },
   parsed extends true ? RequiredProperties : never
 >
@@ -139,6 +139,7 @@ export function defineConfig<colorScheme extends ColorScheme = undefined>({
     titleTemplate,
     ...config,
     socials: parseSocials(config.socials ?? []),
+    topNav: parseTopNav(config.topNav ?? []),
     theme: parseTheme(config.theme ?? ({} as Theme)),
   }
 }
@@ -162,6 +163,20 @@ function parseSocials(socials: Socials): Socials<true> {
       ...socialsMeta[social.icon],
     }
   })
+}
+
+let id = 0
+
+function parseTopNav(topNav: TopNav): TopNav<true> {
+  const parsedTopNav: ParsedTopNavItem[] = []
+  for (const item of topNav) {
+    parsedTopNav.push({
+      ...item,
+      id: id++,
+      items: item.items ? parseTopNav(item.items) : [],
+    })
+  }
+  return parsedTopNav
 }
 
 function parseTheme<colorScheme extends ColorScheme = undefined>(
@@ -335,7 +350,17 @@ export type Theme<
   }
 }
 
-export type TopNavItem = {
+export type TopNavItem<parsed extends boolean = false> = {
+  match?: string
   text: string
-} & ({ link: string; items?: never } | { link?: string; items: TopNavItem[] })
-export type TopNav = TopNavItem[]
+} & (
+  | { link: string; items?: never }
+  | { link?: string; items: parsed extends true ? ParsedTopNavItem[] : TopNavItem[] }
+)
+export type ParsedTopNavItem = TopNavItem<true> & {
+  id: number
+}
+
+export type TopNav<parsed extends boolean = false> = parsed extends true
+  ? ParsedTopNavItem[]
+  : TopNavItem[]

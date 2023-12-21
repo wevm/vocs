@@ -40,8 +40,18 @@ export const Item = (props: NavigationMenu.NavigationMenuItemProps) => (
   <NavigationMenu.Item {...props} className={clsx(props.className, styles.item)} />
 )
 
-export const Trigger = (props: NavigationMenu.NavigationMenuTriggerProps) => (
-  <NavigationMenu.Trigger {...props} className={clsx(props.className, styles.trigger)} />
+export const Trigger = ({
+  active,
+  className,
+  ...props
+}: NavigationMenu.NavigationMenuTriggerProps & {
+  active?: boolean
+}) => (
+  <NavigationMenu.Trigger
+    {...props}
+    data-active={active}
+    className={clsx(className, styles.trigger)}
+  />
 )
 
 export const Content = (props: NavigationMenu.NavigationMenuContentProps) => (

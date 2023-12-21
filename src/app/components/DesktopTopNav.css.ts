@@ -39,6 +39,13 @@ export const button = style(
   'button',
 )
 
+export const content = style(
+  {
+    right: `calc(-1 * ${spaceVars['24']})`,
+  },
+  'content',
+)
+
 export const curtain = style(
   {
     background: `linear-gradient(${primitiveColorVars.background}, transparent 70%)`,
@@ -88,7 +95,10 @@ export const icon = style(
   'icon',
 )
 
-export const item = style({ alignItems: 'center', display: 'flex', height: '100%' }, 'item')
+export const item = style(
+  { alignItems: 'center', display: 'flex', height: '100%', position: 'relative' },
+  'item',
+)
 
 export const logo = style(
   {

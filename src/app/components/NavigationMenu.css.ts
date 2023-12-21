@@ -67,7 +67,6 @@ export const content = style(
     padding: `${spaceVars['12']} ${spaceVars['16']}`,
     position: 'absolute',
     top: `calc(100% + ${spaceVars['8']})`,
-    right: '0',
     minWidth: '200px',
     zIndex: zIndexVars.popover,
   },

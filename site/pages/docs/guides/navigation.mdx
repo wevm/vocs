@@ -86,6 +86,7 @@ The `topNav` property is an array of top navigation items. Each top navigation i
 - `text`: The text to display for the top nav item.
 - `link` (optional): The link to navigate to.
 - `items` (optional): The child top nav items to display.
+- `match` (optional): The path to match against. If the current path matches the `match` property, the top nav item will be highlighted.
 
 ```tsx [vocs.config.ts]
 import { defineConfig } from 'vocs'
@@ -93,7 +94,7 @@ import { defineConfig } from 'vocs'
 export default defineConfig({
   title: 'Viem',
   topNav: [ // [!code focus]
-    { text: 'Guide & API', link: '/docs' }, // [!code focus]
+    { text: 'Guide & API', link: '/docs/getting-started', match: '/docs' }, // [!code focus]
     { text: 'Blog', link: '/blog' }, // [!code focus]
     { // [!code focus]
       text: version, // [!code focus]

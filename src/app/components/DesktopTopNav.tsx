@@ -2,7 +2,8 @@ import clsx from 'clsx'
 import { type ComponentType } from 'react'
 import { useLocation } from 'react-router-dom'
 
-import type { ParsedSocialItem } from '../../config.js'
+import type { ParsedSocialItem, ParsedTopNavItem } from '../../config.js'
+import { useActiveNavIds } from '../hooks/useActiveNavIds.js'
 import { useConfig } from '../hooks/useConfig.js'
 import { useLayout } from '../hooks/useLayout.js'
 import { useTheme } from '../hooks/useTheme.js'
@@ -96,9 +97,7 @@ function Navigation() {
   if (!topNav) return null
 
   const { pathname } = useLocation()
-  const activeItem = topNav
-    .filter((item) => (item.link ? pathname.replace(/\.html$/, '').startsWith(item.link) : false))
-    .slice(-1)[0]
+  const activeIds = useActiveNavIds({ pathname, items: topNav })
 
   return (
     <NavigationMenu.Root>
@@ -107,31 +106,42 @@ function Navigation() {
           item.link ? (
             <NavigationMenu.Link
               key={i}
-              active={item.link === activeItem?.link}
+              active={activeIds.includes(item.id)}
               className={styles.item}
               href={item.link!}
             >
               {item.text}
             </NavigationMenu.Link>
-          ) : (
+          ) : item.items ? (
             <NavigationMenu.Item key={i} className={styles.item}>
-              <NavigationMenu.Trigger onPointerMove={(e) => e.preventDefault()}>
+              <NavigationMenu.Trigger
+                active={activeIds.includes(item.id)}
+                onPointerMove={(e) => e.preventDefault()}
+              >
                 {item.text}
               </NavigationMenu.Trigger>
-              <NavigationMenu.Content>
-                <ul>
-                  {item.items?.map((child, i) => (
-                    <NavigationMenu.Link key={i} href={child.link!}>
-                      {child.text}
-                    </NavigationMenu.Link>
-                  ))}
-                </ul>
+              <NavigationMenu.Content className={styles.content}>
+                <NavigationMenuContent items={item.items} />
               </NavigationMenu.Content>
             </NavigationMenu.Item>
-          ),
+          ) : null,
         )}
       </NavigationMenu.List>
     </NavigationMenu.Root>
+  )
+}
+
+function NavigationMenuContent({ items }: { items: ParsedTopNavItem[] }) {
+  const { pathname } = useLocation()
+  const activeIds = useActiveNavIds({ pathname, items })
+  return (
+    <ul>
+      {items?.map((item, i) => (
+        <NavigationMenu.Link key={i} active={activeIds.includes(item.id)} href={item.link!}>
+          {item.text}
+        </NavigationMenu.Link>
+      ))}
+    </ul>
   )
 }
 
