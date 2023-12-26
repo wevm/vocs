@@ -3,11 +3,14 @@ import {
   type KeyboardEvent,
   type MouseEvent,
   type MouseEventHandler,
+  type RefObject,
   useCallback,
+  useLayoutEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react'
-import { useLocation, useMatch } from 'react-router-dom'
+import { matchPath, useLocation, useMatch } from 'react-router-dom'
 
 import { type SidebarItem as SidebarItemType } from '../../config.js'
 import { useSidebar } from '../hooks/useSidebar.js'
@@ -23,6 +26,8 @@ export function Sidebar(props: {
 }) {
   const { className, onClickItem } = props
 
+  const sidebarRef = useRef<HTMLElement>(null)
+
   const sidebar = useSidebar()
 
   if (!sidebar) return null
@@ -30,7 +35,7 @@ export function Sidebar(props: {
   const groups = getSidebarGroups(sidebar)
 
   return (
-    <aside className={clsx(styles.root, className)}>
+    <aside ref={sidebarRef} className={clsx(styles.root, className)}>
       <div className={styles.logoWrapper}>
         <div className={styles.logo}>
           <RouterLink to="/" style={{ alignItems: 'center', display: 'flex', height: '100%' }}>
@@ -44,7 +49,7 @@ export function Sidebar(props: {
         <div className={styles.items}>
           {groups.map((group, i) => (
             <div className={styles.group} key={i}>
-              <SidebarItem depth={0} item={group} onClick={onClickItem} />
+              <SidebarItem depth={0} item={group} onClick={onClickItem} sidebarRef={sidebarRef} />
             </div>
           ))}
         </div>
@@ -74,13 +79,20 @@ function SidebarItem(props: {
   depth: number
   item: SidebarItemType
   onClick?: MouseEventHandler<HTMLAnchorElement>
+  sidebarRef?: RefObject<HTMLElement>
 }) {
-  const { depth, item, onClick } = props
+  const { depth, item, onClick, sidebarRef } = props
+
+  const itemRef = useRef<HTMLElement>(null)
 
   const { pathname } = useLocation()
   const match = useMatch(item.link ?? '')
 
-  const [collapsed, setCollapsed] = useState(() => item.collapsed ?? false)
+  const [collapsed, setCollapsed] = useState(() => {
+    if (match) return false
+    if (item.items?.some((item) => matchPath(pathname, item.link ?? ''))) return false
+    return Boolean(item.collapsed)
+  })
   const isCollapsable = item.collapsed !== undefined && item.items !== undefined
   const onCollapseInteraction = useCallback(
     (event: KeyboardEvent | MouseEvent) => {
@@ -103,9 +115,26 @@ function SidebarItem(props: {
     return item.items?.some((item) => item.link === pathname) ?? false
   }, [item.items, pathname])
 
+  const active = useRef(true)
+  useLayoutEffect(() => {
+    if (!active.current) return
+    active.current = false
+
+    const match = matchPath(pathname, item.link ?? '')
+    if (!match) return
+
+    requestAnimationFrame(() => {
+      const offsetTop = itemRef.current?.offsetTop ?? 0
+      const sidebarHeight = sidebarRef?.current?.clientHeight ?? 0
+      if (offsetTop < sidebarHeight) return
+      sidebarRef?.current?.scrollTo({ top: offsetTop })
+    })
+  }, [item, pathname, sidebarRef])
+
   if (item.items)
     return (
       <section
+        ref={itemRef}
         className={clsx(
           styles.section,
           depth === 0 && (collapsed ? styles.levelCollapsed : styles.level),
@@ -171,7 +200,13 @@ function SidebarItem(props: {
             item.items.length > 0 &&
             depth < 5 &&
             item.items.map((item, i) => (
-              <SidebarItem depth={depth + 1} item={item} key={i} onClick={onClick} />
+              <SidebarItem
+                depth={depth + 1}
+                item={item}
+                key={i}
+                onClick={onClick}
+                sidebarRef={sidebarRef}
+              />
             ))}
         </div>
       </section>
@@ -181,6 +216,7 @@ function SidebarItem(props: {
     <>
       {item.link ? (
         <RouterLink
+          ref={itemRef}
           data-active={Boolean(match)}
           onClick={onClick}
           className={styles.item}
