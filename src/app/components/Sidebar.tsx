@@ -5,7 +5,7 @@ import {
   type MouseEventHandler,
   type RefObject,
   useCallback,
-  useLayoutEffect,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -116,7 +116,7 @@ function SidebarItem(props: {
   }, [item.items, pathname])
 
   const active = useRef(true)
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (!active.current) return
     active.current = false
 
