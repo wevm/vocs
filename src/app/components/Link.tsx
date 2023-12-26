@@ -21,7 +21,7 @@ export const Link = forwardRef((props: LinkProps, ref) => {
   const { pathname } = useLocation()
 
   // External links
-  if (href?.match(/^www|https?/))
+  if (href?.match(/^(www|https?)/))
     return (
       <ExternalLink
         {...props}
