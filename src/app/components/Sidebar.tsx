@@ -75,6 +75,18 @@ function getSidebarGroups(sidebar: SidebarItemType[]): SidebarItemType[] {
   return groups
 }
 
+function getActiveChildItem(
+  items: SidebarItemType[],
+  pathname: string,
+): SidebarItemType | undefined {
+  return items.find((item) => {
+    if (matchPath(pathname, item.link ?? '')) return true
+    if (item.link === pathname) return true
+    if (!item.items) return false
+    return getActiveChildItem(item.items, pathname)
+  })
+}
+
 function SidebarItem(props: {
   depth: number
   item: SidebarItemType
@@ -88,9 +100,15 @@ function SidebarItem(props: {
   const { pathname } = useLocation()
   const match = useMatch(item.link ?? '')
 
+  const hasActiveChildItem = useMemo(
+    () => (item.items ? Boolean(getActiveChildItem(item.items, pathname)) : false),
+    [item.items, pathname],
+  )
+
   const [collapsed, setCollapsed] = useState(() => {
     if (match) return false
-    if (item.items?.some((item) => matchPath(pathname, item.link ?? ''))) return false
+    if (!item.items) return false
+    if (hasActiveChildItem) return false
     return Boolean(item.collapsed)
   })
   const isCollapsable = item.collapsed !== undefined && item.items !== undefined
@@ -111,10 +129,6 @@ function SidebarItem(props: {
     [item.link],
   )
 
-  const hasActiveChildItem = useMemo(() => {
-    return item.items?.some((item) => item.link === pathname) ?? false
-  }, [item.items, pathname])
-
   const active = useRef(true)
   useEffect(() => {
     if (!active.current) return
@@ -127,7 +141,7 @@ function SidebarItem(props: {
       const offsetTop = itemRef.current?.offsetTop ?? 0
       const sidebarHeight = sidebarRef?.current?.clientHeight ?? 0
       if (offsetTop < sidebarHeight) return
-      sidebarRef?.current?.scrollTo({ top: offsetTop })
+      sidebarRef?.current?.scrollTo({ top: offsetTop - 100 })
     })
   }, [item, pathname, sidebarRef])
 
