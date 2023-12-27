@@ -87,10 +87,7 @@ function Navigation({ items }: { items: Config.ParsedTopNavItem[] }) {
             </NavigationMenu.Link>
           ) : (
             <NavigationMenu.Item className={styles.item} key={i}>
-              <NavigationMenu.Trigger
-                active={activeIds?.includes(item.id)}
-                onPointerMove={(e) => e.preventDefault()}
-              >
+              <NavigationMenu.Trigger active={activeIds?.includes(item.id)}>
                 {item.text}
               </NavigationMenu.Trigger>
               <NavigationMenu.Content className={styles.content}>

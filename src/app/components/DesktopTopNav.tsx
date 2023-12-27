@@ -100,7 +100,7 @@ function Navigation() {
   const activeIds = useActiveNavIds({ pathname, items: topNav })
 
   return (
-    <NavigationMenu.Root>
+    <NavigationMenu.Root delayDuration={0}>
       <NavigationMenu.List>
         {topNav.map((item, i) =>
           item.link ? (
@@ -114,10 +114,7 @@ function Navigation() {
             </NavigationMenu.Link>
           ) : item.items ? (
             <NavigationMenu.Item key={i} className={styles.item}>
-              <NavigationMenu.Trigger
-                active={activeIds.includes(item.id)}
-                onPointerMove={(e) => e.preventDefault()}
-              >
+              <NavigationMenu.Trigger active={activeIds.includes(item.id)}>
                 {item.text}
               </NavigationMenu.Trigger>
               <NavigationMenu.Content className={styles.content}>
