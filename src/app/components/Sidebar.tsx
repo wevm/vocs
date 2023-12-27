@@ -48,7 +48,7 @@ export function Sidebar(props: {
       <nav className={styles.navigation}>
         <div className={styles.items}>
           {groups.map((group, i) => (
-            <div className={styles.group} key={i}>
+            <div className={styles.group} key={`${group.text}${i}`}>
               <SidebarItem depth={0} item={group} onClick={onClickItem} sidebarRef={sidebarRef} />
             </div>
           ))}
@@ -217,7 +217,7 @@ function SidebarItem(props: {
               <SidebarItem
                 depth={depth + 1}
                 item={item}
-                key={i}
+                key={`${item.text}${i}`}
                 onClick={onClick}
                 sidebarRef={sidebarRef}
               />
