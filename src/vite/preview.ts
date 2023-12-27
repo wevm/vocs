@@ -1,6 +1,7 @@
 import { resolve } from 'node:path'
 import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
+import { compress } from 'hono/compress'
 
 import { resolveVocsConfig } from './utils/resolveVocsConfig.js'
 import { serveStatic } from './utils/serveStatic.js'
@@ -14,6 +15,7 @@ export async function preview({ outDir = 'dist' }: PreviewParameters = {}) {
   const { rootDir } = config
 
   const app = new Hono()
+  app.use('*', compress())
   app.use('/*', serveStatic({ root: resolve(rootDir, outDir) }))
 
   return new Promise<ReturnType<typeof serve> & { port: number }>((res) => {
