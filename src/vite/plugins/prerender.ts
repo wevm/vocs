@@ -2,7 +2,7 @@ import { mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import { dirname, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import pc from 'picocolors'
-import { type Logger, type PluginOption } from 'vite'
+import type { Logger, PluginOption } from 'vite'
 import { resolveVocsConfig } from '../utils/resolveVocsConfig.js'
 
 type PrerenderPluginParameters = { logger?: Logger; outDir?: string }
@@ -24,31 +24,36 @@ export function prerender({ logger, outDir = 'dist' }: PrerenderPluginParameters
       // Get routes to prerender.
       const routes = getRoutes(resolve(rootDir, 'pages'))
 
-      logger?.info(`\n${pc.green('✓')} ${routes.length} pages prerendered.`)
       // Prerender each route.
-      for (const route of routes) {
-        const { head, body } = await mod.prerender(route)
-        const html = template
-          .replace('<!--body-->', body)
-          .replace('<!--head-->', head)
-          .replace('../app/utils/initializeTheme.ts', '/initializeTheme.iife.js')
-        const isIndex = route.endsWith('/')
-        const filePath = `${isIndex ? `${route}index` : route}.html`.replace(/^\//, '')
-        const path = resolve(outDir_resolved, filePath)
+      await Promise.all(
+        routes.map(async (route) => {
+          const { head, body } = await mod.prerender(route)
+          const html = template
+            .replace('<!--body-->', body)
+            .replace('<!--head-->', head)
+            .replace('../app/utils/initializeTheme.ts', '/initializeTheme.iife.js')
+          const isIndex = route.endsWith('/')
+          const filePath = `${isIndex ? `${route}index` : route}.html`.replace(/^\//, '')
+          const path = resolve(outDir_resolved, filePath)
 
-        const pathDir = dirname(path)
-        if (!isDir(pathDir)) mkdirSync(pathDir, { recursive: true })
+          const pathDir = dirname(path)
+          if (!isDir(pathDir)) mkdirSync(pathDir, { recursive: true })
 
-        if (isIndex) writeFileSync(path, html)
-        else {
-          const path = resolve(outDir_resolved, route.slice(1))
-          if (!isDir(path)) mkdirSync(path, { recursive: true })
-          writeFileSync(resolve(path, 'index.html'), html)
-        }
+          if (isIndex) writeFileSync(path, html)
+          else {
+            const path = resolve(outDir_resolved, route.slice(1))
+            if (!isDir(path)) mkdirSync(path, { recursive: true })
+            writeFileSync(resolve(path, 'index.html'), html)
+          }
 
-        const fileName = path.split('/').pop()!
-        logger?.info(`${pc.dim(relative(rootDir, path).replace(fileName, ''))}${pc.cyan(fileName)}`)
-      }
+          const fileName = path.split('/').pop()!
+          logger?.info(
+            `${pc.dim(relative(rootDir, path).replace(fileName, ''))}${pc.cyan(fileName)}`,
+          )
+        }),
+      )
+
+      logger?.info(`\n${pc.green('✓')} ${routes.length} pages prerendered.`)
     },
   }
 }
