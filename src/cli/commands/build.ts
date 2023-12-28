@@ -28,14 +28,24 @@ export async function build({ logLevel, outDir }: BuildParameters) {
       onClientBuildStart: () => {
         if (useLogger) spinner.client.start()
       },
-      onClientBuildEnd: () => {
+      onClientBuildEnd: ({ error }) => {
+        if (error) {
+          if (useLogger) spinner.client.fail('bundles failed to build')
+          return
+        }
+
         if (useLogger) spinner.client.succeed('bundles built')
         else logger.info('')
       },
       onPrerenderBuildStart: () => {
         if (useLogger) spinner.prerender.start()
       },
-      onPrerenderBuildEnd: () => {
+      onPrerenderBuildEnd: ({ error }) => {
+        if (error) {
+          if (useLogger) spinner.client.fail('bundles failed to build')
+          return
+        }
+
         if (useLogger) spinner.prerender.succeed('prerendered pages')
       },
       onScriptsBuildEnd: () => {

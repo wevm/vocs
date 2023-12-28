@@ -23,6 +23,7 @@ import { remarkCodeGroup } from './remark/code-group.js'
 import { remarkCode } from './remark/code.js'
 import { remarkDetails } from './remark/details.js'
 import { remarkInferFrontmatter } from './remark/inferred-frontmatter.js'
+import { remarkLinks } from './remark/links.js'
 import { remarkSponsors } from './remark/sponsors.js'
 import { remarkSteps } from './remark/steps.js'
 import { remarkStrongBlock } from './remark/strong-block.js'
@@ -37,6 +38,7 @@ export const remarkPlugins = [
   remarkFrontmatter,
   remarkMdxFrontmatter,
   remarkGfm,
+  remarkLinks,
   remarkBlogPosts,
   remarkCallout,
   remarkCode,
