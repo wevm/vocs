@@ -2,22 +2,22 @@
 
 import { readdirSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { copy, copyFileSync, readFileSync, writeFileSync } from 'fs-extra'
+import { default as fs } from 'fs-extra'
 
 // Copy index.html
-copyFileSync(
+fs.copyFileSync(
   resolve(import.meta.dir, '../src/vite/index.html'),
   resolve(import.meta.dir, '../src/_lib/vite/index.html'),
 )
 
 // Copy public folder
-copy(
+fs.copy(
   resolve(import.meta.dir, '../src/app/public'),
   resolve(import.meta.dir, '../src/_lib/app/public'),
 )
 
 // Copy create-vocs templates
-copy(
+fs.copy(
   resolve(import.meta.dir, '../create-vocs/templates'),
   resolve(import.meta.dir, '../create-vocs/_lib/templates'),
 )
@@ -37,8 +37,8 @@ function rewriteExtensions(dir: string) {
     if (path.endsWith('.map')) continue
     if (path.endsWith('root.js')) continue
     if (path.endsWith('vocs-config.js')) continue
-    const fileContent = readFileSync(path, 'utf-8')
-    writeFileSync(path, fileContent.replace(/\.(tsx|ts)/g, '.js'))
+    const fileContent = fs.readFileSync(path, 'utf-8')
+    fs.writeFileSync(path, fileContent.replace(/\.(tsx|ts)/g, '.js'))
   }
 }
 

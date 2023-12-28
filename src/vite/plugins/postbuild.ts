@@ -1,6 +1,6 @@
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { pathExistsSync, readJSONSync } from 'fs-extra/esm'
+import { default as fs } from 'fs-extra'
 import pc from 'picocolors'
 import type { Logger, PluginOption } from 'vite'
 
@@ -11,9 +11,9 @@ export function postbuild({ logger }: { logger?: Logger } = {}): PluginOption {
   return {
     name: 'postbuild',
     closeBundle() {
-      if (!pathExistsSync(deadlinksPath)) return
+      if (!fs.existsSync(deadlinksPath)) return
 
-      const deadlinks = readJSONSync(deadlinksPath)
+      const deadlinks = fs.readJSONSync(deadlinksPath)
       logger?.error(
         [
           'found dead links:',

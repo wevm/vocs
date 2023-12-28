@@ -1,6 +1,6 @@
 import { dirname, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { copySync } from 'fs-extra/esm'
+import { default as fs } from 'fs-extra'
 import * as vite from 'vite'
 
 import { postbuild } from './plugins/postbuild.js'
@@ -87,7 +87,7 @@ export async function build({
   }
 
   // copy public folder
-  copySync(resolve(__dirname, '../app/public'), outDir_resolved)
+  fs.copySync(resolve(__dirname, '../app/public'), outDir_resolved)
 
   hooks?.onScriptsBuildStart?.()
 
