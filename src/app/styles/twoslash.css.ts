@@ -105,36 +105,38 @@ globalStyle('.twoslash .twoslash-popup-info', {
   top: '0',
   left: '0',
   opacity: '0',
-  transform: 'translate(0, 1.2em)',
+  display: 'inline-block',
+  transform: 'translateY(1.1em)',
   background: twoslashVars.popupBackground,
   border: `1px solid ${twoslashVars.borderColor}`,
   transition: 'opacity 0.3s',
   borderRadius: '4px',
   padding: '4px 6px',
   pointerEvents: 'none',
-  zIndex: 10,
+  textAlign: 'left',
+  zIndex: 20,
   userSelect: 'none',
   boxShadow: twoslashVars.popupShadow,
 })
 
 globalStyle('.twoslash-query-presisted .twoslash-popup-info', {
   zIndex: 9,
-  transform: 'translate(0, 1.45em)',
+  transform: 'translateY(1.5em)',
 })
 
 globalStyle(
-  '.twoslash .twoslash-hover:hover .twoslash-popup-info, .twoslash .twoslash-query-presisted .twoslash-popup-info',
+  '.twoslash-hover:hover .twoslash-popup-info, .twoslash-query-presisted .twoslash-popup-info',
   {
     opacity: 1,
     pointerEvents: 'auto',
   },
 )
 
-globalStyle('.twoslash .twoslash-popup-info:hover', {
+globalStyle('.twoslash-popup-info:hover', {
   userSelect: 'auto',
 })
 
-globalStyle('.twoslash .twoslash-popup-arrow', {
+globalStyle('.twoslash-popup-arrow', {
   position: 'absolute',
   top: '-4px',
   left: '1em',
@@ -147,7 +149,7 @@ globalStyle('.twoslash .twoslash-popup-arrow', {
   pointerEvents: 'none',
 })
 
-globalStyle('.twoslash .twoslash-error-line', {
+globalStyle('.twoslash-error-line', {
   position: 'relative',
   backgroundColor: twoslashVars.errorBackground,
   borderLeft: `2px solid ${twoslashVars.errorColor}`,
@@ -155,16 +157,16 @@ globalStyle('.twoslash .twoslash-error-line', {
   margin: '0.2em 0',
 })
 
-globalStyle('.twoslash .twoslash-error', {
+globalStyle('.twoslash-error', {
   background: `url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%206%203'%20enable-background%3D'new%200%200%206%203'%20height%3D'3'%20width%3D'6'%3E%3Cg%20fill%3D'%23c94824'%3E%3Cpolygon%20points%3D'5.5%2C0%202.5%2C3%201.1%2C3%204.1%2C0'%2F%3E%3Cpolygon%20points%3D'4%2C0%206%2C2%206%2C0.6%205.4%2C0'%2F%3E%3Cpolygon%20points%3D'0%2C2%201%2C3%202.4%2C3%200%2C0.6'%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E") repeat-x bottom left`,
   paddingBottom: '2px',
 })
 
-globalStyle('.twoslash .twoslash-completions-list', {
+globalStyle('.twoslash-completions-list', {
   position: 'relative',
 })
 
-globalStyle('.twoslash .twoslash-completions-list ul', {
+globalStyle('.twoslash-completions-list ul', {
   userSelect: 'none',
   position: 'absolute',
   top: '0',
@@ -183,11 +185,11 @@ globalStyle('.twoslash .twoslash-completions-list ul', {
   boxShadow: twoslashVars.popupShadow,
 })
 
-globalStyle('.twoslash .twoslash-completions-list ul:hover', {
+globalStyle('.twoslash-completions-list ul:hover', {
   userSelect: 'auto',
 })
 
-globalStyle('.twoslash .twoslash-completions-list ul::before', {
+globalStyle('.twoslash-completions-list ul::before', {
   backgroundColor: twoslashVars.cursorColor,
   width: '2px',
   position: 'absolute',
@@ -197,7 +199,7 @@ globalStyle('.twoslash .twoslash-completions-list ul::before', {
   content: ' ',
 })
 
-globalStyle('.twoslash .twoslash-completions-list ul li', {
+globalStyle('.twoslash-completions-list ul li', {
   overflow: 'hidden',
   display: 'flex',
   alignItems: 'center',
@@ -205,26 +207,26 @@ globalStyle('.twoslash .twoslash-completions-list ul li', {
   lineHeight: '1em',
 })
 
-globalStyle('.twoslash .twoslash-completions-list ul li span.twoslash-completions-unmatched', {
+globalStyle('.twoslash-completions-list ul li span.twoslash-completions-unmatched', {
   color: `${twoslashVars.unmatchedColor} !important`,
 })
 
-globalStyle('.twoslash .twoslash-completions-list ul .deprecated', {
+globalStyle('.twoslash-completions-list ul .deprecated', {
   textDecoration: 'line-through',
   opacity: '0.5',
 })
 
-globalStyle('.twoslash .twoslash-completions-list ul li span.twoslash-completions-matched', {
+globalStyle('.twoslash-completions-list ul li span.twoslash-completions-matched', {
   color: twoslashVars.matchedColor,
 })
 
-globalStyle('.twoslash .twoslash-completions-list .twoslash-completions-icon', {
+globalStyle('.twoslash-completions-list .twoslash-completions-icon', {
   color: twoslashVars.unmatchedColor,
   width: '1em',
   flex: 'none',
 })
 
-globalStyle('.twoslash .twoslash-tag-line', {
+globalStyle('.twoslash-tag-line', {
   position: 'relative',
   backgroundColor: twoslashVars.tagBackground,
   borderLeft: `2px solid ${twoslashVars.tagColor}`,
@@ -235,24 +237,24 @@ globalStyle('.twoslash .twoslash-tag-line', {
   gap: '0.3em',
 })
 
-globalStyle('.twoslash .twoslash-tag-line .twoslash-tag-icon', {
+globalStyle('.twoslash-tag-line .twoslash-tag-icon', {
   width: '1.1em',
   color: 'inherit',
 })
 
-globalStyle('.twoslash .twoslash-tag-line.twoslash-tag-error-line', {
+globalStyle('.twoslash-tag-line.twoslash-tag-error-line', {
   backgroundColor: twoslashVars.errorBackground,
   borderLeft: `2px solid ${twoslashVars.errorColor}`,
   color: twoslashVars.errorColor,
 })
 
-globalStyle('.twoslash .twoslash-tag-line.twoslash-tag-warn-line', {
+globalStyle('.twoslash-tag-line.twoslash-tag-warn-line', {
   backgroundColor: twoslashVars.tagWarnBackground,
   borderLeft: `2px solid ${twoslashVars.tagWarnColor}`,
   color: twoslashVars.tagWarnColor,
 })
 
-globalStyle('.twoslash .twoslash-tag-line.twoslash-tag-annotate-line', {
+globalStyle('.twoslash-tag-line.twoslash-tag-annotate-line', {
   backgroundColor: twoslashVars.tagAnnotateBackground,
   borderLeft: `2px solid ${twoslashVars.tagAnnotateColor}`,
   color: twoslashVars.tagAnnotateColor,

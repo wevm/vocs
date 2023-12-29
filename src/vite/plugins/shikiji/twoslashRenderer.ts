@@ -23,7 +23,6 @@ export function twoslashRenderer(): TwoSlashRenderers {
           class: 'twoslash-hover',
         },
         children: [
-          node,
           {
             type: 'element',
             tagName: 'span',
@@ -32,6 +31,7 @@ export function twoslashRenderer(): TwoSlashRenderers {
             },
             children: themedContent,
           },
+          node,
         ],
       }
     },
@@ -58,7 +58,6 @@ export function twoslashRenderer(): TwoSlashRenderers {
           class: 'twoslash-hover twoslash-query-presisted',
         },
         children: [
-          node,
           {
             type: 'element',
             tagName: 'span',
@@ -75,6 +74,7 @@ export function twoslashRenderer(): TwoSlashRenderers {
               ...themedContent,
             ],
           },
+          node,
         ],
       }
     },
@@ -197,7 +197,9 @@ export function twoslashRenderer(): TwoSlashRenderers {
         {
           type: 'element',
           tagName: 'div',
-          properties: { class: `twoslash-tag-line twoslash-tag-${tag.name}-line` },
+          properties: {
+            class: `twoslash-tag-line twoslash-tag-${tag.name}-line`,
+          },
           children: [
             {
               type: 'text',
