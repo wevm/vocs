@@ -225,7 +225,7 @@ export function Curtain({
   const sidebarItemTitle = useMemo(() => {
     if (!sidebar || layout === 'minimal') return
     const sidebarItem = getSidebarItemFromPathname({
-      sidebar,
+      sidebarItems: sidebar.items,
       pathname,
     })
     return sidebarItem?.text
@@ -292,14 +292,14 @@ export function Curtain({
 }
 
 function getSidebarItemFromPathname({
-  sidebar,
+  sidebarItems,
   pathname: pathname_,
-}: { sidebar: Config.SidebarItem[]; pathname: string }): Config.SidebarItem | undefined {
+}: { sidebarItems: Config.SidebarItem[]; pathname: string }): Config.SidebarItem | undefined {
   const pathname = pathname_.replace(/(.+)\/$/, '$1')
-  for (const item of sidebar) {
+  for (const item of sidebarItems) {
     if (item.link === pathname) return item
     if (item.items) {
-      const childItem = getSidebarItemFromPathname({ sidebar: item.items, pathname })
+      const childItem = getSidebarItemFromPathname({ sidebarItems: item.items, pathname })
       if (childItem) return childItem
     }
   }

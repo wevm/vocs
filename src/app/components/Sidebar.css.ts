@@ -22,6 +22,14 @@ export const root = style({
   },
 })
 
+export const backLink = style(
+  {
+    textAlign: 'left',
+    marginBottom: spaceVars['12'],
+  },
+  'backLink',
+)
+
 export const divider = style(
   {
     backgroundColor: primitiveColorVars.border,

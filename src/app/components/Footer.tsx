@@ -47,7 +47,7 @@ function Navigation() {
 
   const { pathname } = useLocation()
   const flattenedSidebar = useMemo(
-    () => flattenSidebar(sidebar || []).filter((item) => item.link),
+    () => flattenSidebar(sidebar.items || []).filter((item) => item.link),
     [sidebar],
   )
   const currentPageIndex = useMemo(

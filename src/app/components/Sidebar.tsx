@@ -10,7 +10,7 @@ import {
   useRef,
   useState,
 } from 'react'
-import { matchPath, useLocation, useMatch } from 'react-router-dom'
+import { matchPath, useLocation, useMatch, useNavigate } from 'react-router-dom'
 
 import { type SidebarItem as SidebarItemType } from '../../config.js'
 import { useSidebar } from '../hooks/useSidebar.js'
@@ -26,13 +26,13 @@ export function Sidebar(props: {
 }) {
   const { className, onClickItem } = props
 
+  const navigate = useNavigate()
   const sidebarRef = useRef<HTMLElement>(null)
-
   const sidebar = useSidebar()
 
   if (!sidebar) return null
 
-  const groups = getSidebarGroups(sidebar)
+  const groups = getSidebarGroups(sidebar.items)
 
   return (
     <aside ref={sidebarRef} className={clsx(styles.root, className)}>
@@ -47,6 +47,23 @@ export function Sidebar(props: {
 
       <nav className={styles.navigation}>
         <div className={styles.items}>
+          {sidebar.backLink && (
+            <div className={styles.group}>
+              {typeof history !== 'undefined' && history.state.key ? (
+                <button
+                  className={clsx(styles.item, styles.backLink)}
+                  onClick={() => navigate(-1)}
+                  type="button"
+                >
+                  ← Back
+                </button>
+              ) : (
+                <RouterLink className={clsx(styles.item, styles.backLink)} to="/">
+                  ← Home
+                </RouterLink>
+              )}
+            </div>
+          )}
           {groups.map((group, i) => (
             <div className={styles.group} key={`${group.text}${i}`}>
               <SidebarItem depth={0} item={group} onClick={onClickItem} sidebarRef={sidebarRef} />

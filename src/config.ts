@@ -266,7 +266,9 @@ export type SidebarItem = {
   items?: SidebarItem[]
 }
 
-export type Sidebar = SidebarItem[] | { [path: string]: SidebarItem[] }
+export type Sidebar =
+  | SidebarItem[]
+  | { [path: string]: SidebarItem[] | { backLink?: boolean; items: SidebarItem[] } }
 
 export type SocialType = 'discord' | 'github' | 'x'
 export type SocialItem = {

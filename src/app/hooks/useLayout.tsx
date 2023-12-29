@@ -20,7 +20,7 @@ export function useLayout(): Layout {
       return layout === 'docs'
     },
     get showSidebar() {
-      if (sidebar.length === 0) return false
+      if (sidebar.items.length === 0) return false
       if (typeof showSidebar !== 'undefined') return showSidebar
       if (layout === 'minimal') return false
       if (layout === 'landing') return false
