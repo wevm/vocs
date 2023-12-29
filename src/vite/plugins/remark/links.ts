@@ -61,7 +61,6 @@ export function remarkLinks() {
         `${pagePath}.{md,mdx,js,jsx,ts,tsx}`,
       ])
       if (!resolvedPagePath) {
-        console.log('test', deadlinks)
         deadlinks.add([node.url, filePath])
         fs.ensureDirSync(resolve(__dirname, '../../.vocs/cache'))
         fs.writeFileSync(deadlinksPath, JSON.stringify([...deadlinks], null, 2))

@@ -35,7 +35,7 @@ export function Sidebar(props: {
   const groups = getSidebarGroups(sidebar.items)
 
   return (
-    <aside ref={sidebarRef} className={clsx(styles.root, className)}>
+    <aside ref={sidebarRef} key={sidebar.key} className={clsx(styles.root, className)}>
       <div className={styles.logoWrapper}>
         <div className={styles.logo}>
           <RouterLink to="/" style={{ alignItems: 'center', display: 'flex', height: '100%' }}>
