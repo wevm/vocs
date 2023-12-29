@@ -57,8 +57,8 @@ export function remarkLinks() {
       }
 
       const [resolvedPagePath] = globbySync([
-        `${pagePath}/index.{md,mdx,js,jsx,ts,tsx}`,
-        `${pagePath}.{md,mdx,js,jsx,ts,tsx}`,
+        `${pagePath}/index.{html,md,mdx,js,jsx,ts,tsx}`,
+        `${pagePath}.{html,md,mdx,js,jsx,ts,tsx}`,
       ])
       if (!resolvedPagePath) {
         deadlinks.add([node.url, filePath])
@@ -76,6 +76,6 @@ export function remarkLinks() {
 function parseLink(pagePath: string, baseDir: string) {
   return pagePath
     .replace(baseDir, '')
-    .replace(/((index)?\.(md|mdx|js|jsx|ts|tsx))$/, '')
+    .replace(/((index)?\.(html|md|mdx|js|jsx|ts|tsx))$/, '')
     .replace(/\/$/, '')
 }
