@@ -12,6 +12,7 @@ export const PageDataContext = createContext<
   | {
       filePath?: string
       frontmatter: Module['frontmatter']
+      previousPath?: string
     }
   | undefined
 >(undefined)

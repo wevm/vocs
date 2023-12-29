@@ -1,6 +1,6 @@
-import { type ReactNode } from 'react'
+import { type ReactNode, useEffect, useRef } from 'react'
 import { Helmet } from 'react-helmet'
-import { ScrollRestoration } from 'react-router-dom'
+import { ScrollRestoration, useLocation } from 'react-router-dom'
 import { Root as ConsumerRoot } from 'virtual:root'
 import 'virtual:styles'
 
@@ -16,12 +16,22 @@ export function Root(props: {
   path: string
 }) {
   const { children, filePath, frontmatter, path } = props
+  const { pathname } = useLocation()
+
+  const previousPathRef = useRef<string>()
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  useEffect(() => {
+    previousPathRef.current = pathname
+  })
+
   return (
     <>
       <Head frontmatter={frontmatter} />
       {typeof window !== 'undefined' && <ScrollRestoration />}
       <ConsumerRoot frontmatter={frontmatter} path={path}>
-        <PageDataContext.Provider value={{ filePath, frontmatter }}>
+        <PageDataContext.Provider
+          value={{ filePath, frontmatter, previousPath: previousPathRef.current }}
+        >
           {children}
         </PageDataContext.Provider>
       </ConsumerRoot>

@@ -10,9 +10,10 @@ import {
   useRef,
   useState,
 } from 'react'
-import { matchPath, useLocation, useMatch, useNavigate } from 'react-router-dom'
+import { matchPath, useLocation, useMatch } from 'react-router-dom'
 
 import { type SidebarItem as SidebarItemType } from '../../config.js'
+import { usePageData } from '../hooks/usePageData.js'
 import { useSidebar } from '../hooks/useSidebar.js'
 import { Icon } from './Icon.js'
 import { NavLogo } from './NavLogo.js'
@@ -26,9 +27,17 @@ export function Sidebar(props: {
 }) {
   const { className, onClickItem } = props
 
-  const navigate = useNavigate()
+  const { previousPath } = usePageData()
   const sidebarRef = useRef<HTMLElement>(null)
   const sidebar = useSidebar()
+  const [backPath, setBackPath] = useState<string>('/')
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    if (!previousPath) return
+    setBackPath(previousPath)
+  }, [sidebar.key, sidebar.backLink])
 
   if (!sidebar) return null
 
@@ -49,19 +58,12 @@ export function Sidebar(props: {
         <div className={styles.items}>
           {sidebar.backLink && (
             <div className={styles.group}>
-              {typeof history !== 'undefined' && history.state.key ? (
-                <button
-                  className={clsx(styles.item, styles.backLink)}
-                  onClick={() => navigate(-1)}
-                  type="button"
-                >
-                  ← Back
-                </button>
-              ) : (
-                <RouterLink className={clsx(styles.item, styles.backLink)} to="/">
-                  ← Home
-                </RouterLink>
-              )}
+              <RouterLink className={clsx(styles.item, styles.backLink)} to={backPath}>
+                ←{' '}
+                {typeof history !== 'undefined' && history.state.key && backPath !== '/'
+                  ? 'Back'
+                  : 'Home'}
+              </RouterLink>
             </div>
           )}
           {groups.map((group, i) => (
