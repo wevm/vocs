@@ -12,11 +12,6 @@ import {
 export const leftGutterWidthVar = createVar('leftGutterWidth')
 
 export const root = style({
-  '@media': {
-    [viewportVars['max-720px']]: {
-      overflowX: 'hidden',
-    },
-  },
   vars: {
     [leftGutterWidthVar]: `max(calc((100vw - ${contentVars.width}) / 2), ${sidebarVars.width})`,
   },
@@ -30,6 +25,9 @@ export const content = style(
     maxWidth: contentVars.width,
     minHeight: '100vh',
     '@media': {
+      [viewportVars['max-720px']]: {
+        overflowX: 'hidden',
+      },
       [viewportVars['max-1080px']]: {
         marginLeft: 'auto',
         marginRight: 'auto',
