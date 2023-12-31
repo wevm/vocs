@@ -3,7 +3,7 @@ import './styles/index.css.js'
 import type { ReactElement } from 'react'
 import { renderToString } from 'react-dom/server'
 import { Helmet } from 'react-helmet'
-import { Route, Routes } from 'react-router-dom'
+import { Route, type RouteObject, Routes } from 'react-router-dom'
 import {
   type StaticHandlerContext,
   StaticRouter,
@@ -18,15 +18,19 @@ import { routes } from './routes.js'
 import { createFetchRequest } from './utils/createFetchRequest.js'
 
 export async function prerender(location: string) {
-  const unwrappedRoutes = await Promise.all(
-    routes.map(async (route) => {
-      const element = route.lazy ? (await route.lazy()).element : route.element
-      return {
-        path: route.path,
-        element,
-      }
-    }),
-  )
+  const unwrappedRoutes = (
+    await Promise.all(
+      routes.map(async (route) => {
+        if (route.path !== location && route.path !== `${location}.html` && route.path !== '*')
+          return null
+        const element = route.lazy ? (await route.lazy()).element : route.element
+        return {
+          path: route.path,
+          element,
+        }
+      }),
+    )
+  ).filter(Boolean) as RouteObject[]
 
   const { config } = await resolveVocsConfig()
 

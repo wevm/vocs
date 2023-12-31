@@ -25,10 +25,10 @@ export async function build({ logLevel, outDir }: BuildParameters) {
   logger.info(`  ${pc.blue('[building]')} ${pc.bold('vocs')}@${pc.dim(`v${version}`)}\n`)
   await build({
     hooks: {
-      onClientBuildStart: () => {
+      onBundleStart() {
         if (useLogger) spinner.client.start()
       },
-      onClientBuildEnd: ({ error }) => {
+      onBundleEnd({ error }) {
         if (error) {
           if (useLogger) spinner.client.fail('bundles failed to build')
           return
@@ -37,10 +37,10 @@ export async function build({ logLevel, outDir }: BuildParameters) {
         if (useLogger) spinner.client.succeed('bundles built')
         else logger.info('')
       },
-      onPrerenderBuildStart: () => {
+      onPrerenderStart() {
         if (useLogger) spinner.prerender.start()
       },
-      onPrerenderBuildEnd: ({ error }) => {
+      onPrerenderEnd({ error }) {
         if (error) {
           if (useLogger) spinner.client.fail('bundles failed to build')
           return
@@ -48,7 +48,7 @@ export async function build({ logLevel, outDir }: BuildParameters) {
 
         if (useLogger) spinner.prerender.succeed('prerendered pages')
       },
-      onScriptsBuildEnd: () => {
+      onScriptsEnd() {
         if (!useLogger) logger.info('')
       },
     },
