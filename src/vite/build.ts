@@ -1,4 +1,4 @@
-import { dirname, relative, resolve } from 'node:path'
+import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { default as fs } from 'fs-extra'
 import * as vite from 'vite'
