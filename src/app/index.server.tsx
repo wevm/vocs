@@ -21,8 +21,9 @@ export async function prerender(location: string) {
   const unwrappedRoutes = (
     await Promise.all(
       routes.map(async (route) => {
-        if (route.path !== location && route.path !== `${location}.html` && route.path !== '*')
-          return null
+        const location_ = location.replace(/.+\/$/, '')
+        const path = route.path.replace(/\.html$/, '')
+        if (path !== location_ && path !== '*') return null
         const element = route.lazy ? (await route.lazy()).element : route.element
         return {
           path: route.path,

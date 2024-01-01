@@ -17,8 +17,8 @@ import { useLocalStorage } from '../hooks/useLocalStorage.js'
 import { type Result, useSearchIndex } from '../hooks/useSearchIndex.js'
 import { visuallyHidden } from '../styles/utils.css.js'
 import { Content } from './Content.js'
-import * as styles from './SearchDialog.css.js'
 import { KeyboardShortcut } from './KeyboardShortcut.js'
+import * as styles from './SearchDialog.css.js'
 
 export function SearchDialog(props: { open: boolean; onClose(): void }) {
   const navigate = useNavigate()
@@ -34,6 +34,7 @@ export function SearchDialog(props: { open: boolean; onClose(): void }) {
   const [showDetailView, setShowDetailView] = useLocalStorage('showDetailView', true)
 
   const results: (SearchResult & Result)[] = useMemo(() => {
+    if (!searchIndex) return []
     if (!searchTerm) {
       setSelectedIndex(-1)
       return []

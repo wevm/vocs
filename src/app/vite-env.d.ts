@@ -17,5 +17,5 @@ declare module 'virtual:root' {
 }
 
 declare module 'virtual:searchIndex' {
-  export const searchIndex: string
+  export const getSearchIndex: () => Promise<string>
 }

@@ -1,20 +1,19 @@
-import { existsSync } from 'fs'
-import path from 'path'
+import { existsSync, readFileSync } from 'node:fs'
+import { join, relative, resolve } from 'node:path'
 import { pathToFileURL } from 'url'
-import { compile, run } from '@mdx-js/mdx'
+import { compile as compile_, run } from '@mdx-js/mdx'
 import debug_ from 'debug'
-import { readFile } from 'fs/promises'
+import { default as fs } from 'fs-extra'
 import { globby } from 'globby'
 import MiniSearch from 'minisearch'
 import { Fragment } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import * as runtime from 'react/jsx-runtime'
-import { type Plugin, type ViteDevServer } from 'vite'
+import type { Plugin, UserConfig, ViteDevServer } from 'vite'
 
 import { resolveVocsConfig } from '../utils/resolveVocsConfig.js'
 import { slash } from '../utils/slash.js'
 import { rehypePlugins, remarkPlugins } from './mdx.js'
-// import { components } from '../../app/components/mdx/index.js'
 
 const virtualModuleId = 'virtual:searchIndex'
 const resolvedVirtualModuleId = `\0${virtualModuleId}`
@@ -32,29 +31,6 @@ type IndexObject = {
 
 export async function search(): Promise<Plugin> {
   const { config } = await resolveVocsConfig()
-
-  async function render(file: string) {
-    try {
-      const md = await readFile(file, 'utf-8')
-      const test = await compile(md, {
-        baseUrl: pathToFileURL(file).href,
-        outputFormat: 'function-body',
-        remarkPlugins,
-        rehypePlugins,
-      })
-      const { default: MDXContent } = await run(test, { ...runtime, Fragment })
-      const html = renderToStaticMarkup(
-        MDXContent({
-          // TODO: Pass components - vanilla extract and virtual module errors
-          // components,
-        }),
-      )
-      return html
-    } catch (error) {
-      // TODO: Resolve imports (e.g. virtual modules)
-      return ''
-    }
-  }
 
   function onIndexUpdated() {
     if (!server) return
@@ -77,73 +53,76 @@ export async function search(): Promise<Plugin> {
     })
   }
 
-  function getDocId(file: string) {
-    const relFile = slash(path.relative(config.rootDir, file))
-    // relFile = siteConfig.rewrites.map[relFile] || relFile
-    let id = slash(path.join(config.rootDir, relFile))
-    id = id.replace(/(^|\/)index\.mdx?$/, '$1')
-    return id
-  }
-
   let index: MiniSearch<IndexObject>
-  function getIndex() {
-    if (!index) {
-      index = new MiniSearch<IndexObject>({
-        fields: ['title', 'titles', 'text'],
-        storeFields: ['href', 'html', 'text', 'title', 'titles'],
-        // TODO
-        // ...options.miniSearch?.options,
-      })
-    }
-    return index
-  }
+  async function buildIndex({ prod }: { prod: boolean }) {
+    const baseDir = config.rootDir
+    const pagesPath = resolve(config.rootDir, 'pages')
+    const pagesPaths = await globby(`${pagesPath}/**/*.{md,mdx}`)
 
-  async function scanForBuild() {
-    const pagesDirPath = path.resolve(config.rootDir, 'pages')
-    const relativePagesDirPath = path.relative(config.rootDir, pagesDirPath)
+    const documents = await Promise.all(
+      pagesPaths.map(async (pagePath) => {
+        const html = await compile(pagePath)
 
-    const pagesPaths = await globby(`${pagesDirPath}/**/*.{md,mdx}`)
-    const documents = []
-    for (const pagePath of pagesPaths) {
-      const fileId = getDocId(pagePath)
-      const rendered = await render(pagePath)
-      const sections = splitPageIntoSections(rendered)
-      if (sections.length === 0) continue
+        const sections = splitPageIntoSections(html)
+        if (sections.length === 0) return []
 
-      const relFile = slash(path.relative(config.rootDir, fileId))
-      const href = relFile.replace(relativePagesDirPath, '').replace(/\.(.*)/, '')
+        const fileId = getDocId(baseDir, pagePath)
 
-      documents.push(
-        ...sections.map((section) => ({
+        const relFile = slash(relative(baseDir, fileId))
+        const href = relFile.replace(relative(baseDir, pagesPath), '').replace(/\.(.*)/, '')
+
+        return sections.map((section) => ({
           href: `${href}#${section.anchor}`,
           html: section.html,
           id: `${fileId}#${section.anchor}`,
           text: section.text,
           title: section.titles.at(-1)!,
           titles: section.titles.slice(0, -1),
-        })),
-      )
-    }
+        }))
+      }),
+    )
 
-    const index = getIndex()
+    index = new MiniSearch({
+      fields: ['title', 'titles', 'text'],
+      storeFields: ['href', 'html', 'text', 'title', 'titles'],
+      // TODO
+      // ...options.miniSearch?.options,
+    })
     index.removeAll()
-    await index.addAllAsync(documents)
+    await index.addAllAsync(documents.flat())
 
     debug(`vocs:search > indexed ${pagesPaths.length} files`)
+
+    if (prod) {
+      fs.ensureDir(join(config.rootDir, 'public/.vocs'))
+      fs.writeJSONSync(join(config.rootDir, 'public/.vocs/search-index.json'), index.toJSON())
+    }
   }
 
+  let searchPromise: Promise<void> | undefined
   let server: ViteDevServer | undefined
+  let viteConfig: UserConfig | undefined
 
   return {
     name: 'vocs:search',
-    config: () => ({
-      optimizeDeps: {
-        include: ['vocs > minisearch'],
-      },
-    }),
+    config(config) {
+      viteConfig = config
+      return {
+        optimizeDeps: {
+          include: ['vocs > minisearch'],
+        },
+      }
+    },
+    buildStart() {
+      if (process.env.NODE_ENV !== 'development' && !viteConfig?.build?.ssr)
+        searchPromise = buildIndex({ prod: true })
+    },
+    async buildEnd() {
+      if (searchPromise) await searchPromise
+    },
     async configureServer(devServer) {
       server = devServer
-      await scanForBuild()
+      await buildIndex({ prod: false })
       onIndexUpdated()
     },
     resolveId(id) {
@@ -152,30 +131,29 @@ export async function search(): Promise<Plugin> {
     },
     async load(id) {
       if (id !== resolvedVirtualModuleId) return
-
-      if (process.env.NODE_ENV === 'production') await scanForBuild()
-      return `export const searchIndex = ${JSON.stringify(JSON.stringify(getIndex()))}`
+      if (process.env.NODE_ENV === 'development')
+        return `export const getSearchIndex = async () => ${JSON.stringify(JSON.stringify(index))}`
+      return `export const getSearchIndex = async () => JSON.stringify(await ((await fetch("/.vocs/search-index.json")).json()))`
     },
     async handleHotUpdate({ file }) {
       if (!file.endsWith('.md') && !file.endsWith('.mdx')) return
 
-      const fileId = getDocId(file)
+      const fileId = getDocId(config.rootDir, file)
       if (!existsSync(file)) return
 
-      const rendered = await render(file)
+      const rendered = await compile(file)
       const sections = splitPageIntoSections(rendered)
       if (sections.length === 0) return
 
-      const pagesDirPath = path.resolve(config.rootDir, 'pages')
-      const relativePagesDirPath = path.relative(config.rootDir, pagesDirPath)
+      const pagesDirPath = resolve(config.rootDir, 'pages')
+      const relativePagesDirPath = relative(config.rootDir, pagesDirPath)
 
-      const index = getIndex()
       for (const section of sections) {
         const id = `${fileId}#${section.anchor}`
         if (index.has(id)) {
           index.discard(id)
         }
-        const relFile = slash(path.relative(config.rootDir, fileId))
+        const relFile = slash(relative(config.rootDir, fileId))
         const href = relFile.replace(relativePagesDirPath, '').replace(/\.(.*)/, '')
         index.add({
           href: `${href}#${section.anchor}`,
@@ -192,6 +170,36 @@ export async function search(): Promise<Plugin> {
       onIndexUpdated()
     },
   }
+}
+
+async function compile(path: string) {
+  try {
+    const file = readFileSync(path, 'utf-8')
+    const compiled = await compile_(file, {
+      baseUrl: pathToFileURL(file).href,
+      outputFormat: 'function-body',
+      remarkPlugins,
+      rehypePlugins,
+    })
+    const { default: MDXContent } = await run(compiled, { ...runtime, Fragment })
+    const html = renderToStaticMarkup(
+      MDXContent({
+        // TODO: Pass components - vanilla extract and virtual module errors
+        // components,
+      }),
+    )
+    return html
+  } catch (error) {
+    // TODO: Resolve imports (e.g. virtual modules)
+    return ''
+  }
+}
+
+function getDocId(baseDir: string, file: string) {
+  const relFile = slash(relative(baseDir, file))
+  let id = slash(join(baseDir, relFile))
+  id = id.replace(/(^|\/)index\.(mdx|html)?$/, '$1')
+  return id
 }
 
 const headingRegex = /<h(\d*).*?>(.*?<a.*? href=".*?".*?>.*?<\/a>)<\/h\1>/gi

@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react'
-import { MagnifyingGlassIcon } from '@radix-ui/react-icons'
 import * as Dialog from '@radix-ui/react-dialog'
+import { MagnifyingGlassIcon } from '@radix-ui/react-icons'
+import { useEffect, useState } from 'react'
 
-import * as styles from './DesktopSearch.css.js'
 import { useSearchIndex } from '../hooks/useSearchIndex.js'
+import * as styles from './DesktopSearch.css.js'
 import { SearchDialog } from './SearchDialog.js'
 
 export function DesktopSearch() {
