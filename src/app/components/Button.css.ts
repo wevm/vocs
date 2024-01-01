@@ -24,6 +24,8 @@ export const button = style(
         background: primitiveColorVars.background3,
       },
     },
+    // @ts-expect-error
+    textWrap: 'nowrap',
     width: 'fit-content',
   },
   'button',
