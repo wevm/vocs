@@ -44,7 +44,7 @@ function Head({ frontmatter }: { frontmatter: Module['frontmatter'] }) {
   const ogImageUrl = useOgImageUrl()
 
   const { baseUrl, font, iconUrl, logoUrl } = config
-  const { title, description = config.description } = frontmatter || {}
+  const { title = config.title, description = config.description } = frontmatter || {}
 
   const enableTitleTemplate = config.title && config.title.toLowerCase() !== title?.toLowerCase()
 
