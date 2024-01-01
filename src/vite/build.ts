@@ -21,6 +21,7 @@ export type BuildParameters = {
   }
   logLevel?: vite.LogLevel
   outDir?: string
+  publicDir?: string
 }
 
 export async function build({
@@ -28,11 +29,13 @@ export async function build({
   hooks,
   logLevel = 'silent',
   outDir = 'dist',
+  publicDir = 'public',
 }: BuildParameters = {}) {
   const { config } = await resolveVocsConfig()
   const { rootDir } = config
 
   const outDir_resolved = resolve(relative(resolve(rootDir, '..'), resolve(rootDir, outDir)))
+  const publicDir_resolved = resolve(relative(resolve(rootDir, '..'), resolve(rootDir, publicDir)))
 
   hooks?.onBundleStart?.()
   try {
@@ -42,7 +45,7 @@ export async function build({
           emptyOutDir: true,
           outDir: outDir_resolved,
         },
-        publicDir: resolve(rootDir, 'public'),
+        publicDir: publicDir_resolved,
         root: __dirname,
         logLevel,
         plugins: [postbuild({ logger })],
@@ -54,7 +57,7 @@ export async function build({
           ssr: resolve(__dirname, '../app/index.server.tsx'),
         },
         logLevel,
-        publicDir: resolve(rootDir, 'public'),
+        publicDir: publicDir_resolved,
         root: __dirname,
       }),
     ])

@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import { existsSync, readFileSync } from 'node:fs'
 import { join, relative, resolve } from 'node:path'
 import { pathToFileURL } from 'url'
@@ -9,7 +10,7 @@ import MiniSearch from 'minisearch'
 import { Fragment } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import * as runtime from 'react/jsx-runtime'
-import type { Plugin, UserConfig, ViteDevServer } from 'vite'
+import { type Plugin, type UserConfig, type ViteDevServer, createLogger } from 'vite'
 
 import { resolveVocsConfig } from '../utils/resolveVocsConfig.js'
 import { slash } from '../utils/slash.js'
@@ -19,6 +20,7 @@ const virtualModuleId = 'virtual:searchIndex'
 const resolvedVirtualModuleId = `\0${virtualModuleId}`
 
 const debug = debug_('vocs:search')
+const logger = createLogger()
 
 type IndexObject = {
   href: string
@@ -31,6 +33,12 @@ type IndexObject = {
 
 export async function search(): Promise<Plugin> {
   const { config } = await resolveVocsConfig()
+
+  let hash: string | undefined
+  let index: MiniSearch<IndexObject>
+  let searchPromise: Promise<void> | undefined
+  let server: ViteDevServer | undefined
+  let viteConfig: UserConfig | undefined
 
   function onIndexUpdated() {
     if (!server) return
@@ -53,8 +61,7 @@ export async function search(): Promise<Plugin> {
     })
   }
 
-  let index: MiniSearch<IndexObject>
-  async function buildIndex({ prod }: { prod: boolean }) {
+  async function buildIndex({ dev }: { dev: boolean }) {
     const baseDir = config.rootDir
     const pagesPath = resolve(config.rootDir, 'pages')
     const pagesPaths = await globby(`${pagesPath}/**/*.{md,mdx}`)
@@ -88,20 +95,19 @@ export async function search(): Promise<Plugin> {
       // TODO
       // ...options.miniSearch?.options,
     })
-    index.removeAll()
     await index.addAllAsync(documents.flat())
 
     debug(`vocs:search > indexed ${pagesPaths.length} files`)
 
-    if (prod) {
-      fs.ensureDir(join(config.rootDir, 'public/.vocs'))
-      fs.writeJSONSync(join(config.rootDir, 'public/.vocs/search-index.json'), index.toJSON())
+    if (!dev && viteConfig?.publicDir) {
+      const json = index.toJSON()
+      hash = getHash(JSON.stringify(json))
+      const dir = join(viteConfig.publicDir, '.vocs')
+      fs.rmSync(dir, { force: true, recursive: true })
+      fs.mkdirSync(dir)
+      fs.writeJSONSync(join(dir, `search-index-${hash}.json`), json)
     }
   }
-
-  let searchPromise: Promise<void> | undefined
-  let server: ViteDevServer | undefined
-  let viteConfig: UserConfig | undefined
 
   return {
     name: 'vocs:search',
@@ -113,17 +119,23 @@ export async function search(): Promise<Plugin> {
         },
       }
     },
-    buildStart() {
-      if (process.env.NODE_ENV !== 'development' && !viteConfig?.build?.ssr)
-        searchPromise = buildIndex({ prod: true })
+    async buildStart() {
+      if (!viteConfig?.build?.ssr) {
+        const dev = process.env.NODE_ENV === 'development'
+        searchPromise = buildIndex({ dev })
+
+        if (dev) {
+          logger.info('building search index...', { timestamp: true })
+          await searchPromise
+          onIndexUpdated()
+        }
+      }
     },
     async buildEnd() {
       if (searchPromise) await searchPromise
     },
     async configureServer(devServer) {
       server = devServer
-      await buildIndex({ prod: false })
-      onIndexUpdated()
     },
     resolveId(id) {
       if (id !== virtualModuleId) return
@@ -133,7 +145,7 @@ export async function search(): Promise<Plugin> {
       if (id !== resolvedVirtualModuleId) return
       if (process.env.NODE_ENV === 'development')
         return `export const getSearchIndex = async () => ${JSON.stringify(JSON.stringify(index))}`
-      return `export const getSearchIndex = async () => JSON.stringify(await ((await fetch("/.vocs/search-index.json")).json()))`
+      return `export const getSearchIndex = async () => JSON.stringify(await ((await fetch("/.vocs/search-index-${hash}.json")).json()))`
     },
     async handleHotUpdate({ file }) {
       if (!file.endsWith('.md') && !file.endsWith('.mdx')) return
@@ -244,4 +256,8 @@ function getSearchableText(content: string) {
 
 function clearHtmlTags(str: string) {
   return str.replace(/<[^>]*>/g, '')
+}
+
+function getHash(text: Buffer | string, length = 8): string {
+  return createHash('sha256').update(text).digest('hex').substring(0, length)
 }

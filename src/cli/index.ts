@@ -18,6 +18,7 @@ cli
   .command('build')
   .option('-l, --logLevel [level]', 'info | warn | error | silent')
   .option('-o, --outDir [dir]', 'output directory (default: dist)')
+  .option('-p, --publicDir [dir]', 'public (asset) directory (default: public)')
   .action(build)
 cli.command('preview').action(preview)
 
