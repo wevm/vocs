@@ -128,11 +128,9 @@ export async function search(): Promise<Plugin> {
           logger.info('building search index...', { timestamp: true })
           await searchPromise
           onIndexUpdated()
+          searchPromise = undefined
         }
       }
-    },
-    async buildEnd() {
-      if (searchPromise) await searchPromise
     },
     async configureServer(devServer) {
       server = devServer
@@ -143,6 +141,7 @@ export async function search(): Promise<Plugin> {
     },
     async load(id) {
       if (id !== resolvedVirtualModuleId) return
+      if (searchPromise) await searchPromise
       if (process.env.NODE_ENV === 'development')
         return `export const getSearchIndex = async () => ${JSON.stringify(JSON.stringify(index))}`
       return `export const getSearchIndex = async () => JSON.stringify(await ((await fetch("/.vocs/search-index-${hash}.json")).json()))`
