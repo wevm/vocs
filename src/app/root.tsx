@@ -46,7 +46,7 @@ function Head({ frontmatter }: { frontmatter: Module['frontmatter'] }) {
   const { baseUrl, font, iconUrl, logoUrl } = config
   const { title = config.title, description = config.description } = frontmatter || {}
 
-  const enableTitleTemplate = config.title && config.title.toLowerCase() !== title?.toLowerCase()
+  const enableTitleTemplate = config.title && !title.includes(config.title)
 
   return (
     <Helmet
