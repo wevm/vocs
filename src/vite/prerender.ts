@@ -13,7 +13,7 @@ export async function prerender({ logger, outDir = 'dist' }: PrerenderParameters
   const { config } = await resolveVocsConfig()
   const { rootDir } = config
 
-  const outDir_resolved = resolve(relative(resolve(rootDir, '..'), resolve(rootDir, outDir)))
+  const outDir_resolved = resolve(rootDir, outDir)
 
   const template = readFileSync(resolve(outDir_resolved, 'index.html'), 'utf-8')
   const mod = await import(resolve(__dirname, './.vocs/dist/index.server.js'))

@@ -34,8 +34,8 @@ export async function build({
   const { config } = await resolveVocsConfig()
   const { rootDir } = config
 
-  const outDir_resolved = resolve(relative(resolve(rootDir, '..'), resolve(rootDir, outDir)))
-  const publicDir_resolved = resolve(relative(resolve(rootDir, '..'), resolve(rootDir, publicDir)))
+  const outDir_resolved = resolve(rootDir, outDir)
+  const publicDir_resolved = resolve(rootDir, publicDir)
 
   hooks?.onBundleStart?.()
   try {

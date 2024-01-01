@@ -81,7 +81,7 @@ function Navigation({ items }: { items: Config.ParsedTopNavItem[] }) {
     <NavigationMenu.Root className={styles.navigation}>
       <NavigationMenu.List>
         {items.map((item, i) =>
-          item.link ? (
+          item?.link ? (
             <NavigationMenu.Link key={i} active={activeIds?.includes(item.id)} href={item.link!}>
               {item.text}
             </NavigationMenu.Link>
@@ -137,7 +137,7 @@ function CompactNavigation({ items }: { items: Config.ParsedTopNavItem[] }) {
               style={{ display: 'flex', flexDirection: 'column' }}
             >
               {items.map((item, i) =>
-                item.link ? (
+                item?.link ? (
                   <Link
                     key={i}
                     data-active={activeIds.includes(item.id)}
@@ -175,7 +175,7 @@ function CompactNavigation({ items }: { items: Config.ParsedTopNavItem[] }) {
             </Accordion.Root>
           </Popover>
         </Popover.Root>
-      ) : items[0].link ? (
+      ) : items[0]?.link ? (
         <Link className={styles.navigationItem} href={items[0].link} variant="styleless">
           {items[0].text}
         </Link>
@@ -297,7 +297,7 @@ function getSidebarItemFromPathname({
 }: { sidebarItems: Config.SidebarItem[]; pathname: string }): Config.SidebarItem | undefined {
   const pathname = pathname_.replace(/(.+)\/$/, '$1')
   for (const item of sidebarItems) {
-    if (item.link === pathname) return item
+    if (item?.link === pathname) return item
     if (item.items) {
       const childItem = getSidebarItemFromPathname({ sidebarItems: item.items, pathname })
       if (childItem) return childItem
