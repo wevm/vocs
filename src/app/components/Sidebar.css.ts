@@ -1,4 +1,4 @@
-import { keyframes, style } from '@vanilla-extract/css'
+import { style } from '@vanilla-extract/css'
 import {
   fontSizeVars,
   fontWeightVars,
@@ -8,18 +8,6 @@ import {
   topNavVars,
   zIndexVars,
 } from '../styles/vars.css.js'
-
-const fadeIn = keyframes(
-  {
-    from: {
-      opacity: 0,
-    },
-    to: {
-      opacity: 1,
-    },
-  },
-  'fadeIn',
-)
 
 export const root = style({
   display: 'flex',
@@ -65,7 +53,6 @@ export const navigation = style(
 
 export const items = style(
   {
-    animation: `${fadeIn} 0.2s`,
     display: 'flex',
     flexDirection: 'column',
   },
