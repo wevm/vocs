@@ -6,19 +6,19 @@ A general overview of the structure of a Vocs project:
 
 ```
 my-project/             # Your project's root directory.
-├── docs/               # The root directory of your documentation. // [!code hl]
-│   ├── pages/          # Directory for your documentation pages (routes). // [!code hl]
-│   │   └── index.mdx   // [!code hl]
-│   └── public/         # Directory for static assets. // [!code hl]
-│       └── favicon.ico // [!code hl]
+├── docs/               # The root directory of your documentation. // [!code hl] // [!code focus]
+│   ├── pages/          # Directory for your documentation pages (routes). // [!code hl] // [!code focus]
+│   │   └── index.mdx   // [!code hl] // [!code focus]
+│   └── public/         # Directory for static assets. // [!code hl] // [!code focus]
+│       └── favicon.ico // [!code hl] // [!code focus]
 ├── node_modules/
 ├── src/
 ├── .gitignore
 ├── package.json
-└── vocs.config.ts      # Vocs configuration file. // [!code hl]
+└── vocs.config.ts      # Vocs configuration file. // [!code hl] // [!code focus]
 ```
 
-Vocs is designed to reside within a [subdirectory](/docs/api/config#rootdir) (default: `"./docs"`) of a larger project (ie. a library). However, it is also possible to use Vocs standalone, and you can [change the root directory](/docs/api/config#rootdir) from `./docs` to `./src` if you wish.
+Vocs is designed to reside within a [subdirectory](/docs/api/config#rootdir) (default: `"./docs"`) of a larger project (ie. a library). However, it is also possible to use Vocs standalone, and you can [change the root directory](/docs/api/config#rootdir) from `"./docs"` to `"."` if you wish.
 
 ## Configuration File
 

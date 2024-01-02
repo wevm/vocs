@@ -37,7 +37,8 @@ export function remarkLinks() {
       // TODO: handle hash links
       if (node.url.startsWith('#')) return
 
-      const url = node.url.replace(/#.*$/, '').replace('.html', '')
+      const [before, after] = (node.url || '').split('#')
+      const url = before.replace('.html', '')
 
       const [pagePath, baseDir] = (() => {
         if (url.startsWith('.')) return [resolve(directory, url), directory]
@@ -68,7 +69,7 @@ export function remarkLinks() {
           logger.warn(`could not resolve URL "${node.url}" in ${filePath}\n`, { timestamp: true })
         return
       }
-      node.url = parseLink(resolvedPagePath, baseDir)
+      node.url = `${parseLink(resolvedPagePath, baseDir)}${after ? `#${after}` : ''}`
     })
   }
 }

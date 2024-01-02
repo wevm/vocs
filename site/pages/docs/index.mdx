@@ -2,9 +2,9 @@
 
 ## Overview
 
-Vocs is a static documentation generator powered by [Vite](https://vitejs.dev) and [React](https://react.dev).
+Vocs is a [React](https://react.dev)-based static documentation generator, powered by [Vite](https://vitejs.dev).
 
-Write your content in [Markdown](#TODO) or [MDX](#TODO), and Vocs will generate a static site with a default theme.
+Write your content in [Markdown](https://en.wikipedia.org/wiki/Markdown) or [MDX](https://mdxjs.com/), and Vocs will generate a static site with a default theme.
 
 ## Quick Start
 
@@ -78,9 +78,18 @@ After that, let's add some scripts to our `package.json` for Vocs.
 
 ### Build your First Page
 
-Create a directory called `docs`, and add a file inside of it called `index.mdx`:
+Create a directory called `docs`, and add a file inside of it called `index.mdx` under a `pages` directory:
 
-```markdown [docs/index.mdx]
+```
+my-project/      
+├── docs/                // [!code focus]
+│   ├── pages/           // [!code focus]
+│   │   └── index.mdx   // [!code focus]
+├── node_modules/
+└── package.json  
+```
+
+```markdown [docs/pages/index.mdx]
 # Hello, World! [This is my first page]
 
 Welcome to my docs. 
@@ -95,5 +104,9 @@ npm run dev
 ```
 
 Then open up your browser to `http://localhost:5173`, and you can see your first page!
+
+### Next Steps
+
+Now that you have a basic documentation site up and running, you can learn more about how Vocs projects are structured in [Project Structure](/docs/structure).
 
 ::::
