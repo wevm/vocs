@@ -1,4 +1,4 @@
-import { style } from '@vanilla-extract/css'
+import { keyframes, style } from '@vanilla-extract/css'
 import {
   borderRadiusVars,
   fontSizeVars,
@@ -7,6 +7,20 @@ import {
   spaceVars,
   zIndexVars,
 } from '../styles/vars.css.js'
+
+const fadeIn = keyframes(
+  {
+    from: {
+      opacity: 0,
+      transform: 'translateY(-6px)',
+    },
+    to: {
+      opacity: 1,
+      transform: 'translateY(0px)',
+    },
+  },
+  'fadeIn',
+)
 
 export const root = style({})
 
@@ -69,6 +83,7 @@ export const content = style(
     top: `calc(100% + ${spaceVars['8']})`,
     minWidth: '200px',
     zIndex: zIndexVars.popover,
+    animation: `${fadeIn} 500ms cubic-bezier(0.16, 1, 0.3, 1)`,
   },
   'content',
 )

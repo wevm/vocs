@@ -225,23 +225,22 @@ function SidebarItem(props: {
           </div>
         )}
 
-        <div
-          className={clsx(styles.items, depth !== 0 && styles.levelInset)}
-          style={collapsed ? { display: 'none' } : {}}
-        >
-          {item.items &&
-            item.items.length > 0 &&
-            depth < 5 &&
-            item.items.map((item, i) => (
-              <SidebarItem
-                depth={depth + 1}
-                item={item}
-                key={`${item.text}${i}`}
-                onClick={onClick}
-                sidebarRef={sidebarRef}
-              />
-            ))}
-        </div>
+        {!collapsed && (
+          <div className={clsx(styles.items, depth !== 0 && styles.levelInset)}>
+            {item.items &&
+              item.items.length > 0 &&
+              depth < 5 &&
+              item.items.map((item, i) => (
+                <SidebarItem
+                  depth={depth + 1}
+                  item={item}
+                  key={`${item.text}${i}`}
+                  onClick={onClick}
+                  sidebarRef={sidebarRef}
+                />
+              ))}
+          </div>
+        )}
       </section>
     )
 

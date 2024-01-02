@@ -11,6 +11,7 @@ import { root as Anchor } from './Anchor.css.js'
 import { root as Pre } from './Pre.css.js'
 
 export const root = style({
+  transition: 'color 0.1s',
   selectors: {
     [`:not(${Pre})>&`]: {
       backgroundColor: semanticColorVars.codeInlineBackground,

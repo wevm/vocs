@@ -101,6 +101,7 @@ export const group = style({ alignItems: 'center', display: 'flex', height: '100
 export const icon = style(
   {
     color: primitiveColorVars.text2,
+    transition: 'color 0.1s',
     selectors: {
       [`${button}:hover &`]: {
         color: primitiveColorVars.text,

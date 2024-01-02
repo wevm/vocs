@@ -1,4 +1,4 @@
-import { globalStyle, style } from '@vanilla-extract/css'
+import { globalStyle, keyframes, style } from '@vanilla-extract/css'
 
 import {
   borderRadiusVars,
@@ -11,7 +11,34 @@ import {
   zIndexVars,
 } from '../styles/vars.css.js'
 
+const fadeIn = keyframes(
+  {
+    from: {
+      opacity: 0,
+    },
+    to: {
+      opacity: 1,
+    },
+  },
+  'fadeIn',
+)
+
+const fadeAndSlideIn = keyframes(
+  {
+    from: {
+      opacity: 0,
+      transform: 'translate(-50%, -5%) scale(0.96)',
+    },
+    to: {
+      opacity: 1,
+      transform: 'translate(-50%, 0%) scale(1)',
+    },
+  },
+  'fadeAndSlideIn',
+)
+
 export const root = style({
+  animation: `${fadeAndSlideIn} 0.1s ease-in-out`,
   background: primitiveColorVars.background,
   borderRadius: borderRadiusVars[6],
   display: 'flex',
@@ -25,7 +52,7 @@ export const root = style({
   paddingBottom: spaceVars[8],
   position: 'fixed',
   top: 0,
-  transform: 'translate(-50%)',
+  transform: 'translate(-50%, 0%)',
   width: 'min(100vw - 60px, 775px)',
   zIndex: zIndexVars.backdrop,
 
@@ -43,6 +70,7 @@ export const root = style({
 
 export const overlay = style(
   {
+    animation: `${fadeIn} 0.1s ease-in-out`,
     // TODO: Refactor to variable
     background: 'rgba(0, 0, 0, .6)',
     position: 'fixed',

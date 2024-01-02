@@ -9,6 +9,7 @@ export const root = style({
   fontWeight: fontWeightVars.medium,
   textUnderlineOffset: spaceVars['2'],
   textDecoration: 'underline',
+  transition: 'color 0.1s',
   selectors: {
     [`${danger} &`]: {
       color: semanticColorVars.dangerText,

@@ -40,6 +40,7 @@ export const trigger = style(
     fontSize: fontSizeVars['14'],
     fontWeight: fontWeightVars.medium,
     padding: `${spaceVars['8']} ${spaceVars['8']} ${spaceVars['6']} ${spaceVars['8']}`,
+    transition: 'color 0.1s',
     selectors: {
       '&:hover': {
         color: primitiveColorVars.text,

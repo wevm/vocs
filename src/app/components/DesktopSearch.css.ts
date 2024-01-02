@@ -25,6 +25,7 @@ export const search = style(
     paddingRight: spaceVars[12],
     position: 'relative',
     width: '100%',
+    transition: 'color 0.1s, border-color 0.1s',
     selectors: {
       '&:hover': {
         color: primitiveColorVars.text,

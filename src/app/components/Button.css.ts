@@ -19,6 +19,7 @@ export const button = style(
     fontWeight: fontWeightVars.medium,
     height: '36px',
     padding: `0 ${spaceVars['16']}`,
+    transition: 'background 0.1s',
     selectors: {
       '&:hover': {
         background: primitiveColorVars.background3,

@@ -1,4 +1,4 @@
-import { style } from '@vanilla-extract/css'
+import { keyframes, style } from '@vanilla-extract/css'
 
 import { gutterRight as DocsLayout_gutterRight } from '../layouts/DocsLayout.css.js'
 
@@ -9,6 +9,18 @@ import {
   primitiveColorVars,
   spaceVars,
 } from '../styles/vars.css.js'
+
+const fadeAndSlideIn = keyframes(
+  {
+    from: {
+      opacity: 0,
+    },
+    to: {
+      opacity: 1,
+    },
+  },
+  'fadeAndSlideIn',
+)
 
 export const root = style({
   width: '100%',
@@ -42,6 +54,7 @@ export const heading = style(
 
 export const items = style(
   {
+    animation: `${fadeAndSlideIn} 0.1s`,
     selectors: {
       '& &': {
         paddingLeft: spaceVars[12],
@@ -68,6 +81,7 @@ export const link = style(
     color: primitiveColorVars.text2,
     fontWeight: fontWeightVars.medium,
     fontSize: fontSizeVars[13],
+    transition: 'color 0.1s',
     selectors: {
       '&[data-active="true"]': {
         color: primitiveColorVars.textAccent,

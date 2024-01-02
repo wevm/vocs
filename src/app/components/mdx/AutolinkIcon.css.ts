@@ -10,6 +10,7 @@ export const root = style({
   height: '0.8em',
   width: '0.8em',
   mask: 'url(/.vocs/icons/link.svg) no-repeat center / contain',
+  transition: 'background-color 0.1s',
   selectors: {
     [`${Autolink}:hover &`]: {
       backgroundColor: primitiveColorVars.textAccentHover,
