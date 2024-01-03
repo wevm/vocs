@@ -71,6 +71,9 @@ importers:
       vercel:
         specifier: ^32.5.6
         version: 32.5.6
+      vocs:
+        specifier: workspace:*
+        version: link:src
 
   create-vocs:
     dependencies:
