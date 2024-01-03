@@ -1,5 +1,5 @@
 import { createGlobalTheme, createGlobalThemeContract, globalStyle } from '@vanilla-extract/css'
-import { fontSizeVars, primitiveColorVars } from './vars.css.js'
+import { primitiveColorVars } from './vars.css.js'
 
 const getVarName = (scope: string) => (_: string | null, path: string[]) =>
   `vocs-${scope}_${path.join('-')}`
