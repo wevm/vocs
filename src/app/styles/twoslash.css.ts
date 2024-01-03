@@ -1,5 +1,5 @@
 import { createGlobalTheme, createGlobalThemeContract, globalStyle } from '@vanilla-extract/css'
-import { primitiveColorVars } from './vars.css.js'
+import { fontSizeVars, primitiveColorVars } from './vars.css.js'
 
 const getVarName = (scope: string) => (_: string | null, path: string[]) =>
   `vocs-${scope}_${path.join('-')}`
@@ -69,25 +69,34 @@ globalStyle('.twoslash *', {
   },
 })
 
-globalStyle(':root .twoslash-popup-info', {
-  width: 'max-content',
+globalStyle(':root .twoslash-popup-info-hover, :root .twoslash-popup-info', {
   vars: {
     '--shiki-light-bg': primitiveColorVars.background2,
   },
 })
-globalStyle(':root.dark .twoslash-popup-info', {
+globalStyle(':root .twoslash-popup-info', {
+  width: 'max-content',
+})
+
+globalStyle(':root.dark .twoslash-popup-info, :root.dark .twoslash-popup-info-hover', {
   vars: {
     '--shiki-dark-bg': primitiveColorVars.background5,
   },
 })
 
-globalStyle('.twoslash-query-presisted > .twoslash-popup-info', {
-  zIndex: 1,
-})
+globalStyle(
+  '.twoslash-query-presisted > .twoslash-popup-info, .twoslash-query-presisted > .twoslash-popup-info-hover',
+  {
+    zIndex: 1,
+  },
+)
 
-globalStyle(':not(.twoslash-query-presisted) > .twoslash-popup-info', {
-  zIndex: 2,
-})
+globalStyle(
+  ':not(.twoslash-query-presisted) > .twoslash-popup-info, :not(.twoslash-query-presisted) > .twoslash-popup-info-hover',
+  {
+    zIndex: 2,
+  },
+)
 
 globalStyle('.twoslash:hover .twoslash-hover', {
   borderColor: twoslashVars.underlineColor,
@@ -97,6 +106,9 @@ globalStyle('.twoslash .twoslash-hover', {
   borderBottom: '1px dotted transparent',
   transitionTimingFunction: 'ease',
   transition: 'border-color 0.3s',
+})
+
+globalStyle('.twoslash-query-presisted', {
   position: 'relative',
 })
 
@@ -119,6 +131,21 @@ globalStyle('.twoslash .twoslash-popup-info', {
   boxShadow: twoslashVars.popupShadow,
 })
 
+globalStyle('.twoslash .twoslash-popup-info-hover', {
+  background: twoslashVars.popupBackground,
+  border: `1px solid ${twoslashVars.borderColor}`,
+  borderRadius: '4px',
+  boxShadow: twoslashVars.popupShadow,
+  display: 'inline-block',
+  fontSize: '17px',
+  padding: '4px 0px',
+  pointerEvents: 'none',
+  position: 'fixed',
+  opacity: 0,
+  transition: 'opacity 0.3s',
+  userSelect: 'none',
+})
+
 globalStyle('.twoslash-query-presisted .twoslash-popup-info', {
   zIndex: 9,
   transform: 'translateY(1.5em)',
@@ -131,8 +158,13 @@ globalStyle(
     pointerEvents: 'auto',
   },
 )
+globalStyle('.twoslash-popup-info-hover[data-show]', {
+  opacity: 1,
+  pointerEvents: 'auto',
+  zIndex: 20,
+})
 
-globalStyle('.twoslash-popup-info:hover', {
+globalStyle('.twoslash-popup-info:hover, .twoslash-popup-info-hover:hover', {
   userSelect: 'auto',
 })
 

@@ -22,6 +22,7 @@ import { ListItem } from './ListItem.js'
 import { Paragraph } from './Paragraph.js'
 import { Pre } from './Pre.js'
 import { Section } from './Section.js'
+import { Span } from './Span.js'
 import { Strong } from './Strong.js'
 import { Summary } from './Summary.js'
 import { Table } from './Table.js'
@@ -52,6 +53,7 @@ export const components: MDXComponents = {
   ol: (props) => <List ordered {...props} />,
   p: Paragraph,
   section: Section,
+  span: Span,
   strong: Strong,
   summary: Summary,
   table: Table,

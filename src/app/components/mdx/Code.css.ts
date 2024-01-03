@@ -48,5 +48,9 @@ export const root = style({
       // @ts-expect-error
       textWrap: 'wrap',
     },
+    '.twoslash-popup-info-hover>&': {
+      backgroundColor: 'inherit',
+      padding: 0,
+    },
   },
 })

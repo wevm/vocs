@@ -65,6 +65,10 @@ globalStyle(`${root} [data-line]`, {
 globalStyle(`${root} .twoslash-popup-info [data-line]`, {
   padding: `${spaceVars['0']} ${spaceVars['4']}`,
 })
+globalStyle(`${root} .twoslash-popup-info-hover [data-line]`, {
+  display: 'inline-block',
+  padding: `${spaceVars['0']} ${spaceVars['8']}`,
+})
 globalStyle(`${root} .twoslash-error-line, ${root} .twoslash-tag-line`, {
   padding: `${spaceVars['0']} ${spaceVars['22']}`,
 })

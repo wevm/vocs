@@ -4,16 +4,12 @@ import type { TwoSlashRenderers } from 'shikiji-twoslash'
 export function twoslashRenderer(): TwoSlashRenderers {
   return {
     nodeStaticInfo(info, node) {
-      const text = info.text.match(/.{1,60}/g)
-
       const themedContent = (
-        (
-          this.codeToHast(text?.join('\n')!, {
-            ...this.options,
-            transformers: [],
-            transforms: undefined,
-          }).children[0] as Element
-        ).children[0] as Element
+        this.codeToHast(info.text, {
+          ...this.options,
+          transformers: [],
+          transforms: undefined,
+        }).children[0] as Element
       ).children
 
       return {
@@ -25,13 +21,28 @@ export function twoslashRenderer(): TwoSlashRenderers {
         children: [
           {
             type: 'element',
+            tagName: 'div',
+            properties: {
+              class: 'twoslash-popup-info-hover',
+            },
+            children: [
+              {
+                type: 'element',
+                tagName: 'div',
+                properties: { class: 'twoslash-popup-arrow' },
+                children: [],
+              },
+              ...themedContent,
+            ],
+          },
+          {
+            type: 'element',
             tagName: 'span',
             properties: {
-              class: 'twoslash-popup-info',
+              class: 'twoslash-target',
             },
-            children: themedContent,
+            children: [node],
           },
-          node,
         ],
       }
     },
@@ -55,7 +66,7 @@ export function twoslashRenderer(): TwoSlashRenderers {
         type: 'element',
         tagName: 'span',
         properties: {
-          class: 'twoslash-hover twoslash-query-presisted',
+          class: 'twoslash-query-presisted',
         },
         children: [
           {
