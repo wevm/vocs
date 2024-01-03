@@ -1,5 +1,7 @@
+import type { TwoSlashOptions } from '@typescript/twoslash'
 import chroma from 'chroma-js'
 import type { ReactElement } from 'react'
+import type { Options as PrettyCodeOptions } from 'rehype-pretty-code'
 import type {
   borderRadiusVars,
   contentVars,
@@ -19,7 +21,7 @@ import type {
 
 type RequiredBy<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>
 
-type RequiredProperties = 'blogDir' | 'rootDir' | 'title' | 'titleTemplate'
+type RequiredProperties = 'blogDir' | 'markdown' | 'rootDir' | 'title' | 'titleTemplate'
 
 export type Config<
   parsed extends boolean = false,
@@ -47,7 +49,7 @@ export type Config<
     /**
      * Edit location for the documentation.
      */
-    editLink?: EditLink
+    editLink?: Normalize<EditLink>
     /**
      * Base font face.
      *
@@ -61,11 +63,11 @@ export type Config<
     /**
      * Icon URL.
      */
-    iconUrl?: IconUrl
+    iconUrl?: Normalize<IconUrl>
     /**
      * Logo URL.
      */
-    logoUrl?: LogoUrl
+    logoUrl?: Normalize<LogoUrl>
     /**
      * OG Image URL. `null` to disable.
      *
@@ -74,6 +76,10 @@ export type Config<
      * @default "https://vocs.dev/api/og?logo=%logo&title=%title&description=%description"
      */
     ogImageUrl?: string | { [path: string]: string }
+    /**
+     * Markdown configuration.
+     */
+    markdown?: Normalize<Markdown<parsed>>
     /**
      * Documentation root directory. Can be an absolute path, or a path relative from
      * the location of the config file itself.
@@ -84,11 +90,11 @@ export type Config<
     /**
      * Navigation displayed on the sidebar.
      */
-    sidebar?: Sidebar
+    sidebar?: Normalize<Sidebar>
     /**
      * Social links displayed in the top navigation.
      */
-    socials?: Socials<parsed>
+    socials?: Normalize<Socials<parsed>>
     /**
      * Set of sponsors to display on MDX directives and (optionally) the sidebar.
      */
@@ -96,7 +102,7 @@ export type Config<
     /**
      * Theme configuration.
      */
-    theme?: Theme<parsed, colorScheme>
+    theme?: Normalize<Theme<parsed, colorScheme>>
     /**
      * Documentation title.
      *
@@ -112,7 +118,11 @@ export type Config<
     /**
      * Navigation displayed on the top.
      */
-    topNav?: TopNav<parsed>
+    topNav?: Normalize<TopNav<parsed>>
+    /**
+     * TwoSlash configuration.
+     */
+    twoslash?: Normalize<TwoSlashOptions>
   },
   parsed extends true ? RequiredProperties : never
 >
@@ -138,6 +148,7 @@ export function defineConfig<colorScheme extends ColorScheme = undefined>({
     title,
     titleTemplate,
     ...config,
+    markdown: parseMarkdown(config.markdown ?? {}),
     socials: parseSocials(config.socials ?? []),
     topNav: parseTopNav(config.topNav ?? []),
     theme: parseTheme(config.theme ?? ({} as Theme)),
@@ -148,6 +159,20 @@ export const defaultConfig = defineConfig({})
 
 //////////////////////////////////////////////////////
 // Parsers
+
+function parseMarkdown(markdown: Markdown): Markdown<true> {
+  return {
+    ...markdown,
+    code: {
+      keepBackground: false,
+      theme: {
+        dark: 'github-dark-dimmed',
+        light: 'github-light',
+      },
+      ...markdown.code,
+    },
+  }
+}
 
 const socialsMeta = {
   discord: { label: 'Discord', type: 'discord' },
@@ -230,6 +255,12 @@ function parseTheme<colorScheme extends ColorScheme = undefined>(
 //////////////////////////////////////////////////////
 // Types
 
+type MaybeRequired<type, x extends boolean> = x extends true ? Required<type> : type
+
+type Normalize<T> = {
+  [K in keyof T]: T[K]
+} & {}
+
 export type ColorScheme = 'light' | 'dark' | 'system' | undefined
 
 export type EditLink = {
@@ -253,6 +284,13 @@ export type Font = {
 export type IconUrl = string | { light: string; dark: string }
 
 export type LogoUrl = string | { light: string; dark: string }
+
+export type Markdown<parsed extends boolean = false> = MaybeRequired<
+  {
+    code?: Normalize<PrettyCodeOptions>
+  },
+  parsed
+>
 
 export type SidebarItem = {
   /** Whether or not to collapse the sidebar item by default. */

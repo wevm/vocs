@@ -16,6 +16,8 @@ import { transformerTwoSlash } from 'shikiji-twoslash'
 import type { PluggableList } from 'unified'
 import { type PluginOption } from 'vite'
 
+import type { ParsedConfig } from '../../config.js'
+import { resolveVocsConfig } from '../utils/resolveVocsConfig.js'
 import { remarkAuthors } from './remark/authors.js'
 import { remarkBlogPosts } from './remark/blog-posts.js'
 import { remarkCallout } from './remark/callout.js'
@@ -32,59 +34,74 @@ import { transformerSplitIdentifiers } from './shikiji/transformerSplitIdentifie
 import { twoslashRenderer } from './shikiji/twoslashRenderer.js'
 import { twoslasher } from './shikiji/twoslasher.js'
 
-export const remarkPlugins = [
-  remarkDirective,
-  remarkInferFrontmatter,
-  remarkFrontmatter,
-  remarkMdxFrontmatter,
-  remarkGfm,
-  remarkLinks,
-  remarkBlogPosts,
-  remarkCallout,
-  remarkCode,
-  remarkCodeGroup,
-  remarkDetails,
-  remarkSponsors,
-  remarkSteps,
-  remarkStrongBlock,
-  remarkSubheading,
-  remarkAuthors,
-] as PluggableList
-
-export const rehypePlugins = [
-  rehypeSlug,
+export const getRemarkPlugins = () =>
   [
-    rehypePrettyCode,
-    {
-      keepBackground: false,
-      transformers: [
-        transformerNotationDiff(),
-        transformerNotationFocus(),
-        transformerNotationHighlight(),
-        transformerTwoSlash({
-          explicitTrigger: true,
-          renderer: twoslashRenderer(),
-          twoslasher,
-        }),
-        transformerSplitIdentifiers(),
-      ],
-      theme: {
-        dark: 'github-dark-dimmed',
-        light: 'github-light',
-      },
-    },
-  ],
-  [
-    rehypeAutolinkHeadings,
-    {
-      behavior: 'append',
-      content() {
-        return [h('div', { dataAutolinkIcon: true })]
-      },
-    },
-  ],
-] as PluggableList
+    remarkDirective,
+    remarkInferFrontmatter,
+    remarkFrontmatter,
+    remarkMdxFrontmatter,
+    remarkGfm,
+    remarkLinks,
+    remarkBlogPosts,
+    remarkCallout,
+    remarkCode,
+    remarkCodeGroup,
+    remarkDetails,
+    remarkSponsors,
+    remarkSteps,
+    remarkStrongBlock,
+    remarkSubheading,
+    remarkAuthors,
+  ] as PluggableList
+export const remarkPlugins = getRemarkPlugins()
 
-export function mdx(): PluginOption {
-  return mdxPlugin({ remarkPlugins, rehypePlugins })
+type RehypePluginsParameters = {
+  markdown?: ParsedConfig['markdown']
+  twoslash?: ParsedConfig['twoslash']
+}
+
+export const getRehypePlugins = ({ markdown, twoslash }: RehypePluginsParameters = {}) =>
+  [
+    rehypeSlug,
+    [
+      rehypePrettyCode,
+      {
+        transformers: [
+          transformerNotationDiff(),
+          transformerNotationFocus(),
+          transformerNotationHighlight(),
+          transformerTwoSlash({
+            explicitTrigger: true,
+            renderer: twoslashRenderer(),
+            twoslasher,
+            twoslashOptions: twoslash,
+          }),
+          transformerSplitIdentifiers(),
+        ],
+        ...markdown?.code,
+      },
+    ],
+    [
+      rehypeAutolinkHeadings,
+      {
+        behavior: 'append',
+        content() {
+          return [h('div', { dataAutolinkIcon: true })]
+        },
+      },
+    ],
+  ] as PluggableList
+export const rehypePlugins = getRehypePlugins()
+
+export async function mdx(): Promise<PluginOption[]> {
+  const { config } = await resolveVocsConfig()
+  const { markdown, twoslash } = config
+  const remarkPlugins = getRemarkPlugins()
+  const rehypePlugins = getRehypePlugins({ markdown, twoslash })
+  return [
+    mdxPlugin({
+      remarkPlugins,
+      rehypePlugins,
+    }),
+  ]
 }

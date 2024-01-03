@@ -17,7 +17,7 @@ viem/
 └── vocs.config.ts // [!code ++]
 ```
 
-```ts [vocs.config.ts]
+```ts [vocs.config.ts] twoslash
 import { defineConfig } from 'vocs'
 
 export default defineConfig({
@@ -36,11 +36,11 @@ export default defineConfig({
 
 Path to blog pages relative to project root. Used to extract posts from the filesystem.
 
-```ts
+```ts twoslash
 import { defineConfig } from 'vocs'
 
 export default defineConfig({
-  blogDir: './pages/writings' // [!code focus]
+  blogDir: './pages/writings', // [!code focus]
   title: 'Viem'
 })
 ```
@@ -51,11 +51,11 @@ export default defineConfig({
 
 General description for the documentation.
 
-```ts
+```ts twoslash
 import { defineConfig } from 'vocs'
 
 export default defineConfig({
-  description: 'Build reliable apps & libraries with lightweight, composable, and type-safe modules that interface with Ethereum.' // [!code focus]
+  description: 'Build reliable apps & libraries with lightweight, composable, and type-safe modules that interface with Ethereum.', // [!code focus]
   title: 'Viem'
 })
 ```
@@ -66,12 +66,12 @@ export default defineConfig({
 
 Edit location for the documentation.
 
-```ts
+```ts twoslash
 import { defineConfig } from 'vocs'
 
 export default defineConfig({
   editLink: { // [!code focus]
-    pattern: 'https://github.com/wevm/viem/edit/main/site/pages/:path' // [!code focus]
+    pattern: 'https://github.com/wevm/viem/edit/main/site/pages/:path', // [!code focus]
     text: 'Edit on GitHub' // [!code focus]
   }, // [!code focus]
   title: 'Viem'
@@ -84,7 +84,7 @@ export default defineConfig({
 
 Edit link pattern.
 
-```ts
+```ts twoslash
 import { defineConfig } from 'vocs'
 
 export default defineConfig({
@@ -101,12 +101,12 @@ export default defineConfig({
 
 Edit link text.
 
-```ts
+```ts twoslash
 import { defineConfig } from 'vocs'
 
 export default defineConfig({
   editLink: { // [!code focus]
-    pattern: 'https://github.com/wevm/viem/edit/main/site/pages/:path' 
+    pattern: 'https://github.com/wevm/viem/edit/main/site/pages/:path', 
     text: 'Edit on GitHub' // [!code focus]
   }, // [!code focus]
   title: 'Viem'
@@ -123,7 +123,7 @@ Base font face.
 Only Google Fonts are supported at the moment.
 :::
 
-```ts
+```ts twoslash
 import { defineConfig } from 'vocs'
 
 export default defineConfig({
@@ -144,7 +144,8 @@ Additional tags to include in the `<head>` tag of the page HTML.
 When using this property with JSX, remember to rename the config file extension to `.tsx` or `.jsx`.
 :::
 
-```tsx
+```tsx twoslash
+import * as React from 'react'
 import { defineConfig } from 'vocs'
 
 export default defineConfig({
@@ -171,23 +172,23 @@ Icon URL. Used as the website's favicon.
 Assets need to be placed in the `public` directory.
 :::
 
-```tsx
+```tsx twoslash
 import { defineConfig } from 'vocs'
 
 export default defineConfig({
-  iconUrl: '/icon.svg' // [!code focus]
+  iconUrl: '/icon.svg', // [!code focus]
   title: 'Viem'
 })
 ```
 
 You can also specify icons for light and dark mode.
 
-```tsx
+```tsx twoslash
 import { defineConfig } from 'vocs'
 
 export default defineConfig({
   iconUrl: { // [!code focus]
-    light: '/icon-light.svg' // [!code focus]
+    light: '/icon-light.svg', // [!code focus]
     dark: '/icon-dark.svg' // [!code focus]
   }, // [!code focus]
   title: 'Viem'
@@ -204,28 +205,90 @@ Logo URL. Used for the sidebar and mobile top nav header image.
 Assets need to be placed in the `public` directory.
 :::
 
-```tsx
+```tsx twoslash
 import { defineConfig } from 'vocs'
 
 export default defineConfig({
-  logoUrl: '/logo.svg' // [!code focus]
+  logoUrl: '/logo.svg', // [!code focus]
   title: 'Viem'
 })
 ```
 
 You can also specify logos for light and dark mode.
 
-```tsx
+```tsx twoslash
 import { defineConfig } from 'vocs'
 
 export default defineConfig({
   logoUrl: { // [!code focus]
-    light: '/logo-light.svg' // [!code focus]
+    light: '/logo-light.svg', // [!code focus]
     dark: '/logo-dark.svg' // [!code focus]
   }, // [!code focus]
   title: 'Viem'
 })
 ```
+
+### markdown
+
+- **Type:** `Markdown`
+
+Markdown configuration. Can be used to configure the syntax highlighting theme of code blocks.
+
+```tsx twoslash
+import { defineConfig } from 'vocs'
+
+export default defineConfig({
+  markdown: { // [!code focus]
+    code: { // [!code focus]
+      theme: { // [!code focus]
+        light: 'github-light', // [!code focus]
+        dark: 'github-dark' // [!code focus]
+      } // [!code focus]
+    } // [!code focus]
+  }, // [!code focus]
+  title: 'Viem'
+})
+```
+
+::::note
+:::details[Available Built-in Themes]
+```ts
+"aurora-x" 
+"catppuccin-frappe" 
+"catppuccin-latte" "catppuccin-macchiato"
+"catppuccin-mocha"
+"dark-plus"
+"dracula"
+"dracula-soft"
+"github-dark"
+"github-dark-dimmed"
+"github-light"
+"light-plus"
+"material-theme"
+"material-theme-darker"
+"material-theme-lighter"
+"material-theme-ocean"
+"material-theme-palenight"
+"min-dark"
+"min-light"
+"monokai"
+"nord"
+"one-dark-pro"
+"poimandres"
+"red"
+"rose-pine"
+"rose-pine-dawn"
+"rose-pine-moon"
+"slack-dark"
+"slack-ochin"
+"solarized-dark"
+"solarized-light"
+"vitesse-black"
+"vitesse-dark"
+"vitesse-light"
+```
+:::
+::::
 
 ### ogImageUrl
 
@@ -233,7 +296,7 @@ export default defineConfig({
 
 OG Image URL. `null` to disable.
 
-```tsx
+```tsx twoslash
 import { defineConfig } from 'vocs'
 
 export default defineConfig({
@@ -246,7 +309,7 @@ You can also specify an object for the `ogImageUrl` with paths as keys.
 
 This will render a different OG image depending on the path the user is on.
 
-```tsx
+```tsx twoslash
 import { defineConfig } from 'vocs'
 
 export default defineConfig({
@@ -265,7 +328,7 @@ export default defineConfig({
 
 Documentation root directory. Can be an absolute path, or a path relative from the location of the config file itself.
 
-```tsx
+```tsx twoslash
 import { defineConfig } from 'vocs'
 
 export default defineConfig({
@@ -280,7 +343,7 @@ export default defineConfig({
 
 Navigation displayed on the sidebar.
 
-```tsx
+```tsx twoslash
 import { defineConfig } from 'vocs'
 
 export default defineConfig({
@@ -308,7 +371,7 @@ You can also specify an object for the sidebar with paths as keys and sidebar it
 
 This will render a different sidebar depending on the path the user is on.
 
-```tsx
+```tsx twoslash
 import { defineConfig } from 'vocs'
 
 export default defineConfig({
@@ -321,7 +384,7 @@ export default defineConfig({
       text: 'Config', // [!code focus]
       link: '/api/config', // [!code focus]
     }], // [!code focus]
-  } // [!code focus]
+  }, // [!code focus]
   title: 'Viem'
 })
 ```
@@ -334,7 +397,7 @@ Social links displayed in the top navigation.
 
 Supports **Discord**, **GitHub**, and **X**.
 
-```tsx
+```tsx twoslash
 import { defineConfig } from 'vocs'
 
 export default defineConfig({
@@ -360,7 +423,7 @@ Theme configuration.
 
 [Read more about theming](/docs/guides/theming).
 
-```tsx
+```tsx twoslash
 import { defineConfig } from 'vocs'
 
 export default defineConfig({
@@ -564,7 +627,7 @@ type Theme = {
 
 Documentation title.
 
-```tsx
+```tsx twoslash
 import { defineConfig } from 'vocs'
 
 export default defineConfig({
@@ -579,7 +642,7 @@ export default defineConfig({
 
 Template for the page title.
 
-```tsx
+```tsx twoslash
 import { defineConfig } from 'vocs'
 
 export default defineConfig({
@@ -594,7 +657,7 @@ export default defineConfig({
 
 Navigation displayed on the top.
 
-```tsx
+```tsx twoslash
 import { defineConfig } from 'vocs'
 
 export default defineConfig({
@@ -603,5 +666,24 @@ export default defineConfig({
     { text: 'Guide & API', link: '/docs/getting-started', match: '/docs' }, // [!code focus]
     { text: 'Blog', link: '/blog' }, // [!code focus]
   ] // [!code focus]
+})
+```
+
+### twoslash
+
+- **Type:** `Twoslash`
+
+TwoSlash configuration.
+
+```tsx twoslash
+import { defineConfig } from 'vocs'
+
+export default defineConfig({
+  title: 'Viem',
+  twoslash: { // [!code focus]
+    defaultCompilerOptions: { // [!code focus]
+      strict: true, // [!code focus]
+    } // [!code focus]
+  } // [!code focus]
 })
 ```
