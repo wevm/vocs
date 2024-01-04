@@ -18,18 +18,10 @@ export const debug = debug_('vocs:search')
 
 export async function buildIndex({
   baseDir,
-  extensions = ['md', 'mdx'],
-  pagesPath = resolve(baseDir, 'pages'),
-  processMdx = async (mdx) => mdx,
 }: {
   baseDir: string
-  extensions?: string[]
-  pagesPath?: string
-  processMdx?: (mdx: string) => Promise<string>
 }) {
-  const pagesPaths = await globby(
-    `${pagesPath}/**/*.${extensions.length > 1 ? `{${extensions.join(',')}}` : extensions[0]}`,
-  )
+  const pagesPaths = await globby(`${resolve(baseDir, 'pages')}/**/*.{md,mdx}`)
 
   const documents = await Promise.all(
     pagesPaths.map(async (pagePath) => {
@@ -49,7 +41,9 @@ export async function buildIndex({
       const fileId = getDocId(baseDir, pagePath)
 
       const relFile = slash(relative(baseDir, fileId))
-      const href = relFile.replace(relative(baseDir, pagesPath), '').replace(/\.(.*)/, '')
+      const href = relFile
+        .replace(relative(baseDir, resolve(baseDir, 'pages')), '')
+        .replace(/\.(.*)/, '')
 
       const document = sections.map((section) => ({
         href: `${href}#${section.anchor}`,

@@ -1,9 +1,10 @@
 import { existsSync, readFileSync } from 'node:fs'
-import { relative, resolve } from 'node:path'
+import { join, relative, resolve } from 'node:path'
+import { default as fs } from 'fs-extra'
 import MiniSearch from 'minisearch'
-import { type Plugin, type ViteDevServer, createLogger } from 'vite'
+import { type Plugin, type UserConfig, type ViteDevServer, createLogger } from 'vite'
 
-import * as cache from '../utils/cache.js'
+import { hash as hash_ } from '../utils/hash.js'
 import { resolveVocsConfig } from '../utils/resolveVocsConfig.js'
 import { buildIndex, debug, getDocId, processMdx, splitPageIntoSections } from '../utils/search.js'
 import { slash } from '../utils/slash.js'
@@ -22,11 +23,16 @@ type IndexObject = {
   titles: string[]
 }
 
+const dev = process.env.NODE_ENV === 'development'
+
 export async function search(): Promise<Plugin> {
   const { config } = await resolveVocsConfig()
 
+  let hash: string | undefined
   let index: MiniSearch<IndexObject>
+  let searchPromise: Promise<MiniSearch<IndexObject>> | undefined
   let server: ViteDevServer | undefined
+  let viteConfig: UserConfig | undefined
 
   function onIndexUpdated() {
     if (!server) return
@@ -51,7 +57,8 @@ export async function search(): Promise<Plugin> {
 
   return {
     name: 'vocs:search',
-    config() {
+    config(config) {
+      viteConfig = config
       return {
         optimizeDeps: {
           include: ['vocs > minisearch'],
@@ -59,11 +66,15 @@ export async function search(): Promise<Plugin> {
       }
     },
     async buildStart() {
-      const dev = process.env.NODE_ENV === 'development'
-      if (dev) {
-        logger.info('building search index...', { timestamp: true })
-        index = await buildIndex({ baseDir: config.rootDir, processMdx })
-        onIndexUpdated()
+      if (!viteConfig?.build?.ssr) {
+        searchPromise = buildIndex({ baseDir: config.rootDir })
+
+        if (dev) {
+          logger.info('building search index...', { timestamp: true })
+          index = await searchPromise
+          onIndexUpdated()
+          searchPromise = undefined
+        }
       }
     },
     async configureServer(devServer) {
@@ -75,9 +86,18 @@ export async function search(): Promise<Plugin> {
     },
     async load(id) {
       if (id !== resolvedVirtualModuleId) return
-      if (process.env.NODE_ENV === 'development')
+      if (dev)
         return `export const getSearchIndex = async () => ${JSON.stringify(JSON.stringify(index))}`
-      const hash = cache.search.get('hash')
+
+      if (searchPromise) {
+        index = await searchPromise
+        searchPromise = undefined
+        const json = index.toJSON()
+        hash = hash_(JSON.stringify(json), 8)
+        const dir = join(resolve(config.rootDir, 'dist'), '.vocs')
+        fs.ensureDirSync(dir)
+        fs.writeJSONSync(join(dir, `search-index-${hash}.json`), json)
+      }
       return `export const getSearchIndex = async () => JSON.stringify(await ((await fetch("/.vocs/search-index-${hash}.json")).json()))`
     },
     async handleHotUpdate({ file }) {
