@@ -1,10 +1,15 @@
 import { twoslasher as twoslasher_ } from '@typescript/twoslash'
+import * as cache from '../../utils/cache.js'
+import { hash } from '../../utils/hash.js'
 
 export function twoslasher(
   ...parameters: Parameters<typeof twoslasher_>
 ): ReturnType<typeof twoslasher_> {
+  const codeHash = hash(parameters[0])
+  if (cache.twoslash.get(codeHash)) return cache.twoslash.get(codeHash)
   try {
     const twoslash = twoslasher_(...parameters)
+    cache.twoslash.set(codeHash, twoslash)
     return twoslash
   } catch (e) {
     const error = e as Error

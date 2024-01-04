@@ -4,9 +4,9 @@ import { createLogger } from 'vite'
 import type { BuildParameters as BuildParameters_ } from '../../vite/build.js'
 import { version } from '../version.js'
 
-export type BuildParameters = Pick<BuildParameters_, 'logLevel' | 'outDir' | 'publicDir'>
+export type BuildParameters = Pick<BuildParameters_, 'clean' | 'logLevel' | 'outDir' | 'publicDir'>
 
-export async function build({ logLevel, outDir, publicDir }: BuildParameters) {
+export async function build({ clean, logLevel, outDir, publicDir }: BuildParameters) {
   const { build } = await import('../../vite/build.js')
 
   const useLogger = logLevel !== 'info'
@@ -24,6 +24,7 @@ export async function build({ logLevel, outDir, publicDir }: BuildParameters) {
   logger.info('')
   logger.info(`  ${pc.blue('[building]')} ${pc.bold('vocs')}@${pc.dim(`v${version}`)}\n`)
   await build({
+    clean,
     hooks: {
       onBundleStart() {
         if (useLogger) spinner.client.start()

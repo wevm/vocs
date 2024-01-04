@@ -2,12 +2,12 @@ import pc from 'picocolors'
 import { createLogger } from 'vite'
 import { version } from '../version.js'
 
-type DevParameters = { host?: boolean; port?: number }
+type DevParameters = { clean?: boolean; host?: boolean; port?: number }
 
-export async function dev(_: any, { host, port }: DevParameters = {}) {
+export async function dev(_: any, { clean, host, port }: DevParameters = {}) {
   const { createDevServer } = await import('../../vite/devServer.js')
 
-  const server = await createDevServer({ host, port })
+  const server = await createDevServer({ clean, host, port })
   await server.listen()
 
   const logger = createLogger()

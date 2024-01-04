@@ -1,15 +1,19 @@
-import { dirname, resolve } from 'node:path'
+import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { default as fs } from 'fs-extra'
 import * as vite from 'vite'
 
 import { postbuild } from './plugins/postbuild.js'
 import { prerender } from './prerender.js'
+import * as cache from './utils/cache.js'
+import { hash } from './utils/hash.js'
 import { resolveVocsConfig } from './utils/resolveVocsConfig.js'
+import { buildIndex } from './utils/search.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
 export type BuildParameters = {
+  clean?: boolean
   logger?: vite.Logger
   hooks?: {
     onBundleStart?: () => void
@@ -25,6 +29,7 @@ export type BuildParameters = {
 }
 
 export async function build({
+  clean,
   logger,
   hooks,
   logLevel = 'silent',
@@ -36,6 +41,10 @@ export async function build({
 
   const outDir_resolved = resolve(rootDir, outDir)
   const publicDir_resolved = resolve(rootDir, publicDir)
+
+  if (clean) cache.clear()
+
+  cache.search.set('hash', hash(new Date().toString(), 8))
 
   hooks?.onBundleStart?.()
   try {
@@ -72,6 +81,16 @@ export async function build({
   hooks?.onPrerenderStart?.()
   try {
     await prerender({ logger: logLevel === 'info' ? logger : undefined, outDir })
+
+    const index = await buildIndex({
+      baseDir: outDir_resolved,
+      extensions: ['html'],
+      pagesPath: outDir_resolved,
+    })
+    const hash = cache.search.get('hash')
+    const dir = join(outDir_resolved, '.vocs')
+    fs.ensureDirSync(dir)
+    fs.writeJSONSync(join(dir, `search-index-${hash}.json`), index.toJSON())
     hooks?.onPrerenderEnd?.({})
   } catch (error) {
     hooks?.onPrerenderEnd?.({ error: error as Error })

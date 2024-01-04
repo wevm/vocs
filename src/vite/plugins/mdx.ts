@@ -68,6 +68,7 @@ export const getRehypePlugins = ({ markdown, twoslash = {} }: RehypePluginsParam
     [
       rehypePrettyCode,
       {
+        keepBackground: false,
         transformers: [
           transformerNotationDiff(),
           transformerNotationFocus(),
