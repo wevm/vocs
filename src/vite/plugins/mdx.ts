@@ -12,7 +12,7 @@ import {
   transformerNotationFocus,
   transformerNotationHighlight,
 } from 'shikiji-transformers'
-import { transformerTwoSlash } from 'shikiji-twoslash'
+import { defaultTwoSlashOptions, transformerTwoSlash } from 'shikiji-twoslash'
 import type { PluggableList } from 'unified'
 import { type PluginOption } from 'vite'
 
@@ -33,6 +33,8 @@ import { remarkSubheading } from './remark/subheading.js'
 import { transformerSplitIdentifiers } from './shikiji/transformerSplitIdentifiers.js'
 import { twoslashRenderer } from './shikiji/twoslashRenderer.js'
 import { twoslasher } from './shikiji/twoslasher.js'
+
+const defaultTwoslashOptions = defaultTwoSlashOptions()
 
 export const getRemarkPlugins = () =>
   [
@@ -60,7 +62,7 @@ type RehypePluginsParameters = {
   twoslash?: ParsedConfig['twoslash']
 }
 
-export const getRehypePlugins = ({ markdown, twoslash }: RehypePluginsParameters = {}) =>
+export const getRehypePlugins = ({ markdown, twoslash = {} }: RehypePluginsParameters = {}) =>
   [
     rehypeSlug,
     [
@@ -74,7 +76,14 @@ export const getRehypePlugins = ({ markdown, twoslash }: RehypePluginsParameters
             explicitTrigger: true,
             renderer: twoslashRenderer(),
             twoslasher,
-            twoslashOptions: twoslash,
+            twoslashOptions: {
+              ...twoslash,
+              customTags: [...defaultTwoslashOptions.customTags, ...(twoslash.customTags ?? [])],
+              defaultCompilerOptions: {
+                ...(twoslash.defaultCompilerOptions ?? {}),
+                ...defaultTwoslashOptions.defaultCompilerOptions,
+              },
+            },
           }),
           transformerSplitIdentifiers(),
         ],

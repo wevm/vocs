@@ -16,16 +16,20 @@ Using `^?` you can pull out type information about a particular identifier in th
 :::code-group
 
 ```ts [Output] twoslash
-const hi = "Hello"
-const msg = hi + ", world"
+import { getHighlighterCore } from 'shikiji/core'
+
+const shiki = await getHighlighterCore({})
 //    ^?
 ```
 
-```ts [Markdown]
-const hi = "Hello"
-const msg = hi + ", world"
+````md [Markdown]
+```ts twoslash
+import { getHighlighterCore } from 'shikiji/core'
+
+const shiki = await getHighlighterCore({})
 //    ^?
 ```
+````
 
 :::
 
@@ -42,77 +46,13 @@ console.e
 //       ^|
 ```
 
-```ts [Markdown]
+````md [Markdown]
+```ts twoslash
 // @noErrors
 console.e 
 //       ^|
 ```
-
-:::
-
-## Errors
-
-Most of the time, unless you are the TypeScript team, you want to avoid errors in your code samples. Strictly speaking, this usually means setting the right compiler flags and environment in each code sample.
-
-Some times however, you do want to raise a compiler error - to show incorrect states. In those cases, twoslash has a way to mark the compiler errors you expect.
-
-### `@errors: [num]`
-
-All TypeScript compiler errors have a number, this number is relatively arbitrary and can change between TypeScript versions. For our case these numbers are useful in declaring what we expect to see.
-
-Taking this example:
-
-:::code-group
-
-```ts [Output] twoslash
-const a = "123"
-a = 132
-```
-
-```ts [Markdown]
-const a = "123"
-a = 132
-```
-
-:::
-
-TypeScript gives the following error: `Cannot assign to 'a' because it is a constant. [2588]`.
-
-Which the code sample does not reference, and thus the codesample has raise the mis-match as an 'exception'. Shiki Twoslash then shows a pretty error, and will set the process exit code to 1 failing any builds. You can use `// @errors: 2588` to tell Shiki Twoslash that you expect this error to occur:
-
-:::code-group
-
-```ts [Output] twoslash
-// @errors: 2588
-const a = "123"
-a = 132
-```
-
-```ts [Markdown]
-// @errors: 2588
-const a = "123"
-a = 132
-```
-
-:::
-
-### `@noErrors`
-
-Sometimes you have needs in which a broken TypeScript build is OK, a good example of this is using a completion query `// ^|` which requires a broken TypeScript project to work. You can use `// @noErrors` to supress all errors in a code sample, and not have them show inline.
-
-:::code-group
-
-```ts [Output] twoslash
-// @noErrors
-const a = "123"
-a = 132
-```
-
-```ts [Markdown]
-// @noErrors
-const a = "123"
-a = 132
-```
+````
 
 :::
 
@@ -134,11 +74,13 @@ const level = "Danger"
 console.log(level)
 ```
 
-```ts [Markdown]
+````md [Markdown]
+```ts twoslash
 const level = "Danger"
 // ---cut---
 console.log(level)
 ```
+````
 
 :::
 
@@ -158,7 +100,8 @@ import { helloWorld } from "./a"
 console.log(helloWorld)
 ```
 
-```ts [Markdown]
+````md [Markdown]
+```ts twoslash
 // @filename: a.ts
 export const helloWorld = "Hi"
 
@@ -167,6 +110,7 @@ export const helloWorld = "Hi"
 import { helloWorld } from "./a"
 console.log(helloWorld)
 ```
+````
 
 :::
 
@@ -191,7 +135,8 @@ const Page = () => (
 )
 ```
 
-```ts [Markdown]
+````md [Markdown]
+```ts twoslash
 // @noErrors
 import { createContext } from 'react'
 
@@ -205,6 +150,79 @@ const Page = () => (
 // ---cut-after---
 )
 ```
+````
+
+:::
+
+## Errors
+
+Most of the time, unless you are the TypeScript team, you want to avoid errors in your code samples. Strictly speaking, this usually means setting the right compiler flags and environment in each code sample.
+
+Some times however, you do want to raise a compiler error - to show incorrect states. In those cases, twoslash has a way to mark the compiler errors you expect.
+
+### `@errors: [num]`
+
+All TypeScript compiler errors have a number, this number is relatively arbitrary and can change between TypeScript versions. For our case these numbers are useful in declaring what we expect to see.
+
+Taking this example:
+
+:::code-group
+
+```ts [Output] twoslash
+const a = "123"
+a = 132
+```
+
+````md [Markdown]
+```ts twoslash
+const a = "123"
+a = 132
+```
+````
+
+:::
+
+TypeScript gives the following error: `Cannot assign to 'a' because it is a constant. [2588]`.
+
+Which the code sample does not reference, and thus the codesample has raise the mis-match as an 'exception'. Shiki Twoslash then shows a pretty error, and will set the process exit code to 1 failing any builds. You can use `// @errors: 2588` to tell Shiki Twoslash that you expect this error to occur:
+
+:::code-group
+
+```ts [Output] twoslash
+// @errors: 2588
+const a = "123"
+a = 132
+```
+
+````md [Markdown]
+```ts twoslash
+// @errors: 2588
+const a = "123"
+a = 132
+```
+````
+
+:::
+
+### `@noErrors`
+
+Sometimes you have needs in which a broken TypeScript build is OK, a good example of this is using a completion query `// ^|` which requires a broken TypeScript project to work. You can use `// @noErrors` to supress all errors in a code sample, and not have them show inline.
+
+:::code-group
+
+```ts [Output] twoslash
+// @noErrors
+const a = "123"
+a = 132
+```
+
+````md [Markdown]
+```ts twoslash
+// @noErrors
+const a = "123"
+a = 132
+```
+````
 
 :::
 
@@ -229,7 +247,8 @@ import { doit } from "mylib"
 console.log(doit)
 ```
 
-```ts [Markdown]
+````md [Markdown]
+```ts twoslash
 // @filename: node_modules/@types/mylib/index.d.ts
 export function doit(): string
 
@@ -237,6 +256,7 @@ export function doit(): string
 import { doit } from "mylib"
 console.log(doit)
 ```
+````
 
 :::
 
@@ -255,7 +275,8 @@ appSettings.version
 //           ^?
 ```
 
-```ts [Markdown]
+````md [Markdown]
+```ts twoslash
 // @resolveJsonModule
 // @filename: app.json
 { "version": "23.2.3" }
@@ -265,6 +286,7 @@ import appSettings from "./app.json"
 appSettings.version
 //           ^?
 ```
+````
 
 :::
 
@@ -329,12 +351,14 @@ import { writeFileSync } from "fs"
 writeFileSync("myfile.txt", "// TODO")
 ```
 
-```ts [Markdown]
+````md [Markdown]
+```ts twoslash
 /// <reference types="node" />
 // ---cut---
 import { writeFileSync } from "fs" 
 writeFileSync("myfile.txt", "// TODO")
 ```
+````
 
 :::
 
@@ -355,7 +379,8 @@ const c = 1
 // @annotate: Custom annotation message
 ```
 
-```ts [Markdown]
+````md [Markdown]
+```ts twoslash
 import { getHighlighterCore } from 'shikiji/core'
 
 const shiki = await getHighlighterCore({})
@@ -367,6 +392,7 @@ const b = 1
 const c = 1
 // @annotate: Custom annotation message
 ```
+````
 
 :::
 
