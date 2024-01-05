@@ -2,6 +2,8 @@ import { assignInlineVars } from '@vanilla-extract/dynamic'
 import clsx from 'clsx'
 import { useEffect, useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { Footer as ConsumerFooter } from 'virtual:consumer-components'
+
 import type { SidebarItem } from '../../config.js'
 import { useEditLink } from '../hooks/useEditLink.js'
 import { useLayout } from '../hooks/useLayout.js'
@@ -25,6 +27,7 @@ export function Footer() {
           <Navigation />
         </>
       )}
+      <ConsumerFooter />
     </footer>
   )
 }

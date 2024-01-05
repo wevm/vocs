@@ -4,8 +4,8 @@ import { type PluginOption } from 'vite'
 
 import { resolveVocsConfig } from '../utils/resolveVocsConfig.js'
 
-export function virtualRoot(): PluginOption {
-  const virtualModuleId = 'virtual:root'
+export function virtualConsumerComponents(): PluginOption {
+  const virtualModuleId = 'virtual:consumer-components'
   const resolvedVirtualModuleId = `\0${virtualModuleId}`
 
   return {
@@ -19,9 +19,15 @@ export function virtualRoot(): PluginOption {
 
       const { config } = await resolveVocsConfig()
       const { rootDir } = config
-      const rootComponent = resolve(rootDir, 'layout.tsx')
-      if (!existsSync(rootComponent)) return 'export const Root = ({ children }) => children;'
-      return `export { default as Root } from "${rootComponent}";`
+      return `
+        ${exportComponent(resolve(rootDir, 'layout.tsx'), 'Layout')}
+        ${exportComponent(resolve(rootDir, 'footer.tsx'), 'Footer')}
+      `
     },
   }
+}
+
+function exportComponent(path: string, name: string) {
+  if (existsSync(path)) return `export { default as ${name} } from "${path}";`
+  return `export const ${name} = ({ children }) => children;`
 }

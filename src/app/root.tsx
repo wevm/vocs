@@ -1,7 +1,7 @@
 import { type ReactNode, useEffect, useRef } from 'react'
 import { Helmet } from 'react-helmet'
 import { ScrollRestoration, useLocation } from 'react-router-dom'
-import { Root as ConsumerRoot } from 'virtual:root'
+import { Layout } from 'virtual:consumer-components'
 import 'virtual:styles'
 
 import { useConfig } from './hooks/useConfig.js'
@@ -28,13 +28,13 @@ export function Root(props: {
     <>
       <Head frontmatter={frontmatter} />
       {typeof window !== 'undefined' && <ScrollRestoration />}
-      <ConsumerRoot frontmatter={frontmatter} path={path}>
+      <Layout frontmatter={frontmatter} path={path}>
         <PageDataContext.Provider
           value={{ filePath, frontmatter, previousPath: previousPathRef.current }}
         >
           {children}
         </PageDataContext.Provider>
-      </ConsumerRoot>
+      </Layout>
     </>
   )
 }

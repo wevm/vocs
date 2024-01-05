@@ -10,7 +10,7 @@ import { resolveVocsModules } from './plugins/resolve-vocs-modules.js'
 import { search } from './plugins/search.js'
 import { virtualBlog } from './plugins/virtual-blog.js'
 import { virtualConfig } from './plugins/virtual-config.js'
-import { virtualRoot } from './plugins/virtual-root.js'
+import { virtualConsumerComponents } from './plugins/virtual-consumer-components.js'
 import { virtualRoutes } from './plugins/virtual-routes.js'
 import { virtualStyles } from './plugins/virtual-styles.js'
 
@@ -38,8 +38,8 @@ export default defineConfig({
     resolveVocsModules(),
     search(),
     virtualBlog(),
+    virtualConsumerComponents(),
     virtualRoutes(),
-    virtualRoot(),
     virtualStyles(),
   ],
   server: {

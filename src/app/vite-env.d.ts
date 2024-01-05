@@ -12,8 +12,9 @@ declare module 'virtual:routes' {
   export const routes: import('./types.js').Route[]
 }
 
-declare module 'virtual:root' {
-  export const Root: import('react').ElementType
+declare module 'virtual:consumer-components' {
+  export const Layout: import('react').ElementType
+  export const Footer: import('react').ElementType
 }
 
 declare module 'virtual:searchIndex' {

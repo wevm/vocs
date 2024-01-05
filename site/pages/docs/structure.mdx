@@ -141,6 +141,37 @@ export default function Layout({ children }) {
 }
 ```
 
+## Footer Component
+
+A footer React component can be added to your Vocs root directory. 
+The footer component will be displayed at the bottom of all documentation pages. 
+
+```
+my-project/             
+├── docs/
+│   ├── pages/ 
+|   |   ├── index.mdx 
+|   |   └── about.tsx 
+│   └── public/
+│   |   └── favicon.ico
+|   └── footer.tsx // [!code focus]
+├── node_modules/
+│   ...
+```
+
+The `footer.tsx` component could look like:
+
+```tsx [footer.tsx]
+export default function Footer() {
+  return (
+    <div>
+      <div>Released under the MIT License.</div>
+      <div>Copyright © 2022-present weth, LLC.</div>
+    </div>
+  )
+}
+```
+
 ## Global Styles
 
 Global styles can be added under a `styles.css` file.
