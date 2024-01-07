@@ -26,6 +26,7 @@ import { remarkCode } from './remark/code.js'
 import { remarkDetails } from './remark/details.js'
 import { remarkInferFrontmatter } from './remark/inferred-frontmatter.js'
 import { remarkLinks } from './remark/links.js'
+import { remarkSnippets } from './remark/snippets.js'
 import { remarkSponsors } from './remark/sponsors.js'
 import { remarkSteps } from './remark/steps.js'
 import { remarkStrongBlock } from './remark/strong-block.js'
@@ -47,6 +48,7 @@ export const getRemarkPlugins = () =>
     remarkBlogPosts,
     remarkCallout,
     remarkCode,
+    remarkSnippets,
     remarkCodeGroup,
     remarkDetails,
     remarkSponsors,

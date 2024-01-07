@@ -192,6 +192,10 @@ export default defineConfig({
           link: '/docs/guides/blog',
         },
         {
+          text: 'Code Snippets',
+          link: '/docs/guides/code-snippets',
+        },
+        {
           text: 'CSS & Styling',
           link: '/docs/guides/styling',
         },

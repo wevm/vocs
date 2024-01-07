@@ -1,0 +1,105 @@
+# Code Snippets [Including code snippets in Markdown]
+
+You can include code snippets in a Markdown file by making use of the `::snip` directive.
+
+:::tip[Tip]
+The `"::"` syntax refers to the [Directives Syntax Proposal](https://talk.commonmark.org/t/generic-directives-plugins-syntax/444).
+:::
+
+::::steps
+
+## Create the code snippet
+
+First, we will create a snippet called `snippet.ts` that we will import into a Markdown file.
+
+```ts [docs/snippets/snippet.ts]
+import { writeFileSync } from "fs" 
+
+writeFileSync("myfile.txt", "Hello world!")
+```
+
+## Import the snippet
+
+Next, we will import the snippet into our Markdown file using the `::snip` directive.
+
+```mdx [example.md]
+### Usage
+
+::snip{path="~/snippets/snippet.ts"}
+```
+
+:::info
+The `"~"` in the path refers to the [root (`config.rootDir`) directory](/docs/structure#root-directory) of the project.
+:::
+
+## Output
+
+The resulting output will look like this:
+
+<div>
+### Usage
+
+```ts 
+import { writeFileSync } from "fs" 
+
+writeFileSync("myfile.txt", "Hello world!") // [!code focus]
+```
+</div>
+
+## Bonus: Use code block features
+
+We can include features like [line focus (`// [!code focus]`)](/docs/api/markdown#line-focus) in our code snippets.
+
+```ts [docs/snippets/snippet.ts]
+import { writeFileSync } from "fs" 
+
+writeFileSync("myfile.txt", "Hello world!") !! [!code focus]
+```
+
+Which will result in the snippet being rendered like this:
+
+```ts 
+import { writeFileSync } from "fs" 
+
+writeFileSync("myfile.txt", "Hello world!") // [!code focus]
+```
+
+## Bonus: Add a title
+
+We can include a title for the code snippet by adding a title to the `::snip` directive.
+
+```mdx [example.md]
+### Usage
+
+::snip[Example.ts]{path="~/snippets/snippet.ts"}
+```
+
+Which will result in the snippet being rendered like this:
+
+```ts [Example.ts]
+import { writeFileSync } from "fs" 
+
+writeFileSync("myfile.txt", "Hello world!") // [!code focus]
+```
+
+## Bonus: Add Twoslash
+
+We can include [Twoslash](/docs/guides/twoslash) for the code snippet by using the `::snip-twoslash` directive.
+
+```mdx [example.md]
+### Usage
+
+::snip-twoslash[Example.ts]{path="~/snippets/snippet.ts"}
+```
+
+Which will result in the snippet being rendered like this:
+
+```ts [Example.ts] twoslash
+/// <reference types="node" />
+// ---cut---
+import { writeFileSync } from "fs" 
+
+writeFileSync("myfile.txt", "Hello world!") // [!code focus]
+```
+
+::::
