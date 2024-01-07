@@ -188,28 +188,32 @@ export default defineConfig({
       collapsed: false,
       items: [
         {
-          text: 'Sidebar & Top Navigation',
-          link: '/docs/guides/navigation',
-        },
-        {
-          text: 'Theming',
-          link: '/docs/guides/theming',
+          text: 'Blog',
+          link: '/docs/guides/blog',
         },
         {
           text: 'CSS & Styling',
           link: '/docs/guides/styling',
         },
         {
-          text: 'Layouts',
-          link: '/docs/guides/layouts',
-        },
-        {
           text: 'Dynamic OG Images',
           link: '/docs/guides/og-images',
         },
         {
-          text: 'Blog',
-          link: '/docs/guides/blog',
+          text: 'Layouts',
+          link: '/docs/guides/layouts',
+        },
+        {
+          text: 'Markdown Snippets',
+          link: '/docs/guides/markdown-snippets',
+        },
+        {
+          text: 'Sidebar & Top Navigation',
+          link: '/docs/guides/navigation',
+        },
+        {
+          text: 'Theming',
+          link: '/docs/guides/theming',
         },
         {
           text: 'Twoslash',
