@@ -32,9 +32,11 @@ export function Pre({
   const children_ = useMemo(() => recurseChildren(children), [children])
 
   return (
-    <pre ref={ref} {...props} className={clsx(props.className, styles.root)}>
-      {'data-language' in props && <CopyButton copied={copied} copy={copy} />}
-      {children_}
-    </pre>
+    <div className={clsx(styles.wrapper)}>
+      <pre ref={ref} {...props} className={clsx(props.className, styles.root)}>
+        {'data-language' in props && <CopyButton copied={copied} copy={copy} />}
+        {children_}
+      </pre>
+    </div>
   )
 }

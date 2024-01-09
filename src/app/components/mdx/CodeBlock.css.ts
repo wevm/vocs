@@ -39,7 +39,6 @@ globalStyle(`${root} pre`, {
   backgroundColor: semanticColorVars.codeBlockBackground,
   borderRadius: borderRadiusVars['4'],
   padding: `${spaceVars['20']} ${spaceVars['0']}`,
-  position: 'relative',
   '@media': {
     [viewportVars['max-720px']]: {
       borderRadius: 0,
@@ -47,7 +46,7 @@ globalStyle(`${root} pre`, {
   },
 })
 
-globalStyle(`${root} pre:not(.twoslash)`, {
+globalStyle(`${root} pre`, {
   overflowX: 'scroll',
 })
 

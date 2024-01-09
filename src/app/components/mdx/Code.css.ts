@@ -44,13 +44,11 @@ export const root = style({
     [`${warning} &`]: {
       color: semanticColorVars.warningText,
     },
-    '.twoslash>&': {
-      // @ts-expect-error
-      textWrap: 'wrap',
-    },
     '.twoslash-popup-info-hover>&': {
       backgroundColor: 'inherit',
       padding: 0,
+      // @ts-expect-error
+      textWrap: 'wrap',
     },
   },
 })
