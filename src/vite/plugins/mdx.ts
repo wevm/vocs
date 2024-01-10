@@ -37,7 +37,11 @@ import { twoslasher } from './shikiji/twoslasher.js'
 
 const defaultTwoslashOptions = defaultTwoSlashOptions()
 
-export const getRemarkPlugins = () =>
+type RemarkPluginsParameters = {
+  markdown?: ParsedConfig['markdown']
+}
+
+export const getRemarkPlugins = ({ markdown }: RemarkPluginsParameters = {}) =>
   [
     remarkDirective,
     remarkInferFrontmatter,
@@ -56,6 +60,7 @@ export const getRemarkPlugins = () =>
     remarkStrongBlock,
     remarkSubheading,
     remarkAuthors,
+    ...(markdown?.remarkPlugins || []),
   ] as PluggableList
 export const remarkPlugins = getRemarkPlugins()
 
@@ -102,13 +107,14 @@ export const getRehypePlugins = ({ markdown, twoslash = {} }: RehypePluginsParam
         },
       },
     ],
+    ...(markdown?.rehypePlugins || []),
   ] as PluggableList
 export const rehypePlugins = getRehypePlugins()
 
 export async function mdx(): Promise<PluginOption[]> {
   const { config } = await resolveVocsConfig()
   const { markdown, twoslash } = config
-  const remarkPlugins = getRemarkPlugins()
+  const remarkPlugins = getRemarkPlugins({ markdown })
   const rehypePlugins = getRehypePlugins({ markdown, twoslash })
   return [
     mdxPlugin({

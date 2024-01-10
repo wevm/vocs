@@ -232,7 +232,13 @@ export default defineConfig({
 
 - **Type:** `Markdown`
 
-Markdown configuration. Can be used to configure the syntax highlighting theme of code blocks.
+Markdown configuration.
+
+#### markdown.code
+
+- **Type:** `{ theme: { light: string; dark: string } }`
+
+Used to configure the syntax highlighting theme of code blocks.
 
 ```tsx twoslash
 import { defineConfig } from 'vocs'
@@ -289,6 +295,52 @@ export default defineConfig({
 ```
 :::
 ::::
+
+#### markdown.remarkPlugins
+
+- **Type:** `PluggableList`
+
+Used to configure the remark plugins used to transform Markdown.
+
+[See list of plugins](https://github.com/remarkjs/remark/blob/main/doc/plugins.md#list-of-plugins)
+
+```tsx twoslash
+// @noErrors
+import { defineConfig } from 'vocs'
+import remarkMath from 'remark-math' // [!code focus]
+
+export default defineConfig({
+  markdown: { // [!code focus]
+    remarkPlugins: [ // [!code focus]
+      remarkMath // [!code focus]
+    ] // [!code focus]
+  }, // [!code focus]
+  title: 'Viem'
+})
+```
+
+#### markdown.rehypePlugins
+
+- **Type:** `PluggableList`
+
+Used to configure the rehype plugins used to transform generated HTML from Markdown.
+
+[See list of plugins](https://github.com/rehypejs/rehype/blob/main/doc/plugins.md)
+
+```tsx twoslash
+// @noErrors
+import { defineConfig } from 'vocs'
+import rehypeSlots from 'rehype-slots' // [!code focus]
+
+export default defineConfig({
+  markdown: { // [!code focus]
+    rehypePlugins: [ // [!code focus]
+      rehypeSlots // [!code focus]
+    ] // [!code focus]
+  }, // [!code focus]
+  title: 'Viem'
+})
+```
 
 ### ogImageUrl
 

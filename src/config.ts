@@ -2,6 +2,7 @@ import type { TwoSlashOptions } from '@typescript/twoslash'
 import chroma from 'chroma-js'
 import type { ReactElement } from 'react'
 import type { Options as PrettyCodeOptions } from 'rehype-pretty-code'
+import type { PluggableList } from 'unified'
 import type {
   borderRadiusVars,
   contentVars,
@@ -255,8 +256,6 @@ function parseTheme<colorScheme extends ColorScheme = undefined>(
 //////////////////////////////////////////////////////
 // Types
 
-type MaybeRequired<type, x extends boolean> = x extends true ? Required<type> : type
-
 type Normalize<T> = {
   [K in keyof T]: T[K]
 } & {}
@@ -285,11 +284,13 @@ export type IconUrl = string | { light: string; dark: string }
 
 export type LogoUrl = string | { light: string; dark: string }
 
-export type Markdown<parsed extends boolean = false> = MaybeRequired<
+export type Markdown<parsed extends boolean = false> = RequiredBy<
   {
     code?: Normalize<PrettyCodeOptions>
+    remarkPlugins?: PluggableList
+    rehypePlugins?: PluggableList
   },
-  parsed
+  parsed extends true ? 'code' : never
 >
 
 export type SidebarItem = {
