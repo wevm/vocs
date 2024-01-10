@@ -34,6 +34,10 @@ globalStyle(':root', {
   },
 })
 
+globalStyle(':root.dark', {
+  colorScheme: 'dark',
+})
+
 ////////////////////////////////////////////////////////////////////////
 // Rehype Pretty Code
 
