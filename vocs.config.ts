@@ -16,7 +16,10 @@ export default defineConfig({
     light: '/vocs-logo-light.svg',
     dark: '/vocs-logo-dark.svg',
   },
-  ogImageUrl: 'https://vocs.dev/api/og?logo=%logo&title=%title&description=%description',
+  ogImageUrl: {
+    '/': '/og.png',
+    '/docs': 'https://vocs.dev/api/og?logo=%logo&title=%title&description=%description',
+  },
   rootDir: 'site',
   socials: [
     {
