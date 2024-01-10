@@ -37,8 +37,7 @@ export function remarkLinks() {
       // TODO: handle hash links
       if (node.url.startsWith('#')) return
 
-      const [before, after] = (node.url || '').split('#')
-      const url = before.replace('.html', '')
+      const [url, after] = (node.url || '').split('#')
 
       const [pagePath, baseDir] = (() => {
         if (url.startsWith('.')) return [resolve(directory, url), directory]
