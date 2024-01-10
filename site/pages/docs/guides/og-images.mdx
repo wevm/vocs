@@ -8,6 +8,46 @@ Every page in Vocs can come with a accompanying customized OG image. For example
 
 <div style={{ backgroundColor: 'var(--vocs-color_background3)', borderRadius: '4px', display: 'flex', justifyContent: 'center', paddingTop: '40px', paddingBottom: '40px' }}><img width="70%" src="https://vocs.dev/api/og?logo=https://vocs.dev/vocs-logo-dark.svg&title=Dynamic OG Images&description=Customizing the Open Graph Image in Vocs" style={{ borderRadius: '4px' }} /></div>
 
+## Quick Start
+
+### Use our OG Image API
+
+We've built an OG Image API that you can use to generate OG images for your Vocs documentation.
+
+To use it, simply set the `ogImageUrl` property in your [Vocs config](/docs/structure#configuration-file) to `https://vocs.dev/api/og?logo=%logo&title=%title&description=%description`.
+
+```tsx [vocs.config.ts]
+import { defineConfig } from 'vocs'
+
+export default defineConfig({
+  ogImageUrl: 'https://vocs.dev/api/og?logo=%logo&title=%title&description=%description', // [!code focus]
+  title: 'Viem'
+})
+```
+
+:::info
+The `%logo`, `%title`, and `%description` template variables will be replaced with the corresponding `logo`, `title` and `description` values defined in your [Vocs config](/docs/structure#configuration-file).
+:::
+
+### Deploy your own
+
+The easiest way to get up and running with a dynamic OG Image API is to use [Vercel's Edge Functions](https://vercel.com/docs/functions/edge-functions) & [`@vercel/og`](https://vercel.com/docs/functions/edge-functions/og-image-generation).
+
+You can get up-and-running right away by cloning & deploying our OG Image API example repository below:
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fwevm%2Fvocs-og)
+
+After the project is deployed, change the `ogImageUrl` in your [Vocs config](/docs/structure#configuration-file) to the URL of your deployed OG Image API.
+
+```tsx [vocs.config.ts]
+import { defineConfig } from 'vocs'
+
+export default defineConfig({
+  ogImageUrl: 'https://<my-project>.vercel.app/api/og?logo=%logo&title=%title&description=%description', // [!code focus]
+  title: 'Viem'
+})
+```
+
 ## Configuration
 
 To customize the open graph image for your documentation, you can set the `ogImageUrl` property in your `vocs.config.ts` file.
@@ -27,7 +67,7 @@ export default defineConfig({
 })
 ```
 
-### Contextual OG Images
+### Path-based OG Images
 
 You can also specify an object for the `ogImageUrl` with paths as keys.
 
