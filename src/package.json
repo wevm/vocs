@@ -1,7 +1,7 @@
 {
   "name": "vocs",
   "description": "React Documentation Generator, powered by Vite.",
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0-alpha.1",
   "type": "module",
   "bin": {
     "vocs": "./_lib/cli/index.js"
@@ -39,7 +39,7 @@
     "chroma-js": "^2.4.2",
     "clsx": "^2.0.0",
     "compression": "^1.7.4",
-    "create-vocs": "^1.0.0-alpha.0",
+    "create-vocs": "^1.0.0-alpha.1",
     "fs-extra": "^11.1.1",
     "globby": "^13.2.2",
     "hastscript": "^8.0.0",

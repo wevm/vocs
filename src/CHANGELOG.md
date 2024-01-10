@@ -1,5 +1,14 @@
 # vocs
 
+## 1.0.0-alpha.1
+
+### Patch Changes
+
+- Initial release
+
+- Updated dependencies []:
+  - create-vocs@1.0.0-alpha.1
+
 ## 1.0.0-alpha.0
 
 ### Major Changes
