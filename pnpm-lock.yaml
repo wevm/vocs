@@ -309,7 +309,7 @@ importers:
         specifier: ^1.7.4
         version: 1.7.4
       create-vocs:
-        specifier: ^0.0.0
+        specifier: ^1.0.0-alpha.0
         version: link:../create-vocs
       fs-extra:
         specifier: ^11.1.1
