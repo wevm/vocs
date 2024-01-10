@@ -1,10 +1,13 @@
-import { existsSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import toml from 'toml'
 import { type ConfigEnv, loadConfigFromFile } from 'vite'
-import { type ParsedConfig, defaultConfig } from '../../config.js'
+import { type ParsedConfig, defaultConfig, defineConfig } from '../../config.js'
 
-const extensions = ['js', 'jsx', 'ts', 'tsx', 'mjs', 'mts']
-const defaultConfigPaths = ['.vocs/config', 'vocs.config']
+const moduleExtensions = ['js', 'jsx', 'ts', 'tsx', 'mjs', 'mts']
+const staticExtensions = ['toml', 'json']
+const extensions = [...moduleExtensions, ...staticExtensions]
+const defaultConfigPaths = ['.vocs/config', 'vocs.config', 'Vocs']
 
 type ResolveVocsConfigParameters = {
   command?: ConfigEnv['command']
@@ -15,16 +18,36 @@ type ResolveVocsConfigParameters = {
 export async function resolveVocsConfig(parameters: ResolveVocsConfigParameters = {}) {
   const { command = 'serve', mode = 'development' } = parameters
 
-  const configPath = (() => {
+  const [configPath, ext] = (() => {
     for (const ext of extensions) {
       if (parameters.configPath) return parameters.configPath
       for (const filePath of defaultConfigPaths)
-        if (existsSync(resolve(process.cwd(), `${filePath}.${ext}`))) return `${filePath}.${ext}`
+        if (existsSync(resolve(process.cwd(), `${filePath}.${ext}`)))
+          return [`${filePath}.${ext}`, ext]
     }
-    return
+    return [undefined, undefined]
   })()
 
-  const result = await loadConfigFromFile({ command, mode }, configPath)
+  const result = await (async () => {
+    if (!ext) return
+
+    if (moduleExtensions.includes(ext))
+      return await loadConfigFromFile({ command, mode }, configPath)
+
+    if (staticExtensions.includes(ext)) {
+      const file = readFileSync(configPath, 'utf8')
+      const rawConfig = (() => {
+        if (ext === 'toml') return Object.assign({}, toml.parse(file))
+        if (ext === 'json') return JSON.parse(file)
+        return
+      })()
+
+      const config = defineConfig(rawConfig)
+      return config ? { config } : undefined
+    }
+
+    return
+  })()
 
   const config = (result ? result.config : defaultConfig) as ParsedConfig
 

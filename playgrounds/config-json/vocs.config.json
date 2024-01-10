@@ -1,0 +1,13 @@
+{
+  "sidebar": [
+    {
+      "text": "Getting Started",
+      "link": "/"
+    },
+    {
+      "text": "Migration Guide",
+      "link": "/migration-guide"
+    }
+  ],
+  "title": "JSON Config Example"
+}

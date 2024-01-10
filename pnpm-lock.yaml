@@ -180,6 +180,21 @@ importers:
         specifier: ^6.17.0
         version: 6.17.0(react-dom@18.2.0)(react@18.2.0)
 
+  playgrounds/toml:
+    dependencies:
+      react:
+        specifier: ^18.2.0
+        version: 18.2.0
+      react-dom:
+        specifier: ^18.2.0
+        version: 18.2.0(react@18.2.0)
+      react-router-dom:
+        specifier: ^6.17.0
+        version: 6.20.0(react-dom@18.2.0)(react@18.2.0)
+      vocs:
+        specifier: workspace:*
+        version: link:../../src
+
   playgrounds/uniswap:
     dependencies:
       react:
@@ -371,6 +386,9 @@ importers:
       tailwindcss:
         specifier: ^3.3.3
         version: 3.3.5
+      toml:
+        specifier: ^3.0.0
+        version: 3.0.0
       ua-parser-js:
         specifier: ^1.0.36
         version: 1.0.37
@@ -383,6 +401,9 @@ importers:
       vite:
         specifier: ^5.0.2
         version: 5.0.2(@types/node@20.8.9)
+      vite-plugin-toml:
+        specifier: ^0.6.0
+        version: 0.6.0(rollup@4.5.2)
     devDependencies:
       '@types/chroma-js':
         specifier: ^2.4.3
@@ -4584,6 +4605,11 @@ packages:
     engines: {node: '>=12'}
     dev: false
 
+  /eslint-visitor-keys@3.4.3:
+    resolution: {integrity: sha512-wpc+LXeiyiisxPlEkUzU6svyS1frIO3Mgxj1fdy7Pm8Ygzguax2N3Fa/D/ag1WqbOprdI+uY6wMUl8/a2G+iag==}
+    engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+    dev: false
+
   /esprima@4.0.1:
     resolution: {integrity: sha512-eGuFFw7Upda+g4p+QHvnW0RyTX/SVeJBDM/gCtMARO0cLuT2HcEKnTPvhjV6aGeqrCB/sbNop0Kszm0jsaWU4A==}
     engines: {node: '>=4'}
@@ -8152,6 +8178,13 @@ packages:
     engines: {node: '>=0.6'}
     dev: false
 
+  /toml-eslint-parser@0.6.1:
+    resolution: {integrity: sha512-7xjjVOdu0c6GpaP2AmA48ZcjesBL7KB2qeMNz93gMG76yV/lHVzQiSlD6HqwAdMJiL9hM44fung0NzhjTfihtw==}
+    engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+    dependencies:
+      eslint-visitor-keys: 3.4.3
+    dev: false
+
   /toml@3.0.0:
     resolution: {integrity: sha512-y/mWCZinnvxjTKYhJ+pYxwD0mRLVvOtdS2Awbgxln6iEnt4rk0yBxeSBHkGJcPucRiG0e55mwWp+g/05rsrd6w==}
     dev: false
@@ -8602,6 +8635,17 @@ packages:
       - sugarss
       - supports-color
       - terser
+    dev: false
+
+  /vite-plugin-toml@0.6.0(rollup@4.5.2):
+    resolution: {integrity: sha512-q/SkISnZPwN5DB+Y6mw4hl5NkYkAZcmn3DbXGTW4JnFIrSN8ZznZR1r/P1N3eylY/XibYDR0oKw0YfHp4vLlOg==}
+    engines: {node: ^14.17.0 || >=16.0.0}
+    peerDependencies:
+      rollup: ^2.77.0 || ^3.0.0 || ^4.0.0
+    dependencies:
+      '@rollup/pluginutils': 5.0.5(rollup@4.5.2)
+      rollup: 4.5.2
+      toml-eslint-parser: 0.6.1
     dev: false
 
   /vite@4.4.11(@types/node@20.8.9):

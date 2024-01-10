@@ -1,0 +1,8 @@
+theme = { accentColor = "red" }
+
+title = "TOML Config Example"
+
+sidebar = [
+  { text = "Getting Started", link = "/" },
+  { text = "Migration Guide", link = "/migration-guide" }
+]
