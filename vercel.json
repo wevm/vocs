@@ -3,6 +3,10 @@
     {
       "source": "/api/(.*)",
       "destination": "/api"
+    },
+    {
+      "source": "/:match*.html",
+      "destination": "/:match"
     }
   ]
 }
