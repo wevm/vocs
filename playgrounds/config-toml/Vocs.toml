@@ -1,4 +1,4 @@
-theme = { accentColor = "red" }
+theme = { accent-color = "red" }
 
 title = "TOML Config Example"
 
@@ -6,3 +6,7 @@ sidebar = [
   { text = "Getting Started", link = "/" },
   { text = "Migration Guide", link = "/migration-guide" }
 ]
+
+[[top-nav]]
+text = "Home"
+link = "/"

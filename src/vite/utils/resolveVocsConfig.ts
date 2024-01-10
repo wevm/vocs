@@ -37,7 +37,7 @@ export async function resolveVocsConfig(parameters: ResolveVocsConfigParameters 
     if (staticExtensions.includes(ext)) {
       const file = readFileSync(configPath, 'utf8')
       const rawConfig = (() => {
-        if (ext === 'toml') return Object.assign({}, toml.parse(file))
+        if (ext === 'toml') return camelCaseKeys(toml.parse(file))
         if (ext === 'json') return JSON.parse(file)
         return
       })()
@@ -55,4 +55,15 @@ export async function resolveVocsConfig(parameters: ResolveVocsConfigParameters 
     config,
     configPath,
   }
+}
+
+function camelCaseKeys(obj: object): object {
+  if (typeof obj !== 'object') return obj
+  if (Array.isArray(obj)) return obj.map(camelCaseKeys)
+  return Object.fromEntries(
+    Object.entries(obj).map(([key, value]) => [
+      key.replace(/[-_](.)/g, (_, c) => c.toUpperCase()),
+      camelCaseKeys(value),
+    ]),
+  )
 }
