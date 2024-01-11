@@ -1,8 +1,84 @@
+import { HomePage } from '../../../../src/components'
+
 # Layouts [Customizing the page layout in Vocs]
 
-Vocs comes with three built-in layouts: `docs`, `landing`, and `minimal`.
+Vocs comes with three built-in layouts: `docs`, `landing`, and `minimal`. Each layout is styled differently, and has it's own set of components which are displayed on the page.
 
 You can specify which layout to use by setting the `layout` property in your frontmatter.
+
+## Docs (Default)
+
+The `docs` layout is the default layout for all pages. It includes documentation related components like the "edit page" link, outline, and footer navigation.
+
+```md
+---
+layout: docs // [!code focus]
+---
+
+# A docs page
+
+This is a docs page.
+```
+
+## Landing
+
+The `landing` layout is a special layout that can be used for a homepage. It does not include a sidebar or any documentation related components.
+
+```md
+---
+layout: landing // [!code focus]
+---
+
+This is a landing page.
+```
+
+:::info
+An example of a `landing` layout page can be found on the Vocs home page.
+:::
+
+### `HomePage` component
+
+You can also leverage Vocs' built-in `<HomePage>{:tsx}` components to template a minimal home page.
+
+:::code-group
+
+```mdx [index.mdx]
+---
+layout: landing
+---
+
+import { HomePage } from 'vocs/components'
+
+<HomePage.Root>
+  <HomePage.Logo />
+  <HomePage.Tagline>React Documentation Framework, powered by Vite</HomePage.Tagline>
+  <HomePage.InstallPackage name="vocs" type="init" />
+  <HomePage.Description>Vocs is a minimal static documentation generator designed to supercharge your documentation workflow, built with modern web technologies.</HomePage.Description>
+  <HomePage.Buttons>
+    <HomePage.Button href="/docs" variant="accent">Get started</HomePage.Button>
+    <HomePage.Button href="https://github.com/wevm/vocs">GitHub</HomePage.Button>
+  </HomePage.Buttons>
+</HomePage.Root>
+```
+
+<div data-title="Preview">
+  <HomePage.Root>
+    <HomePage.Logo />
+    <HomePage.Tagline>React Documentation Framework, powered by Vite</HomePage.Tagline>
+    <HomePage.InstallPackage name="vocs" type="init" />
+    <HomePage.Description>Vocs is a minimal static documentation generator designed to supercharge your documentation workflow, built with modern web technologies.</HomePage.Description>
+    <HomePage.Buttons>
+      <HomePage.Button href="/docs" variant="accent">Get started</HomePage.Button>
+      <HomePage.Button href="https://github.com/wevm/vocs">GitHub</HomePage.Button>
+    </HomePage.Buttons>
+  </HomePage.Root>
+</div>
+
+:::
+
+## Minimal
+
+The `minimal` layout is a barebones, blank layout. It does not include any documentation related components, and is useful for pages that don't need them, like a blog.
 
 ```md
 ---
@@ -18,7 +94,15 @@ This page uses a minimal layout.
 An example of a `minimal` layout page can be found on the [Blog page](/blog).
 :::
 
-You can also control what elements are displayed on the page:
+## Frontmatter Options
+
+You can also control the layout of the page through Frontmatter options.
+
+[See here for a list of all Frontmatter options](/docs/api/frontmatter).
+
+### Examples
+
+The example below demonstrates a `docs` layout page with no sidebar, outline or logo:
 
 ```md
 ---
@@ -30,10 +114,26 @@ showLogo: false // [!code focus]
 This is a page without a sidebar, outline, or logo.
 ```
 
+The example below demonstrates a `minimal` layout page with no logo:
+
 ```md
 ---
 layout: minimal // [!code focus]
 showLogo: false // [!code focus]
+---
+
+This is a minimal layout without the logo.
+```
+
+The example below demonstrates a `landing` layout page with a viewport width that spans the width of the page:
+
+```md
+---
+layout: landing // [!code focus]
+content: // [!code focus]
+  horizontalPadding: 0px // [!code focus]
+  width: 100% // [!code focus]
+  verticalPadding: 0px // [!code focus]
 ---
 
 This is a minimal layout without the logo.
