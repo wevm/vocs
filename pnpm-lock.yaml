@@ -309,8 +309,8 @@ importers:
         specifier: ^1.7.4
         version: 1.7.4
       create-vocs:
-        specifier: ^1.0.0-alpha.1
-        version: link:../create-vocs
+        specifier: ^1.0.0-alpha.2
+        version: 1.0.0-alpha.1-main.20240111T192716
       fs-extra:
         specifier: ^11.1.1
         version: 11.1.1
@@ -3913,6 +3913,17 @@ packages:
   /create-require@1.1.1:
     resolution: {integrity: sha512-dcKFX3jn0MpIaXjisoRvexIJVEKzaq7z2rZKxf+MSr9TkdmHmsU4m2lcLojrj/FHl8mk5VxMmYA+ftRkP/3oKQ==}
     dev: true
+
+  /create-vocs@1.0.0-alpha.1-main.20240111T192716:
+    resolution: {integrity: sha512-4cAitpkzlYPp6kIHBZxiEdv9IGFylORRP0txCSDPD54gMVkhLiRLfxmgCQTdgaOKFvrI3HsiAPTkRez/oOoh3w==}
+    hasBin: true
+    dependencies:
+      '@clack/prompts': 0.7.0
+      cac: 6.7.14
+      detect-package-manager: 3.0.1
+      fs-extra: 11.1.1
+      picocolors: 1.0.0
+    dev: false
 
   /cross-spawn@5.1.0:
     resolution: {integrity: sha512-pTgQJ5KC0d2hcY8eyL1IzlBPYjTkyH72XRZPnLyKus2mBfNjQs3klqbJU2VILqZryAZUt9JOb3h/mWMy23/f5A==}
