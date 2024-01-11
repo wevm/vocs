@@ -13,9 +13,11 @@
     "playgrounds-viem": "0.0.0"
   },
   "changesets": [
+    "early-dodos-cough",
     "four-cougars-draw",
     "giant-falcons-breathe",
     "good-gorillas-exercise",
+    "moody-guests-fry",
     "tasty-vans-explode"
   ]
 }

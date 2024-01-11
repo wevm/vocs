@@ -1,5 +1,16 @@
 # vocs
 
+## 1.0.0-alpha.4
+
+### Minor Changes
+
+- [`3e717c5`](https://github.com/wevm/vocs/commit/3e717c5288c2d58b37970d64bc57a868f72b6741) Thanks [@jxom](https://github.com/jxom)! - Added \`vite\` property to Vocs configuration.
+
+### Patch Changes
+
+- Updated dependencies [[`3e717c5`](https://github.com/wevm/vocs/commit/3e717c5288c2d58b37970d64bc57a868f72b6741)]:
+  - create-vocs@1.0.0-alpha.2
+
 ## 1.0.0-alpha.3
 
 ### Patch Changes
