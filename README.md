@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  React Documentation Generator, powered by Vite.
+  Minimal Documentation Generator for React, powered by Vite.
 <p>
 
 <p align="center">
