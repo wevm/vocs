@@ -12,5 +12,9 @@
     "playgrounds-uniswap": "0.0.0",
     "playgrounds-viem": "0.0.0"
   },
-  "changesets": ["four-cougars-draw", "giant-falcons-breathe"]
+  "changesets": [
+    "four-cougars-draw",
+    "giant-falcons-breathe",
+    "tasty-vans-explode"
+  ]
 }
