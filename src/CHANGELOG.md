@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.0-alpha.3
+
+### Patch Changes
+
+- [`a36ebbf`](https://github.com/wevm/vocs/commit/a36ebbff9c1ec17cf8ff14689fa2d6d3e283a401) Thanks [@jxom](https://github.com/jxom)! - Tweaked home page styling.
+
 ## 1.0.0-alpha.2
 
 ### Patch Changes
