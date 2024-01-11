@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  MDX Documentation Framework, powered by React + Vite.
+  Minimal Documentation Framework, powered by React + Vite.
 <p>
 
 <p align="center">
