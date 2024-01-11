@@ -46,7 +46,7 @@ export function DesktopTopNav() {
       <div className={styles.section} />
 
       <div className={styles.section}>
-        {config.topNav && (
+        {(config.topNav?.length || 0) > 0 && (
           <>
             <div className={styles.group}>
               <Navigation />
