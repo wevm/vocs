@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.0-alpha.6
+
+### Patch Changes
+
+- [`2bb7566`](https://github.com/wevm/vocs/commit/2bb7566574bc439325820f004b75f530b9a17e42) Thanks [@jxom](https://github.com/jxom)! - Fixed head tags.
+
 ## 1.0.0-alpha.5
 
 ### Patch Changes
