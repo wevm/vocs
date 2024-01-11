@@ -1,3 +1,5 @@
+import * as React from 'react'
+
 import { defineConfig } from './src/index.js'
 import { version } from './src/package.json'
 
@@ -8,6 +10,11 @@ export default defineConfig({
     pattern: 'https://github.com/wagmi-dev/vocs/edit/main/site/pages/:path',
     text: 'Edit on GitHub',
   },
+  head: (
+    <>
+      <script src="https://cdn.usefathom.com/script.js" data-site="IBTUTKMT" defer />
+    </>
+  ),
   iconUrl: {
     light: '/vocs-icon-light.svg',
     dark: '/vocs-icon-dark.svg',
