@@ -44,7 +44,9 @@ function Head({ frontmatter }: { frontmatter: Module['frontmatter'] }) {
   const ogImageUrl = useOgImageUrl()
 
   const { baseUrl, font, iconUrl, logoUrl } = config
-  const { title = config.title, description = config.description } = frontmatter || {}
+
+  const title = config.title ?? frontmatter?.title
+  const description = config.description ?? frontmatter?.description
 
   const enableTitleTemplate = config.title && !title.includes(config.title)
 
