@@ -37,12 +37,26 @@ export const logo = style(
   'logo',
 )
 
+export const title = style(
+  {
+    fontSize: fontSizeVars['64'],
+    fontWeight: fontWeightVars.semibold,
+    lineHeight: '1em',
+  },
+  'title',
+)
+
 export const tagline = style(
   {
     color: primitiveColorVars.text2,
     fontSize: fontSizeVars['20'],
     fontWeight: fontWeightVars.medium,
     lineHeight: '1.5em',
+    selectors: {
+      [`${title} + &`]: {
+        marginTop: `calc(-1 * ${spaceVars['8']})`,
+      },
+    },
   },
   'tagline',
 )

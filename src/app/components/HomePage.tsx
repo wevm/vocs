@@ -23,7 +23,7 @@ export function Logo({ className }: { className?: string }) {
       <Logo_ />
     </div>
   ) : (
-    <h1 className={clsx(className)}>{title}</h1>
+    <h1 className={clsx(className, styles.title)}>{title}</h1>
   )
 }
 
