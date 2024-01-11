@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.0-alpha.2
+
+### Patch Changes
+
+- [`6a82858`](https://github.com/wevm/vocs/commit/6a82858824ba9fe6f3da30cc35937a4b99a95ed2) Thanks [@jxom](https://github.com/jxom)! - Fixed site description.
+
 ## 1.0.0-alpha.1
 
 ### Patch Changes
