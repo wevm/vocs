@@ -1,5 +1,11 @@
 # create-vocs
 
+## 1.0.0-alpha.3
+
+### Patch Changes
+
+- [`28d09f1`](https://github.com/wevm/vocs/commit/28d09f13e629562f2627f7d6c2cddcc64d6834de) Thanks [@jxom](https://github.com/jxom)! - Fixed top nav styling.
+
 ## 1.0.0-alpha.2
 
 ### Patch Changes
