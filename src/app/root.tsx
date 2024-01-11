@@ -45,8 +45,8 @@ function Head({ frontmatter }: { frontmatter: Module['frontmatter'] }) {
 
   const { baseUrl, font, iconUrl, logoUrl } = config
 
-  const title = config.title ?? frontmatter?.title
-  const description = config.description ?? frontmatter?.description
+  const title = frontmatter?.title ?? config.title
+  const description = frontmatter?.description ?? config.description
 
   const enableTitleTemplate = config.title && !title.includes(config.title)
 
