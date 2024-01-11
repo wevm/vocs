@@ -13,38 +13,57 @@ import { virtualConfig } from './plugins/virtual-config.js'
 import { virtualConsumerComponents } from './plugins/virtual-consumer-components.js'
 import { virtualRoutes } from './plugins/virtual-routes.js'
 import { virtualStyles } from './plugins/virtual-styles.js'
+import { resolveVocsConfig } from './utils/resolveVocsConfig.js'
 
-export default defineConfig({
-  build: {
-    cssCodeSplit: false,
-  },
-  optimizeDeps: {
-    include: ['react', 'react-dom', 'react-dom/client', 'chroma-js', 'react-helmet', 'mark.js'],
-    exclude: ['vocs'],
-  },
-  plugins: [
-    splitVendorChunkPlugin(),
-    virtualConfig(),
-    react(),
-    vanillaExtractPlugin({
-      identifiers({ filePath, debugId }) {
-        const scope = basename(filePath).replace('.css.ts', '')
-        return `vocs_${scope}${debugId ? `_${debugId}` : ''}`
-      },
-      emitCssInSsr: true,
-    }),
-    css(),
-    mdx(),
-    resolveVocsModules(),
-    search(),
-    virtualBlog(),
-    virtualConsumerComponents(),
-    virtualRoutes(),
-    virtualStyles(),
-  ],
-  server: {
-    fs: {
-      allow: ['..'],
+export default defineConfig(async () => {
+  const { config } = await resolveVocsConfig()
+  const viteConfig = config.vite ?? {}
+  return {
+    ...viteConfig,
+    build: {
+      ...viteConfig?.build,
+      cssCodeSplit: false,
     },
-  },
+    optimizeDeps: {
+      ...(viteConfig.optimizeDeps ?? {}),
+      include: [
+        'react',
+        'react-dom',
+        'react-dom/client',
+        'chroma-js',
+        'react-helmet',
+        'mark.js',
+        ...(viteConfig.optimizeDeps?.include ?? []),
+      ],
+      exclude: ['vocs', ...(viteConfig.optimizeDeps?.exclude ?? [])],
+    },
+    plugins: [
+      splitVendorChunkPlugin(),
+      virtualConfig(),
+      react(),
+      vanillaExtractPlugin({
+        identifiers({ filePath, debugId }) {
+          const scope = basename(filePath).replace('.css.ts', '')
+          return `vocs_${scope}${debugId ? `_${debugId}` : ''}`
+        },
+        emitCssInSsr: true,
+      }),
+      css(),
+      mdx(),
+      resolveVocsModules(),
+      search(),
+      virtualBlog(),
+      virtualConsumerComponents(),
+      virtualRoutes(),
+      virtualStyles(),
+      ...(viteConfig.plugins ?? []),
+    ],
+    server: {
+      ...viteConfig.server,
+      fs: {
+        ...viteConfig.server?.fs,
+        allow: ['..', ...(viteConfig.server?.fs?.allow ?? [])],
+      },
+    },
+  }
 })

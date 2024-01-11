@@ -739,3 +739,25 @@ export default defineConfig({
   } // [!code focus]
 })
 ```
+
+### vite
+
+- **Type:** `Vite.UserConfig`
+
+Vite configuration. [See more.](https://vitejs.dev/config/)
+
+```tsx twoslash
+// @noErrors
+import { defineConfig } from 'vocs'
+import tsconfigPaths from 'vite-tsconfig-paths' // [!code focus]
+
+export default defineConfig({
+  title: 'Viem',
+  vite: { // [!code focus]
+    build: { // [!code focus]
+      minify: 'terser' // [!code focus]
+    }, // [!code focus]
+    plugins: [tsconfigPaths()] // [!code focus]
+  } // [!code focus]
+})
+```

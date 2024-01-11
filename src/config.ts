@@ -3,6 +3,7 @@ import chroma from 'chroma-js'
 import type { ReactElement } from 'react'
 import type { Options as PrettyCodeOptions } from 'rehype-pretty-code'
 import type { PluggableList } from 'unified'
+import type { UserConfig } from 'vite'
 import type {
   borderRadiusVars,
   contentVars,
@@ -124,6 +125,10 @@ export type Config<
      * TwoSlash configuration.
      */
     twoslash?: Normalize<TwoSlashOptions>
+    /**
+     * Vite configuration.
+     */
+    vite?: UserConfig
   },
   parsed extends true ? RequiredProperties : never
 >
