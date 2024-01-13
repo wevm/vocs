@@ -112,6 +112,20 @@ function Head({ frontmatter }: { frontmatter: Module['frontmatter'] }) {
 
       {/* Twitter */}
       <meta name="twitter:card" content="summary_large_image" />
+      {ogImageUrl && (
+        <meta
+          property="twitter:image"
+          content={ogImageUrl
+            .replace(
+              '%logo',
+              `${baseUrl ? baseUrl : ''}${
+                typeof logoUrl === 'string' ? logoUrl : logoUrl?.dark || ''
+              }`,
+            )
+            .replace('%title', title || '')
+            .replace('%description', (description !== 'undefined' ? description : '') || '')}
+        />
+      )}
     </Helmet>
   )
 }
