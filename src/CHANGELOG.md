@@ -1,5 +1,15 @@
 # vocs
 
+## 1.0.0-alpha.7
+
+### Patch Changes
+
+- [`861e632`](https://github.com/wevm/vocs/commit/861e632ed2844438f4b89703d7e051cb7a73cd48) Thanks [@jxom](https://github.com/jxom)! - Added Telegram social.
+
+- [`46dd001`](https://github.com/wevm/vocs/commit/46dd00158de560012be1dacbdd2c3340f59d575d) Thanks [@jxom](https://github.com/jxom)! - Added `twitter:image` meta tag.
+
+- [`5c9639a`](https://github.com/wevm/vocs/commit/5c9639a8143a08c083571a333e6a35ed3e93aa41) Thanks [@jxom](https://github.com/jxom)! - Fixed code group titles.
+
 ## 1.0.0-alpha.6
 
 ### Patch Changes
