@@ -1,4 +1,3 @@
-import type { MDXComponents } from 'mdx/types.js'
 import * as React from 'react'
 
 export type BlogPost = {

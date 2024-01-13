@@ -57,7 +57,7 @@ export const routes = [
               path={route_virtual.path}
             >
               <DocsLayout>
-                <route.default components={components} />
+                <route.default />
               </DocsLayout>
             </Root>
           ),
