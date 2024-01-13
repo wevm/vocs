@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.0-alpha.8
+
+### Patch Changes
+
+- [`3a9b4e9`](https://github.com/wevm/vocs/commit/3a9b4e926e6e84096b1e85ffa33975f88b1bb7b4) Thanks [@jxom](https://github.com/jxom)! - Fixed components in MDX snippets.
+
 ## 1.0.0-alpha.7
 
 ### Patch Changes
