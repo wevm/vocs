@@ -25,6 +25,7 @@ import { ChevronUp } from './icons/ChevronUp.js'
 import { Discord } from './icons/Discord.js'
 import { GitHub } from './icons/GitHub.js'
 import { Menu } from './icons/Menu.js'
+import { Telegram } from './icons/Telegram.js'
 import { X } from './icons/X.js'
 
 MobileTopNav.Curtain = Curtain
@@ -187,12 +188,14 @@ function CompactNavigation({ items }: { items: Config.ParsedTopNavItem[] }) {
 const iconsForIcon = {
   discord: Discord,
   github: GitHub,
+  telegram: Telegram,
   x: X,
 } satisfies Record<Config.ParsedSocialItem['type'], ComponentType>
 
 const sizesForTypes = {
   discord: '21px',
   github: '18px',
+  telegram: '21px',
   x: '16px',
 } satisfies Record<Config.ParsedSocialItem['type'], string>
 
@@ -246,7 +249,7 @@ export function Curtain({
             <Popover.Root modal open={isSidebarOpen} onOpenChange={setSidebarOpen}>
               <Popover.Trigger className={styles.menuTrigger}>
                 <Icon label="Menu" icon={Menu} size="13px" />
-                {title}
+                <div className={styles.menuTitle}>{title}</div>
               </Popover.Trigger>
               <Popover className={styles.sidebarPopover}>
                 <Sidebar onClickItem={() => setSidebarOpen(false)} />

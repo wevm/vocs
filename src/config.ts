@@ -183,6 +183,7 @@ function parseMarkdown(markdown: Markdown): Markdown<true> {
 const socialsMeta = {
   discord: { label: 'Discord', type: 'discord' },
   github: { label: 'GitHub', type: 'github' },
+  telegram: { label: 'Telegram', type: 'telegram' },
   x: { label: 'X (Twitter)', type: 'x' },
 } satisfies Record<SocialItem['icon'], { label: string; type: SocialType }>
 
@@ -314,7 +315,7 @@ export type Sidebar =
   | SidebarItem[]
   | { [path: string]: SidebarItem[] | { backLink?: boolean; items: SidebarItem[] } }
 
-export type SocialType = 'discord' | 'github' | 'x'
+export type SocialType = 'discord' | 'github' | 'telegram' | 'x'
 export type SocialItem = {
   /** Social icon to display. */
   icon: SocialType // TODO: Support custom SVG icons

@@ -144,6 +144,16 @@ export const menuTrigger = style(
   'menuTrigger',
 )
 
+export const menuTitle = style(
+  {
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'pre',
+    width: '24ch',
+  },
+  'menuTitle',
+)
+
 export const navigation_compact = style({}, 'navigation_compact')
 
 export const navigation = style(

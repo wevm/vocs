@@ -18,6 +18,7 @@ import { Discord } from './icons/Discord.js'
 import { GitHub } from './icons/GitHub.js'
 import { Moon } from './icons/Moon.js'
 import { Sun } from './icons/Sun.js'
+import { Telegram } from './icons/Telegram.js'
 import { X } from './icons/X.js'
 
 DesktopTopNav.Curtain = Curtain
@@ -161,12 +162,14 @@ function ThemeToggleButton() {
 const iconsForIcon = {
   discord: Discord,
   github: GitHub,
+  telegram: Telegram,
   x: X,
 } satisfies Record<ParsedSocialItem['type'], ComponentType>
 
 const sizesForType = {
   discord: '23px',
   github: '20px',
+  telegram: '21px',
   x: '18px',
 } satisfies Record<ParsedSocialItem['type'], string>
 
