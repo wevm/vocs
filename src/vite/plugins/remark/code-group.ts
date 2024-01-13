@@ -24,7 +24,7 @@ export function remarkCodeGroup() {
 
       node.children = node.children
         .map((child) => {
-          const match = 'meta' in child && child?.meta?.match(/^\[(.*)\]/)
+          const match = 'meta' in child && child?.meta?.match(/\[(.*)\]/)
           return {
             type: 'paragraph',
             children: [child],
