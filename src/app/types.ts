@@ -31,7 +31,7 @@ export type Layout = {
 }
 
 export type Module = {
-  default: React.ComponentType<{ components: MDXComponents }>
+  default: React.ComponentType
   frontmatter?: Frontmatter
 }
 

@@ -19,7 +19,7 @@ const notFoundRoute = (() => {
           element: (
             <Root frontmatter={frontmatter} path={virtualRoute.path}>
               <DocsLayout>
-                <route.default components={components} />
+                <route.default />
               </DocsLayout>
             </Root>
           ),

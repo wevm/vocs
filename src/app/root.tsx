@@ -1,9 +1,11 @@
+import { MDXProvider } from '@mdx-js/react'
 import { type ReactNode, useEffect, useRef } from 'react'
 import { Helmet } from 'react-helmet'
 import { ScrollRestoration, useLocation } from 'react-router-dom'
 import { Layout } from 'virtual:consumer-components'
 import 'virtual:styles'
 
+import { components } from './components/mdx/index.js'
 import { useConfig } from './hooks/useConfig.js'
 import { useOgImageUrl } from './hooks/useOgImageUrl.js'
 import { PageDataContext } from './hooks/usePageData.js'
@@ -28,13 +30,15 @@ export function Root(props: {
     <>
       <Head frontmatter={frontmatter} />
       {typeof window !== 'undefined' && <ScrollRestoration />}
-      <Layout frontmatter={frontmatter} path={path}>
-        <PageDataContext.Provider
-          value={{ filePath, frontmatter, previousPath: previousPathRef.current }}
-        >
-          {children}
-        </PageDataContext.Provider>
-      </Layout>
+      <MDXProvider components={components}>
+        <Layout frontmatter={frontmatter} path={path}>
+          <PageDataContext.Provider
+            value={{ filePath, frontmatter, previousPath: previousPathRef.current }}
+          >
+            {children}
+          </PageDataContext.Provider>
+        </Layout>
+      </MDXProvider>
     </>
   )
 }

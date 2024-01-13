@@ -118,6 +118,7 @@ export async function mdx(): Promise<PluginOption[]> {
   const rehypePlugins = getRehypePlugins({ markdown, twoslash })
   return [
     mdxPlugin({
+      providerImportSource: '@mdx-js/react',
       remarkPlugins,
       rehypePlugins,
     }),
