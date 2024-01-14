@@ -273,7 +273,7 @@ export default defineConfig({
     },
   ],
   twoslash: {
-    defaultCompilerOptions: {
+    compilerOptions: {
       paths: {
         // Source - reference source files so we don't need to build packages to get types (speeds things up)
         vocs: ['./src'],

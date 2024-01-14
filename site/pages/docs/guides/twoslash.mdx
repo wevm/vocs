@@ -273,7 +273,7 @@ This code sample sets up the types for a non-existent npm module, and TypeScript
 // @filename: index.ts
 import appSettings from "./app.json"
 appSettings.version
-//           ^?
+//          ^?
 
 ```
 
@@ -286,7 +286,7 @@ appSettings.version
 // @filename: index.ts
 import appSettings from "./app.json"
 appSettings.version
-//           ^?
+//          ^?
 ```
 ````
 
@@ -372,12 +372,16 @@ writeFileSync("myfile.txt", "// TODO")
 import { getHighlighterCore } from 'shikiji/core'
 
 const shiki = await getHighlighterCore({})
-// @log: Custom log message
 const a = 1
-// @error: Custom error message
+// @log: Custom log message
+
 const b = 1
-// @warn: Custom warning message
+// @error: Custom error message
+
 const c = 1
+// @warn: Custom warning message
+
+const d = 1
 // @annotate: Custom annotation message
 ```
 
@@ -392,6 +396,7 @@ const a = 1
 const b = 1
 // @warn: Custom warning message
 const c = 1
+// @annotate: Custom annotation message
 // @annotate: Custom annotation message
 ```
 ````

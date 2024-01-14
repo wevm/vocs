@@ -145,6 +145,7 @@ When using this property with JSX, remember to rename the config file extension 
 :::
 
 ```tsx twoslash
+// @noErrors
 import * as React from 'react'
 import { defineConfig } from 'vocs'
 
@@ -733,7 +734,7 @@ import { defineConfig } from 'vocs'
 export default defineConfig({
   title: 'Viem',
   twoslash: { // [!code focus]
-    defaultCompilerOptions: { // [!code focus]
+    compilerOptions: { // [!code focus]
       strict: true, // [!code focus]
     } // [!code focus]
   } // [!code focus]

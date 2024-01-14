@@ -31,7 +31,7 @@ import { remarkSponsors } from './remark/sponsors.js'
 import { remarkSteps } from './remark/steps.js'
 import { remarkStrongBlock } from './remark/strong-block.js'
 import { remarkSubheading } from './remark/subheading.js'
-import { transformerSplitIdentifiers } from './shikiji/transformerSplitIdentifiers.js'
+import { remarkTwoslash } from './remark/twoslash.js'
 import { twoslashRenderer } from './shikiji/twoslashRenderer.js'
 import { twoslasher } from './shikiji/twoslasher.js'
 
@@ -59,6 +59,7 @@ export const getRemarkPlugins = ({ markdown }: RemarkPluginsParameters = {}) =>
     remarkSteps,
     remarkStrongBlock,
     remarkSubheading,
+    remarkTwoslash,
     remarkAuthors,
     ...(markdown?.remarkPlugins || []),
   ] as PluggableList
@@ -86,14 +87,16 @@ export const getRehypePlugins = ({ markdown, twoslash = {} }: RehypePluginsParam
             twoslasher,
             twoslashOptions: {
               ...twoslash,
-              customTags: [...defaultTwoslashOptions.customTags, ...(twoslash.customTags ?? [])],
-              defaultCompilerOptions: {
-                ...(twoslash.defaultCompilerOptions ?? {}),
-                ...defaultTwoslashOptions.defaultCompilerOptions,
+              customTags: [
+                ...(defaultTwoslashOptions.customTags ?? []),
+                ...(twoslash.customTags ?? []),
+              ],
+              compilerOptions: {
+                ...(twoslash.compilerOptions ?? {}),
+                ...defaultTwoslashOptions.compilerOptions,
               },
             },
           }),
-          transformerSplitIdentifiers(),
         ],
         ...markdown?.code,
       },

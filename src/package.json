@@ -65,11 +65,12 @@
     "remark-mdx-frontmatter": "^4.0.0",
     "remark-parse": "^11.0.0",
     "serve-static": "^1.15.0",
-    "shikiji": "~0.9.17",
-    "shikiji-transformers": "~0.9.17",
-    "shikiji-twoslash": "~0.9.17",
+    "shikiji": "~0.10.0-beta.1",
+    "shikiji-transformers": "~0.10.0-beta.1",
+    "shikiji-twoslash": "~0.10.0-beta.1",
     "tailwindcss": "^3.3.3",
     "toml": "^3.0.0",
+    "twoslash": "^0.0.7",
     "ua-parser-js": "^1.0.36",
     "unified": "^11.0.4",
     "unist-util-visit": "^5.0.0",
@@ -85,23 +86,12 @@
   "license": "MIT",
   "homepage": "https://vocs.dev",
   "repository": "wevm/vocs",
-  "authors": [
-    "awkweb.eth",
-    "jxom.eth"
-  ],
+  "authors": ["awkweb.eth", "jxom.eth"],
   "funding": [
     {
       "type": "github",
       "url": "https://github.com/sponsors/wevm"
     }
   ],
-  "keywords": [
-    "react",
-    "static",
-    "docs",
-    "generator",
-    "vite",
-    "documentation",
-    "mdx"
-  ]
+  "keywords": ["react", "static", "docs", "generator", "vite", "documentation", "mdx"]
 }

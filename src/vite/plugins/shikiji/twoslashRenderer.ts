@@ -1,16 +1,51 @@
 import type { Element } from 'hast'
-import type { TwoSlashRenderers } from 'shikiji-twoslash'
+import { toHast } from 'mdast-util-to-hast'
+import remarkGfm from 'remark-gfm'
+import remarkParse from 'remark-parse'
+import type { ShikijiTransformerContextCommon } from 'shikiji'
+import type { TwoSlashRenderer } from 'shikiji-twoslash'
+import { unified } from 'unified'
 
-export function twoslashRenderer(): TwoSlashRenderers {
+export function twoslashRenderer(): TwoSlashRenderer {
+  function hightlightPopupContent(
+    codeToHast: ShikijiTransformerContextCommon['codeToHast'],
+    shikijiOptions: ShikijiTransformerContextCommon['options'],
+    info: { text?: string; docs?: string },
+  ) {
+    if (!info.text) return []
+
+    const text = processHoverInfo(info.text) ?? info.text
+    if (!text.trim()) return []
+
+    const themedContent = (
+      (
+        codeToHast(text, {
+          ...shikijiOptions,
+          transformers: [],
+        }).children[0] as Element
+      ).children[0] as Element
+    ).children
+
+    if (info.docs) {
+      const docs = processJsDoc(info.docs)
+      if (info.docs) {
+        themedContent.push({
+          type: 'element',
+          tagName: 'div',
+          properties: { class: 'twoslash-popup-jsdoc' },
+          children: docs.children,
+        })
+      }
+    }
+
+    return themedContent
+  }
+
   return {
     nodeStaticInfo(info, node) {
-      const themedContent = (
-        this.codeToHast(info.text, {
-          ...this.options,
-          transformers: [],
-          transforms: undefined,
-        }).children[0] as Element
-      ).children
+      const themedContent = hightlightPopupContent(this.codeToHast, this.options, info)
+
+      if (!themedContent.length) return node
 
       return {
         type: 'element',
@@ -32,7 +67,12 @@ export function twoslashRenderer(): TwoSlashRenderers {
                 properties: { class: 'twoslash-popup-arrow' },
                 children: [],
               },
-              ...themedContent,
+              {
+                type: 'element',
+                tagName: 'div',
+                properties: { class: 'twoslash-popup-scroll-container' },
+                children: themedContent,
+              },
             ],
           },
           {
@@ -47,20 +87,10 @@ export function twoslashRenderer(): TwoSlashRenderers {
       }
     },
 
-    nodeQuery(query, node) {
-      if (!query.text) return {}
+    nodeQuery(info, node) {
+      if (!info.text) return {}
 
-      const text = query.text.match(/.{1,60}/g)
-
-      const themedContent = (
-        (
-          this.codeToHast(text?.join('\n')!, {
-            ...this.options,
-            transformers: [],
-            transforms: undefined,
-          }).children[0] as Element
-        ).children[0] as Element
-      ).children
+      const themedContent = hightlightPopupContent(this.codeToHast, this.options, info)
 
       return {
         type: 'element',
@@ -90,10 +120,10 @@ export function twoslashRenderer(): TwoSlashRenderers {
       }
     },
 
-    nodeCompletions(query, node) {
+    nodeCompletion(query, node) {
       if (node.type !== 'text')
         throw new Error(
-          `[shikiji-twoslash] nodeCompletions only works on text nodes, got ${node.type}`,
+          `[shikiji-twoslash] nodeCompletion only works on text nodes, got ${node.type}`,
         )
 
       const leftPart = query.completionsPrefix || ''
@@ -196,7 +226,7 @@ export function twoslashRenderer(): TwoSlashRenderers {
           children: [
             {
               type: 'text',
-              value: error.renderedMessage,
+              value: error.text,
             },
           ],
         },
@@ -214,11 +244,43 @@ export function twoslashRenderer(): TwoSlashRenderers {
           children: [
             {
               type: 'text',
-              value: tag.annotation || '',
+              value: tag.text || '',
             },
           ],
         },
       ]
     },
   }
+}
+
+const regexType = /^[A-Z][a-zA-Z0-9_]*(\<[^\>]*\>)?:/
+const regexFunction = /^[a-zA-Z0-9_]*\(/
+
+/**
+ * The default hover info processor, which will do some basic cleanup
+ */
+export function processHoverInfo(type: string) {
+  let content = type
+    // remove leading `(property)` or `(method)` on each line
+    .replace(/^\(([\w-]+?)\)\s+/gm, '')
+    // remove import statement
+    .replace(/\nimport .*$/, '')
+    // remove interface or namespace lines with only the name
+    .replace(/^(interface|namespace) \w+$/gm, '')
+    .trim()
+
+  // Add `type` or `function` keyword if needed
+  if (content.match(regexType)) content = `type ${content}`
+  else if (content.match(regexFunction)) content = `function ${content}`
+
+  return content
+}
+
+export function processJsDoc(docs: string) {
+  const santized = docs
+    .replace(/\n?{(@.*)?\s*\n?/g, '')
+    .replace(/\s*}\n?/g, '')
+    .replace(/(.)\n(.)/g, '$1 $2')
+    .replace(/\n?-\s/g, '\n')
+  return toHast(unified().use(remarkParse).use(remarkGfm).parse(santized)) as Element
 }

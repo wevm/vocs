@@ -337,7 +337,7 @@ createGlobalTheme(':root', fontSizeVars, {
   h5: fontSizeVars['16'],
   h6: fontSizeVars['16'],
   code: '0.875em',
-  codeBlock: fontSizeVars['15'],
+  codeBlock: fontSizeVars['14'],
   lineNumber: fontSizeVars['15'],
   subtitle: fontSizeVars['20'],
   th: fontSizeVars['14'],

@@ -137,13 +137,32 @@ globalStyle('.twoslash .twoslash-popup-info-hover', {
   borderRadius: '4px',
   boxShadow: twoslashVars.popupShadow,
   display: 'inline-block',
-  fontSize: '17px',
+  maxWidth: '500px',
   padding: '4px 0px',
   pointerEvents: 'none',
   position: 'fixed',
   opacity: 0,
   transition: 'opacity 0.3s',
+  whiteSpace: 'pre-wrap',
   userSelect: 'none',
+})
+
+globalStyle('.twoslash .twoslash-popup-scroll-container', {
+  maxHeight: '300px',
+  overflow: 'scroll',
+})
+
+globalStyle('.twoslash .twoslash-popup-jsdoc', {
+  borderTop: `1px solid ${primitiveColorVars.border2}`,
+  color: primitiveColorVars.text,
+  fontFamily: 'sans-serif',
+  fontWeight: '500',
+  marginTop: '4px',
+  padding: '4px 10px 0px 10px',
+})
+
+globalStyle('.twoslash-tag-line + .twoslash-tag-line', {
+  marginTop: '-0.2em',
 })
 
 globalStyle('.twoslash-query-presisted .twoslash-popup-info', {

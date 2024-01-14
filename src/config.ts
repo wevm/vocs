@@ -1,7 +1,7 @@
-import type { TwoSlashOptions } from '@typescript/twoslash'
 import chroma from 'chroma-js'
 import type { ReactElement } from 'react'
 import type { Options as PrettyCodeOptions } from 'rehype-pretty-code'
+import type { TwoSlashOptions } from 'twoslash'
 import type { PluggableList } from 'unified'
 import type { UserConfig } from 'vite'
 import type {
