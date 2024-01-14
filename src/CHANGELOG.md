@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.0-alpha.10
+
+### Patch Changes
+
+- [`b1fec40`](https://github.com/wevm/vocs/commit/b1fec40385ec4762d81e39b1e55937dddc3c2047) Thanks [@jxom](https://github.com/jxom)! - Fixed @mdx-js/react import.
+
 ## 1.0.0-alpha.9
 
 ### Patch Changes
