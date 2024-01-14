@@ -23,6 +23,7 @@ fs.copy(
 )
 
 rewriteExtensions(resolve(import.meta.dir, '../src/_lib'))
+rewriteMdxPlugin()
 
 ////////////////////////////////////////////////////////////////////
 
@@ -40,6 +41,12 @@ function rewriteExtensions(dir: string) {
     const fileContent = fs.readFileSync(path, 'utf-8')
     fs.writeFileSync(path, fileContent.replace(/\.(tsx|ts)/g, '.js'))
   }
+}
+
+function rewriteMdxPlugin() {
+  const path = resolve(import.meta.dir, '../src/_lib/vite/plugins/mdx.js')
+  const content = fs.readFileSync(path, 'utf-8')
+  fs.writeFileSync(path, content.replace('@mdx-js/react', 'vocs/mdx-react'))
 }
 
 function isDir(dir: string) {
