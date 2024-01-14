@@ -147,9 +147,10 @@ export const menuTrigger = style(
 export const menuTitle = style(
   {
     overflow: 'hidden',
+    textAlign: 'left',
     textOverflow: 'ellipsis',
     whiteSpace: 'pre',
-    width: '24ch',
+    width: '22ch',
   },
   'menuTitle',
 )
