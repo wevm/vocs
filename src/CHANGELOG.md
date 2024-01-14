@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.0-alpha.9
+
+### Patch Changes
+
+- [`9742f19`](https://github.com/wevm/vocs/commit/9742f19461a8de9e27a27a7146d649fdccf2be1f) Thanks [@jxom](https://github.com/jxom)! - Fixed top nav styles.
+
 ## 1.0.0-alpha.8
 
 ### Patch Changes
