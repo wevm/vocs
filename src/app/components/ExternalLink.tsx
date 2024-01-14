@@ -13,7 +13,10 @@ export const ExternalLink = forwardRef(
     return (
       <a
         ref={ref as any}
-        className={clsx(className, hideExternalIcon ? undefined : styles.root)}
+        className={clsx(
+          className,
+          hideExternalIcon || typeof children !== 'string' ? undefined : styles.root,
+        )}
         href={href}
         target="_blank"
         rel="noopener noreferrer"
