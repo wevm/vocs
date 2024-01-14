@@ -1,10 +1,9 @@
 import type { Element } from 'hast'
-import { toHast } from 'mdast-util-to-hast'
-import remarkGfm from 'remark-gfm'
-import remarkParse from 'remark-parse'
+import { fromMarkdown } from 'mdast-util-from-markdown'
+import { gfmFromMarkdown } from 'mdast-util-gfm'
+import { defaultHandlers, toHast } from 'mdast-util-to-hast'
 import type { ShikijiTransformerContextCommon } from 'shikiji'
 import type { TwoSlashRenderer } from 'shikiji-twoslash'
-import { unified } from 'unified'
 
 export function twoslashRenderer(): TwoSlashRenderer {
   function hightlightPopupContent(
@@ -27,13 +26,35 @@ export function twoslashRenderer(): TwoSlashRenderer {
     ).children
 
     if (info.docs) {
-      const docs = processJsDoc(info.docs)
+      const santized = info.docs
+        .replace(/\n?{(@.*)?\s*\n?/g, '')
+        .replace(/\s*}\n?/g, '')
+        .replace(/(.)\n(.)/g, '$1 $2')
+        .replace(/\n?-\s/g, '\n')
+      const mdast = fromMarkdown(santized, {
+        mdastExtensions: [gfmFromMarkdown()],
+      })
+      const hast = toHast(mdast, {
+        handlers: {
+          code: (state, node) => {
+            const lang = node.lang || ''
+            if (lang) {
+              return codeToHast(node.value, {
+                ...shikijiOptions,
+                transformers: [],
+                lang,
+              }).children[0] as Element
+            }
+            return defaultHandlers.code(state, node)
+          },
+        },
+      }) as Element
       if (info.docs) {
         themedContent.push({
           type: 'element',
           tagName: 'div',
           properties: { class: 'twoslash-popup-jsdoc' },
-          children: docs.children,
+          children: hast.children,
         })
       }
     }
@@ -274,13 +295,4 @@ export function processHoverInfo(type: string) {
   else if (content.match(regexFunction)) content = `function ${content}`
 
   return content
-}
-
-export function processJsDoc(docs: string) {
-  const santized = docs
-    .replace(/\n?{(@.*)?\s*\n?/g, '')
-    .replace(/\s*}\n?/g, '')
-    .replace(/(.)\n(.)/g, '$1 $2')
-    .replace(/\n?-\s/g, '\n')
-  return toHast(unified().use(remarkParse).use(remarkGfm).parse(santized)) as Element
 }

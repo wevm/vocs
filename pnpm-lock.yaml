@@ -329,6 +329,12 @@ importers:
       mdast-util-directive:
         specifier: ^3.0.0
         version: 3.0.0
+      mdast-util-from-markdown:
+        specifier: ^2.0.0
+        version: 2.0.0
+      mdast-util-gfm:
+        specifier: ^3.0.0
+        version: 3.0.0
       mdast-util-to-hast:
         specifier: ^13.0.2
         version: 13.0.2
