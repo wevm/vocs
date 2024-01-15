@@ -33,7 +33,7 @@ export function Banner({ hide }: BannerProps) {
         <div className={clsx(styles.content)}>
           <ConsumerBanner />
         </div>
-        {banner?.dismissable === ('false' as unknown as boolean) && (
+        {banner?.dismissable !== ('false' as unknown as boolean) && (
           <button className={clsx(styles.closeButton)} onClick={hide} type="button">
             <Cross1Icon width={14} height={14} />
           </button>

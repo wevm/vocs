@@ -27,12 +27,16 @@ export default defineConfig(async () => {
     optimizeDeps: {
       ...(viteConfig.optimizeDeps ?? {}),
       include: [
+        'acorn-jsx',
+        'chroma-js',
+        'debug',
+        'extend',
+        'mark.js',
         'react',
         'react-dom',
         'react-dom/client',
-        'chroma-js',
         'react-helmet',
-        'mark.js',
+        'style-to-object',
         ...(viteConfig.optimizeDeps?.include ?? []),
       ],
       exclude: ['vocs', ...(viteConfig.optimizeDeps?.exclude ?? [])],

@@ -4,6 +4,7 @@ import { defineConfig } from './src/index.js'
 import { version } from './src/package.json'
 
 export default defineConfig({
+  banner: 'fk',
   baseUrl: 'https://vocs.dev',
   description: 'Static documentation generator powered by Vite and React',
   editLink: {
