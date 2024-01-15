@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.0-alpha.13
+
+### Patch Changes
+
+- [`73556bc`](https://github.com/wevm/vocs/commit/73556bca69f7a1100bcab16d896a1779e323436f) Thanks [@jxom](https://github.com/jxom)! - Improved code block styling in callouts.
+
 ## 1.0.0-alpha.12
 
 ### Patch Changes
