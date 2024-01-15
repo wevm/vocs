@@ -1,5 +1,13 @@
 # vocs
 
+## 1.0.0-alpha.15
+
+### Patch Changes
+
+- [`595c932`](https://github.com/wevm/vocs/commit/595c932500fbcc731ba8ddeb8477da3afabcfb9a) Thanks [@jxom](https://github.com/jxom)! - Improved banner & bottom navigation styling.
+
+- [`c5c17c4`](https://github.com/wevm/vocs/commit/c5c17c470b0e4ac8b2f146f3f76f4bf54609971b) Thanks [@jxom](https://github.com/jxom)! - Added `textColor` property to `banner` in Vocs config.
+
 ## 1.0.0-alpha.14
 
 ### Patch Changes
