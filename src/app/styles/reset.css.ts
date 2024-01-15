@@ -1,4 +1,5 @@
 import { globalStyle, layer } from '@vanilla-extract/css'
+import { root as DocsLayout } from '../layouts/DocsLayout.css.js'
 import { fontFamilyVars, fontSizeVars, primitiveColorVars } from './vars.css.js'
 
 const resetLayer = layer('reset')
@@ -28,9 +29,6 @@ globalStyle('html, body', {
     [resetLayer]: {
       textSizeAdjust: '100%',
       tabSize: 4,
-      fontFamily: fontFamilyVars.default,
-      fontFeatureSettings: '"rlig" 1, "calt" 1',
-      fontSize: fontSizeVars.root,
       lineHeight: 'inherit',
       margin: 0,
       padding: 0,
@@ -38,6 +36,12 @@ globalStyle('html, body', {
       textRendering: 'optimizeLegibility',
     },
   },
+})
+
+globalStyle(`html, body, ${DocsLayout}`, {
+  fontFamily: fontFamilyVars.default,
+  fontFeatureSettings: '"rlig" 1, "calt" 1',
+  fontSize: fontSizeVars.root,
 })
 
 globalStyle('hr', {

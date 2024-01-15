@@ -16,7 +16,7 @@ import { useConfig } from '../hooks/useConfig.js'
 import { useLayout } from '../hooks/useLayout.js'
 import { useLocalStorage } from '../hooks/useLocalStorage.js'
 import { usePageData } from '../hooks/usePageData.js'
-import { contentVars } from '../styles/vars.css.js'
+import { contentVars, defaultFontFamily, fontFamilyVars } from '../styles/vars.css.js'
 import * as styles from './DocsLayout.css.js'
 
 export function DocsLayout({
@@ -24,7 +24,7 @@ export function DocsLayout({
 }: {
   children: ReactNode
 }) {
-  const { banner } = useConfig()
+  const { banner, font } = useConfig()
   const { frontmatter = {} } = usePageData()
   const { content } = frontmatter
 
@@ -41,7 +41,12 @@ export function DocsLayout({
     <div
       className={styles.root}
       data-layout={layout}
-      style={assignInlineVars({ [bannerHeight]: showBanner ? banner?.height : undefined })}
+      style={assignInlineVars({
+        [bannerHeight]: showBanner ? banner?.height : undefined,
+        [fontFamilyVars.default]: font?.google
+          ? `${font.google}, ${defaultFontFamily.default}`
+          : undefined,
+      })}
     >
       <SkipLink />
 

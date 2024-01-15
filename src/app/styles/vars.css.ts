@@ -273,6 +273,11 @@ createGlobalTheme(':root', borderRadiusVars, {
   '8': '8px',
 })
 
+export const defaultFontFamily = {
+  default:
+    "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif",
+  mono: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+}
 export const fontFamilyVars = createGlobalThemeContract(
   {
     default: 'default',
@@ -281,9 +286,8 @@ export const fontFamilyVars = createGlobalThemeContract(
   getVarName('fontFamily'),
 )
 createGlobalTheme(':root', fontFamilyVars, {
-  default:
-    "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif",
-  mono: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+  default: defaultFontFamily.default,
+  mono: defaultFontFamily.mono,
 })
 
 export const fontSizeVars = createGlobalThemeContract(
