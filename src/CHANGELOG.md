@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.0-alpha.12
+
+### Patch Changes
+
+- [`b58217c`](https://github.com/wevm/vocs/commit/b58217ccca8376f42564940df901d11eda2ef906) Thanks [@jxom](https://github.com/jxom)! - Fixed google fonts.
+
 ## 1.0.0-alpha.11
 
 ### Major Changes
