@@ -14,13 +14,12 @@ export function useCopyCode() {
   function copy() {
     setCopied(true)
 
-    const lines = ref.current?.querySelectorAll('[data-line]:not(.diff.remove)')
-
-    let text = ''
-    for (const line of lines ?? []) text += `${line.textContent || ''}\n`
-    text = text.slice(0, -1)
-
-    navigator.clipboard.writeText(text)
+    const node = ref.current?.cloneNode(true) as HTMLPreElement
+    const nodesToRemove = node?.querySelectorAll(
+      'button,[data-line].diff.remove,.twoslash-popup-info-hover,.twoslash-popup-info,.twoslash-meta-line,.twoslash-tag-line',
+    )
+    for (const node of nodesToRemove ?? []) node.remove()
+    navigator.clipboard.writeText(node?.textContent as string)
   }
 
   return {
