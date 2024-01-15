@@ -1,5 +1,27 @@
 # vocs
 
+## 1.0.0-alpha.11
+
+### Major Changes
+
+- [`15b4ac9`](https://github.com/wevm/vocs/commit/15b4ac9892c7d351d841b1b6776d0cc78f0c9026) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Renamed `twoslash.defaultCompilerOptions` to `twoslash.compilerOptions` in the Vocs config.
+
+### Minor Changes
+
+- [`15b4ac9`](https://github.com/wevm/vocs/commit/15b4ac9892c7d351d841b1b6776d0cc78f0c9026) Thanks [@jxom](https://github.com/jxom)! - Updated Shikiji to `0.10.0-beta.1`.
+
+- [`db95f75`](https://github.com/wevm/vocs/commit/db95f75710c2d027e25ff8c068455a11a5e4d8ec) Thanks [@jxom](https://github.com/jxom)! - Added `banner` property to the Vocs config.
+
+### Patch Changes
+
+- [`15b4ac9`](https://github.com/wevm/vocs/commit/15b4ac9892c7d351d841b1b6776d0cc78f0c9026) Thanks [@jxom](https://github.com/jxom)! - Decreased code block font size to 14px.
+
+- [`15b4ac9`](https://github.com/wevm/vocs/commit/15b4ac9892c7d351d841b1b6776d0cc78f0c9026) Thanks [@jxom](https://github.com/jxom)! - Added JSDoc to Twoslash snippets.
+
+- [`738864d`](https://github.com/wevm/vocs/commit/738864df5304e68827b9d9af2ccc4502d4ace74a) Thanks [@jxom](https://github.com/jxom)! - Fixed Twoslash leaking into clipboard.
+
+- [`0f10595`](https://github.com/wevm/vocs/commit/0f105951bb40547077dba0c3d693b24775803813) Thanks [@jxom](https://github.com/jxom)! - Added external link arrow.
+
 ## 1.0.0-alpha.10
 
 ### Patch Changes
