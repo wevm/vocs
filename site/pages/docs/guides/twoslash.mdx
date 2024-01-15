@@ -278,7 +278,7 @@ appSettings.version
 ```
 
 ````md [Markdown]
-```ts twoslash
+```ts twoslash 
 // @resolveJsonModule
 // @filename: app.json
 { "version": "23.2.3" }
@@ -390,13 +390,16 @@ const d = 1
 import { getHighlighterCore } from 'shikiji/core'
 
 const shiki = await getHighlighterCore({})
-// @log: Custom log message
 const a = 1
-// @error: Custom error message
+// @log: Custom log message
+
 const b = 1
-// @warn: Custom warning message
+// @error: Custom error message
+
 const c = 1
-// @annotate: Custom annotation message
+// @warn: Custom warning message
+
+const d = 1
 // @annotate: Custom annotation message
 ```
 ````

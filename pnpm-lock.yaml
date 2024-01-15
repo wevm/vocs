@@ -281,6 +281,9 @@ importers:
       '@radix-ui/react-tabs':
         specifier: ^1.0.4
         version: 1.0.4(@types/react-dom@18.2.14)(@types/react@18.2.38)(react-dom@18.2.0)(react@18.2.0)
+      '@typescript/twoslash':
+        specifier: ^3.2.4
+        version: 3.2.4(typescript@5.2.2)
       '@vanilla-extract/css':
         specifier: ^1.14.0
         version: 1.14.0
@@ -373,7 +376,7 @@ importers:
         version: 1.0.14
       rehype-pretty-code:
         specifier: ~0.12.2
-        version: 0.12.2(shikiji@0.10.0-beta.1)
+        version: 0.12.2(shikiji@0.9.19)
       rehype-slug:
         specifier: ^6.0.0
         version: 6.0.0
@@ -396,23 +399,20 @@ importers:
         specifier: ^1.15.0
         version: 1.15.0
       shikiji:
-        specifier: ~0.10.0-beta.1
-        version: 0.10.0-beta.1
+        specifier: ~0.9.19
+        version: 0.9.19
       shikiji-transformers:
-        specifier: ~0.10.0-beta.1
-        version: 0.10.0-beta.1
+        specifier: ~0.9.19
+        version: 0.9.19
       shikiji-twoslash:
-        specifier: ~0.10.0-beta.1
-        version: 0.10.0-beta.1(typescript@5.2.2)
+        specifier: ~0.9.19
+        version: 0.9.19(typescript@5.2.2)
       tailwindcss:
         specifier: ^3.3.3
         version: 3.3.5
       toml:
         specifier: ^3.0.0
         version: 3.0.0
-      twoslash:
-        specifier: ^0.0.7
-        version: 0.0.7(typescript@5.2.2)
       ua-parser-js:
         specifier: ^1.0.36
         version: 1.0.37
@@ -2862,6 +2862,13 @@ packages:
       '@types/node': 20.8.9
     dev: true
 
+  /@types/lz-string@1.5.0:
+    resolution: {integrity: sha512-s84fKOrzqqNCAPljhVyC5TjAo6BH4jKHw9NRNFNiRUY5QSgZCmVm5XILlWbisiKl+0OcS7eWihmKGS5akc2iQw==}
+    deprecated: This is a stub types definition. lz-string provides its own type definitions, so you do not need this installed.
+    dependencies:
+      lz-string: 1.5.0
+    dev: false
+
   /@types/mark.js@8.11.12:
     resolution: {integrity: sha512-244ZnaIBpz4c6xutliAnYVZp6xJlmC569jZqnR3ElO1Y01ooYASSVQEqpd2x0A2UfrgVMs5V9/9tUAdZaDMytQ==}
     dependencies:
@@ -2997,6 +3004,20 @@ packages:
 
   /@types/unist@3.0.1:
     resolution: {integrity: sha512-ue/hDUpPjC85m+PM9OQDMZr3LywT+CT6mPsQq8OJtCLiERkGRcQUFvu9XASF5XWqyZFXbf15lvb3JFJ4dRLWPg==}
+
+  /@typescript/twoslash@3.2.4(typescript@5.2.2):
+    resolution: {integrity: sha512-/TCIOuPQaKltzUUT1qJo6mplYwjbAxkaSFvkeZD3FeFt3Ovt+HJi8xisu8rcLyDRmM3VJ0+jAx+AAICwn4Zlhw==}
+    peerDependencies:
+      typescript: '*'
+    dependencies:
+      '@types/lz-string': 1.5.0
+      '@typescript/vfs': 1.5.0
+      debug: 4.3.4
+      lz-string: 1.5.0
+      typescript: 5.2.2
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
 
   /@typescript/vfs@1.5.0:
     resolution: {integrity: sha512-AJS307bPgbsZZ9ggCT3wwpg3VbTKMFNHfaY/uF0ahSkYYrPF2dSSKDNIDIQAHm9qJqbLvCsSJH7yN4Vs/CsMMg==}
@@ -5772,6 +5793,11 @@ packages:
       yallist: 4.0.0
     dev: true
 
+  /lz-string@1.5.0:
+    resolution: {integrity: sha512-h5bgJWpxJNswbU7qCrV0tIKQCaS3blPDrqKWx+QxzuzL1zGUzij9XCWLrSLsJPu5t+eWA/ycetzYAO5IOMcWAQ==}
+    hasBin: true
+    dev: false
+
   /make-dir@3.1.0:
     resolution: {integrity: sha512-g3FeP20LNwhALb/6Cz6Dd4F2ngze0jz7tbzrD2wAV+o9FeNHe4rL+yK2md0J/fiSf1sa1ADhXqi5+oVwOM/eGw==}
     engines: {node: '>=8'}
@@ -7390,7 +7416,7 @@ packages:
       unified: 11.0.4
     dev: false
 
-  /rehype-pretty-code@0.12.2(shikiji@0.10.0-beta.1):
+  /rehype-pretty-code@0.12.2(shikiji@0.9.19):
     resolution: {integrity: sha512-PiGNCFrCkt54G/3ez6RLfU38jWUmgDe60Y81PAxj69A7+EAbhp8UhEigVOwK9ZEJDyedPr0ORWhcqfOn4RNedg==}
     engines: {node: '>=18'}
     peerDependencies:
@@ -7400,7 +7426,7 @@ packages:
       hast-util-to-string: 3.0.0
       parse-numeric-range: 1.3.0
       rehype-parse: 9.0.0
-      shikiji: 0.10.0-beta.1
+      shikiji: 0.9.19
       unified: 11.0.4
       unist-util-visit: 5.0.0
     dev: false
@@ -7755,30 +7781,30 @@ packages:
     resolution: {integrity: sha512-7++dFhtcx3353uBaq8DDR4NuxBetBzC7ZQOhmTQInHEd6bSrXdiEyzCvG07Z44UYdLShWUyXt5M/yhz8ekcb1A==}
     engines: {node: '>=8'}
 
-  /shikiji-core@0.10.0-beta.1:
-    resolution: {integrity: sha512-u7rlf6PEtUCnjmuuVbt9HPEhvt+pcLkIin2yijCZAthPA7+nzUB+ourl9y/dg7AnhLssZU6LNIHZ4i3++/sj0g==}
+  /shikiji-core@0.9.19:
+    resolution: {integrity: sha512-AFJu/vcNT21t0e6YrfadZ+9q86gvPum6iywRyt1OtIPjPFe25RQnYJyxHQPMLKCCWA992TPxmEmbNcOZCAJclw==}
     dev: false
 
-  /shikiji-transformers@0.10.0-beta.1:
-    resolution: {integrity: sha512-176HAjcVETtMKkBsqWfzWaegk6D+vlo2Kn3TBjoEDzjvOFrUo05tUxcrGX6C9PwV/aFwJ/4Xx3TFAtx++uD/yQ==}
+  /shikiji-transformers@0.9.19:
+    resolution: {integrity: sha512-lGLI7Z8frQrIBbhZ74/eiJtxMoCQRbpaHEB+gcfvdIy+ZFaAtXncJGnc52932/UET+Y4GyKtwwC/vjWUCp+c/Q==}
     dependencies:
-      shikiji: 0.10.0-beta.1
+      shikiji: 0.9.19
     dev: false
 
-  /shikiji-twoslash@0.10.0-beta.1(typescript@5.2.2):
-    resolution: {integrity: sha512-iudh3dCEwPdUtf2C5EwK5avfbkle31Q5zSuZaIf2cLIzf2rpKuexWxfEAILC4ytWrSG4vvWx3on2Iw3ncnzgog==}
+  /shikiji-twoslash@0.9.19(typescript@5.2.2):
+    resolution: {integrity: sha512-wwF5GWEZuIFWjGioqPygcnnQmEduK5bdV9L2AzjmEVJD7Xt1Zg/K8bN7StxPBR/1xmbJ9RnHYeFvqCxySpXEsw==}
     dependencies:
-      shikiji-core: 0.10.0-beta.1
-      twoslash: 0.0.7(typescript@5.2.2)
+      '@typescript/twoslash': 3.2.4(typescript@5.2.2)
+      shikiji-core: 0.9.19
     transitivePeerDependencies:
       - supports-color
       - typescript
     dev: false
 
-  /shikiji@0.10.0-beta.1:
-    resolution: {integrity: sha512-MP1366ldLpuq+iQstEto/p5dRV1gA2BChkVdz6HydgChfEebIA8BDREBF3BY5YhWwnU/o1u0N96N5erxe6P3Cw==}
+  /shikiji@0.9.19:
+    resolution: {integrity: sha512-Kw2NHWktdcdypCj1GkKpXH4o6Vxz8B8TykPlPuLHOGSV8VkhoCLcFOH4k19K4LXAQYRQmxg+0X/eM+m2sLhAkg==}
     dependencies:
-      shikiji-core: 0.10.0-beta.1
+      shikiji-core: 0.9.19
     dev: false
 
   /side-channel@1.0.4:
@@ -8279,17 +8305,6 @@ packages:
       wcwidth: 1.0.1
       yargs: 17.7.2
     dev: true
-
-  /twoslash@0.0.7(typescript@5.2.2):
-    resolution: {integrity: sha512-uyAsTqDZxSCqbgC4cHWp18NrtcLW446VYRlLewDPSIo4Gfgv8SJsrhwciOCHr4JrUS29nYwIBHz0kHKYQNDetg==}
-    peerDependencies:
-      typescript: '*'
-    dependencies:
-      '@typescript/vfs': 1.5.0
-      typescript: 5.2.2
-    transitivePeerDependencies:
-      - supports-color
-    dev: false
 
   /type-fest@0.13.1:
     resolution: {integrity: sha512-34R7HTnG0XIJcBSn5XhDd7nNFPRcXYRZrBB2O2jdKqYODldSzBAqzsWoZYYvduky73toYS/ESqxPvkDf/F0XMg==}

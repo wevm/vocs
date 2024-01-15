@@ -32,6 +32,7 @@ import { remarkSteps } from './remark/steps.js'
 import { remarkStrongBlock } from './remark/strong-block.js'
 import { remarkSubheading } from './remark/subheading.js'
 import { remarkTwoslash } from './remark/twoslash.js'
+import { transformerSplitIdentifiers } from './shikiji/transformerSplitIdentifiers.js'
 import { twoslashRenderer } from './shikiji/twoslashRenderer.js'
 import { twoslasher } from './shikiji/twoslasher.js'
 
@@ -91,12 +92,13 @@ export const getRehypePlugins = ({ markdown, twoslash = {} }: RehypePluginsParam
                 ...(defaultTwoslashOptions.customTags ?? []),
                 ...(twoslash.customTags ?? []),
               ],
-              compilerOptions: {
+              defaultCompilerOptions: {
                 ...(twoslash.compilerOptions ?? {}),
-                ...defaultTwoslashOptions.compilerOptions,
+                ...defaultTwoslashOptions.defaultCompilerOptions,
               },
             },
           }),
+          transformerSplitIdentifiers(),
         ],
         ...markdown?.code,
       },

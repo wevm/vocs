@@ -3,9 +3,9 @@ import { fromMarkdown } from 'mdast-util-from-markdown'
 import { gfmFromMarkdown } from 'mdast-util-gfm'
 import { defaultHandlers, toHast } from 'mdast-util-to-hast'
 import type { ShikijiTransformerContextCommon } from 'shikiji'
-import type { TwoSlashRenderer } from 'shikiji-twoslash'
+import type { TwoSlashRenderers } from 'shikiji-twoslash'
 
-export function twoslashRenderer(): TwoSlashRenderer {
+export function twoslashRenderer(): TwoSlashRenderers {
   function hightlightPopupContent(
     codeToHast: ShikijiTransformerContextCommon['codeToHast'],
     shikijiOptions: ShikijiTransformerContextCommon['options'],
@@ -141,7 +141,7 @@ export function twoslashRenderer(): TwoSlashRenderer {
       }
     },
 
-    nodeCompletion(query, node) {
+    nodeCompletions(query, node) {
       if (node.type !== 'text')
         throw new Error(
           `[shikiji-twoslash] nodeCompletion only works on text nodes, got ${node.type}`,
@@ -247,7 +247,7 @@ export function twoslashRenderer(): TwoSlashRenderer {
           children: [
             {
               type: 'text',
-              value: error.text,
+              value: error.renderedMessage,
             },
           ],
         },
@@ -265,7 +265,7 @@ export function twoslashRenderer(): TwoSlashRenderer {
           children: [
             {
               type: 'text',
-              value: tag.text || '',
+              value: tag.annotation || '',
             },
           ],
         },
