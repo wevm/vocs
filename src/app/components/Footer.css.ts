@@ -102,3 +102,18 @@ export const navigationText = style(
   },
   'navigationText',
 )
+
+export const navigationTextInner = style(
+  {
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    width: '26ch',
+    whiteSpace: 'pre',
+    '@media': {
+      [viewportVars['max-480px']]: {
+        width: '20ch',
+      },
+    },
+  },
+  'navigationTextInner',
+)

@@ -113,7 +113,7 @@ function Navigation() {
             >
               <Icon label="Previous" icon={ArrowLeft} />
             </div>
-            {prevPage.text}
+            <div className={styles.navigationTextInner}>{prevPage.text}</div>
           </div>
           {/* TODO: Place in hover card */}
           <KeyboardShortcut description="Previous" keys={['shift', '←']} />
@@ -128,7 +128,9 @@ function Navigation() {
           variant="styleless"
         >
           <div className={styles.navigationText}>
-            {nextPage.text}
+            <div className={styles.navigationTextInner} style={{ textAlign: 'right' }}>
+              {nextPage.text}
+            </div>
             <div
               className={clsx(styles.navigationIcon, styles.navigationIcon_right)}
               style={assignInlineVars({ [sizeVar]: '0.75em' })}

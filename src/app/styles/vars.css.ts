@@ -437,6 +437,8 @@ createGlobalTheme(':root', spaceVars, {
 })
 
 export const viewportVars = {
+  'max-480px': 'screen and (width <= 480px)',
+  'min-480px': 'screen and (width > 480px)',
   'max-720px': 'screen and (width <= 720px)',
   'min-720px': 'screen and (width > 720px)',
   'max-1080px': 'screen and (width <= 1080px)',
