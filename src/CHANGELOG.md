@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.0-alpha.14
+
+### Patch Changes
+
+- [`1ca1f97`](https://github.com/wevm/vocs/commit/1ca1f97a2bfa7b68e7ed878afe1658ab18b32755) Thanks [@jxom](https://github.com/jxom)! - Downgraded Shikiji to 0.9.19 (for now).
+
 ## 1.0.0-alpha.13
 
 ### Patch Changes
