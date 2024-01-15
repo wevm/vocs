@@ -121,7 +121,6 @@ export const item = style(
 export const logo = style(
   {
     alignItems: 'center',
-    borderBottom: `1px solid ${primitiveColorVars.border}`,
     display: 'flex',
     height: topNavVars.height,
   },

@@ -3,6 +3,8 @@ import type { ReactNode } from 'react'
 import { useInView } from 'react-intersection-observer'
 
 import { assignInlineVars } from '@vanilla-extract/dynamic'
+import { bannerHeight } from '../components/Banner.css.js'
+import { Banner } from '../components/Banner.js'
 import { Content } from '../components/Content.js'
 import { DesktopTopNav } from '../components/DesktopTopNav.js'
 import { Footer } from '../components/Footer.js'
@@ -10,7 +12,9 @@ import { MobileTopNav } from '../components/MobileTopNav.js'
 import { Outline } from '../components/Outline.js'
 import { Sidebar } from '../components/Sidebar.js'
 import { SkipLink, skipLinkId } from '../components/SkipLink.js'
+import { useConfig } from '../hooks/useConfig.js'
 import { useLayout } from '../hooks/useLayout.js'
+import { useLocalStorage } from '../hooks/useLocalStorage.js'
 import { usePageData } from '../hooks/usePageData.js'
 import { contentVars } from '../styles/vars.css.js'
 import * as styles from './DocsLayout.css.js'
@@ -20,6 +24,7 @@ export function DocsLayout({
 }: {
   children: ReactNode
 }) {
+  const { banner } = useConfig()
   const { frontmatter = {} } = usePageData()
   const { content } = frontmatter
 
@@ -30,9 +35,18 @@ export function DocsLayout({
     rootMargin: '100px 0px 0px 0px',
   })
 
+  const [showBanner, setShowBanner] = useLocalStorage('banner', true)
+
   return (
-    <div className={styles.root} data-layout={layout}>
+    <div
+      className={styles.root}
+      data-layout={layout}
+      style={assignInlineVars({ [bannerHeight]: showBanner ? banner?.height : undefined })}
+    >
       <SkipLink />
+
+      {showBanner && <Banner hide={() => setShowBanner(false)} />}
+
       {showSidebar && (
         <div className={styles.gutterLeft}>
           <Sidebar className={styles.sidebar} />

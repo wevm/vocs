@@ -29,6 +29,58 @@ export default defineConfig({
 
 ## Parameters
 
+### banner
+
+- **Type:** `Banner`
+
+Configuration for the banner fixed to the top of the page.
+
+Can be a Markdown string, a React Element, or an object with the following properties:
+- `dismissable`: Whether or not the banner can be dismissed.
+- `color`: The background color of the banner.
+- `content`: The content of the banner.
+- `height`: The height of the banner.
+
+:::tip
+When using JSX, remember to rename the config file extension to `.tsx` or `.jsx`.
+:::
+
+```ts twoslash
+import { defineConfig } from 'vocs'
+
+// @log:   ↓ as Markdown
+export default defineConfig({
+  banner: 'Head to our new [Discord](https://discord.gg/JUrRkGweXV)!', // [!code focus]
+  title: 'Viem'
+})
+```
+
+```tsx twoslash
+// @noErrors
+import { defineConfig } from 'vocs'
+
+// @log:   ↓ as a React Element
+export default defineConfig({
+  banner: <div>Head to our new <a href="https://discord.gg/JUrRkGweXV">Discord</a></div>, // [!code focus]
+  title: 'Viem'
+})
+```
+
+```ts twoslash
+import { defineConfig } from 'vocs'
+
+// @log:   ↓ as an object
+export default defineConfig({
+  banner: { // [!code focus]
+    dismissable: false, // [!code focus]
+    color: 'red', // [!code focus]
+    content: 'Head to our new [Discord](https://discord.gg/JUrRkGweXV)!', // [!code focus]
+    height: '28px', // [!code focus]
+  }, // [!code focus]
+  title: 'Viem'
+})
+```
+
 ### blogDir
 
 - **Type:** `string`
@@ -140,8 +192,8 @@ export default defineConfig({
 
 Additional tags to include in the `<head>` tag of the page HTML.
 
-:::note
-When using this property with JSX, remember to rename the config file extension to `.tsx` or `.jsx`.
+:::tip
+When using JSX, remember to rename the config file extension to `.tsx` or `.jsx`.
 :::
 
 ```tsx twoslash

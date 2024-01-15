@@ -1,4 +1,5 @@
-import { createVar, style } from '@vanilla-extract/css'
+import { createVar, fallbackVar, style } from '@vanilla-extract/css'
+import { bannerHeight } from '../components/Banner.css.js'
 import {
   contentVars,
   primitiveColorVars,
@@ -41,7 +42,7 @@ export const content_withTopNav = style(
   {
     '@media': {
       [viewportVars['min-1080px']]: {
-        paddingTop: topNavVars.height,
+        paddingTop: `calc(${topNavVars.height} + ${fallbackVar(bannerHeight, '0px')})`,
       },
     },
   },
@@ -63,6 +64,7 @@ export const gutterLeft = style(
     display: 'flex',
     height: '100vh',
     position: 'fixed',
+    top: fallbackVar(bannerHeight, '0px'),
     width: leftGutterWidthVar,
     zIndex: zIndexVars.gutterLeft,
     '@media': {
@@ -86,7 +88,7 @@ export const gutterTop = style(
         paddingLeft: `calc(${leftGutterWidthVar} - ${sidebarVars.width})`,
         paddingRight: `calc(${leftGutterWidthVar} - ${sidebarVars.width})`,
         position: 'fixed',
-        top: 0,
+        top: fallbackVar(bannerHeight, '0px'),
       },
       [viewportVars['max-1080px']]: {
         position: 'initial',
@@ -128,7 +130,7 @@ export const gutterTopCurtain = style(
     '@media': {
       [viewportVars['min-1080px']]: {
         position: 'fixed',
-        top: topNavVars.height,
+        top: `calc(${topNavVars.height} + ${fallbackVar(bannerHeight, '0px')})`,
       },
       [viewportVars['max-1080px']]: {
         position: 'sticky',
@@ -165,7 +167,7 @@ export const gutterRight = style(
     overflowY: 'scroll',
     padding: `calc(${contentVars.verticalPadding} + ${topNavVars.height} + ${spaceVars['8']}) ${spaceVars['24']} 0 0`,
     position: 'fixed',
-    top: '0',
+    top: fallbackVar(bannerHeight, '0px'),
     right: '0',
     width: `calc((100vw - ${contentVars.width}) / 2)`,
     zIndex: zIndexVars.gutterRight,

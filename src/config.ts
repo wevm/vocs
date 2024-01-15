@@ -1,4 +1,3 @@
-import chroma from 'chroma-js'
 import type { ReactElement } from 'react'
 import type { Options as PrettyCodeOptions } from 'rehype-pretty-code'
 import type { TwoSlashOptions } from 'twoslash'
@@ -30,6 +29,16 @@ export type Config<
   colorScheme extends ColorScheme = ColorScheme,
 > = RequiredBy<
   {
+    /**
+     * Configuration for the banner fixed to the top of the page.
+     *
+     * Can be a Markdown string, a React Element, or an object with the following properties:
+     * - `dismissable`: Whether or not the banner can be dismissed.
+     * - `color`: The background color of the banner.
+     * - `content`: The content of the banner.
+     * - `height`: The height of the banner.
+     */
+    banner?: Banner<parsed>
     /**
      * Base URL.
      *
@@ -135,7 +144,7 @@ export type Config<
 
 export type ParsedConfig = Config<true>
 
-export function defineConfig<colorScheme extends ColorScheme = undefined>({
+export async function defineConfig<colorScheme extends ColorScheme = undefined>({
   blogDir = './pages/blog',
   font,
   head,
@@ -144,7 +153,7 @@ export function defineConfig<colorScheme extends ColorScheme = undefined>({
   title = 'Docs',
   titleTemplate = `%s – ${title}`,
   ...config
-}: Config<false, colorScheme>): ParsedConfig {
+}: Config<false, colorScheme>): Promise<ParsedConfig> {
   return {
     blogDir,
     font,
@@ -154,17 +163,49 @@ export function defineConfig<colorScheme extends ColorScheme = undefined>({
     title,
     titleTemplate,
     ...config,
+    banner: await parseBanner(config.banner ?? ''),
     markdown: parseMarkdown(config.markdown ?? {}),
     socials: parseSocials(config.socials ?? []),
     topNav: parseTopNav(config.topNav ?? []),
-    theme: parseTheme(config.theme ?? ({} as Theme)),
+    theme: await parseTheme(config.theme ?? ({} as Theme)),
   }
 }
 
-export const defaultConfig = defineConfig({})
+export const getDefaultConfig = async () => await defineConfig({})
 
 //////////////////////////////////////////////////////
 // Parsers
+
+async function parseBanner(banner: Banner): Promise<Banner<true> | undefined> {
+  if (!banner) return undefined
+
+  const bannerContent = (() => {
+    if (typeof banner === 'string') return banner
+    if (typeof banner === 'object' && 'content' in banner) return banner.content
+    return undefined
+  })()
+
+  const content = await (async () => {
+    if (typeof bannerContent !== 'string') return bannerContent
+
+    const { compile } = await import('@mdx-js/mdx')
+    const remarkGfm = (await import('remark-gfm')).default
+    return String(
+      await compile(bannerContent, {
+        outputFormat: 'function-body',
+        remarkPlugins: [remarkGfm],
+      }),
+    )
+  })()
+
+  if (!content) return undefined
+
+  return {
+    height: '32px',
+    ...(typeof banner === 'object' ? banner : {}),
+    content,
+  }
+}
 
 function parseMarkdown(markdown: Markdown): Markdown<true> {
   return {
@@ -211,9 +252,10 @@ function parseTopNav(topNav: TopNav): TopNav<true> {
   return parsedTopNav
 }
 
-function parseTheme<colorScheme extends ColorScheme = undefined>(
+async function parseTheme<colorScheme extends ColorScheme = undefined>(
   theme: Theme<false, colorScheme>,
-): Theme<true> {
+): Promise<Theme<true>> {
+  const chroma = (await import('chroma-js')).default
   const accentColor = (() => {
     if (!theme.accentColor) return theme.accentColor
     if (
@@ -265,6 +307,23 @@ function parseTheme<colorScheme extends ColorScheme = undefined>(
 type Normalize<T> = {
   [K in keyof T]: T[K]
 } & {}
+
+export type Banner<parsed extends boolean = false> = Exclude<
+  | string
+  | ReactElement
+  | {
+      /** Whether or not the banner can be dismissed. */
+      dismissable?: boolean
+      /** The background color of the banner. */
+      color?: string
+      /** The content of the banner. */
+      content: string | ReactElement
+      /** The height of the banner. */
+      height?: string
+    }
+  | undefined,
+  parsed extends true ? string | ReactElement : never
+>
 
 export type ColorScheme = 'light' | 'dark' | 'system' | undefined
 
