@@ -34,9 +34,10 @@ export type Config<
      *
      * Can be a Markdown string, a React Element, or an object with the following properties:
      * - `dismissable`: Whether or not the banner can be dismissed.
-     * - `color`: The background color of the banner.
+     * - `backgroundColor`: The background color of the banner.
      * - `content`: The content of the banner.
      * - `height`: The height of the banner.
+     * - `textColor`: The text color of the banner.
      */
     banner?: Banner<parsed>
     /**
@@ -204,10 +205,23 @@ async function parseBanner(banner: Banner): Promise<Banner<true> | undefined> {
 
   if (!content) return undefined
 
+  const textColor = await (async () => {
+    if (typeof banner === 'string') return undefined
+    if (typeof banner === 'object') {
+      if ('textColor' in banner) return banner.textColor
+      if ('backgroundColor' in banner && banner.backgroundColor) {
+        const chroma = (await import('chroma-js')).default
+        return chroma.contrast(banner.backgroundColor, 'white') < 4.5 ? 'black' : 'white'
+      }
+    }
+    return undefined
+  })()
+
   return {
     height: '32px',
     ...(typeof banner === 'object' ? banner : {}),
     content,
+    textColor,
   }
 }
 
@@ -319,11 +333,13 @@ export type Banner<parsed extends boolean = false> = Exclude<
       /** Whether or not the banner can be dismissed. */
       dismissable?: boolean
       /** The background color of the banner. */
-      color?: string
+      backgroundColor?: string
       /** The content of the banner. */
       content: string | ReactElement
       /** The height of the banner. */
       height?: string
+      /** The text color of the banner. */
+      textColor?: string
     }
   | undefined,
   parsed extends true ? string | ReactElement : never

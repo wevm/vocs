@@ -27,7 +27,10 @@ export function Banner({ hide }: BannerProps) {
   return (
     <div
       className={clsx(styles.root)}
-      style={assignInlineVars({ [styles.bannerColor]: banner?.color })}
+      style={assignInlineVars({
+        [styles.bannerBackgroundColor]: banner?.backgroundColor,
+        [styles.bannerTextColor]: banner?.textColor,
+      })}
     >
       <div className={clsx(styles.inner)}>
         <div className={clsx(styles.content)}>

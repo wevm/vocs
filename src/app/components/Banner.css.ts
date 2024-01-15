@@ -7,13 +7,14 @@ import {
   zIndexVars,
 } from '../styles/vars.css.js'
 
-export const bannerColor = createVar('bannerColor')
+export const bannerBackgroundColor = createVar('bannerBackgroundColor')
 export const bannerHeight = createVar('bannerHeight')
+export const bannerTextColor = createVar('bannerTextColor')
 
 export const root = style({
-  backgroundColor: fallbackVar(bannerColor, primitiveColorVars.backgroundAccent),
-  borderBottom: `1px solid ${fallbackVar(bannerColor, primitiveColorVars.backgroundAccent)}`,
-  color: primitiveColorVars.backgroundAccentText,
+  backgroundColor: fallbackVar(bannerBackgroundColor, primitiveColorVars.backgroundAccent),
+  borderBottom: `1px solid ${fallbackVar(bannerBackgroundColor, primitiveColorVars.borderAccent)}`,
+  color: fallbackVar(bannerTextColor, primitiveColorVars.backgroundAccentText),
   height: fallbackVar(bannerHeight, '36px'),
   position: 'fixed',
   top: 0,

@@ -37,9 +37,10 @@ Configuration for the banner fixed to the top of the page.
 
 Can be a Markdown string, a React Element, or an object with the following properties:
 - `dismissable`: Whether or not the banner can be dismissed.
-- `color`: The background color of the banner.
+- `backgroundColor`: The background color of the banner.
 - `content`: The content of the banner.
 - `height`: The height of the banner.
+- `textColor`: The text color of the banner.
 
 :::tip
 When using JSX, remember to rename the config file extension to `.tsx` or `.jsx`.
@@ -73,9 +74,10 @@ import { defineConfig } from 'vocs'
 export default defineConfig({
   banner: { // [!code focus]
     dismissable: false, // [!code focus]
-    color: 'red', // [!code focus]
+    backgroundColor: 'red', // [!code focus]
     content: 'Head to our new [Discord](https://discord.gg/JUrRkGweXV)!', // [!code focus]
     height: '28px', // [!code focus]
+    textColor: 'white', // [!code focus]
   }, // [!code focus]
   title: 'Viem'
 })
