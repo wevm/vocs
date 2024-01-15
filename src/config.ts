@@ -1,6 +1,6 @@
+import type { TwoSlashOptions } from '@typescript/twoslash'
 import type { ReactElement } from 'react'
 import type { Options as PrettyCodeOptions } from 'rehype-pretty-code'
-import type { TwoSlashOptions } from 'twoslash'
 import type { PluggableList } from 'unified'
 import type { UserConfig } from 'vite'
 import type {
@@ -133,7 +133,11 @@ export type Config<
     /**
      * TwoSlash configuration.
      */
-    twoslash?: Normalize<TwoSlashOptions>
+    twoslash?: Normalize<
+      Omit<TwoSlashOptions, 'defaultCompilerOptions'> & {
+        compilerOptions?: TwoSlashOptions['defaultCompilerOptions']
+      }
+    >
     /**
      * Vite configuration.
      */
