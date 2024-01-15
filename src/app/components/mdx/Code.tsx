@@ -20,7 +20,7 @@ function filterEmptyLines(nodes: React.ReactNode) {
       'data-line' in child.props &&
       typeof child.props.children === 'string' &&
       child.props.children.trim() === '' &&
-      index !== nodes.length - 1
+      nodes[index + 1]?.props?.className?.includes('twoslash-tag-line')
         ? null
         : child,
     )

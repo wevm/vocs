@@ -8,6 +8,7 @@ import {
   spaceVars,
   viewportVars,
 } from '../../styles/vars.css.js'
+import { root as Callout } from '../Callout.css.js'
 import { root as Tabs } from '../Tabs.css.js'
 
 export const root = style({
@@ -38,6 +39,7 @@ globalStyle(`${root} code`, {
 globalStyle(`${root} pre`, {
   backgroundColor: semanticColorVars.codeBlockBackground,
   borderRadius: borderRadiusVars['4'],
+  overflowX: 'scroll',
   padding: `${spaceVars['20']} ${spaceVars['0']}`,
   '@media': {
     [viewportVars['max-720px']]: {
@@ -46,8 +48,10 @@ globalStyle(`${root} pre`, {
   },
 })
 
-globalStyle(`${root} pre`, {
-  overflowX: 'scroll',
+globalStyle(`${Callout} ${root} pre`, {
+  backgroundColor: `color-mix(in srgb, ${semanticColorVars.codeBlockBackground} 65%, transparent)`,
+  border: `1px solid ${semanticColorVars.codeInlineBorder}`,
+  padding: `${spaceVars['12']} ${spaceVars['0']}`,
 })
 
 globalStyle(`${root} [data-rehype-pretty-code-title]+pre`, {
@@ -60,6 +64,9 @@ globalStyle(`${root} [data-line]`, {
   borderLeft: '2px solid transparent',
   padding: `${spaceVars['0']} ${spaceVars['22']}`,
   lineHeight: lineHeightVars.code,
+})
+globalStyle(`${Callout} ${root} [data-line]`, {
+  padding: `${spaceVars['0']} ${spaceVars['12']}`,
 })
 globalStyle(`${root} .twoslash-popup-info [data-line]`, {
   padding: `${spaceVars['0']} ${spaceVars['4']}`,
