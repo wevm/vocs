@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.0-alpha.19
+
+### Minor Changes
+
+- [`fc1c9e6`](https://github.com/wevm/vocs/commit/fc1c9e6fa31e27ceeaa85f672ef53a5691071c98) Thanks [@jxom](https://github.com/jxom)! - Upgraded to Shikiji v0.10
+
 ## 1.0.0-alpha.18
 
 ### Patch Changes
