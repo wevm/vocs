@@ -1,5 +1,13 @@
 # vocs
 
+## 1.0.0-alpha.17
+
+### Patch Changes
+
+- [`8e977c0`](https://github.com/wevm/vocs/commit/8e977c013bfc7c2d5b59608b2d0f7920712f18ef) Thanks [@jxom](https://github.com/jxom)! - Tweaked twoslash styles.
+
+- [`59bb979`](https://github.com/wevm/vocs/commit/59bb97958ce84c1959c6ffcc5121d6a4a37af652) Thanks [@jxom](https://github.com/jxom)! - Shrinked indentation on Twoslash popup code snippets.
+
 ## 1.0.0-alpha.16
 
 ### Patch Changes
