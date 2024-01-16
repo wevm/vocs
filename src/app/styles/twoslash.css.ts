@@ -26,7 +26,7 @@ export const twoslashVars = createGlobalThemeContract(
 )
 
 createGlobalTheme(':root', twoslashVars, {
-  borderColor: primitiveColorVars.border,
+  borderColor: primitiveColorVars.border2,
   underlineColor: 'currentColor',
   popupBackground: primitiveColorVars.background2,
   popupShadow: 'rgba(0, 0, 0, 0.08) 0px 1px 4px',
@@ -221,34 +221,38 @@ globalStyle('.twoslash-error', {
   paddingBottom: '2px',
 })
 
-globalStyle('.twoslash-completions-list', {
+globalStyle('.twoslash-completion-cursor', {
   position: 'relative',
 })
 
-globalStyle('.twoslash-completions-list ul', {
+globalStyle('.twoslash-completion-cursor .twoslash-completion-list', {
   userSelect: 'none',
   position: 'absolute',
   top: '0',
   left: '0',
   transform: 'translate(0, 1.2em)',
-  width: '240px',
+  margin: '3px 0 0 -1px',
+  zIndex: 8,
+  boxShadow: twoslashVars.popupShadow,
   background: twoslashVars.popupBackground,
   border: `1px solid ${twoslashVars.borderColor}`,
+})
+
+globalStyle('.twoslash-completion-list', {
+  borderRadius: '4px',
   fontSize: '0.8rem',
-  margin: '3px 0 0 -1px',
   padding: '4px',
-  zIndex: 8,
   display: 'flex',
   flexDirection: 'column',
   gap: '4px',
-  boxShadow: twoslashVars.popupShadow,
+  width: '240px',
 })
 
-globalStyle('.twoslash-completions-list ul:hover', {
+globalStyle('.twoslash-completion-list:hover', {
   userSelect: 'auto',
 })
 
-globalStyle('.twoslash-completions-list ul::before', {
+globalStyle('.twoslash-completion-list::before', {
   backgroundColor: twoslashVars.cursorColor,
   width: '2px',
   position: 'absolute',
@@ -258,32 +262,32 @@ globalStyle('.twoslash-completions-list ul::before', {
   content: ' ',
 })
 
-globalStyle('.twoslash-completions-list ul li', {
+globalStyle('.twoslash-completion-list .twoslash-completion-list-item', {
   overflow: 'hidden',
   display: 'flex',
   alignItems: 'center',
-  gap: '0.25em',
+  gap: '0.5em',
   lineHeight: '1em',
 })
 
-globalStyle('.twoslash-completions-list ul li span.twoslash-completions-unmatched', {
-  color: `${twoslashVars.unmatchedColor} !important`,
-})
+globalStyle(
+  '.twoslash-completion-list .twoslash-completion-list-item span.twoslash-completions-unmatched.twoslash-completions-unmatched',
+  {
+    color: twoslashVars.unmatchedColor,
+  },
+)
 
-globalStyle('.twoslash-completions-list ul .deprecated', {
+globalStyle('.twoslash-completion-list .deprecated', {
   textDecoration: 'line-through',
-  opacity: '0.5',
+  opacity: 0.5,
 })
 
-globalStyle('.twoslash-completions-list ul li span.twoslash-completions-matched', {
-  color: twoslashVars.matchedColor,
-})
-
-globalStyle('.twoslash-completions-list .twoslash-completions-icon', {
-  color: twoslashVars.unmatchedColor,
-  width: '1em',
-  flex: 'none',
-})
+globalStyle(
+  '.twoslash-completion-list .twoslash-completion-list-item span.twoslash-completions-matched.twoslash-completions-unmatched',
+  {
+    color: twoslashVars.matchedColor,
+  },
+)
 
 globalStyle('.twoslash-tag-line', {
   position: 'relative',

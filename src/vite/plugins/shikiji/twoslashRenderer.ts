@@ -3,11 +3,11 @@ import { fromMarkdown } from 'mdast-util-from-markdown'
 import { gfmFromMarkdown } from 'mdast-util-gfm'
 import { defaultHandlers, toHast } from 'mdast-util-to-hast'
 import type { ShikijiTransformerContextCommon } from 'shikiji'
-import type { TwoSlashRenderers } from 'shikiji-twoslash'
+import type { TwoslashRenderer } from 'shikiji-twoslash'
 
 import { transformerShrinkIndent } from './transformerShrinkIndent.js'
 
-export function twoslashRenderer(): TwoSlashRenderers {
+export function twoslashRenderer(): TwoslashRenderer {
   function hightlightPopupContent(
     codeToHast: ShikijiTransformerContextCommon['codeToHast'],
     shikijiOptions: ShikijiTransformerContextCommon['options'],
@@ -148,11 +148,13 @@ export function twoslashRenderer(): TwoSlashRenderers {
       }
     },
 
-    nodeCompletions(query, node) {
+    nodeCompletion(query, node) {
       if (node.type !== 'text')
         throw new Error(
           `[shikiji-twoslash] nodeCompletion only works on text nodes, got ${node.type}`,
         )
+
+      console.log(query.completions, query.completionsPrefix)
 
       const leftPart = query.completionsPrefix || ''
       const rightPart = node.value.slice(leftPart.length || 0)
@@ -162,65 +164,69 @@ export function twoslashRenderer(): TwoSlashRenderers {
         tagName: 'span',
         properties: {},
         children: [
-          node.value.trim().length > 0
-            ? {
-                type: 'text',
-                value: leftPart,
-              }
-            : undefined,
+          {
+            type: 'text',
+            value: leftPart,
+          },
           {
             type: 'element',
             tagName: 'span',
             properties: {
-              class: 'twoslash-completions-list',
+              class: 'twoslash-completion-cursor',
             },
             children: [
               {
                 type: 'element',
-                tagName: 'ul',
-                properties: {},
-                children: query
-                  .completions!.filter((i) => i.name.startsWith(query.completionsPrefix || '____'))
-                  .map((i) => ({
-                    type: 'element',
-                    tagName: 'li',
-                    properties: {},
-                    children: [
-                      {
-                        type: 'element',
-                        tagName: 'span',
-                        properties: {
-                          class: i.kindModifiers?.split(',').includes('deprecated')
-                            ? 'deprecated'
-                            : undefined,
-                        },
-                        children: [
-                          {
-                            type: 'element',
-                            tagName: 'span',
-                            properties: { class: 'twoslash-completions-matched' },
-                            children: [
-                              {
-                                type: 'text',
-                                value: query.completionsPrefix || '',
-                              },
-                            ],
-                          },
-                          {
-                            type: 'element',
-                            tagName: 'span',
-                            properties: { class: 'twoslash-completions-unmatched' },
-                            children: [
-                              {
-                                type: 'text',
-                                value: i.name.slice(query.completionsPrefix?.length || 0),
-                              },
-                            ],
-                          },
-                        ],
+                tagName: 'div',
+                properties: {
+                  class: 'twoslash-completion-list',
+                },
+                children: query.completions!.map((i) => ({
+                  type: 'element',
+                  tagName: 'div',
+                  properties: {
+                    class: 'twoslash-completion-list-item',
+                  },
+                  children: [
+                    {
+                      type: 'element',
+                      tagName: 'span',
+                      properties: {
+                        class: i.kindModifiers?.split(',').includes('deprecated')
+                          ? 'deprecated'
+                          : undefined,
                       },
-                    ],
-                  })),
+                      children: [
+                        {
+                          type: 'element',
+                          tagName: 'span',
+                          properties: { class: 'twoslash-completions-matched' },
+                          children: [
+                            {
+                              type: 'text',
+                              value: i.name.startsWith(query.completionsPrefix)
+                                ? query.completionsPrefix
+                                : '',
+                            },
+                          ],
+                        },
+                        {
+                          type: 'element',
+                          tagName: 'span',
+                          properties: { class: 'twoslash-completions-unmatched' },
+                          children: [
+                            {
+                              type: 'text',
+                              value: i.name.startsWith(query.completionsPrefix)
+                                ? i.name.slice(query.completionsPrefix.length || 0)
+                                : i.name,
+                            },
+                          ],
+                        },
+                      ],
+                    },
+                  ],
+                })),
               },
             ],
           },
@@ -228,7 +234,7 @@ export function twoslashRenderer(): TwoSlashRenderers {
             type: 'text',
             value: rightPart,
           },
-        ].filter(Boolean) as any,
+        ],
       }
     },
 
@@ -254,7 +260,7 @@ export function twoslashRenderer(): TwoSlashRenderers {
           children: [
             {
               type: 'text',
-              value: error.renderedMessage,
+              value: error.text,
             },
           ],
         },
@@ -272,7 +278,7 @@ export function twoslashRenderer(): TwoSlashRenderers {
           children: [
             {
               type: 'text',
-              value: tag.annotation || '',
+              value: tag.text || '',
             },
           ],
         },
