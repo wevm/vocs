@@ -123,7 +123,7 @@ globalStyle('.twoslash .twoslash-popup-info', {
   border: `1px solid ${twoslashVars.borderColor}`,
   transition: 'opacity 0.3s',
   borderRadius: '4px',
-  maxWidth: '500px',
+  maxWidth: '540px',
   padding: '4px 6px',
   pointerEvents: 'none',
   textAlign: 'left',
