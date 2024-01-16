@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.0-alpha.18
+
+### Patch Changes
+
+- [`734aa3b`](https://github.com/wevm/vocs/commit/734aa3b1b5ed239a0a03710eb5a402380c471895) Thanks [@jxom](https://github.com/jxom)! - Added functionality to preload pages when link comes into view.
+
 ## 1.0.0-alpha.17
 
 ### Patch Changes
