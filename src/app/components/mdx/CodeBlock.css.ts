@@ -39,7 +39,7 @@ globalStyle(`${root} code`, {
 globalStyle(`${root} pre`, {
   backgroundColor: semanticColorVars.codeBlockBackground,
   borderRadius: borderRadiusVars['4'],
-  overflowX: 'scroll',
+  overflowX: 'auto',
   padding: `${spaceVars['20']} ${spaceVars['0']}`,
   '@media': {
     [viewportVars['max-720px']]: {

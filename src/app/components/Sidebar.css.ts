@@ -13,7 +13,7 @@ export const root = style({
   display: 'flex',
   flexDirection: 'column',
   gap: spaceVars['12'],
-  overflowY: 'scroll',
+  overflowY: 'auto',
   width: sidebarVars.width,
   '@media': {
     'screen and (max-width: 1080px)': {

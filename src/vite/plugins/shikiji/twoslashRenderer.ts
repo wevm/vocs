@@ -133,7 +133,12 @@ export function twoslashRenderer(): TwoSlashRenderers {
                 properties: { class: 'twoslash-popup-arrow' },
                 children: [],
               },
-              ...themedContent,
+              {
+                type: 'element',
+                tagName: 'div',
+                properties: { class: 'twoslash-popup-scroll-container' },
+                children: themedContent,
+              },
             ],
           },
           node,

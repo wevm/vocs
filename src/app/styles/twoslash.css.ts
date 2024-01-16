@@ -123,10 +123,12 @@ globalStyle('.twoslash .twoslash-popup-info', {
   border: `1px solid ${twoslashVars.borderColor}`,
   transition: 'opacity 0.3s',
   borderRadius: '4px',
+  maxWidth: '500px',
   padding: '4px 6px',
   pointerEvents: 'none',
   textAlign: 'left',
   zIndex: 20,
+  whiteSpace: 'pre-wrap',
   userSelect: 'none',
   boxShadow: twoslashVars.popupShadow,
 })
@@ -149,7 +151,13 @@ globalStyle('.twoslash .twoslash-popup-info-hover', {
 
 globalStyle('.twoslash .twoslash-popup-scroll-container', {
   maxHeight: '300px',
-  overflow: 'scroll',
+  overflowY: 'scroll',
+  msOverflowStyle: 'none',
+  scrollbarWidth: 'none',
+})
+
+globalStyle('.twoslash .twoslash-popup-scroll-container::-webkit-scrollbar', {
+  display: 'none',
 })
 
 globalStyle('.twoslash .twoslash-popup-jsdoc', {
