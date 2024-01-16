@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.0-alpha.16
+
+### Patch Changes
+
+- [`97c3fdd`](https://github.com/wevm/vocs/commit/97c3fdd461315130e321fc02d0d062c45fe23252) Thanks [@jxom](https://github.com/jxom)! - Tweaked twoslash styles
+
 ## 1.0.0-alpha.15
 
 ### Patch Changes
