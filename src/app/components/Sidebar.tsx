@@ -55,21 +55,27 @@ export function Sidebar(props: {
       </div>
 
       <nav className={styles.navigation}>
-        <div className={styles.items}>
+        <div className={styles.group}>
           {sidebar.backLink && (
-            <div className={styles.group}>
-              <RouterLink className={clsx(styles.item, styles.backLink)} to={backPath}>
-                ←{' '}
-                {typeof history !== 'undefined' && history.state.key && backPath !== '/'
-                  ? 'Back'
-                  : 'Home'}
-              </RouterLink>
-            </div>
+            <section className={styles.section}>
+              <div className={styles.items}>
+                <RouterLink className={clsx(styles.item, styles.backLink)} to={backPath}>
+                  ←{' '}
+                  {typeof history !== 'undefined' && history.state.key && backPath !== '/'
+                    ? 'Back'
+                    : 'Home'}
+                </RouterLink>
+              </div>
+            </section>
           )}
           {groups.map((group, i) => (
-            <div className={styles.group} key={`${group.text}${i}`}>
-              <SidebarItem depth={0} item={group} onClick={onClickItem} sidebarRef={sidebarRef} />
-            </div>
+            <SidebarItem
+              key={`${group.text}${i}`}
+              depth={0}
+              item={group}
+              onClick={onClickItem}
+              sidebarRef={sidebarRef}
+            />
           ))}
         </div>
       </nav>
@@ -170,7 +176,7 @@ function SidebarItem(props: {
         ref={itemRef}
         className={clsx(
           styles.section,
-          depth === 0 && (collapsed ? styles.levelCollapsed : styles.level),
+          depth === 0 && item.text && (collapsed ? styles.levelCollapsed : styles.level),
         )}
       >
         {item.text && (
@@ -259,8 +265,6 @@ function SidebarItem(props: {
       ) : (
         <div className={styles.item}>{item.text}</div>
       )}
-
-      <div className="indicator" />
     </>
   )
 }

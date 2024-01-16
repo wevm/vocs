@@ -2,6 +2,7 @@ import { style } from '@vanilla-extract/css'
 import {
   fontSizeVars,
   fontWeightVars,
+  lineHeightVars,
   primitiveColorVars,
   sidebarVars,
   spaceVars,
@@ -12,7 +13,7 @@ import {
 export const root = style({
   display: 'flex',
   flexDirection: 'column',
-  gap: spaceVars['12'],
+  fontSize: fontSizeVars['14'],
   overflowY: 'auto',
   width: sidebarVars.width,
   '@media': {
@@ -25,7 +26,6 @@ export const root = style({
 export const backLink = style(
   {
     textAlign: 'left',
-    marginBottom: spaceVars['12'],
   },
   'backLink',
 )
@@ -51,49 +51,12 @@ export const navigation = style(
   'navigation',
 )
 
-export const items = style(
-  {
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  'items',
-)
-
 export const group = style(
   {
     display: 'flex',
     flexDirection: 'column',
-    gap: spaceVars['4'],
-    get selectors() {
-      return {
-        [`${group} + ${group}`]: {
-          borderTop: `1px solid ${primitiveColorVars.border}`,
-          paddingTop: spaceVars['12'],
-        },
-      }
-    },
   },
   'group',
-)
-
-export const item = style(
-  {
-    color: primitiveColorVars.text3,
-    fontSize: fontSizeVars['14'],
-    fontWeight: fontWeightVars.medium,
-    letterSpacing: '0.25px',
-    width: '100%',
-    transition: 'color 0.1s',
-    selectors: {
-      '&:hover': {
-        color: primitiveColorVars.text,
-      },
-      '&[data-active="true"]': {
-        color: primitiveColorVars.textAccent,
-      },
-    },
-  },
-  'item',
 )
 
 export const logo = style(
@@ -125,17 +88,19 @@ export const section = style(
   {
     display: 'flex',
     flexDirection: 'column',
+    fontSize: '1em',
+    get selectors() {
+      return {
+        [`${navigation} > ${group} > ${section} + ${section}`]: {
+          borderTop: `1px solid ${primitiveColorVars.border}`,
+        },
+      }
+    },
   },
   'section',
 )
 
-export const level = style(
-  {
-    gap: spaceVars['4'],
-    paddingBottom: spaceVars['12'],
-  },
-  'level',
-)
+export const level = style({}, 'level')
 
 export const levelCollapsed = style(
   {
@@ -148,9 +113,54 @@ export const levelCollapsed = style(
 export const levelInset = style(
   {
     borderLeft: `1px solid ${primitiveColorVars.border}`,
-    paddingLeft: spaceVars['16'],
+    fontSize: fontSizeVars['13'],
+    marginTop: spaceVars['8'],
+    paddingLeft: spaceVars['12'],
+    selectors: {
+      '&&&': {
+        fontWeight: fontWeightVars.regular,
+        paddingTop: 0,
+        paddingBottom: 0,
+      },
+    },
   },
   'levelInset',
+)
+
+export const items = style(
+  {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '0.625em',
+    paddingTop: spaceVars['16'],
+    paddingBottom: spaceVars['16'],
+    fontWeight: fontWeightVars.medium,
+    selectors: {
+      [`${level} &`]: {
+        paddingTop: spaceVars['6'],
+      },
+    },
+  },
+  'items',
+)
+
+export const item = style(
+  {
+    color: primitiveColorVars.text3,
+    letterSpacing: '0.25px',
+    lineHeight: lineHeightVars.sidebarItem,
+    width: '100%',
+    transition: 'color 0.1s',
+    selectors: {
+      '&:hover': {
+        color: primitiveColorVars.text,
+      },
+      '&[data-active="true"]': {
+        color: primitiveColorVars.textAccent,
+      },
+    },
+  },
+  'item',
 )
 
 export const sectionHeader = style(
@@ -158,6 +168,11 @@ export const sectionHeader = style(
     alignItems: 'center',
     display: 'flex',
     justifyContent: 'space-between',
+    selectors: {
+      [`${level} > &`]: {
+        paddingTop: spaceVars['12'],
+      },
+    },
   },
   'sectionHeader',
 )

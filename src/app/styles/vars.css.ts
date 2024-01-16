@@ -369,6 +369,7 @@ export const lineHeightVars = createGlobalThemeContract(
     listItem: 'listItem',
     outlineItem: 'outlineItem',
     paragraph: 'paragraph',
+    sidebarItem: 'sidebarItem',
   },
   getVarName('lineHeight'),
 )
@@ -378,6 +379,7 @@ createGlobalTheme(':root', lineHeightVars, {
   listItem: '1.5em',
   outlineItem: '1em',
   paragraph: '1.75em',
+  sidebarItem: '1.375em',
 })
 
 export const spaceVars = createGlobalThemeContract(

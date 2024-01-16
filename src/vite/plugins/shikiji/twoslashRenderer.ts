@@ -154,8 +154,6 @@ export function twoslashRenderer(): TwoslashRenderer {
           `[shikiji-twoslash] nodeCompletion only works on text nodes, got ${node.type}`,
         )
 
-      console.log(query.completions, query.completionsPrefix)
-
       const leftPart = query.completionsPrefix || ''
       const rightPart = node.value.slice(leftPart.length || 0)
 
