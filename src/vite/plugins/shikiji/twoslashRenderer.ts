@@ -5,6 +5,8 @@ import { defaultHandlers, toHast } from 'mdast-util-to-hast'
 import type { ShikijiTransformerContextCommon } from 'shikiji'
 import type { TwoSlashRenderers } from 'shikiji-twoslash'
 
+import { transformerShrinkIndent } from './transformerShrinkIndent.js'
+
 export function twoslashRenderer(): TwoSlashRenderers {
   function hightlightPopupContent(
     codeToHast: ShikijiTransformerContextCommon['codeToHast'],
@@ -20,7 +22,7 @@ export function twoslashRenderer(): TwoSlashRenderers {
       (
         codeToHast(text, {
           ...shikijiOptions,
-          transformers: [],
+          transformers: [transformerShrinkIndent()],
         }).children[0] as Element
       ).children[0] as Element
     ).children
