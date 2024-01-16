@@ -151,7 +151,7 @@ globalStyle('.twoslash .twoslash-popup-info-hover', {
 
 globalStyle('.twoslash .twoslash-popup-scroll-container', {
   maxHeight: '300px',
-  overflowY: 'scroll',
+  overflowY: 'auto',
   msOverflowStyle: 'none',
   scrollbarWidth: 'none',
 })

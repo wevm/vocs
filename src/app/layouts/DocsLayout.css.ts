@@ -164,7 +164,7 @@ export const gutterRight = style(
   {
     display: 'flex',
     height: '100vh',
-    overflowY: 'scroll',
+    overflowY: 'auto',
     padding: `calc(${contentVars.verticalPadding} + ${topNavVars.height} + ${spaceVars['8']}) ${spaceVars['24']} 0 0`,
     position: 'fixed',
     top: fallbackVar(bannerHeight, '0px'),
@@ -193,7 +193,7 @@ export const gutterRight_withSidebar = style(
 export const outlinePopover = style(
   {
     display: 'none',
-    overflowY: 'scroll',
+    overflowY: 'auto',
     height: `calc(100vh - ${topNavVars.height} - ${topNavVars.curtainHeight})`,
     '@media': {
       [viewportVars['max-1080px']]: {
