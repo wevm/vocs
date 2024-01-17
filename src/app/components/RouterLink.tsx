@@ -3,6 +3,8 @@ import { useInView } from 'react-intersection-observer'
 import { Link, type LinkProps } from 'react-router-dom'
 import { routes } from 'virtual:routes'
 
+import { mergeRefs } from '../utils/mergeRefs.js'
+
 export type RouterLinkProps = LinkProps
 
 export const RouterLink = forwardRef((props: RouterLinkProps, ref) => {
@@ -13,13 +15,5 @@ export const RouterLink = forwardRef((props: RouterLinkProps, ref) => {
     if (inView) loadRoute()
   }, [inView, loadRoute])
 
-  return (
-    <Link
-      ref={(e) => {
-        if (typeof ref === 'function') (ref as any)(e)
-        intersectionRef(e)
-      }}
-      {...props}
-    />
-  )
+  return <Link ref={mergeRefs(ref, intersectionRef)} {...props} />
 })
