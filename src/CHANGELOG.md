@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.0-alpha.20
+
+### Patch Changes
+
+- [`67ccd24`](https://github.com/wevm/vocs/commit/67ccd24ab8b050bee6465b7b81ed30fe06fdfd4f) Thanks [@jxom](https://github.com/jxom)! - Tweaked sidebar styling.
+
 ## 1.0.0-alpha.19
 
 ### Minor Changes
