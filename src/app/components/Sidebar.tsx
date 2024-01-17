@@ -176,7 +176,8 @@ function SidebarItem(props: {
         ref={itemRef}
         className={clsx(
           styles.section,
-          depth === 0 && item.text && (collapsed ? styles.levelCollapsed : styles.level),
+          depth === 0 && item.text && styles.level,
+          depth === 0 && item.text && collapsed && styles.levelCollapsed,
         )}
       >
         {item.text && (
