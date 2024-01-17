@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.0-alpha.21
+
+### Patch Changes
+
+- [`47e6b4f`](https://github.com/wevm/vocs/commit/47e6b4f26327d0cffa4ef0f072d447c7ec87aae9) Thanks [@jxom](https://github.com/jxom)! - Fixed scroll restoration.
+
 ## 1.0.0-alpha.20
 
 ### Patch Changes
