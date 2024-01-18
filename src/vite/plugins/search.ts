@@ -18,6 +18,7 @@ type IndexObject = {
   href: string
   html: string
   id: string
+  isPage: boolean
   text: string
   title: string
   titles: string[]
@@ -125,6 +126,7 @@ export async function search(): Promise<Plugin> {
           href: `${href}#${section.anchor}`,
           html: section.html,
           id,
+          isPage: section.isPage,
           text: section.text,
           title: section.titles.at(-1)!,
           titles: section.titles.slice(0, -1),

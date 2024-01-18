@@ -194,18 +194,23 @@ export const resultSelected = style(
   'resultSelected',
 )
 
+export const resultIcon = style(
+  {
+    color: primitiveColorVars.textAccent,
+    marginRight: 1,
+    width: 15,
+  },
+  'resultIcon',
+)
+
 export const titles = style(
   {
+    alignItems: 'center',
     display: 'flex',
     flexWrap: 'wrap',
     fontWeight: fontWeightVars.medium,
     gap: spaceVars[4],
     lineHeight: '22px',
-    '::before': {
-      color: primitiveColorVars.textAccent,
-      content: '#',
-      marginRight: '2px',
-    },
   },
   'titles',
 )
@@ -223,6 +228,7 @@ export const title = style(
 export const titleIcon = style(
   {
     color: primitiveColorVars.text,
+    display: 'inline-block',
     opacity: 0.5,
   },
   'titleIcon',

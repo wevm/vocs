@@ -49,6 +49,7 @@ export async function buildIndex({
         href: `${href}#${section.anchor}`,
         html: section.html,
         id: `${fileId}#${section.anchor}`,
+        isPage: section.isPage,
         text: section.text,
         title: section.titles.at(-1)!,
         titles: section.titles.slice(0, -1),
@@ -62,7 +63,7 @@ export async function buildIndex({
 
   const index = new MiniSearch({
     fields: ['title', 'titles', 'text'],
-    storeFields: ['href', 'html', 'text', 'title', 'titles'],
+    storeFields: ['href', 'html', 'isPage', 'text', 'title', 'titles'],
     // TODO
     // ...options.miniSearch?.options,
   })
@@ -108,8 +109,9 @@ const headingContentRegex = /(.*?)<a.*? href=".*?#(.*?)".*?>.*?<\/a>/i
 type PageSection = {
   anchor: string
   html: string
-  titles: string[]
+  isPage: boolean
   text: string
+  titles: string[]
 }
 
 export function splitPageIntoSections(html: string) {
@@ -129,7 +131,13 @@ export function splitPageIntoSections(html: string) {
 
     const titles = parentTitles.slice(0, level)
     titles[level] = title
-    sections.push({ anchor, html: content, titles, text: getSearchableText(content) })
+    sections.push({
+      anchor,
+      html: content,
+      isPage: i === 0,
+      titles,
+      text: getSearchableText(content),
+    })
 
     if (level === 0) parentTitles = [title]
     else parentTitles[level] = title

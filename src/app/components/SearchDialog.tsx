@@ -4,6 +4,7 @@ import {
   ChevronRightIcon,
   ListBulletIcon,
   MagnifyingGlassIcon,
+  FileIcon,
 } from '@radix-ui/react-icons'
 import * as Label from '@radix-ui/react-label'
 import clsx from 'clsx'
@@ -233,6 +234,11 @@ export function SearchDialog(props: { open: boolean; onClose(): void }) {
                 onFocus={() => setSelectedIndex(index)}
               >
                 <div className={styles.titles}>
+                  {result.isPage ? (
+                    <FileIcon className={styles.resultIcon} />
+                  ) : (
+                    <span className={styles.resultIcon}>#</span>
+                  )}
                   {result.titles
                     .filter((title) => Boolean(title))
                     .map((title: string) => (

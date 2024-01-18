@@ -5,6 +5,7 @@ import { getSearchIndex } from 'virtual:searchIndex'
 export type Result = {
   href: string
   html: string
+  isPage: boolean
   text?: string
   title: string
   titles: string[]
@@ -29,7 +30,7 @@ export function useSearchIndex(): MiniSearch<Result> | undefined {
           // ...(theme.value.search?.provider === 'local' &&
           //   theme.value.search.options?.miniSearch?.searchOptions),
         },
-        storeFields: ['href', 'html', 'text', 'title', 'titles'],
+        storeFields: ['href', 'html', 'isPage', 'text', 'title', 'titles'],
         // ...(theme.value.search?.provider === 'local' &&
         //   theme.value.search.options?.miniSearch?.options),
       })
