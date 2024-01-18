@@ -1,5 +1,5 @@
 import { createGlobalTheme, createGlobalThemeContract, globalStyle } from '@vanilla-extract/css'
-import { primitiveColorVars } from './vars.css.js'
+import { borderRadiusVars, primitiveColorVars, semanticColorVars } from './vars.css.js'
 
 const getVarName = (scope: string) => (_: string | null, path: string[]) =>
   `vocs-${scope}_${path.join('-')}`
@@ -15,6 +15,8 @@ export const twoslashVars = createGlobalThemeContract(
     cursorColor: 'cursorColor',
     errorColor: 'errorColor',
     errorBackground: 'errorBackground',
+    highlightedBackground: 'highlightedBackground',
+    highlightedBorder: 'highlightedBorder',
     tagColor: 'tagColor',
     tagBackground: 'tagBackground',
     tagWarnColor: 'tagWarnColor',
@@ -35,6 +37,8 @@ createGlobalTheme(':root', twoslashVars, {
   cursorColor: '#8888',
   errorColor: primitiveColorVars.textRed,
   errorBackground: primitiveColorVars.backgroundRedTint2,
+  highlightedBackground: primitiveColorVars.background,
+  highlightedBorder: primitiveColorVars.background,
   tagColor: primitiveColorVars.textBlue,
   tagBackground: primitiveColorVars.backgroundBlueTint,
   tagWarnColor: primitiveColorVars.textYellow,
@@ -52,6 +56,8 @@ createGlobalTheme(':root.dark', twoslashVars, {
   cursorColor: '#8888',
   errorColor: primitiveColorVars.textRed,
   errorBackground: primitiveColorVars.backgroundRedTint2,
+  highlightedBackground: primitiveColorVars.background,
+  highlightedBorder: primitiveColorVars.background,
   tagColor: primitiveColorVars.textBlue,
   tagBackground: primitiveColorVars.backgroundBlueTint,
   tagWarnColor: primitiveColorVars.textYellow,
@@ -321,4 +327,10 @@ globalStyle('.twoslash-tag-line.twoslash-tag-annotate-line', {
   backgroundColor: twoslashVars.tagAnnotateBackground,
   borderLeft: `2px solid ${twoslashVars.tagAnnotateColor}`,
   color: twoslashVars.tagAnnotateColor,
+})
+
+globalStyle('.twoslash-highlighted', {
+  borderRadius: borderRadiusVars['2'],
+  backgroundColor: `${semanticColorVars.codeCharacterHighlightBackground} !important`,
+  boxShadow: `0 0 0 4px ${semanticColorVars.codeCharacterHighlightBackground}`,
 })

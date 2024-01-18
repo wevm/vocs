@@ -67,6 +67,32 @@ console.e
 
 :::
 
+### Highlighting
+
+You can use `^^^` to highlight a range of the line above it.
+
+:::code-group
+
+```ts twoslash [Output]
+function add(foo: number, bar: number) {
+  //     ^^^
+  return foo + bar
+  //           ^^^
+}
+```
+
+````md [Markdown]
+```ts twoslash [Output]
+function add(foo: number, bar: number) {
+  //     ^^^
+  return foo + bar
+  //           ^^^
+}
+```
+````
+
+:::
+
 ## Cutting
 
 Every Twoslash code sample needs to be a complete TypeScript program realistically, basically it needs to compile. Quite often to make it compiler, there is a bunch of code which isn't relevant to the user. This can be extracted out of the code sample via `// ---cut---` which removes all of the code above it from the output.

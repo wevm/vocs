@@ -3,6 +3,9 @@ import type { ShikijiTransformer } from 'shikiji'
 export const transformerSplitIdentifiers = (): ShikijiTransformer => ({
   name: 'split-identifiers',
   token(hast) {
+    // only apply for twoslash code blocks
+    if (!this.meta.twoslash) return
+
     const child = hast.children[0]
     if (child.type !== 'text') return
     if (child.value.trim().length === 0) return

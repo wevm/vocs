@@ -282,6 +282,19 @@ export function twoslashRenderer(): TwoslashRenderer {
         },
       ]
     },
+
+    nodesHightlight(_, nodes) {
+      return [
+        {
+          type: 'element',
+          tagName: 'span',
+          properties: {
+            class: 'twoslash-highlighted',
+          },
+          children: nodes,
+        },
+      ]
+    },
   }
 }
 

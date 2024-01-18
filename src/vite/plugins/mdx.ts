@@ -11,6 +11,7 @@ import {
   transformerNotationDiff,
   transformerNotationFocus,
   transformerNotationHighlight,
+  transformerNotationWordHighlight,
 } from 'shikiji-transformers'
 import {
   defaultTwoslashOptions as defaultTwoslashOptions_,
@@ -85,6 +86,7 @@ export const getRehypePlugins = ({ markdown, twoslash = {} }: RehypePluginsParam
           transformerNotationDiff(),
           transformerNotationFocus(),
           transformerNotationHighlight(),
+          transformerNotationWordHighlight(),
           transformerTwoslash({
             explicitTrigger: true,
             renderer: twoslashRenderer(),

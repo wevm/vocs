@@ -104,9 +104,9 @@ globalStyle(`${root} [data-highlighted-line], ${root} .highlighted`, {
   boxSizing: 'content-box',
 })
 
-globalStyle(`${root} [data-highlighted-chars]`, {
+globalStyle(`${root} [data-highlighted-chars], ${root} .highlighted-word`, {
   borderRadius: borderRadiusVars['2'],
-  backgroundColor: semanticColorVars.codeCharacterHighlightBackground,
+  backgroundColor: `${semanticColorVars.codeCharacterHighlightBackground} !important`,
   boxShadow: `0 0 0 4px ${semanticColorVars.codeCharacterHighlightBackground}`,
 })
 
