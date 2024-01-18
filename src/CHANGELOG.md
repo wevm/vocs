@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.0-alpha.23
+
+### Patch Changes
+
+- [`7cee08d`](https://github.com/wevm/vocs/commit/7cee08d039ee0ecff2396375056ecc5a9732bf86) Thanks [@jxom](https://github.com/jxom)! - Fixed mobile top nav text wrapping on small devices - fixes #37.
+
 ## 1.0.0-alpha.22
 
 ### Patch Changes
