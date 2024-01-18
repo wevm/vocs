@@ -224,7 +224,11 @@ export function SearchDialog(props: { open: boolean; onClose(): void }) {
             >
               <Link
                 to={result.href}
-                onClick={() => props.onClose()}
+                onClick={(event) => {
+                  // Don't close the dialog if the user is opening the link in a new tab.
+                  if (event.metaKey) return
+                  props.onClose()
+                }}
                 onMouseEnter={() => !disableMouseOver && setSelectedIndex(index)}
                 onFocus={() => setSelectedIndex(index)}
               >
