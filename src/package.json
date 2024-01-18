@@ -1,7 +1,7 @@
 {
   "name": "vocs",
   "description": "React Documentation Generator, powered by Vite.",
-  "version": "1.0.0-alpha.21",
+  "version": "1.0.0-alpha.22",
   "type": "module",
   "bin": {
     "vocs": "./_lib/cli/index.js"
@@ -88,12 +88,23 @@
   "license": "MIT",
   "homepage": "https://vocs.dev",
   "repository": "wevm/vocs",
-  "authors": ["awkweb.eth", "jxom.eth"],
+  "authors": [
+    "awkweb.eth",
+    "jxom.eth"
+  ],
   "funding": [
     {
       "type": "github",
       "url": "https://github.com/sponsors/wevm"
     }
   ],
-  "keywords": ["react", "static", "docs", "generator", "vite", "documentation", "mdx"]
+  "keywords": [
+    "react",
+    "static",
+    "docs",
+    "generator",
+    "vite",
+    "documentation",
+    "mdx"
+  ]
 }

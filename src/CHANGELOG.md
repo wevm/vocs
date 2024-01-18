@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.0-alpha.22
+
+### Patch Changes
+
+- [`0a139e3`](https://github.com/wevm/vocs/commit/0a139e3374b82342256cbcc98d9504599eacc185) Thanks [@jxom](https://github.com/jxom)! - Added support for \`// [!code word]\` in code blocks. See more: https://shikiji.netlify.app/packages/transformers#transformernotationwordhighlight
+
 ## 1.0.0-alpha.21
 
 ### Patch Changes
