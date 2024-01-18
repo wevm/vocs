@@ -42,6 +42,7 @@ export type PageData = {
 export type Route = {
   filePath: string
   lazy: () => Promise<Module>
+  lastUpdatedAt?: number
   path: string
   type: 'jsx' | 'mdx'
 }

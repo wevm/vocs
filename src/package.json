@@ -41,6 +41,7 @@
     "clsx": "^2.0.0",
     "compression": "^1.7.4",
     "create-vocs": "^1.0.0-alpha.3",
+    "cross-spawn": "^7.0.3",
     "fs-extra": "^11.1.1",
     "globby": "^13.2.2",
     "hastscript": "^8.0.0",
@@ -80,6 +81,7 @@
   },
   "devDependencies": {
     "@types/chroma-js": "^2.4.3",
+    "@types/cross-spawn": "^6.0.6",
     "@types/mark.js": "^8.11.12",
     "@types/mdast": "^4.0.3",
     "@types/postcss-prefix-selector": "^1.16.3",

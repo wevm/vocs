@@ -1,6 +1,6 @@
 import { assignInlineVars } from '@vanilla-extract/dynamic'
 import clsx from 'clsx'
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Footer as ConsumerFooter } from 'virtual:consumer-components'
 
@@ -15,15 +15,40 @@ import { KeyboardShortcut } from './KeyboardShortcut.js'
 import { Link } from './Link.js'
 import { ArrowLeft } from './icons/ArrowLeft.js'
 import { ArrowRight } from './icons/ArrowRight.js'
+import { Pencil2Icon } from '@radix-ui/react-icons'
+import { usePageData } from '../hooks/usePageData.js'
 
 export function Footer() {
   const { layout } = useLayout()
+  const pageData = usePageData()
+
+  const lastUpdatedAtDate = useMemo(
+    () => (pageData.lastUpdatedAt ? new Date(pageData.lastUpdatedAt) : undefined),
+    [pageData.lastUpdatedAt],
+  )
+  const lastUpdatedAtISOString = useMemo(
+    () => lastUpdatedAtDate?.toISOString(),
+    [lastUpdatedAtDate],
+  )
 
   return (
     <footer className={styles.root}>
       {layout === 'docs' && (
         <>
-          <EditLink />
+          <div className={styles.container}>
+            <EditLink />
+            {pageData.lastUpdatedAt && (
+              <div className={styles.lastUpdated}>
+                Last updated:{' '}
+                <time dateTime={lastUpdatedAtISOString}>
+                  {new Intl.DateTimeFormat(undefined, {
+                    dateStyle: 'short',
+                    timeStyle: 'short',
+                  }).format(lastUpdatedAtDate)}
+                </time>
+              </div>
+            )}
+          </div>
           <Navigation />
         </>
       )}
@@ -39,7 +64,7 @@ function EditLink() {
   return (
     <div>
       <Link className={styles.editLink} href={editLink.url}>
-        {editLink.text}
+        <Pencil2Icon /> {editLink.text}
       </Link>
     </div>
   )

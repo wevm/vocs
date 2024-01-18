@@ -311,6 +311,9 @@ importers:
       create-vocs:
         specifier: ^1.0.0-alpha.3
         version: 1.0.0-alpha.1-main.20240111T192716
+      cross-spawn:
+        specifier: ^7.0.3
+        version: 7.0.3
       fs-extra:
         specifier: ^11.1.1
         version: 11.1.1
@@ -429,6 +432,9 @@ importers:
       '@types/chroma-js':
         specifier: ^2.4.3
         version: 2.4.3
+      '@types/cross-spawn':
+        specifier: ^6.0.6
+        version: 6.0.6
       '@types/mark.js':
         specifier: ^8.11.12
         version: 8.11.12
@@ -2779,6 +2785,12 @@ packages:
 
   /@types/connect@3.4.37:
     resolution: {integrity: sha512-zBUSRqkfZ59OcwXon4HVxhx5oWCJmc0OtBTK05M+p0dYjgN6iTwIL2T/WbsQZrEsdnwaF9cWQ+azOnpPvIqY3Q==}
+    dependencies:
+      '@types/node': 20.8.9
+    dev: true
+
+  /@types/cross-spawn@6.0.6:
+    resolution: {integrity: sha512-fXRhhUkG4H3TQk5dBhQ7m/JDdSNHKwR2BBia62lhwEIq9xGiQKLxd6LymNhn47SjXhsUEPmxi+PKw2OkW4LLjA==}
     dependencies:
       '@types/node': 20.8.9
     dev: true

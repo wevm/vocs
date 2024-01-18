@@ -53,6 +53,7 @@ export const routes = [
             <Root
               filePath={route_virtual.filePath}
               frontmatter={frontmatter}
+              lastUpdatedAt={route_virtual.lastUpdatedAt}
               path={route_virtual.path}
             >
               <DocsLayout>

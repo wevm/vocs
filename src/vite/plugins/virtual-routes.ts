@@ -3,6 +3,7 @@ import { globby } from 'globby'
 import type { PluginOption } from 'vite'
 
 import { resolveVocsConfig } from '../utils/resolveVocsConfig.js'
+import { getGitTimestamp } from '../utils/getGitTimestamp.js'
 
 export function virtualRoutes(): PluginOption {
   const virtualModuleId = 'virtual:routes'
@@ -39,13 +40,14 @@ export function virtualRoutes(): PluginOption {
           const replacer = glob.split('*')[0]
 
           const filePath = path.replace(`${pagesPath}/`, '')
+          const lastUpdatedAt = await getGitTimestamp(path)
 
           let pagePath = path.replace(replacer, '').replace(/\.(.*)/, '')
           if (pagePath.endsWith('index'))
             pagePath = pagePath.replace('index', '').replace(/\/$/, '')
-          code += `  { lazy: () => import("${path}"), path: "/${pagePath}", type: "${type}", filePath: "${filePath}" },`
+          code += `  { lazy: () => import("${path}"), path: "/${pagePath}", type: "${type}", filePath: "${filePath}", lastUpdatedAt: ${lastUpdatedAt} },`
           if (pagePath)
-            code += `  { lazy: () => import("${path}"), path: "/${pagePath}.html", type: "${type}", filePath: "${filePath}" },`
+            code += `  { lazy: () => import("${path}"), path: "/${pagePath}.html", type: "${type}", filePath: "${filePath}", lastUpdatedAt: ${lastUpdatedAt} },`
         }
         code += ']'
         return code

@@ -8,7 +8,7 @@ export default defineConfig({
   description: 'Static documentation generator powered by Vite and React',
   editLink: {
     pattern: 'https://github.com/wagmi-dev/vocs/edit/main/site/pages/:path',
-    text: 'Edit on GitHub',
+    text: 'Suggest changes to this page',
   },
   head: (
     <>
