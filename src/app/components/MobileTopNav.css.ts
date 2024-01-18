@@ -145,11 +145,11 @@ export const menuTrigger = style(
 
 export const menuTitle = style(
   {
+    maxWidth: '22ch',
     overflow: 'hidden',
     textAlign: 'left',
     textOverflow: 'ellipsis',
     whiteSpace: 'pre',
-    width: '22ch',
   },
   'menuTitle',
 )
@@ -280,7 +280,7 @@ export const sidebarPopover = style(
   {
     display: 'none',
     overflowY: 'scroll',
-    padding: `${sidebarVars.verticalPadding} ${sidebarVars.horizontalPadding}`,
+    padding: `0 ${sidebarVars.horizontalPadding}`,
     maxHeight: '80vh',
     width: sidebarVars.width,
     '@media': {
