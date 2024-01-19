@@ -1,5 +1,15 @@
 # vocs
 
+## 1.0.0-alpha.24
+
+### Major Changes
+
+- [#40](https://github.com/wevm/vocs/pull/40) [`41ba59f`](https://github.com/wevm/vocs/commit/41ba59faf015909bd398ce75767ce61035245132) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Removed the `::snip` directive. Use the `// [!include]` marker instead. [See more.](https://vocs.dev/docs/guides/code-snippets)
+
+### Minor Changes
+
+- [#40](https://github.com/wevm/vocs/pull/40) [`41ba59f`](https://github.com/wevm/vocs/commit/41ba59faf015909bd398ce75767ce61035245132) Thanks [@jxom](https://github.com/jxom)! - Added support for [regions in code snippets](https://vocs.dev/docs/guides/code-snippets#regions).
+
 ## 1.0.0-alpha.23
 
 ### Patch Changes
