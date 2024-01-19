@@ -1,105 +1,213 @@
 # Code Snippets [Including code snippets in Markdown]
 
-You can include code snippets in a Markdown file by making use of the `::snip` directive.
+You can include code snippets in a Markdown file by making use of the `// [!include ...]` marker.
 
-:::tip[Tip]
-The `"::"` syntax refers to the [Directives Syntax Proposal](https://talk.commonmark.org/t/generic-directives-plugins-syntax/444).
-:::
+## Quick start
 
 ::::steps
 
-## Create the code snippet
+### Create the code snippet
 
-First, we will create a snippet called `snippet.ts` that we will import into a Markdown file.
+First, we will create a snippet called `example.ts`. Let's put this under a `snippets/` directory.
 
-```ts [docs/snippets/snippet.ts]
-import { writeFileSync } from "fs" 
+```ts [docs/snippets/example.ts]
+// [!include ~/snippets/example.ts import]
 
-writeFileSync("myfile.txt", "Hello world!")
+// [!include ~/snippets/example.ts setup]
+
+// [!include ~/snippets/example.ts usage-1]
 ```
 
-## Import the snippet
+### Import the snippet
 
-Next, we will import the snippet into our Markdown file using the `::snip` directive.
+Next, we will import the snippet into our Markdown file using the `// [!include ...]` marker.
 
-```mdx [example.md]
-### Usage
+````mdx [example.md]
+#### Usage
 
-::snip{path="~/snippets/snippet.ts"}
+```ts
+import { writeFileSync } from 'node:fs'
+//$ [!include ~/snippets/example.ts] // [!code hl]
+
+writeFileSync('test.txt', blockNumber.toString())
 ```
+````
 
 :::info
 The `"~"` in the path refers to the [root (`config.rootDir`) directory](/docs/structure#root-directory) of the project.
 :::
 
-## Output
+### Output
 
 The resulting output will look like this:
 
 <div>
-### Usage
+#### Usage
 
 ```ts 
-import { writeFileSync } from "fs" 
+import { writeFileSync } from 'node:fs'
+// [!include ~/snippets/example.ts import]
 
-writeFileSync("myfile.txt", "Hello world!") // [!code focus]
+// [!include ~/snippets/example.ts setup]
+
+// [!include ~/snippets/example.ts usage-1]
+
+writeFileSync('test.txt', blockNumber.toString())
 ```
 </div>
 
-## Bonus: Use code block features
+::::
 
-We can include features like [line focus (`// [!code focus]`)](/docs/api/markdown#line-focus) in our code snippets.
+## Regions
 
-```ts [docs/snippets/snippet.ts]
-import { writeFileSync } from "fs" 
+You can also include a specific region of a code snippet by using the `// [!region]` and `// [!endregion]` markers.
 
-writeFileSync("myfile.txt", "Hello world!") !! [!code focus]
+```ts [docs/snippets/example.ts]
+//$ [!region import] // [!code focus]
+import { http, createPublicClient } from 'viem'
+import { mainnet } from 'viem/chains'
+//$ [!endregion import] // [!code focus]
+
+//$ [!region setup] // [!code focus]
+const client = createPublicClient({
+  chain: mainnet,
+  transport: http(),
+})
+//$ [!endregion setup] // [!code focus]
+
+//$ [!region usage] // [!code focus]
+const blockNumber = await client.getBlockNumber()
+//$ [!endregion usage] // [!code focus]
 ```
+
+Then, we can include the regions in the Markdown with the `// [!include]` marker:
+
+````md [example.md]
+```ts
+import { writeFileSync } from 'node:fs'
+//$ [!include ~/snippets/example.ts import] // [!code focus]
+
+//$ [!include ~/snippets/example.ts setup] // [!code focus]
+
+//$ [!include ~/snippets/example.ts usage] // [!code focus]
+
+writeFileSync('test.txt', blockNumber.toString())
+```
+````
+
+Which will result in the snippet being rendered like this:
+
+```ts
+import { writeFileSync } from 'node:fs'
+// [!include ~/snippets/example.ts import] 
+
+// [!include ~/snippets/example.ts setup] 
+
+// [!include ~/snippets/example.ts usage-1] 
+
+writeFileSync('test.txt', blockNumber.toString())
+```
+
+### Duplicate variable declarations
+
+When writing snippets, you may run into a scenario where you want to define multiple regions that share the same variable name.
+
+To avoid type errors, you can use the `_$` suffix to discriminate the variable name.
+
+The rendered snippet will still use the original variable name (ie. the name before the `_$` suffix).
+
+```ts
+// [!region import]
+import { http, createPublicClient } from 'viem'
+import { mainnet } from 'viem/chains'
+// [!endregion import]
+
+// [!region setup]
+const client = createPublicClient({
+  chain: mainnet,
+  transport: http(),
+})
+// [!endregion setup]
+
+// [!region usage-1] // [!code focus]
+const block_$1 = await client.getBlock() // [!code focus]
+// [!endregion usage-1] // [!code focus]
+
+// [!region usage-2] // [!code focus]
+const block_$2 = await client.getBlock({ blockNumber: 42069n }) // [!code focus]
+// [!endregion usage-2] // [!code focus]
+
+// [!region usage-3] // [!code focus]
+const block_$3 = await client.getBlock({ blockTag: 'latest' }) // [!code focus]
+// [!endregion usage-3] // [!code focus]
+```
+
+## Tip: Code Block Markers
+
+We can also include markers like [line highlight (`// [!code hl]`)](/docs/api/markdown#line-highlights) in our code snippets.
+
+:::code-group
+
+```ts [docs/snippets/example.ts]
+// [!include ~/snippets/example.ts import]
+
+// [!include ~/snippets/example.ts setup]
+
+// [!include ~/snippets/example.ts usage-2-docs]
+```
+
+````md [example.md]
+```ts
+import { writeFileSync } from 'node:fs'
+//$ [!include ~/snippets/example.ts]
+
+writeFileSync('test.txt', blockNumber.toString())
+```
+````
+
+:::
 
 Which will result in the snippet being rendered like this:
 
 ```ts 
-import { writeFileSync } from "fs" 
+import { writeFileSync } from 'node:fs'
+// [!include ~/snippets/example.ts import]
 
-writeFileSync("myfile.txt", "Hello world!") // [!code focus]
+// [!include ~/snippets/example.ts setup]
+
+// [!include ~/snippets/example.ts usage-2]
+
+writeFileSync('test.txt', blockNumber.toString())
 ```
 
-## Bonus: Add a title
+## Tip: Twoslash
 
-We can include a title for the code snippet by adding a title to the `::snip` directive.
+We can also include Twoslash markers in our code snippets.
 
-```mdx [example.md]
-### Usage
+:::code-group
 
-::snip[Example.ts]{path="~/snippets/snippet.ts"}
+```ts [docs/snippets/example.ts]
+// [!include ~/snippets/example.ts import]
+
+// [!include ~/snippets/example.ts setup]
+
+// [!include ~/snippets/example.ts usage-4]
 ```
+
+````md [example.md]
+```ts twoslash
+//$ [!include ~/snippets/example.ts]
+```
+````
+
+:::
 
 Which will result in the snippet being rendered like this:
 
-```ts [Example.ts]
-import { writeFileSync } from "fs" 
+```ts twoslash
+// [!include ~/snippets/example.ts import]
 
-writeFileSync("myfile.txt", "Hello world!") // [!code focus]
+// [!include ~/snippets/example.ts setup]
+
+// [!include ~/snippets/example.ts usage-4]
 ```
-
-## Bonus: Add Twoslash
-
-We can include [Twoslash](/docs/guides/twoslash) for the code snippet by using the `::snip-twoslash` directive.
-
-```mdx [example.md]
-### Usage
-
-::snip-twoslash[Example.ts]{path="~/snippets/snippet.ts"}
-```
-
-Which will result in the snippet being rendered like this:
-
-```ts [Example.ts] twoslash
-/// <reference types="node" />
-// ---cut---
-import { writeFileSync } from "fs" 
-
-writeFileSync("myfile.txt", "Hello world!") // [!code focus]
-```
-
-::::
