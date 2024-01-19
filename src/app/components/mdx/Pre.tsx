@@ -13,10 +13,7 @@ export function Pre({
 
   function recurseChildren(children: ReactNode): ReactNode {
     if (!children) return children
-    if (typeof children !== 'object') {
-      if (typeof children === 'string') return children.replace('!!', '//')
-      return children
-    }
+    if (typeof children !== 'object') return children
     if ('props' in children)
       return {
         ...children,

@@ -6,19 +6,21 @@ You can include other Markdown files in a Markdown file by making use of the `im
 This only works with MDX (`.mdx`) files. If you want to take advantage of this feature and you are using a `.md` file, rename the file extension to `.mdx`.
 :::
 
+## Quick Start
+
 ::::steps
 
-## Create a snippet
+### Create a snippet
 
 First, we will create a snippet called `snippet.mdx` that we will import into another Markdown file.
 
 ```mdx [snippet.mdx]
-## Hello world
+### Hello world
 
 This is my snippet.
 ```
 
-## Import the snippet
+### Import the snippet
 
 Next, we will import the snippet into our MDX file using an `import{:ts}` statement. It compiles to a React component, so we can render it with `<Snippet />{:tsx}`.
 
@@ -32,7 +34,7 @@ This is an example of including a snippet in a Markdown file.
 <Snippet />
 ```
 
-## Output
+### Output
 
 The resulting output will look like this:
 
@@ -46,7 +48,9 @@ This is an example of including a snippet in a Markdown file.
 This is my snippet.
 </div>
 
-## Bonus: Use Props!
+::::
+
+## Tip: Passing Props
 
 As we are just rendering a React component, we can also pass props to `<Snippet />{:tsx}`. We can access those props in the MDX file with the `props` global variable.
 
@@ -67,5 +71,3 @@ This is an example of including a snippet in a Markdown file.
 {props.content}
 ``` 
 :::
-
-::::

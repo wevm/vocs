@@ -30,12 +30,13 @@ import { remarkCode } from './remark/code.js'
 import { remarkDetails } from './remark/details.js'
 import { remarkInferFrontmatter } from './remark/inferred-frontmatter.js'
 import { remarkLinks } from './remark/links.js'
-import { remarkSnippets } from './remark/snippets.js'
 import { remarkSponsors } from './remark/sponsors.js'
 import { remarkSteps } from './remark/steps.js'
 import { remarkStrongBlock } from './remark/strong-block.js'
 import { remarkSubheading } from './remark/subheading.js'
 import { remarkTwoslash } from './remark/twoslash.js'
+import { transformerDisplayNotation } from './shikiji/transformerDisplayNotation.js'
+import { transformerNotationInclude } from './shikiji/transformerNotationInclude.js'
 import { transformerSplitIdentifiers } from './shikiji/transformerSplitIdentifiers.js'
 import { twoslashRenderer } from './shikiji/twoslashRenderer.js'
 import { twoslasher } from './shikiji/twoslasher.js'
@@ -57,7 +58,6 @@ export const getRemarkPlugins = ({ markdown }: RemarkPluginsParameters = {}) =>
     remarkBlogPosts,
     remarkCallout,
     remarkCode,
-    remarkSnippets,
     remarkCodeGroup,
     remarkDetails,
     remarkSponsors,
@@ -72,10 +72,15 @@ export const remarkPlugins = getRemarkPlugins()
 
 type RehypePluginsParameters = {
   markdown?: ParsedConfig['markdown']
+  rootDir?: ParsedConfig['rootDir']
   twoslash?: ParsedConfig['twoslash']
 }
 
-export const getRehypePlugins = ({ markdown, twoslash = {} }: RehypePluginsParameters = {}) =>
+export const getRehypePlugins = ({
+  markdown,
+  rootDir = '',
+  twoslash = {},
+}: RehypePluginsParameters = {}) =>
   [
     rehypeSlug,
     [
@@ -87,6 +92,8 @@ export const getRehypePlugins = ({ markdown, twoslash = {} }: RehypePluginsParam
           transformerNotationFocus(),
           transformerNotationHighlight(),
           transformerNotationWordHighlight(),
+          transformerNotationInclude({ rootDir }),
+          transformerDisplayNotation(),
           transformerTwoslash({
             explicitTrigger: true,
             renderer: twoslashRenderer(),
@@ -123,9 +130,9 @@ export const rehypePlugins = getRehypePlugins()
 
 export async function mdx(): Promise<PluginOption[]> {
   const { config } = await resolveVocsConfig()
-  const { markdown, twoslash } = config
+  const { markdown, rootDir, twoslash } = config
   const remarkPlugins = getRemarkPlugins({ markdown })
-  const rehypePlugins = getRehypePlugins({ markdown, twoslash })
+  const rehypePlugins = getRehypePlugins({ markdown, rootDir, twoslash })
   return [
     mdxPlugin({
       providerImportSource: '@mdx-js/react',

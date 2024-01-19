@@ -40,6 +40,7 @@
     "tsx": "^4.6.1",
     "typescript": "^5.2.2",
     "vercel": "^32.5.6",
+    "viem": "^2.1.1",
     "vocs": "workspace:*"
   },
   "simple-git-hooks": {
