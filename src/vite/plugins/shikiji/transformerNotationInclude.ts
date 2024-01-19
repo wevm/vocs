@@ -27,7 +27,7 @@ export const transformerNotationInclude = ({
       const match = line.match(includeRegex)
       if (match) {
         const [, value] = match
-        const [fileName, region] = value.split(' ')
+        const [fileName, region] = value.split(':')
         const path = resolve(rootDir, fileName.replace('~', '.'))
         const contents = readFileSync(path, { encoding: 'utf-8' }).replace(/\n$/, '')
         lines.splice(i, 1, extractRegion(contents, region))

@@ -11,11 +11,11 @@ You can include code snippets in a Markdown file by making use of the `// [!incl
 First, we will create a snippet called `example.ts`. Let's put this under a `snippets/` directory.
 
 ```ts [docs/snippets/example.ts]
-// [!include ~/snippets/example.ts import]
+// [!include ~/snippets/example.ts:import]
 
-// [!include ~/snippets/example.ts setup]
+// [!include ~/snippets/example.ts:setup]
 
-// [!include ~/snippets/example.ts usage-1]
+// [!include ~/snippets/example.ts:usage-1]
 ```
 
 ### Import the snippet
@@ -46,11 +46,11 @@ The resulting output will look like this:
 
 ```ts 
 import { writeFileSync } from 'node:fs'
-// [!include ~/snippets/example.ts import]
+// [!include ~/snippets/example.ts:import]
 
-// [!include ~/snippets/example.ts setup]
+// [!include ~/snippets/example.ts:setup]
 
-// [!include ~/snippets/example.ts usage-1]
+// [!include ~/snippets/example.ts:usage-1]
 
 writeFileSync('test.txt', blockNumber.toString())
 ```
@@ -85,11 +85,11 @@ Then, we can include the regions in the Markdown with the `// [!include]` marker
 ````md [example.md]
 ```ts
 import { writeFileSync } from 'node:fs'
-//$ [!include ~/snippets/example.ts import] // [!code focus]
+//$ [!include ~/snippets/example.ts:import] // [!code focus]
 
-//$ [!include ~/snippets/example.ts setup] // [!code focus]
+//$ [!include ~/snippets/example.ts:setup] // [!code focus]
 
-//$ [!include ~/snippets/example.ts usage] // [!code focus]
+//$ [!include ~/snippets/example.ts:usage] // [!code focus]
 
 writeFileSync('test.txt', blockNumber.toString())
 ```
@@ -99,11 +99,11 @@ Which will result in the snippet being rendered like this:
 
 ```ts
 import { writeFileSync } from 'node:fs'
-// [!include ~/snippets/example.ts import] 
+// [!include ~/snippets/example.ts:import] 
 
-// [!include ~/snippets/example.ts setup] 
+// [!include ~/snippets/example.ts:setup] 
 
-// [!include ~/snippets/example.ts usage-1] 
+// [!include ~/snippets/example.ts:usage-1] 
 
 writeFileSync('test.txt', blockNumber.toString())
 ```
@@ -149,11 +149,11 @@ We can also include markers like [line highlight (`// [!code hl]`)](/docs/api/ma
 :::code-group
 
 ```ts [docs/snippets/example.ts]
-// [!include ~/snippets/example.ts import]
+// [!include ~/snippets/example.ts:import]
 
-// [!include ~/snippets/example.ts setup]
+// [!include ~/snippets/example.ts:setup]
 
-// [!include ~/snippets/example.ts usage-2-docs]
+// [!include ~/snippets/example.ts:usage-2-docs]
 ```
 
 ````md [example.md]
@@ -171,11 +171,11 @@ Which will result in the snippet being rendered like this:
 
 ```ts 
 import { writeFileSync } from 'node:fs'
-// [!include ~/snippets/example.ts import]
+// [!include ~/snippets/example.ts:import]
 
-// [!include ~/snippets/example.ts setup]
+// [!include ~/snippets/example.ts:setup]
 
-// [!include ~/snippets/example.ts usage-2]
+// [!include ~/snippets/example.ts:usage-2]
 
 writeFileSync('test.txt', blockNumber.toString())
 ```
@@ -187,11 +187,11 @@ We can also include Twoslash markers in our code snippets.
 :::code-group
 
 ```ts [docs/snippets/example.ts]
-// [!include ~/snippets/example.ts import]
+// [!include ~/snippets/example.ts:import]
 
-// [!include ~/snippets/example.ts setup]
+// [!include ~/snippets/example.ts:setup]
 
-// [!include ~/snippets/example.ts usage-4]
+// [!include ~/snippets/example.ts:usage-4]
 ```
 
 ````md [example.md]
@@ -205,9 +205,9 @@ We can also include Twoslash markers in our code snippets.
 Which will result in the snippet being rendered like this:
 
 ```ts twoslash
-// [!include ~/snippets/example.ts import]
+// [!include ~/snippets/example.ts:import]
 
-// [!include ~/snippets/example.ts setup]
+// [!include ~/snippets/example.ts:setup]
 
-// [!include ~/snippets/example.ts usage-4]
+// [!include ~/snippets/example.ts:usage-4]
 ```
