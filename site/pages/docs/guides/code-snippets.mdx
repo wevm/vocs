@@ -142,6 +142,48 @@ const block_$3 = await client.getBlock({ blockTag: 'latest' }) // [!code focus]
 // [!endregion usage-3] // [!code focus]
 ```
 
+## Find and Replace
+
+You can use `/(find)/(replace)/` syntax to find and replace text in the snippet.
+
+:::code-group
+
+````md [example.md]
+```ts
+import { writeFileSync } from 'node:fs'
+//$ [!include ~/snippets/example.ts /viem/@viem\/core/ /mainnet/sepolia/] // [!code focus]
+
+writeFileSync('test.txt', blockNumber.toString())
+```
+````
+
+```ts [docs/snippets/example.ts]
+import { http, createPublicClient } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = createPublicClient({
+  chain: mainnet,
+  transport: http(),
+})
+
+const blockNumber = await client.getBlockNumber()
+```
+
+:::
+
+Which will result in the snippet being rendered like this:
+
+```ts 
+import { writeFileSync } from 'node:fs'
+// [!include ~/snippets/example.ts:import /viem/@viem\/core/ /mainnet/sepolia/]
+
+// [!include ~/snippets/example.ts:setup /mainnet/sepolia/]
+
+// [!include ~/snippets/example.ts:usage-1]
+
+writeFileSync('test.txt', blockNumber.toString())
+```
+
 ## Tip: Code Block Markers
 
 We can also include markers like [line highlight (`// [!code hl]`)](/docs/api/markdown#line-highlights) in our code snippets.

@@ -27,10 +27,15 @@ export const transformerNotationInclude = ({
       const match = line.match(includeRegex)
       if (match) {
         const [, value] = match
-        const [fileName, region] = value.split(':')
+        const [file, ...query] = value.split(' ')
+        const [fileName, region] = file.split(':')
         const path = resolve(rootDir, fileName.replace('~', '.'))
-        const contents = readFileSync(path, { encoding: 'utf-8' }).replace(/\n$/, '')
-        lines.splice(i, 1, extractRegion(contents, region))
+
+        let contents = readFileSync(path, { encoding: 'utf-8' }).replace(/\n$/, '')
+        contents = extractRegion(contents, region)
+        contents = findAndReplace(contents, query)
+
+        lines.splice(i, 1, contents)
       }
       i++
     }
@@ -65,4 +70,20 @@ function extractRegion(code: string, region: string | undefined) {
   }
 
   return lines.join('\n')
+}
+
+const findAndReplaceRegex = /^\/(.*)([^\\])\/(.*)\/$/
+
+function findAndReplace(code_: string, queries: string[]) {
+  if (queries.length === 0) return code_
+  let code = code_
+  for (const query of queries) {
+    const match = query.match(findAndReplaceRegex)
+    if (!match) return code
+    const [, find1, find2, replace1] = match
+    const find = (find1 + find2).replace('\\/', '/')
+    const replace = replace1.replace('\\/', '/')
+    code = code.replaceAll(find, replace)
+  }
+  return code
 }
