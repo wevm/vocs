@@ -194,6 +194,10 @@ export default defineConfig({
       link: '/docs/structure',
     },
     {
+      text: 'Markdown Reference',
+      link: '/docs/markdown',
+    },
+    {
       text: 'Guides',
       collapsed: false,
       items: [
@@ -246,10 +250,6 @@ export default defineConfig({
         {
           text: 'Frontmatter',
           link: '/docs/api/frontmatter',
-        },
-        {
-          text: 'Markdown',
-          link: '/docs/api/markdown',
         },
       ],
     },

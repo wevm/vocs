@@ -1,6 +1,6 @@
-import { Example } from '../../../components/Example'
+import { Example } from '../../components/Example'
 
-# Markdown [Features and syntax of Markdown in Vocs]
+# Markdown Reference [Features and syntax of Markdown in Vocs]
 
 ## Blockquote
 
@@ -156,8 +156,8 @@ const client = createPublicClient({
   transport: http(),
 })
 
-// 3. Consume an action! !! [!code focus]
-const blockNumber = await client.getBlockNumber() !! [!code focus]
+// 3. Consume an action! //$ [!code focus]
+const blockNumber = await client.getBlockNumber() //$ [!code focus]
 ```
 ````
 
@@ -174,7 +174,7 @@ const example: Example = 'example'
 
 ````md
 ```ts [example.ts]
-type Example = string !! [!code hl]
+type Example = string //$ [!code hl]
 const example: Example = 'example'
 ```
 ````
@@ -334,8 +334,8 @@ const blockNumber = await client.getBlockNumber()
 ````md
 ```ts [Diff]
 // 1. Import modules.
-import { createPublicClient } from 'viem' !! [!code --]
-import { createPublicClient, http } from 'viem' !! [!code ++]
+import { createPublicClient } from 'viem' //$ [!code --]
+import { createPublicClient, http } from 'viem' //$ [!code ++]
 import { mainnet } from 'viem/chains'
 
 // 2. Set up your client with desired chain & transport.
