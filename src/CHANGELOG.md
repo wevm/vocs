@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.0-alpha.25
+
+### Minor Changes
+
+- [`fbe32fd`](https://github.com/wevm/vocs/commit/fbe32fd9713bbc3fb8a6b81c7cd615aacb08979e) Thanks [@jxom](https://github.com/jxom)! - Added "find and replace" syntax to the \`// [!include]\` marker (code snippets).
+
 ## 1.0.0-alpha.24
 
 ### Major Changes
