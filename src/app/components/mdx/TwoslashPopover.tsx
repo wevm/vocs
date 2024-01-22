@@ -1,85 +1,64 @@
-import { type ReactElement, useEffect, useRef } from 'react'
+import {
+  FloatingArrow,
+  arrow,
+  offset,
+  safePolygon,
+  shift,
+  useFloating,
+  useHover,
+  useInteractions,
+} from '@floating-ui/react'
+import { type ReactElement, useRef, useState } from 'react'
+import { primitiveColorVars } from '../../styles/vars.css.js'
 
 export function TwoslashPopover({ children, ...props }: { children: ReactElement[] }) {
-  const popoverRef = useRef<HTMLSpanElement>(null)
-  useEffect(() => {
-    ;(async () => {
-      const { createPopper } = await import('@popperjs/core')
+  const [popover, target] = children
 
-      if (!popoverRef.current) return
+  const arrowRef = useRef(null)
+  const [isOpen, setIsOpen] = useState(false)
+  const { context, refs, floatingStyles } = useFloating({
+    middleware: [
+      arrow({
+        element: arrowRef,
+      }),
+      offset(8),
+      shift(),
+    ],
+    open: isOpen,
+    onOpenChange: setIsOpen,
+    placement: 'bottom-start',
+  })
+  const hover = useHover(context, { handleClose: safePolygon() })
 
-      const target = popoverRef.current.querySelector('.twoslash-target')
-      const popover = popoverRef.current.querySelector('.twoslash-popup-info-hover')
+  const { getReferenceProps, getFloatingProps } = useInteractions([hover])
 
-      if (!target || !popover) return
-
-      const popperInstance = createPopper(target, popover as HTMLElement, {
-        modifiers: [
-          {
-            name: 'flip',
-            enabled: false,
-          },
-          {
-            name: 'offset',
-            options: {
-              offset: [-8, 8],
-            },
-          },
-        ],
-        placement: 'bottom-start',
-      })
-
-      let hovering = false
-
-      function show() {
-        setTimeout(() => {
-          popover?.setAttribute('data-show', '')
-        }, 64)
-
-        popperInstance.setOptions((options) => ({
-          ...options,
-          modifiers: [...(options.modifiers || []), { name: 'eventListeners', enabled: true }],
-        }))
-
-        popperInstance.update()
-      }
-
-      function hide() {
-        setTimeout(() => {
-          if (!hovering) popover?.removeAttribute('data-show')
-          hovering = false
-        }, 64)
-
-        popperInstance.setOptions((options) => ({
-          ...options,
-          modifiers: [...(options.modifiers || []), { name: 'eventListeners', enabled: false }],
-        }))
-      }
-
-      function hover() {
-        hovering = true
-      }
-
-      function unhover() {
-        hovering = false
-        popover?.removeAttribute('data-show')
-      }
-
-      for (const e of ['mouseenter', 'focus']) {
-        target.addEventListener(e, show)
-        popover.addEventListener(e, hover)
-      }
-
-      for (const e of ['mouseleave', 'blur']) {
-        target.addEventListener(e, hide)
-        popover.addEventListener(e, unhover)
-      }
-    })()
-  }, [])
+  const targetChildren = target.props.children
+  const popoverChildren = popover.props.children
 
   return (
-    <span ref={popoverRef} {...props}>
-      {children}
+    <span {...props}>
+      <span className="twoslash-target" ref={refs.setReference} {...getReferenceProps()}>
+        {targetChildren}
+      </span>
+      {isOpen && (
+        <div
+          className="twoslash-popup-info-hover"
+          ref={refs.setFloating}
+          style={floatingStyles}
+          {...getFloatingProps()}
+        >
+          <FloatingArrow
+            ref={arrowRef}
+            context={context}
+            fill={primitiveColorVars.background5}
+            height={3}
+            stroke={primitiveColorVars.border2}
+            strokeWidth={1}
+            width={7}
+          />
+          <div className="twoslash-popup-scroll-container">{popoverChildren}</div>
+        </div>
+      )}
     </span>
   )
 }

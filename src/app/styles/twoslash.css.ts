@@ -90,19 +90,13 @@ globalStyle(':root.dark .twoslash-popup-info, :root.dark .twoslash-popup-info-ho
   },
 })
 
-globalStyle(
-  '.twoslash-query-presisted > .twoslash-popup-info, .twoslash-query-presisted > .twoslash-popup-info-hover',
-  {
-    zIndex: 1,
-  },
-)
+globalStyle('.twoslash-query-persisted > .twoslash-popup-info', {
+  zIndex: 1,
+})
 
-globalStyle(
-  ':not(.twoslash-query-presisted) > .twoslash-popup-info, :not(.twoslash-query-presisted) > .twoslash-popup-info-hover',
-  {
-    zIndex: 2,
-  },
-)
+globalStyle(':not(.twoslash-query-persisted) > .twoslash-popup-info', {
+  zIndex: 2,
+})
 
 globalStyle('.twoslash:hover .twoslash-hover', {
   borderColor: twoslashVars.underlineColor,
@@ -114,7 +108,7 @@ globalStyle('.twoslash .twoslash-hover', {
   transition: 'border-color 0.3s',
 })
 
-globalStyle('.twoslash-query-presisted', {
+globalStyle('.twoslash-query-persisted', {
   position: 'relative',
 })
 
@@ -146,17 +140,18 @@ globalStyle('.twoslash .twoslash-popup-info-hover', {
   boxShadow: twoslashVars.popupShadow,
   display: 'inline-block',
   maxWidth: '500px',
-  padding: '4px 0px',
-  pointerEvents: 'none',
+  pointerEvents: 'auto',
   position: 'fixed',
-  opacity: 0,
+  opacity: 1,
   transition: 'opacity 0.3s',
   whiteSpace: 'pre-wrap',
   userSelect: 'none',
+  zIndex: 20,
 })
 
 globalStyle('.twoslash .twoslash-popup-scroll-container', {
   maxHeight: '300px',
+  padding: '4px 0px',
   overflowY: 'auto',
   msOverflowStyle: 'none',
   scrollbarWidth: 'none',
@@ -179,39 +174,21 @@ globalStyle('.twoslash-tag-line + .twoslash-tag-line', {
   marginTop: '-0.2em',
 })
 
-globalStyle('.twoslash-query-presisted .twoslash-popup-info', {
+globalStyle('.twoslash-query-persisted .twoslash-popup-info', {
   zIndex: 9,
   transform: 'translateY(1.5em)',
 })
 
 globalStyle(
-  '.twoslash-hover:hover .twoslash-popup-info, .twoslash-query-presisted .twoslash-popup-info',
+  '.twoslash-hover:hover .twoslash-popup-info, .twoslash-query-persisted .twoslash-popup-info',
   {
     opacity: 1,
     pointerEvents: 'auto',
   },
 )
-globalStyle('.twoslash-popup-info-hover[data-show]', {
-  opacity: 1,
-  pointerEvents: 'auto',
-  zIndex: 20,
-})
 
 globalStyle('.twoslash-popup-info:hover, .twoslash-popup-info-hover:hover', {
   userSelect: 'auto',
-})
-
-globalStyle('.twoslash-popup-arrow', {
-  position: 'absolute',
-  top: '-4px',
-  left: '1em',
-  borderTop: `1px solid ${twoslashVars.borderColor}`,
-  borderRight: `1px solid ${twoslashVars.borderColor}`,
-  background: twoslashVars.popupBackground,
-  transform: 'rotate(-45deg)',
-  width: '6px',
-  height: '6px',
-  pointerEvents: 'none',
 })
 
 globalStyle('.twoslash-error-line', {

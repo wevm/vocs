@@ -83,20 +83,7 @@ export function twoslashRenderer(): TwoslashRenderer {
             properties: {
               class: 'twoslash-popup-info-hover',
             },
-            children: [
-              {
-                type: 'element',
-                tagName: 'div',
-                properties: { class: 'twoslash-popup-arrow' },
-                children: [],
-              },
-              {
-                type: 'element',
-                tagName: 'div',
-                properties: { class: 'twoslash-popup-scroll-container' },
-                children: themedContent,
-              },
-            ],
+            children: themedContent,
           },
           {
             type: 'element',
@@ -119,7 +106,7 @@ export function twoslashRenderer(): TwoslashRenderer {
         type: 'element',
         tagName: 'span',
         properties: {
-          class: 'twoslash-query-presisted',
+          class: 'twoslash-query-persisted',
         },
         children: [
           {

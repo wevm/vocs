@@ -2,4 +2,4 @@
 "vocs": patch
 ---
 
-Disabled flip modifier on popper.
+Migrated from `@popperjs/core` to `@floating-ui/react`.
