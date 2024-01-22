@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.0-alpha.26
+
+### Patch Changes
+
+- [`a526367`](https://github.com/wevm/vocs/commit/a5263674c5e7135f0d8325fcc04bd2148e2e7688) Thanks [@jxom](https://github.com/jxom)! - Migrated from `@popperjs/core` to `@floating-ui/react`.
+
 ## 1.0.0-alpha.25
 
 ### Minor Changes
