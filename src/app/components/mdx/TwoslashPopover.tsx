@@ -16,6 +16,10 @@ export function TwoslashPopover({ children, ...props }: { children: ReactElement
       const popperInstance = createPopper(target, popover as HTMLElement, {
         modifiers: [
           {
+            name: 'flip',
+            enabled: false,
+          },
+          {
             name: 'offset',
             options: {
               offset: [-8, 8],
