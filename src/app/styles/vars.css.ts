@@ -243,7 +243,7 @@ createGlobalTheme(':root', semanticColorVars, {
   codeHighlightBorder: primitiveColorVars.border2,
   codeInlineBackground: primitiveColorVars.background4,
   codeInlineBorder: primitiveColorVars.border,
-  codeInlineText: primitiveColorVars.text2,
+  codeInlineText: primitiveColorVars.textAccent,
   codeTitleBackground: primitiveColorVars.background4,
   lineNumber: primitiveColorVars.text4,
   hr: primitiveColorVars.border,

@@ -4,6 +4,8 @@ import { Example } from '../../components/Example'
 
 ## Blockquote
 
+To create a blockquote, add a `>` in front of a paragraph.
+
 :::code-group
 
 <div data-title="Preview">
@@ -13,7 +15,7 @@ import { Example } from '../../components/Example'
 > This is a very long line that will still be quoted properly when it wraps. Oh boy let's keep writing to make sure this is long enough to actually wrap for everyone. Oh, you can *put* **Markdown** into a blockquote. 
 </div>
 
-```md [Code]
+```md [Markdown]
 > Blockquotes are very handy in email to emulate reply text.
 > This line is part of the same quote.
 
@@ -23,6 +25,15 @@ import { Example } from '../../components/Example'
 :::
 
 ## Callouts
+
+Callouts can be rendered using one of the following [directives](https://talk.commonmark.org/t/generic-directives-plugins-syntax/444):
+
+- `:::note`
+- `:::info`
+- `:::warning`
+- `:::danger`
+- `:::tip`
+- `:::success`
 
 ::::code-group
 
@@ -56,7 +67,7 @@ This is a tip callout with title.
 :::
 </div>
 
-```md [Code]
+````md [Markdown]
 :::note
 This is a note callout. [Link](https://google.com)
 :::
@@ -84,8 +95,7 @@ This is a success callout. [Link](https://google.com)
 :::tip[Handy Tip]
 This is a tip callout with title.
 :::
-
-```
+````
 
 ::::
 
@@ -93,21 +103,27 @@ This is a tip callout with title.
 
 ### Default
 
-#### Preview
+Code can be formatted into blocks using triple backticks (```). Optionally, you can specify the language of the code block for syntax highlighting.
 
+::::code-group
+
+<div data-title="Preview">
 ```js
 console.log("hello world")
 ```
+</div>
 
-#### Code
-
-````md
+````md [Markdown]
 ```js
 console.log("hello world")
 ```
 ````
 
+::::
+
 ### Titles
+
+Code blocks can have titles. The title can be specified in the code block "meta", after the triple backticks.
 
 #### Preview
 
@@ -115,7 +131,7 @@ console.log("hello world")
 npm i vocs
 ```
 
-#### Code
+#### Markdown
 
 ````md
 ```bash [Terminal]
@@ -125,9 +141,12 @@ npm i vocs
 
 ### Line focus
 
-#### Preview
+The `// ![code focus]` marker can be used to focus a line of code.
 
-```ts [Line Focus]
+::::code-group
+
+<div data-title="Preview">
+```ts
 // 1. Import modules.
 import { createPublicClient, http } from 'viem' 
 import { mainnet } from 'viem/chains'
@@ -141,11 +160,10 @@ const client = createPublicClient({
 // 3. Consume an action! // [!code focus]
 const blockNumber = await client.getBlockNumber() // [!code focus]
 ```
+</div>
 
-#### Code
-
-````md
-```ts [Line Focus]
+````md [Markdown]
+```ts 
 // 1. Import modules.
 import { createPublicClient, http } from 'viem' 
 import { mainnet } from 'viem/chains'
@@ -156,52 +174,60 @@ const client = createPublicClient({
   transport: http(),
 })
 
-// 3. Consume an action! //$ [!code focus]
-const blockNumber = await client.getBlockNumber() //$ [!code focus]
+// 3. Consume an action! //$ [!code focus] // [!code hl]
+const blockNumber = await client.getBlockNumber() //$ [!code focus] // [!code hl]
 ```
 ````
+
+::::
 
 ### Line highlights
 
-#### Preview
+The `// ![code hl]` marker can be used to highlight a line of code.
 
-```ts [example.ts]
+::::code-group
+
+<div data-title="Preview">
+```ts
 type Example = string // [!code hl]
 const example: Example = 'example'
 ```
+</div>
 
-#### Code
-
-````md
-```ts [example.ts]
-type Example = string //$ [!code hl]
+````md [Markdown]
+```ts 
+type Example = string //$ [!code hl] // [!code hl]
 const example: Example = 'example'
 ```
 ````
 
+::::
+
 ### Line numbers
 
-#### Preview
- 
-```ts [Line Highlight & Numbers] showLineNumbers
+The `showLineNumbers` meta key can be used to show the lines of code beside the pane.
+
+::::code-group
+
+<div data-title="Preview">
+```ts showLineNumbers
 // 1. Import modules.
-import { createPublicClient, http } from 'viem' // [!code hl]
-import { mainnet } from 'viem/chains' // [!code hl]
+import { createPublicClient, http } from 'viem' 
+import { mainnet } from 'viem/chains' 
 
 // 2. Set up your client with desired chain & transport.
-const client = createPublicClient({ // [!code hl]
-  chain: mainnet, // [!code hl]
-  transport: http(), // [!code hl]
-}) // [!code hl]
+const client = createPublicClient({ 
+  chain: mainnet, 
+  transport: http(), 
+}) 
 
 // 3. Consume an action!
 const blockNumber = await client.getBlockNumber()
 ```
+</div>
 
-#### Code
-
-````md
-```ts [Line Highlight & Numbers] showLineNumbers {2,3,6-9}
+````md [Markdown]
+```ts showLineNumbers // [!code hl]
 // 1. Import modules.
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
@@ -216,13 +242,16 @@ const client = createPublicClient({
 const blockNumber = await client.getBlockNumber()
 ```
 ````
+
+::::
 
 ### Twoslash
 
 Vocs supports [TypeScript Twoslash](https://www.typescriptlang.org/dev/twoslash/) syntax. [Read more](/docs/guides/twoslash).
 
-#### Preview
+::::code-group
 
+<div data-title="Preview">
 ```ts twoslash
 // @errors: 2540
 interface Todo {
@@ -242,10 +271,9 @@ Number.parseInt('123', 10)
 
 
 ```
+</div>
 
-#### Code
-
-````md
+````md [Markdown]
 ```ts twoslash
 // @errors: 2540
 interface Todo {
@@ -253,7 +281,7 @@ interface Todo {
 }
 
 const todo: Readonly<Todo> = {
-  title: 'Delete inactive users'.toUpperCase(), // [!code hl]
+  title: 'Delete inactive users'.toUpperCase(),
 //  ^?
 }
 
@@ -266,12 +294,17 @@ Number.parseInt('123', 10)
 
 ```
 ````
+
+::::
 
 ### Word focus
 
-#### Preview
+The `// ![code word]` marker can be used to focus words in code.
 
-```ts [Word Focus]
+::::code-group
+
+<div data-title="Preview">
+```ts 
 // 1. Import modules.
 import { createPublicClient, http } from 'viem'
 // [!code word:mainnet]
@@ -287,18 +320,17 @@ const client = createPublicClient({
 // 3. Consume an action!
 const blockNumber = await client.getBlockNumber()
 ```
+</div>
 
-#### Code
-
-````md
-```ts [Word Focus]
+````md [Markdown]
+```ts 
 // 1. Import modules.
 import { createPublicClient, http } from 'viem'
-// [!code word:mainnet]
+//$ [!code word:mainnet] // [!code hl]
 import { mainnet } from 'viem/chains'
 
 // 2. Set up your client with desired chain & transport.
-// [!code word:client]
+//$ [!code word:client] // [!code hl]
 const client = createPublicClient({
   chain: mainnet,
   transport: http(),
@@ -309,11 +341,16 @@ const blockNumber = await client.getBlockNumber()
 ```
 ````
 
-#### Diffs
+::::
 
-##### Preview
+### Diffs
 
-```ts [Diff]
+The `// ![code ++]` and `// ![code --]` markers can be used to show diffs in code.
+
+::::code-group
+
+<div data-title="Preview">
+```ts
 // 1. Import modules.
 import { createPublicClient } from 'viem' // [!code --]
 import { createPublicClient, http } from 'viem' // [!code ++]
@@ -328,14 +365,13 @@ const client = createPublicClient({
 // 3. Consume an action! 
 const blockNumber = await client.getBlockNumber()
 ```
+</div>
 
-##### Code
-
-````md
-```ts [Diff]
+````md [Markdown]
+```ts
 // 1. Import modules.
-import { createPublicClient } from 'viem' //$ [!code --]
-import { createPublicClient, http } from 'viem' //$ [!code ++]
+import { createPublicClient } from 'viem' //$ [!code --] // [!code hl]
+import { createPublicClient, http } from 'viem' //$ [!code ++] // [!code hl]
 import { mainnet } from 'viem/chains'
 
 // 2. Set up your client with desired chain & transport.
@@ -349,7 +385,11 @@ const blockNumber = await client.getBlockNumber()
 ```
 ````
 
+::::
+
 ## Code Groups
+
+Code groups can be rendered using the `:::code-group` [directive](https://talk.commonmark.org/t/generic-directives-plugins-syntax/444).
 
 #### Preview
 
@@ -367,7 +407,7 @@ bun i viem
 ```
 :::
 
-#### Code
+#### Markdown
 
 ````md
 :::code-group
@@ -408,7 +448,7 @@ The `":::"` syntax refers to the [Directives Syntax Proposal](https://talk.commo
 :::
 
 
-#### Code
+#### Markdown
 
 ````mdx
 import { Example } from './components/Example'
@@ -452,7 +492,7 @@ gotcha!
 ::::
 </div>
 
-```md [Code]
+```md [Markdown]
 :::details[See more]
 gotcha!
 :::
@@ -488,7 +528,7 @@ gotcha!
 <p>Strikethrough uses two tildes. ~~Scratch this.~~</p>
 </div>
 
-```md [Code]
+```md [Markdown]
 Emphasis, aka italics, with *asterisks* or _underscores_.
 
 Strong emphasis, aka bold, with **asterisks** or __underscores__.
@@ -526,7 +566,7 @@ Headings are rendered as `<h1>` to `<h6>` tags corresponding to the number of `#
 ![alt text](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Logo Title Text 1")
 </div>
 
-```md [Code]
+```md [Markdown]
 ![alt text](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Logo Title Text 1")
 ```
 
@@ -544,7 +584,7 @@ Headings are rendered as `<h1>` to `<h6>` tags corresponding to the number of `#
 Inline `console.log("hello world"){:js}` highlighted code
 </div>
 
-```md [Code]
+```md [Markdown]
 Inline `code` has `back-ticks around` it.
 
 Inline [`code`]() with link.
@@ -566,7 +606,7 @@ Inline `console.log("hello world"){:js}` highlighted code
 <p>www.example.com, https://example.com, and contact@example.com.</p>
 </div>
 
-```md [Code]
+```md [Markdown]
 [Internal link](/docs/api/config)
 
 [External link](https://google.com)
@@ -597,7 +637,7 @@ www.example.com, https://example.com, and contact@example.com.
 4. And another item.
 </div>
 
-```md [Code]
+```md [Markdown]
 1. First ordered list item
 2. Another item
     - Unordered sub-list.
