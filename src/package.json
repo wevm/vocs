@@ -33,8 +33,8 @@
     "@radix-ui/react-tabs": "^1.0.4",
     "@vanilla-extract/css": "^1.14.0",
     "@vanilla-extract/dynamic": "^2.1.0",
+    "@vanilla-extract/vite-plugin": "^3.9.4",
     "@vitejs/plugin-react": "4.2.0",
-    "@vocs/vanilla-extract-vite-plugin": "^3.9.3-0",
     "autoprefixer": "^10.4.16",
     "cac": "^6.7.14",
     "chroma-js": "^2.4.2",
@@ -88,23 +88,12 @@
   "license": "MIT",
   "homepage": "https://vocs.dev",
   "repository": "wevm/vocs",
-  "authors": [
-    "awkweb.eth",
-    "jxom.eth"
-  ],
+  "authors": ["awkweb.eth", "jxom.eth"],
   "funding": [
     {
       "type": "github",
       "url": "https://github.com/sponsors/wevm"
     }
   ],
-  "keywords": [
-    "react",
-    "static",
-    "docs",
-    "generator",
-    "vite",
-    "documentation",
-    "mdx"
-  ]
+  "keywords": ["react", "static", "docs", "generator", "vite", "documentation", "mdx"]
 }
