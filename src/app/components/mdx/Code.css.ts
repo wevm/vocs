@@ -8,6 +8,7 @@ import {
 } from '../../styles/vars.css.js'
 import { danger, info, success, tip, warning } from '../Callout.css.js'
 import { root as Anchor } from './Anchor.css.js'
+import { root as Heading } from './Heading.css.js'
 import { root as Pre } from './Pre.css.js'
 
 export const root = style({
@@ -43,6 +44,9 @@ export const root = style({
     },
     [`${warning} &`]: {
       color: semanticColorVars.warningText,
+    },
+    [`${Heading} &`]: {
+      color: 'inherit',
     },
     '.twoslash-popup-info-hover>&': {
       backgroundColor: 'inherit',
