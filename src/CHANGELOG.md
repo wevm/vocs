@@ -1,5 +1,13 @@
 # vocs
 
+## 1.0.0-alpha.27
+
+### Patch Changes
+
+- [`84d2f8a`](https://github.com/wevm/vocs/commit/84d2f8a4debf9c0059fee2dbdfc5a3c07448b8c1) Thanks [@jxom](https://github.com/jxom)! - Upgraded `@vanilla-extract/vite-plugin`.
+
+- [`caab637`](https://github.com/wevm/vocs/commit/caab63709559c9105528338bfce6b39e6f4cd324) Thanks [@jxom](https://github.com/jxom)! - Modified styling of inline code headings.
+
 ## 1.0.0-alpha.26
 
 ### Patch Changes
