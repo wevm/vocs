@@ -28,6 +28,7 @@ import { remarkCallout } from './remark/callout.js'
 import { remarkCodeGroup } from './remark/code-group.js'
 import { remarkCode } from './remark/code.js'
 import { remarkDetails } from './remark/details.js'
+import { remarkFilename } from './remark/filename.js'
 import { remarkInferFrontmatter } from './remark/inferred-frontmatter.js'
 import { remarkLinks } from './remark/links.js'
 import { remarkSponsors } from './remark/sponsors.js'
@@ -60,6 +61,7 @@ export const getRemarkPlugins = ({ markdown }: RemarkPluginsParameters = {}) =>
     remarkCode,
     remarkCodeGroup,
     remarkDetails,
+    remarkFilename,
     remarkSponsors,
     remarkSteps,
     remarkStrongBlock,

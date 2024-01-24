@@ -4,7 +4,9 @@ import type { ShikijiTransformer } from 'shikiji'
 
 const includeRegex = /\/\/ \[!include (.*)\]/
 const regionRegex = /\/\/ \[!region (.*)\]/
+const regionRegexLineGlobal = /\/\/ \[!region (.*)\]\n/g
 const endRegionRegex = /\/\/ \[!endregion (.*)\]/
+const endRegionRegexLineGlobal = /\/\/ \[!endregion (.*)\](\n|$)/g
 
 export type TransformerNotationIncludeOptions = {
   rootDir: string
@@ -16,32 +18,52 @@ export const transformerNotationInclude = ({
   name: 'includes',
   preprocess(code) {
     if (!code) return code
-
-    const includes = code.includes('// [!include')
-    if (!includes) return code
-
-    const lines = code.split('\n')
-    let i = 0
-    while (i < lines.length) {
-      const line = lines[i]
-      const match = line.match(includeRegex)
-      if (match) {
-        const [, value] = match
-        const [file, ...query] = value.split(' ')
-        const [fileName, region] = file.split(':')
+    return processIncludes({
+      code,
+      getSource(fileName) {
+        if (!fileName.startsWith('~')) return undefined
         const path = resolve(rootDir, fileName.replace('~', '.'))
-
-        let contents = readFileSync(path, { encoding: 'utf-8' }).replace(/\n$/, '')
-        contents = extractRegion(contents, region)
-        contents = findAndReplace(contents, query)
-
-        lines.splice(i, 1, contents)
-      }
-      i++
-    }
-    return lines.join('\n')
+        return readFileSync(path, { encoding: 'utf-8' }).replace(/\n$/, '')
+      },
+    })
   },
 })
+
+export function processIncludes({
+  code,
+  getSource,
+}: { code: string; getSource: (fileName: string) => string | undefined }) {
+  const includes = code.includes('// [!include')
+  if (!includes)
+    return code
+      .replaceAll(regionRegexLineGlobal, '')
+      .replaceAll(endRegionRegexLineGlobal, '')
+      .replace(/\n$/, '')
+
+  const lines = code.split('\n')
+  let i = 0
+  while (i < lines.length) {
+    const line = lines[i]
+    const match = line.match(includeRegex)
+    if (match) {
+      const [, value] = match
+      const [file, ...query] = value.split(' ')
+      const [fileName, region] = file.split(':')
+
+      let contents = getSource(fileName)
+      if (contents === undefined) {
+        i++
+        continue
+      }
+      contents = extractRegion(contents, region)
+      contents = findAndReplace(contents, query)
+
+      lines.splice(i, 1, contents)
+    }
+    i++
+  }
+  return lines.join('\n')
+}
 
 function extractRegion(code: string, region: string | undefined) {
   const lines = []

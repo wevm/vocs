@@ -1,21 +1,99 @@
 # Code Snippets [Including code snippets in Markdown]
 
-You can include code snippets in a Markdown file by making use of the `// [!include ...]` marker.
+Code Snippets in Vocs come in two forms:
 
-## Quick Start
+- a virtual file snippet in your Markdown code ([Virtual File Snippets](#virtual-file-snippets)), or
+- a physical file snippet in your file system ([Physical File Snippets](#physical-file-snippetse))
+
+We will show you both approaches below.
+
+## Virtual File Snippets
 
 ::::steps
 
 ### Create the code snippet
 
-First, we will create a snippet called `example.ts`. Let's put this under a `snippets/` directory.
+We will create a virtual file snippet called `example.ts`. We can define a virtual file in markdown using the `filename="example.ts"{:ts}` meta tag.
+
+````mdx [example.md]
+```ts filename="example.ts" // [!code hl]
+import { http, createPublicClient } from 'viem'
+import { mainnet } from 'viem/chains'
+ 
+const client = createPublicClient({
+  chain: mainnet,
+  transport: http(),
+})
+```
+````
+
+### Import the snippet
+
+Next, we will import the snippet into our Markdown file using the `// [!include ...]` marker.
+
+````mdx [example.md]
+#### Create your Client
+
+```ts filename="example.ts"
+import { http, createPublicClient } from 'viem'
+import { mainnet } from 'viem/chains'
+ 
+const client = createPublicClient({
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+#### Use Actions
+
+```ts // [!code focus]
+//$ [!include example.ts] // [!code focus] // [!code hl]
+ 
+const blockNumber = await client.getBlockNumber() //$ [!code focus] // [!code focus]
+``` // [!code focus]
+````
+
+### Output
+
+The resulting output will look like this:
+
+<div>
+#### Create your Client
+
+```ts filename="example.ts"
+import { http, createPublicClient } from 'viem'
+import { mainnet } from 'viem/chains'
+ 
+const client = createPublicClient({
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+#### Use Actions
+
+```ts
+// [!include example.ts]
+ 
+const blockNumber = await client.getBlockNumber() // [!code focus]
+```
+</div>
+
+::::
+
+
+## Physical File Snippets
+
+::::steps
+
+### Create the code snippet
+
+We will create a physical file snippet called `example.ts`. Let's put this under a `snippets/` directory in your codebase.
 
 ```ts [docs/snippets/example.ts]
 // [!include ~/snippets/example.ts:import]
 
 // [!include ~/snippets/example.ts:setup]
-
-// [!include ~/snippets/example.ts:usage-1]
 ```
 
 ### Import the snippet
@@ -23,14 +101,19 @@ First, we will create a snippet called `example.ts`. Let's put this under a `sni
 Next, we will import the snippet into our Markdown file using the `// [!include ...]` marker.
 
 ````mdx [example.md]
-#### Usage
+#### Create your Client
 
-```ts
-import { writeFileSync } from 'node:fs'
-//$ [!include ~/snippets/example.ts] // [!code hl]
+```ts // [!code focus]
+//$ [!include ~/snippets/example.ts] // [!code focus] // [!code hl]
+``` // [!code focus]
 
-writeFileSync('test.txt', blockNumber.toString())
-```
+#### Use Actions
+
+```ts // [!code focus]
+//$ [!include ~/snippets/example.ts] // [!code focus] // [!code hl]
+ 
+const blockNumber = await client.getBlockNumber() //$ [!code focus] // [!code focus]
+``` // [!code focus]
 ````
 
 :::info
@@ -42,17 +125,22 @@ The `"~"` in the path refers to the [root (`config.rootDir`) directory](/docs/st
 The resulting output will look like this:
 
 <div>
-#### Usage
+#### Create your Client
 
 ```ts 
-import { writeFileSync } from 'node:fs'
+// [!include ~/snippets/example.ts:import]
+
+// [!include ~/snippets/example.ts:setup] 
+``` 
+
+#### Use Actions
+
+```ts
 // [!include ~/snippets/example.ts:import]
 
 // [!include ~/snippets/example.ts:setup]
-
-// [!include ~/snippets/example.ts:usage-1]
-
-writeFileSync('test.txt', blockNumber.toString())
+ 
+const blockNumber = await client.getBlockNumber() // [!code focus]
 ```
 </div>
 
@@ -253,3 +341,51 @@ Which will result in the snippet being rendered like this:
 
 // [!include ~/snippets/example.ts:usage-4]
 ```
+
+## Tip: Twoslash + Virtual Files
+
+We can also use virtual files with Twoslash code blocks.
+
+````md [Markdown]
+:::code-group
+
+```ts twoslash [example.ts] // [!code hl]
+import { client } from './client.js'
+
+const blockNumber = await client.getBlockNumber()
+```
+
+```ts twoslash [client.ts] filename="client.ts" // [!code hl]
+import { http, createPublicClient } from 'viem'
+import { mainnet } from 'viem/chains'
+ 
+export const client = createPublicClient({
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+:::
+````
+
+Which will result in the snippet being rendered like this:
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './client.js'
+
+const blockNumber = await client.getBlockNumber()
+```
+
+```ts twoslash [client.ts] filename="client.ts"
+import { http, createPublicClient } from 'viem'
+import { mainnet } from 'viem/chains'
+ 
+export const client = createPublicClient({
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+:::
