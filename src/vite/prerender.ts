@@ -27,7 +27,10 @@ export async function prerender({ logger, outDir = 'dist' }: PrerenderParameters
     const html = template
       .replace('<!--body-->', body)
       .replace('<!--head-->', head)
-      .replace('../app/utils/initializeTheme.ts', '/initializeTheme.iife.js')
+       .replace(
+        '../app/utils/initializeTheme.ts',
+        `${config.vite?.base ?? ''}initializeTheme.iife.js`,
+      )
     const isIndex = route.endsWith('/')
     const filePath = `${isIndex ? `${route}index` : route}.html`.replace(/^\//, '')
     const path = resolve(outDir_resolved, filePath)

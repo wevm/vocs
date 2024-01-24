@@ -48,6 +48,7 @@ export async function build({
   try {
     await Promise.all([
       vite.build({
+        ...config.vite,
         build: {
           emptyOutDir: false,
           outDir: outDir_resolved,
@@ -58,6 +59,7 @@ export async function build({
         plugins: [postbuild({ logger })],
       }),
       vite.build({
+        ...config.vite,
         build: {
           emptyOutDir: false,
           outDir: resolve(__dirname, '.vocs/dist'),
@@ -91,6 +93,7 @@ export async function build({
 
   try {
     await vite.build({
+      ...config.vite,
       build: {
         lib: {
           formats: ['iife'],

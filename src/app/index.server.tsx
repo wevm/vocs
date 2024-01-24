@@ -37,7 +37,7 @@ export async function prerender(location: string) {
 
   const body = renderToString(
     <ConfigProvider config={config}>
-      <StaticRouter location={location}>
+      <StaticRouter location={location} basename={config.vite?.base}>
         <Routes>
           {unwrappedRoutes.map((route) => (
             <Route key={route.path} path={route.path} element={route.element} />
@@ -51,7 +51,8 @@ export async function prerender(location: string) {
 }
 
 export async function render(req: Request) {
-  const { query, dataRoutes } = createStaticHandler(routes)
+  const { config } = await resolveVocsConfig()
+  const { query, dataRoutes } = createStaticHandler(routes, { basename: config.vite?.base })
   const fetchRequest = createFetchRequest(req)
   const context = (await query(fetchRequest)) as StaticHandlerContext
 
@@ -59,8 +60,8 @@ export async function render(req: Request) {
 
   const router = createStaticRouter(dataRoutes, context)
 
-  const { config } = await resolveVocsConfig()
-
+  // link in body to a href prop do not has basename
+  // and useLocation pathname do not has basename
   const body = renderToString(
     <ConfigProvider config={config}>
       <StaticRouterProvider router={router} context={context} />

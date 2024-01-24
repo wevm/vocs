@@ -40,7 +40,10 @@ export function virtualRoutes(): PluginOption {
 
           const filePath = path.replace(`${pagesPath}/`, '')
 
-          let pagePath = path.replace(replacer, '').replace(/\.(.*)/, '')
+          let pagePath = ((`${config.vite?.base?.replace(/^\/|\/$/, '')}/` ?? '') + path)
+            .replace('//', '/')
+            .replace(replacer, '')
+            .replace(/\.(.*)/, '')
           if (pagePath.endsWith('index'))
             pagePath = pagePath.replace('index', '').replace(/\/$/, '')
           code += `  { lazy: () => import("${path}"), path: "/${pagePath}", type: "${type}", filePath: "${filePath}" },`
