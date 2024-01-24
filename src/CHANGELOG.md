@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.0-alpha.28
+
+### Minor Changes
+
+- [`dde372d`](https://github.com/wevm/vocs/commit/dde372db34bf7f33f8c5ce86b691d0bbc5c38c46) Thanks [@jxom](https://github.com/jxom)! - Added support for "virtual file" code snippets.
+
 ## 1.0.0-alpha.27
 
 ### Patch Changes
