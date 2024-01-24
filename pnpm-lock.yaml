@@ -376,7 +376,7 @@ importers:
         version: 1.0.14
       rehype-pretty-code:
         specifier: ~0.12.2
-        version: 0.12.2(shikiji@0.10.0-beta.6)
+        version: 0.12.2(shikiji@0.10.0)
       rehype-slug:
         specifier: ^6.0.0
         version: 6.0.0
@@ -399,14 +399,14 @@ importers:
         specifier: ^1.15.0
         version: 1.15.0
       shikiji:
-        specifier: ~0.10.0-beta.6
-        version: 0.10.0-beta.6
+        specifier: ~0.10.0
+        version: 0.10.0
       shikiji-transformers:
-        specifier: ~0.10.0-beta.6
-        version: 0.10.0-beta.6
+        specifier: ~0.10.0
+        version: 0.10.0
       shikiji-twoslash:
-        specifier: ~0.10.0-beta.6
-        version: 0.10.0-beta.6(typescript@5.2.2)
+        specifier: ~0.10.0
+        version: 0.10.0(typescript@5.2.2)
       tailwindcss:
         specifier: ^3.3.3
         version: 3.3.5
@@ -414,8 +414,8 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       twoslash:
-        specifier: ~0.0.11
-        version: 0.0.11(typescript@5.2.2)
+        specifier: ~0.1.0
+        version: 0.1.0(typescript@5.2.2)
       ua-parser-js:
         specifier: ^1.0.36
         version: 1.0.37
@@ -7514,7 +7514,7 @@ packages:
       unified: 11.0.4
     dev: false
 
-  /rehype-pretty-code@0.12.2(shikiji@0.10.0-beta.6):
+  /rehype-pretty-code@0.12.2(shikiji@0.10.0):
     resolution: {integrity: sha512-PiGNCFrCkt54G/3ez6RLfU38jWUmgDe60Y81PAxj69A7+EAbhp8UhEigVOwK9ZEJDyedPr0ORWhcqfOn4RNedg==}
     engines: {node: '>=18'}
     peerDependencies:
@@ -7524,7 +7524,7 @@ packages:
       hast-util-to-string: 3.0.0
       parse-numeric-range: 1.3.0
       rehype-parse: 9.0.0
-      shikiji: 0.10.0-beta.6
+      shikiji: 0.10.0
       unified: 11.0.4
       unist-util-visit: 5.0.0
     dev: false
@@ -7871,30 +7871,30 @@ packages:
     resolution: {integrity: sha512-7++dFhtcx3353uBaq8DDR4NuxBetBzC7ZQOhmTQInHEd6bSrXdiEyzCvG07Z44UYdLShWUyXt5M/yhz8ekcb1A==}
     engines: {node: '>=8'}
 
-  /shikiji-core@0.10.0-beta.6:
-    resolution: {integrity: sha512-S1bsF50V5e1FlHnHYh++iNI2rJu5amjbDXCed3H2QtV5wbWWOF9F/aBPKDSmXCL0RSRO+E2y2F0HbsAT0S+Y5w==}
+  /shikiji-core@0.10.0:
+    resolution: {integrity: sha512-imG+bvRkuNlZUi2q9tMVfegRRouTpDxMFejpfF/6J+bFX3NDKtlW9T9iIAkBYnw4pcCtSwirW0AvkwlQR4wyxg==}
     dev: false
 
-  /shikiji-transformers@0.10.0-beta.6:
-    resolution: {integrity: sha512-/ZBreMyHPrm9PyG78w8Jjvq+clK8cRlpm31ooWQYC40z+uf4nyNhZl/QxrjniRnTYl3QjTmIxsLGoR9NsMPXNg==}
+  /shikiji-transformers@0.10.0:
+    resolution: {integrity: sha512-x9oYybeF/XOrIc6Mm8G1gU5ezunMxdgD4WwBTKrZ5tAmFFaNIWCjwZENgRt1uR4iMi0+pGH0g9bmrbraSC41nA==}
     dependencies:
-      shikiji: 0.10.0-beta.6
+      shikiji: 0.10.0
     dev: false
 
-  /shikiji-twoslash@0.10.0-beta.6(typescript@5.2.2):
-    resolution: {integrity: sha512-6gXod3EYqiS7c2cNjBk/F3j/t2WVkXXH3W3CpXc2M9l6Fe5uMH6lGQwWPLBUlYnHRhK/lDFtZ49budI0+MSuCQ==}
+  /shikiji-twoslash@0.10.0(typescript@5.2.2):
+    resolution: {integrity: sha512-wK0AZ/HLIPhdWtM8Xyrj2tixvuYpxcutgyac6Il6QaEXHxk3MK1BF2jY5rf5OnLwL/IFk6USdKqjvdNRbfY7Pg==}
     dependencies:
-      shikiji-core: 0.10.0-beta.6
-      twoslash: 0.0.11(typescript@5.2.2)
+      shikiji-core: 0.10.0
+      twoslash: 0.1.0(typescript@5.2.2)
     transitivePeerDependencies:
       - supports-color
       - typescript
     dev: false
 
-  /shikiji@0.10.0-beta.6:
-    resolution: {integrity: sha512-q88RakQoR31jhD6WDNIvJYJtEx4XMnV6KbIiSZDyhFB7uBerEiqzuWwwFkPaSSE49EWRs3pJUAr81aTWdBDatg==}
+  /shikiji@0.10.0:
+    resolution: {integrity: sha512-1dAzIOWbtM7B4Sem5BvE+CEdsebDsRA34SfCxM4qJ4PLgR73ZD92VEtNfbcoZ3xOLSqvtV0J9i4WpCgVsmQteg==}
     dependencies:
-      shikiji-core: 0.10.0-beta.6
+      shikiji-core: 0.10.0
     dev: false
 
   /side-channel@1.0.4:
@@ -8388,8 +8388,8 @@ packages:
       yargs: 17.7.2
     dev: true
 
-  /twoslash@0.0.11(typescript@5.2.2):
-    resolution: {integrity: sha512-XCxpr8Of+swV66Ox5aTqkozax6tFjJrfP0UZrGNaKlqHDyvY1gUNZE2lUqj9phyF4cKoo/LxzOhkQw7zBmRyVw==}
+  /twoslash@0.1.0(typescript@5.2.2):
+    resolution: {integrity: sha512-zvDn23/FwNdi/i2xMTTDcn7xnX4iKlp6tJt68aD86zRqesQrb/HOnMBtaUu6+vme4gtlX9ScEfKYog1+7IPKSw==}
     peerDependencies:
       typescript: '*'
     dependencies:
