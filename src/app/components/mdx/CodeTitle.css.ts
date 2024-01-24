@@ -7,6 +7,7 @@ import {
   spaceVars,
   viewportVars,
 } from '../../styles/vars.css.js'
+import { root as CodeGroup } from './CodeGroup.css.js'
 
 export const root = style({
   alignItems: 'center',
@@ -23,6 +24,11 @@ export const root = style({
       borderRadius: 0,
       paddingLeft: spaceVars['16'],
       paddingRight: spaceVars['16'],
+    },
+  },
+  selectors: {
+    [`${CodeGroup} &`]: {
+      display: 'none',
     },
   },
 })

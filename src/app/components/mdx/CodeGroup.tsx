@@ -21,11 +21,11 @@ export function CodeGroup({ children }: { children: ReactElement[] }) {
         ))}
       </Tabs.List>
       {tabs.map(({ title, content }, i) => {
-        const isPrettyCode = content.props && 'data-rehype-pretty-code-figure' in content.props
+        const isShikiji = content.props?.className?.includes('shiki')
         return (
           <Tabs.Content
             key={title || i.toString()}
-            data-pretty-code={isPrettyCode}
+            data-shikiji={isShikiji}
             value={title || i.toString()}
           >
             {content}

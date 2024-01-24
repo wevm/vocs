@@ -16,7 +16,7 @@ export function useCopyCode() {
 
     const node = ref.current?.cloneNode(true) as HTMLPreElement
     const nodesToRemove = node?.querySelectorAll(
-      'button,[data-line].diff.remove,.twoslash-popup-info-hover,.twoslash-popup-info,.twoslash-meta-line,.twoslash-tag-line',
+      'button,.line.diff.remove,.twoslash-popup-info-hover,.twoslash-popup-info,.twoslash-meta-line,.twoslash-tag-line',
     )
     for (const node of nodesToRemove ?? []) node.remove()
     navigator.clipboard.writeText(node?.textContent as string)

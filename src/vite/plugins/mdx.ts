@@ -1,7 +1,7 @@
 import mdxPlugin from '@mdx-js/rollup'
 import { h } from 'hastscript'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
-import rehypePrettyCode from 'rehype-pretty-code'
+import rehypeShikiji, { type RehypeShikijiOptions } from 'rehype-shikiji'
 import rehypeSlug from 'rehype-slug'
 import remarkDirective from 'remark-directive'
 import remarkFrontmatter from 'remark-frontmatter'
@@ -22,6 +22,7 @@ import { type PluginOption } from 'vite'
 
 import type { ParsedConfig } from '../../config.js'
 import { resolveVocsConfig } from '../utils/resolveVocsConfig.js'
+import { rehypeInlineShikiji } from './rehype/inline-shikiji.js'
 import { remarkAuthors } from './remark/authors.js'
 import { remarkBlogPosts } from './remark/blog-posts.js'
 import { remarkCallout } from './remark/callout.js'
@@ -36,11 +37,14 @@ import { remarkSteps } from './remark/steps.js'
 import { remarkStrongBlock } from './remark/strong-block.js'
 import { remarkSubheading } from './remark/subheading.js'
 import { remarkTwoslash } from './remark/twoslash.js'
-import { transformerDisplayNotation } from './shikiji/transformerDisplayNotation.js'
+import { transformerEmptyLine } from './shikiji/transformerEmptyLine.js'
 import { transformerNotationInclude } from './shikiji/transformerNotationInclude.js'
 import { transformerSplitIdentifiers } from './shikiji/transformerSplitIdentifiers.js'
+import { transformerTagLine } from './shikiji/transformerTagLine.js'
+import { transformerTitle } from './shikiji/transformerTitle.js'
 import { twoslashRenderer } from './shikiji/twoslashRenderer.js'
 import { twoslasher } from './shikiji/twoslasher.js'
+import { rehypeShikijiDisplayNotation } from './rehype/display-shikiji-notation.js'
 
 const defaultTwoslashOptions = defaultTwoslashOptions_()
 
@@ -86,16 +90,17 @@ export const getRehypePlugins = ({
   [
     rehypeSlug,
     [
-      rehypePrettyCode,
+      rehypeShikiji,
       {
-        keepBackground: false,
         transformers: [
           transformerNotationDiff(),
           transformerNotationFocus(),
           transformerNotationHighlight(),
           transformerNotationWordHighlight(),
           transformerNotationInclude({ rootDir }),
-          transformerDisplayNotation(),
+          transformerEmptyLine(),
+          transformerTagLine(),
+          transformerTitle(),
           transformerTwoslash({
             explicitTrigger: true,
             renderer: twoslashRenderer(),
@@ -115,8 +120,10 @@ export const getRehypePlugins = ({
           transformerSplitIdentifiers(),
         ],
         ...markdown?.code,
-      },
+      } as RehypeShikijiOptions,
     ],
+    [rehypeInlineShikiji, markdown?.code],
+    rehypeShikijiDisplayNotation,
     [
       rehypeAutolinkHeadings,
       {

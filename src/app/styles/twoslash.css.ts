@@ -157,6 +157,19 @@ globalStyle('.twoslash .twoslash-popup-scroll-container', {
   scrollbarWidth: 'none',
 })
 
+globalStyle('.twoslash-popup-arrow', {
+  position: 'absolute',
+  top: '-4px',
+  left: '1em',
+  borderTop: `1px solid ${twoslashVars.borderColor}`,
+  borderRight: `1px solid ${twoslashVars.borderColor}`,
+  background: twoslashVars.popupBackground,
+  transform: 'rotate(-45deg)',
+  width: '6px',
+  height: '6px',
+  pointerEvents: 'none',
+})
+
 globalStyle('.twoslash .twoslash-popup-scroll-container::-webkit-scrollbar', {
   display: 'none',
 })
@@ -254,9 +267,9 @@ globalStyle('.twoslash-completion-list .twoslash-completion-list-item', {
 })
 
 globalStyle(
-  '.twoslash-completion-list .twoslash-completion-list-item span.twoslash-completions-unmatched.twoslash-completions-unmatched',
+  '.twoslash-completion-list .twoslash-completion-list-item span.twoslash-completions-unmatched.twoslash-completions-unmatched.twoslash-completions-unmatched',
   {
-    color: twoslashVars.unmatchedColor,
+    color: `${twoslashVars.unmatchedColor} !important`,
   },
 )
 
@@ -266,9 +279,9 @@ globalStyle('.twoslash-completion-list .deprecated', {
 })
 
 globalStyle(
-  '.twoslash-completion-list .twoslash-completion-list-item span.twoslash-completions-matched.twoslash-completions-unmatched',
+  '.twoslash-completion-list .twoslash-completion-list-item span.twoslash-completions-matched.twoslash-completions-unmatched.twoslash-completions-unmatched',
   {
-    color: twoslashVars.matchedColor,
+    color: `${twoslashVars.matchedColor} !important`,
   },
 )
 
@@ -281,6 +294,10 @@ globalStyle('.twoslash-tag-line', {
   display: 'flex',
   alignItems: 'center',
   gap: '0.3em',
+})
+
+globalStyle('.twoslash-tag-line+.line[data-empty-line]+.twoslash-tag-line', {
+  marginTop: 'calc(-1.75em - 0.2em)',
 })
 
 globalStyle('.twoslash-tag-line .twoslash-tag-icon', {
