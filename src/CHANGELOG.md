@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.0-alpha.29
+
+### Patch Changes
+
+- [`d6d265e`](https://github.com/wevm/vocs/commit/d6d265edb1d45ebfd5040a02c00d4f80cb3a3882) Thanks [@jxom](https://github.com/jxom)! - Updated Twoslash & Shikiji.
+
 ## 1.0.0-alpha.28
 
 ### Minor Changes
