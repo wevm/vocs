@@ -270,7 +270,7 @@ export function twoslashRenderer(): TwoslashRenderer {
       ]
     },
 
-    nodesHightlight(_, nodes) {
+    nodesHighlight(_, nodes) {
       return [
         {
           type: 'element',
