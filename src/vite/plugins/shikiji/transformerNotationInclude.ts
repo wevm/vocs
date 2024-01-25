@@ -62,7 +62,7 @@ export function processIncludes({
     }
     i++
   }
-  return lines.join('\n')
+  return lines.join('\n').replace(/\n$/, '')
 }
 
 function extractRegion(code: string, region: string | undefined) {
