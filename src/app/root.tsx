@@ -15,9 +15,10 @@ export function Root(props: {
   children: ReactNode
   filePath?: string
   frontmatter: Module['frontmatter']
+  lastUpdatedAt?: number
   path: string
 }) {
-  const { children, filePath, frontmatter, path } = props
+  const { children, filePath, frontmatter, lastUpdatedAt, path } = props
   const { pathname } = useLocation()
 
   const previousPathRef = useRef<string>()
@@ -33,7 +34,7 @@ export function Root(props: {
       <MDXProvider components={components}>
         <Layout frontmatter={frontmatter} path={path}>
           <PageDataContext.Provider
-            value={{ filePath, frontmatter, previousPath: previousPathRef.current }}
+            value={{ filePath, frontmatter, lastUpdatedAt, previousPath: previousPathRef.current }}
           >
             {children}
           </PageDataContext.Provider>

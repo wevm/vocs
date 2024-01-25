@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-export default function Footer() {
+export function Footer() {
   return (
     <div className="footer">
       <div>Released under the MIT License.</div>

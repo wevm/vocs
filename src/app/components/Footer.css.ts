@@ -4,6 +4,7 @@ import {
   contentVars,
   fontSizeVars,
   fontWeightVars,
+  primitiveColorVars,
   spaceVars,
   viewportVars,
 } from '../styles/vars.css.js'
@@ -16,18 +17,39 @@ export const root = style({
   gap: spaceVars['32'],
   maxWidth: contentVars.width,
   overflowX: 'hidden',
-  padding: `${spaceVars['24']} ${contentVars.horizontalPadding} ${spaceVars['48']}`,
+  padding: `${spaceVars['28']} ${contentVars.horizontalPadding} ${spaceVars['48']}`,
   vars: {
     [iconWidthVar]: '24px',
   },
 })
 
+export const container = style(
+  {
+    borderBottom: `1px solid ${primitiveColorVars.border}`,
+    display: 'flex',
+    justifyContent: 'space-between',
+    paddingBottom: spaceVars['16'],
+  },
+  'container',
+)
+
 export const editLink = style(
   {
+    alignItems: 'center',
+    display: 'flex',
     fontSize: fontSizeVars['14'],
+    gap: spaceVars['8'],
     textDecoration: 'none',
   },
   'editLink',
+)
+
+export const lastUpdated = style(
+  {
+    color: primitiveColorVars.text3,
+    fontSize: fontSizeVars['14'],
+  },
+  'lastUpdated',
 )
 
 export const navigation = style(
