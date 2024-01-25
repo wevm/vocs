@@ -25,13 +25,15 @@ export const rehypeInlineShikiji: Plugin<[RehypeInlineShikijiOptions], Root> = f
   ) as BuiltinTheme[]
   const langs = options.langs || Object.keys(bundledLanguages)
 
-  const promise = getHighlighter({
-    themes: themeNames,
-    langs,
-  })
+  let promise: Promise<Highlighter>
 
   return async function (tree) {
-    const highlighter = (await promise) as Highlighter
+    if (!promise)
+      promise = getHighlighter({
+        themes: themeNames,
+        langs,
+      })
+    const highlighter = await promise
     return visit(tree, 'element', (node, index, parent) => {
       if (node.tagName !== 'code') return
 
