@@ -1,5 +1,15 @@
 # vocs
 
+## 1.0.0-alpha.30
+
+### Patch Changes
+
+- [#38](https://github.com/wevm/vocs/pull/38) [`0a58102`](https://github.com/wevm/vocs/commit/0a581021838be6f708ddab06fd374ad87643fc72) Thanks [@tmm](https://github.com/tmm)! - Added last updated at timestamp.
+
+- [`272c8ed`](https://github.com/wevm/vocs/commit/272c8ed5c65ffa9db33f4bf2cfc59bb858581e8b) Thanks [@jxom](https://github.com/jxom)! - Fixed search rendering twoslash.
+
+- [`272c8ed`](https://github.com/wevm/vocs/commit/272c8ed5c65ffa9db33f4bf2cfc59bb858581e8b) Thanks [@jxom](https://github.com/jxom)! - Fixed rendering of date on blog posts.
+
 ## 1.0.0-alpha.29
 
 ### Patch Changes
