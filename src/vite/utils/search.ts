@@ -9,7 +9,7 @@ import { Fragment } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import * as runtime from 'react/jsx-runtime'
 
-import { rehypePlugins, remarkPlugins } from '../plugins/mdx.js'
+import { getRehypePlugins, getRemarkPlugins } from '../plugins/mdx.js'
 import * as cache from './cache.js'
 import { hash } from './hash.js'
 import { slash } from './slash.js'
@@ -73,6 +73,9 @@ export async function buildIndex({
 
   return index
 }
+
+const remarkPlugins = getRemarkPlugins()
+const rehypePlugins = getRehypePlugins({ twoslash: false })
 
 export async function processMdx(file: string) {
   try {

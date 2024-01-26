@@ -70,12 +70,11 @@ export const getRemarkPlugins = ({ markdown }: RemarkPluginsParameters = {}) =>
     remarkAuthors,
     ...(markdown?.remarkPlugins || []),
   ] as PluggableList
-export const remarkPlugins = getRemarkPlugins()
 
 type RehypePluginsParameters = {
   markdown?: ParsedConfig['markdown']
   rootDir?: ParsedConfig['rootDir']
-  twoslash?: ParsedConfig['twoslash']
+  twoslash?: ParsedConfig['twoslash'] | false
 }
 
 export const getRehypePlugins = ({
@@ -96,24 +95,25 @@ export const getRehypePlugins = ({
           transformerNotationWordHighlight(),
           transformerNotationInclude({ rootDir }),
           transformerDisplayNotation(),
-          transformerTwoslash({
-            explicitTrigger: true,
-            renderer: twoslashRenderer(),
-            twoslasher,
-            twoslashOptions: {
-              ...twoslash,
-              customTags: [
-                ...(defaultTwoslashOptions.customTags ?? []),
-                ...(twoslash.customTags ?? []),
-              ],
-              compilerOptions: {
-                ...(twoslash.compilerOptions ?? {}),
-                ...defaultTwoslashOptions.compilerOptions,
+          twoslash !== false &&
+            transformerTwoslash({
+              explicitTrigger: true,
+              renderer: twoslashRenderer(),
+              twoslasher,
+              twoslashOptions: {
+                ...twoslash,
+                customTags: [
+                  ...(defaultTwoslashOptions.customTags ?? []),
+                  ...(twoslash.customTags ?? []),
+                ],
+                compilerOptions: {
+                  ...(twoslash.compilerOptions ?? {}),
+                  ...defaultTwoslashOptions.compilerOptions,
+                },
               },
-            },
-          }),
+            }),
           transformerSplitIdentifiers(),
-        ],
+        ].filter(Boolean),
         ...markdown?.code,
       },
     ],
@@ -128,7 +128,6 @@ export const getRehypePlugins = ({
     ],
     ...(markdown?.rehypePlugins || []),
   ] as PluggableList
-export const rehypePlugins = getRehypePlugins()
 
 export async function mdx(): Promise<PluginOption[]> {
   const { config } = await resolveVocsConfig()

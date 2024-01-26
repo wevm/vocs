@@ -8,7 +8,9 @@ import { parse } from 'yaml'
 
 import type { BlogPost, Frontmatter } from '../../app/types.js'
 import { resolveVocsConfig } from '../utils/resolveVocsConfig.js'
-import { remarkPlugins } from './mdx.js'
+import { getRemarkPlugins } from './mdx.js'
+
+const remarkPlugins = getRemarkPlugins()
 
 export function virtualBlog(): PluginOption {
   const virtualModuleId = 'virtual:blog'

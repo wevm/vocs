@@ -31,7 +31,7 @@ export function Authors(props: AuthorsProps) {
   return (
     <div className={styles.root}>
       {formattedDate}
-      {authors && formattedDate ? ' by ' : 'By '}
+      {authors && (formattedDate ? ' by ' : 'By ')}
       <span className={styles.authors}>
         {authors?.map((author, index) => {
           const { text, url } = parseAuthor(author)
