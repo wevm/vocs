@@ -41,8 +41,10 @@ export function virtualRoutes(): PluginOption {
 
           const filePath = path.replace(`${pagesPath}/`, '')
           const fileGitTimestamp = await getGitTimestamp(path)
-          /** when it not a git repo  fileGitTimestamp is NaN */
-          const lastUpdatedAt = Number.isNaN(fileGitTimestamp) ? undefined : fileGitTimestamp
+
+          // fileGitTimestamp can be `NaN` when not in git repo
+          let lastUpdatedAt: number | undefined
+          if (fileGitTimestamp) lastUpdatedAt = fileGitTimestamp
 
           let pagePath = path.replace(replacer, '').replace(/\.(.*)/, '')
           if (pagePath.endsWith('index'))
