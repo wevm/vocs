@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.0-alpha.31
+
+### Patch Changes
+
+- [#59](https://github.com/wevm/vocs/pull/59) [`ca6b2f0`](https://github.com/wevm/vocs/commit/ca6b2f0e398821219fb8bd488b26c40036ef4314) Thanks [@Maidang1](https://github.com/Maidang1)! - Fixed last updated timestamp when git is not detected.
+
 ## 1.0.0-alpha.30
 
 ### Patch Changes
