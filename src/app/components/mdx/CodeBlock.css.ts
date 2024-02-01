@@ -89,13 +89,13 @@ globalStyle(`${root} [data-line-numbers] [data-line]`, {
 
 globalStyle(`${root} [data-line-numbers] [data-line]::before`, {
   color: semanticColorVars.lineNumber,
-  content: 'counter(line)',
-  counterIncrement: 'line',
+  content:'attr(data-line-number)',
   display: 'inline-block',
   fontSize: fontSizeVars.lineNumber,
   marginRight: spaceVars['16'],
   textAlign: 'right',
   width: '1rem',
+  verticalAlign:'middle'
 })
 
 globalStyle(`${root} [data-highlighted-line], ${root} .highlighted`, {
@@ -114,18 +114,8 @@ globalStyle(`${root} .has-diff`, {
   position: 'relative',
 })
 
-globalStyle(`${root} [data-line].diff::before`, {
-  position: 'absolute',
-  left: '10px',
-})
-
 globalStyle(`${root} [data-line].diff.add`, {
   backgroundColor: primitiveColorVars.backgroundGreenTint2,
-})
-
-globalStyle(`${root} [data-line].diff.add::before`, {
-  content: '+',
-  color: primitiveColorVars.textGreen,
 })
 
 globalStyle(`${root} [data-line].diff.remove`, {
@@ -133,13 +123,8 @@ globalStyle(`${root} [data-line].diff.remove`, {
   opacity: '0.6',
 })
 
-globalStyle(`${root} [data-line].diff.remove > span`, {
+globalStyle(`${root} [data-line].diff.remove > span:not([data-diff-flag])`, {
   filter: 'grayscale(1)',
-})
-
-globalStyle(`${root} [data-line].diff.remove::before`, {
-  content: '-',
-  color: primitiveColorVars.textRed,
 })
 
 globalStyle(
@@ -172,4 +157,31 @@ globalStyle(`${root} [data-line].diff::before`, {
       left: spaceVars['6'],
     },
   },
+})
+
+globalStyle(`${root} [data-line] [data-diff-flag]`, {
+  display:'inline-block',
+  width:'1em',
+  marginRight: 'var(--vocs-space_12)'
+})
+
+globalStyle(`${root} .diff [data-diff-flag]::before`, {
+  display: 'inline-block',
+  fontSize: 'var(--vocs-fontSize_lineNumber)',
+  width: '1em',
+  verticalAlign: 'middle'
+})
+
+globalStyle(`${root} .diff.add [data-diff-flag]::before`, {
+  content: '+',
+  color: primitiveColorVars.textGreen,
+})
+
+globalStyle(`${root} .diff.remove [data-diff-flag]::before`, {
+  content: '-',
+  color: primitiveColorVars.textRed,
+})
+
+globalStyle(`[data-line-number] .twoslash-hover [data-line]::before`, {
+  display:'none'
 })
