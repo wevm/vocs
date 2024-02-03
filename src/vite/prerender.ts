@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url'
 import pc from 'picocolors'
 import type { Logger } from 'vite'
 import { resolveVocsConfig } from './utils/resolveVocsConfig.js'
+import { getImgUrlWithBase } from '../app/utils/getImgUrlWithBase.js'
 
 type PrerenderParameters = { logger?: Logger; outDir?: string }
 
@@ -24,10 +25,14 @@ export async function prerender({ logger, outDir = 'dist' }: PrerenderParameters
   // Prerender each route.
   for (const route of routes) {
     const { head, body } = await mod.prerender(route)
+    let baseUrl= config.baseUrl;
+
     const html = template
       .replace('<!--body-->', body)
       .replace('<!--head-->', head)
-      .replace('../app/utils/initializeTheme.ts', '/initializeTheme.iife.js')
+      .replace('../app/utils/initializeTheme.ts', `${getImgUrlWithBase('/initializeTheme.iife.js', baseUrl)}`)
+
+      debugger
     const isIndex = route.endsWith('/')
     const filePath = `${isIndex ? `${route}index` : route}.html`.replace(/^\//, '')
     const path = resolve(outDir_resolved, filePath)

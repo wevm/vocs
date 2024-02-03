@@ -26,6 +26,7 @@ DesktopTopNav.Curtain = Curtain
 export function DesktopTopNav() {
   const config = useConfig()
   const { showLogo, showSidebar } = useLayout()
+  const base = config.baseUrl;
 
   return (
     <div className={clsx(styles.root, showLogo && !showSidebar && styles.withLogo)}>
@@ -35,7 +36,7 @@ export function DesktopTopNav() {
         <div className={styles.logoWrapper}>
           <div className={styles.logo}>
             <RouterLink
-              to="/"
+              to={base || '/'}
               style={{ alignItems: 'center', display: 'flex', height: '56px', marginTop: '4px' }}
             >
               <NavLogo />

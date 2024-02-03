@@ -14,7 +14,7 @@ export function ConfigProvider({
   children,
   config: initialConfig,
 }: { children: ReactNode; config?: ParsedConfig }) {
-  const [config, setConfig] = useState(() => {
+  const [config, setConfig] = useState<ParsedConfig>(() => {
     if (initialConfig) return initialConfig
     if (typeof window !== 'undefined' && import.meta.env.DEV) {
       const storedConfig = window.localStorage.getItem(`vocs.config.${configHash}`)
@@ -26,11 +26,6 @@ export function ConfigProvider({
   useEffect(() => {
     if (import.meta.hot) import.meta.hot.on('vocs:config', setConfig)
   }, [])
-
-  useEffect(() => {
-    if (typeof window !== 'undefined' && import.meta.env.DEV)
-      window.localStorage.setItem(`vocs.config.${configHash}`, JSON.stringify(config))
-  }, [config])
 
   return <ConfigContext.Provider value={config}>{children}</ConfigContext.Provider>
 }

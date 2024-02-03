@@ -1,4 +1,4 @@
-import { keyframes, style } from '@vanilla-extract/css'
+import { createVar, keyframes, style } from '@vanilla-extract/css'
 import {
   borderRadiusVars,
   contentVars,
@@ -11,6 +11,9 @@ import {
   topNavVars,
   viewportVars,
 } from '../styles/vars.css.js'
+
+export const pseudoEleMask = createVar('pseudoEleMask');
+export const mask = createVar('mask')
 
 const fadeIn = keyframes(
   {
@@ -215,10 +218,10 @@ export const navigationTrigger = style(
         height: '0.625em',
         marginLeft: '0.325em',
         width: '0.625em',
-        mask: 'url(/.vocs/icons/chevron-down.svg) no-repeat center / contain',
+        mask: pseudoEleMask,
       },
       '&[data-state="open"]::after': {
-        mask: 'url(/.vocs/icons/chevron-up.svg) no-repeat center / contain',
+        mask,
       },
     },
   },

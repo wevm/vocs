@@ -4,7 +4,7 @@ import { useLocation } from 'react-router-dom'
 import type { SidebarItem } from '../../config.js'
 import { useConfig } from './useConfig.js'
 
-type UseSidebarReturnType = { backLink?: boolean; items: SidebarItem[]; key?: string }
+export type UseSidebarReturnType = { backLink?: boolean; items: SidebarItem[]; key?: string }
 
 export function useSidebar(): UseSidebarReturnType {
   const { pathname } = useLocation()

@@ -1,9 +1,10 @@
-import { extname, resolve } from 'node:path'
+import  { extname, resolve } from 'node:path'
 import { globby } from 'globby'
 import type { PluginOption } from 'vite'
 
 import { resolveVocsConfig } from '../utils/resolveVocsConfig.js'
 import { getGitTimestamp } from '../utils/getGitTimestamp.js'
+import { linkWithBase } from '../../app/utils/getImgUrlWithBase.js'
 
 export function virtualRoutes(): PluginOption {
   const virtualModuleId = 'virtual:routes'
@@ -31,7 +32,7 @@ export function virtualRoutes(): PluginOption {
     async load(id) {
       if (id === resolvedVirtualModuleId) {
         const { config } = await resolveVocsConfig()
-        const { rootDir } = config
+        const { rootDir, vite, baseUrl } = config
         const pagesPath = resolve(rootDir, 'pages')
 
         let code = 'export const routes = ['
@@ -39,7 +40,7 @@ export function virtualRoutes(): PluginOption {
           const type = extname(path).match(/(mdx|md)/) ? 'mdx' : 'jsx'
           const replacer = glob.split('*')[0]
 
-          const filePath = path.replace(`${pagesPath}/`, '')
+          const filePath = path.replace(`${pagesPath}`, '')
           const fileGitTimestamp = await getGitTimestamp(path)
 
           // fileGitTimestamp can be `NaN` when not in git repo
@@ -49,9 +50,14 @@ export function virtualRoutes(): PluginOption {
           let pagePath = path.replace(replacer, '').replace(/\.(.*)/, '')
           if (pagePath.endsWith('index'))
             pagePath = pagePath.replace('index', '').replace(/\/$/, '')
-          code += `  { lazy: () => import("${path}"), path: "/${pagePath}", type: "${type}", filePath: "${filePath}", lastUpdatedAt: ${lastUpdatedAt} },`
+
+          if(baseUrl) {
+            pagePath = linkWithBase(pagePath, baseUrl);
+          }
+
+          code += `  { lazy: () => import("${path}"), path: "${pagePath}", type: "${type}", filePath: "${filePath}", lastUpdatedAt: ${lastUpdatedAt} },`
           if (pagePath)
-            code += `  { lazy: () => import("${path}"), path: "/${pagePath}.html", type: "${type}", filePath: "${filePath}", lastUpdatedAt: ${lastUpdatedAt} },`
+            code += `  { lazy: () => import("${path}"), path: "${pagePath}.html", type: "${type}", filePath: "${filePath}", lastUpdatedAt: ${lastUpdatedAt} },`
         }
         code += ']'
         return code

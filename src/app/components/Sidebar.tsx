@@ -20,6 +20,7 @@ import { NavLogo } from './NavLogo.js'
 import { RouterLink } from './RouterLink.js'
 import * as styles from './Sidebar.css.js'
 import { ChevronRight } from './icons/ChevronRight.js'
+import { useConfig } from '../hooks/useConfig.js'
 
 export function Sidebar(props: {
   className?: string
@@ -31,7 +32,7 @@ export function Sidebar(props: {
   const sidebarRef = useRef<HTMLElement>(null)
   const sidebar = useSidebar()
   const [backPath, setBackPath] = useState<string>('/')
-
+  const { baseUrl } = useConfig()
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -47,7 +48,7 @@ export function Sidebar(props: {
     <aside ref={sidebarRef} key={sidebar.key} className={clsx(styles.root, className)}>
       <div className={styles.logoWrapper}>
         <div className={styles.logo}>
-          <RouterLink to="/" style={{ alignItems: 'center', display: 'flex', height: '100%' }}>
+          <RouterLink to={baseUrl || '/'} style={{ alignItems: 'center', display: 'flex', height: '100%' }}>
             <NavLogo />
           </RouterLink>
         </div>
