@@ -3,6 +3,9 @@ import { bytesToHex } from '@noble/hashes/utils'
 import { type ReactNode, createContext, useContext, useEffect, useState } from 'react'
 import type { ParsedConfig } from '../../config.js'
 import { config as virtualConfig } from 'virtual:config'
+import { useMemo } from 'react'
+import { getUrlWithBase, linkItemsWithBase } from '../utils/getUrlWithBase.js'
+
 
 const ConfigContext = createContext(virtualConfig)
 
@@ -14,7 +17,7 @@ export function ConfigProvider({
   children,
   config: initialConfig,
 }: { children: ReactNode; config?: ParsedConfig }) {
-  const [config, setConfig] = useState(() => {
+  const [config, setConfig] = useState<ParsedConfig>(() => {
     if (initialConfig) return initialConfig
     if (typeof window !== 'undefined' && import.meta.env.DEV) {
       const storedConfig = window.localStorage.getItem(`vocs.config.${configHash}`)
@@ -32,7 +35,39 @@ export function ConfigProvider({
       window.localStorage.setItem(`vocs.config.${configHash}`, JSON.stringify(config))
   }, [config])
 
-  return <ConfigContext.Provider value={config}>{children}</ConfigContext.Provider>
+  const configMemo = useMemo(() => {
+    const { baseUrl, vite } = config
+
+    const finalConfig:any = {
+      ...config,
+    };
+
+    if(baseUrl) {
+      finalConfig.vite = {
+        ...finalConfig.vite,
+        base: baseUrl
+      }
+    } else if(vite?.base) {
+      finalConfig.baseUrl = vite.base;
+    }
+
+    const base = finalConfig.baseUrl;
+
+    ['topNav', 'sidebar'].forEach((key) => {
+      const items = finalConfig[key as keyof Pick<ParsedConfig, 'topNav' | 'sidebar'>];
+      if(Array.isArray(items)) {
+        finalConfig[key as 'topNav' | 'sidebar'] = linkItemsWithBase(items, base)
+      }
+    });
+
+    ['iconUrl', 'logoUrl'].forEach((key) => {
+      if(finalConfig[key]) {
+        finalConfig[key] = getUrlWithBase(finalConfig[key], base)
+      }
+    });
+    return finalConfig;
+  }, [config])
+  return <ConfigContext.Provider value={configMemo}>{children}</ConfigContext.Provider>
 }
 
 export function useConfig() {

@@ -51,6 +51,22 @@ export async function resolveVocsConfig(parameters: ResolveVocsConfigParameters 
 
   const config = (result ? result.config : await getDefaultConfig()) as ParsedConfig
 
+  if(config.baseUrl) {
+    config.vite = {
+      ...config.vite,
+      base: config.baseUrl
+    }
+  } else if(config.vite?.base) {
+    config.baseUrl = config.vite?.base
+  }
+
+  let baseUrl = config.baseUrl
+  if(baseUrl) {
+    baseUrl = baseUrl?.replace(/\/*$/, '')
+    baseUrl = baseUrl.replace(/^\/*/, '/')
+    config.baseUrl = config.baseUrl
+  }
+
   return {
     config,
     configPath,

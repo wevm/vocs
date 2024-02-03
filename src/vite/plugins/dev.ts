@@ -1,8 +1,9 @@
-import { readFileSync } from 'node:fs'
-import { dirname, resolve } from 'node:path'
+import { accessSync, readFileSync, statSync } from 'node:fs'
+import { dirname, resolve, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { default as serveStatic } from 'serve-static'
 import type { PluginOption } from 'vite'
+import { globby } from 'globby'
 
 import type { ParsedConfig } from '../../config.js'
 import { resolveVocsConfig } from '../utils/resolveVocsConfig.js'
@@ -31,12 +32,37 @@ export function dev(): PluginOption {
     async configureServer(server) {
       const { config } = await resolveVocsConfig()
       const { rootDir } = config
-      server.middlewares.use(serveStatic(resolve(rootDir, 'public')))
-      server.middlewares.use(serveStatic(resolve(__dirname, '../../app/public')))
+      const publicUrl = resolve(rootDir, 'public');
+      const base = config.baseUrl;
+      const vocsPublic = resolve(__dirname, '../../app/public');
+
+      server.middlewares.use((req, res, next) => {
+        if(!base) {
+          return next();
+        }
+        // rewrite file path when base setted
+        if(base && req.url?.startsWith(base) && base !== req.url) {
+          //TODO
+          const urlExcludeBase = (req.url as string).replace(base, '')
+          if(urlExcludeBase !== '/') {
+            const filePath = join(publicUrl, urlExcludeBase)
+            const filePathInVocs = join(vocsPublic, urlExcludeBase)
+
+            if(isFile(filePath) || isFile(filePathInVocs)) {
+              req.url = urlExcludeBase;
+            }
+            return next();
+          }
+        }
+        next();
+      })
+
+      server.middlewares.use(serveStatic(publicUrl))
+      server.middlewares.use(serveStatic(vocsPublic))
+
       return () => {
         server.middlewares.use(async (req, res, next) => {
           const url = req.url && cleanUrl(req.url)
-
           if (!url?.endsWith('.html')) {
             next()
             return
@@ -74,4 +100,18 @@ export function dev(): PluginOption {
       }
     },
   }
+}
+
+function isFile(path:string){
+  try {
+    const stats = statSync(path)
+    if(stats.isFile()) {
+      return true;
+    }
+  } catch(err){}
+  return false;
+}
+
+async function isRoutePath(rootDir:string, path:string){
+
 }

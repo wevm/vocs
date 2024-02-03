@@ -1,4 +1,4 @@
-import { keyframes, style } from '@vanilla-extract/css'
+import { createVar, keyframes, style } from '@vanilla-extract/css'
 import {
   borderRadiusVars,
   fontSizeVars,
@@ -7,6 +7,8 @@ import {
   spaceVars,
   zIndexVars,
 } from '../styles/vars.css.js'
+
+export const mask = createVar('mask')
 
 const fadeIn = keyframes(
   {
@@ -62,7 +64,7 @@ export const trigger = style(
           height: '0.625em',
           marginLeft: '0.325em',
           width: '0.625em',
-          mask: 'url(/.vocs/icons/chevron-down.svg) no-repeat center / contain',
+          mask,
         },
       },
     },

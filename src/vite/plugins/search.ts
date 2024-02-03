@@ -8,6 +8,7 @@ import { hash as hash_ } from '../utils/hash.js'
 import { resolveVocsConfig } from '../utils/resolveVocsConfig.js'
 import { buildIndex, debug, getDocId, processMdx, splitPageIntoSections } from '../utils/search.js'
 import { slash } from '../utils/slash.js'
+import { getUrlWithBase } from '../../app/utils/getUrlWithBase.js'
 
 const virtualModuleId = 'virtual:searchIndex'
 const resolvedVirtualModuleId = `\0${virtualModuleId}`
@@ -28,6 +29,8 @@ const dev = process.env.NODE_ENV === 'development'
 
 export async function search(): Promise<Plugin> {
   const { config } = await resolveVocsConfig()
+
+  const baseUrl = config.baseUrl;
 
   let hash: string | undefined
   let index: MiniSearch<IndexObject>
@@ -99,7 +102,7 @@ export async function search(): Promise<Plugin> {
         fs.ensureDirSync(dir)
         fs.writeJSONSync(join(dir, `search-index-${hash}.json`), json)
       }
-      return `export const getSearchIndex = async () => JSON.stringify(await ((await fetch("/.vocs/search-index-${hash}.json")).json()))`
+      return `export const getSearchIndex = async () => JSON.stringify(await ((await fetch("${getUrlWithBase(`/.vocs/search-index-${hash}.json`, baseUrl)}")).json()))`
     },
     async handleHotUpdate({ file }) {
       if (!file.endsWith('.md') && !file.endsWith('.mdx')) return
