@@ -10,7 +10,7 @@ export function getUrlWithBase(url: IconUrl | string, base?: string){
       return url;
     }
     if(typeof url === 'string') {
-      return base + url;
+      return linkWithBase(url, base);
     } else {
       let finalUrl: IconUrl;
       Object.keys(url).forEach((k: string) => {
