@@ -27,6 +27,11 @@ export function ConfigProvider({
     if (import.meta.hot) import.meta.hot.on('vocs:config', setConfig)
   }, [])
 
+  useEffect(() => {
+    if (typeof window !== 'undefined' && import.meta.env.DEV)
+      window.localStorage.setItem(`vocs.config.${configHash}`, JSON.stringify(config))
+  }, [config])
+
   return <ConfigContext.Provider value={config}>{children}</ConfigContext.Provider>
 }
 

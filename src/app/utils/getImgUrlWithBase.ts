@@ -31,7 +31,10 @@ export function getImgUrlWithBase(url: IconUrl | string, base?: string) {
   }
 }
 
-export function linkWithBase(link: string, base: string) {
+export function linkWithBase(link: string, base?: string) {
+  if(!base){
+    return link;
+  }
   const url = link.replace(/\/*/, '/')
   const baseUrl = base ? base.replace(/\/*$/, '') : ''
   return baseUrl + url

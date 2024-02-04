@@ -32,7 +32,7 @@ export function virtualRoutes(): PluginOption {
     async load(id) {
       if (id === resolvedVirtualModuleId) {
         const { config } = await resolveVocsConfig()
-        const { rootDir, vite, baseUrl } = config
+        const { rootDir, baseUrl } = config
         const pagesPath = resolve(rootDir, 'pages')
 
         let code = 'export const routes = ['
