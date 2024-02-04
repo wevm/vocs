@@ -36,7 +36,7 @@
 
 Check out the following places for more Vocs-related content:
 
-- Follow [@wagmi_sh](https://twitter.com/wagmi_sh), [@jakemoxey](https://twitter.com/jakemoxey), and [@awkweb](https://twitter.com/awkweb) on Twitter for project updates
+- Follow [@wevm_dev](https://twitter.com/wevm_dev), [@jakemoxey](https://twitter.com/jakemoxey), and [@awkweb](https://twitter.com/awkweb) on Twitter for project updates
 - Join the [discussions on GitHub](https://github.com/wevm/vocs/discussions)
 
 ## Support
