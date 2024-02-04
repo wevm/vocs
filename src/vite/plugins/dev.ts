@@ -42,7 +42,6 @@ export function dev(): PluginOption {
         }
         // rewrite file path when base setted
         if(base && req.url?.startsWith(base) && base !== req.url) {
-          //TODO
           const urlExcludeBase = (req.url as string).replace(base, '')
           if(urlExcludeBase !== '/') {
             const filePath = join(publicUrl, urlExcludeBase)

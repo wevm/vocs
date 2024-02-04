@@ -5,7 +5,7 @@ import type { ReactNode } from 'react'
 import { Link as Link_ } from './Link.js'
 import * as styles from './NavigationMenu.css.js'
 import { assignInlineVars } from '@vanilla-extract/dynamic'
-import { getUrlWithBase } from '../utils/getUrlWithBase.js'
+import { getImgUrlWithBase } from '../utils/getImgUrlWithBase.js'
 import { useConfig } from '../hooks/useConfig.js'
 
 export const Root = (props: NavigationMenu.NavigationMenuProps) => (
@@ -56,7 +56,7 @@ export const Trigger = ({
   data-active={active}
   className={clsx(className, styles.trigger)}
   style={assignInlineVars({
-    [styles.mask]: `url(${getUrlWithBase('/.vocs/icons/chevron-down.svg', baseUrl)}) no-repeat center / contain`
+    [styles.mask]: `url(${getImgUrlWithBase('/.vocs/icons/chevron-down.svg', baseUrl)}) no-repeat center / contain`
   })}
 />
 }

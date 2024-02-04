@@ -28,7 +28,7 @@ import { Menu } from './icons/Menu.js'
 import { Telegram } from './icons/Telegram.js'
 import { X } from './icons/X.js'
 import { assignInlineVars } from '@vanilla-extract/dynamic'
-import { getUrlWithBase } from '../utils/getUrlWithBase.js'
+import { getImgUrlWithBase } from '../utils/getImgUrlWithBase.js'
 
 MobileTopNav.Curtain = Curtain
 
@@ -160,8 +160,8 @@ function CompactNavigation({ items }: { items: Config.ParsedTopNavItem[] }) {
                       className={clsx(styles.navigationItem, styles.navigationTrigger)}
                       data-active={activeIds.includes(item.id)}
                       style={assignInlineVars({
-                        [styles.pseudoEleMask]: `url(${getUrlWithBase('/.vocs/icons/chevron-down.svg', baseUrl)}) no-repeat center / contain`,
-                        [styles.mask]: `url(${getUrlWithBase('/.vocs/icons/chevron-up.svg', baseUrl)}) no-repeat center / contain`
+                        [styles.pseudoEleMask]: `url(${getImgUrlWithBase('/.vocs/icons/chevron-down.svg', baseUrl)}) no-repeat center / contain`,
+                        [styles.mask]: `url(${getImgUrlWithBase('/.vocs/icons/chevron-up.svg', baseUrl)}) no-repeat center / contain`
                       })}
                     >
                       {item.text}

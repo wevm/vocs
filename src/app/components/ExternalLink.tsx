@@ -3,7 +3,7 @@ import { clsx } from 'clsx'
 import { forwardRef } from 'react'
 import * as styles from './ExternalLink.css.js'
 import { assignInlineVars } from '@vanilla-extract/dynamic'
-import { getUrlWithBase } from '../utils/getUrlWithBase.js'
+import { getImgUrlWithBase } from '../utils/getImgUrlWithBase.js'
 import { useConfig } from '../hooks/useConfig.js'
 
 export type ExternalLinkProps = React.DetailedHTMLProps<
@@ -26,7 +26,7 @@ export const ExternalLink = forwardRef(
         rel="noopener noreferrer"
         {...props}
         style={assignInlineVars({
-          [styles.maskVar]: `url(${getUrlWithBase('/.vocs/icons/arrow-diagonal.svg', baseUrl)}) no-repeat center / contain`
+          [styles.maskVar]: `url(${getImgUrlWithBase('/.vocs/icons/arrow-diagonal.svg', baseUrl)}) no-repeat center / contain`
         })}
       >
         {children}

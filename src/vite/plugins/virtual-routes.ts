@@ -4,7 +4,7 @@ import type { PluginOption } from 'vite'
 
 import { resolveVocsConfig } from '../utils/resolveVocsConfig.js'
 import { getGitTimestamp } from '../utils/getGitTimestamp.js'
-import { linkWithBase } from '../../app/utils/getUrlWithBase.js'
+import { linkWithBase } from '../../app/utils/getImgUrlWithBase.js'
 
 export function virtualRoutes(): PluginOption {
   const virtualModuleId = 'virtual:routes'

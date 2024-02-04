@@ -3,7 +3,7 @@ import { type DetailedHTMLProps, type ImgHTMLAttributes } from 'react'
 
 import * as styles from './AutolinkIcon.css.js'
 import { assignInlineVars } from '@vanilla-extract/dynamic'
-import { getUrlWithBase } from '../../utils/getUrlWithBase.js'
+import { getImgUrlWithBase } from '../../utils/getImgUrlWithBase.js'
 import { useConfig } from '../../hooks/useConfig.js'
 
 export function AutolinkIcon(
@@ -11,6 +11,6 @@ export function AutolinkIcon(
 ) {
   const { baseUrl } = useConfig()
   return <div {...props} className={clsx(props.className, styles.root)} style={assignInlineVars({
-    [styles.mask]: `url(${getUrlWithBase('/.vocs/icons/link.svg', baseUrl)}) no-repeat center / contain`
+    [styles.mask]: `url(${getImgUrlWithBase('/.vocs/icons/link.svg', baseUrl)}) no-repeat center / contain`
   })} />
 }
