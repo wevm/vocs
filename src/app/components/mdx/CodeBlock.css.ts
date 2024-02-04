@@ -83,19 +83,26 @@ globalStyle(`${root} [data-line-numbers]`, {
   counterReset: 'line',
 })
 
-globalStyle(`${root} [data-line-numbers] [data-line]`, {
+globalStyle(`${root} [data-line-numbers] > [data-line]`, {
   padding: `${spaceVars['0']} ${spaceVars['16']}`,
 })
 
-globalStyle(`${root} [data-line-numbers] [data-line]::before`, {
+globalStyle(`${root} [data-line-numbers] > [data-line]::before`, {
   color: semanticColorVars.lineNumber,
   content: 'counter(line)',
-  counterIncrement: 'line',
   display: 'inline-block',
   fontSize: fontSizeVars.lineNumber,
   marginRight: spaceVars['16'],
   textAlign: 'right',
   width: '1rem',
+})
+
+globalStyle(`${root} [data-line-numbers] > [data-line]:not(.diff.remove + .diff.add)::before`, {
+  counterIncrement: 'line',
+})
+
+globalStyle(`${root} [data-line-numbers] > [data-line].diff::after`, {
+  marginLeft: `calc(-1 * ${spaceVars['4']})`,
 })
 
 globalStyle(`${root} [data-highlighted-line], ${root} .highlighted`, {
@@ -114,16 +121,16 @@ globalStyle(`${root} .has-diff`, {
   position: 'relative',
 })
 
-globalStyle(`${root} [data-line].diff::before`, {
+globalStyle(`${root} [data-line].diff::after`, {
   position: 'absolute',
-  left: '10px',
+  left: spaceVars['8'],
 })
 
 globalStyle(`${root} [data-line].diff.add`, {
   backgroundColor: primitiveColorVars.backgroundGreenTint2,
 })
 
-globalStyle(`${root} [data-line].diff.add::before`, {
+globalStyle(`${root} [data-line].diff.add::after`, {
   content: '+',
   color: primitiveColorVars.textGreen,
 })
@@ -137,7 +144,7 @@ globalStyle(`${root} [data-line].diff.remove > span`, {
   filter: 'grayscale(1)',
 })
 
-globalStyle(`${root} [data-line].diff.remove::before`, {
+globalStyle(`${root} [data-line].diff.remove::after`, {
   content: '-',
   color: primitiveColorVars.textRed,
 })
