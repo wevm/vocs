@@ -3,7 +3,12 @@ import { resolve } from 'node:path'
 import toml from 'toml'
 import { type ConfigEnv, loadConfigFromFile } from 'vite'
 import { type ParsedConfig, defineConfig, getDefaultConfig, type IconUrl } from '../../config.js'
-import { getImgUrlWithBase, linkItemsWithBase, sidebarItemsWithBase, topNavItemsWithBase } from '../../app/utils/getImgUrlWithBase.js'
+import {
+  getImgUrlWithBase,
+  linkItemsWithBase,
+  sidebarItemsWithBase,
+  topNavItemsWithBase,
+} from '../../app/utils/getImgUrlWithBase.js'
 
 const moduleExtensions = ['js', 'jsx', 'ts', 'tsx', 'mjs', 'mts']
 const staticExtensions = ['toml', 'json']
@@ -52,7 +57,7 @@ export async function resolveVocsConfig(parameters: ResolveVocsConfigParameters 
 
   let config = (result ? result.config : await getDefaultConfig()) as ParsedConfig
 
-  config = rewriteVocsBaseUrl(config);
+  config = rewriteVocsBaseUrl(config)
 
   return {
     config,
@@ -71,42 +76,49 @@ function camelCaseKeys(obj: object): object {
   )
 }
 
-
-export function rewriteVocsBaseUrl(configParams: ParsedConfig){
+export function rewriteVocsBaseUrl(configParams: ParsedConfig) {
   const config = { ...configParams }
-  if(config.baseUrl) {
+  if (config.baseUrl) {
     config.vite = {
       ...config.vite,
-      base: config.baseUrl
+      base: config.baseUrl,
     }
-  } else if(config.vite?.base) {
+  } else if (config.vite?.base) {
     config.baseUrl = config.vite?.base
   }
 
   let baseUrl = config.baseUrl
-  if(baseUrl) {
+  if (baseUrl) {
     baseUrl = baseUrl?.replace(/\/*$/, '')
     baseUrl = baseUrl.replace(/^\/*/, '/')
     config.baseUrl = baseUrl
   }
 
-  if(!config.baseUrl) {
-    return config;
+  if (!config.baseUrl) {
+    return config
   }
 
-  if(config.topNav) {
-    config.topNav = topNavItemsWithBase(config.topNav, baseUrl);
+  if (config.topNav) {
+    config.topNav = topNavItemsWithBase(config.topNav, baseUrl)
   }
 
-  if(config.sidebar) {
-    config.sidebar = sidebarItemsWithBase(config.sidebar, baseUrl);
+  if (config.sidebar) {
+    config.sidebar = sidebarItemsWithBase(config.sidebar, baseUrl)
   }
 
-  ['iconUrl', 'logoUrl'].forEach((key) => {
-    if(config[key as 'iconUrl' | 'logoUrl']) {
-      config[key as 'iconUrl' | 'logoUrl'] = getImgUrlWithBase(config[key as 'iconUrl' | 'logoUrl'] as IconUrl, config.baseUrl)
-    }
-  });
+  if(config.iconUrl){
+    config.iconUrl = getImgUrlWithBase(
+      config.iconUrl,
+      config.baseUrl,
+    )
+  }
 
-  return config;
+  if(config.logoUrl) {
+    config.logoUrl = getImgUrlWithBase(
+      config.logoUrl,
+      config.baseUrl,
+    )
+  }
+
+  return config
 }
