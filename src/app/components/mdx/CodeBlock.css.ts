@@ -97,21 +97,21 @@ globalStyle(`${root} [data-line-numbers] > .line::before`, {
   width: '1rem',
 })
 
-globalStyle(`${root} [data-line-numbers] > [data-line]:not(.diff.remove + .diff.add)::before`, {
+globalStyle(`${root} [data-line-numbers] > .line:not(.diff.remove + .diff.add)::before`, {
   counterIncrement: 'line',
 })
 
-globalStyle(`${root} [data-line-numbers] > [data-line].diff::after`, {
+globalStyle(`${root} [data-line-numbers] > .line.diff::after`, {
   marginLeft: `calc(-1 * ${spaceVars['4']})`,
 })
 
-globalStyle(`${root} [data-highlighted-line], ${root} .highlighted`, {
+globalStyle(`${root} .highlighted`, {
   backgroundColor: semanticColorVars.codeHighlightBackground,
   borderLeft: `2px solid ${semanticColorVars.codeHighlightBorder}`,
   boxSizing: 'content-box',
 })
 
-globalStyle(`${root} [data-highlighted-chars], ${root} .highlighted-word`, {
+globalStyle(`${root} .highlighted-word`, {
   borderRadius: borderRadiusVars['2'],
   backgroundColor: `${semanticColorVars.codeCharacterHighlightBackground} !important`,
   boxShadow: `0 0 0 4px ${semanticColorVars.codeCharacterHighlightBackground}`,
@@ -173,7 +173,7 @@ globalStyle(`${root} .line, ${root} .twoslash-error-line, ${root} .twoslash-tag-
   },
 })
 
-globalStyle(`${root} .line.diff::before`, {
+globalStyle(`${root} .line.diff::after`, {
   '@media': {
     [viewportVars['max-720px']]: {
       left: spaceVars['6'],

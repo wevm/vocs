@@ -378,8 +378,8 @@ importers:
         specifier: ^1.0.14
         version: 1.0.14
       rehype-shikiji:
-        specifier: ~0.10.0
-        version: 0.10.0
+        specifier: ~0.10.2
+        version: 0.10.2
       rehype-slug:
         specifier: ^6.0.0
         version: 6.0.0
@@ -402,14 +402,14 @@ importers:
         specifier: ^1.15.0
         version: 1.15.0
       shikiji:
-        specifier: ~0.10.0
-        version: 0.10.0
+        specifier: ~0.10.2
+        version: 0.10.2
       shikiji-transformers:
-        specifier: ~0.10.0
-        version: 0.10.0
+        specifier: ~0.10.2
+        version: 0.10.2
       shikiji-twoslash:
-        specifier: ~0.10.0
-        version: 0.10.0(typescript@5.2.2)
+        specifier: ~0.10.2
+        version: 0.10.2(typescript@5.2.2)
       tailwindcss:
         specifier: ^3.3.3
         version: 3.3.5
@@ -7479,13 +7479,13 @@ packages:
       unified: 10.1.2
     dev: false
 
-  /rehype-shikiji@0.10.0:
-    resolution: {integrity: sha512-iLc5d8ZzV7iCCZt6m9+PeNy+dY358SbTpLddf9n78aw08X5kx6+9ympHmN0mjD1HY8aF1UpUFPRMJlB9+fBKKQ==}
+  /rehype-shikiji@0.10.2:
+    resolution: {integrity: sha512-Ke/YZSU0mwsrmSyj9zE4BvxDnKjm43MfuimC2/SSpUuMRX+LUaSA0c7SfZoesLMYIIL51dLghUNka+W9wC9ZCg==}
     dependencies:
       '@types/hast': 3.0.3
       hast-util-to-string: 3.0.0
-      shikiji: 0.10.0
-      shikiji-transformers: 0.10.0
+      shikiji: 0.10.2
+      shikiji-transformers: 0.10.2
       unified: 11.0.4
       unist-util-visit: 5.0.0
     dev: false
@@ -7832,30 +7832,30 @@ packages:
     resolution: {integrity: sha512-7++dFhtcx3353uBaq8DDR4NuxBetBzC7ZQOhmTQInHEd6bSrXdiEyzCvG07Z44UYdLShWUyXt5M/yhz8ekcb1A==}
     engines: {node: '>=8'}
 
-  /shikiji-core@0.10.0:
-    resolution: {integrity: sha512-imG+bvRkuNlZUi2q9tMVfegRRouTpDxMFejpfF/6J+bFX3NDKtlW9T9iIAkBYnw4pcCtSwirW0AvkwlQR4wyxg==}
+  /shikiji-core@0.10.2:
+    resolution: {integrity: sha512-9Of8HMlF96usXJHmCL3Gd0Fcf0EcyJUF9m8EoAKKd98mHXi0La2AZl1h6PegSFGtiYcBDK/fLuKbDa1l16r1fA==}
     dev: false
 
-  /shikiji-transformers@0.10.0:
-    resolution: {integrity: sha512-x9oYybeF/XOrIc6Mm8G1gU5ezunMxdgD4WwBTKrZ5tAmFFaNIWCjwZENgRt1uR4iMi0+pGH0g9bmrbraSC41nA==}
+  /shikiji-transformers@0.10.2:
+    resolution: {integrity: sha512-7IVTwl1af205ywYEq5bOAYOTOFW4V1dVX1EablP0nWKErqZeD1o93VMytxmtJomqS+YwbB8doY8SE3MFMn0aPQ==}
     dependencies:
-      shikiji: 0.10.0
+      shikiji: 0.10.2
     dev: false
 
-  /shikiji-twoslash@0.10.0(typescript@5.2.2):
-    resolution: {integrity: sha512-wK0AZ/HLIPhdWtM8Xyrj2tixvuYpxcutgyac6Il6QaEXHxk3MK1BF2jY5rf5OnLwL/IFk6USdKqjvdNRbfY7Pg==}
+  /shikiji-twoslash@0.10.2(typescript@5.2.2):
+    resolution: {integrity: sha512-BeIo3TsuWMh07dn0RjPvmAxJh6zeZu0kbPW1m6R0kvKOgh/jSa9+Mu75evHfPabNJumtMELT5osnzlv66x87wg==}
     dependencies:
-      shikiji-core: 0.10.0
+      shikiji-core: 0.10.2
       twoslash: 0.1.0(typescript@5.2.2)
     transitivePeerDependencies:
       - supports-color
       - typescript
     dev: false
 
-  /shikiji@0.10.0:
-    resolution: {integrity: sha512-1dAzIOWbtM7B4Sem5BvE+CEdsebDsRA34SfCxM4qJ4PLgR73ZD92VEtNfbcoZ3xOLSqvtV0J9i4WpCgVsmQteg==}
+  /shikiji@0.10.2:
+    resolution: {integrity: sha512-wtZg3T0vtYV2PnqusWQs3mDaJBdCPWxFDrBM/SE5LfrX92gjUvfEMlc+vJnoKY6Z/S44OWaCRzNIsdBRWcTAiw==}
     dependencies:
-      shikiji-core: 0.10.0
+      shikiji-core: 0.10.2
     dev: false
 
   /side-channel@1.0.4:

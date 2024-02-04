@@ -1,14 +1,13 @@
 import { globalStyle, style } from '@vanilla-extract/css'
 
 import { fontWeightVars, primitiveColorVars, spaceVars, viewportVars } from '../styles/vars.css.js'
-import { list, root as Tabs } from './Tabs.css.js'
-import { root as CodeTitle } from './mdx/CodeTitle.css.js'
+import { root as Tabs } from './Tabs.css.js'
+import { root as CodeBlock } from './mdx/CodeBlock.css.js'
 import { root as H2 } from './mdx/H2.css.js'
 import { root as H3 } from './mdx/H3.css.js'
 import { root as H4 } from './mdx/H4.css.js'
 import { root as H5 } from './mdx/H5.css.js'
 import { root as H6 } from './mdx/H6.css.js'
-import { root as Pre } from './mdx/Pre.css.js'
 
 export const root = style({
   selectors: {
@@ -64,18 +63,10 @@ globalStyle(`${content} > *:last-child`, {
   marginBottom: spaceVars['0'],
 })
 
-globalStyle(`${content} pre.shiki, ${content} ${Tabs}`, {
+globalStyle(`${content} > ${Tabs}, ${content} > ${CodeBlock}`, {
   '@media': {
     [viewportVars['max-720px']]: {
-      borderTop: `6px solid ${primitiveColorVars.background}`,
-      borderBottom: `6px solid ${primitiveColorVars.background}`,
-    },
-  },
-})
-
-globalStyle(`${content} ${Tabs}`, {
-  '@media': {
-    [viewportVars['max-720px']]: {
+      outline: `6px solid ${primitiveColorVars.background}`,
       marginLeft: `calc(-1 * ${spaceVars['44']} - 2px)`,
       marginRight: `calc(-1 * ${spaceVars['16']})`,
     },
@@ -86,22 +77,6 @@ globalStyle(`${content} ${Tabs} pre.shiki`, {
   '@media': {
     [viewportVars['max-720px']]: {
       borderTop: 'none',
-    },
-  },
-})
-
-globalStyle(`${content} ${CodeTitle}, ${content} ${list}`, {
-  '@media': {
-    [viewportVars['max-720px']]: {
-      borderTop: `1px solid ${primitiveColorVars.border}`,
-    },
-  },
-})
-
-globalStyle(`${content} ${Pre}`, {
-  '@media': {
-    [viewportVars['max-720px']]: {
-      borderBottom: `1px solid ${primitiveColorVars.border}`,
     },
   },
 })

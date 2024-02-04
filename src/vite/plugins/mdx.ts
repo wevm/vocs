@@ -39,6 +39,7 @@ import { remarkStrongBlock } from './remark/strong-block.js'
 import { remarkSubheading } from './remark/subheading.js'
 import { remarkTwoslash } from './remark/twoslash.js'
 import { transformerEmptyLine } from './shikiji/transformerEmptyLine.js'
+import { transformerLineNumbers } from './shikiji/transformerLineNumbers.js'
 import { transformerNotationInclude } from './shikiji/transformerNotationInclude.js'
 import { transformerSplitIdentifiers } from './shikiji/transformerSplitIdentifiers.js'
 import { transformerTagLine } from './shikiji/transformerTagLine.js'
@@ -92,6 +93,7 @@ export const getRehypePlugins = ({
       rehypeShikiji,
       {
         transformers: [
+          transformerLineNumbers(),
           transformerNotationDiff(),
           transformerNotationFocus(),
           transformerNotationHighlight(),
