@@ -1,5 +1,11 @@
 # create-vocs
 
+## 1.0.0-alpha.4
+
+### Patch Changes
+
+- [`957d228`](https://github.com/wevm/vocs/commit/957d228dc2723a63e302374f780e2d26b4c73aff) Thanks [@jxom](https://github.com/jxom)! - Fixed \`.gitignore\` dist directory.
+
 ## 1.0.0-alpha.3
 
 ### Patch Changes

@@ -1,5 +1,14 @@
 # vocs
 
+## 1.0.0-alpha.32
+
+### Patch Changes
+
+- [`957d228`](https://github.com/wevm/vocs/commit/957d228dc2723a63e302374f780e2d26b4c73aff) Thanks [@jxom](https://github.com/jxom)! - Fixed `showLineNumbers` issues. See #55.
+
+- Updated dependencies [[`957d228`](https://github.com/wevm/vocs/commit/957d228dc2723a63e302374f780e2d26b4c73aff)]:
+  - create-vocs@1.0.0-alpha.4
+
 ## 1.0.0-alpha.31
 
 ### Patch Changes
