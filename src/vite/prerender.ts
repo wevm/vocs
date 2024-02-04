@@ -25,14 +25,15 @@ export async function prerender({ logger, outDir = 'dist' }: PrerenderParameters
   // Prerender each route.
   for (const route of routes) {
     const { head, body } = await mod.prerender(route)
-    let baseUrl= config.baseUrl;
+    const baseUrl = config.baseUrl
 
     const html = template
       .replace('<!--body-->', body)
       .replace('<!--head-->', head)
-      .replace('../app/utils/initializeTheme.ts', `${getImgUrlWithBase('/initializeTheme.iife.js', baseUrl)}`)
-
-      debugger
+      .replace(
+        '../app/utils/initializeTheme.ts',
+        `${getImgUrlWithBase('/initializeTheme.iife.js', baseUrl)}`,
+      )
     const isIndex = route.endsWith('/')
     const filePath = `${isIndex ? `${route}index` : route}.html`.replace(/^\//, '')
     const path = resolve(outDir_resolved, filePath)

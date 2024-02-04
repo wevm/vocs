@@ -30,7 +30,7 @@ const dev = process.env.NODE_ENV === 'development'
 export async function search(): Promise<Plugin> {
   const { config } = await resolveVocsConfig()
 
-  const baseUrl = config.baseUrl;
+  const baseUrl = config.baseUrl
 
   let hash: string | undefined
   let index: MiniSearch<IndexObject>
@@ -102,7 +102,10 @@ export async function search(): Promise<Plugin> {
         fs.ensureDirSync(dir)
         fs.writeJSONSync(join(dir, `search-index-${hash}.json`), json)
       }
-      return `export const getSearchIndex = async () => JSON.stringify(await ((await fetch("${getImgUrlWithBase(`/.vocs/search-index-${hash}.json`, baseUrl)}")).json()))`
+      return `export const getSearchIndex = async () => JSON.stringify(await ((await fetch("${getImgUrlWithBase(
+        `/.vocs/search-index-${hash}.json`,
+        baseUrl,
+      )}")).json()))`
     },
     async handleHotUpdate({ file }) {
       if (!file.endsWith('.md') && !file.endsWith('.mdx')) return

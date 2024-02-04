@@ -13,7 +13,7 @@ export type ExternalLinkProps = React.DetailedHTMLProps<
 
 export const ExternalLink = forwardRef(
   ({ className, children, hideExternalIcon, href, ...props }: ExternalLinkProps, ref) => {
-    const { baseUrl, vite } = useConfig();
+    const { baseUrl, vite } = useConfig()
     return (
       <a
         ref={ref as any}
@@ -26,7 +26,10 @@ export const ExternalLink = forwardRef(
         rel="noopener noreferrer"
         {...props}
         style={assignInlineVars({
-          [styles.maskVar]: `url(${getImgUrlWithBase('/.vocs/icons/arrow-diagonal.svg', baseUrl)}) no-repeat center / contain`
+          [styles.maskVar]: `url(${getImgUrlWithBase(
+            '/.vocs/icons/arrow-diagonal.svg',
+            baseUrl,
+          )}) no-repeat center / contain`,
         })}
       >
         {children}

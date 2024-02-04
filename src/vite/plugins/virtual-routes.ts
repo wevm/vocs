@@ -1,4 +1,4 @@
-import  { extname, resolve } from 'node:path'
+import { extname, resolve } from 'node:path'
 import { globby } from 'globby'
 import type { PluginOption } from 'vite'
 
@@ -51,8 +51,8 @@ export function virtualRoutes(): PluginOption {
           if (pagePath.endsWith('index'))
             pagePath = pagePath.replace('index', '').replace(/\/$/, '')
 
-          if(baseUrl) {
-            pagePath = linkWithBase(pagePath, baseUrl);
+          if (baseUrl) {
+            pagePath = linkWithBase(pagePath, baseUrl)
           }
 
           code += `  { lazy: () => import("${path}"), path: "${pagePath}", type: "${type}", filePath: "${filePath}", lastUpdatedAt: ${lastUpdatedAt} },`

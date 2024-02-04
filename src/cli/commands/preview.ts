@@ -5,7 +5,7 @@ import { resolveVocsConfig } from '../../vite/utils/resolveVocsConfig.js'
 
 export async function preview() {
   const { preview } = await import('../../vite/preview.js')
-  const { config } = await resolveVocsConfig();
+  const { config } = await resolveVocsConfig()
   const server = await preview()
 
   const logger = createLogger()
@@ -15,6 +15,8 @@ export async function preview() {
   logger.info('')
 
   logger.info(
-    `  ${pc.green('➜')}  ${pc.bold('Local')}:   ${pc.cyan(`http://localhost:${server.port}${config.baseUrl}`)}`,
+    `  ${pc.green('➜')}  ${pc.bold('Local')}:   ${pc.cyan(
+      `http://localhost:${server.port}${config.baseUrl}`,
+    )}`,
   )
 }

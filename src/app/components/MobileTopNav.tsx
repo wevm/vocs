@@ -35,7 +35,7 @@ MobileTopNav.Curtain = Curtain
 export function MobileTopNav() {
   const config = useConfig()
   const { showLogo } = useLayout()
-  const baseUrl = config.baseUrl;
+  const baseUrl = config.baseUrl
 
   return (
     <div className={styles.root}>
@@ -43,7 +43,10 @@ export function MobileTopNav() {
         {showLogo && (
           <div className={styles.group}>
             <div className={styles.logo}>
-              <RouterLink to={baseUrl || '/'} style={{ alignItems: 'center', display: 'flex', height: '100%' }}>
+              <RouterLink
+                to={baseUrl || '/'}
+                style={{ alignItems: 'center', display: 'flex', height: '100%' }}
+              >
                 <NavLogo />
               </RouterLink>
             </div>
@@ -160,8 +163,14 @@ function CompactNavigation({ items }: { items: Config.ParsedTopNavItem[] }) {
                       className={clsx(styles.navigationItem, styles.navigationTrigger)}
                       data-active={activeIds.includes(item.id)}
                       style={assignInlineVars({
-                        [styles.pseudoEleMask]: `url(${getImgUrlWithBase('/.vocs/icons/chevron-down.svg', baseUrl)}) no-repeat center / contain`,
-                        [styles.mask]: `url(${getImgUrlWithBase('/.vocs/icons/chevron-up.svg', baseUrl)}) no-repeat center / contain`
+                        [styles.pseudoEleMask]: `url(${getImgUrlWithBase(
+                          '/.vocs/icons/chevron-down.svg',
+                          baseUrl,
+                        )}) no-repeat center / contain`,
+                        [styles.mask]: `url(${getImgUrlWithBase(
+                          '/.vocs/icons/chevron-up.svg',
+                          baseUrl,
+                        )}) no-repeat center / contain`,
                       })}
                     >
                       {item.text}

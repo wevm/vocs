@@ -26,7 +26,7 @@ DesktopTopNav.Curtain = Curtain
 export function DesktopTopNav() {
   const config = useConfig()
   const { showLogo, showSidebar } = useLayout()
-  const base = config.baseUrl;
+  const base = config.baseUrl
 
   return (
     <div className={clsx(styles.root, showLogo && !showSidebar && styles.withLogo)}>

@@ -32,28 +32,28 @@ export function dev(): PluginOption {
     async configureServer(server) {
       const { config } = await resolveVocsConfig()
       const { rootDir } = config
-      const publicUrl = resolve(rootDir, 'public');
-      const base = config.baseUrl;
-      const vocsPublic = resolve(__dirname, '../../app/public');
+      const publicUrl = resolve(rootDir, 'public')
+      const base = config.baseUrl
+      const vocsPublic = resolve(__dirname, '../../app/public')
 
       server.middlewares.use((req, res, next) => {
-        if(!base) {
-          return next();
+        if (!base) {
+          return next()
         }
         // rewrite file path when base setted
-        if(base && req.url?.startsWith(base) && base !== req.url) {
+        if (base && req.url?.startsWith(base) && base !== req.url) {
           const urlExcludeBase = (req.url as string).replace(base, '')
-          if(urlExcludeBase !== '/') {
+          if (urlExcludeBase !== '/') {
             const filePath = join(publicUrl, urlExcludeBase)
             const filePathInVocs = join(vocsPublic, urlExcludeBase)
 
-            if(isFile(filePath) || isFile(filePathInVocs)) {
-              req.url = urlExcludeBase;
+            if (isFile(filePath) || isFile(filePathInVocs)) {
+              req.url = urlExcludeBase
             }
-            return next();
+            return next()
           }
         }
-        next();
+        next()
       })
 
       server.middlewares.use(serveStatic(publicUrl))
@@ -101,16 +101,14 @@ export function dev(): PluginOption {
   }
 }
 
-function isFile(path:string){
+function isFile(path: string) {
   try {
     const stats = statSync(path)
-    if(stats.isFile()) {
-      return true;
+    if (stats.isFile()) {
+      return true
     }
-  } catch(err){}
-  return false;
+  } catch (err) {}
+  return false
 }
 
-async function isRoutePath(rootDir:string, path:string){
-
-}
+async function isRoutePath(rootDir: string, path: string) {}

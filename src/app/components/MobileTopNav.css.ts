@@ -12,7 +12,7 @@ import {
   viewportVars,
 } from '../styles/vars.css.js'
 
-export const pseudoEleMask = createVar('pseudoEleMask');
+export const pseudoEleMask = createVar('pseudoEleMask')
 export const mask = createVar('mask')
 
 const fadeIn = keyframes(

@@ -51,14 +51,19 @@ export const Trigger = ({
   active?: boolean
 }) => {
   const { baseUrl } = useConfig()
-  return <NavigationMenu.Trigger
-  {...props}
-  data-active={active}
-  className={clsx(className, styles.trigger)}
-  style={assignInlineVars({
-    [styles.mask]: `url(${getImgUrlWithBase('/.vocs/icons/chevron-down.svg', baseUrl)}) no-repeat center / contain`
-  })}
-/>
+  return (
+    <NavigationMenu.Trigger
+      {...props}
+      data-active={active}
+      className={clsx(className, styles.trigger)}
+      style={assignInlineVars({
+        [styles.mask]: `url(${getImgUrlWithBase(
+          '/.vocs/icons/chevron-down.svg',
+          baseUrl,
+        )}) no-repeat center / contain`,
+      })}
+    />
+  )
 }
 
 export const Content = (props: NavigationMenu.NavigationMenuContentProps) => (

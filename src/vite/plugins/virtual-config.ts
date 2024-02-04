@@ -14,7 +14,7 @@ export function virtualConfig(): PluginOption {
         server.watcher.add(configPath)
         server.watcher.on('change', async (path) => {
           if (path !== configPath) return
-          let config = (await resolveVocsConfig()).config;
+          let config = (await resolveVocsConfig()).config
           config = rewriteVocsBaseUrl(config)
           server.ws.send('vocs:config', (await resolveVocsConfig()).config)
         })

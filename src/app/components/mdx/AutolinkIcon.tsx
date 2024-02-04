@@ -10,7 +10,16 @@ export function AutolinkIcon(
   props: DetailedHTMLProps<ImgHTMLAttributes<HTMLImageElement>, HTMLImageElement>,
 ) {
   const { baseUrl } = useConfig()
-  return <div {...props} className={clsx(props.className, styles.root)} style={assignInlineVars({
-    [styles.mask]: `url(${getImgUrlWithBase('/.vocs/icons/link.svg', baseUrl)}) no-repeat center / contain`
-  })} />
+  return (
+    <div
+      {...props}
+      className={clsx(props.className, styles.root)}
+      style={assignInlineVars({
+        [styles.mask]: `url(${getImgUrlWithBase(
+          '/.vocs/icons/link.svg',
+          baseUrl,
+        )}) no-repeat center / contain`,
+      })}
+    />
+  )
 }
