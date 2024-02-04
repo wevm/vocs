@@ -312,7 +312,7 @@ importers:
         specifier: ^1.7.4
         version: 1.7.4
       create-vocs:
-        specifier: ^1.0.0-alpha.3
+        specifier: ^1.0.0-alpha.4
         version: 1.0.0-alpha.1-main.20240111T192716
       cross-spawn:
         specifier: ^7.0.3
