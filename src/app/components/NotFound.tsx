@@ -15,7 +15,7 @@ export function NotFound() {
       <div style={{ height: spaceVars['24'] }} />
       <Paragraph>The page you were looking for could not be found.</Paragraph>
       <div style={{ height: spaceVars['8'] }} />
-      <Link href={(baseUrl || '') + '/'}>Go to Home Page</Link>
+      <Link href={`${(baseUrl || '')}/`}>Go to Home Page</Link>
     </div>
   )
 }
