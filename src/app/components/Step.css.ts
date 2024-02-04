@@ -64,12 +64,11 @@ globalStyle(`${content} > *:last-child`, {
   marginBottom: spaceVars['0'],
 })
 
-globalStyle(`${content} [data-rehype-pretty-code-figure], ${content} ${Tabs}`, {
+globalStyle(`${content} pre.shiki, ${content} ${Tabs}`, {
   '@media': {
     [viewportVars['max-720px']]: {
       borderTop: `6px solid ${primitiveColorVars.background}`,
       borderBottom: `6px solid ${primitiveColorVars.background}`,
-      marginLeft: `calc(-1 * ${spaceVars['44']} - 2px)`,
     },
   },
 })
@@ -83,7 +82,7 @@ globalStyle(`${content} ${Tabs}`, {
   },
 })
 
-globalStyle(`${content} ${Tabs} [data-rehype-pretty-code-figure]`, {
+globalStyle(`${content} ${Tabs} pre.shiki`, {
   '@media': {
     [viewportVars['max-720px']]: {
       borderTop: 'none',

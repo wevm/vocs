@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react'
-import type { Options as PrettyCodeOptions } from 'rehype-pretty-code'
+import type { RehypeShikijiOptions } from 'rehype-shikiji'
 import type { TwoslashOptions } from 'twoslash'
 import type { PluggableList } from 'unified'
 import type { UserConfig } from 'vite'
@@ -225,8 +225,7 @@ function parseMarkdown(markdown: Markdown): Markdown<true> {
   return {
     ...markdown,
     code: {
-      keepBackground: false,
-      theme: {
+      themes: {
         dark: 'github-dark-dimmed',
         light: 'github-light',
       },
@@ -367,7 +366,7 @@ export type LogoUrl = string | { light: string; dark: string }
 
 export type Markdown<parsed extends boolean = false> = RequiredBy<
   {
-    code?: Normalize<PrettyCodeOptions>
+    code?: Normalize<RehypeShikijiOptions>
     remarkPlugins?: PluggableList
     rehypePlugins?: PluggableList
   },

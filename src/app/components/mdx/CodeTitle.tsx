@@ -8,9 +8,9 @@ import * as styles from './CodeTitle.css.js'
 export function CodeTitle({
   children,
   className,
+  language,
   ...props
-}: { children: string; className?: string }) {
-  const language = 'data-language' in props ? props['data-language'] : undefined
+}: { children: string; className?: string; language?: string }) {
   return (
     <div {...props} className={clsx(className, styles.root)}>
       {language === 'bash' ? (
