@@ -1,29 +1,29 @@
 import mdxPlugin from '@mdx-js/rollup'
-import { h } from 'hastscript'
-import rehypeAutolinkHeadings from 'rehype-autolink-headings'
-import rehypeShikiji, { type RehypeShikijiOptions } from 'rehype-shikiji'
-import rehypeSlug from 'rehype-slug'
-import remarkDirective from 'remark-directive'
-import remarkFrontmatter from 'remark-frontmatter'
-import remarkGfm from 'remark-gfm'
-import remarkMdxFrontmatter from 'remark-mdx-frontmatter'
+import rehypeShiki, { type RehypeShikiOptions } from '@shikijs/rehype'
 import {
   transformerNotationDiff,
   transformerNotationFocus,
   transformerNotationHighlight,
   transformerNotationWordHighlight,
-} from 'shikiji-transformers'
+} from '@shikijs/transformers'
 import {
   defaultTwoslashOptions as defaultTwoslashOptions_,
   transformerTwoslash,
-} from 'shikiji-twoslash'
+} from '@shikijs/twoslash'
+import { h } from 'hastscript'
+import rehypeAutolinkHeadings from 'rehype-autolink-headings'
+import rehypeSlug from 'rehype-slug'
+import remarkDirective from 'remark-directive'
+import remarkFrontmatter from 'remark-frontmatter'
+import remarkGfm from 'remark-gfm'
+import remarkMdxFrontmatter from 'remark-mdx-frontmatter'
 import type { PluggableList } from 'unified'
 import { type PluginOption } from 'vite'
 
 import type { ParsedConfig } from '../../config.js'
 import { resolveVocsConfig } from '../utils/resolveVocsConfig.js'
-import { rehypeShikijiDisplayNotation } from './rehype/display-shikiji-notation.js'
-import { rehypeInlineShikiji } from './rehype/inline-shikiji.js'
+import { rehypeShikiDisplayNotation } from './rehype/display-shiki-notation.js'
+import { rehypeInlineShiki } from './rehype/inline-shiki.js'
 import { remarkAuthors } from './remark/authors.js'
 import { remarkBlogPosts } from './remark/blog-posts.js'
 import { remarkCallout } from './remark/callout.js'
@@ -38,14 +38,14 @@ import { remarkSteps } from './remark/steps.js'
 import { remarkStrongBlock } from './remark/strong-block.js'
 import { remarkSubheading } from './remark/subheading.js'
 import { remarkTwoslash } from './remark/twoslash.js'
-import { transformerEmptyLine } from './shikiji/transformerEmptyLine.js'
-import { transformerLineNumbers } from './shikiji/transformerLineNumbers.js'
-import { transformerNotationInclude } from './shikiji/transformerNotationInclude.js'
-import { transformerSplitIdentifiers } from './shikiji/transformerSplitIdentifiers.js'
-import { transformerTagLine } from './shikiji/transformerTagLine.js'
-import { transformerTitle } from './shikiji/transformerTitle.js'
-import { twoslashRenderer } from './shikiji/twoslashRenderer.js'
-import { twoslasher } from './shikiji/twoslasher.js'
+import { transformerEmptyLine } from './shiki/transformerEmptyLine.js'
+import { transformerLineNumbers } from './shiki/transformerLineNumbers.js'
+import { transformerNotationInclude } from './shiki/transformerNotationInclude.js'
+import { transformerSplitIdentifiers } from './shiki/transformerSplitIdentifiers.js'
+import { transformerTagLine } from './shiki/transformerTagLine.js'
+import { transformerTitle } from './shiki/transformerTitle.js'
+import { twoslashRenderer } from './shiki/twoslashRenderer.js'
+import { twoslasher } from './shiki/twoslasher.js'
 
 const defaultTwoslashOptions = defaultTwoslashOptions_()
 
@@ -90,7 +90,7 @@ export const getRehypePlugins = ({
   [
     rehypeSlug,
     [
-      rehypeShikiji,
+      rehypeShiki,
       {
         transformers: [
           transformerLineNumbers(),
@@ -123,10 +123,10 @@ export const getRehypePlugins = ({
           transformerSplitIdentifiers(),
         ].filter(Boolean),
         ...markdown?.code,
-      } as RehypeShikijiOptions,
+      } as RehypeShikiOptions,
     ],
-    [rehypeInlineShikiji, markdown?.code],
-    rehypeShikijiDisplayNotation,
+    [rehypeInlineShiki, markdown?.code],
+    rehypeShikiDisplayNotation,
     [
       rehypeAutolinkHeadings,
       {

@@ -1,5 +1,5 @@
+import type { RehypeShikiOptions } from '@shikijs/rehype'
 import type { ReactElement } from 'react'
-import type { RehypeShikijiOptions } from 'rehype-shikiji'
 import type { TwoslashOptions } from 'twoslash'
 import type { PluggableList } from 'unified'
 import type { UserConfig } from 'vite'
@@ -366,7 +366,7 @@ export type LogoUrl = string | { light: string; dark: string }
 
 export type Markdown<parsed extends boolean = false> = RequiredBy<
   {
-    code?: Normalize<RehypeShikijiOptions>
+    code?: Normalize<RehypeShikiOptions>
     remarkPlugins?: PluggableList
     rehypePlugins?: PluggableList
   },

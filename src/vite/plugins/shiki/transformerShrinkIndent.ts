@@ -1,6 +1,6 @@
-import type { ShikijiTransformer } from 'shikiji'
+import type { ShikiTransformer } from 'shiki'
 
-export const transformerShrinkIndent = (): ShikijiTransformer => ({
+export const transformerShrinkIndent = (): ShikiTransformer => ({
   name: 'indent',
   token(hast, _, __, lineElement) {
     const child = hast.children[0]

@@ -1,6 +1,6 @@
-import type { ShikijiTransformer } from 'shikiji'
+import type { ShikiTransformer } from 'shiki'
 
-export const transformerLineNumbers = (): ShikijiTransformer => ({
+export const transformerLineNumbers = (): ShikiTransformer => ({
   name: 'line-numbers',
   code(hast) {
     if (!this.options.meta?.__raw?.includes('showLineNumbers')) return

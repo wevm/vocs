@@ -1,6 +1,6 @@
-import type { ShikijiTransformer } from 'shikiji'
+import type { ShikiTransformer } from 'shiki'
 
-export const transformerTagLine = (): ShikijiTransformer => ({
+export const transformerTagLine = (): ShikiTransformer => ({
   name: 'tag-line',
   root(hast) {
     const lines = (hast.children[0] as any)?.children[0]?.children

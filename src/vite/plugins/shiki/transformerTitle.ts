@@ -1,8 +1,8 @@
-import type { ShikijiTransformer } from 'shikiji'
+import type { ShikiTransformer } from 'shiki'
 
 const titleRegex = /title="(.*)"|\[(.*)\]/
 
-export const transformerTitle = (): ShikijiTransformer => ({
+export const transformerTitle = (): ShikiTransformer => ({
   name: 'title',
   root(hast) {
     const titleMatch = this.options.meta?.__raw?.match(titleRegex)

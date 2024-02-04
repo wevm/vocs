@@ -21,11 +21,11 @@ export function CodeGroup({ children }: { children: ReactElement[] }) {
         ))}
       </Tabs.List>
       {tabs.map(({ title, content }, i) => {
-        const isShikiji = content.props?.className?.includes('shiki')
+        const isShiki = content.props?.className?.includes('shiki')
         return (
           <Tabs.Content
             key={title || i.toString()}
-            data-shikiji={isShikiji}
+            data-shiki={isShiki}
             value={title || i.toString()}
           >
             {content}

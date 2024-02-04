@@ -58,7 +58,7 @@ export const content = style(
   {
     backgroundColor: semanticColorVars.codeBlockBackground,
     selectors: {
-      '&:not([data-shikiji="true"])': {
+      '&:not([data-shiki="true"])': {
         padding: `${spaceVars['20']} ${spaceVars['22']}`,
         '@media': {
           [viewportVars['max-720px']]: {

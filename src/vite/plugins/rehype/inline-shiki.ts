@@ -1,14 +1,14 @@
+import type { RehypeShikiCoreOptions } from '@shikijs/rehype/core'
 import type { Root } from 'hast'
-import type { RehypeShikijiCoreOptions } from 'rehype-shikiji/core'
-import type { BuiltinLanguage, BuiltinTheme, Highlighter } from 'shikiji'
-import { bundledLanguages, getHighlighter } from 'shikiji'
-import type { LanguageInput } from 'shikiji/core'
+import type { BuiltinLanguage, BuiltinTheme, Highlighter } from 'shiki'
+import { bundledLanguages, getHighlighter } from 'shiki'
+import type { LanguageInput } from 'shiki/core'
 import type { Plugin } from 'unified'
 import { visit } from 'unist-util-visit'
 
-const inlineShikijiRegex = /(.*){:(.*)}$/
+const inlineShikiRegex = /(.*){:(.*)}$/
 
-export type RehypeInlineShikijiOptions = RehypeShikijiCoreOptions & {
+export type RehypeInlineShikiOptions = RehypeShikiCoreOptions & {
   /**
    * Language names to include.
    *
@@ -17,7 +17,7 @@ export type RehypeInlineShikijiOptions = RehypeShikijiCoreOptions & {
   langs?: Array<LanguageInput | BuiltinLanguage>
 }
 
-export const rehypeInlineShikiji: Plugin<[RehypeInlineShikijiOptions], Root> = function (
+export const rehypeInlineShiki: Plugin<[RehypeInlineShikiOptions], Root> = function (
   options = {} as any,
 ) {
   const themeNames = ('themes' in options ? Object.values(options.themes) : [options.theme]).filter(
@@ -37,7 +37,7 @@ export const rehypeInlineShikiji: Plugin<[RehypeInlineShikijiOptions], Root> = f
     return visit(tree, 'element', (node, index, parent) => {
       if (node.tagName !== 'code') return
 
-      const match = (node.children[0] as any)?.value?.match(inlineShikijiRegex)
+      const match = (node.children[0] as any)?.value?.match(inlineShikiRegex)
       if (!match) return
 
       const [, code, lang] = match

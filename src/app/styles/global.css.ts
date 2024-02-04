@@ -40,7 +40,7 @@ globalStyle(':root.dark', {
 })
 
 ////////////////////////////////////////////////////////////////////////
-// Shikiji
+// Shiki
 
 globalStyle(':root.dark pre.shiki span:not(.line), :root.dark :not(pre.shiki) .line span', {
   color: 'var(--shiki-dark) !important',
