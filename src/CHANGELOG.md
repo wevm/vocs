@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.0-alpha.34
+
+### Patch Changes
+
+- [`7171da0`](https://github.com/wevm/vocs/commit/7171da00835060694dd57f4b1200084a639ae17d) Thanks [@jxom](https://github.com/jxom)! - Fixed SSR hydration issue in footer navigation.
+
 ## 1.0.0-alpha.33
 
 ### Minor Changes
