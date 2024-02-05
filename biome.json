@@ -1,7 +1,15 @@
 {
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
   "files": {
-    "ignore": ["_lib", "dist", "**/node_modules", "tsconfig.json", "tsconfig.*.json", ".vocs"]
+    "ignore": [
+      "_lib",
+      "dist",
+      "**/node_modules",
+      "tsconfig.json",
+      "tsconfig.*.json",
+      ".vercel",
+      ".vocs"
+    ]
   },
   "formatter": {
     "enabled": true,

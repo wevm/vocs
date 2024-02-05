@@ -6,7 +6,9 @@ import * as vite from 'vite'
 import { postbuild } from './plugins/postbuild.js'
 import { prerender } from './prerender.js'
 import * as cache from './utils/cache.js'
+import { resolveOutDir } from './utils/resolveOutDir.js'
 import { resolveVocsConfig } from './utils/resolveVocsConfig.js'
+import { vercelBuildOutputDir, writeBuildOutputConfig } from './utils/vercel.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -31,13 +33,13 @@ export async function build({
   logger,
   hooks,
   logLevel = 'silent',
-  outDir = 'dist',
+  outDir,
   publicDir = 'public',
 }: BuildParameters = {}) {
   const { config } = await resolveVocsConfig()
   const { rootDir } = config
 
-  const outDir_resolved = resolve(rootDir, outDir)
+  const outDir_resolved = resolveOutDir(rootDir, outDir)
   const publicDir_resolved = resolve(rootDir, publicDir)
 
   if (clean) cache.clear()
@@ -107,4 +109,6 @@ export async function build({
   } catch (error) {
     hooks?.onScriptsEnd?.({ error: error as Error })
   }
+
+  if (outDir_resolved === vercelBuildOutputDir) writeBuildOutputConfig()
 }
