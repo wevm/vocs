@@ -8,10 +8,10 @@
 
   The following **meta properties** on code blocks have been removed:
 
-  - Highlight Lines (\`\`\`js {1-3,4}).
-    - Use the inline `// [!code hl]` notation instead.
-  - Highlight Chars (\`\`\`js /carrot/, \`\`\`js "carrot", etc).
-    - Use the inline `// [!code word]` notation instead.
+  - Highlight Lines (e.g. \`\`\`js {1-3,4}).
+    - Use the [inline `// [!code hl]` notation](https://vocs.dev/docs/markdown#line-highlights) instead.
+  - Highlight Chars (e.g. \`\`\`js /carrot/, \`\`\`js "carrot", etc).
+    - Use the [inline `// [!code word]` notation](https://vocs.dev/docs/markdown#word-focus) instead.
 
 - [#77](https://github.com/wevm/vocs/pull/77) [`a9940fc`](https://github.com/wevm/vocs/commit/a9940fcc709cc40b2b136e14ef0ddf98d3b56755) Thanks [@jxom](https://github.com/jxom)! - Adhere to Vercel [Build Output API](https://vercel.com/docs/build-output-api/v3) for zero-config Vercel deployments.
 
