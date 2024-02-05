@@ -1,5 +1,26 @@
 # vocs
 
+## 1.0.0-alpha.33
+
+### Minor Changes
+
+- [#75](https://github.com/wevm/vocs/pull/75) [`1708be3`](https://github.com/wevm/vocs/commit/1708be35848ef7e0ea7faeed2f82cf998823b2b3) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Migrated to `rehype-shiki` from `rehype-pretty-code`.
+
+  The following **meta properties** on code blocks have been removed:
+
+  - Highlight Lines (\`\`\`js {1-3,4}).
+    - Use the inline `// [!code hl]` notation instead.
+  - Highlight Chars (\`\`\`js /carrot/, \`\`\`js "carrot", etc).
+    - Use the inline `// [!code word]` notation instead.
+
+- [#77](https://github.com/wevm/vocs/pull/77) [`a9940fc`](https://github.com/wevm/vocs/commit/a9940fcc709cc40b2b136e14ef0ddf98d3b56755) Thanks [@jxom](https://github.com/jxom)! - Adhere to Vercel [Build Output API](https://vercel.com/docs/build-output-api/v3) for zero-config Vercel deployments.
+
+- [#75](https://github.com/wevm/vocs/pull/75) [`1708be3`](https://github.com/wevm/vocs/commit/1708be35848ef7e0ea7faeed2f82cf998823b2b3) Thanks [@jxom](https://github.com/jxom)! - Migrated from `shikiji@0.10` to `shiki@1.0.0-beta`.
+
+### Patch Changes
+
+- [`bd341b6`](https://github.com/wevm/vocs/commit/bd341b61e9410cdc5cce73a5e81354bdaec524a8) Thanks [@jxom](https://github.com/jxom)! - Fixed last updated timestamp hydration mismatch issue.
+
 ## 1.0.0-alpha.32
 
 ### Patch Changes
