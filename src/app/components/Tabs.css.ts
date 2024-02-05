@@ -58,7 +58,7 @@ export const content = style(
   {
     backgroundColor: semanticColorVars.codeBlockBackground,
     selectors: {
-      '&:not([data-pretty-code="true"])': {
+      '&:not([data-shiki="true"])': {
         padding: `${spaceVars['20']} ${spaceVars['22']}`,
         '@media': {
           [viewportVars['max-720px']]: {
@@ -71,11 +71,8 @@ export const content = style(
   'content',
 )
 
-globalStyle(`${root} [data-rehype-pretty-code-figure], ${root} pre`, {
-  marginBottom: spaceVars['0'],
-})
-
 globalStyle(`${root} pre`, {
+  marginBottom: spaceVars['0'],
   '@media': {
     [viewportVars['max-720px']]: {
       margin: 'unset',

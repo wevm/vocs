@@ -46,28 +46,26 @@ export async function build({
 
   hooks?.onBundleStart?.()
   try {
-    await Promise.all([
-      vite.build({
-        build: {
-          emptyOutDir: false,
-          outDir: outDir_resolved,
-        },
-        publicDir: publicDir_resolved,
-        root: __dirname,
-        logLevel,
-        plugins: [postbuild({ logger })],
-      }),
-      vite.build({
-        build: {
-          emptyOutDir: false,
-          outDir: resolve(__dirname, '.vocs/dist'),
-          ssr: resolve(__dirname, '../app/index.server.tsx'),
-        },
-        logLevel,
-        publicDir: publicDir_resolved,
-        root: __dirname,
-      }),
-    ])
+    await vite.build({
+      build: {
+        emptyOutDir: false,
+        outDir: outDir_resolved,
+      },
+      publicDir: publicDir_resolved,
+      root: __dirname,
+      logLevel,
+      plugins: [postbuild({ logger })],
+    })
+    await vite.build({
+      build: {
+        emptyOutDir: false,
+        outDir: resolve(__dirname, '.vocs/dist'),
+        ssr: resolve(__dirname, '../app/index.server.tsx'),
+      },
+      logLevel,
+      publicDir: publicDir_resolved,
+      root: __dirname,
+    })
     hooks?.onBundleEnd?.({})
   } catch (e) {
     const error = e as Error

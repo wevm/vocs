@@ -4,7 +4,7 @@
 import type { Root } from 'mdast'
 import { visit } from 'unist-util-visit'
 
-import { processIncludes } from '../shikiji/transformerNotationInclude.js'
+import { processIncludes } from '../shiki/transformerNotationInclude.js'
 
 const filenameRegex = /filename="(.*)"/
 const importRegex = /from ('|")(.*)('|")/g

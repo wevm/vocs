@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import type { ShikijiTransformer } from 'shikiji'
+import type { ShikiTransformer } from 'shiki'
 
 const includeRegex = /\/\/ \[!include (.*)\]/
 const regionRegex = /\/\/ \[!region (.*)\]/
@@ -14,7 +14,7 @@ export type TransformerNotationIncludeOptions = {
 
 export const transformerNotationInclude = ({
   rootDir,
-}: TransformerNotationIncludeOptions): ShikijiTransformer => ({
+}: TransformerNotationIncludeOptions): ShikiTransformer => ({
   name: 'includes',
   preprocess(code) {
     if (!code) return code
@@ -62,7 +62,7 @@ export function processIncludes({
     }
     i++
   }
-  return lines.join('\n')
+  return lines.join('\n').replace(/\n$/, '')
 }
 
 function extractRegion(code: string, region: string | undefined) {

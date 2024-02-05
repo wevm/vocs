@@ -1,6 +1,6 @@
-import type { ShikijiTransformer } from 'shikiji'
+import type { ShikiTransformer } from 'shiki'
 
-export const transformerSplitIdentifiers = (): ShikijiTransformer => ({
+export const transformerSplitIdentifiers = (): ShikiTransformer => ({
   name: 'split-identifiers',
   token(hast) {
     // only apply for twoslash code blocks

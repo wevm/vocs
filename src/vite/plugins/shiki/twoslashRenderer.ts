@@ -1,16 +1,16 @@
+import type { TwoslashRenderer } from '@shikijs/twoslash'
 import type { Element } from 'hast'
 import { fromMarkdown } from 'mdast-util-from-markdown'
 import { gfmFromMarkdown } from 'mdast-util-gfm'
 import { defaultHandlers, toHast } from 'mdast-util-to-hast'
-import type { ShikijiTransformerContextCommon } from 'shikiji'
-import type { TwoslashRenderer } from 'shikiji-twoslash'
+import type { ShikiTransformerContextCommon } from 'shiki'
 
 import { transformerShrinkIndent } from './transformerShrinkIndent.js'
 
 export function twoslashRenderer(): TwoslashRenderer {
   function hightlightPopupContent(
-    codeToHast: ShikijiTransformerContextCommon['codeToHast'],
-    shikijiOptions: ShikijiTransformerContextCommon['options'],
+    codeToHast: ShikiTransformerContextCommon['codeToHast'],
+    shikiOptions: ShikiTransformerContextCommon['options'],
     info: { text?: string; docs?: string },
   ) {
     if (!info.text) return []
@@ -21,7 +21,7 @@ export function twoslashRenderer(): TwoslashRenderer {
     const themedContent = (
       (
         codeToHast(text, {
-          ...shikijiOptions,
+          ...shikiOptions,
           transformers: [transformerShrinkIndent()],
         }).children[0] as Element
       ).children[0] as Element
@@ -42,7 +42,7 @@ export function twoslashRenderer(): TwoslashRenderer {
             const lang = node.lang || ''
             if (lang) {
               return codeToHast(node.value, {
-                ...shikijiOptions,
+                ...shikiOptions,
                 transformers: [],
                 lang,
               }).children[0] as Element
@@ -138,7 +138,7 @@ export function twoslashRenderer(): TwoslashRenderer {
     nodeCompletion(query, node) {
       if (node.type !== 'text')
         throw new Error(
-          `[shikiji-twoslash] nodeCompletion only works on text nodes, got ${node.type}`,
+          `[shiki-twoslash] nodeCompletion only works on text nodes, got ${node.type}`,
         )
 
       const leftPart = query.completionsPrefix || ''

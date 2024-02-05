@@ -8,6 +8,7 @@ import {
   fontWeightVars,
   lineHeightVars,
   primitiveColorVars,
+  semanticColorVars,
   spaceVars,
   viewportVars,
 } from './vars.css.js'
@@ -39,15 +40,13 @@ globalStyle(':root.dark', {
 })
 
 ////////////////////////////////////////////////////////////////////////
-// Rehype Pretty Code
+// Shiki
 
-globalStyle(':root:not(.dark) [data-rehype-pretty-code-figure] span:not([data-line])', {
-  color: 'var(--shiki-light)',
-  backgroundColor: 'var(--shiki-light-bg)',
+globalStyle(':root.dark pre.shiki span:not(.line), :root.dark :not(pre.shiki) .line span', {
+  color: 'var(--shiki-dark) !important',
 })
-globalStyle(':root.dark [data-rehype-pretty-code-figure] span:not([data-line])', {
-  color: 'var(--shiki-dark)',
-  backgroundColor: 'var(--shiki-dark-bg)',
+globalStyle('pre.shiki', {
+  backgroundColor: `${semanticColorVars.codeBlockBackground} !important`,
 })
 
 ////////////////////////////////////////////////////////////////////////

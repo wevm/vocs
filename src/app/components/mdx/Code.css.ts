@@ -54,5 +54,8 @@ export const root = style({
       // @ts-expect-error
       textWrap: 'wrap',
     },
+    '.twoslash-popup-jsdoc &': {
+      display: 'inline',
+    },
   },
 })
