@@ -1,5 +1,11 @@
 # create-vocs
 
+## 1.0.0-alpha.5
+
+### Patch Changes
+
+- [`7815f60`](https://github.com/wevm/vocs/commit/7815f60a3f89bdc991383aed42cd04e19e3e0db7) Thanks [@jxom](https://github.com/jxom)! - Added `typescript` & `@types/react` as dependencies.
+
 ## 1.0.0-alpha.4
 
 ### Patch Changes
