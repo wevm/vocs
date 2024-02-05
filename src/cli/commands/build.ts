@@ -31,8 +31,8 @@ export async function build({ clean, logLevel, outDir, publicDir }: BuildParamet
       },
       onBundleEnd({ error }) {
         if (error) {
-          if (useLogger) spinner.client.fail('bundles failed to build')
-          return
+          if (useLogger) spinner.client.fail(`bundles failed to build: ${error.message}`)
+          process.exit(1)
         }
 
         if (useLogger) spinner.client.succeed('bundles built')
@@ -43,8 +43,8 @@ export async function build({ clean, logLevel, outDir, publicDir }: BuildParamet
       },
       onPrerenderEnd({ error }) {
         if (error) {
-          if (useLogger) spinner.client.fail('bundles failed to build')
-          return
+          if (useLogger) spinner.client.fail(`prerendering failed: ${error.message}`)
+          process.exit(1)
         }
 
         if (useLogger) spinner.prerender.succeed('prerendered pages')

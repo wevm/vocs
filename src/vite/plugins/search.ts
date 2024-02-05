@@ -95,7 +95,7 @@ export async function search(): Promise<Plugin> {
         searchPromise = undefined
         const json = index.toJSON()
         hash = hash_(JSON.stringify(json), 8)
-        const dir = join(resolve(config.rootDir, 'dist'), '.vocs')
+        const dir = join(viteConfig?.build?.outDir!, '.vocs')
         fs.ensureDirSync(dir)
         fs.writeJSONSync(join(dir, `search-index-${hash}.json`), json)
       }

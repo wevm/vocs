@@ -3,17 +3,18 @@ import { dirname, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import pc from 'picocolors'
 import type { Logger } from 'vite'
+import { resolveOutDir } from './utils/resolveOutDir.js'
 import { resolveVocsConfig } from './utils/resolveVocsConfig.js'
 
 type PrerenderParameters = { logger?: Logger; outDir?: string }
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
-export async function prerender({ logger, outDir = 'dist' }: PrerenderParameters) {
+export async function prerender({ logger, outDir }: PrerenderParameters) {
   const { config } = await resolveVocsConfig()
   const { rootDir } = config
 
-  const outDir_resolved = resolve(rootDir, outDir)
+  const outDir_resolved = resolveOutDir(rootDir, outDir)
 
   const template = readFileSync(resolve(outDir_resolved, 'index.html'), 'utf-8')
   const mod = await import(resolve(__dirname, './.vocs/dist/index.server.js'))
