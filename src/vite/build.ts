@@ -110,5 +110,5 @@ export async function build({
     hooks?.onScriptsEnd?.({ error: error as Error })
   }
 
-  if (outDir_resolved === vercelBuildOutputDir) writeBuildOutputConfig()
+  if (outDir_resolved.startsWith(vercelBuildOutputDir)) writeBuildOutputConfig()
 }
