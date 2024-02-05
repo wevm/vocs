@@ -1,13 +1,14 @@
 import { Pencil2Icon } from '@radix-ui/react-icons'
 import { assignInlineVars } from '@vanilla-extract/dynamic'
 import clsx from 'clsx'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Footer as ConsumerFooter } from 'virtual:consumer-components'
 
 import type { SidebarItem } from '../../config.js'
 import { useEditLink } from '../hooks/useEditLink.js'
 import { useLayout } from '../hooks/useLayout.js'
+import { useMounted } from '../hooks/useMounted.js'
 import { usePageData } from '../hooks/usePageData.js'
 import { useSidebar } from '../hooks/useSidebar.js'
 import * as styles from './Footer.css.js'
@@ -20,12 +21,8 @@ import { ArrowRight } from './icons/ArrowRight.js'
 
 export function Footer() {
   const { layout } = useLayout()
+  const mounted = useMounted()
   const pageData = usePageData()
-
-  const [mounted, setMounted] = useState(false)
-  useEffect(() => {
-    setMounted(true)
-  }, [])
 
   const lastUpdatedAtDate = useMemo(
     () => (pageData.lastUpdatedAt ? new Date(pageData.lastUpdatedAt) : undefined),
@@ -76,6 +73,7 @@ function EditLink() {
 }
 
 function Navigation() {
+  const mounted = useMounted()
   const sidebar = useSidebar()
 
   const { pathname } = useLocation()
@@ -128,6 +126,7 @@ function Navigation() {
     }
   }, [])
 
+  if (!mounted) return null
   return (
     <div className={styles.navigation}>
       {prevPage ? (

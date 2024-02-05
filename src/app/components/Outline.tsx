@@ -133,7 +133,7 @@ export function Outline({
       if (!active.current) return
 
       if (window.scrollY === 0) {
-        setActiveId(items[0].id)
+        setActiveId(items[0]?.id)
         return
       }
 
