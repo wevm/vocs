@@ -3,7 +3,6 @@ import { bytesToHex } from '@noble/hashes/utils'
 import { type ReactNode, createContext, useContext, useEffect, useState } from 'react'
 import type { ParsedConfig } from '../../config.js'
 import { config as virtualConfig } from 'virtual:config'
-import { rewriteConfig } from '../utils/rewriteConfig.js'
 
 const ConfigContext = createContext(virtualConfig)
 
@@ -32,8 +31,6 @@ export function ConfigProvider({
     if (typeof window !== 'undefined' && import.meta.env.DEV)
       window.localStorage.setItem(`vocs.config.${configHash}`, JSON.stringify(config))
   }, [config])
-
-  rewriteConfig(config)
 
   return <ConfigContext.Provider value={config}>{children}</ConfigContext.Provider>
 }

@@ -3,12 +3,14 @@ import clsx from 'clsx'
 import { type ComponentType, useMemo, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 
+import { assignInlineVars } from '@vanilla-extract/dynamic'
 import type * as Config from '../../config.js'
 import { useActiveNavIds } from '../hooks/useActiveNavIds.js'
 import { useConfig } from '../hooks/useConfig.js'
 import { useLayout } from '../hooks/useLayout.js'
 import { usePageData } from '../hooks/usePageData.js'
 import { useSidebar } from '../hooks/useSidebar.js'
+import { getSrcPrefixInDotVoc } from '../utils/rewriteConfig.js'
 import { Icon } from './Icon.js'
 import { Link } from './Link.js'
 import { MobileSearch } from './MobileSearch.js'
@@ -123,6 +125,8 @@ function CompactNavigation({ items }: { items: Config.ParsedTopNavItem[] }) {
   const activeIds = useActiveNavIds({ pathname, items })
   const activeItem = items.filter((item) => item.id === activeIds[0])[0]
 
+  const { baseUrl } = useConfig()
+
   return (
     <div className={clsx(styles.navigation, styles.navigation_compact)}>
       {activeItem ? (
@@ -154,6 +158,14 @@ function CompactNavigation({ items }: { items: Config.ParsedTopNavItem[] }) {
                     <Accordion.Trigger
                       className={clsx(styles.navigationItem, styles.navigationTrigger)}
                       data-active={activeIds.includes(item.id)}
+                      style={assignInlineVars({
+                        [styles.mask]: `url(${getSrcPrefixInDotVoc(
+                          baseUrl,
+                        )}/.vocs/icons/chevron-down.svg) no-repeat center / contain`,
+                        [styles.mask2]: `url(${getSrcPrefixInDotVoc(
+                          baseUrl,
+                        )}/.vocs/icons/chevron-up.svg) no-repeat center / contain`,
+                      })}
                     >
                       {item.text}
                     </Accordion.Trigger>
