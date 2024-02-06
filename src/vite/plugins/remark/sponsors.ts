@@ -10,7 +10,7 @@ export function remarkSponsors() {
       if (node.type !== 'leafDirective') return
       if (node.name !== 'sponsors') return
       if (!index) return
-      ;(parent?.children[index] as any).children.push({
+      ;(parent?.children?.[index] as any)?.children?.push({
         type: 'paragraph',
         data: {
           hName: 'div',

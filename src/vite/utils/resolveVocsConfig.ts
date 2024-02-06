@@ -3,6 +3,7 @@ import { resolve } from 'node:path'
 import toml from 'toml'
 import { type ConfigEnv, loadConfigFromFile } from 'vite'
 import { type ParsedConfig, defineConfig, getDefaultConfig } from '../../config.js'
+import { rewriteConfig } from '../../app/utils/rewriteConfig.js'
 
 const moduleExtensions = ['js', 'jsx', 'ts', 'tsx', 'mjs', 'mts']
 const staticExtensions = ['toml', 'json']
@@ -50,6 +51,8 @@ export async function resolveVocsConfig(parameters: ResolveVocsConfigParameters 
   })()
 
   const config = (result ? result.config : await getDefaultConfig()) as ParsedConfig
+
+  rewriteConfig(config);
 
   return {
     config,

@@ -116,7 +116,7 @@ export function Outline({
       const lastItemId = items[items.length - 1]?.id
 
       if (entry.isIntersecting) setActiveId(lastItemId)
-      else if (activeId === lastItemId) setActiveId(items[items.length - 2].id)
+      else if (activeId === lastItemId) setActiveId(items[items.length - 2]?.id)
     })
 
     observer.observe(document.querySelector('[data-bottom-observer]')!)

@@ -1,6 +1,7 @@
 import { type PluginOption } from 'vite'
 
 import { resolveVocsConfig } from '../utils/resolveVocsConfig.js'
+import { rewriteConfig } from '../../app/utils/rewriteConfig.js'
 
 export function virtualConfig(): PluginOption {
   const virtualModuleId = 'virtual:config'
@@ -14,7 +15,9 @@ export function virtualConfig(): PluginOption {
         server.watcher.add(configPath)
         server.watcher.on('change', async (path) => {
           if (path !== configPath) return
-          server.ws.send('vocs:config', (await resolveVocsConfig()).config)
+          const config = (await resolveVocsConfig()).config
+          rewriteConfig(config)
+          server.ws.send('vocs:config', config)
         })
       }
     },
