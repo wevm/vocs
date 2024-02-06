@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.0-alpha.35
+
+### Patch Changes
+
+- [`a0a5776`](https://github.com/wevm/vocs/commit/a0a57764049088861b357d0ed9bf978a70226a0f) Thanks [@jxom](https://github.com/jxom)! - Fixed search index.
+
 ## 1.0.0-alpha.34
 
 ### Patch Changes
