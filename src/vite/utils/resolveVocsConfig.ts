@@ -52,7 +52,7 @@ export async function resolveVocsConfig(parameters: ResolveVocsConfigParameters 
 
   const config = (result ? result.config : await getDefaultConfig()) as ParsedConfig
 
-  rewriteConfig(config);
+  rewriteConfig(config)
 
   return {
     config,

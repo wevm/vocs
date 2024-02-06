@@ -1,6 +1,6 @@
 import { type RouteObject, matchRoutes } from 'react-router-dom'
 
-export async function hydrateLazyRoutes(routes: RouteObject[], basename?:string) {
+export async function hydrateLazyRoutes(routes: RouteObject[], basename?: string) {
   // Determine if any of the initial routes are lazy
   const lazyMatches = matchRoutes(routes, window.location, basename)?.filter((m) => m.route.lazy)
 

@@ -16,7 +16,7 @@ async function hydrate() {
   removeTempStyles()
 
   const router = createBrowserRouter(routes, {
-    basename
+    basename,
   })
   hydrateRoot(
     document.getElementById('app')!,
@@ -26,7 +26,7 @@ async function hydrate() {
   )
 }
 
-function getBasename(){
+function getBasename() {
   const ogUrlMeta = document.querySelector('meta[property="og:url"]')
   return ogUrlMeta?.getAttribute?.('content') || undefined
 }

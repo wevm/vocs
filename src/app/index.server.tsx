@@ -53,10 +53,10 @@ export async function prerender(location: string) {
 
 export async function render(req: Request) {
   const { config } = await resolveVocsConfig()
-  const { baseUrl } = config;
+  const { baseUrl } = config
 
   const { query, dataRoutes } = createStaticHandler(routes, {
-    basename: baseUrl
+    basename: baseUrl,
   })
   const fetchRequest = createFetchRequest(req)
   const context = (await query(fetchRequest)) as StaticHandlerContext
@@ -64,7 +64,6 @@ export async function render(req: Request) {
   if (context instanceof Response) throw context
 
   const router = createStaticRouter(dataRoutes, context)
-
 
   const body = renderToString(
     <ConfigProvider config={config}>
