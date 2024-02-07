@@ -122,6 +122,10 @@ export const getRehypePlugins = ({
             : null,
           transformerSplitIdentifiers(),
         ].filter(Boolean),
+        themes: {
+          dark: 'github-dark-dimmed',
+          light: 'github-light',
+        },
         ...markdown?.code,
       } as RehypeShikiOptions,
     ],
