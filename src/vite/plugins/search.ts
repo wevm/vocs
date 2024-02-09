@@ -99,7 +99,9 @@ export async function search(): Promise<Plugin> {
         fs.ensureDirSync(dir)
         fs.writeJSONSync(join(dir, `search-index-${hash}.json`), json)
       }
-      return `export const getSearchIndex = async () => JSON.stringify(await ((await fetch("/.vocs/search-index-${hash}.json")).json()))`
+      return `export const getSearchIndex = async () => JSON.stringify(await ((await fetch("${`${
+        config.baseUrl || ''
+      }/.vocs/search-index-${hash}.json`}")).json()))`
     },
     async handleHotUpdate({ file }) {
       if (!file.endsWith('.md') && !file.endsWith('.mdx')) return
