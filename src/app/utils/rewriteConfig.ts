@@ -40,7 +40,7 @@ export function getImgUrlWithBase(url: IconUrl | string, basename: string) {
 
   if (typeof url === 'string') {
     return basename + url
-  } else {
+  }
     let finalUrl: IconUrl
     const keys = Object.keys(url)
     for (let i = 0, len = keys.length; i < len; i++) {
@@ -58,13 +58,4 @@ export function getImgUrlWithBase(url: IconUrl | string, basename: string) {
     }
 
     return finalUrl!
-  }
-}
-
-export function getSrcPrefixInDotVoc(base?: string) {
-  if (!IS_PROD || !base || base === '/') {
-    return ''
-  }
-
-  return base
 }

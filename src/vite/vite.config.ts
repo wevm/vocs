@@ -4,6 +4,7 @@ import react from '@vitejs/plugin-react'
 import { defineConfig, splitVendorChunkPlugin } from 'vite'
 
 import { css } from './plugins/css.js'
+import { postcssPluginCssUrlRewrite } from './plugins/cssUrlWithBase.js'
 import { mdx } from './plugins/mdx.js'
 import { resolveVocsModules } from './plugins/resolve-vocs-modules.js'
 import { search } from './plugins/search.js'
@@ -14,14 +15,24 @@ import { virtualRoutes } from './plugins/virtual-routes.js'
 import { virtualStyles } from './plugins/virtual-styles.js'
 import { resolveVocsConfig } from './utils/resolveVocsConfig.js'
 
+const IS_PROD = process.env.NODE_ENV === 'production'
+
 export default defineConfig(async () => {
   const { config } = await resolveVocsConfig()
   const viteConfig = config.vite ?? {}
+  const shouldResolveCssUrl = config.baseUrl && IS_PROD
+  const postcssPlugins = shouldResolveCssUrl ? [postcssPluginCssUrlRewrite(config)] : []
+
   return {
     ...viteConfig,
     build: {
       ...viteConfig?.build,
       cssCodeSplit: false,
+    },
+    css: {
+      postcss: {
+        plugins: postcssPlugins,
+      },
     },
     optimizeDeps: {
       ...(viteConfig.optimizeDeps ?? {}),
@@ -49,7 +60,7 @@ export default defineConfig(async () => {
           const scope = basename(filePath).replace('.css.ts', '')
           return `vocs_${scope}${debugId ? `_${debugId}` : ''}`
         },
-        emitCssInSsr: true,
+        // emitCssInSsr: true,
       }),
       css(),
       mdx(),

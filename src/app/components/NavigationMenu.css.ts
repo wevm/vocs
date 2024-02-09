@@ -1,4 +1,4 @@
-import { createVar, keyframes, style } from '@vanilla-extract/css'
+import { keyframes, style } from '@vanilla-extract/css'
 import {
   borderRadiusVars,
   fontSizeVars,
@@ -49,8 +49,6 @@ export const link = style(
 
 export const item = style({}, 'item')
 
-export const mask = createVar('mask')
-
 export const trigger = style(
   [
     link,
@@ -64,7 +62,7 @@ export const trigger = style(
           height: '0.625em',
           marginLeft: '0.325em',
           width: '0.625em',
-          mask,
+          mask: 'url(/.vocs/icons/chevron-down.svg) no-repeat center / contain',
         },
       },
     },

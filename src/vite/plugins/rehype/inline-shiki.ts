@@ -17,9 +17,9 @@ export type RehypeInlineShikiOptions = RehypeShikiCoreOptions & {
   langs?: Array<LanguageInput | BuiltinLanguage>
 }
 
-export const rehypeInlineShiki: Plugin<[RehypeInlineShikiOptions], Root> = function (
+export const rehypeInlineShiki: Plugin<[RehypeInlineShikiOptions], Root> = (
   options = {} as any,
-) {
+) => {
   const themeNames = ('themes' in options ? Object.values(options.themes) : [options.theme]).filter(
     Boolean,
   ) as BuiltinTheme[]
@@ -27,7 +27,7 @@ export const rehypeInlineShiki: Plugin<[RehypeInlineShikiOptions], Root> = funct
 
   let promise: Promise<Highlighter>
 
-  return async function (tree) {
+  return async (tree) => {
     if (!promise)
       promise = getHighlighter({
         themes: themeNames,

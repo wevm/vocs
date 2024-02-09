@@ -2,8 +2,6 @@ import { createVar, style } from '@vanilla-extract/css'
 
 export const arrowColor = createVar('arrowColor')
 
-export const mask = createVar('mask')
-
 export const root = style({
   selectors: {
     '&::after': {
@@ -15,7 +13,7 @@ export const root = style({
       marginLeft: '0.325em',
       marginRight: '0.25em',
       width: '0.5em',
-      mask,
+      mask: 'url(.vocs/icons/arrow-diagonal.svg) no-repeat center / contain',
     },
   },
 })

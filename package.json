@@ -13,7 +13,7 @@
     "docs:preview": "node --import tsx/esm ./src/cli/index.ts preview",
     "format": "biome format . --write",
     "lint": "biome lint . --apply-unsafe",
-    "playground": "pnpm --filter playgrounds/default dev",
+    "playground": "pnpm --filter playgrounds-conduit22 build",
     "preconstruct": "bun run scripts/preconstruct.ts",
     "prepare": "simple-git-hooks",
     "typecheck": "tsc --noEmit"

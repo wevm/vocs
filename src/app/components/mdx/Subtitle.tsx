@@ -4,7 +4,7 @@ import * as styles from './Subtitle.css.js'
 
 export function Subtitle({ children }: { children: ReactNode }) {
   return (
-    <div className={styles.root} role="doc-subtitle">
+    <div className={styles.root} >
       {children}
     </div>
   )
