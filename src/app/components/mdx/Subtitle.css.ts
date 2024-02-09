@@ -14,5 +14,6 @@ export const root = style({
   letterSpacing: '-0.02em',
   lineHeight: lineHeightVars.heading,
   marginTop: spaceVars['4'],
+  //@ts-expect-error
   textWrap: 'balance',
 })

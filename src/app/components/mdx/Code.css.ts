@@ -51,6 +51,7 @@ export const root = style({
     '.twoslash-popup-info-hover>&': {
       backgroundColor: 'inherit',
       padding: 0,
+      // @ts-expect-error
       textWrap: 'wrap',
     },
     '.twoslash-popup-jsdoc &': {

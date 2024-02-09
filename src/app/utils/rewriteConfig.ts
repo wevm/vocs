@@ -41,21 +41,21 @@ export function getImgUrlWithBase(url: IconUrl | string, basename: string) {
   if (typeof url === 'string') {
     return basename + url
   }
-    let finalUrl: IconUrl
-    const keys = Object.keys(url)
-    for (let i = 0, len = keys.length; i < len; i++) {
-      const k = keys[i]
-      const urlWithBase = basename + url[k as keyof IconUrl]
-      if (urlWithBase) {
-        if (!finalUrl!) {
-          finalUrl = {
-            [k]: urlWithBase,
-          } as IconUrl
-        } else {
-          ;(finalUrl[k as keyof IconUrl] as IconUrl) = urlWithBase
-        }
+  let finalUrl: IconUrl
+  const keys = Object.keys(url)
+  for (let i = 0, len = keys.length; i < len; i++) {
+    const k = keys[i]
+    const urlWithBase = basename + url[k as keyof IconUrl]
+    if (urlWithBase) {
+      if (!finalUrl!) {
+        finalUrl = {
+          [k]: urlWithBase,
+        } as IconUrl
+      } else {
+        ;(finalUrl[k as keyof IconUrl] as IconUrl) = urlWithBase
       }
     }
+  }
 
-    return finalUrl!
+  return finalUrl!
 }

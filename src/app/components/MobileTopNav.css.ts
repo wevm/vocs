@@ -215,10 +215,10 @@ export const navigationTrigger = style(
         height: '0.625em',
         marginLeft: '0.325em',
         width: '0.625em',
-        mask: 'url(.vocs/icons/chevron-down.svg) no-repeat center / contain',
+        mask: 'url(/.vocs/icons/chevron-down.svg) no-repeat center / contain',
       },
       '&[data-state="open"]::after': {
-        mask: 'url(.vocs/icons/chevron-up.svg) no-repeat center / contain',
+        mask: 'url(/.vocs/icons/chevron-up.svg) no-repeat center / contain',
       },
     },
   },
