@@ -46,15 +46,13 @@ export const Trigger = ({
   ...props
 }: NavigationMenu.NavigationMenuTriggerProps & {
   active?: boolean
-}) => {
-  return (
-    <NavigationMenu.Trigger
-      {...props}
-      data-active={active}
-      className={clsx(className, styles.trigger)}
-    />
-  )
-}
+}) => (
+  <NavigationMenu.Trigger
+    {...props}
+    data-active={active}
+    className={clsx(className, styles.trigger)}
+  />
+)
 
 export const Content = (props: NavigationMenu.NavigationMenuContentProps) => (
   <NavigationMenu.Content {...props} className={clsx(props.className, styles.content)} />
