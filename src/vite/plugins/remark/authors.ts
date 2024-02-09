@@ -10,7 +10,7 @@ export function remarkAuthors() {
       if (node.type !== 'leafDirective') return
       if (node.name !== 'authors') return
       if (!index) return
-      ;(parent?.children?.[index - 1] as any)?.children?.push({
+      ;(parent?.children[index - 1] as any).children.push({
         type: 'paragraph',
         data: {
           hName: 'div',

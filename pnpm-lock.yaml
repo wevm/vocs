@@ -301,7 +301,7 @@ importers:
         version: 2.1.0
       '@vanilla-extract/vite-plugin':
         specifier: ^4.0.3
-        version: 4.0.3(@types/node@20.8.9)(vite@5.0.12)
+        version: 4.0.4(@types/node@20.8.9)(vite@5.0.12)
       '@vitejs/plugin-react':
         specifier: 4.2.0
         version: 4.2.0(vite@5.0.12)
@@ -2981,8 +2981,8 @@ packages:
       '@vanilla-extract/private': 1.0.3
     dev: false
 
-  /@vanilla-extract/integration@7.0.0(@types/node@20.8.9):
-    resolution: {integrity: sha512-j5CV/5kUMWcvr6UjnJAsZ/DHr1JsL6+y6KyVvXD7kqvRpIy6IxD882ARcpvKyIcEYDmCo0XVQ4+dTr3LnsYEnQ==}
+  /@vanilla-extract/integration@7.1.0(@types/node@20.8.9):
+    resolution: {integrity: sha512-kCFn2IfnCHf4PCP538zBs5g6JJvqybJ4lU+ww2CeV/B2roze8drF7jVu2hDQUTtfiXgNe0Q3WpUfXdX27KFLsw==}
     dependencies:
       '@babel/core': 7.23.3
       '@babel/plugin-syntax-typescript': 7.22.5(@babel/core@7.23.3)
@@ -2995,7 +2995,7 @@ packages:
       lodash: 4.17.21
       mlly: 1.4.2
       outdent: 0.8.0
-      vite: 5.0.12(@types/node@20.8.9)
+      vite: 5.1.0(@types/node@20.8.9)
       vite-node: 1.2.1(@types/node@20.8.9)
     transitivePeerDependencies:
       - '@types/node'
@@ -3012,12 +3012,12 @@ packages:
     resolution: {integrity: sha512-17kVyLq3ePTKOkveHxXuIJZtGYs+cSoev7BlP+Lf4916qfDhk/HBjvlYDe8egrea7LNPHKwSZJK/bzZC+Q6AwQ==}
     dev: false
 
-  /@vanilla-extract/vite-plugin@4.0.3(@types/node@20.8.9)(vite@5.0.12):
-    resolution: {integrity: sha512-dosZKbS5hnn8K0KlFd6LqwsEzcUphImHUpDKG3hHmqKZOkurwXCqcg06qFkb0rnW72v6W/QoUXNxxjw5YhdNqg==}
+  /@vanilla-extract/vite-plugin@4.0.4(@types/node@20.8.9)(vite@5.0.12):
+    resolution: {integrity: sha512-cfg4GK274xzwbVFh8YWvQXNnsCMemvMMwej7V93TTBP2O8qzyTgsx5VJuiAPov3oUU8JWGboaTs16Vnoe5bZ9w==}
     peerDependencies:
       vite: ^4.0.3 || ^5.0.0
     dependencies:
-      '@vanilla-extract/integration': 7.0.0(@types/node@20.8.9)
+      '@vanilla-extract/integration': 7.1.0(@types/node@20.8.9)
       vite: 5.0.12(@types/node@20.8.9)
     transitivePeerDependencies:
       - '@types/node'
@@ -6945,8 +6945,8 @@ packages:
       picocolors: 1.0.0
       source-map-js: 1.0.2
 
-  /postcss@8.4.33:
-    resolution: {integrity: sha512-Kkpbhhdjw2qQs2O2DGX+8m5OVqEcbB9HRBvuYM9pgrjEFUg30A9LmXNlTAUj4S9kgtGyrMbTzVjH7E+s5Re2yg==}
+  /postcss@8.4.35:
+    resolution: {integrity: sha512-u5U8qYpBCpN13BsiEB0CbR1Hhh4Gc0zLFuedrHJKMctHCHAGrMdG0PRM/KErzAL3CU6/eckEtmHNB3x6e3c0vA==}
     engines: {node: ^10 || ^12 || >=14}
     dependencies:
       nanoid: 3.3.7
@@ -8486,7 +8486,7 @@ packages:
       debug: 4.3.4
       pathe: 1.1.1
       picocolors: 1.0.0
-      vite: 5.0.12(@types/node@20.8.9)
+      vite: 5.1.0(@types/node@20.8.9)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -8528,7 +8528,43 @@ packages:
     dependencies:
       '@types/node': 20.8.9
       esbuild: 0.19.7
-      postcss: 8.4.33
+      postcss: 8.4.35
+      rollup: 4.5.2
+    optionalDependencies:
+      fsevents: 2.3.3
+    dev: false
+
+  /vite@5.1.0(@types/node@20.8.9):
+    resolution: {integrity: sha512-STmSFzhY4ljuhz14bg9LkMTk3d98IO6DIArnTY6MeBwiD1Za2StcQtz7fzOUnRCqrHSD5+OS2reg4HOz1eoLnw==}
+    engines: {node: ^18.0.0 || >=20.0.0}
+    hasBin: true
+    peerDependencies:
+      '@types/node': ^18.0.0 || >=20.0.0
+      less: '*'
+      lightningcss: ^1.21.0
+      sass: '*'
+      stylus: '*'
+      sugarss: '*'
+      terser: ^5.4.0
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
+      less:
+        optional: true
+      lightningcss:
+        optional: true
+      sass:
+        optional: true
+      stylus:
+        optional: true
+      sugarss:
+        optional: true
+      terser:
+        optional: true
+    dependencies:
+      '@types/node': 20.8.9
+      esbuild: 0.19.7
+      postcss: 8.4.35
       rollup: 4.5.2
     optionalDependencies:
       fsevents: 2.3.3

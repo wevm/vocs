@@ -1,30 +1,26 @@
-import path from 'path'
+import { resolve } from 'node:path'
 import { fileURLToPath } from 'url'
 import type { AcceptedPlugin } from 'postcss'
+import type { ParsedConfig } from '../../config.js'
 
-const cssUrlRE = /(?<=^|[^\w\-\u0080-\uffff])url\(['"]?(\s*('[^']+'|"[^"]+")\s*|[^'")]+)['"]?\)/g
-
-const __dirname = fileURLToPath(import.meta.url)
-
-const fileLinkPrefix = path.resolve(__dirname, '../../../app/')
-
-export const postcssPluginCssUrlRewrite = (config: any): AcceptedPlugin => {
+export const postcssPluginCssUrlRewrite = (config: ParsedConfig): AcceptedPlugin => {
   const { baseUrl } = config
+  const cssUrlRE = /(?<=^|[^\w\-\u0080-\uffff])url\(['"]?(\s*('[^']+'|"[^"]+")\s*|[^'")]+)['"]?\)/g
+  const __dirname = fileURLToPath(import.meta.url)
+  const fileLinkPrefix = resolve(__dirname, '../../../app/')
   return {
     postcssPlugin: 'postcss-rewrite-url-in-app',
     Root(root) {
-      console.log('root', root.source?.input.file)
       if (root.source?.input.file?.includes(fileLinkPrefix)) {
         const css = root.source?.input.css
         if (css.includes('url(')) {
           root.walkDecls((decl) => {
             const ruleValue = decl.value
-
             if (typeof ruleValue === 'string' && ruleValue.includes('url(')) {
               if (ruleValue.match(/url\(['"]?data:/)) {
                 return
               }
-              decl.value = ruleValue.replaceAll(cssUrlRE, (a, b) => {
+              decl.value = ruleValue.replace(cssUrlRE, (a, b) => {
                 let replaceUrl = b
                 const cssUrlFirstWords = b.split('/')[0]
                 if (!/^(?:[^.]|\.+)$/.test(cssUrlFirstWords)) {
