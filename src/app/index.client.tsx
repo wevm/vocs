@@ -10,14 +10,21 @@ import { removeTempStyles } from './utils/removeTempStyles.js'
 hydrate()
 
 async function hydrate() {
-  await hydrateLazyRoutes(routes)
+  const basename = getBasename()
+
+  await hydrateLazyRoutes(routes, basename)
   removeTempStyles()
 
-  const router = createBrowserRouter(routes)
+  const router = createBrowserRouter(routes, { basename })
   hydrateRoot(
     document.getElementById('app')!,
     <ConfigProvider>
       <RouterProvider router={router} />
     </ConfigProvider>,
   )
+}
+
+function getBasename() {
+  const ogUrlMeta = document.querySelector('meta[property="og:url"]')
+  return ogUrlMeta?.getAttribute?.('content') || undefined
 }
