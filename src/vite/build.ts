@@ -47,6 +47,9 @@ export async function build({
   fs.rmSync(outDir_resolved, { recursive: true, force: true })
 
   hooks?.onBundleStart?.()
+
+  fs.copySync(resolve(__dirname, '../app/public'), publicDir_resolved);
+
   try {
     await vite.build({
       build: {
