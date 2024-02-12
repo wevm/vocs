@@ -1,4 +1,4 @@
-import clsx from "clsx";
+import clsx from 'clsx'
 import {
   type KeyboardEvent,
   type MouseEvent,
@@ -9,53 +9,49 @@ import {
   useMemo,
   useRef,
   useState,
-} from "react";
-import { matchPath, useLocation, useMatch } from "react-router-dom";
+} from 'react'
+import { matchPath, useLocation, useMatch } from 'react-router-dom'
 
-import { type SidebarItem as SidebarItemType } from "../../config.js";
-import { usePageData } from "../hooks/usePageData.js";
-import { useSidebar } from "../hooks/useSidebar.js";
-import { Icon } from "./Icon.js";
-import { NavLogo } from "./NavLogo.js";
-import { RouterLink } from "./RouterLink.js";
-import * as styles from "./Sidebar.css.js";
-import { ChevronRight } from "./icons/ChevronRight.js";
-import { useLocale } from "../hooks/useLocale.js";
+import { type SidebarItem as SidebarItemType } from '../../config.js'
+import { useLocale } from '../hooks/useLocale.js'
+import { usePageData } from '../hooks/usePageData.js'
+import { useSidebar } from '../hooks/useSidebar.js'
+import { Icon } from './Icon.js'
+import { NavLogo } from './NavLogo.js'
+import { RouterLink } from './RouterLink.js'
+import * as styles from './Sidebar.css.js'
+import { ChevronRight } from './icons/ChevronRight.js'
 
 export function Sidebar(props: {
-  className?: string;
-  onClickItem?: MouseEventHandler<HTMLAnchorElement>;
+  className?: string
+  onClickItem?: MouseEventHandler<HTMLAnchorElement>
 }) {
-  const { className, onClickItem } = props;
+  const { className, onClickItem } = props
 
-  const { previousPath } = usePageData();
-  const sidebarRef = useRef<HTMLElement>(null);
-  const sidebar = useSidebar();
-  const [backPath, setBackPath] = useState<string>("/");
-  const { locale } = useLocale();
+  const { previousPath } = usePageData()
+  const sidebarRef = useRef<HTMLElement>(null)
+  const sidebar = useSidebar()
+  const [backPath, setBackPath] = useState<string>('/')
+  const { locale } = useLocale()
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (!previousPath) return;
-    setBackPath(previousPath);
-  }, [sidebar.key, sidebar.backLink]);
+    if (typeof window === 'undefined') return
+    if (!previousPath) return
+    setBackPath(previousPath)
+  }, [sidebar.key, sidebar.backLink])
 
-  if (!sidebar) return null;
+  if (!sidebar) return null
 
-  const groups = getSidebarGroups(sidebar.items);
+  const groups = getSidebarGroups(sidebar.items)
 
   return (
-    <aside
-      ref={sidebarRef}
-      key={sidebar.key}
-      className={clsx(styles.root, className)}
-    >
+    <aside ref={sidebarRef} key={sidebar.key} className={clsx(styles.root, className)}>
       <div className={styles.logoWrapper}>
         <div className={styles.logo}>
           <RouterLink
-            to={`/${locale ?? ""}`}
-            style={{ alignItems: "center", display: "flex", height: "100%" }}
+            to={`/${locale ?? ''}`}
+            style={{ alignItems: 'center', display: 'flex', height: '100%' }}
           >
             <NavLogo />
           </RouterLink>
@@ -68,16 +64,11 @@ export function Sidebar(props: {
           {sidebar.backLink && (
             <section className={styles.section}>
               <div className={styles.items}>
-                <RouterLink
-                  className={clsx(styles.item, styles.backLink)}
-                  to={backPath}
-                >
-                  ←{" "}
-                  {typeof history !== "undefined" &&
-                  history.state.key &&
-                  backPath !== "/"
-                    ? "Back"
-                    : "Home"}
+                <RouterLink className={clsx(styles.item, styles.backLink)} to={backPath}>
+                  ←{' '}
+                  {typeof history !== 'undefined' && history.state.key && backPath !== '/'
+                    ? 'Back'
+                    : 'Home'}
                 </RouterLink>
               </div>
             </section>
@@ -94,97 +85,95 @@ export function Sidebar(props: {
         </div>
       </nav>
     </aside>
-  );
+  )
 }
 
 function getSidebarGroups(sidebar: SidebarItemType[]): SidebarItemType[] {
-  const groups: SidebarItemType[] = [];
+  const groups: SidebarItemType[] = []
 
-  let lastGroupIndex = 0;
+  let lastGroupIndex = 0
   for (const item of sidebar) {
     if (item.items) {
-      lastGroupIndex = groups.push(item);
-      continue;
+      lastGroupIndex = groups.push(item)
+      continue
     }
 
-    if (!groups[lastGroupIndex]) groups.push({ text: "", items: [item] });
-    else groups[lastGroupIndex].items!.push(item);
+    if (!groups[lastGroupIndex]) groups.push({ text: '', items: [item] })
+    else groups[lastGroupIndex].items!.push(item)
   }
 
-  return groups;
+  return groups
 }
 
 function getActiveChildItem(
   items: SidebarItemType[],
-  pathname: string
+  pathname: string,
 ): SidebarItemType | undefined {
   return items.find((item) => {
-    if (matchPath(pathname, item.link ?? "")) return true;
-    if (item.link === pathname) return true;
-    if (!item.items) return false;
-    return getActiveChildItem(item.items, pathname);
-  });
+    if (matchPath(pathname, item.link ?? '')) return true
+    if (item.link === pathname) return true
+    if (!item.items) return false
+    return getActiveChildItem(item.items, pathname)
+  })
 }
 
 function SidebarItem(props: {
-  depth: number;
-  item: SidebarItemType;
-  onClick?: MouseEventHandler<HTMLAnchorElement>;
-  sidebarRef?: RefObject<HTMLElement>;
+  depth: number
+  item: SidebarItemType
+  onClick?: MouseEventHandler<HTMLAnchorElement>
+  sidebarRef?: RefObject<HTMLElement>
 }) {
-  const { depth, item, onClick, sidebarRef } = props;
+  const { depth, item, onClick, sidebarRef } = props
 
-  const itemRef = useRef<HTMLElement>(null);
+  const itemRef = useRef<HTMLElement>(null)
 
-  const { pathname } = useLocation();
-  const match = useMatch(item.link ?? "");
+  const { pathname } = useLocation()
+  const match = useMatch(item.link ?? '')
 
   const hasActiveChildItem = useMemo(
-    () =>
-      item.items ? Boolean(getActiveChildItem(item.items, pathname)) : false,
-    [item.items, pathname]
-  );
+    () => (item.items ? Boolean(getActiveChildItem(item.items, pathname)) : false),
+    [item.items, pathname],
+  )
 
   const [collapsed, setCollapsed] = useState(() => {
-    if (match) return false;
-    if (!item.items) return false;
-    if (hasActiveChildItem) return false;
-    return Boolean(item.collapsed);
-  });
-  const isCollapsable =
-    item.collapsed !== undefined && item.items !== undefined;
+    if (match) return false
+    if (!item.items) return false
+    if (hasActiveChildItem) return false
+    return Boolean(item.collapsed)
+  })
+  const isCollapsable = item.collapsed !== undefined && item.items !== undefined
   const onCollapseInteraction = useCallback(
     (event: KeyboardEvent | MouseEvent) => {
-      if ("key" in event && event.key !== "Enter") return;
-      if (item.link) return;
-      setCollapsed((x) => !x);
+      if ('key' in event && event.key !== 'Enter') return
+      if (item.link) return
+      setCollapsed((x) => !x)
     },
-    [item.link]
-  );
+    [item.link],
+  )
   const onCollapseTriggerInteraction = useCallback(
     (event: KeyboardEvent | MouseEvent) => {
-      if ("key" in event && event.key !== "Enter") return;
-      if (!item.link) return;
-      setCollapsed((x) => !x);
+      if ('key' in event && event.key !== 'Enter') return
+      if (!item.link) return
+      setCollapsed((x) => !x)
     },
-    [item.link]
-  );
+    [item.link],
+  )
 
-  const active = useRef(true);
+  const active = useRef(true)
   useEffect(() => {
-    if (!active.current) return;
-    active.current = false;
+    if (!active.current) return
+    active.current = false
 
-    const match = matchPath(pathname, item.link ?? "");
-    if (!match) return;
+    const match = matchPath(pathname, item.link ?? '')
+    if (!match) return
 
     requestAnimationFrame(() => {
-      const offsetTop = itemRef.current?.offsetTop ?? 0;
-      const sidebarHeight = sidebarRef?.current?.clientHeight ?? 0;
-      if (offsetTop < sidebarHeight) return;
-      sidebarRef?.current?.scrollTo({ top: offsetTop - 100 });
-    });
-  }, [item, pathname, sidebarRef]);
+      const offsetTop = itemRef.current?.offsetTop ?? 0
+      const sidebarHeight = sidebarRef?.current?.clientHeight ?? 0
+      if (offsetTop < sidebarHeight) return
+      sidebarRef?.current?.scrollTo({ top: offsetTop - 100 })
+    })
+  }, [item, pathname, sidebarRef])
 
   if (item.items)
     return (
@@ -193,7 +182,7 @@ function SidebarItem(props: {
         className={clsx(
           styles.section,
           depth === 0 && item.text && styles.level,
-          depth === 0 && item.text && collapsed && styles.levelCollapsed
+          depth === 0 && item.text && collapsed && styles.levelCollapsed,
         )}
       >
         {item.text && (
@@ -201,7 +190,7 @@ function SidebarItem(props: {
             className={styles.sectionHeader}
             {...(isCollapsable && !item.link
               ? {
-                  role: "button",
+                  role: 'button',
                   tabIndex: 0,
                   onClick: onCollapseInteraction,
                   onKeyDown: onCollapseInteraction,
@@ -215,18 +204,14 @@ function SidebarItem(props: {
                   onClick={onClick}
                   className={clsx(
                     depth === 0 ? styles.sectionTitle : styles.item,
-                    hasActiveChildItem && styles.sectionHeaderActive
+                    hasActiveChildItem && styles.sectionHeaderActive,
                   )}
                   to={item.link}
                 >
                   {item.text}
                 </RouterLink>
               ) : (
-                <div
-                  className={clsx(
-                    depth === 0 ? styles.sectionTitle : styles.item
-                  )}
-                >
+                <div className={clsx(depth === 0 ? styles.sectionTitle : styles.item)}>
                   {item.text}
                 </div>
               ))}
@@ -241,7 +226,7 @@ function SidebarItem(props: {
                 <Icon
                   className={clsx(
                     styles.sectionCollapse,
-                    collapsed && styles.sectionCollapseActive
+                    collapsed && styles.sectionCollapseActive,
                   )}
                   label="toggle section"
                   icon={ChevronRight}
@@ -269,7 +254,7 @@ function SidebarItem(props: {
           </div>
         )}
       </section>
-    );
+    )
 
   return (
     <>
@@ -287,5 +272,5 @@ function SidebarItem(props: {
         <div className={styles.item}>{item.text}</div>
       )}
     </>
-  );
+  )
 }

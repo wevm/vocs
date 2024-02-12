@@ -1,8 +1,8 @@
-import type { RehypeShikiOptions } from "@shikijs/rehype";
-import type { ReactElement } from "react";
-import type { TwoslashOptions } from "twoslash";
-import type { PluggableList } from "unified";
-import type { UserConfig } from "vite";
+import type { RehypeShikiOptions } from '@shikijs/rehype'
+import type { ReactElement } from 'react'
+import type { TwoslashOptions } from 'twoslash'
+import type { PluggableList } from 'unified'
+import type { UserConfig } from 'vite'
 import type {
   borderRadiusVars,
   contentVars,
@@ -18,20 +18,15 @@ import type {
   topNavVars,
   viewportVars,
   zIndexVars,
-} from "./app/styles/vars.css.js";
+} from './app/styles/vars.css.js'
 
-type RequiredBy<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>;
+type RequiredBy<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>
 
-type RequiredProperties =
-  | "blogDir"
-  | "markdown"
-  | "rootDir"
-  | "title"
-  | "titleTemplate";
+type RequiredProperties = 'blogDir' | 'markdown' | 'rootDir' | 'title' | 'titleTemplate'
 
 export type Config<
   parsed extends boolean = false,
-  colorScheme extends ColorScheme = ColorScheme
+  colorScheme extends ColorScheme = ColorScheme,
 > = RequiredBy<
   {
     /**
@@ -44,55 +39,59 @@ export type Config<
      * - `height`: The height of the banner.
      * - `textColor`: The text color of the banner.
      */
-    banner?: Banner<parsed>;
+    banner?: Banner<parsed>
     /**
      * Base URL.
      *
      * @example
      * https://viem.sh
      */
-    baseUrl?: string;
+    baseUrl?: string
     /**
      * Path to blog pages relative to project root.
      * Used to extract posts from the filesystem.
      *
      * @default "./pages/blog"
      */
-    blogDir?: string;
+    blogDir?: string
     /**
      * General description for the documentation.
      */
-    description?: string;
+    description?:
+      | string
+      | {
+          [path: string]: string
+        }
     /**
      * Edit location for the documentation.
      */
-    editLink?: Normalize<EditLink>;
+    editLink?: Normalize<EditLink>
     /**
      * Base font face.
      *
      * @default { google: "Inter" }
      */
-    font?: Font;
+    font?: Font
     /**
      * Additional tags to include in the `<head>` tag of the page HTML.
      */
-    head?: ReactElement;
+    head?: ReactElement
     /**
      * Icon URL.
      */
-    iconUrl?: Normalize<IconUrl>;
+    iconUrl?: Normalize<IconUrl>
     /**
      * Default selected locale
      */
-    defaultLocale?: Locale;
+    defaultLocale?: Locale
     /**
      * Localization support for i18n
      */
-    locales?: Locales;
+    locales?: Locales
     /**
      * Logo URL.
      */
-    logoUrl?: Normalize<LogoUrl>;
+    logoUrl?: Normalize<LogoUrl>
     /**
      * OG Image URL. `null` to disable.
      *
@@ -100,73 +99,75 @@ export type Config<
      *
      * @default "https://vocs.dev/api/og?logo=%logo&title=%title&description=%description"
      */
-    ogImageUrl?: string | { [path: string]: string };
+    ogImageUrl?: string | { [path: string]: string }
     /**
      * Markdown configuration.
      */
-    markdown?: Normalize<Markdown<parsed>>;
+    markdown?: Normalize<Markdown<parsed>>
     /**
      * Documentation root directory. Can be an absolute path, or a path relative from
      * the location of the config file itself.
      *
      * @default "docs"
      */
-    rootDir?: string;
+    rootDir?: string
     /**
      * Navigation displayed on the sidebar.
      */
-    sidebar?: Normalize<Sidebar>;
+    sidebar?: Normalize<Sidebar>
     /**
      * Social links displayed in the top navigation.
      */
-    socials?: Normalize<Socials<parsed>>;
+    socials?: Normalize<Socials<parsed>>
     /**
      * Set of sponsors to display on MDX directives and (optionally) the sidebar.
      */
-    sponsors?: SponsorSet[];
+    sponsors?: SponsorSet[]
     /**
      * Theme configuration.
      */
-    theme?: Normalize<Theme<parsed, colorScheme>>;
+    theme?: Normalize<Theme<parsed, colorScheme>>
     /**
      * Documentation title.
      *
      * @default "Docs"
      */
-    title?: string;
+    title?:
+      | string
+      | {
+          [path: string]: string
+        }
     /**
      * Template for the page title.
      *
      * @default `%s – ${title}`
      */
-    titleTemplate?: string;
+    titleTemplate?: string
     /**
      * Navigation displayed on the top.
      */
-    topNav?: Normalize<TopNav<parsed>>;
+    topNav?: Normalize<TopNav<parsed>>
     /**
      * TwoSlash configuration.
      */
-    twoslash?: Normalize<TwoslashOptions>;
+    twoslash?: Normalize<TwoslashOptions>
     /**
      * Vite configuration.
      */
-    vite?: UserConfig;
+    vite?: UserConfig
   },
   parsed extends true ? RequiredProperties : never
->;
+>
 
-export type ParsedConfig = Config<true>;
+export type ParsedConfig = Config<true>
 
-export async function defineConfig<
-  colorScheme extends ColorScheme = undefined
->({
-  blogDir = "./pages/blog",
+export async function defineConfig<colorScheme extends ColorScheme = undefined>({
+  blogDir = './pages/blog',
   font,
   head,
   ogImageUrl,
-  rootDir = "docs",
-  title = "Docs",
+  rootDir = 'docs',
+  title = 'Docs',
   titleTemplate = `%s – ${title}`,
   ...config
 }: Config<false, colorScheme>): Promise<ParsedConfig> {
@@ -179,64 +180,61 @@ export async function defineConfig<
     title,
     titleTemplate,
     ...config,
-    banner: await parseBanner(config.banner ?? ""),
+    banner: await parseBanner(config.banner ?? ''),
     markdown: parseMarkdown(config.markdown ?? {}),
     socials: parseSocials(config.socials ?? []),
     topNav: parseTopNav(config.topNav ?? []),
     theme: await parseTheme(config.theme ?? ({} as Theme)),
-  };
+  }
 }
 
-export const getDefaultConfig = async () => await defineConfig({});
+export const getDefaultConfig = async () => await defineConfig({})
 
 //////////////////////////////////////////////////////
 // Parsers
 
 async function parseBanner(banner: Banner): Promise<Banner<true> | undefined> {
-  if (!banner) return undefined;
+  if (!banner) return undefined
 
   const bannerContent = (() => {
-    if (typeof banner === "string") return banner;
-    if (typeof banner === "object" && "content" in banner)
-      return banner.content;
-    return undefined;
-  })();
+    if (typeof banner === 'string') return banner
+    if (typeof banner === 'object' && 'content' in banner) return banner.content
+    return undefined
+  })()
 
   const content = await (async () => {
-    if (typeof bannerContent !== "string") return bannerContent;
+    if (typeof bannerContent !== 'string') return bannerContent
 
-    const { compile } = await import("@mdx-js/mdx");
-    const remarkGfm = (await import("remark-gfm")).default;
+    const { compile } = await import('@mdx-js/mdx')
+    const remarkGfm = (await import('remark-gfm')).default
     return String(
       await compile(bannerContent, {
-        outputFormat: "function-body",
+        outputFormat: 'function-body',
         remarkPlugins: [remarkGfm],
-      })
-    );
-  })();
+      }),
+    )
+  })()
 
-  if (!content) return undefined;
+  if (!content) return undefined
 
   const textColor = await (async () => {
-    if (typeof banner === "string") return undefined;
-    if (typeof banner === "object") {
-      if ("textColor" in banner) return banner.textColor;
-      if ("backgroundColor" in banner && banner.backgroundColor) {
-        const chroma = (await import("chroma-js")).default;
-        return chroma.contrast(banner.backgroundColor, "white") < 4.5
-          ? "black"
-          : "white";
+    if (typeof banner === 'string') return undefined
+    if (typeof banner === 'object') {
+      if ('textColor' in banner) return banner.textColor
+      if ('backgroundColor' in banner && banner.backgroundColor) {
+        const chroma = (await import('chroma-js')).default
+        return chroma.contrast(banner.backgroundColor, 'white') < 4.5 ? 'black' : 'white'
       }
     }
-    return undefined;
-  })();
+    return undefined
+  })()
 
   return {
-    height: "32px",
-    ...(typeof banner === "object" ? banner : {}),
+    height: '32px',
+    ...(typeof banner === 'object' ? banner : {}),
     content,
     textColor,
-  };
+  }
 }
 
 function parseMarkdown(markdown: Markdown): Markdown<true> {
@@ -244,20 +242,20 @@ function parseMarkdown(markdown: Markdown): Markdown<true> {
     ...markdown,
     code: {
       themes: {
-        dark: "github-dark-dimmed",
-        light: "github-light",
+        dark: 'github-dark-dimmed',
+        light: 'github-light',
       },
       ...markdown.code,
     },
-  };
+  }
 }
 
 const socialsMeta = {
-  discord: { label: "Discord", type: "discord" },
-  github: { label: "GitHub", type: "github" },
-  telegram: { label: "Telegram", type: "telegram" },
-  x: { label: "X (Twitter)", type: "x" },
-} satisfies Record<SocialItem["icon"], { label: string; type: SocialType }>;
+  discord: { label: 'Discord', type: 'discord' },
+  github: { label: 'GitHub', type: 'github' },
+  telegram: { label: 'Telegram', type: 'telegram' },
+  x: { label: 'X (Twitter)', type: 'x' },
+} satisfies Record<SocialItem['icon'], { label: string; type: SocialType }>
 
 function parseSocials(socials: Socials): Socials<true> {
   return socials.map((social) => {
@@ -265,44 +263,40 @@ function parseSocials(socials: Socials): Socials<true> {
       icon: social.icon,
       link: social.link,
       ...socialsMeta[social.icon],
-    };
-  });
+    }
+  })
 }
 
-let id = 0;
+let id = 0
 
 function parseTopNav(topNav: TopNav): TopNav<true> {
-  const parsedTopNav: ParsedTopNavItem[] = [];
+  const parsedTopNav: ParsedTopNavItem[] = []
   for (const item of topNav) {
     parsedTopNav.push({
       ...item,
       id: id++,
       items: item.items ? parseTopNav(item.items) : [],
-    });
+    })
   }
-  return parsedTopNav;
+  return parsedTopNav
 }
 
 async function parseTheme<colorScheme extends ColorScheme = undefined>(
-  theme: Theme<false, colorScheme>
+  theme: Theme<false, colorScheme>,
 ): Promise<Theme<true>> {
-  const chroma = (await import("chroma-js")).default;
+  const chroma = (await import('chroma-js')).default
   const accentColor = (() => {
-    if (!theme.accentColor) return theme.accentColor;
+    if (!theme.accentColor) return theme.accentColor
     if (
-      typeof theme.accentColor === "object" &&
-      !Object.keys(theme.accentColor).includes("light") &&
-      !Object.keys(theme.accentColor).includes("dark")
+      typeof theme.accentColor === 'object' &&
+      !Object.keys(theme.accentColor).includes('light') &&
+      !Object.keys(theme.accentColor).includes('dark')
     )
-      return theme.accentColor;
+      return theme.accentColor
 
-    const accentColor = theme.accentColor as
-      | string
-      | { light: string; dark: string };
-    const accentColorLight =
-      typeof accentColor === "object" ? accentColor.light : accentColor;
-    const accentColorDark =
-      typeof accentColor === "object" ? accentColor.dark : accentColor;
+    const accentColor = theme.accentColor as string | { light: string; dark: string }
+    const accentColorLight = typeof accentColor === 'object' ? accentColor.light : accentColor
+    const accentColorDark = typeof accentColor === 'object' ? accentColor.dark : accentColor
     return {
       backgroundAccent: {
         dark: accentColorDark,
@@ -313,10 +307,8 @@ async function parseTheme<colorScheme extends ColorScheme = undefined>(
         light: chroma(accentColorLight).darken(0.25).hex(),
       },
       backgroundAccentText: {
-        dark:
-          chroma.contrast(accentColorDark, "white") < 4.5 ? "black" : "white",
-        light:
-          chroma.contrast(accentColorLight, "white") < 4.5 ? "black" : "white",
+        dark: chroma.contrast(accentColorDark, 'white') < 4.5 ? 'black' : 'white',
+        light: chroma.contrast(accentColorLight, 'white') < 4.5 ? 'black' : 'white',
       },
       borderAccent: {
         dark: chroma(accentColorDark).brighten(0.5).hex(),
@@ -330,205 +322,199 @@ async function parseTheme<colorScheme extends ColorScheme = undefined>(
         dark: chroma(accentColorDark).darken(0.5).hex(),
         light: chroma(accentColorLight).darken(0.5).hex(),
       },
-    } satisfies Theme<true>["accentColor"];
-  })();
+    } satisfies Theme<true>['accentColor']
+  })()
   return {
     ...theme,
     accentColor,
-  } as Theme<true>;
+  } as Theme<true>
 }
 
 //////////////////////////////////////////////////////
 // Types
 
 type Normalize<T> = {
-  [K in keyof T]: T[K];
-} & {};
+  [K in keyof T]: T[K]
+} & {}
 
 export type Banner<parsed extends boolean = false> = Exclude<
   | string
   | ReactElement
   | {
       /** Whether or not the banner can be dismissed. */
-      dismissable?: boolean;
+      dismissable?: boolean
       /** The background color of the banner. */
-      backgroundColor?: string;
+      backgroundColor?: string
       /** The content of the banner. */
-      content: string | ReactElement;
+      content: string | ReactElement
       /** The height of the banner. */
-      height?: string;
+      height?: string
       /** The text color of the banner. */
-      textColor?: string;
+      textColor?: string
     }
   | undefined,
   parsed extends true ? string | ReactElement : never
->;
+>
 
-export type ColorScheme = "light" | "dark" | "system" | undefined;
+export type ColorScheme = 'light' | 'dark' | 'system' | undefined
 
 export type EditLink = {
   /**
    * Link pattern
    */
-  pattern: string | (() => string);
+  pattern: string | (() => string)
   /**
    * Link text
    *
    * @default "Edit page"
    */
-  text?: string;
-};
+  text?: string
+}
 
 export type Font = {
   /** Name of the Google Font to use. */
-  google?: string;
-};
+  google?: string
+}
 
-export type IconUrl = string | { light: string; dark: string };
+export type IconUrl = string | { light: string; dark: string }
 
 export type Locale = {
-  label: string;
-  lang: string; // optional, will be added  as `lang` attribute on `html` tag
-  link?: string; // default /fr/ -- shows on navbar translations menu, can be external
-};
+  label: string
+  lang: string // optional, will be added  as `lang` attribute on `html` tag
+  link?: string // default /fr/ -- shows on navbar translations menu, can be external
+}
 
 export type Locales =
   | undefined
   | {
-      [key: string]: Locale;
-    };
+      [key: string]: Locale
+    }
 
-export type LogoUrl = string | { light: string; dark: string };
+export type LogoUrl = string | { light: string; dark: string }
 
 export type Markdown<parsed extends boolean = false> = RequiredBy<
   {
-    code?: Normalize<RehypeShikiOptions>;
-    remarkPlugins?: PluggableList;
-    rehypePlugins?: PluggableList;
+    code?: Normalize<RehypeShikiOptions>
+    remarkPlugins?: PluggableList
+    rehypePlugins?: PluggableList
   },
-  parsed extends true ? "code" : never
->;
+  parsed extends true ? 'code' : never
+>
 
 export type SidebarItem = {
   /** Whether or not to collapse the sidebar item by default. */
-  collapsed?: boolean;
+  collapsed?: boolean
   /** Text to display on the sidebar. */
-  text: string;
+  text: string
   /** Optional pathname to the target documentation page. */
   // TODO: support external links
-  link?: string;
+  link?: string
   /** Optional children to nest under this item. */
-  items?: SidebarItem[];
-};
+  items?: SidebarItem[]
+}
 
 export type Sidebar =
   | SidebarItem[]
   | {
-      [path: string]:
-        | SidebarItem[]
-        | { backLink?: boolean; items: SidebarItem[] };
-    };
+      [path: string]: SidebarItem[] | { backLink?: boolean; items: SidebarItem[] }
+    }
 
-export type SocialType = "discord" | "github" | "telegram" | "x";
+export type SocialType = 'discord' | 'github' | 'telegram' | 'x'
 export type SocialItem = {
   /** Social icon to display. */
-  icon: SocialType; // TODO: Support custom SVG icons
+  icon: SocialType // TODO: Support custom SVG icons
   /** Label for the social. */
-  label?: string;
+  label?: string
   /** Link to the social. */
-  link: string;
-};
+  link: string
+}
 export type ParsedSocialItem = Required<SocialItem> & {
   /** The type of social item. */
-  type: SocialType;
-};
+  type: SocialType
+}
 
 export type Socials<parsed extends boolean = false> = parsed extends true
   ? ParsedSocialItem[]
-  : SocialItem[];
+  : SocialItem[]
 
 export type Sponsor = {
   /** The name of the sponsor. */
-  name: string;
+  name: string
   /** The link to the sponsor's website. */
-  link: string;
+  link: string
   /** The image to display for the sponsor. */
-  image: string;
-};
+  image: string
+}
 export type SponsorSet = {
   /** The list of sponsors to display. */
-  items: (Sponsor | null)[][];
+  items: (Sponsor | null)[][]
   /** The name of the sponsor set (e.g. "Gold Sponsors", "Collaborators", etc). */
-  name: string;
+  name: string
   /** The height of the sponsor images. */
-  height?: number;
-};
+  height?: number
+}
 
 export type ThemeVariables<variables extends Record<string, unknown>, value> = {
-  [key in keyof variables]?: value;
-};
+  [key in keyof variables]?: value
+}
 export type Theme<
   parsed extends boolean = false,
   colorScheme extends ColorScheme = ColorScheme,
   ///
-  colorValue = colorScheme extends "system" | undefined
-    ? { light: string; dark: string }
-    : string
+  colorValue = colorScheme extends 'system' | undefined ? { light: string; dark: string } : string,
 > = {
   accentColor?: Exclude<
     | string
-    | (colorScheme extends "system" | undefined
-        ? { light: string; dark: string }
-        : never)
+    | (colorScheme extends 'system' | undefined ? { light: string; dark: string } : never)
     | Required<
         ThemeVariables<
           Pick<
             typeof primitiveColorVars,
-            | "backgroundAccent"
-            | "backgroundAccentHover"
-            | "backgroundAccentText"
-            | "borderAccent"
-            | "textAccent"
-            | "textAccentHover"
+            | 'backgroundAccent'
+            | 'backgroundAccentHover'
+            | 'backgroundAccentText'
+            | 'borderAccent'
+            | 'textAccent'
+            | 'textAccentHover'
           >,
           colorValue
         >
       >,
     parsed extends true ? string | { light: string; dark: string } : never
-  >;
-  colorScheme?: colorScheme;
+  >
+  colorScheme?: colorScheme
   variables?: {
-    borderRadius?: ThemeVariables<typeof borderRadiusVars, string>;
+    borderRadius?: ThemeVariables<typeof borderRadiusVars, string>
     color?: ThemeVariables<typeof primitiveColorVars, colorValue> &
-      ThemeVariables<typeof semanticColorVars, colorValue>;
-    content?: ThemeVariables<typeof contentVars, string>;
-    fontFamily?: ThemeVariables<typeof fontFamilyVars, string>;
-    fontSize?: ThemeVariables<typeof fontSizeVars, string>;
-    fontWeight?: ThemeVariables<typeof fontWeightVars, string>;
-    lineHeight?: ThemeVariables<typeof lineHeightVars, string>;
-    outline?: ThemeVariables<typeof outlineVars, string>;
-    sidebar?: ThemeVariables<typeof sidebarVars, string>;
-    space?: ThemeVariables<typeof spaceVars, string>;
-    topNav?: ThemeVariables<typeof topNavVars, string>;
-    viewport?: ThemeVariables<typeof viewportVars, string>;
-    zIndex?: ThemeVariables<typeof zIndexVars, string>;
-  };
-};
+      ThemeVariables<typeof semanticColorVars, colorValue>
+    content?: ThemeVariables<typeof contentVars, string>
+    fontFamily?: ThemeVariables<typeof fontFamilyVars, string>
+    fontSize?: ThemeVariables<typeof fontSizeVars, string>
+    fontWeight?: ThemeVariables<typeof fontWeightVars, string>
+    lineHeight?: ThemeVariables<typeof lineHeightVars, string>
+    outline?: ThemeVariables<typeof outlineVars, string>
+    sidebar?: ThemeVariables<typeof sidebarVars, string>
+    space?: ThemeVariables<typeof spaceVars, string>
+    topNav?: ThemeVariables<typeof topNavVars, string>
+    viewport?: ThemeVariables<typeof viewportVars, string>
+    zIndex?: ThemeVariables<typeof zIndexVars, string>
+  }
+}
 
 export type TopNavItem<parsed extends boolean = false> = {
-  match?: string;
-  text: string;
+  match?: string
+  text: string
 } & (
   | { link: string; items?: never }
   | {
-      link?: string;
-      items: parsed extends true ? ParsedTopNavItem[] : TopNavItem[];
+      link?: string
+      items: parsed extends true ? ParsedTopNavItem[] : TopNavItem[]
     }
-);
+)
 export type ParsedTopNavItem = TopNavItem<true> & {
-  id: number;
-};
+  id: number
+}
 
 export type TopNav<parsed extends boolean = false> = parsed extends true
   ? ParsedTopNavItem[]
-  : TopNavItem[];
+  : TopNavItem[]

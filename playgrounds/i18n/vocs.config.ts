@@ -1,69 +1,59 @@
-import { defineConfig } from "../../src/index.js";
+import { defineConfig } from '../../src/index.js'
 
 export default defineConfig({
   sidebar: {
     // NOTE: the order is important
-    "/": [
+    '/': [
       {
-        text: "Overview",
-        link: "/",
+        text: 'Overview',
+        link: '/',
       },
       {
-        text: "Example",
+        text: 'Example',
         items: [
           {
-            text: "Translated",
-            link: "/translated",
+            text: 'Translated',
+            link: '/translated',
           },
         ],
       },
     ],
-    "/zh": [
+    '/zh': [
       {
-        text: "概述",
-        link: "/zh",
+        text: '概述',
+        link: '/zh',
       },
       {
-        text: "例子",
+        text: '例子',
         items: [
           {
-            text: "已翻译",
-            link: "/zh/translated",
+            text: '已翻译',
+            link: '/zh/translated',
           },
         ],
       },
     ],
   },
   defaultLocale: {
-    label: "English",
-    lang: "en",
+    label: 'English',
+    lang: 'en',
   },
   locales: {
     something: {
-      label: "简体中文",
-      lang: "zh",
+      label: '简体中文',
+      lang: 'zh',
     },
   },
-  title: "i18n",
-  //   topNav: {
-  //     '/': [
-  //     {
-  //       tsext: "Company",
-  //       items: [
-  //         {
-  //           text: "About",
-  //           link: "/about",
-  //         },
-  //         {
-  //           text: "Blog",
-  //           link: "/about",
-  //         },
-  //         {
-  //           text: "Careers",
-  //           link: "/about",
-  //         },
-  //       ],
-  //     },
-  //   ]
-  // }
-});
+  title:
+    // NOTE: the order is important
+    {
+      '/': 'i18n',
+      '/zh': 'i18n 中文',
+    },
+  description:
+    // NOTE: the order is important and this will show up when mdx description not defined
+    {
+      '/': 'English description',
+      '/zh': '中文说明',
+    },
+})

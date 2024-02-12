@@ -47,17 +47,28 @@ export function Root(props: {
 function Head({ frontmatter }: { frontmatter: Module['frontmatter'] }) {
   const config = useConfig()
   const ogImageUrl = useOgImageUrl()
+  const { pathname } = useLocation()
+
+  let pathKey = ''
+  if (typeof config?.title === 'object' && Object.keys(config?.title ?? {}).length > 0) {
+    let keys: string[] = []
+    keys = Object.keys(config?.title).filter((key) => pathname.startsWith(key))
+    pathKey = keys[keys.length - 1]
+  }
 
   const { baseUrl, font, iconUrl, logoUrl } = config
 
-  const title = frontmatter?.title ?? config.title
-  const description = frontmatter?.description ?? config.description
-
-  const enableTitleTemplate = config.title && !title.includes(config.title)
+  const configTitle = typeof config?.title === 'object' ? config?.title?.[pathKey] : config?.title
+  const title = frontmatter?.title ?? configTitle
+  const configDescription =
+    typeof config?.description === 'object' ? config?.description?.[pathKey] : config?.description
+  const description = frontmatter?.description ?? configDescription
+  const enableTitleTemplate = configTitle && !title.includes(configTitle)
+  config.titleTemplate = typeof config?.title === 'object' ? `%s – ${configTitle}` : `%s – ${title}`
 
   return (
     <Helmet
-      defaultTitle={config.title}
+      defaultTitle={configTitle}
       titleTemplate={enableTitleTemplate ? config.titleTemplate : undefined}
     >
       {/* Title */}
@@ -67,7 +78,7 @@ function Head({ frontmatter }: { frontmatter: Module['frontmatter'] }) {
       {baseUrl && import.meta.env.PROD && <base href={baseUrl} />}
 
       {/* Description */}
-      {description !== 'undefined' && <meta name="description" content={description} />}
+      {configDescription !== 'undefined' && <meta name="description" content={configDescription} />}
 
       {/* Icons */}
       {iconUrl && typeof iconUrl === 'string' && (
@@ -87,7 +98,7 @@ function Head({ frontmatter }: { frontmatter: Module['frontmatter'] }) {
 
       {/* Open Graph */}
       <meta property="og:type" content="website" />
-      <meta property="og:title" content={title || config.title} />
+      <meta property="og:title" content={title || configTitle} />
       {baseUrl && <meta property="og:url" content={baseUrl} />}
       {description !== 'undefined' && <meta property="og:description" content={description} />}
       {ogImageUrl && (
