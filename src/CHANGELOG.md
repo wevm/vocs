@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.0-alpha.36
+
+### Minor Changes
+
+- [`fb24c23`](https://github.com/wevm/vocs/commit/fb24c237be4e120a3da092be2d6df625cbdc34ca) Thanks [@jxom](https://github.com/jxom)! - Updated Shiki.
+
 ## 1.0.0-alpha.35
 
 ### Patch Changes
