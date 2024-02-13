@@ -1,0 +1,25 @@
+.custom_fullwidth .vocs_DocsLayout_gutterLeft {
+  justify-content: normal;
+  width: auto;
+}
+
+@media screen and (width > 1080px) {
+  .custom_fullwidth .vocs_DocsLayout_gutterTop_offsetLeftGutter {
+    padding-left: max(var(--vocs-sidebar_width), calc(1.5rem + var(--vocs-sidebar_width)));
+    padding-right: 1.5rem
+  }
+
+  .custom_fullwidth .vocs_DocsLayout_content_withSidebar {
+    margin-left: max(var(--vocs-sidebar_width), calc(1.5rem + var(--vocs-sidebar_width)));
+  }
+  
+  .vocs_Content, .vocs_Footer {
+    max-width: 70ch;
+    padding-left: 0px;
+    padding-right: 0px;
+  }
+}
+
+.custom_fullwidth .vocs_DocsLayout_gutterTop_offsetLeftGutter .vocs_DesktopTopNav {
+  padding: 0;
+}
