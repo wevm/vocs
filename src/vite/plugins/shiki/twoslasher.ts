@@ -22,10 +22,10 @@ export function twoslasher(
       nodes: [
         {
           filename: '',
-          level: 0,
+          level: 'error',
           type: 'error',
           code: 0,
-          length: 1,
+          length: 100,
           start: 0,
           line,
           character: 0,

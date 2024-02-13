@@ -2,7 +2,7 @@ import type { ShikiTransformer } from 'shiki'
 
 export const transformerSplitIdentifiers = (): ShikiTransformer => ({
   name: 'split-identifiers',
-  token(hast) {
+  span(hast) {
     // only apply for twoslash code blocks
     if (!this.meta.twoslash) return
 

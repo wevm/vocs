@@ -1,0 +1,5 @@
+---
+"vocs": minor
+---
+
+Updated Shiki.

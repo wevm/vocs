@@ -31,9 +31,9 @@
     "@radix-ui/react-navigation-menu": "^1.1.4",
     "@radix-ui/react-popover": "^1.0.7",
     "@radix-ui/react-tabs": "^1.0.4",
-    "@shikijs/rehype": "1.0.0-beta.5",
-    "@shikijs/transformers": "1.0.0-beta.5",
-    "@shikijs/twoslash": "1.0.0-beta.5",
+    "@shikijs/rehype": "^1.1.2",
+    "@shikijs/transformers": "^1.1.2",
+    "@shikijs/twoslash": "^1.1.2",
     "@vanilla-extract/css": "^1.14.0",
     "@vanilla-extract/dynamic": "^2.1.0",
     "@vanilla-extract/vite-plugin": "^3.9.4",
@@ -70,10 +70,10 @@
     "remark-mdx-frontmatter": "^4.0.0",
     "remark-parse": "^11.0.0",
     "serve-static": "^1.15.0",
-    "shiki": "1.0.0-beta.5",
+    "shiki": "^1.1.2",
     "tailwindcss": "^3.3.3",
     "toml": "^3.0.0",
-    "twoslash": "~0.1.0",
+    "twoslash": "~0.2.2",
     "ua-parser-js": "^1.0.36",
     "unified": "^11.0.4",
     "unist-util-visit": "^5.0.0",
@@ -90,23 +90,12 @@
   "license": "MIT",
   "homepage": "https://vocs.dev",
   "repository": "wevm/vocs",
-  "authors": [
-    "awkweb.eth",
-    "jxom.eth"
-  ],
+  "authors": ["awkweb.eth", "jxom.eth"],
   "funding": [
     {
       "type": "github",
       "url": "https://github.com/sponsors/wevm"
     }
   ],
-  "keywords": [
-    "react",
-    "static",
-    "docs",
-    "generator",
-    "vite",
-    "documentation",
-    "mdx"
-  ]
+  "keywords": ["react", "static", "docs", "generator", "vite", "documentation", "mdx"]
 }
