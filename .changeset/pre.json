@@ -10,7 +10,8 @@
     "playgrounds-reth": "0.0.0",
     "playgrounds-tailwind": "0.0.0",
     "playgrounds-uniswap": "0.0.0",
-    "playgrounds-viem": "0.0.0"
+    "playgrounds-viem": "0.0.0",
+    "custom-layout": "0.0.0"
   },
   "changesets": [
     "angry-maps-flow",
@@ -23,6 +24,7 @@
     "cool-seas-breathe",
     "curly-walls-enjoy",
     "cyan-pears-clap",
+    "dry-buckets-drum",
     "early-dodos-cough",
     "early-meals-fix",
     "eight-singers-speak",
