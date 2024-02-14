@@ -12,11 +12,19 @@ type PreviewParameters = {
 
 export async function preview({ outDir = 'dist' }: PreviewParameters = {}) {
   const { config } = await resolveVocsConfig()
-  const { rootDir } = config
+  const { rootDir, basename } = config
 
   const app = new Hono()
   app.use('*', compress())
-  app.use('/*', serveStatic({ root: resolve(rootDir, outDir) }))
+  app.use(
+    '/*',
+    serveStatic({
+      root: resolve(rootDir, outDir),
+      rewriteRequestPath(path) {
+        return basename ? path.replace(basename!, '') : path
+      },
+    }),
+  )
 
   return new Promise<ReturnType<typeof serve> & { port: number }>((res) => {
     async function createServer(port = 4173) {

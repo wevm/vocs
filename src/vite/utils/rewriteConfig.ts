@@ -19,20 +19,32 @@ export function rewriteConfig(config: ParsedConfig) {
   }
 
   if (baseUrl) {
-    const viteBase = config.vite.base
-    if (viteBase && !isHttpLink(viteBase)) {
+    const originalViteBase = config.vite.base
+    if (originalViteBase && !isHttpLink(originalViteBase)) {
       if (!config.basename) {
-        config.basename = viteBase
+        config.basename = originalViteBase
       }
     }
+
+    if (!vite?.base) {
+      if (config.basename) {
+        config.vite.base = config.basename
+      }
+    }
+
     config.vite.base = baseUrl
   } else {
     if (isHttpLink(vite?.base)) {
       config.baseUrl = vite!.base
     } else if (vite?.base) {
-      // relative path
       if (!config.basename) {
         config.basename = vite.base
+      } else {
+        config.vite.base = config.basename
+      }
+    } else {
+      if (config.basename) {
+        config.vite.base = config.basename
       }
     }
   }
@@ -100,8 +112,8 @@ export function getRouteBasename(config: ParsedConfig): string | undefined {
 }
 
 export function getAssetsPrefix(config: ParsedConfig) {
-  const { baseUrl } = config
-  return baseUrl || ''
+  const { baseUrl, vite } = config
+  return baseUrl || vite?.base || ''
 }
 
 export function trimRight(str: string) {

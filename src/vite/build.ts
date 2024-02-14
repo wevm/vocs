@@ -87,6 +87,8 @@ export async function build({
     hooks?.onPrerenderEnd?.({ error: error as Error })
   }
 
+  // remove .vocs dir from user's workspace
+  fs.removeSync(resolve(publicDir_resolved, '.vocs'))
   // copy public folder
   fs.copySync(resolve(__dirname, '../app/public'), outDir_resolved)
 
