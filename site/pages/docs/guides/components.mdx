@@ -1,0 +1,610 @@
+import { Authors, BlogPosts, Button, Callout, HomePage, Raw, Sponsors, Steps, Step  } from 'vocs/components'
+import * as MyButton from '../../../components/MyButton';
+import Custom from '../../../components/Custom';
+
+# Componetns [Vocs & Custom Components]
+
+Vocs comes with default components that can be extended or you can create and use your own.
+
+All components available can be found in [vocs/src/components](https://github.com/wevm/vocs/blob/main/src/components.ts)
+
+## Vocs Components
+
+The following are components native to Vocs and that can be used throughout your docs.
+
+### Authors
+
+Displays author or authors in a specific format.
+
+[vocs/src/app/components/Authors.tsx](https://github.com/wevm/vocs/blob/main/src/app/components/Authors.tsx)
+
+:::code-group
+
+<div data-title="Preview">
+  <Authors authors={'codingwithmanny'} date={'2024-02-15'} />
+</div>
+
+```mdx [index.mdx]
+import { Authors } from 'vocs/components'
+
+<Authors authors={'codingwithmanny'} date={'2024-02-15'} />
+```
+:::
+
+### BlogPosts
+
+Retrieves all blog posts from `./blog`.
+
+[vocs/src/app/components/BlogPosts.tsx](https://github.com/wevm/vocs/blob/main/src/app/components/BlogPosts.tsx)
+
+:::code-group
+
+<div data-title="Preview">
+  <BlogPosts />
+</div>
+
+```mdx [index.mdx]
+import { BlogPosts } from 'vocs/components'
+
+<BlogPosts />
+```
+
+:::
+
+### Button
+
+Displays native button.
+
+[vocs/src/app/components/Button.tsx](https://github.com/wevm/vocs/blob/main/src/app/components/Button.tsx)
+
+:::code-group
+
+<div data-title="Preview">
+  <Button>Default Button</Button>
+
+  <p>&nbsp;</p>
+  
+  <Button className="custom-class">Custom Class Button</Button>
+
+  <p>&nbsp;</p>
+
+  <Button href="https://github.com/wevm">Ahref Button</Button>
+</div>
+
+```mdx [index.mdx]
+import { Button } from 'vocs/components'
+
+<Button>Default Button</Button>
+
+<p>&nbsp;</p>
+
+<Button className="custom-class">Custom Class Button</Button>
+
+<p>&nbsp;</p>
+
+<Button href="https://github.com/wevm">Ahref Button</Button>
+```
+
+:::
+
+### Callout
+
+Main callout to emphasize text.
+
+[vocs/src/app/components/Callout.tsx](https://github.com/wevm/vocs/blob/main/src/app/components/Callout.tsx)
+
+:::code-group
+
+<div data-title="Preview">
+  <Callout >
+    Default Callout
+  </Callout>
+
+  <p>&nbsp;</p>
+
+  <Callout type="note">
+    Note Callout
+  </Callout>
+
+  <p>&nbsp;</p>
+
+  <Callout type="info">
+    Info Callout
+  </Callout>
+
+  <p>&nbsp;</p>
+
+  <Callout type="warning">
+    Warning Callout
+  </Callout>
+
+  <p>&nbsp;</p>
+
+  <Callout type="danger">
+    Danger Callout
+  </Callout>
+
+  <p>&nbsp;</p>
+
+  <Callout type="tip">
+    Tip Callout
+  </Callout>
+
+  <p>&nbsp;</p>
+
+  <Callout type="success">
+    Success Callout
+  </Callout>
+</div>
+
+```mdx [index.mdx]
+import { Callout } from 'vocs/components'
+
+<Callout >
+  Default Callout
+</Callout>
+
+<p>&nbsp;</p>
+
+<Callout type="note">
+  Note Callout
+</Callout>
+
+<p>&nbsp;</p>
+
+<Callout type="info">
+  Info Callout
+</Callout>
+
+<p>&nbsp;</p>
+
+<Callout type="warning">
+  Warning Callout
+</Callout>
+
+<p>&nbsp;</p>
+
+<Callout type="danger">
+  Danger Callout
+</Callout>
+
+<p>&nbsp;</p>
+
+<Callout type="tip">
+  Tip Callout
+</Callout>
+
+<p>&nbsp;</p>
+
+<Callout type="success">
+  Success Callout
+</Callout>
+```
+
+:::
+
+### HomePage - Root
+
+Displays default HomePage Root.
+
+[vocs/src/app/components/HomePage.tsx](https://github.com/wevm/vocs/blob/main/src/app/components/HomePage.tsx)
+
+:::code-group
+
+<div data-title="Preview">
+  <HomePage.Root>
+    <h1>Hello</h1>
+  </HomePage.Root>
+</div>
+
+```mdx [index.mdx]
+import { HomePage } from 'vocs/components'
+
+<HomePage.Root>
+  <h1>Hello</h1>
+</HomePage.Root>
+```
+
+:::
+
+### HomePage - Logo
+
+Displays default HomePage Logo.
+
+[vocs/src/app/components/HomePage.tsx](https://github.com/wevm/vocs/blob/main/src/app/components/HomePage.tsx)
+
+:::code-group
+
+<div data-title="Preview">
+  <HomePage.Logo />
+</div>
+
+```mdx [index.mdx]
+import { HomePage } from 'vocs/components'
+
+<HomePage.Logo />
+```
+
+:::
+
+### HomePage - Tagline
+
+Displays default HomePage Tagline.
+
+[vocs/src/app/components/HomePage.tsx](https://github.com/wevm/vocs/blob/main/src/app/components/HomePage.tsx)
+
+:::code-group
+
+<div data-title="Preview">
+  <HomePage.Tagline>
+    Here is a tagline.
+  </HomePage.Tagline>
+</div>
+
+```mdx [index.mdx]
+import { HomePage } from 'vocs/components'
+
+<HomePage.Tagline>
+  Here is a tagline.
+</HomePage.Tagline>
+```
+
+:::
+
+### HomePage - Description
+
+Displays default HomePage Description.
+
+[vocs/src/app/components/HomePage.tsx](https://github.com/wevm/vocs/blob/main/src/app/components/HomePage.tsx)
+
+:::code-group
+
+<div data-title="Preview">
+  <HomePage.Description>
+    Here is a description.
+  </HomePage.Description>
+</div>
+
+```mdx [index.mdx]
+import { HomePage } from 'vocs/components'
+
+<HomePage.Description>
+  Here is a description.
+</HomePage.Description>
+```
+
+:::
+
+### HomePage - Buttons
+
+Displays default HomePage Buttons.
+
+[vocs/src/app/components/HomePage.tsx](https://github.com/wevm/vocs/blob/main/src/app/components/HomePage.tsx)
+
+:::code-group
+
+<div data-title="Preview">
+  <HomePage.Buttons>
+    <Button>Button 1</Button>
+    <Button>Button 2</Button>
+    <Button>Button 3</Button>
+  </HomePage.Buttons>
+</div>
+
+```mdx [index.mdx]
+import { HomePage } from 'vocs/components'
+
+<HomePage.Buttons>
+  <Button>Button 1</Button>
+  <Button>Button 2</Button>
+  <Button>Button 3</Button>
+</HomePage.Buttons>
+```
+
+:::
+
+### HomePage - Button
+
+Displays default HomePage Button.
+
+[vocs/src/app/components/HomePage.tsx](https://github.com/wevm/vocs/blob/main/src/app/components/HomePage.tsx)
+
+:::code-group
+
+<div data-title="Preview">
+  <HomePage.Button>
+    HomePage Button
+  </HomePage.Button>
+</div>
+
+```mdx [index.mdx]
+import { HomePage } from 'vocs/components'
+
+<HomePage.Button>
+  HomePage Button
+</HomePage.Button>
+```
+
+:::
+
+### HomePage - InstallPackage
+
+Displays default HomePage InstallPackage.
+
+[vocs/src/app/components/HomePage.tsx](https://github.com/wevm/vocs/blob/main/src/app/components/HomePage.tsx)
+
+:::code-group
+
+<div data-title="Preview">
+  <HomePage.InstallPackage name="lorem" type="install" />
+
+  <p>&nbsp;</p>
+
+  <HomePage.InstallPackage name="ipsum" type="init" />
+</div>
+
+```mdx [index.mdx]
+import { HomePage } from 'vocs/components'
+
+<HomePage.InstallPackage name="lorem" type="install" />
+
+<p>&nbsp;</p>
+
+<HomePage.InstallPackage name="ipsum" type="init" />
+```
+
+:::
+
+### Raw
+
+Use raw mdx in components.
+
+[vocs/src/app/components/Raw.tsx](https://github.com/wevm/vocs/blob/main/src/app/components/Raw.tsx)
+
+:::code-group
+
+<div data-title="Preview">
+  <Raw>
+    # Hello there
+
+    Lorem ipsum dolor.
+  </Raw>
+</div>
+
+```mdx [index.mdx]
+import { Raw } from 'vocs/components'
+
+<Raw>
+  # Hello there
+
+  Lorem ipsum dolor.
+</Raw>
+```
+
+:::
+
+### Sponsors
+
+Displays sponsors defined in `vocs.config.tsx`.
+
+[vocs/src/app/components/Sponsors.tsx](https://github.com/wevm/vocs/blob/main/src/app/components/Sponsors.tsx)
+
+:::code-group
+
+<div data-title="Preview">
+  <Sponsors />
+</div>
+
+```mdx [index.mdx]
+import { Sponsors } from 'vocs/components'
+
+<Sponsors />
+```
+
+:::
+
+### Steps & Step
+
+Steps to be used with `<Step>` to add ordered numbers.
+
+[vocs/src/app/components/Steps.tsx](https://github.com/wevm/vocs/blob/main/src/app/components/Steps.tsx)
+
+[vocs/src/app/components/Step.tsx](https://github.com/wevm/vocs/blob/main/src/app/components/Step.tsx)
+
+:::code-group
+
+<div data-title="Preview">
+  <Steps>
+    <Step title="H2 Step 1" titleLevel={2}>
+      Hello there
+    </Step>
+
+    <Step title="H2 Step 2" titleLevel={2}>
+      Lorem ipsum
+    </Step>
+  </Steps>
+
+  <Steps>
+    <Step title="Title H3" titleLevel={3}>
+      Hello there
+    </Step>
+
+    <Step title="Title H3" titleLevel={3}>
+      Lorem ipsum
+    </Step>
+  </Steps>
+
+  <Steps>
+    <Step title="Title H4" titleLevel={4}>
+      Hello there
+    </Step>
+
+    <Step title="Title H4" titleLevel={4}>
+      Lorem ipsum
+    </Step>
+  </Steps>
+
+  <Steps>
+    <Step title="Title H5" titleLevel={5}>
+      Hello there
+    </Step>
+
+    <Step title="Title H5" titleLevel={5}>
+      Lorem ipsum
+    </Step>
+  </Steps>
+
+  <Steps>
+    <Step title="Title H6" titleLevel={6}>
+      Hello there
+    </Step>
+
+    <Step title="Title H6" titleLevel={6}>
+      Lorem ipsum
+    </Step>
+  </Steps>
+</div>
+
+```mdx [index.mdx]
+import { Steps, Step } from 'vocs/components'
+
+<Steps>
+  <Step title="Title H2" titleLevel={2}>
+    Hello there
+  </Step>
+
+  <Step title="Title H2" titleLevel={2}>
+    Lorem ipsum
+  </Step>
+</Steps>
+
+<Steps>
+  <Step title="Title H3" titleLevel={3}>
+    Hello there
+  </Step>
+
+  <Step title="Title H3" titleLevel={3}>
+    Lorem ipsum
+  </Step>
+</Steps>
+
+<Steps>
+  <Step title="Title H4" titleLevel={4}>
+    Hello there
+  </Step>
+
+  <Step title="Title H4" titleLevel={4}>
+    Lorem ipsum
+  </Step>
+</Steps>
+
+<Steps>
+  <Step title="Title H5" titleLevel={5}>
+    Hello there
+  </Step>
+
+  <Step title="Title H5" titleLevel={5}>
+    Lorem ipsum
+  </Step>
+</Steps>
+
+<Steps>
+  <Step title="Title H6" titleLevel={6}>
+    Hello there
+  </Step>
+
+  <Step title="Title H6" titleLevel={6}>
+    Lorem ipsum
+  </Step>
+</Steps>
+```
+
+:::
+
+## Custom Components
+
+Create custom components for your docs.
+
+### Extending Vocs Component
+
+This will demonstrate how to extend an existing vocs component.
+
+:::code-group
+
+<div data-title="Preview">
+  <MyButton.Large>Hello</MyButton.Large>
+</div>
+
+```mdx [index.mdx]
+import * as MyButton from '../../../components/MyButton';
+
+<MyButton.Large>Hello</MyButton.Large>
+```
+
+```tsx [MyButton.tsx]
+import clsx from 'clsx'
+import * as React from 'react'
+import { Button } from 'vocs/components'
+
+type ButtonProps = {
+  children: React.ReactNode
+  className?: string
+  href?: string
+  variant?: 'accent'
+}
+
+export function Large({ children, className, ...rest }: ButtonProps) {
+  return (
+    <Button className={clsx('text-xl', className)} {...rest}>
+      {children}
+    </Button>
+  )
+}
+```
+
+```css [styles.css]
+/* If tailwind not used */
+.vocs_Button_button.text-xl {
+  font-size: var(--vocs-fontSize_32);
+  height: var(--vocs-fontSize_64);
+}
+```
+:::
+
+### Your Custom Component
+
+:::code-group
+
+<div data-title="Preview">
+  <Custom>My Custom Button</Custom>
+</div>
+
+```mdx [index.mdx]
+import Custom from '../../../components/Custom';
+
+<Custom>My Custom Button</Custom>
+```
+
+```tsx [Custom.tsx]
+import * as React from 'react'
+
+export default function Custom({ children }: { children: React.ReactNode }) {
+  return (
+    <button
+      style={{
+        background: 'var(--vocs-color_textAccent)',
+        paddingLeft: 'var(--vocs-space_16)',
+        paddingRight: 'var(--vocs-space_16)',
+        borderRadius: 'var(--vocs-space_4)',
+        lineHeight: 'var(--vocs-space_32)',
+      }}
+    >
+      {children}
+    </button>
+  )
+}
+
+```
+
+:::
+

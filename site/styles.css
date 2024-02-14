@@ -12,3 +12,8 @@
   margin-top: 5rem;
   width: 100%;
 }
+
+.vocs_Button_button.text-xl {
+  font-size: var(--vocs-fontSize_32);
+  height: var(--vocs-fontSize_64);
+}
