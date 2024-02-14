@@ -10,6 +10,7 @@ import { useConfig } from './hooks/useConfig.js'
 import { useOgImageUrl } from './hooks/useOgImageUrl.js'
 import { PageDataContext } from './hooks/usePageData.js'
 import { type Module } from './types.js'
+import { getRouteBasename } from '../vite/utils/rewriteConfig.js'
 
 export function Root(props: {
   children: ReactNode
@@ -55,6 +56,8 @@ function Head({ frontmatter }: { frontmatter: Module['frontmatter'] }) {
 
   const enableTitleTemplate = config.title && !title.includes(config.title)
 
+  const basename = getRouteBasename(config)
+
   return (
     <Helmet
       defaultTitle={config.title}
@@ -64,10 +67,13 @@ function Head({ frontmatter }: { frontmatter: Module['frontmatter'] }) {
       {title && <title>{title}</title>}
 
       {/* Base URL */}
-      {baseUrl && import.meta.env.PROD && <base href={baseUrl} />}
+      {/* {baseUrl && import.meta.env.PROD && <base href={baseUrl} />} */}
 
       {/* Description */}
       {description !== 'undefined' && <meta name="description" content={description} />}
+
+      {/* route basename */}
+      {basename && <meta property="route-basename" content={basename} />}
 
       {/* Icons */}
       {iconUrl && typeof iconUrl === 'string' && (

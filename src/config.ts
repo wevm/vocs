@@ -48,6 +48,16 @@ export type Config<
      */
     baseUrl?: string
     /**
+     * Route basename
+     *
+     * @example
+     * /prefix
+     *
+     * baseUrl is the starting path of http or https
+     * when vite.base is
+     */
+    basename?: string
+    /**
      * Path to blog pages relative to project root.
      * Used to extract posts from the filesystem.
      *

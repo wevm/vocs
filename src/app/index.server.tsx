@@ -16,6 +16,7 @@ import { resolveVocsConfig } from '../vite/utils/resolveVocsConfig.js'
 import { ConfigProvider } from './hooks/useConfig.js'
 import { routes } from './routes.js'
 import { createFetchRequest } from './utils/createFetchRequest.js'
+import { getRouteBasename } from '../vite/utils/rewriteConfig.js'
 
 export async function prerender(location: string) {
   const unwrappedRoutes = (
@@ -34,11 +35,11 @@ export async function prerender(location: string) {
   ).filter(Boolean) as RouteObject[]
 
   const { config } = await resolveVocsConfig()
-  const { baseUrl } = config
+  const basename = getRouteBasename(config)
 
   const body = renderToString(
     <ConfigProvider config={config}>
-      <StaticRouter location={`${baseUrl || ''}${location}`} basename={baseUrl}>
+      <StaticRouter location={`${basename}${location}`} basename={basename}>
         <Routes>
           {unwrappedRoutes.map((route) => (
             <Route key={route.path} path={route.path} element={route.element} />
@@ -53,9 +54,9 @@ export async function prerender(location: string) {
 
 export async function render(req: Request) {
   const { config } = await resolveVocsConfig()
-  const { baseUrl } = config
+  const basename = getRouteBasename(config)
 
-  const { query, dataRoutes } = createStaticHandler(routes, { basename: baseUrl })
+  const { query, dataRoutes } = createStaticHandler(routes, { basename })
   const fetchRequest = createFetchRequest(req)
   const context = (await query(fetchRequest)) as StaticHandlerContext
 

@@ -5,6 +5,7 @@ import pc from 'picocolors'
 import type { Logger } from 'vite'
 import { resolveOutDir } from './utils/resolveOutDir.js'
 import { resolveVocsConfig } from './utils/resolveVocsConfig.js'
+import { getAssetsPrefix } from './utils/rewriteConfig.js'
 
 type PrerenderParameters = { logger?: Logger; outDir?: string }
 
@@ -12,7 +13,8 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 
 export async function prerender({ logger, outDir }: PrerenderParameters) {
   const { config } = await resolveVocsConfig()
-  const { rootDir, baseUrl } = config
+  const { rootDir } = config
+  const assetPrefix = getAssetsPrefix(config)
 
   const outDir_resolved = resolveOutDir(rootDir, outDir)
 
@@ -28,7 +30,7 @@ export async function prerender({ logger, outDir }: PrerenderParameters) {
     const html = template
       .replace('<!--body-->', body)
       .replace('<!--head-->', head)
-      .replace('../app/utils/initializeTheme.ts', `${baseUrl || ''}/initializeTheme.iife.js`)
+      .replace('../app/utils/initializeTheme.ts', `${assetPrefix}/initializeTheme.iife.js`)
     const isIndex = route.endsWith('/')
     const filePath = `${isIndex ? `${route}index` : route}.html`.replace(/^\//, '')
     const path = resolve(outDir_resolved, filePath)

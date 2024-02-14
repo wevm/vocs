@@ -25,6 +25,6 @@ async function hydrate() {
 }
 
 function getBasename() {
-  const ogUrlMeta = document.querySelector('meta[property="og:url"]')
-  return ogUrlMeta?.getAttribute?.('content') || undefined
+  const basenameMeta = document.querySelector('meta[property="route-basename"]')
+  return basenameMeta?.getAttribute?.('content') || undefined
 }

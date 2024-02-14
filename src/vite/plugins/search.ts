@@ -8,6 +8,7 @@ import { hash as hash_ } from '../utils/hash.js'
 import { resolveVocsConfig } from '../utils/resolveVocsConfig.js'
 import { buildIndex, debug, getDocId, processMdx, splitPageIntoSections } from '../utils/search.js'
 import { slash } from '../utils/slash.js'
+import { getAssetsPrefix } from '../utils/rewriteConfig.js'
 
 const virtualModuleId = 'virtual:searchIndex'
 const resolvedVirtualModuleId = `\0${virtualModuleId}`
@@ -90,6 +91,8 @@ export async function search(): Promise<Plugin> {
       if (dev)
         return `export const getSearchIndex = async () => ${JSON.stringify(JSON.stringify(index))}`
 
+      const assetPrefix = getAssetsPrefix(config)
+
       if (searchPromise) {
         index = await searchPromise
         searchPromise = undefined
@@ -99,9 +102,7 @@ export async function search(): Promise<Plugin> {
         fs.ensureDirSync(dir)
         fs.writeJSONSync(join(dir, `search-index-${hash}.json`), json)
       }
-      return `export const getSearchIndex = async () => JSON.stringify(await ((await fetch("${`${
-        config.baseUrl || ''
-      }/.vocs/search-index-${hash}.json`}")).json()))`
+      return `export const getSearchIndex = async () => JSON.stringify(await ((await fetch("${`${assetPrefix}/.vocs/search-index-${hash}.json`}")).json()))`
     },
     async handleHotUpdate({ file }) {
       if (!file.endsWith('.md') && !file.endsWith('.mdx')) return
