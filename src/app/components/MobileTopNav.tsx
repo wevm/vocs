@@ -24,6 +24,7 @@ import { ChevronRight } from './icons/ChevronRight.js'
 import { ChevronUp } from './icons/ChevronUp.js'
 import { Discord } from './icons/Discord.js'
 import { GitHub } from './icons/GitHub.js'
+import { Language } from './icons/Language.js'
 import { Menu } from './icons/Menu.js'
 import { Telegram } from './icons/Telegram.js'
 import { X } from './icons/X.js'
@@ -32,7 +33,16 @@ MobileTopNav.Curtain = Curtain
 
 export function MobileTopNav() {
   const config = useConfig()
+  const { pathname } = useLocation()
   const { showLogo } = useLayout()
+
+  let pathKey = ''
+  if (typeof config.topNav === 'object' && Object.keys(config.topNav ?? {}).length > 0) {
+    let keys: string[] = []
+    keys = Object.keys(config.topNav).filter((key) => pathname.startsWith(key))
+    pathKey = keys[keys.length - 1]
+  }
+  const configTopNav = Array.isArray(config.topNav) ? config.topNav : config?.topNav?.[pathKey]
 
   return (
     <div className={styles.root}>
@@ -46,17 +56,28 @@ export function MobileTopNav() {
             </div>
           </div>
         )}
-        {config.topNav && (
+        {configTopNav && (
           <>
             <div className={styles.group}>
-              <Navigation items={config.topNav} />
-              <CompactNavigation items={config.topNav} />
+              <Navigation items={configTopNav} />
+              <CompactNavigation items={configTopNav} />
             </div>
           </>
         )}
       </div>
 
       <div className={styles.section}>
+        {config.defaultLocale?.label &&
+          config.defaultLocale.lang &&
+          config.locales &&
+          Object.keys(config.locales).length > 0 && (
+            <>
+              <div className={styles.group}>
+                <NavigationLocale />
+                <CompactNavigationLocale />
+              </div>
+            </>
+          )}
         <div className={styles.group} style={{ marginRight: '-8px' }}>
           <MobileSearch />
         </div>
@@ -72,6 +93,79 @@ export function MobileTopNav() {
         )}
       </div>
     </div>
+  )
+}
+
+function NavigationLocale() {
+  const config = useConfig()
+  const { pathname } = useLocation()
+  /**
+   *
+   * @param item
+   * @param lang
+   * @returns
+   */
+  const removeLocalePrefix = (item: Config.ParsedTopNavItem, lang: string) => {
+    // Get all language prefixes
+    const prefixLocales = [
+      config?.defaultLocale?.lang,
+      ...Object.keys(config?.locales ?? {}).map((i) =>
+        config?.locales ? config.locales[i]?.lang : null,
+      ),
+    ]
+    // Regex for removal
+    const regexString = `^\/(${prefixLocales.join('|')})`
+    const regex = new RegExp(regexString)
+    return {
+      ...item,
+      link: `${lang ? `/${lang}` : ''}${item.link?.replace(regex, '') ?? ''}`,
+    }
+  }
+
+  if (!(config.locales || (config.locales && Object.keys(config.locales).length === 0))) return null
+  return (
+    <NavigationMenu.Root delayDuration={0} className={styles.navigation}>
+      <NavigationMenu.List>
+        <NavigationMenu.Item className={styles.item}>
+          <NavigationMenu.Trigger active={false}>
+            <Icon
+              className={clsx(styles.icon)}
+              size="20px"
+              label="Language"
+              icon={() => <Language />}
+            />
+          </NavigationMenu.Trigger>
+          <NavigationMenu.Content id="hello" className={styles.contentRight}>
+            <NavigationMenuContent
+              items={[
+                ...(config?.defaultLocale?.label && config?.defaultLocale?.lang
+                  ? [
+                      removeLocalePrefix(
+                        {
+                          id: 0,
+                          text: `${config?.defaultLocale?.label}`,
+                          link: `${pathname}`,
+                        },
+                        '',
+                      ),
+                    ]
+                  : []),
+                ...Object.keys(config.locales).map((locale, key) => {
+                  return removeLocalePrefix(
+                    {
+                      id: key + (config?.defaultLocale?.label ? 1 : 0),
+                      text: `${config.locales?.[locale].label}`,
+                      link: `${pathname}`,
+                    },
+                    `${config.locales?.[locale].lang}`,
+                  )
+                }),
+              ]}
+            />
+          </NavigationMenu.Content>
+        </NavigationMenu.Item>
+      </NavigationMenu.List>
+    </NavigationMenu.Root>
   )
 }
 
@@ -91,7 +185,7 @@ function Navigation({ items }: { items: Config.ParsedTopNavItem[] }) {
               <NavigationMenu.Trigger active={activeIds?.includes(item.id)}>
                 {item.text}
               </NavigationMenu.Trigger>
-              <NavigationMenu.Content className={styles.content}>
+              <NavigationMenu.Content className={styles.contentLeft}>
                 <NavigationMenuContent items={item.items || []} />
               </NavigationMenu.Content>
             </NavigationMenu.Item>
@@ -113,6 +207,104 @@ function NavigationMenuContent({ items }: { items: Config.ParsedTopNavItem[] }) 
         </NavigationMenu.Link>
       ))}
     </ul>
+  )
+}
+
+function CompactNavigationLocale() {
+  const config = useConfig()
+  const { pathname } = useLocation()
+
+  /**
+   *
+   * @param item
+   * @param lang
+   * @returns
+   */
+  const removeLocalePrefix = (item: Config.ParsedTopNavItem, lang: string) => {
+    // Get all language prefixes
+    const prefixLocales = [
+      config?.defaultLocale?.lang,
+      ...Object.keys(config?.locales ?? {}).map((i) =>
+        config?.locales ? config.locales[i]?.lang : null,
+      ),
+    ]
+    // Regex for removal
+    const regexString = `^\/(${prefixLocales.join('|')})`
+    const regex = new RegExp(regexString)
+    return {
+      ...item,
+      link: `${lang ? `/${lang}` : ''}${item.link?.replace(regex, '') ?? ''}`,
+    }
+  }
+
+  const items = [
+    ...(config?.defaultLocale?.label && config?.defaultLocale?.lang
+      ? [
+          removeLocalePrefix(
+            {
+              id: 0,
+              text: `${config?.defaultLocale?.label}`,
+              link: `${pathname}`,
+            },
+            '',
+          ),
+        ]
+      : []),
+    ...Object.keys(config?.locales ?? {}).map((locale, key) => {
+      return removeLocalePrefix(
+        {
+          id: key + (config?.defaultLocale?.label ? 1 : 0),
+          text: `${config.locales?.[locale].label}`,
+          link: `${pathname}`,
+        },
+        `${config.locales?.[locale].lang}`,
+      )
+    }),
+  ]
+  const [showPopover, setShowPopover] = useState(false)
+  const activeIds = useActiveNavIds({ pathname, items })
+  const activeItem = items.filter((item) => item.id === activeIds[0])[0]
+
+  return (
+    <div className={clsx(styles.navigation, styles.navigation_compact)}>
+      {activeItem ? (
+        <Popover.Root modal open={showPopover} onOpenChange={setShowPopover}>
+          <Popover.Trigger className={clsx(styles.menuTrigger, styles.navigationItem)}>
+            <Icon
+              className={clsx(styles.icon)}
+              size="20px"
+              label="Language"
+              icon={() => <Language />}
+            />
+            <Icon label="Menu" icon={ChevronDown} size="11px" />
+          </Popover.Trigger>
+          <Popover className={styles.topNavPopover}>
+            <Accordion.Root
+              type="single"
+              collapsible
+              style={{ display: 'flex', flexDirection: 'column' }}
+            >
+              {items.map((item, i) => (
+                <Link
+                  key={i}
+                  data-active={activeIds.includes(item.id)}
+                  className={styles.navigationItem}
+                  href={item.link!}
+                  onClick={() => setShowPopover(false)}
+                  variant="styleless"
+                >
+                  {item.text}
+                </Link>
+              ))}
+            </Accordion.Root>
+          </Popover>
+        </Popover.Root>
+      ) : items[0]?.link ? (
+        <Link className={styles.navigationItem} href={items[0].link} variant="styleless">
+          {items[0].text}
+        </Link>
+      ) : null}
+    </div>
   )
 }
 

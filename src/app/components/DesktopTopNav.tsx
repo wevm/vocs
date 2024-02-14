@@ -6,7 +6,6 @@ import type { ParsedSocialItem, ParsedTopNavItem } from '../../config.js'
 import { useActiveNavIds } from '../hooks/useActiveNavIds.js'
 import { useConfig } from '../hooks/useConfig.js'
 import { useLayout } from '../hooks/useLayout.js'
-import { useLocale } from '../hooks/useLocale.js'
 import { useTheme } from '../hooks/useTheme.js'
 import { visibleDark, visibleLight } from '../styles/utils.css.js'
 import { DesktopSearch } from './DesktopSearch.js'
@@ -54,7 +53,9 @@ export function DesktopTopNav() {
       <div className={styles.section} />
 
       <div className={styles.section}>
-        {(config.topNav?.length || 0) > 0 && (
+        {(((Array.isArray(config.topNav) && config.topNav?.length) || 0) > 0 ||
+          ((!Array.isArray(config.topNav) && Object.keys(config?.topNav ?? {})?.length) || 0) >
+            0) && (
           <>
             <div className={styles.group}>
               <Navigation />
@@ -115,21 +116,27 @@ export function Curtain() {
 function Navigation() {
   const { topNav } = useConfig()
   if (!topNav) return null
-
   const { pathname } = useLocation()
-  const { locale } = useLocale()
-  const activeIds = useActiveNavIds({ pathname, items: topNav })
+
+  let pathKey = ''
+  if (typeof topNav === 'object' && Object.keys(topNav ?? {}).length > 0) {
+    let keys: string[] = []
+    keys = Object.keys(topNav).filter((key) => pathname.startsWith(key))
+    pathKey = keys[keys.length - 1]
+  }
+  const topNavLocale = Array.isArray(topNav) ? topNav : topNav[pathKey]
+  const activeIds = useActiveNavIds({ pathname, items: topNavLocale })
 
   return (
     <NavigationMenu.Root delayDuration={0}>
       <NavigationMenu.List>
-        {topNav.map((item, i) =>
+        {topNavLocale.map((item, i) =>
           item.link ? (
             <NavigationMenu.Link
               key={i}
               active={activeIds.includes(item.id)}
               className={styles.item}
-              href={`${locale ? `/${locale}` : ''}${item.link!}`}
+              href={`${item.link!}`}
             >
               {item.text}
             </NavigationMenu.Link>
@@ -163,7 +170,6 @@ function NavigationMenuContent({ items }: { items: ParsedTopNavItem[] }) {
   )
 }
 
-// START
 function NavigationLocale() {
   const config = useConfig()
   const { pathname } = useLocation()
@@ -236,7 +242,6 @@ function NavigationLocale() {
     </NavigationMenu.Root>
   )
 }
-// END
 
 function ThemeToggleButton() {
   const { toggle } = useTheme()

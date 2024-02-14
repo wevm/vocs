@@ -56,4 +56,36 @@ export default defineConfig({
       '/': 'English description',
       '/zh': '中文说明',
     },
+  topNav: {
+    '/': [
+      {
+        text: 'Overview',
+        link: '/',
+      },
+      {
+        text: 'Example',
+        items: [
+          {
+            text: 'Translated',
+            link: '/translated',
+          },
+        ],
+      },
+    ],
+    '/zh': [
+      {
+        text: '概述',
+        link: '/zh',
+      },
+      {
+        text: '例子',
+        items: [
+          {
+            text: '已翻译',
+            link: '/zh/translated',
+          },
+        ],
+      },
+    ],
+  },
 })

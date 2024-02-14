@@ -183,7 +183,7 @@ export async function defineConfig<colorScheme extends ColorScheme = undefined>(
     banner: await parseBanner(config.banner ?? ''),
     markdown: parseMarkdown(config.markdown ?? {}),
     socials: parseSocials(config.socials ?? []),
-    topNav: parseTopNav(config.topNav ?? []),
+    topNav: parseTopNav(config?.topNav ?? []),
     theme: await parseTheme(config.theme ?? ({} as Theme)),
   }
 }
@@ -270,15 +270,33 @@ function parseSocials(socials: Socials): Socials<true> {
 let id = 0
 
 function parseTopNav(topNav: TopNav): TopNav<true> {
-  const parsedTopNav: ParsedTopNavItem[] = []
-  for (const item of topNav) {
-    parsedTopNav.push({
-      ...item,
-      id: id++,
-      items: item.items ? parseTopNav(item.items) : [],
-    })
+  if (Array.isArray(topNav)) {
+    const parsedTopNav: ParsedTopNavItem[] = []
+    for (const item of topNav) {
+      parsedTopNav.push({
+        ...item,
+        id: id++,
+        items: item.items ? (parseTopNav(item.items) as ParsedTopNavItem[]) : [],
+      })
+    }
+    return parsedTopNav
+  } else if (typeof topNav === 'object' && Object.keys(topNav).length > 0) {
+    const parsePathTopNav: {
+      [path: string]: ParsedTopNavItem[]
+    } = {}
+    for (const path in topNav) {
+      parsePathTopNav[path] = []
+      for (const item of topNav[path]) {
+        parsePathTopNav[path].push({
+          ...item,
+          id: id++,
+          items: item.items ? (parseTopNav(item.items) as ParsedTopNavItem[]) : [],
+        })
+      }
+    }
+    return parsePathTopNav
   }
-  return parsedTopNav
+  return []
 }
 
 async function parseTheme<colorScheme extends ColorScheme = undefined>(
@@ -504,6 +522,7 @@ export type Theme<
 export type TopNavItem<parsed extends boolean = false> = {
   match?: string
   text: string
+  path?: string
 } & (
   | { link: string; items?: never }
   | {
@@ -516,5 +535,13 @@ export type ParsedTopNavItem = TopNavItem<true> & {
 }
 
 export type TopNav<parsed extends boolean = false> = parsed extends true
-  ? ParsedTopNavItem[]
-  : TopNavItem[]
+  ?
+      | ParsedTopNavItem[]
+      | {
+          [path: string]: ParsedTopNavItem[]
+        }
+  :
+      | TopNavItem[]
+      | {
+          [path: string]: TopNavItem[]
+        }
