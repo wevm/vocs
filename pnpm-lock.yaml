@@ -156,6 +156,21 @@ importers:
         specifier: workspace:*
         version: link:../../src
 
+  playgrounds/i18n:
+    dependencies:
+      react:
+        specifier: ^18.2.0
+        version: 18.2.0
+      react-dom:
+        specifier: ^18.2.0
+        version: 18.2.0(react@18.2.0)
+      react-router-dom:
+        specifier: ^6.17.0
+        version: 6.20.0(react-dom@18.2.0)(react@18.2.0)
+      vocs:
+        specifier: workspace:*
+        version: link:../../src
+
   playgrounds/op-stack:
     dependencies:
       react:
