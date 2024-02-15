@@ -1,6 +1,52 @@
 import { defineConfig } from '../../src/index.js'
 
 export default defineConfig({
+  editLink: {
+    // NOTE: the order is important
+    '/': {
+      pattern: 'https://github.com/wagmi-dev/vocs/edit/main/site/pages/:path',
+      text: 'Suggest changes to this page',
+      // Optional
+      // lastUpdated: 'Last updated'
+    },
+    '/zh': {
+      pattern: 'https://github.com/wagmi-dev/vocs/edit/main/site/pages/:path',
+      text: '建议对此页面进行更改',
+      lastUpdated: '最后更新时间',
+    },
+  },
+  footerNav: {
+    // NOTE: the order is important
+    '/': {
+      previous: 'Previous',
+      next: 'Next',
+    },
+    '/zh': {
+      previous: '以前的',
+      next: '下一个',
+    },
+  },
+  search: {
+    // NOTE: the order is important
+    '/': {
+      placeholder: 'Search',
+      navigate: 'Navigate',
+      select: 'Select',
+      close: 'Close',
+      reset: 'Reset',
+      noResults: 'No results for',
+      labelClose: 'Close search dialog',
+    },
+    '/zh': {
+      placeholder: '搜索',
+      navigate: '导航',
+      select: '选择',
+      close: '关闭',
+      reset: '重置',
+      noResults: '没有结果',
+      labelClose: '关闭搜索对话框',
+    },
+  },
   sidebar: {
     // NOTE: the order is important
     '/': [

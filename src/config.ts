@@ -65,13 +65,31 @@ export type Config<
     /**
      * Edit location for the documentation.
      */
-    editLink?: Normalize<EditLink>
+    editLink?:
+      | Normalize<EditLink>
+      | {
+          [path: string]: Normalize<EditLink>
+        }
     /**
      * Base font face.
      *
      * @default { google: "Inter" }
      */
     font?: Font
+    /**
+     * Custom footer navigation text
+     */
+    footerNav?:
+      | {
+          previous: string
+          next: string
+        }
+      | {
+          [path: string]: {
+            previous: string
+            next: string
+          }
+        }
     /**
      * Additional tags to include in the `<head>` tag of the page HTML.
      */
@@ -111,6 +129,31 @@ export type Config<
      * @default "docs"
      */
     rootDir?: string
+    search?:
+      | {
+          placeholder: string
+          navigate: string
+          select: string
+          close: string
+          reset: string
+          noResults: string
+          labelClose?: string
+          labelToggle?: string
+          labelReset?: string
+        }
+      | {
+          [path: string]: {
+            placeholder: string
+            navigate: string
+            select: string
+            close: string
+            reset: string
+            noResults: string
+            labelClose?: string
+            labelToggle?: string
+            labelReset?: string
+          }
+        }
     /**
      * Navigation displayed on the sidebar.
      */
@@ -387,6 +430,10 @@ export type EditLink = {
    * @default "Edit page"
    */
   text?: string
+  /**
+   * Text used for 'Last updated:'
+   */
+  lastUpdated?: string
 }
 
 export type Font = {
