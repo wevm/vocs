@@ -83,6 +83,23 @@ export default defineConfig({
 })
 ```
 
+### basePath
+
+- **Type:** `string`
+
+The base path the documentation will be deployed at. All assets & pages will be prefixed with this path.
+
+For example, this is useful for deploying to GitHub Pages. 
+If the target URL is `https://example.github.io/foo`, then the `basePath` should be set to `/foo`.
+
+```ts twoslash
+import { defineConfig } from 'vocs'
+
+export default defineConfig({
+  basePath: '/docs', // [!code focus]
+})
+```
+
 ### blogDir
 
 - **Type:** `string`
