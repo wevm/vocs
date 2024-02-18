@@ -1,6 +1,5 @@
 {
-  "name": "custom-layout",
-  "version": "0.0.1-alpha.1",
+  "name": "playgrounds-custom-layout",
   "private": true,
   "type": "module",
   "scripts": {
