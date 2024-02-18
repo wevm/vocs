@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.0-alpha.37
+
+### Patch Changes
+
+- [`a138c82`](https://github.com/wevm/vocs/commit/a138c82d61d7d93a5476482327e649a5b921ef88) Thanks [@jxom](https://github.com/jxom)! - Added `search-index` command to CLI to build search index separately.
+
 ## 1.0.0-alpha.36
 
 ### Minor Changes
