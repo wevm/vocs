@@ -1,5 +1,12 @@
 # custom-layout
 
+## 0.0.1-alpha.2
+
+### Patch Changes
+
+- Updated dependencies [[`da4ee40`](https://github.com/wevm/vocs/commit/da4ee40300cfeb5028fc240daa25cef99e02dbc8)]:
+  - vocs@1.0.0-alpha.38
+
 ## 0.0.1-alpha.1
 
 ### Patch Changes
