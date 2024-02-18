@@ -34,10 +34,11 @@ export async function prerender(location: string) {
   ).filter(Boolean) as RouteObject[]
 
   const { config } = await resolveVocsConfig()
+  const { basePath } = config
 
   const body = renderToString(
     <ConfigProvider config={config}>
-      <StaticRouter location={location}>
+      <StaticRouter location={location} basename={basePath}>
         <Routes>
           {unwrappedRoutes.map((route) => (
             <Route key={route.path} path={route.path} element={route.element} />
@@ -51,15 +52,16 @@ export async function prerender(location: string) {
 }
 
 export async function render(req: Request) {
-  const { query, dataRoutes } = createStaticHandler(routes)
+  const { config } = await resolveVocsConfig()
+  const { basePath } = config
+
+  const { query, dataRoutes } = createStaticHandler(routes, { basename: basePath })
   const fetchRequest = createFetchRequest(req)
   const context = (await query(fetchRequest)) as StaticHandlerContext
 
   if (context instanceof Response) throw context
 
   const router = createStaticRouter(dataRoutes, context)
-
-  const { config } = await resolveVocsConfig()
 
   const body = renderToString(
     <ConfigProvider config={config}>

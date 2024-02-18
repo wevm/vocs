@@ -6,9 +6,17 @@ import { config as virtualConfig } from 'virtual:config'
 
 const ConfigContext = createContext(virtualConfig)
 
-const configHash = import.meta.env.DEV
+export const configHash = import.meta.env.DEV
   ? bytesToHex(sha256(JSON.stringify(virtualConfig))).slice(0, 8)
   : ''
+
+export function getConfig(): ParsedConfig {
+  if (typeof window !== 'undefined' && import.meta.env.DEV) {
+    const storedConfig = window.localStorage.getItem(`vocs.config.${configHash}`)
+    if (storedConfig) return JSON.parse(storedConfig)
+  }
+  return virtualConfig
+}
 
 export function ConfigProvider({
   children,
@@ -16,11 +24,7 @@ export function ConfigProvider({
 }: { children: ReactNode; config?: ParsedConfig }) {
   const [config, setConfig] = useState(() => {
     if (initialConfig) return initialConfig
-    if (typeof window !== 'undefined' && import.meta.env.DEV) {
-      const storedConfig = window.localStorage.getItem(`vocs.config.${configHash}`)
-      if (storedConfig) return JSON.parse(storedConfig)
-    }
-    return virtualConfig
+    return getConfig()
   })
 
   useEffect(() => {

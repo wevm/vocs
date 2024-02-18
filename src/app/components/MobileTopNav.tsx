@@ -1,4 +1,5 @@
 import * as Accordion from '@radix-ui/react-accordion'
+import { assignInlineVars } from '@vanilla-extract/dynamic'
 import clsx from 'clsx'
 import { type ComponentType, useMemo, useState } from 'react'
 import { useLocation } from 'react-router-dom'
@@ -315,6 +316,9 @@ function CompactNavigation({ items }: { items: Config.ParsedTopNavItem[] }) {
   const activeIds = useActiveNavIds({ pathname, items })
   const activeItem = items.filter((item) => item.id === activeIds[0])[0]
 
+  const { basePath } = useConfig()
+  const assetBasePath = import.meta.env.PROD ? basePath : ''
+
   return (
     <div className={clsx(styles.navigation, styles.navigation_compact)}>
       {activeItem ? (
@@ -346,6 +350,10 @@ function CompactNavigation({ items }: { items: Config.ParsedTopNavItem[] }) {
                     <Accordion.Trigger
                       className={clsx(styles.navigationItem, styles.navigationTrigger)}
                       data-active={activeIds.includes(item.id)}
+                      style={assignInlineVars({
+                        [styles.chevronDownIcon]: `url(${assetBasePath}/.vocs/icons/chevron-down.svg)`,
+                        [styles.chevronUpIcon]: `url(${assetBasePath}/.vocs/icons/chevron-up.svg)`,
+                      })}
                     >
                       {item.text}
                     </Accordion.Trigger>

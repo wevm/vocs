@@ -177,9 +177,12 @@ export function twoslashRenderer(): TwoslashRenderer {
                       type: 'element',
                       tagName: 'span',
                       properties: {
-                        class: i.kindModifiers?.split(',').includes('deprecated')
-                          ? 'deprecated'
-                          : undefined,
+                        class:
+                          'kindModifiers' in i &&
+                          typeof i.kindModifiers === 'string' &&
+                          i.kindModifiers?.split(',').includes('deprecated')
+                            ? 'deprecated'
+                            : undefined,
                       },
                       children: [
                         {

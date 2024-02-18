@@ -1,12 +1,19 @@
 import { existsSync, readFileSync } from 'node:fs'
-import { join, relative, resolve } from 'node:path'
-import { default as fs } from 'fs-extra'
+import { relative, resolve } from 'node:path'
 import MiniSearch from 'minisearch'
 import { type Plugin, type UserConfig, type ViteDevServer, createLogger } from 'vite'
 
+import * as cache from '../utils/cache.js'
 import { hash as hash_ } from '../utils/hash.js'
 import { resolveVocsConfig } from '../utils/resolveVocsConfig.js'
-import { buildIndex, debug, getDocId, processMdx, splitPageIntoSections } from '../utils/search.js'
+import {
+  buildIndex,
+  debug,
+  getDocId,
+  processMdx,
+  saveIndex,
+  splitPageIntoSections,
+} from '../utils/search.js'
 import { slash } from '../utils/slash.js'
 
 const virtualModuleId = 'virtual:searchIndex'
@@ -68,8 +75,10 @@ export async function search(): Promise<Plugin> {
     },
     async buildStart() {
       if (!viteConfig?.build?.ssr) {
-        searchPromise = buildIndex({ baseDir: config.rootDir })
+        const buildSearchIndex = cache.search.get('buildSearchIndex')
+        if (!dev && !buildSearchIndex) return
 
+        searchPromise = buildIndex({ baseDir: config.rootDir })
         if (dev) {
           logger.info('building search index...', { timestamp: true })
           index = await searchPromise
@@ -93,13 +102,15 @@ export async function search(): Promise<Plugin> {
       if (searchPromise) {
         index = await searchPromise
         searchPromise = undefined
-        const json = index.toJSON()
-        hash = hash_(JSON.stringify(json), 8)
-        const dir = join(viteConfig?.build?.outDir!, '.vocs')
-        fs.ensureDirSync(dir)
-        fs.writeJSONSync(join(dir, `search-index-${hash}.json`), json)
+        hash = saveIndex(viteConfig?.build?.outDir!, index)
+      } else if (!hash) {
+        if (!viteConfig?.build?.ssr) hash = hash_(Date.now().toString(), 8)
+        else hash = cache.search.get('hash')
       }
-      return `export const getSearchIndex = async () => JSON.stringify(await ((await fetch("/.vocs/search-index-${hash}.json")).json()))`
+
+      cache.search.set('hash', hash)
+
+      return `export const getSearchIndex = async () => JSON.stringify(await ((await fetch("${config.basePath}/.vocs/search-index-${hash}.json")).json()))`
     },
     async handleHotUpdate({ file }) {
       if (!file.endsWith('.md') && !file.endsWith('.mdx')) return

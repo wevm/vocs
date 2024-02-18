@@ -2,7 +2,7 @@ import type { ShikiTransformer } from 'shiki'
 
 export const transformerShrinkIndent = (): ShikiTransformer => ({
   name: 'indent',
-  token(hast, _, __, lineElement) {
+  span(hast, _, __, lineElement) {
     const child = hast.children[0]
     if (child.type !== 'text') return
     if (!child.value) return

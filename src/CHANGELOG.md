@@ -1,5 +1,23 @@
 # vocs
 
+## 1.0.0-alpha.38
+
+### Minor Changes
+
+- [#104](https://github.com/wevm/vocs/pull/104) [`da4ee40`](https://github.com/wevm/vocs/commit/da4ee40300cfeb5028fc240daa25cef99e02dbc8) Thanks [@jxom](https://github.com/jxom)! - Added `basePath` config property to support documentation subpaths (e.g. GitHub pages, etc)
+
+## 1.0.0-alpha.37
+
+### Patch Changes
+
+- [`a138c82`](https://github.com/wevm/vocs/commit/a138c82d61d7d93a5476482327e649a5b921ef88) Thanks [@jxom](https://github.com/jxom)! - Added `search-index` command to CLI to build search index separately.
+
+## 1.0.0-alpha.36
+
+### Minor Changes
+
+- [`fb24c23`](https://github.com/wevm/vocs/commit/fb24c237be4e120a3da092be2d6df625cbdc34ca) Thanks [@jxom](https://github.com/jxom)! - Updated Shiki.
+
 ## 1.0.0-alpha.35
 
 ### Patch Changes

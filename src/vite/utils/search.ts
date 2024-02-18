@@ -3,6 +3,7 @@ import { join, relative, resolve } from 'node:path'
 import { pathToFileURL } from 'url'
 import { compile, run } from '@mdx-js/mdx'
 import debug_ from 'debug'
+import { default as fs } from 'fs-extra'
 import { globby } from 'globby'
 import MiniSearch from 'minisearch'
 import { Fragment } from 'react'
@@ -72,6 +73,15 @@ export async function buildIndex({
   debug(`vocs:search > indexed ${pagesPaths.length} files`)
 
   return index
+}
+
+export function saveIndex(outDir: string, index: MiniSearch) {
+  const json = index.toJSON()
+  const hash_ = cache.search.get('hash') || hash(JSON.stringify(json), 8)
+  const dir = join(outDir, '.vocs')
+  fs.ensureDirSync(dir)
+  fs.writeJSONSync(join(dir, `search-index-${hash_}.json`), json)
+  return hash_
 }
 
 const remarkPlugins = getRemarkPlugins()

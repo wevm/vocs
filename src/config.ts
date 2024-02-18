@@ -41,10 +41,21 @@ export type Config<
      */
     banner?: Banner<parsed>
     /**
-     * Base URL.
+     * The base path the documentation will be deployed at. All assets and pages
+     * will be prefixed with this path. This is useful for deploying to GitHub Pages.
+     * For example, if you are deploying to `https://example.github.io/foo`, then the
+     * basePath should be set to `/foo`.
      *
      * @example
-     * https://viem.sh
+     * /docs
+     */
+    basePath?: string
+    /**
+     * The base URL for your documentation. This is used to populate the `<base>` tag in the
+     * `<head>` of the page, and is used to form the `%logo` variable for dynamic OG images.
+     *
+     * @example
+     * https://vocs.dev
      */
     baseUrl?: string
     /**
@@ -214,6 +225,7 @@ export async function defineConfig<colorScheme extends ColorScheme = undefined>(
   titleTemplate = `%s – ${title}`,
   ...config
 }: Config<false, colorScheme>): Promise<ParsedConfig> {
+  const basePath = parseBasePath(config.basePath)
   return {
     blogDir,
     font,
@@ -223,11 +235,21 @@ export async function defineConfig<colorScheme extends ColorScheme = undefined>(
     title,
     titleTemplate,
     ...config,
+    basePath,
     banner: await parseBanner(config.banner ?? ''),
+    iconUrl: parseImageUrl(config.iconUrl, {
+      basePath,
+    }),
+    logoUrl: parseImageUrl(config.logoUrl, {
+      basePath,
+    }),
     markdown: parseMarkdown(config.markdown ?? {}),
     socials: parseSocials(config.socials ?? []),
     topNav: parseTopNav(config?.topNav ?? []),
     theme: await parseTheme(config.theme ?? ({} as Theme)),
+    vite: parseViteConfig(config.vite, {
+      basePath,
+    }),
   }
 }
 
@@ -235,6 +257,14 @@ export const getDefaultConfig = async () => await defineConfig({})
 
 //////////////////////////////////////////////////////
 // Parsers
+
+function parseBasePath(basePath_: string | undefined) {
+  let basePath = basePath_
+  if (!basePath) return ''
+  if (!basePath.startsWith('/')) basePath = `/${basePath}`
+  if (basePath.endsWith('/')) basePath = basePath.slice(0, -1)
+  return basePath
+}
 
 async function parseBanner(banner: Banner): Promise<Banner<true> | undefined> {
   if (!banner) return undefined
@@ -277,6 +307,22 @@ async function parseBanner(banner: Banner): Promise<Banner<true> | undefined> {
     ...(typeof banner === 'object' ? banner : {}),
     content,
     textColor,
+  }
+}
+
+function parseImageUrl(
+  imageUrl: ImageUrl | undefined,
+  { basePath }: { basePath?: string },
+): ImageUrl | undefined {
+  if (!imageUrl) return
+  if (process.env.NODE_ENV === 'development') return imageUrl
+  if (typeof imageUrl === 'string') {
+    if (imageUrl.startsWith('http')) return imageUrl
+    return `${basePath}${imageUrl}`
+  }
+  return {
+    dark: imageUrl.dark.startsWith('http') ? imageUrl.dark : `${basePath}${imageUrl.dark}`,
+    light: imageUrl.light.startsWith('http') ? imageUrl.light : `${basePath}${imageUrl.light}`,
   }
 }
 
@@ -391,6 +437,16 @@ async function parseTheme<colorScheme extends ColorScheme = undefined>(
   } as Theme<true>
 }
 
+export function parseViteConfig(
+  viteConfig: UserConfig | undefined,
+  { basePath }: { basePath?: string },
+): UserConfig {
+  return {
+    ...viteConfig,
+    base: basePath,
+  }
+}
+
 //////////////////////////////////////////////////////
 // Types
 
@@ -441,7 +497,9 @@ export type Font = {
   google?: string
 }
 
-export type IconUrl = string | { light: string; dark: string }
+export type ImageUrl = string | { light: string; dark: string }
+
+export type IconUrl = ImageUrl
 
 export type Locale = {
   label: string
@@ -455,7 +513,7 @@ export type Locales =
       [key: string]: Locale
     }
 
-export type LogoUrl = string | { light: string; dark: string }
+export type LogoUrl = ImageUrl
 
 export type Markdown<parsed extends boolean = false> = RequiredBy<
   {

@@ -1,0 +1,19 @@
+{
+  "name": "playgrounds-custom-layout",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --import tsx/esm ../../src/cli/index.ts dev",
+    "build": "NODE_ENV=production node --import tsx/esm ../../src/cli/index.ts build",
+    "preview": "node --import tsx/esm ../../src/cli/index.ts preview",
+    "dist:dev": "vocs dev",
+    "dist:build": "NODE_ENV=production vocs build",
+    "dist:preview": "vocs preview"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.17.0",
+    "vocs": "workspace:*"
+  }
+}

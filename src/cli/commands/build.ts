@@ -4,9 +4,12 @@ import { createLogger } from 'vite'
 import type { BuildParameters as BuildParameters_ } from '../../vite/build.js'
 import { version } from '../version.js'
 
-export type BuildParameters = Pick<BuildParameters_, 'clean' | 'logLevel' | 'outDir' | 'publicDir'>
+export type BuildParameters = Pick<
+  BuildParameters_,
+  'clean' | 'logLevel' | 'outDir' | 'publicDir' | 'searchIndex'
+>
 
-export async function build({ clean, logLevel, outDir, publicDir }: BuildParameters) {
+export async function build({ clean, logLevel, outDir, publicDir, searchIndex }: BuildParameters) {
   const { build } = await import('../../vite/build.js')
 
   const useLogger = logLevel !== 'info'
@@ -57,6 +60,7 @@ export async function build({ clean, logLevel, outDir, publicDir }: BuildParamet
     logLevel,
     outDir,
     publicDir,
+    searchIndex,
   })
 
   const end = Date.now()
