@@ -31,10 +31,12 @@ export function create(
       return cache.get(key)
     },
     set<v>(key: string, value: v) {
+      if (!hydrated) hydrate()
       cache.set(key, value)
       save()
     },
     delete(key: string) {
+      if (!hydrated) hydrate()
       cache.delete(key)
       save()
     },

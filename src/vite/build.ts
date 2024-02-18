@@ -26,6 +26,7 @@ export type BuildParameters = {
   logLevel?: vite.LogLevel
   outDir?: string
   publicDir?: string
+  searchIndex?: boolean
 }
 
 export async function build({
@@ -35,6 +36,7 @@ export async function build({
   logLevel = 'silent',
   outDir,
   publicDir = 'public',
+  searchIndex = true,
 }: BuildParameters = {}) {
   const { config } = await resolveVocsConfig()
   const { rootDir } = config
@@ -43,6 +45,8 @@ export async function build({
   const publicDir_resolved = resolve(rootDir, publicDir)
 
   if (clean) cache.clear()
+
+  cache.search.set('buildSearchIndex', searchIndex)
 
   fs.rmSync(outDir_resolved, { recursive: true, force: true })
 
