@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.0-alpha.38
+
+### Minor Changes
+
+- [#104](https://github.com/wevm/vocs/pull/104) [`da4ee40`](https://github.com/wevm/vocs/commit/da4ee40300cfeb5028fc240daa25cef99e02dbc8) Thanks [@jxom](https://github.com/jxom)! - Added `basePath` config property to support documentation subpaths (e.g. GitHub pages, etc)
+
 ## 1.0.0-alpha.37
 
 ### Patch Changes
