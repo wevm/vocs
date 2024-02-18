@@ -1,4 +1,4 @@
-import { keyframes, style } from '@vanilla-extract/css'
+import { createVar, keyframes, style } from '@vanilla-extract/css'
 import {
   borderRadiusVars,
   contentVars,
@@ -205,6 +205,9 @@ export const navigationItem = style(
   'navigationItem',
 )
 
+export const chevronDownIcon = createVar('chevronDownIcon')
+export const chevronUpIcon = createVar('chevronUpIcon')
+
 export const navigationTrigger = style(
   {
     selectors: {
@@ -215,10 +218,10 @@ export const navigationTrigger = style(
         height: '0.625em',
         marginLeft: '0.325em',
         width: '0.625em',
-        mask: 'url(/.vocs/icons/chevron-down.svg) no-repeat center / contain',
+        mask: `${chevronDownIcon} no-repeat center / contain`,
       },
       '&[data-state="open"]::after': {
-        mask: 'url(/.vocs/icons/chevron-up.svg) no-repeat center / contain',
+        mask: `${chevronUpIcon} no-repeat center / contain`,
       },
     },
   },

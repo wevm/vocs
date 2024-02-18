@@ -1,7 +1,9 @@
 import * as NavigationMenu from '@radix-ui/react-navigation-menu'
+import { assignInlineVars } from '@vanilla-extract/dynamic'
 import clsx from 'clsx'
 import type { ReactNode } from 'react'
 
+import { useConfig } from '../hooks/useConfig.js'
 import { Link as Link_ } from './Link.js'
 import * as styles from './NavigationMenu.css.js'
 
@@ -46,13 +48,20 @@ export const Trigger = ({
   ...props
 }: NavigationMenu.NavigationMenuTriggerProps & {
   active?: boolean
-}) => (
-  <NavigationMenu.Trigger
-    {...props}
-    data-active={active}
-    className={clsx(className, styles.trigger)}
-  />
-)
+}) => {
+  const { basePath } = useConfig()
+  const assetBasePath = import.meta.env.PROD ? basePath : ''
+  return (
+    <NavigationMenu.Trigger
+      {...props}
+      data-active={active}
+      className={clsx(className, styles.trigger)}
+      style={assignInlineVars({
+        [styles.chevronDownIcon]: `url(${assetBasePath}/.vocs/icons/chevron-down.svg)`,
+      })}
+    />
+  )
+}
 
 export const Content = (props: NavigationMenu.NavigationMenuContentProps) => (
   <NavigationMenu.Content {...props} className={clsx(props.className, styles.content)} />

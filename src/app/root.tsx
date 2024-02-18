@@ -55,6 +55,8 @@ function Head({ frontmatter }: { frontmatter: Module['frontmatter'] }) {
 
   const enableTitleTemplate = config.title && !title.includes(config.title)
 
+  const isLocalhost = typeof window !== 'undefined' && window.location.hostname === 'localhost'
+
   return (
     <Helmet
       defaultTitle={config.title}
@@ -64,7 +66,7 @@ function Head({ frontmatter }: { frontmatter: Module['frontmatter'] }) {
       {title && <title>{title}</title>}
 
       {/* Base URL */}
-      {baseUrl && import.meta.env.PROD && <base href={baseUrl} />}
+      {baseUrl && import.meta.env.PROD && !isLocalhost && <base href={baseUrl} />}
 
       {/* Description */}
       {description !== 'undefined' && <meta name="description" content={description} />}
