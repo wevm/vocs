@@ -100,6 +100,21 @@ export default defineConfig({
 })
 ```
 
+### baseUrl
+
+- **Type:** `string`
+
+The base URL for your documentation. This is used to populate the `<base>` tag in the `<head>` of the page, 
+and is used to form the `%logo` variable for dynamic OG images.
+
+```ts twoslash
+import { defineConfig } from 'vocs'
+
+export default defineConfig({
+  baseUrl: 'https://vocs.dev', // [!code focus]
+})
+```
+
 ### blogDir
 
 - **Type:** `string`
