@@ -110,7 +110,7 @@ export async function search(): Promise<Plugin> {
 
       cache.search.set('hash', hash)
 
-      return `export const getSearchIndex = async () => JSON.stringify(await ((await fetch("/.vocs/search-index-${hash}.json")).json()))`
+      return `export const getSearchIndex = async () => JSON.stringify(await ((await fetch("${config.basePath}/.vocs/search-index-${hash}.json")).json()))`
     },
     async handleHotUpdate({ file }) {
       if (!file.endsWith('.md') && !file.endsWith('.mdx')) return
