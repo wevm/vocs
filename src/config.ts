@@ -366,7 +366,7 @@ export function parseViteConfig(
 ): UserConfig {
   return {
     ...viteConfig,
-    base: basePath,
+    ...(basePath ? { base: basePath } : {}),
   }
 }
 
