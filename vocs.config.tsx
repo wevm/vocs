@@ -210,6 +210,10 @@ export default defineConfig({
           link: '/docs/guides/code-snippets',
         },
         {
+          text: 'Components',
+          link: '/docs/guides/components',
+        },
+        {
           text: 'CSS & Styling',
           link: '/docs/guides/styling',
         },
