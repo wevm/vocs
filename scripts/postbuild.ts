@@ -39,7 +39,8 @@ function rewriteExtensions(dir: string) {
     if (path.endsWith('root.js')) continue
     if (path.endsWith('vocs-config.js')) continue
     const fileContent = fs.readFileSync(path, 'utf-8')
-    fs.writeFileSync(path, fileContent.replace(/\.(tsx|ts)/g, '.js'))
+    fs.writeFileSync(path, fileContent.replace(/\.(tsx)/g, '.jsx'))
+    fs.writeFileSync(path, fileContent.replace(/\.(ts)/g, '.js'))
   }
 }
 
