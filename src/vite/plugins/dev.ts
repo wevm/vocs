@@ -30,7 +30,7 @@ export function dev(): PluginOption {
     },
     async configureServer(server) {
       const { config } = await resolveVocsConfig()
-      const { rootDir } = config
+      const { rootDir, theme } = config
       server.middlewares.use(serveStatic(resolve(rootDir, 'public')))
       server.middlewares.use(serveStatic(resolve(__dirname, '../../app/public')))
       return () => {
@@ -64,7 +64,9 @@ export function dev(): PluginOption {
             const head = `${render.head}${styles}`
             const body = render.body
 
-            const html = template.replace('<!--head-->', head).replace('<!--body-->', body)
+            let html = template.replace('<!--head-->', head).replace('<!--body-->', body)
+            if (theme?.colorScheme && theme?.colorScheme !== 'system')
+              html = html.replace('lang="en"', `lang="en" class="${theme.colorScheme}"`)
 
             res.end(html)
           } finally {
