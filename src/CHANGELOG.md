@@ -1,5 +1,13 @@
 # vocs
 
+## 1.0.0-alpha.39
+
+### Patch Changes
+
+- [`fcec093`](https://github.com/wevm/vocs/commit/fcec0937fb34978f539f4f7b5d34105378d94447) Thanks [@jxom](https://github.com/jxom)! - Fixed issue where Vocs was loading assets from wrong path.
+
+- [`a3d7df0`](https://github.com/wevm/vocs/commit/a3d7df07f35ee5f4bc6699d5124d46d049cb3dde) Thanks [@jxom](https://github.com/jxom)! - Fixed an issue where `theme.colorScheme` in config would not register.
+
 ## 1.0.0-alpha.38
 
 ### Minor Changes

@@ -11,7 +11,8 @@
     "playgrounds-tailwind": "0.0.0",
     "playgrounds-uniswap": "0.0.0",
     "playgrounds-viem": "0.0.0",
-    "custom-layout": "0.0.0"
+    "custom-layout": "0.0.0",
+    "playgrounds-custom-layout": "0.0.0"
   },
   "changesets": [
     "angry-maps-flow",
@@ -34,7 +35,6 @@
     "fifty-bananas-thank",
     "four-cougars-draw",
     "four-lamps-decide",
-    "kind-houses-promise",
     "giant-falcons-breathe",
     "good-gorillas-exercise",
     "gorgeous-files-decide",
@@ -44,8 +44,10 @@
     "hip-seals-hope",
     "hot-llamas-whisper",
     "hot-pumpkins-melt",
+    "kind-houses-promise",
     "large-pigs-agree",
     "light-ears-itch",
+    "loud-pigs-work",
     "lucky-hornets-change",
     "mighty-houses-admire",
     "moody-guests-fry",
@@ -74,6 +76,7 @@
     "tricky-seas-hunt",
     "twenty-colts-hide",
     "unlucky-geese-yell",
+    "weak-fishes-smoke",
     "young-months-beg"
   ]
 }
