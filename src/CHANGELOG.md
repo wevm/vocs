@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.0-alpha.40
+
+### Patch Changes
+
+- [`fff96f9`](https://github.com/wevm/vocs/commit/fff96f97582b20682117b5245d6abca5d6db7595) Thanks [@jxom](https://github.com/jxom)! - Fixed JSX compilation.
+
 ## 1.0.0-alpha.39
 
 ### Patch Changes
