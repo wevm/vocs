@@ -246,7 +246,7 @@ export function Curtain({
 
   useEffect(() => {
     const title = document.querySelector('.vocs_Content h1')?.textContent || ''
-    if(title){
+    if (title) {
       setContentTitle(title)
     }
   }, [])
