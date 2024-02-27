@@ -246,7 +246,9 @@ export function Curtain({
 
   useEffect(() => {
     const title = document.querySelector('.vocs_Content h1')?.textContent || ''
-    setContentTitle(title)
+    if(title){
+      setContentTitle(title)
+    }
   }, [])
 
   const title = sidebarItemTitle || frontmatter.title || contentTitle
