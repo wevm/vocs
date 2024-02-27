@@ -1,7 +1,7 @@
 import * as Accordion from '@radix-ui/react-accordion'
 import { assignInlineVars } from '@vanilla-extract/dynamic'
 import clsx from 'clsx'
-import { type ComponentType, useMemo, useState } from 'react'
+import { type ComponentType, useMemo, useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 
 import type * as Config from '../../config.js'
@@ -233,6 +233,8 @@ export function Curtain({
   const [isOutlineOpen, setOutlineOpen] = useState(false)
   const [isSidebarOpen, setSidebarOpen] = useState(false)
 
+  const [contentTitle, setContentTitle] = useState<string>('')
+
   const sidebarItemTitle = useMemo(() => {
     if (!sidebar || layout === 'minimal') return
     const sidebarItem = getSidebarItemFromPathname({
@@ -242,9 +244,9 @@ export function Curtain({
     return sidebarItem?.text
   }, [layout, pathname, sidebar])
 
-  const contentTitle = useMemo(() => {
-    if (typeof window === 'undefined') return
-    return document.querySelector('.vocs_Content h1')?.textContent
+  useEffect(() => {
+    const title = document.querySelector('.vocs_Content h1')?.textContent || ''
+    setContentTitle(title)
   }, [])
 
   const title = sidebarItemTitle || frontmatter.title || contentTitle
