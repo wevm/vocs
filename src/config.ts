@@ -100,6 +100,10 @@ export type Config<
      */
     ogImageUrl?: string | { [path: string]: string }
     /**
+     * Outline footer.
+     */
+    outlineFooter?: ReactElement
+    /**
      * Markdown configuration.
      */
     markdown?: Normalize<Markdown<parsed>>

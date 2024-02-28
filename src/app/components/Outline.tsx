@@ -1,8 +1,10 @@
-import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
+import { Fragment, type ReactElement, useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 
+import { useConfig } from '../hooks/useConfig.js'
 import { useLayout } from '../hooks/useLayout.js'
 import { debounce } from '../utils/debounce.js'
+import { deserializeElement } from '../utils/deserializeElement.js'
 import * as styles from './Outline.css.js'
 import { root as Heading, slugTarget } from './mdx/Heading.css.js'
 
@@ -27,6 +29,8 @@ export function Outline({
   onClickItem?: () => void
   showTitle?: boolean
 } = {}) {
+  const { outlineFooter } = useConfig()
+
   const { showOutline } = useLayout()
   const maxLevel = (() => {
     if (typeof showOutline === 'number') return minLevel + showOutline - 1
@@ -179,6 +183,7 @@ export function Outline({
           setActiveId={setActiveId}
         />
       </nav>
+      {deserializeElement(outlineFooter as ReactElement)}
     </aside>
   )
 }
