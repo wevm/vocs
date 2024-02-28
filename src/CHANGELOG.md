@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.0-alpha.41
+
+### Patch Changes
+
+- [`97867a3`](https://github.com/wevm/vocs/commit/97867a3fe8546e8520027ccaae4d986b066d4479) Thanks [@jxom](https://github.com/jxom)! - Added `outlineFooter` config.
+
 ## 1.0.0-alpha.40
 
 ### Patch Changes
