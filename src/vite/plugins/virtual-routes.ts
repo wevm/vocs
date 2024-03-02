@@ -1,9 +1,11 @@
+import { platform } from 'node:os'
 import { extname, resolve } from 'node:path'
 import { globby } from 'globby'
 import type { PluginOption } from 'vite'
 
 import { resolveVocsConfig } from '../utils/resolveVocsConfig.js'
 import { getGitTimestamp } from '../utils/getGitTimestamp.js'
+import { padStartSlash } from '../utils/slash.js'
 
 export function virtualRoutes(): PluginOption {
   const virtualModuleId = 'virtual:routes'
@@ -35,10 +37,15 @@ export function virtualRoutes(): PluginOption {
         const pagesPath = resolve(rootDir, 'pages')
 
         let code = 'export const routes = ['
-        for (const path of paths) {
-          const type = extname(path).match(/(mdx|md)/) ? 'mdx' : 'jsx'
-          const replacer = glob.split('*')[0]
+        for (const _path of paths) {
+          // _path is just a relative path starting with `pages`
+          const path = resolve(rootDir, _path)
 
+          // On Windows, unable to use full path to file for dynamic import
+          // will always prompt that the file cannot be found
+          const componentPath = platform() === 'win32' ? `./${rootDir}/${_path}` : path
+
+          const type = extname(path).match(/(mdx|md)/) ? 'mdx' : 'jsx'
           const filePath = path.replace(`${pagesPath}/`, '')
           const fileGitTimestamp = await getGitTimestamp(path)
 
@@ -46,12 +53,18 @@ export function virtualRoutes(): PluginOption {
           let lastUpdatedAt: number | undefined
           if (fileGitTimestamp) lastUpdatedAt = fileGitTimestamp
 
-          let pagePath = path.replace(replacer, '').replace(/\.(.*)/, '')
+          let pagePath = path.replace(pagesPath, '').replace(/\.(.*)/, '')
+
           if (pagePath.endsWith('index'))
             pagePath = pagePath.replace('index', '').replace(/\/$/, '')
-          code += `  { lazy: () => import("${path}"), path: "/${pagePath}", type: "${type}", filePath: "${filePath}", lastUpdatedAt: ${lastUpdatedAt} },`
-          if (pagePath)
-            code += `  { lazy: () => import("${path}"), path: "/${pagePath}.html", type: "${type}", filePath: "${filePath}", lastUpdatedAt: ${lastUpdatedAt} },`
+          code += `  { lazy: () => import("${componentPath}"), path: "${padStartSlash(
+            pagePath,
+          )}", type: "${type}", filePath: "${filePath}", lastUpdatedAt: ${lastUpdatedAt} },`
+
+          if (pagePath && !['/', '\\'].includes(pagePath))
+            code += `  { lazy: () => import("${componentPath}"), path: "${padStartSlash(
+              pagePath,
+            )}.html", type: "${type}", filePath: "${filePath}", lastUpdatedAt: ${lastUpdatedAt} },`
         }
         code += ']'
         return code
@@ -61,9 +74,14 @@ export function virtualRoutes(): PluginOption {
     async buildStart() {
       const { config } = await resolveVocsConfig()
       const { rootDir } = config
-      const pagesPath = resolve(rootDir, 'pages')
-      glob = `${pagesPath}/**/*.{md,mdx,ts,tsx,js,jsx}`
-      paths = await globby(glob)
+
+      // Scan the routing files in the `pages` directory from rootDir,
+      // to obtain the scanning results of relative paths.
+      glob = 'pages/**/*.{md,mdx,ts,tsx,js,jsx}'
+      paths = await globby(glob, {
+        cwd: resolve(rootDir),
+        ignore: ['**/node_modules/**', '**/dist/**'],
+      })
     },
     handleHotUpdate() {
       // TODO: handle changes
