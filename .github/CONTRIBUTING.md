@@ -15,7 +15,7 @@ If you want to contribute, but aren't sure where to start, you can create a [new
 This guide is intended to help you get started with contributing. By following these steps, you will understand the development process and workflow.
 
 1. Cloning the repository
-2. Installing Node.js and Bun
+2. Installing Node.js and Pnpm
 3. Installing dependencies
 4. Writing documentation
 5. Submitting a pull request
@@ -43,21 +43,21 @@ gh repo clone wevm/vocs
 
 ---
 
-### Installing Node.js and Bun
+### Installing Node.js and Pnpm
 
-wagmi uses [Bun workspaces](https://bun.sh/docs/install/workspaces) to manage multiple projects. You need to install **Node.js v18 or higher** and **Bun v1 or higher**.
+wagmi uses [Pnpm workspaces](https://pnpm.io/workspaces) to manage multiple projects. You need to install **Node.js v18 or higher** and **Pnpm v8.15.0 or higher**.
 
-You can run the following commands in your terminal to check your local Node.js and Bun versions:
+You can run the following commands in your terminal to check your local Node.js and Pnpm versions:
 
 ```bash
 node -v
-bun -v
+pnpm -v
 ```
 
-If the versions are not correct or you don't have Node.js or Bun installed, download and follow their setup instructions:
+If the versions are not correct or you don't have Node.js or Pnpm installed, download and follow their setup instructions:
 
 - Install Node.js using [fnm](https://github.com/Schniz/fnm) or from the [official website](https://nodejs.org)
-- Install [Bun](https://bun.sh/docs/installation)
+- Install [Pnpm](https://pnpm.io/installation)
 
 <div align="right">
   <a href="#basic-guide">&uarr; back to top</a></b>
@@ -70,10 +70,10 @@ If the versions are not correct or you don't have Node.js or Bun installed, down
 Once in the project's root directory, run the following command to install the project's dependencies:
 
 ```bash
-bun install
+pnpm install
 ```
 
-After the install completes, Bun links packages across the project for development and [git hooks](https://github.com/toplenboren/simple-git-hooks) are set up.
+After the install completes, Pnpm links packages across the project for development and [git hooks](https://github.com/toplenboren/simple-git-hooks) are set up.
 
 <div align="right">
   <a href="#basic-guide">&uarr; back to top</a></b>
@@ -88,7 +88,7 @@ Documentation is crucial to helping developers of all experience levels. Vocs it
 ```bash
 # FROM: ./
 
-bun run docs:dev 
+pnpm run docs:dev 
 ```
 
 Try to keep documentation brief and use plain language so folks of all experience levels can understand. If you think something is unclear or could be explained better, you are welcome to open a pull request.
@@ -124,7 +124,7 @@ When adding new features or fixing bugs, we'll need to bump the package versions
 
 Each changeset defines which package(s) should be published and whether the change should be a major/minor/patch release, as well as providing release notes that will be added to the changelog upon release.
 
-To create a new changeset, run `bun run changeset`. This will run the Changesets CLI, prompting you for details about the change. You’ll be able to edit the file after it’s created — don’t worry about getting everything perfect up front.
+To create a new changeset, run `pnpm run changeset`. This will run the Changesets CLI, prompting you for details about the change. You’ll be able to edit the file after it’s created — don’t worry about getting everything perfect up front.
 
 Even though you can technically use any markdown formatting you like, headings should be avoided since each changeset will ultimately be nested within a bullet list. Instead, bold text should be used as section headings.
 
