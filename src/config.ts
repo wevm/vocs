@@ -82,7 +82,10 @@ export type Config<
     /**
      * Additional tags to include in the `<head>` tag of the page HTML.
      */
-    head?: ReactElement
+    head?:
+      | ReactElement
+      | { [path: string]: ReactElement }
+      | ((params: { path: string }) => ReactElement | Promise<ReactElement>)
     /**
      * Icon URL.
      */
