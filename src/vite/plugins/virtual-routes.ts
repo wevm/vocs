@@ -4,7 +4,7 @@ import type { PluginOption } from 'vite'
 
 import { resolveVocsConfig } from '../utils/resolveVocsConfig.js'
 import { getGitTimestamp } from '../utils/getGitTimestamp.js'
-import { padStartSlash } from '../utils/slash.js'
+import { padStartSlash, slash } from '../utils/slash.js'
 import { isWin32 } from '../utils/paths.js'
 
 export function virtualRoutes(): PluginOption {
@@ -53,7 +53,7 @@ export function virtualRoutes(): PluginOption {
           let lastUpdatedAt: number | undefined
           if (fileGitTimestamp) lastUpdatedAt = fileGitTimestamp
 
-          let pagePath = path.replace(pagesPath, '').replace(/\.(.*)/, '')
+          let pagePath = slash(path.replace(pagesPath, '').replace(/\.(.*)/, ''))
 
           if (pagePath.endsWith('index'))
             pagePath = pagePath.replace('index', '').replace(/\/$/, '')
@@ -61,7 +61,7 @@ export function virtualRoutes(): PluginOption {
             pagePath,
           )}", type: "${type}", filePath: "${filePath}", lastUpdatedAt: ${lastUpdatedAt} },`
 
-          if (pagePath && !['/', '\\'].includes(pagePath))
+          if (pagePath)
             code += `  { lazy: () => import("${componentPath}"), path: "${padStartSlash(
               pagePath,
             )}.html", type: "${type}", filePath: "${filePath}", lastUpdatedAt: ${lastUpdatedAt} },`
