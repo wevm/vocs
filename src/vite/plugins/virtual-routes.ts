@@ -1,4 +1,3 @@
-import { platform } from 'node:os'
 import { extname, resolve } from 'node:path'
 import { globby } from 'globby'
 import type { PluginOption } from 'vite'
@@ -6,6 +5,7 @@ import type { PluginOption } from 'vite'
 import { resolveVocsConfig } from '../utils/resolveVocsConfig.js'
 import { getGitTimestamp } from '../utils/getGitTimestamp.js'
 import { padStartSlash } from '../utils/slash.js'
+import { isWin32 } from '../utils/paths.js'
 
 export function virtualRoutes(): PluginOption {
   const virtualModuleId = 'virtual:routes'
@@ -43,7 +43,7 @@ export function virtualRoutes(): PluginOption {
 
           // On Windows, unable to use full path to file for dynamic import
           // will always prompt that the file cannot be found
-          const componentPath = platform() === 'win32' ? `./${rootDir}/${_path}` : path
+          const componentPath = isWin32 ? `./${rootDir}/${_path}` : path
 
           const type = extname(path).match(/(mdx|md)/) ? 'mdx' : 'jsx'
           const filePath = path.replace(`${pagesPath}/`, '')
