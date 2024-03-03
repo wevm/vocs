@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.0-alpha.42
+
+### Patch Changes
+
+- [`f5b2394`](https://github.com/wevm/vocs/commit/f5b2394d2efd72cb54e123c922ed5f39e69c64ec) Thanks [@jxom](https://github.com/jxom)! - Added ability for `head` on config to be path aware.
+
 ## 1.0.0-alpha.41
 
 ### Patch Changes
