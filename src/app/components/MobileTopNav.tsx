@@ -27,6 +27,7 @@ import { Discord } from './icons/Discord.js'
 import { GitHub } from './icons/GitHub.js'
 import { Menu } from './icons/Menu.js'
 import { Telegram } from './icons/Telegram.js'
+import { Warpcast } from './icons/Warpcast.js'
 import { X } from './icons/X.js'
 
 MobileTopNav.Curtain = Curtain
@@ -197,6 +198,7 @@ const iconsForIcon = {
   discord: Discord,
   github: GitHub,
   telegram: Telegram,
+  warpcast: Warpcast,
   x: X,
 } satisfies Record<Config.ParsedSocialItem['type'], ComponentType>
 
@@ -204,6 +206,7 @@ const sizesForTypes = {
   discord: '21px',
   github: '18px',
   telegram: '21px',
+  warpcast: '18px',
   x: '16px',
 } satisfies Record<Config.ParsedSocialItem['type'], string>
 
