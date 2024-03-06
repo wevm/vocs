@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.0-alpha.43
+
+### Patch Changes
+
+- [`c7b1388`](https://github.com/wevm/vocs/commit/c7b138868c0ac54d3a5c889f1bf66c8e9d34532d) Thanks [@jxom](https://github.com/jxom)! - Added Warpcast social.
+
 ## 1.0.0-alpha.42
 
 ### Patch Changes
