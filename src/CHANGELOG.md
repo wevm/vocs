@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.0-alpha.44
+
+### Patch Changes
+
+- [#133](https://github.com/wevm/vocs/pull/133) [`ae4eca2`](https://github.com/wevm/vocs/commit/ae4eca28c40950c0cec45459670eabfa4fe81b0b) Thanks [@dalechyn](https://github.com/dalechyn)! - Fixed unsupported media-queries in iOS15^ Safari that led to incorrect rendering.
+
 ## 1.0.0-alpha.43
 
 ### Patch Changes
