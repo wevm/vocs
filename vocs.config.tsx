@@ -10,11 +10,13 @@ export default defineConfig({
     pattern: 'https://github.com/wagmi-dev/vocs/edit/main/site/pages/:path',
     text: 'Suggest changes to this page',
   },
-  head: (
-    <>
-      <script src="https://cdn.usefathom.com/script.js" data-site="IBTUTKMT" defer />
-    </>
-  ),
+  head() {
+    return (
+      <>
+        <script src="https://cdn.usefathom.com/script.js" data-site="IBTUTKMT" defer />
+      </>
+    )
+  },
   iconUrl: {
     light: '/vocs-icon-light.svg',
     dark: '/vocs-icon-dark.svg',
