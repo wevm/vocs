@@ -61,7 +61,7 @@ export function Sidebar(props: {
               <div className={styles.items}>
                 <RouterLink className={clsx(styles.item, styles.backLink)} to={backPath}>
                   ←{' '}
-                  {typeof history !== 'undefined' && history.state.key && backPath !== '/'
+                  {typeof history !== 'undefined' && history.state?.key && backPath !== '/'
                     ? 'Back'
                     : 'Home'}
                 </RouterLink>
