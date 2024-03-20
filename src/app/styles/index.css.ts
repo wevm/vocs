@@ -7,3 +7,5 @@ import './reset.css.js'
 import './global.css.js'
 
 import './twoslash.css.js'
+
+import './github-alerts.css.js'

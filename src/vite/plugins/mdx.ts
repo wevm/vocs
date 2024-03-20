@@ -16,6 +16,7 @@ import rehypeSlug from 'rehype-slug'
 import remarkDirective from 'remark-directive'
 import remarkFrontmatter from 'remark-frontmatter'
 import remarkGfm from 'remark-gfm'
+import remarkGitHubAlerts from 'remark-github-alerts'
 import remarkMdxFrontmatter from 'remark-mdx-frontmatter'
 import type { PluggableList } from 'unified'
 import { type PluginOption } from 'vite'
@@ -55,6 +56,7 @@ type RemarkPluginsParameters = {
 
 export const getRemarkPlugins = ({ markdown }: RemarkPluginsParameters = {}) =>
   [
+    remarkGitHubAlerts,
     remarkDirective,
     remarkInferFrontmatter,
     remarkFrontmatter,

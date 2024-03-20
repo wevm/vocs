@@ -413,6 +413,9 @@ importers:
       remark-gfm:
         specifier: ^4.0.0
         version: 4.0.0
+      remark-github-alerts:
+        specifier: 0.1.0-beta.3
+        version: 0.1.0-beta.3(@types/mdast@4.0.3)(unified@11.0.4)
       remark-mdx-frontmatter:
         specifier: ^4.0.0
         version: 4.0.0
@@ -7574,6 +7577,17 @@ packages:
       unified: 11.0.4
     transitivePeerDependencies:
       - supports-color
+    dev: false
+
+  /remark-github-alerts@0.1.0-beta.3(@types/mdast@4.0.3)(unified@11.0.4):
+    resolution: {integrity: sha512-Sc74yr9DKX+fEIey462EUTtrrbzQ11EDfMawVTxRkqMxl4OMZUhLAuPFmbFYVvZMheYpmLEKqaf2fGlcbpQs1w==}
+    peerDependencies:
+      '@types/mdast': ^4.0.0
+      unified: ^11.0.0
+    dependencies:
+      '@types/mdast': 4.0.3
+      unified: 11.0.4
+      unist-util-visit: 5.0.0
     dev: false
 
   /remark-mdx-frontmatter@4.0.0:
