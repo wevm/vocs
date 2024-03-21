@@ -15,6 +15,7 @@ import { Link, useNavigate } from 'react-router-dom'
 
 import { useDebounce } from '../hooks/useDebounce.js'
 import { useLocalStorage } from '../hooks/useLocalStorage.js'
+import { useSessionStorage } from '../hooks/useSessionStorage.js'
 import { type Result, useSearchIndex } from '../hooks/useSearchIndex.js'
 import { visuallyHidden } from '../styles/utils.css.js'
 import { Content } from './Content.js'
@@ -26,7 +27,7 @@ export function SearchDialog(props: { open: boolean; onClose(): void }) {
   const inputRef = useRef<HTMLInputElement>(null)
   const listRef = useRef<HTMLUListElement>(null)
 
-  const [filterText, setFilterText] = useLocalStorage('filterText', '')
+  const [filterText, setFilterText] = useSessionStorage('filterText', '')
   const searchTerm = useDebounce(filterText, 200)
   const searchIndex = useSearchIndex()
 
