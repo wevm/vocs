@@ -2,17 +2,18 @@ import * as Dialog from '@radix-ui/react-dialog'
 import {
   ArrowLeftIcon,
   ChevronRightIcon,
+  FileIcon,
   ListBulletIcon,
   MagnifyingGlassIcon,
-  FileIcon,
 } from '@radix-ui/react-icons'
 import * as Label from '@radix-ui/react-label'
 import clsx from 'clsx'
 import { default as Mark } from 'mark.js'
 import { type SearchResult } from 'minisearch'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 
+import { useConfig } from '../hooks/useConfig.js'
 import { useDebounce } from '../hooks/useDebounce.js'
 import { useLocalStorage } from '../hooks/useLocalStorage.js'
 import { type Result, useSearchIndex } from '../hooks/useSearchIndex.js'
@@ -23,6 +24,19 @@ import * as styles from './SearchDialog.css.js'
 
 export function SearchDialog(props: { open: boolean; onClose(): void }) {
   const navigate = useNavigate()
+  const config = useConfig()
+  const { pathname } = useLocation()
+  let pathKey = ''
+  if (typeof config?.title === 'object' && Object.keys(config?.title ?? {}).length > 0) {
+    let keys: string[] = []
+    keys = Object.keys(config?.title).filter((key) => pathname.startsWith(key))
+    pathKey = keys[keys.length - 1]
+  }
+
+  const configSearch = !config.search?.placeholder
+    ? (config?.search as any)?.[pathKey]
+    : config.search
+
   const inputRef = useRef<HTMLInputElement>(null)
   const listRef = useRef<HTMLUListElement>(null)
 
@@ -148,11 +162,13 @@ export function SearchDialog(props: { open: boolean; onClose(): void }) {
         className={styles.root}
         aria-describedby={undefined}
       >
-        <Dialog.Title className={visuallyHidden}>Search</Dialog.Title>
+        <Dialog.Title className={visuallyHidden}>
+          {configSearch?.placeholder ?? 'Search'}
+        </Dialog.Title>
 
         <form className={styles.searchBox}>
           <button
-            aria-label="Close search dialog"
+            aria-label={configSearch?.labelClose ?? 'Close search dialog'}
             type="button"
             onClick={() => props.onClose()}
             className={styles.searchInputIconMobile}
@@ -162,7 +178,7 @@ export function SearchDialog(props: { open: boolean; onClose(): void }) {
 
           <Label.Root htmlFor="search-input">
             <MagnifyingGlassIcon
-              aria-label="Search"
+              aria-label={configSearch?.placeholder ?? 'Search'}
               className={clsx(styles.searchInputIcon, styles.searchInputIconDesktop)}
               height={20}
               width={20}
@@ -174,13 +190,13 @@ export function SearchDialog(props: { open: boolean; onClose(): void }) {
             className={styles.searchInput}
             id="search-input"
             onChange={(event) => setFilterText(event.target.value)}
-            placeholder="Search"
+            placeholder={configSearch?.placeholder ?? 'Search'}
             type="search"
             value={filterText}
           />
 
           <button
-            aria-label="Toggle detail view"
+            aria-label={configSearch?.labelToggle ?? 'Toggle detail view'}
             type="button"
             onClick={() => setShowDetailView((x) => !x)}
           >
@@ -188,7 +204,7 @@ export function SearchDialog(props: { open: boolean; onClose(): void }) {
           </button>
 
           <button
-            aria-label="Reset search"
+            aria-label={configSearch?.labelReset ?? 'Reset search'}
             type="button"
             className={styles.searchInputIcon}
             onClick={() => {
@@ -208,7 +224,7 @@ export function SearchDialog(props: { open: boolean; onClose(): void }) {
         >
           {searchTerm && results.length === 0 && (
             <li>
-              No results for "<span>{searchTerm}</span>"
+              {configSearch?.noResults ?? 'No results for'} "<span>{searchTerm}</span>"
             </li>
           )}
 
@@ -274,10 +290,10 @@ export function SearchDialog(props: { open: boolean; onClose(): void }) {
         </ul>
 
         <div className={styles.searchShortcuts}>
-          <KeyboardShortcut description="Navigate" keys={['↑', '↓']} />
-          <KeyboardShortcut description="Select" keys={['enter']} />
-          <KeyboardShortcut description="Close" keys={['esc']} />
-          <KeyboardShortcut description="Reset" keys={['⌘', '⌫']} />
+          <KeyboardShortcut description={configSearch?.navigate ?? 'Navigate'} keys={['↑', '↓']} />
+          <KeyboardShortcut description={configSearch?.select ?? 'Select'} keys={['enter']} />
+          <KeyboardShortcut description={configSearch?.close ?? 'Close'} keys={['esc']} />
+          <KeyboardShortcut description={configSearch?.reset ?? 'Reset'} keys={['⌘', '⌫']} />
         </div>
       </Dialog.Content>
     </Dialog.Portal>
