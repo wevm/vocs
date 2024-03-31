@@ -1,5 +1,15 @@
 # vocs
 
+## 1.0.0-alpha.45
+
+### Patch Changes
+
+- [`c1a23b7`](https://github.com/wevm/vocs/commit/c1a23b75b27b2447ceb485ba125c828db245f200) Thanks [@jxom](https://github.com/jxom)! - Fixed frontmatter parsing.
+
+- [`d3de99d`](https://github.com/wevm/vocs/commit/d3de99d40ff8605ff1b01214f2f2eb51d280ca97) Thanks [@jxom](https://github.com/jxom)! - Added assertion to `CodeGroup`.
+
+- [`c1a23b7`](https://github.com/wevm/vocs/commit/c1a23b75b27b2447ceb485ba125c828db245f200) Thanks [@jxom](https://github.com/jxom)! - Fixed nullish state case.
+
 ## 1.0.0-alpha.44
 
 ### Patch Changes
