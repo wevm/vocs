@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.0-alpha.46
+
+### Patch Changes
+
+- [`9030ca6`](https://github.com/wevm/vocs/commit/9030ca6911d4c07f5a113063d21d1bbbd617c1e4) Thanks [@tmm](https://github.com/tmm)! - Fixed Warpcast icon attributes.
+
 ## 1.0.0-alpha.45
 
 ### Patch Changes
