@@ -1,5 +1,5 @@
-import { Fragment, type ReactElement, useEffect, useMemo, useRef, useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { Fragment, useEffect, useMemo, useRef, useState, type ReactElement } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 
 import { useConfig } from '../hooks/useConfig.js'
 import { useLayout } from '../hooks/useLayout.js'
@@ -227,10 +227,9 @@ function Items({
         return (
           <Fragment key={id}>
             <li className={styles.item}>
-              {/* biome-ignore lint/a11y/useValidAnchor: */}
-              <a
+              <Link
                 data-active={isActive}
-                href={`${pathname}${hash}`}
+                to={`${pathname}${hash}`}
                 onClick={() => {
                   onClickItem?.()
                   setActiveId(id)
@@ -238,7 +237,7 @@ function Items({
                 className={styles.link}
               >
                 {text}
-              </a>
+              </Link>
             </li>
             {nextLevelItems && (
               <Items
