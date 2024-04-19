@@ -2,6 +2,8 @@ import * as Dialog from '@radix-ui/react-dialog'
 import { MagnifyingGlassIcon } from '@radix-ui/react-icons'
 import { useEffect, useState } from 'react'
 
+import { useLocation } from 'react-router-dom'
+import { useConfig } from '../hooks/useConfig.js'
 import { useSearchIndex } from '../hooks/useSearchIndex.js'
 import * as styles from './DesktopSearch.css.js'
 import { SearchDialog } from './SearchDialog.js'
@@ -9,6 +11,19 @@ import { SearchDialog } from './SearchDialog.js'
 export function DesktopSearch() {
   useSearchIndex()
   const [open, setOpen] = useState(false)
+  const config = useConfig()
+  const { pathname } = useLocation()
+
+  let pathKey = ''
+  if (typeof config?.title === 'object' && Object.keys(config?.title ?? {}).length > 0) {
+    let keys: string[] = []
+    keys = Object.keys(config?.title).filter((key) => pathname.startsWith(key))
+    pathKey = keys[keys.length - 1]
+  }
+
+  const configSearch = !config.search?.placeholder
+    ? (config?.search as any)?.[pathKey]
+    : config.search
 
   useEffect(() => {
     function keyDownHandler(event: KeyboardEvent) {
@@ -37,7 +52,7 @@ export function DesktopSearch() {
       <Dialog.Trigger asChild>
         <button className={styles.search} type="button">
           <MagnifyingGlassIcon style={{ marginTop: 2 }} />
-          Search
+          {configSearch.placeholder ?? 'Search'}
           <div className={styles.searchCommand}>
             <div
               style={{
