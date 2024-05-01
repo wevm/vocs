@@ -1,4 +1,5 @@
 import type { RehypeShikiOptions } from '@shikijs/rehype'
+import type { SearchOptions } from 'minisearch'
 import type { ReactElement } from 'react'
 import type { TwoslashOptions } from 'twoslash'
 import type { PluggableList } from 'unified'
@@ -117,6 +118,10 @@ export type Config<
      * @default "docs"
      */
     rootDir?: string
+    /**
+     * Configuration for docs search.
+     */
+    search?: Normalize<Search>
     /**
      * Navigation displayed on the sidebar.
      */
@@ -439,6 +444,8 @@ export type Markdown<parsed extends boolean = false> = RequiredBy<
   parsed extends true ? 'code' : never
 >
 
+export type Search = SearchOptions
+
 export type SidebarItem = {
   /** Whether or not to collapse the sidebar item by default. */
   collapsed?: boolean
@@ -551,3 +558,66 @@ export type ParsedTopNavItem = TopNavItem<true> & {
 export type TopNav<parsed extends boolean = false> = parsed extends true
   ? ParsedTopNavItem[]
   : TopNavItem[]
+
+//////////////////////////////////////////////////////
+// Utilities
+
+export function serializeConfig(config: Config) {
+  return JSON.stringify(serializeFunctions(config))
+}
+
+export function deserializeConfig(config: string) {
+  return deserializeFunctions(JSON.parse(config))
+}
+
+export function serializeFunctions(value: any, key?: string): any {
+  if (Array.isArray(value)) {
+    return value.map((v) => serializeFunctions(v))
+  } else if (typeof value === 'object' && value !== null) {
+    return Object.keys(value).reduce((acc, key) => {
+      if (key[0] === '_') return acc
+      acc[key] = serializeFunctions(value[key], key)
+      return acc
+    }, {} as any)
+  } else if (typeof value === 'function') {
+    let serialized = value.toString()
+    if (key && (serialized.startsWith(key) || serialized.startsWith(`async ${key}`))) {
+      serialized = serialized.replace(key, 'function')
+    }
+    return `_vocs-fn_${serialized}`
+  } else {
+    return value
+  }
+}
+
+export function deserializeFunctions(value: any): any {
+  if (Array.isArray(value)) {
+    return value.map(deserializeFunctions)
+  } else if (typeof value === 'object' && value !== null) {
+    return Object.keys(value).reduce((acc: any, key) => {
+      acc[key] = deserializeFunctions(value[key])
+      return acc
+    }, {})
+  } else if (typeof value === 'string' && value.includes('_vocs-fn_')) {
+    return new Function(`return ${value.slice(9)}`)()
+  } else {
+    return value
+  }
+}
+
+export const deserializeFunctionsStringified = `
+  function deserializeFunctions(value) {
+    if (Array.isArray(value)) {
+      return value.map(deserializeFunctions)
+    } else if (typeof value === 'object' && value !== null) {
+      return Object.keys(value).reduce((acc, key) => {
+        acc[key] = deserializeFunctions(value[key])
+        return acc
+      }, {})
+    } else if (typeof value === 'string' && value.includes('_vocs-fn_')) {
+      return new Function(\`return \${value.slice(9)}\`)()
+    } else {
+      return value
+    }
+  }
+`

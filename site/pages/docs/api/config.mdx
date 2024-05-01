@@ -518,6 +518,25 @@ export default defineConfig({
 })
 ```
 
+### search
+
+- **Type:** `Search`
+
+Search configuration. Accepts [`MiniSearch` options](https://lucaong.github.io/minisearch/types/MiniSearch.SearchOptions.html).
+
+```tsx twoslash
+import { defineConfig } from 'vocs'
+
+export default defineConfig({
+  search: { // [!code focus]
+    boostDocument(documentId) { // [!code focus]
+      return documentId === '/core' ? 2 : 1 // [!code focus]
+    } // [!code focus]
+  }, // [!code focus]
+  title: 'Viem'
+})
+```
+
 ### sidebar
 
 - **Type:** `Sidebar`

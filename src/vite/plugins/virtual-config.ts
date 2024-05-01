@@ -1,5 +1,6 @@
 import { type PluginOption } from 'vite'
 
+import { deserializeFunctionsStringified, serializeConfig } from '../../config.js'
 import { resolveVocsConfig } from '../utils/resolveVocsConfig.js'
 
 export function virtualConfig(): PluginOption {
@@ -25,8 +26,10 @@ export function virtualConfig(): PluginOption {
     async load(id) {
       if (id === resolvedVirtualModuleId) {
         const { config } = await resolveVocsConfig()
-        // TODO: serialize fns
-        return `export const config = ${JSON.stringify(config)}`
+        return `
+        ${deserializeFunctionsStringified}
+        
+        export const config = deserializeFunctions(${serializeConfig(config)})`
       }
       return
     },

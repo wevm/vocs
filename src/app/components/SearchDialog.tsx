@@ -2,9 +2,9 @@ import * as Dialog from '@radix-ui/react-dialog'
 import {
   ArrowLeftIcon,
   ChevronRightIcon,
+  FileIcon,
   ListBulletIcon,
   MagnifyingGlassIcon,
-  FileIcon,
 } from '@radix-ui/react-icons'
 import * as Label from '@radix-ui/react-label'
 import clsx from 'clsx'
@@ -13,6 +13,7 @@ import { type SearchResult } from 'minisearch'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
+import { useConfig } from '../hooks/useConfig.js'
 import { useDebounce } from '../hooks/useDebounce.js'
 import { useLocalStorage } from '../hooks/useLocalStorage.js'
 import { type Result, useSearchIndex } from '../hooks/useSearchIndex.js'
@@ -22,6 +23,7 @@ import { KeyboardShortcut } from './KeyboardShortcut.js'
 import * as styles from './SearchDialog.css.js'
 
 export function SearchDialog(props: { open: boolean; onClose(): void }) {
+  const { search: searchOptions } = useConfig()
   const navigate = useNavigate()
   const inputRef = useRef<HTMLInputElement>(null)
   const listRef = useRef<HTMLUListElement>(null)
@@ -41,8 +43,8 @@ export function SearchDialog(props: { open: boolean; onClose(): void }) {
       return []
     }
     setSelectedIndex(0)
-    return searchIndex.search(searchTerm).slice(0, 16) as (SearchResult & Result)[]
-  }, [searchIndex, searchTerm])
+    return searchIndex.search(searchTerm, searchOptions).slice(0, 16) as (SearchResult & Result)[]
+  }, [searchIndex, searchOptions, searchTerm])
 
   const resultsCount = results.length
   const selectedResult = results[selectedIndex]
