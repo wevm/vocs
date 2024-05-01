@@ -1,5 +1,13 @@
 # vocs
 
+## 1.0.0-alpha.47
+
+### Patch Changes
+
+- [`28db19b`](https://github.com/wevm/vocs/commit/28db19b5c9d502b193dd0f0c90eeddecd2035617) Thanks [@jxom](https://github.com/jxom)! - Added `search` config option.
+
+- [#144](https://github.com/wevm/vocs/pull/144) [`35c6314`](https://github.com/wevm/vocs/commit/35c63149e18c6b56c8a20c9bcc2c2c62fde8f0a5) Thanks [@voliva](https://github.com/voliva)! - Fixed outline with basePath config
+
 ## 1.0.0-alpha.46
 
 ### Patch Changes
