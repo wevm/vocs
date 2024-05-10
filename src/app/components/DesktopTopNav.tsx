@@ -53,14 +53,22 @@ export function DesktopTopNav() {
             <div className={styles.group}>
               <Navigation />
             </div>
-            <div className={clsx(styles.divider, styles.hideCompact)} />
+            <div
+              className={clsx(
+                styles.divider,
+                (config.topNav?.length || 0) > 3 ? styles.hideCompact : null,
+              )}
+            />
           </>
         )}
 
         {config.socials && config.socials?.length > 0 && (
           <>
             <div
-              className={clsx(styles.group, styles.hideCompact)}
+              className={clsx(
+                styles.group,
+                (config.topNav?.length || 0) > 3 ? styles.hideCompact : null,
+              )}
               style={{ marginLeft: '-8px', marginRight: '-8px' }}
             >
               {config.socials.map((social, i) => (
