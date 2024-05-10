@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.0-alpha.48
+
+### Patch Changes
+
+- [`f7ce3c7`](https://github.com/wevm/vocs/commit/f7ce3c702e25407fe32ffd565bea8746c5e32605) Thanks [@jxom](https://github.com/jxom)! - Tweaked socials visibility logic.
+
 ## 1.0.0-alpha.47
 
 ### Patch Changes
