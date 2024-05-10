@@ -79,7 +79,7 @@ export type Config<
      *
      * @default { google: "Inter" }
      */
-    font?: Font
+    font?: Normalize<Font<parsed>>
     /**
      * Additional tags to include in the `<head>` tag of the page HTML.
      */
@@ -170,7 +170,6 @@ export type ParsedConfig = Config<true>
 
 export async function defineConfig<colorScheme extends ColorScheme = undefined>({
   blogDir = './pages/blog',
-  font,
   head,
   ogImageUrl,
   rootDir = 'docs',
@@ -181,7 +180,6 @@ export async function defineConfig<colorScheme extends ColorScheme = undefined>(
   const basePath = parseBasePath(config.basePath)
   return {
     blogDir,
-    font,
     head,
     ogImageUrl,
     rootDir,
@@ -190,6 +188,7 @@ export async function defineConfig<colorScheme extends ColorScheme = undefined>(
     ...config,
     basePath,
     banner: await parseBanner(config.banner ?? ''),
+    font: parseFont(config.font ?? {}),
     iconUrl: parseImageUrl(config.iconUrl, {
       basePath,
     }),
@@ -261,6 +260,11 @@ async function parseBanner(banner: Banner): Promise<Banner<true> | undefined> {
     content,
     textColor,
   }
+}
+
+function parseFont(font: Font): Font<true> {
+  if ('google' in font) return { default: font }
+  return font as Font<true>
 }
 
 function parseImageUrl(
@@ -424,10 +428,17 @@ export type EditLink = {
   text?: string
 }
 
-export type Font = {
+type FontSource = Normalize<{
   /** Name of the Google Font to use. */
   google?: string
+}>
+type ParsedFont = {
+  default?: FontSource
+  mono?: FontSource
 }
+export type Font<parsed extends boolean = false> = parsed extends true
+  ? ParsedFont
+  : FontSource | ParsedFont
 
 export type ImageUrl = string | { light: string; dark: string }
 

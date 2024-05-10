@@ -220,6 +220,24 @@ export default defineConfig({
 })
 ```
 
+You can also define the font family for inline code & code blocks:
+
+```ts twoslash
+import { defineConfig } from 'vocs'
+
+export default defineConfig({
+  font: { 
+    default: { 
+      google: 'Inter', 
+    }, 
+    mono: { // [!code focus]
+      google: 'Dancing Script', // [!code focus]
+    }, // [!code focus]
+  },
+  title: 'Viem'
+})
+```
+
 ### head
 
 - **Type:** `ReactElement | { [path: string]: ReactElement } | ({ path: string }) => ReactElement)`

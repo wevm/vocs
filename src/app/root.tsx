@@ -108,11 +108,21 @@ function Head({ frontmatter }: { frontmatter: Module['frontmatter'] }) {
       )}
 
       {/* Fonts */}
-      {font?.google && <link rel="preconnect" href="https://fonts.googleapis.com" />}
-      {font?.google && <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />}
-      {font?.google && (
+      {(font?.default?.google || font?.mono?.google) && (
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+      )}
+      {(font?.default?.google || font?.mono?.google) && (
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+      )}
+      {font?.default?.google && (
         <link
-          href={`https://fonts.googleapis.com/css2?family=${font.google}:wght@300;400;500&display=swap`}
+          href={`https://fonts.googleapis.com/css2?family=${font.default.google}:wght@300;400;500&display=swap`}
+          rel="stylesheet"
+        />
+      )}
+      {font?.mono?.google && (
+        <link
+          href={`https://fonts.googleapis.com/css2?family=${font.mono.google}:wght@300;400;500&display=swap`}
           rel="stylesheet"
         />
       )}

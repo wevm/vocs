@@ -43,8 +43,11 @@ export function DocsLayout({
       data-layout={layout}
       style={assignInlineVars({
         [bannerHeight]: showBanner ? banner?.height : undefined,
-        [fontFamilyVars.default]: font?.google
-          ? `${font.google}, ${defaultFontFamily.default}`
+        [fontFamilyVars.default]: font?.default?.google
+          ? `${font.default.google}, ${defaultFontFamily.default}`
+          : undefined,
+        [fontFamilyVars.mono]: font?.mono?.google
+          ? `${font.mono.google}, ${defaultFontFamily.mono}`
           : undefined,
       })}
     >
