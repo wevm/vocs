@@ -201,8 +201,6 @@ function Items({
   onClickItem?: () => void
   setActiveId: (id: string) => void
 }) {
-  const { pathname } = useLocation()
-
   return (
     <ul className={styles.items}>
       {levelItems.map(({ id, level, text }) => {
@@ -229,7 +227,7 @@ function Items({
             <li className={styles.item}>
               <Link
                 data-active={isActive}
-                to={`${pathname}${hash}`}
+                to={hash}
                 onClick={() => {
                   onClickItem?.()
                   setActiveId(id)
