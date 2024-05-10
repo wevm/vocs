@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.0-alpha.49
+
+### Patch Changes
+
+- [`7a8d54d`](https://github.com/wevm/vocs/commit/7a8d54d6eb61b2777251f69a75e1442ec0db7ae7) Thanks [@jxom](https://github.com/jxom)! - Added support to define a font family for inline code & code blocks.
+
 ## 1.0.0-alpha.48
 
 ### Patch Changes
