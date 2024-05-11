@@ -1,7 +1,7 @@
 import { basename } from 'node:path'
 import { vanillaExtractPlugin } from '@vanilla-extract/vite-plugin'
 import react from '@vitejs/plugin-react'
-import { defineConfig, splitVendorChunkPlugin, type PluginOption } from 'vite'
+import { type PluginOption, defineConfig, splitVendorChunkPlugin } from 'vite'
 
 import { css } from './plugins/css.js'
 import { mdx } from './plugins/mdx.js'
@@ -13,19 +13,6 @@ import { virtualConsumerComponents } from './plugins/virtual-consumer-components
 import { virtualRoutes } from './plugins/virtual-routes.js'
 import { virtualStyles } from './plugins/virtual-styles.js'
 import { resolveVocsConfig } from './utils/resolveVocsConfig.js'
-
-const hasReactPlugin = async (plugins: ReadonlyArray<PluginOption>) => {
-  for await (const plugin of plugins) {
-    if (
-      plugin &&
-      ((!Array.isArray(plugin) && plugin.name === 'vite:react-babel') ||
-        (Array.isArray(plugin) && (await hasReactPlugin(plugin))))
-    ) {
-      return true
-    }
-  }
-  return false
-}
 
 export default defineConfig(async () => {
   const { config } = await resolveVocsConfig()
@@ -86,3 +73,14 @@ export default defineConfig(async () => {
     },
   }
 })
+
+async function hasReactPlugin(plugins: ReadonlyArray<PluginOption>) {
+  for await (const plugin of plugins)
+    if (
+      plugin &&
+      ((!Array.isArray(plugin) && plugin.name === 'vite:react-babel') ||
+        (Array.isArray(plugin) && (await hasReactPlugin(plugin))))
+    )
+      return true
+  return false
+}
