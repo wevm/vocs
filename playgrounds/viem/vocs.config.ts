@@ -17,6 +17,6 @@ export default defineConfig({
     plugins: [
       // You can customize Vite plugins such as the React plugin here.
       react(),
-    ]
-  }
+    ],
+  },
 })
