@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.0-alpha.50
+
+### Patch Changes
+
+- [`14b0594`](https://github.com/wevm/vocs/commit/14b05947d8356ed6644ba6f8c5ad6e29a52faa7b) Thanks [@jxom](https://github.com/jxom)! - Added ability to override the internal Vite React plugin.
+
 ## 1.0.0-alpha.49
 
 ### Patch Changes
