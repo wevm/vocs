@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.0-alpha.51
+
+### Patch Changes
+
+- [`0c3193e`](https://github.com/wevm/vocs/commit/0c3193ebd0f430a5d072ca044d39cd5e929fbffd) Thanks [@jxom](https://github.com/jxom)! - Fixed outline slug links when a `basePath` exists.
+
 ## 1.0.0-alpha.50
 
 ### Patch Changes
