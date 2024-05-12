@@ -1,18 +1,12 @@
 import { clsx } from 'clsx'
 import { type AnchorHTMLAttributes, type DetailedHTMLProps } from 'react'
+import { Link } from 'react-router-dom'
 
-import { useLocation } from 'react-router-dom'
 import * as styles from './Autolink.css.js'
 
 export function Autolink(
-  props: DetailedHTMLProps<AnchorHTMLAttributes<HTMLAnchorElement>, HTMLAnchorElement>,
+  props: Omit<DetailedHTMLProps<AnchorHTMLAttributes<HTMLAnchorElement>, HTMLAnchorElement>, 'ref'>,
 ) {
-  const { pathname } = useLocation()
-  return (
-    <a
-      {...props}
-      className={clsx(props.className, styles.root)}
-      href={`${pathname}${props.href}`}
-    />
-  )
+  if (!props.href) return null
+  return <Link {...props} className={clsx(props.className, styles.root)} to={props.href} />
 }
