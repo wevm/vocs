@@ -465,6 +465,8 @@ export type SidebarItem = {
   /** Optional pathname to the target documentation page. */
   // TODO: support external links
   link?: string
+  /** Force the item to work with standard page navigation */
+  navigable?: boolean
   /** Optional children to nest under this item. */
   items?: SidebarItem[]
 }
