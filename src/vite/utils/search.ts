@@ -6,6 +6,7 @@ import debug_ from 'debug'
 import { default as fs } from 'fs-extra'
 import { globby } from 'globby'
 import MiniSearch from 'minisearch'
+import pLimit from 'p-limit'
 import { Fragment } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import * as runtime from 'react/jsx-runtime'
@@ -14,6 +15,8 @@ import { getRehypePlugins, getRemarkPlugins } from '../plugins/mdx.js'
 import * as cache from './cache.js'
 import { hash } from './hash.js'
 import { slash } from './slash.js'
+
+const limit = pLimit(30)
 
 export const debug = debug_('vocs:search')
 
@@ -25,41 +28,43 @@ export async function buildIndex({
   const pagesPaths = await globby(`${resolve(baseDir, 'pages')}/**/*.{md,mdx}`)
 
   const documents = await Promise.all(
-    pagesPaths.map(async (pagePath) => {
-      const mdx = readFileSync(pagePath, 'utf-8')
-      const key = `index.${hash(pagePath)}`
-      const pageCache = cache.search.get(key) ?? {}
-      if (pageCache.mdx === mdx) return pageCache.document
+    pagesPaths.map((pagePath) =>
+      limit(async (pagePath) => {
+        const mdx = readFileSync(pagePath, 'utf-8')
+        const key = `index.${hash(pagePath)}`
+        const pageCache = cache.search.get(key) ?? {}
+        if (pageCache.mdx === mdx) return pageCache.document
 
-      const html = await processMdx(mdx)
+        const html = await processMdx(mdx)
 
-      const sections = splitPageIntoSections(html)
-      if (sections.length === 0) {
-        cache.search.set(key, { mdx, document: [] })
-        return []
-      }
+        const sections = splitPageIntoSections(html)
+        if (sections.length === 0) {
+          cache.search.set(key, { mdx, document: [] })
+          return []
+        }
 
-      const fileId = getDocId(baseDir, pagePath)
+        const fileId = getDocId(baseDir, pagePath)
 
-      const relFile = slash(relative(baseDir, fileId))
-      const href = relFile
-        .replace(relative(baseDir, resolve(baseDir, 'pages')), '')
-        .replace(/\.(.*)/, '')
+        const relFile = slash(relative(baseDir, fileId))
+        const href = relFile
+          .replace(relative(baseDir, resolve(baseDir, 'pages')), '')
+          .replace(/\.(.*)/, '')
 
-      const document = sections.map((section) => ({
-        href: `${href}#${section.anchor}`,
-        html: section.html,
-        id: `${fileId}#${section.anchor}`,
-        isPage: section.isPage,
-        text: section.text,
-        title: section.titles.at(-1)!,
-        titles: section.titles.slice(0, -1),
-      }))
+        const document = sections.map((section) => ({
+          href: `${href}#${section.anchor}`,
+          html: section.html,
+          id: `${fileId}#${section.anchor}`,
+          isPage: section.isPage,
+          text: section.text,
+          title: section.titles.at(-1)!,
+          titles: section.titles.slice(0, -1),
+        }))
 
-      cache.search.set(key, { mdx, document })
+        cache.search.set(key, { mdx, document })
 
-      return document
-    }),
+        return document
+      }, pagePath),
+    ),
   )
 
   const index = new MiniSearch({
