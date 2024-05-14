@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.0-alpha.52
+
+### Patch Changes
+
+- [`9eeb8b6`](https://github.com/wevm/vocs/commit/9eeb8b6635a6113d4ec7e354db4e1d0253a4665d) Thanks [@jxom](https://github.com/jxom)! - Fixed concurrent MDX page processing for search index.
+
 ## 1.0.0-alpha.51
 
 ### Patch Changes
