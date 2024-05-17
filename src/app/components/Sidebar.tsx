@@ -199,6 +199,7 @@ function SidebarItem(props: {
                   onClick={onClick}
                   className={clsx(
                     depth === 0 ? styles.sectionTitle : styles.item,
+                    depth === 0 && styles.sectionTitleLink,
                     hasActiveChildItem && styles.sectionHeaderActive,
                   )}
                   to={item.link}

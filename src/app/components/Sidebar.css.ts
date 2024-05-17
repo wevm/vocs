@@ -195,6 +195,20 @@ export const sectionTitle = style(
   'sectionTitle',
 )
 
+export const sectionTitleLink = style(
+  {
+    selectors: {
+      '&:hover': {
+        color: primitiveColorVars.text,
+      },
+      '&[data-active="true"]': {
+        color: primitiveColorVars.textAccent,
+      },
+    },
+  },
+  'sectionTitleLink',
+)
+
 export const sectionCollapse = style(
   {
     color: primitiveColorVars.text3,
