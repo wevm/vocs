@@ -198,8 +198,9 @@ function SidebarItem(props: {
                   data-active={Boolean(match)}
                   onClick={onClick}
                   className={clsx(
-                    depth === 0 ? styles.sectionTitle : styles.item,
-                    depth === 0 && styles.sectionTitleLink,
+                    depth === 0
+                      ? [styles.sectionTitle, styles.sectionTitleLink]
+                      : styles.item,
                     hasActiveChildItem && styles.sectionHeaderActive,
                   )}
                   to={item.link}
