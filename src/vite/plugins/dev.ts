@@ -6,6 +6,7 @@ import type { PluginOption } from 'vite'
 
 import type { ParsedConfig } from '../../config.js'
 import { resolveVocsConfig } from '../utils/resolveVocsConfig.js'
+import { getFsPath } from '../utils/paths.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -50,7 +51,7 @@ export function dev(): PluginOption {
             const indexHtml = readFileSync(resolve(__dirname, '../index.html'), 'utf-8')
             const template = await server.transformIndexHtml(
               url!,
-              indexHtml.replace(/\.\.\/app/g, `/@fs${resolve(__dirname, '../../app')}`),
+              indexHtml.replace(/\.\.\/app/g, getFsPath(resolve(__dirname, '../../app'))),
             )
             const module = await server.ssrLoadModule(
               resolve(__dirname, '../../app/index.server.tsx'),

@@ -6,6 +6,7 @@ import { type PluginOption } from 'vite'
 
 import type { ParsedConfig, Theme } from '../../config.js'
 import { resolveVocsConfig } from '../utils/resolveVocsConfig.js'
+import { getFsPath } from '../utils/paths.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -41,8 +42,8 @@ export function virtualStyles(): PluginOption {
 
       const { config } = await resolveVocsConfig()
       const { rootDir } = config
-      const themeStyles = resolve(__dirname, '../.vocs/theme.css')
-      const rootStyles = resolve(rootDir, 'styles.css')
+      const themeStyles = getFsPath(resolve(__dirname, '../.vocs/theme.css'))
+      const rootStyles = getFsPath(resolve(rootDir, 'styles.css'))
       let code = ''
       if (existsSync(themeStyles)) code += `import "${themeStyles}";`
       if (existsSync(rootStyles)) code += `import "${rootStyles}";`
