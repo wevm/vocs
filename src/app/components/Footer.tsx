@@ -181,12 +181,12 @@ function flattenSidebar(sidebar: SidebarItem[]) {
   const items: SidebarItem[] = []
 
   for (const item of sidebar) {
+    if (item.link) {
+      items.push(item)
+    }
     if (item.items) {
       items.push(...flattenSidebar(item.items))
-      continue
     }
-
-    items.push(item)
   }
 
   return items
