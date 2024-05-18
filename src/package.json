@@ -1,7 +1,7 @@
 {
   "name": "vocs",
   "description": "React Documentation Generator, powered by Vite.",
-  "version": "1.0.0-alpha.52",
+  "version": "1.0.0-alpha.53",
   "type": "module",
   "bin": {
     "vocs": "./_lib/cli/index.js"
