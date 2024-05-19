@@ -11,6 +11,7 @@
     ".": "./_lib/index.js",
     "./components": "./_lib/components.js",
     "./head": "./_lib/head.js",
+    "./hooks": "./_lib/hooks.js",
     "./mdx-react": "./_lib/mdx-react.js"
   },
   "peerDependencies": {
@@ -91,23 +92,12 @@
   "license": "MIT",
   "homepage": "https://vocs.dev",
   "repository": "wevm/vocs",
-  "authors": [
-    "awkweb.eth",
-    "jxom.eth"
-  ],
+  "authors": ["awkweb.eth", "jxom.eth"],
   "funding": [
     {
       "type": "github",
       "url": "https://github.com/sponsors/wevm"
     }
   ],
-  "keywords": [
-    "react",
-    "static",
-    "docs",
-    "generator",
-    "vite",
-    "documentation",
-    "mdx"
-  ]
+  "keywords": ["react", "static", "docs", "generator", "vite", "documentation", "mdx"]
 }
