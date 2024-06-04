@@ -43,29 +43,37 @@ export function Button(props: ButtonProps) {
   return <Button_ {...props} className={clsx(styles.button, props.className)} />
 }
 
+type NoRepetition<U extends string, ResultT extends any[] = []> =
+  | ResultT
+  | {
+      [k in U]: NoRepetition<Exclude<U, k>, [k, ...ResultT]>
+    }[U]
+
 export function InstallPackage({
   name,
   type = 'install',
-}: { children: ReactNode; className?: string; name: string; type?: 'install' | 'init' }) {
+  packageManager = ['npm', 'pnpm', 'yarn'],
+}: {
+  className?: string
+  name: string
+  type?: 'install' | 'init'
+  packageManager?: NoRepetition<'npm' | 'pnpm' | 'yarn' | 'bun'>
+}) {
   return (
-    <Tabs.Root className={styles.tabs} defaultValue="npm">
+    <Tabs.Root className={styles.tabs} defaultValue={packageManager[0]}>
       <Tabs.List className={styles.tabsList}>
-        <Tabs.Trigger value="npm">npm</Tabs.Trigger>
-        <Tabs.Trigger value="pnpm">pnpm</Tabs.Trigger>
-        <Tabs.Trigger value="yarn">yarn</Tabs.Trigger>
+        {packageManager.map((manager) => (
+          <Tabs.Trigger key={manager} value={manager}>
+            {manager}
+          </Tabs.Trigger>
+        ))}
       </Tabs.List>
-      <Tabs.Content className={styles.tabsContent} value="npm">
-        <span className={styles.packageManager}>npm</span> {type === 'init' ? 'init' : 'install'}{' '}
-        {name}
-      </Tabs.Content>
-      <Tabs.Content className={styles.tabsContent} value="pnpm">
-        <span className={styles.packageManager}>pnpm</span> {type === 'init' ? 'create' : 'add'}{' '}
-        {name}
-      </Tabs.Content>
-      <Tabs.Content className={styles.tabsContent} value="yarn">
-        <span className={styles.packageManager}>yarn</span> {type === 'init' ? 'create' : 'add'}{' '}
-        {name}
-      </Tabs.Content>
+      {packageManager.map((manager) => (
+        <Tabs.Content key={manager} value={manager} className={styles.tabsContent}>
+          <span className={styles.packageManager}>{manager}</span>{' '}
+          {type === 'init' ? 'create' : 'add'} {name}
+        </Tabs.Content>
+      ))}
     </Tabs.Root>
   )
 }
