@@ -19,7 +19,7 @@ export function useSidebar(): UseSidebarReturnType {
     return keys[keys.length - 1]
   }, [sidebar, pathname])
   if (!sidebarKey) return { items: [] }
-
+  
   if (Array.isArray(sidebar[sidebarKey]))
     return { key: sidebarKey, items: sidebar[sidebarKey] } as UseSidebarReturnType
   return { ...sidebar[sidebarKey], key: sidebarKey } as UseSidebarReturnType

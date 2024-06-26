@@ -195,6 +195,17 @@ export const sectionTitle = style(
   'sectionTitle',
 )
 
+export const sectionTitleActive = style(
+  {
+    color: primitiveColorVars.textAccent,
+    fontSize: fontSizeVars['14'],
+    fontWeight: fontWeightVars.semibold,
+    letterSpacing: '0.25px',
+    width: '100%',
+  },
+  'sectionTitleActive',
+)
+
 export const sectionTitleLink = style(
   {
     selectors: {
