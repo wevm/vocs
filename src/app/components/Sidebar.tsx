@@ -21,6 +21,19 @@ import { RouterLink } from './RouterLink.js'
 import * as styles from './Sidebar.css.js'
 import { ChevronRight } from './icons/ChevronRight.js'
 
+function checkSectionTitleActive(items: any[], pathname: string) {
+  const result = Boolean(
+    items.find((item) => {
+      if (item.link) {
+        return item.link === pathname
+      }
+      return false
+    }),
+  )
+
+  return !!result
+}
+
 export function Sidebar(props: {
   className?: string
   onClickItem?: MouseEventHandler<HTMLAnchorElement>
@@ -206,8 +219,22 @@ function SidebarItem(props: {
                   {item.text}
                 </RouterLink>
               ) : (
-                <div className={clsx(depth === 0 ? styles.sectionTitle : styles.item)}>
-                  {item.text}
+                <div
+                  className={clsx(
+                    depth === 0
+                      ? item.items && checkSectionTitleActive(item.items, pathname)
+                        ? styles.sectionTitleActive
+                        : styles.sectionTitle
+                      : styles.item,
+                  )}
+                >
+                  {item.items && !checkSectionTitleActive(item.items, pathname) && collapsed ? (
+                    <RouterLink data-active={false} onClick={onClick} to={item.items[0].link!}>
+                      {item.text}
+                    </RouterLink>
+                  ) : (
+                    item.text
+                  )}
                 </div>
               ))}
 
