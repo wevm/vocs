@@ -53,6 +53,7 @@ export function InstallPackage({
         <Tabs.Trigger value="npm">npm</Tabs.Trigger>
         <Tabs.Trigger value="pnpm">pnpm</Tabs.Trigger>
         <Tabs.Trigger value="yarn">yarn</Tabs.Trigger>
+        <Tabs.Trigger value="bun">yarn</Tabs.Trigger>
       </Tabs.List>
       <Tabs.Content className={styles.tabsContent} value="npm">
         <span className={styles.packageManager}>npm</span> {type === 'init' ? 'init' : 'install'}{' '}
@@ -64,6 +65,10 @@ export function InstallPackage({
       </Tabs.Content>
       <Tabs.Content className={styles.tabsContent} value="yarn">
         <span className={styles.packageManager}>yarn</span> {type === 'init' ? 'create' : 'add'}{' '}
+        {name}
+      </Tabs.Content>
+      <Tabs.Content className={styles.tabsContent} value="bun">
+        <span className={styles.packageManager}>bun</span> {type === 'init' ? 'create' : 'add'}{' '}
         {name}
       </Tabs.Content>
     </Tabs.Root>
