@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.0-alpha.54
+
+### Patch Changes
+
+- [`66a0390`](https://github.com/wevm/vocs/commit/66a0390c97b82581b2ea49c5aa440b1a7b848ace) Thanks [@jxom](https://github.com/jxom)! - Fixed excessive \`createHighlighter\` instantiation.
+
 ## 1.0.0-alpha.53
 
 ### Patch Changes
