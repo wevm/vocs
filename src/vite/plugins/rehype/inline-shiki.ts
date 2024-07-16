@@ -1,7 +1,7 @@
 import type { RehypeShikiCoreOptions } from '@shikijs/rehype/core'
 import type { Root } from 'hast'
 import type { BuiltinLanguage, BuiltinTheme, Highlighter } from 'shiki'
-import { bundledLanguages, getHighlighter } from 'shiki'
+import { bundledLanguages, createHighlighter } from 'shiki'
 import type { LanguageInput } from 'shiki/core'
 import type { Plugin } from 'unified'
 import { visit } from 'unist-util-visit'
@@ -29,7 +29,7 @@ export const rehypeInlineShiki: Plugin<[RehypeInlineShikiOptions], Root> = funct
 
   return async function (tree) {
     if (!promise)
-      promise = getHighlighter({
+      promise = createHighlighter({
         themes: themeNames,
         langs,
       })

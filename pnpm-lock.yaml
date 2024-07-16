@@ -300,14 +300,14 @@ importers:
         specifier: ^1.0.4
         version: 1.0.4(@types/react-dom@18.2.14)(@types/react@18.2.38)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@shikijs/rehype':
-        specifier: ^1.1.2
-        version: 1.1.2
+        specifier: ^1.10.3
+        version: 1.10.3
       '@shikijs/transformers':
-        specifier: ^1.1.2
-        version: 1.1.2
+        specifier: ^1.10.3
+        version: 1.10.3
       '@shikijs/twoslash':
-        specifier: ^1.1.2
-        version: 1.1.2(typescript@5.2.2)
+        specifier: ^1.10.3
+        version: 1.10.3(typescript@5.2.2)
       '@vanilla-extract/css':
         specifier: ^1.14.0
         version: 1.14.0
@@ -426,8 +426,8 @@ importers:
         specifier: ^1.15.0
         version: 1.15.0
       shiki:
-        specifier: ^1.1.2
-        version: 1.1.2
+        specifier: ^1.10.3
+        version: 1.10.3
       tailwindcss:
         specifier: ^3.3.3
         version: 3.3.5(ts-node@10.9.1(@types/node@20.8.9)(typescript@5.2.2))
@@ -435,8 +435,8 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       twoslash:
-        specifier: ~0.2.2
-        version: 0.2.2(typescript@5.2.2)
+        specifier: ~0.2.9
+        version: 0.2.9(typescript@5.2.2)
       ua-parser-js:
         specifier: ^1.0.36
         version: 1.0.37
@@ -1742,17 +1742,17 @@ packages:
   '@scure/bip39@1.2.1':
     resolution: {integrity: sha512-Z3/Fsz1yr904dduJD0NpiyRHhRYHdcnyh73FZWiV+/qhWi83wNJ3NWolYqCEN+ZWsUz2TWwajJggcRE9r1zUYg==}
 
-  '@shikijs/core@1.1.2':
-    resolution: {integrity: sha512-ERVzNQz88ZkDqUpWeC57Kp+Kmx5RjqeDBR1M8AGWGom4yrkITiTfXCGmjchlDSw12MhDTuPYR4HVFW8uT61RaQ==}
+  '@shikijs/core@1.10.3':
+    resolution: {integrity: sha512-D45PMaBaeDHxww+EkcDQtDAtzv00Gcsp72ukBtaLSmqRvh0WgGMq3Al0rl1QQBZfuneO75NXMIzEZGFitThWbg==}
 
-  '@shikijs/rehype@1.1.2':
-    resolution: {integrity: sha512-h90ycM3VFkI6bLD/WgUuxMR9yqc0ejWWiA//T4f4mqoIPW3bVW3uSB/0eJRM6WbP8fEaOAnA7mbKGsoTDGf4Ng==}
+  '@shikijs/rehype@1.10.3':
+    resolution: {integrity: sha512-ghLPkqtx+AEL3LNTR8YpVJroAuiGvZZv+2u2CUB5rw5l4gsJ/2SycrC7s3Hpe+5qMuVXDAq/xImFQyhB0nQpuw==}
 
-  '@shikijs/transformers@1.1.2':
-    resolution: {integrity: sha512-tldkUMW7RBkU2F6eXbiRMw3ja+hQer1EjwhD2NGOv6K0pgZdVp3JKjU8uisRtg65tyBqrVHq7zlLHVk7EKmUZA==}
+  '@shikijs/transformers@1.10.3':
+    resolution: {integrity: sha512-MNjsyye2WHVdxfZUSr5frS97sLGe6G1T+1P41QjyBFJehZphMcr4aBlRLmq6OSPBslYe9byQPVvt/LJCOfxw8Q==}
 
-  '@shikijs/twoslash@1.1.2':
-    resolution: {integrity: sha512-Jt8QAudENcCS7cgxjbXMpUCA7IAOy1kot+Qo5yyyLl9VwVKvZMW0BDrrigbOia8602X2Z76U6XEs9UXyD6LnsQ==}
+  '@shikijs/twoslash@1.10.3':
+    resolution: {integrity: sha512-9HlQgvy51jnO46Tcr87A7v6gxlzdKzcpYk15/CQfO48svAslOf+6QYXf0Gao3HWPywOwVj2alMAe0zQhT59y9w==}
 
   '@shuding/opentype.js@1.4.0-beta.0':
     resolution: {integrity: sha512-3NgmNyH3l/Hv6EvsWJbsvpcpUba6R8IREQ83nH83cyakCw7uM1arZKNfHwv1Wz6jgqrF/j4x5ELvR6PnK9nTcA==}
@@ -2236,7 +2236,6 @@ packages:
 
   bun@1.0.14:
     resolution: {integrity: sha512-fOi0SscF/yIv2Hl0iuD/YG/SgiH5stKsKO8RDRMDB9ZTQM3enq9sUhz2bCj3hf+4HVMcMQoOtrnT8SQAdqve6A==}
-    cpu: [arm64, x64]
     os: [darwin, linux]
     hasBin: true
 
@@ -4384,8 +4383,8 @@ packages:
     resolution: {integrity: sha512-7++dFhtcx3353uBaq8DDR4NuxBetBzC7ZQOhmTQInHEd6bSrXdiEyzCvG07Z44UYdLShWUyXt5M/yhz8ekcb1A==}
     engines: {node: '>=8'}
 
-  shiki@1.1.2:
-    resolution: {integrity: sha512-qNzFwTv5uhEDNUIwp7wHjsrffVeLbmOgWnM5mZZhoiz7G2qAUvqVfUzuWfieD45/YAKipzCtdV9SndacKtABow==}
+  shiki@1.10.3:
+    resolution: {integrity: sha512-eneCLncGuvPdTutJuLyUGS8QNPAVFO5Trvld2wgEq1e002mwctAhJKeMGWtWVXOIEzmlcLRqcgPSorR6AVzOmQ==}
 
   side-channel@1.0.4:
     resolution: {integrity: sha512-q5XPytqFEIKHkGdiMIrY10mvLRvnQh42/+GoBlFW3b2LXLE2xxJpZFdm94we0BaoV3RwJyGqg5wS7epxTv0Zvw==}
@@ -4655,11 +4654,11 @@ packages:
     engines: {node: '>=8.0.0'}
     hasBin: true
 
-  twoslash-protocol@0.2.2:
-    resolution: {integrity: sha512-vwmMzoVkRk9yOElqn1xzCGwnv4rpfWHGtD177NkGc+A6KK5JhZtmugyW/T96g+Fwx2JrZB67FhAvdU5ptsXrUQ==}
+  twoslash-protocol@0.2.9:
+    resolution: {integrity: sha512-uKQl8UboT6JU4VAtYaSI3DbNtgaNhFaTpCSMy/n3tRl5lMlMhrjiuNKdqx15xjcviconuGJ9oObkz1h9zJFrJg==}
 
-  twoslash@0.2.2:
-    resolution: {integrity: sha512-34VeMQiwiC6Jn2fSxo39z0BtINrOAeYb9WRfEQyW47cgMjw4NUuM3ym5qwL0g4xFoocuH1fKXlSl96EE2DghVQ==}
+  twoslash@0.2.9:
+    resolution: {integrity: sha512-oj7XY6h8E9nTZBmfRE1gpsSSUqAQo5kcIpFkXyQPp8UCsyCQsUlP2bJ2s32o02c1n5+xl4h9rcCsQ1F97Z6LZg==}
     peerDependencies:
       typescript: '*'
 
@@ -4727,6 +4726,9 @@ packages:
 
   unified@11.0.4:
     resolution: {integrity: sha512-apMPnyLjAX+ty4OrNap7yumyVAMlKx5IWU2wlzzUdYJO9A8f1p9m/gywF/GM2ZDFcjQPrx59Mc90KwmxsoklxQ==}
+
+  unified@11.0.5:
+    resolution: {integrity: sha512-xKvGhPWw3k84Qjh8bI3ZeJjqnyadK+GEFtazSfZv/rKeTkTjOJho6mFqh2SM96iIcZokxiOpg78GazTSg8+KHA==}
 
   unist-util-is@6.0.0:
     resolution: {integrity: sha512-2qCTHimwdxLfz+YzdGfkqNlH0tLi9xjTnHddPmJwtIG9MGsdbutfTc4P+haPD7l7Cjxf/WZj+we5qfVPvvxfYw==}
@@ -6266,25 +6268,27 @@ snapshots:
       '@noble/hashes': 1.3.2
       '@scure/base': 1.1.5
 
-  '@shikijs/core@1.1.2': {}
-
-  '@shikijs/rehype@1.1.2':
+  '@shikijs/core@1.10.3':
     dependencies:
-      '@shikijs/transformers': 1.1.2
+      '@types/hast': 3.0.4
+
+  '@shikijs/rehype@1.10.3':
+    dependencies:
+      '@shikijs/transformers': 1.10.3
       '@types/hast': 3.0.4
       hast-util-to-string: 3.0.0
-      shiki: 1.1.2
-      unified: 11.0.4
+      shiki: 1.10.3
+      unified: 11.0.5
       unist-util-visit: 5.0.0
 
-  '@shikijs/transformers@1.1.2':
+  '@shikijs/transformers@1.10.3':
     dependencies:
-      shiki: 1.1.2
+      shiki: 1.10.3
 
-  '@shikijs/twoslash@1.1.2(typescript@5.2.2)':
+  '@shikijs/twoslash@1.10.3(typescript@5.2.2)':
     dependencies:
-      '@shikijs/core': 1.1.2
-      twoslash: 0.2.2(typescript@5.2.2)
+      '@shikijs/core': 1.10.3
+      twoslash: 0.2.9(typescript@5.2.2)
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -9502,9 +9506,10 @@ snapshots:
 
   shebang-regex@3.0.0: {}
 
-  shiki@1.1.2:
+  shiki@1.10.3:
     dependencies:
-      '@shikijs/core': 1.1.2
+      '@shikijs/core': 1.10.3
+      '@types/hast': 3.0.4
 
   side-channel@1.0.4:
     dependencies:
@@ -9828,12 +9833,12 @@ snapshots:
       wcwidth: 1.0.1
       yargs: 17.7.2
 
-  twoslash-protocol@0.2.2: {}
+  twoslash-protocol@0.2.9: {}
 
-  twoslash@0.2.2(typescript@5.2.2):
+  twoslash@0.2.9(typescript@5.2.2):
     dependencies:
       '@typescript/vfs': 1.5.0
-      twoslash-protocol: 0.2.2
+      twoslash-protocol: 0.2.9
       typescript: 5.2.2
     transitivePeerDependencies:
       - supports-color
@@ -9910,6 +9915,16 @@ snapshots:
       vfile: 5.3.7
 
   unified@11.0.4:
+    dependencies:
+      '@types/unist': 3.0.1
+      bail: 2.0.2
+      devlop: 1.1.0
+      extend: 3.0.2
+      is-plain-obj: 4.1.0
+      trough: 2.1.0
+      vfile: 6.0.1
+
+  unified@11.0.5:
     dependencies:
       '@types/unist': 3.0.1
       bail: 2.0.2
