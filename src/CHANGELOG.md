@@ -1,5 +1,19 @@
 # vocs
 
+## 1.0.0-alpha.54
+
+### Patch Changes
+
+- [`66a0390`](https://github.com/wevm/vocs/commit/66a0390c97b82581b2ea49c5aa440b1a7b848ace) Thanks [@jxom](https://github.com/jxom)! - Fixed excessive \`createHighlighter\` instantiation.
+
+## 1.0.0-alpha.53
+
+### Patch Changes
+
+- [`7b49059`](https://github.com/wevm/vocs/commit/7b490595316be2618b5d8220735ebca984883efe) Thanks [@jxom](https://github.com/jxom)! - Updated dependencies.
+
+- [`879f297`](https://github.com/wevm/vocs/commit/879f297e5cfaceb592044802b85bf4d179842fbd) Thanks [@jxom](https://github.com/jxom)! - Allow navigable sidebar section header.
+
 ## 1.0.0-alpha.52
 
 ### Patch Changes
