@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.0-alpha.55
+
+### Patch Changes
+
+- [`4a888ea`](https://github.com/wevm/vocs/commit/4a888eadf7136fa4d45ce8818a3a4be96aa27434) Thanks [@jxom](https://github.com/jxom)! - Fixed top nav search bar ↔ item gap.
+
 ## 1.0.0-alpha.54
 
 ### Patch Changes
