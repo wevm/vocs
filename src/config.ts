@@ -303,7 +303,7 @@ const socialsMeta = {
   warpcast: { label: 'Warpcast', type: 'warpcast' },
   x: { label: 'X (Twitter)', type: 'x' },
   gitlab: { label: 'GitLab', type: 'gitlab' },
-  linkedin: { label: 'LinkedIn', type: 'linkedin' }
+  linkedin: { label: 'LinkedIn', type: 'linkedin' },
 } satisfies Record<SocialItem['icon'], { label: string; type: SocialType }>
 
 function parseSocials(socials: Socials): Socials<true> {
@@ -475,7 +475,14 @@ export type Sidebar =
   | SidebarItem[]
   | { [path: string]: SidebarItem[] | { backLink?: boolean; items: SidebarItem[] } }
 
-export type SocialType = 'discord' | 'github' | 'telegram' | 'warpcast' | 'x' | 'gitlab' | 'linkedin'
+export type SocialType =
+  | 'discord'
+  | 'github'
+  | 'telegram'
+  | 'warpcast'
+  | 'x'
+  | 'gitlab'
+  | 'linkedin'
 export type SocialItem = {
   /** Social icon to display. */
   icon: SocialType // TODO: Support custom SVG icons
