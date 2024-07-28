@@ -29,6 +29,8 @@ import { Menu } from './icons/Menu.js'
 import { Telegram } from './icons/Telegram.js'
 import { Warpcast } from './icons/Warpcast.js'
 import { X } from './icons/X.js'
+import { GitLab } from './icons/GitLab.js'
+import { LinkedIn } from './icons/LinkedIn.js'
 
 MobileTopNav.Curtain = Curtain
 
@@ -200,6 +202,8 @@ const iconsForIcon = {
   telegram: Telegram,
   warpcast: Warpcast,
   x: X,
+  gitlab: GitLab,
+  linkedin: LinkedIn,
 } satisfies Record<Config.ParsedSocialItem['type'], ComponentType>
 
 const sizesForTypes = {
@@ -208,6 +212,8 @@ const sizesForTypes = {
   telegram: '21px',
   warpcast: '18px',
   x: '16px',
+  gitlab: '24px',
+  linkedin: '24px',
 } satisfies Record<Config.ParsedSocialItem['type'], string>
 
 function SocialButton({ icon, label, link, type }: Config.ParsedSocialItem) {
