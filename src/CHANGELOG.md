@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.0-alpha.58
+
+### Patch Changes
+
+- [`d29b41e`](https://github.com/wevm/vocs/commit/d29b41ee5599679777f78a577987b1f577c6e000) Thanks [@jxom](https://github.com/jxom)! - Expand collapsed sidebar items when they have a link and are pressed.
+
 ## 1.0.0-alpha.57
 
 ### Patch Changes
