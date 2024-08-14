@@ -131,7 +131,7 @@ function SidebarItem(props: {
   )
 
   const [collapsed, setCollapsed] = useState(() => {
-    if (match) return false
+    if (item.link && match) return false
     if (!item.items) return false
     if (hasActiveChildItem) return false
     return Boolean(item.collapsed)
