@@ -136,23 +136,16 @@ function SidebarItem(props: {
     if (hasActiveChildItem) return false
     return Boolean(item.collapsed)
   })
+
   const isCollapsable = item.collapsed !== undefined && item.items !== undefined
-  const onCollapseInteraction = useCallback(
-    (event: KeyboardEvent | MouseEvent) => {
-      if ('key' in event && event.key !== 'Enter') return
-      if (item.link) return
-      setCollapsed((x) => !x)
-    },
-    [item.link],
-  )
-  const onCollapseTriggerInteraction = useCallback(
-    (event: KeyboardEvent | MouseEvent) => {
-      if ('key' in event && event.key !== 'Enter') return
-      if (!item.link) return
-      setCollapsed((x) => !x)
-    },
-    [item.link],
-  )
+  const onCollapseInteraction = useCallback((event: KeyboardEvent | MouseEvent) => {
+    if ('key' in event && event.key !== 'Enter') return
+    setCollapsed((x) => !x)
+  }, [])
+  const onCollapseTriggerInteraction = useCallback((event: KeyboardEvent | MouseEvent) => {
+    if ('key' in event && event.key !== 'Enter') return
+    setCollapsed((x) => !x)
+  }, [])
 
   const active = useRef(true)
   useEffect(() => {
@@ -196,7 +189,10 @@ function SidebarItem(props: {
               (item.link ? (
                 <RouterLink
                   data-active={Boolean(match)}
-                  onClick={onClick}
+                  onClick={(e) => {
+                    onClick?.(e)
+                    onCollapseInteraction(e)
+                  }}
                   className={clsx(
                     depth === 0 ? [styles.sectionTitle, styles.sectionTitleLink] : styles.item,
                     hasActiveChildItem && styles.sectionHeaderActive,
