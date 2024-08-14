@@ -123,7 +123,7 @@ function SidebarItem(props: {
   const itemRef = useRef<HTMLElement>(null)
 
   const { pathname } = useLocation()
-  const match = useMatch(item.link ?? '')
+  const match = useMatch(item.link || '')
 
   const hasActiveChildItem = useMemo(
     () => (item.items ? Boolean(getActiveChildItem(item.items, pathname)) : false),
