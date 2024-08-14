@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.0-alpha.56
+
+### Patch Changes
+
+- [`1d02a16`](https://github.com/wevm/vocs/commit/1d02a166e14771259198d69e68897cd4d25cf7c6) Thanks [@jxom](https://github.com/jxom)! - Fixed location match for collapsed sidebars.
+
 ## 1.0.0-alpha.55
 
 ### Patch Changes
