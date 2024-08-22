@@ -35,7 +35,7 @@ export async function buildIndex({
         const pageCache = cache.search.get(key) ?? {}
         if (pageCache.mdx === mdx) return pageCache.document
 
-        const html = await processMdx(pagePath,mdx)
+        const html = await processMdx(pagePath, mdx)
 
         const sections = splitPageIntoSections(html)
         if (sections.length === 0) {
