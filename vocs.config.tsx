@@ -233,6 +233,10 @@ export default defineConfig({
   ],
   sidebar: [
     {
+      text: "BLAH",
+      link: "/docs/fugazi"
+    },
+    {
       text: 'Getting Started',
       link: '/docs',
     },
