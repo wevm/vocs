@@ -41,7 +41,7 @@ export async function buildIndex({
           console.log("FUGAZI")
         }
 
-        const html = await processMdx(mdx)
+        const html = await processMdx(pagePath,mdx)
 
         if (pagePath == "/home/saucepoint/src/vocs/site/pages/docs/fugazi.mdx") {
           console.log("FUGAZI2")
@@ -104,10 +104,10 @@ export function saveIndex(outDir: string, index: MiniSearch) {
 const remarkPlugins = getRemarkPlugins()
 const rehypePlugins = getRehypePlugins({ twoslash: false })
 
-export async function processMdx(file: string) {
+export async function processMdx(filePath: string, file: string) {
   try {
     const compiled = await compile(file, {
-      baseUrl: pathToFileURL(file).href,
+      baseUrl: pathToFileURL(filePath).href,
       outputFormat: 'function-body',
       remarkPlugins,
       rehypePlugins,
