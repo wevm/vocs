@@ -27,25 +27,15 @@ export async function buildIndex({
 }) {
   const pagesPaths = await globby(`${resolve(baseDir, 'pages')}/**/*.{md,mdx}`)
 
-  console.log(pagesPaths);
-
   const documents = await Promise.all(
     pagesPaths.map((pagePath) =>
       limit(async (pagePath) => {
         const mdx = readFileSync(pagePath, 'utf-8')
         const key = `index.${hash(pagePath)}`
         const pageCache = cache.search.get(key) ?? {}
-        // if (pageCache.mdx === mdx) return pageCache.document
-
-        if (pagePath == "/home/saucepoint/src/vocs/site/pages/docs/fugazi.mdx") {
-          console.log("FUGAZI")
-        }
+        if (pageCache.mdx === mdx) return pageCache.document
 
         const html = await processMdx(pagePath,mdx)
-
-        if (pagePath == "/home/saucepoint/src/vocs/site/pages/docs/fugazi.mdx") {
-          console.log("FUGAZI2")
-        }
 
         const sections = splitPageIntoSections(html)
         if (sections.length === 0) {
@@ -54,8 +44,6 @@ export async function buildIndex({
         }
 
         const fileId = getDocId(baseDir, pagePath)
-        console.log(pagePath)
-        
 
         const relFile = slash(relative(baseDir, fileId))
         const href = relFile
@@ -112,7 +100,6 @@ export async function processMdx(filePath: string, file: string) {
       remarkPlugins,
       rehypePlugins,
     })
-    console.log("COMPILED");
     const { default: MDXContent } = await run(compiled, { ...runtime, Fragment })
     const html = renderToStaticMarkup(
       MDXContent({
@@ -122,8 +109,6 @@ export async function processMdx(filePath: string, file: string) {
     )
     return html
   } catch (error) {
-    console.log("PROCESS_MDX_ERROR");
-    console.log(error)
     // TODO: Resolve imports (e.g. virtual modules)
     return ''
   }
