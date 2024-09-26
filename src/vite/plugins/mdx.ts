@@ -110,6 +110,7 @@ export const getRehypePlugins = ({
                 twoslashOptions: {
                   ...twoslash,
                   customTags: [
+                    'allowErrors',
                     ...(defaultTwoslashOptions.customTags ?? []),
                     ...(twoslash.customTags ?? []),
                   ],
