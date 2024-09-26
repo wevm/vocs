@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.0-alpha.59
+
+### Patch Changes
+
+- [`91640f9`](https://github.com/wevm/vocs/commit/91640f9ca5f307a59337a73475ad4603e4e201ad) Thanks [@jxom](https://github.com/jxom)! - Defauled Twoslash to throw on syntax errors, and added a `// @noErrors` tag to disable this behavior.
+
 ## 1.0.0-alpha.58
 
 ### Patch Changes
