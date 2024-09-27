@@ -1,5 +1,15 @@
 # vocs
 
+## 1.0.0-alpha.60
+
+### Patch Changes
+
+- [`6ebc071`](https://github.com/wevm/vocs/commit/6ebc071e13f68d3ba69fdc8761c10fa6a3f02753) Thanks [@jxom](https://github.com/jxom)! - Fixed inline code highlighter.
+
+- [`13db87c`](https://github.com/wevm/vocs/commit/13db87c1eeabe0f7cbccbdada70f95ea14c5908f) Thanks [@jxom](https://github.com/jxom)! - Updated dependencies.
+
+- [`13db87c`](https://github.com/wevm/vocs/commit/13db87c1eeabe0f7cbccbdada70f95ea14c5908f) Thanks [@jxom](https://github.com/jxom)! - Fixed copy button not displaying on code snippets.
+
 ## 1.0.0-alpha.59
 
 ### Patch Changes
