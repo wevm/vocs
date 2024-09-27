@@ -82,6 +82,11 @@ type RehypePluginsParameters = {
   twoslash?: ParsedConfig['twoslash'] | false
 }
 
+const defaultThemes = {
+  dark: 'github-dark-dimmed',
+  light: 'github-light',
+}
+
 export const getRehypePlugins = ({
   markdown,
   rootDir = '',
@@ -123,10 +128,17 @@ export const getRehypePlugins = ({
             : null,
           transformerSplitIdentifiers(),
         ].filter(Boolean),
+        themes: defaultThemes,
         ...markdown?.code,
       } as RehypeShikiOptions,
     ],
-    [rehypeInlineShiki, markdown?.code],
+    [
+      rehypeInlineShiki,
+      {
+        themes: defaultThemes,
+        ...markdown?.code,
+      },
+    ],
     rehypeShikiDisplayNotation,
     [
       rehypeAutolinkHeadings,
