@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.0-alpha.61
+
+### Patch Changes
+
+- [`ad56fc7`](https://github.com/wevm/vocs/commit/ad56fc78e6d6d5c232b100c5ea6db048e27679ae) Thanks [@jxom](https://github.com/jxom)! - Fixed search index for pages that include relative imports.
+
 ## 1.0.0-alpha.60
 
 ### Patch Changes
