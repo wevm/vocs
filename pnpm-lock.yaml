@@ -300,14 +300,14 @@ importers:
         specifier: ^1.0.4
         version: 1.0.4(@types/react-dom@18.2.14)(@types/react@18.2.38)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@shikijs/rehype':
-        specifier: ^1.10.3
-        version: 1.10.3
+        specifier: ^1.20.0
+        version: 1.20.0
       '@shikijs/transformers':
-        specifier: ^1.10.3
-        version: 1.10.3
+        specifier: ^1.20.0
+        version: 1.20.0
       '@shikijs/twoslash':
-        specifier: ^1.10.3
-        version: 1.10.3(typescript@5.2.2)
+        specifier: ^1.20.0
+        version: 1.20.0(typescript@5.2.2)
       '@vanilla-extract/css':
         specifier: ^1.14.0
         version: 1.14.0
@@ -426,8 +426,8 @@ importers:
         specifier: ^1.15.0
         version: 1.15.0
       shiki:
-        specifier: ^1.10.3
-        version: 1.10.3
+        specifier: ^1.20.0
+        version: 1.20.0
       tailwindcss:
         specifier: ^3.3.3
         version: 3.3.5(ts-node@10.9.1(@types/node@20.8.9)(typescript@5.2.2))
@@ -435,8 +435,8 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       twoslash:
-        specifier: ~0.2.9
-        version: 0.2.9(typescript@5.2.2)
+        specifier: ~0.2.11
+        version: 0.2.11(typescript@5.2.2)
       ua-parser-js:
         specifier: ^1.0.36
         version: 1.0.37
@@ -1857,17 +1857,29 @@ packages:
   '@scure/bip39@1.2.1':
     resolution: {integrity: sha512-Z3/Fsz1yr904dduJD0NpiyRHhRYHdcnyh73FZWiV+/qhWi83wNJ3NWolYqCEN+ZWsUz2TWwajJggcRE9r1zUYg==}
 
-  '@shikijs/core@1.10.3':
-    resolution: {integrity: sha512-D45PMaBaeDHxww+EkcDQtDAtzv00Gcsp72ukBtaLSmqRvh0WgGMq3Al0rl1QQBZfuneO75NXMIzEZGFitThWbg==}
+  '@shikijs/core@1.20.0':
+    resolution: {integrity: sha512-KlO3iE0THzSdYkzDFugt8SHe6FR3qNYTkmpbdW1d6xo8juQkMjybxAw/cBi2npL2eb2F4PbbnSs5Z9tDusfvyg==}
 
-  '@shikijs/rehype@1.10.3':
-    resolution: {integrity: sha512-ghLPkqtx+AEL3LNTR8YpVJroAuiGvZZv+2u2CUB5rw5l4gsJ/2SycrC7s3Hpe+5qMuVXDAq/xImFQyhB0nQpuw==}
+  '@shikijs/engine-javascript@1.20.0':
+    resolution: {integrity: sha512-ZUMo758uduM0Tfgzi/kd+0IKMbNdumCxxWjY36uf1DIs2Qyg9HIq3vA1Wfa/vc6HE7tHWFpANRi3mv7UzJ68MQ==}
 
-  '@shikijs/transformers@1.10.3':
-    resolution: {integrity: sha512-MNjsyye2WHVdxfZUSr5frS97sLGe6G1T+1P41QjyBFJehZphMcr4aBlRLmq6OSPBslYe9byQPVvt/LJCOfxw8Q==}
+  '@shikijs/engine-oniguruma@1.20.0':
+    resolution: {integrity: sha512-MQ40WkVTZk7by33ces4PGK6XNFSo6PYvKTSAr2kTWdRNhFmOcnaX+1XzvFwB26eySXR7U74t91czZ1qJkEgxTA==}
 
-  '@shikijs/twoslash@1.10.3':
-    resolution: {integrity: sha512-9HlQgvy51jnO46Tcr87A7v6gxlzdKzcpYk15/CQfO48svAslOf+6QYXf0Gao3HWPywOwVj2alMAe0zQhT59y9w==}
+  '@shikijs/rehype@1.20.0':
+    resolution: {integrity: sha512-HJrk74r1Tk+mN/sXYFiqVNnYsvrrr/CDD3wz42iNSbqxLLYeHdQ8o+9oWn7la/f6F2VC2Alw4YKOVUhzsShEpQ==}
+
+  '@shikijs/transformers@1.20.0':
+    resolution: {integrity: sha512-TNS5KAErbNIOm1QqabuVaU77NOs5xWfpjpnqME059SA8yddr3mN5ZNAeCI+4QAAnNqZd8RKXjp+9hw66f5ak/A==}
+
+  '@shikijs/twoslash@1.20.0':
+    resolution: {integrity: sha512-NGaZgluqyo/P8r35/y82lhGtHjQaDlFTpmRzl/T+aNMshatcOsTvMN9uVWSNy83di1VGTxhH4ruX0xUsOAgdtg==}
+
+  '@shikijs/types@1.20.0':
+    resolution: {integrity: sha512-y+EaDvU2K6/GaXOKXxJaGnr1XtmZMF7MfS0pSEDdxEq66gCtKsLwQvVwoQFdp7R7dLlNAro3ijEE19sMZ0pzqg==}
+
+  '@shikijs/vscode-textmate@9.2.2':
+    resolution: {integrity: sha512-TMp15K+GGYrWlZM8+Lnj9EaHEFmOen0WJBrfa17hF7taDOYthuPPV0GWzfd/9iMij0akS/8Yw2ikquH7uVi/fg==}
 
   '@shuding/opentype.js@1.4.0-beta.0':
     resolution: {integrity: sha512-3NgmNyH3l/Hv6EvsWJbsvpcpUba6R8IREQ83nH83cyakCw7uM1arZKNfHwv1Wz6jgqrF/j4x5ELvR6PnK9nTcA==}
@@ -2058,8 +2070,10 @@ packages:
   '@types/unist@3.0.1':
     resolution: {integrity: sha512-ue/hDUpPjC85m+PM9OQDMZr3LywT+CT6mPsQq8OJtCLiERkGRcQUFvu9XASF5XWqyZFXbf15lvb3JFJ4dRLWPg==}
 
-  '@typescript/vfs@1.5.0':
-    resolution: {integrity: sha512-AJS307bPgbsZZ9ggCT3wwpg3VbTKMFNHfaY/uF0ahSkYYrPF2dSSKDNIDIQAHm9qJqbLvCsSJH7yN4Vs/CsMMg==}
+  '@typescript/vfs@1.6.0':
+    resolution: {integrity: sha512-hvJUjNVeBMp77qPINuUvYXj4FyWeeMMKZkxEATEU3hqBAQ7qdTBCUFT7Sp0Zu0faeEtFf+ldXxMEDr/bk73ISg==}
+    peerDependencies:
+      typescript: '*'
 
   '@ungap/structured-clone@1.2.0':
     resolution: {integrity: sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==}
@@ -3225,6 +3239,9 @@ packages:
   hast-util-to-estree@3.1.0:
     resolution: {integrity: sha512-lfX5g6hqVh9kjS/B9E2gSkvHH4SZNiQFiqWS0x9fENzEl+8W12RqdRxX6d/Cwxi30tPQs3bIO+aolQJNp1bIyw==}
 
+  hast-util-to-html@9.0.3:
+    resolution: {integrity: sha512-M17uBDzMJ9RPCqLMO92gNNUDuBSq10a25SDBI08iCCxmorf4Yy6sYHK57n9WAbRAAaU+DuR4W6GN9K4DFZesYg==}
+
   hast-util-to-jsx-runtime@2.2.0:
     resolution: {integrity: sha512-wSlp23N45CMjDg/BPW8zvhEi3R+8eRE1qFbjEyAUzMCzu2l1Wzwakq+Tlia9nkCtEl5mDxa7nKHsvYJ6Gfn21A==}
 
@@ -3247,6 +3264,9 @@ packages:
 
   hosted-git-info@2.8.9:
     resolution: {integrity: sha512-mxIDAb9Lsm6DoOJ7xH+5+X4y1LU/4Hi50L9C5sIswK3JzULS4bwk1FvjdBgvYR4bzT4tuUQiC15FE2f5HbLvYw==}
+
+  html-void-elements@3.0.0:
+    resolution: {integrity: sha512-bEqo66MRXsUGxWHV5IP0PUiAWwoEjba4VCzg0LjFJBpchPaTfyfCKTG6bc5F8ucKec3q5y6qOdGyYTSBEvhCrg==}
 
   http-errors@1.4.0:
     resolution: {integrity: sha512-oLjPqve1tuOl5aRhv8GK5eHpqP1C9fb+Ol+XTLjKfLltE44zdDbEdjPSbU7Ch5rSNsVFqZn97SrMmZLdu1/YMw==}
@@ -3986,6 +4006,9 @@ packages:
     resolution: {integrity: sha512-kbpaSSGJTWdAY5KPVeMOKXSrPtr8C8C7wodJbcsd51jRnmD+GZu8Y0VoU6Dm5Z4vWr0Ig/1NKuWRKf7j5aaYSg==}
     engines: {node: '>=6'}
 
+  oniguruma-to-js@0.4.3:
+    resolution: {integrity: sha512-X0jWUcAlxORhOqqBREgPMgnshB7ZGYszBNspP+tS9hPD3l13CdaXcHbgImoHUHlrvGx/7AvFEkTRhAGYh+jzjQ==}
+
   ora@7.0.1:
     resolution: {integrity: sha512-0TUxTiFJWv+JnjWm4o9yvuskpEJLXTcng8MJuKd+SzAzp2o+OP3HWqNhB4OdJRt1Vsd9/mR0oyaEYlOnL7XIRw==}
     engines: {node: '>=16'}
@@ -4353,6 +4376,9 @@ packages:
   regenerator-runtime@0.14.0:
     resolution: {integrity: sha512-srw17NI0TUWHuGa5CFGGmhfNIeja30WMBfbslPNhf6JrqQlLN5gcrvig1oqPxiVaXb0oW0XRKtH6Nngs5lKCIA==}
 
+  regex@4.3.2:
+    resolution: {integrity: sha512-kK/AA3A9K6q2js89+VMymcboLOlF5lZRCYJv3gzszXFHBr6kO6qLGzbm+UIugBEV8SMMKCTR59txoY6ctRHYVw==}
+
   regexp.prototype.flags@1.5.1:
     resolution: {integrity: sha512-sy6TXMN+hnP/wMy+ISxg3krXx7BAtWVO4UouuCN/ziM9UEne0euamVNafDfvC83bRNr95y0V5iijeDQFUNpvrg==}
     engines: {node: '>= 0.4'}
@@ -4522,8 +4548,8 @@ packages:
     resolution: {integrity: sha512-7++dFhtcx3353uBaq8DDR4NuxBetBzC7ZQOhmTQInHEd6bSrXdiEyzCvG07Z44UYdLShWUyXt5M/yhz8ekcb1A==}
     engines: {node: '>=8'}
 
-  shiki@1.10.3:
-    resolution: {integrity: sha512-eneCLncGuvPdTutJuLyUGS8QNPAVFO5Trvld2wgEq1e002mwctAhJKeMGWtWVXOIEzmlcLRqcgPSorR6AVzOmQ==}
+  shiki@1.20.0:
+    resolution: {integrity: sha512-MZJJ1PCFsQB1Piq+25wiz0a75yUv8Q3/fzy7SzRx5ONdjdtGdyiKwYn8vb/FnK5kjS0voWGnPpjG16POauUR+g==}
 
   side-channel@1.0.4:
     resolution: {integrity: sha512-q5XPytqFEIKHkGdiMIrY10mvLRvnQh42/+GoBlFW3b2LXLE2xxJpZFdm94we0BaoV3RwJyGqg5wS7epxTv0Zvw==}
@@ -4797,11 +4823,11 @@ packages:
     engines: {node: '>=8.0.0'}
     hasBin: true
 
-  twoslash-protocol@0.2.9:
-    resolution: {integrity: sha512-uKQl8UboT6JU4VAtYaSI3DbNtgaNhFaTpCSMy/n3tRl5lMlMhrjiuNKdqx15xjcviconuGJ9oObkz1h9zJFrJg==}
+  twoslash-protocol@0.2.11:
+    resolution: {integrity: sha512-rp+nkOWbKfJnBTDZtnIaBGjnU+4CaMhqu6db2UU7byU96rH8X4hao4BOxYw6jdZc85Lhv5pOfcjgfHeQyLzndQ==}
 
-  twoslash@0.2.9:
-    resolution: {integrity: sha512-oj7XY6h8E9nTZBmfRE1gpsSSUqAQo5kcIpFkXyQPp8UCsyCQsUlP2bJ2s32o02c1n5+xl4h9rcCsQ1F97Z6LZg==}
+  twoslash@0.2.11:
+    resolution: {integrity: sha512-392Qkcu5sD2hROLZ+XPywChreDGJ8Yu5nnK/Moxfti/R39q0Q39MaV7iHjz92B5qucyjsQFnKMdYIzafX5T8dg==}
     peerDependencies:
       typescript: '*'
 
@@ -6540,30 +6566,54 @@ snapshots:
       '@noble/hashes': 1.3.2
       '@scure/base': 1.1.5
 
-  '@shikijs/core@1.10.3':
+  '@shikijs/core@1.20.0':
     dependencies:
+      '@shikijs/engine-javascript': 1.20.0
+      '@shikijs/engine-oniguruma': 1.20.0
+      '@shikijs/types': 1.20.0
+      '@shikijs/vscode-textmate': 9.2.2
       '@types/hast': 3.0.4
+      hast-util-to-html: 9.0.3
 
-  '@shikijs/rehype@1.10.3':
+  '@shikijs/engine-javascript@1.20.0':
     dependencies:
-      '@shikijs/transformers': 1.10.3
+      '@shikijs/types': 1.20.0
+      '@shikijs/vscode-textmate': 9.2.2
+      oniguruma-to-js: 0.4.3
+
+  '@shikijs/engine-oniguruma@1.20.0':
+    dependencies:
+      '@shikijs/types': 1.20.0
+      '@shikijs/vscode-textmate': 9.2.2
+
+  '@shikijs/rehype@1.20.0':
+    dependencies:
+      '@shikijs/types': 1.20.0
       '@types/hast': 3.0.4
       hast-util-to-string: 3.0.0
-      shiki: 1.10.3
+      shiki: 1.20.0
       unified: 11.0.5
       unist-util-visit: 5.0.0
 
-  '@shikijs/transformers@1.10.3':
+  '@shikijs/transformers@1.20.0':
     dependencies:
-      shiki: 1.10.3
+      shiki: 1.20.0
 
-  '@shikijs/twoslash@1.10.3(typescript@5.2.2)':
+  '@shikijs/twoslash@1.20.0(typescript@5.2.2)':
     dependencies:
-      '@shikijs/core': 1.10.3
-      twoslash: 0.2.9(typescript@5.2.2)
+      '@shikijs/core': 1.20.0
+      '@shikijs/types': 1.20.0
+      twoslash: 0.2.11(typescript@5.2.2)
     transitivePeerDependencies:
       - supports-color
       - typescript
+
+  '@shikijs/types@1.20.0':
+    dependencies:
+      '@shikijs/vscode-textmate': 9.2.2
+      '@types/hast': 3.0.4
+
+  '@shikijs/vscode-textmate@9.2.2': {}
 
   '@shuding/opentype.js@1.4.0-beta.0':
     dependencies:
@@ -6777,9 +6827,10 @@ snapshots:
 
   '@types/unist@3.0.1': {}
 
-  '@typescript/vfs@1.5.0':
+  '@typescript/vfs@1.6.0(typescript@5.2.2)':
     dependencies:
       debug: 4.3.4
+      typescript: 5.2.2
     transitivePeerDependencies:
       - supports-color
 
@@ -8171,6 +8222,20 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  hast-util-to-html@9.0.3:
+    dependencies:
+      '@types/hast': 3.0.4
+      '@types/unist': 3.0.1
+      ccount: 2.0.1
+      comma-separated-tokens: 2.0.3
+      hast-util-whitespace: 3.0.0
+      html-void-elements: 3.0.0
+      mdast-util-to-hast: 13.0.2
+      property-information: 6.3.0
+      space-separated-tokens: 2.0.2
+      stringify-entities: 4.0.3
+      zwitch: 2.0.4
+
   hast-util-to-jsx-runtime@2.2.0:
     dependencies:
       '@types/hast': 3.0.3
@@ -8204,6 +8269,8 @@ snapshots:
   hono@3.10.2: {}
 
   hosted-git-info@2.8.9: {}
+
+  html-void-elements@3.0.0: {}
 
   http-errors@1.4.0:
     dependencies:
@@ -9182,6 +9249,10 @@ snapshots:
     dependencies:
       mimic-fn: 2.1.0
 
+  oniguruma-to-js@0.4.3:
+    dependencies:
+      regex: 4.3.2
+
   ora@7.0.1:
     dependencies:
       chalk: 5.3.0
@@ -9541,6 +9612,8 @@ snapshots:
 
   regenerator-runtime@0.14.0: {}
 
+  regex@4.3.2: {}
+
   regexp.prototype.flags@1.5.1:
     dependencies:
       call-bind: 1.0.5
@@ -9804,9 +9877,13 @@ snapshots:
 
   shebang-regex@3.0.0: {}
 
-  shiki@1.10.3:
+  shiki@1.20.0:
     dependencies:
-      '@shikijs/core': 1.10.3
+      '@shikijs/core': 1.20.0
+      '@shikijs/engine-javascript': 1.20.0
+      '@shikijs/engine-oniguruma': 1.20.0
+      '@shikijs/types': 1.20.0
+      '@shikijs/vscode-textmate': 9.2.2
       '@types/hast': 3.0.4
 
   side-channel@1.0.4:
@@ -10133,12 +10210,12 @@ snapshots:
       wcwidth: 1.0.1
       yargs: 17.7.2
 
-  twoslash-protocol@0.2.9: {}
+  twoslash-protocol@0.2.11: {}
 
-  twoslash@0.2.9(typescript@5.2.2):
+  twoslash@0.2.11(typescript@5.2.2):
     dependencies:
-      '@typescript/vfs': 1.5.0
-      twoslash-protocol: 0.2.9
+      '@typescript/vfs': 1.6.0(typescript@5.2.2)
+      twoslash-protocol: 0.2.11
       typescript: 5.2.2
     transitivePeerDependencies:
       - supports-color
