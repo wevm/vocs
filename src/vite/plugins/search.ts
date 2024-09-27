@@ -119,7 +119,7 @@ export async function search(): Promise<Plugin> {
       if (!existsSync(file)) return
 
       const mdx = readFileSync(file, 'utf-8')
-      const rendered = await processMdx(mdx)
+      const rendered = await processMdx(file, mdx)
       const sections = splitPageIntoSections(rendered)
       if (sections.length === 0) return
 

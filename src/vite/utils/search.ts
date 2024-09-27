@@ -35,7 +35,7 @@ export async function buildIndex({
         const pageCache = cache.search.get(key) ?? {}
         if (pageCache.mdx === mdx) return pageCache.document
 
-        const html = await processMdx(mdx)
+        const html = await processMdx(pagePath, mdx)
 
         const sections = splitPageIntoSections(html)
         if (sections.length === 0) {
@@ -92,10 +92,10 @@ export function saveIndex(outDir: string, index: MiniSearch) {
 const remarkPlugins = getRemarkPlugins()
 const rehypePlugins = getRehypePlugins({ twoslash: false })
 
-export async function processMdx(file: string) {
+export async function processMdx(filePath: string, file: string) {
   try {
     const compiled = await compile(file, {
-      baseUrl: pathToFileURL(file).href,
+      baseUrl: pathToFileURL(filePath).href,
       outputFormat: 'function-body',
       remarkPlugins,
       rehypePlugins,
