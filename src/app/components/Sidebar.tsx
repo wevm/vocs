@@ -142,10 +142,6 @@ function SidebarItem(props: {
     if ('key' in event && event.key !== 'Enter') return
     setCollapsed((x) => !x)
   }, [])
-  const onCollapseTriggerInteraction = useCallback((event: KeyboardEvent | MouseEvent) => {
-    if ('key' in event && event.key !== 'Enter') return
-    setCollapsed((x) => !x)
-  }, [])
 
   const active = useRef(true)
   useEffect(() => {
@@ -208,12 +204,7 @@ function SidebarItem(props: {
               ))}
 
             {isCollapsable && (
-              <div
-                role="button"
-                tabIndex={0}
-                onClick={onCollapseTriggerInteraction}
-                onKeyDown={onCollapseTriggerInteraction}
-              >
+              <div role="button" tabIndex={0}>
                 <Icon
                   className={clsx(
                     styles.sectionCollapse,
