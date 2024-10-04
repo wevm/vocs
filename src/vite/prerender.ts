@@ -5,6 +5,8 @@ import pc from 'picocolors'
 import type { Logger } from 'vite'
 import { resolveOutDir } from './utils/resolveOutDir.js'
 import { resolveVocsConfig } from './utils/resolveVocsConfig.js'
+import { compatibleAbsolutePath } from './utils/paths.js'
+import { slash } from './utils/slash.js'
 
 type PrerenderParameters = { logger?: Logger; outDir?: string }
 
@@ -17,18 +19,22 @@ export async function prerender({ logger, outDir }: PrerenderParameters) {
   const outDir_resolved = resolveOutDir(rootDir, outDir)
 
   const template = readFileSync(resolve(outDir_resolved, 'index.html'), 'utf-8')
-  const mod = await import(resolve(__dirname, './.vocs/dist/index.server.js'))
+  const mod = await import(
+    compatibleAbsolutePath(resolve(__dirname, './.vocs/dist/index.server.js'))
+  )
 
   // Get routes to prerender.
-  const routes = getRoutes(resolve(rootDir, 'pages'))
+  const routes = getRoutes(resolve(rootDir, 'pages')).map((i) => slash(i).replace('/index', '/'))
 
   // Prerender each route.
   for (const route of routes) {
     const { head, body } = await mod.prerender(route)
+
     let html = template
       .replace('<!--body-->', body)
       .replace('<!--head-->', head)
       .replace('../app/utils/initializeTheme.ts', `${basePath}/initializeTheme.iife.js`)
+
     if (theme?.colorScheme && theme?.colorScheme !== 'system')
       html = html.replace('lang="en"', `lang="en" class="${theme.colorScheme}"`)
     const isIndex = route.endsWith('/')
