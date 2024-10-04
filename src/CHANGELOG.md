@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.0-alpha.62
+
+### Patch Changes
+
+- [`d3998d2`](https://github.com/wevm/vocs/commit/d3998d2e21cd542201f2995ee2cb7a6d907439a6) Thanks [@jxom](https://github.com/jxom)! - Updated dependencies.
+
 ## 1.0.0-alpha.61
 
 ### Patch Changes
