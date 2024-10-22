@@ -20,10 +20,8 @@ export function DesktopSearch() {
     keys = Object.keys(config?.title).filter((key) => pathname.startsWith(key))
     pathKey = keys[keys.length - 1]
   }
-  console.log(pathKey)
 
-  const configSearch = (config.search as any)?.i18n?.[pathKey];
-
+  const configSearch = (config.search as any)?.i18n?.[pathKey]
 
   useEffect(() => {
     function keyDownHandler(event: KeyboardEvent) {
