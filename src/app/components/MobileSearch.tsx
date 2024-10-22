@@ -19,9 +19,7 @@ export function MobileSearch() {
     pathKey = keys[keys.length - 1]
   }
 
-  const configSearch = !config.search?.placeholder
-    ? (config?.search as any)?.[pathKey]
-    : config.search
+  const configSearch = (config?.search as any)?.i18n?.[pathKey]
 
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>

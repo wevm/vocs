@@ -33,8 +33,19 @@ export const root = style({
     '&:hover:active': {
       backgroundColor: primitiveColorVars.background2,
     },
+    '&[data-copied="true"]:hover:active': {
+      backgroundColor: primitiveColorVars.background4,
+    },
     [`${Pre}:hover &`]: {
       opacity: 1,
     },
   },
 })
+
+export const copied = style(
+  {
+    height: '12px',
+    width: '12px',
+  },
+  'copied',
+)

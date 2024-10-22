@@ -1,4 +1,5 @@
 import type { RehypeShikiOptions } from '@shikijs/rehype'
+import type { SearchOptions } from 'minisearch'
 import type { ReactElement } from 'react'
 import type { TwoslashOptions } from 'twoslash'
 import type { PluggableList } from 'unified'
@@ -86,7 +87,7 @@ export type Config<
      *
      * @default { google: "Inter" }
      */
-    font?: Font
+    font?: Normalize<Font<parsed>>
     /**
      * Custom footer navigation text
      */
@@ -104,7 +105,10 @@ export type Config<
     /**
      * Additional tags to include in the `<head>` tag of the page HTML.
      */
-    head?: ReactElement
+    head?:
+      | ReactElement
+      | { [path: string]: ReactElement }
+      | ((params: { path: string }) => ReactElement | Promise<ReactElement>)
     /**
      * Icon URL.
      */
@@ -130,6 +134,10 @@ export type Config<
      */
     ogImageUrl?: string | { [path: string]: string }
     /**
+     * Outline footer.
+     */
+    outlineFooter?: ReactElement
+    /**
      * Markdown configuration.
      */
     markdown?: Normalize<Markdown<parsed>>
@@ -140,31 +148,10 @@ export type Config<
      * @default "docs"
      */
     rootDir?: string
-    search?:
-      | {
-          placeholder: string
-          navigate: string
-          select: string
-          close: string
-          reset: string
-          noResults: string
-          labelClose?: string
-          labelToggle?: string
-          labelReset?: string
-        }
-      | {
-          [path: string]: {
-            placeholder: string
-            navigate: string
-            select: string
-            close: string
-            reset: string
-            noResults: string
-            labelClose?: string
-            labelToggle?: string
-            labelReset?: string
-          }
-        }
+    /**
+     * Configuration for docs search.
+     */
+    search?: Normalize<Search>
     /**
      * Navigation displayed on the sidebar.
      */
@@ -217,7 +204,6 @@ export type ParsedConfig = Config<true>
 
 export async function defineConfig<colorScheme extends ColorScheme = undefined>({
   blogDir = './pages/blog',
-  font,
   head,
   ogImageUrl,
   rootDir = 'docs',
@@ -228,7 +214,6 @@ export async function defineConfig<colorScheme extends ColorScheme = undefined>(
   const basePath = parseBasePath(config.basePath)
   return {
     blogDir,
-    font,
     head,
     ogImageUrl,
     rootDir,
@@ -237,6 +222,7 @@ export async function defineConfig<colorScheme extends ColorScheme = undefined>(
     ...config,
     basePath,
     banner: await parseBanner(config.banner ?? ''),
+    font: parseFont(config.font ?? {}),
     iconUrl: parseImageUrl(config.iconUrl, {
       basePath,
     }),
@@ -310,6 +296,11 @@ async function parseBanner(banner: Banner): Promise<Banner<true> | undefined> {
   }
 }
 
+function parseFont(font: Font): Font<true> {
+  if ('google' in font) return { default: font }
+  return font as Font<true>
+}
+
 function parseImageUrl(
   imageUrl: ImageUrl | undefined,
   { basePath }: { basePath?: string },
@@ -343,6 +334,7 @@ const socialsMeta = {
   discord: { label: 'Discord', type: 'discord' },
   github: { label: 'GitHub', type: 'github' },
   telegram: { label: 'Telegram', type: 'telegram' },
+  warpcast: { label: 'Warpcast', type: 'warpcast' },
   x: { label: 'X (Twitter)', type: 'x' },
 } satisfies Record<SocialItem['icon'], { label: string; type: SocialType }>
 
@@ -443,7 +435,7 @@ export function parseViteConfig(
 ): UserConfig {
   return {
     ...viteConfig,
-    base: basePath,
+    ...(basePath ? { base: basePath } : {}),
   }
 }
 
@@ -492,10 +484,17 @@ export type EditLink = {
   lastUpdated?: string
 }
 
-export type Font = {
+type FontSource = Normalize<{
   /** Name of the Google Font to use. */
   google?: string
+}>
+type ParsedFont = {
+  default?: FontSource
+  mono?: FontSource
 }
+export type Font<parsed extends boolean = false> = parsed extends true
+  ? ParsedFont
+  : FontSource | ParsedFont
 
 export type ImageUrl = string | { light: string; dark: string }
 
@@ -524,6 +523,20 @@ export type Markdown<parsed extends boolean = false> = RequiredBy<
   parsed extends true ? 'code' : never
 >
 
+export type Search = SearchOptions & {
+  i18n?: {
+    [path: string]: {
+      placeholder?: string
+      navigate?: string
+      select?: string
+      close?: string
+      reset?: string
+      noResults?: string
+      labelClose?: string
+    }
+  }
+}
+
 export type SidebarItem = {
   /** Whether or not to collapse the sidebar item by default. */
   collapsed?: boolean
@@ -542,7 +555,7 @@ export type Sidebar =
       [path: string]: SidebarItem[] | { backLink?: boolean; items: SidebarItem[] }
     }
 
-export type SocialType = 'discord' | 'github' | 'telegram' | 'x'
+export type SocialType = 'discord' | 'github' | 'telegram' | 'warpcast' | 'x'
 export type SocialItem = {
   /** Social icon to display. */
   icon: SocialType // TODO: Support custom SVG icons
@@ -650,3 +663,66 @@ export type TopNav<parsed extends boolean = false> = parsed extends true
       | {
           [path: string]: TopNavItem[]
         }
+
+//////////////////////////////////////////////////////
+// Utilities
+
+export function serializeConfig(config: Config) {
+  return JSON.stringify(serializeFunctions(config))
+}
+
+export function deserializeConfig(config: string) {
+  return deserializeFunctions(JSON.parse(config))
+}
+
+export function serializeFunctions(value: any, key?: string): any {
+  if (Array.isArray(value)) {
+    return value.map((v) => serializeFunctions(v))
+  } else if (typeof value === 'object' && value !== null) {
+    return Object.keys(value).reduce((acc, key) => {
+      if (key[0] === '_') return acc
+      acc[key] = serializeFunctions(value[key], key)
+      return acc
+    }, {} as any)
+  } else if (typeof value === 'function') {
+    let serialized = value.toString()
+    if (key && (serialized.startsWith(key) || serialized.startsWith(`async ${key}`))) {
+      serialized = serialized.replace(key, 'function')
+    }
+    return `_vocs-fn_${serialized}`
+  } else {
+    return value
+  }
+}
+
+export function deserializeFunctions(value: any): any {
+  if (Array.isArray(value)) {
+    return value.map(deserializeFunctions)
+  } else if (typeof value === 'object' && value !== null) {
+    return Object.keys(value).reduce((acc: any, key) => {
+      acc[key] = deserializeFunctions(value[key])
+      return acc
+    }, {})
+  } else if (typeof value === 'string' && value.includes('_vocs-fn_')) {
+    return new Function(`return ${value.slice(9)}`)()
+  } else {
+    return value
+  }
+}
+
+export const deserializeFunctionsStringified = `
+  function deserializeFunctions(value) {
+    if (Array.isArray(value)) {
+      return value.map(deserializeFunctions)
+    } else if (typeof value === 'object' && value !== null) {
+      return Object.keys(value).reduce((acc, key) => {
+        acc[key] = deserializeFunctions(value[key])
+        return acc
+      }, {})
+    } else if (typeof value === 'string' && value.includes('_vocs-fn_')) {
+      return new Function(\`return \${value.slice(9)}\`)()
+    } else {
+      return value
+    }
+  }
+`

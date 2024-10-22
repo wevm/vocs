@@ -5,9 +5,9 @@ import { Copy } from './icons/Copy.js'
 
 export function CopyButton({ copy, copied }: { copy: () => void; copied: boolean }) {
   return (
-    <button className={styles.root} onClick={copy} type="button">
+    <button className={styles.root} data-copied={copied} onClick={copy} type="button">
       {copied ? (
-        <Icon label="Copied" size="14px" icon={Checkmark} />
+        <Icon label="Copied" size="14px" className={styles.copied} icon={Checkmark} />
       ) : (
         <Icon label="Copy" size="18px" icon={Copy} />
       )}

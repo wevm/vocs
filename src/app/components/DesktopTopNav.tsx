@@ -20,6 +20,7 @@ import { Language } from './icons/Language.js'
 import { Moon } from './icons/Moon.js'
 import { Sun } from './icons/Sun.js'
 import { Telegram } from './icons/Telegram.js'
+import { Warpcast } from './icons/Warpcast.js'
 import { X } from './icons/X.js'
 
 DesktopTopNav.Curtain = Curtain
@@ -60,7 +61,12 @@ export function DesktopTopNav() {
             <div className={styles.group}>
               <Navigation />
             </div>
-            <div className={clsx(styles.divider, styles.hideCompact)} />
+            <div
+              className={clsx(
+                styles.divider,
+                (config.topNav?.length || 0) > 3 ? styles.hideCompact : null,
+              )}
+            />
           </>
         )}
 
@@ -79,7 +85,10 @@ export function DesktopTopNav() {
         {config.socials && config.socials?.length > 0 && (
           <>
             <div
-              className={clsx(styles.group, styles.hideCompact)}
+              className={clsx(
+                styles.group,
+                (config.topNav?.length || 0) > 3 ? styles.hideCompact : null,
+              )}
               style={{ marginLeft: '-8px', marginRight: '-8px' }}
             >
               {config.socials.map((social, i) => (
@@ -263,6 +272,7 @@ const iconsForIcon = {
   discord: Discord,
   github: GitHub,
   telegram: Telegram,
+  warpcast: Warpcast,
   x: X,
 } satisfies Record<ParsedSocialItem['type'], ComponentType>
 
@@ -270,6 +280,7 @@ const sizesForType = {
   discord: '23px',
   github: '20px',
   telegram: '21px',
+  warpcast: '20px',
   x: '18px',
 } satisfies Record<ParsedSocialItem['type'], string>
 

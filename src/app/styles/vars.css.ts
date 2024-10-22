@@ -444,14 +444,14 @@ createGlobalTheme(':root', spaceVars, {
 })
 
 export const viewportVars = {
-  'max-480px': 'screen and (width <= 480px)',
-  'min-480px': 'screen and (width > 480px)',
-  'max-720px': 'screen and (width <= 720px)',
-  'min-720px': 'screen and (width > 720px)',
-  'max-1080px': 'screen and (width <= 1080px)',
-  'min-1080px': 'screen and (width > 1080px)',
-  'max-1280px': 'screen and (width <= 1280px)',
-  'min-1280px': 'screen and (width > 1280px)',
+  'max-480px': 'screen and (max-width: 480px)',
+  'min-480px': 'screen and (min-width: 481px)',
+  'max-720px': 'screen and (max-width: 720px)',
+  'min-720px': 'screen and (min-width: 721px)',
+  'max-1080px': 'screen and (max-width: 1080px)',
+  'min-1080px': 'screen and (min-width: 1081px)',
+  'max-1280px': 'screen and (max-width: 1280px)',
+  'min-1280px': 'screen and (min-width: 1281px)',
 }
 
 export const zIndexVars = createGlobalThemeContract(

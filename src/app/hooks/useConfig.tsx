@@ -1,19 +1,19 @@
 import { sha256 } from '@noble/hashes/sha256'
 import { bytesToHex } from '@noble/hashes/utils'
 import { type ReactNode, createContext, useContext, useEffect, useState } from 'react'
-import type { ParsedConfig } from '../../config.js'
+import { type ParsedConfig, deserializeConfig, serializeConfig } from '../../config.js'
 import { config as virtualConfig } from 'virtual:config'
 
 const ConfigContext = createContext(virtualConfig)
 
 export const configHash = import.meta.env.DEV
-  ? bytesToHex(sha256(JSON.stringify(virtualConfig))).slice(0, 8)
+  ? bytesToHex(sha256(serializeConfig(virtualConfig))).slice(0, 8)
   : ''
 
 export function getConfig(): ParsedConfig {
   if (typeof window !== 'undefined' && import.meta.env.DEV) {
     const storedConfig = window.localStorage.getItem(`vocs.config.${configHash}`)
-    if (storedConfig) return JSON.parse(storedConfig)
+    if (storedConfig) return deserializeConfig(storedConfig)
   }
   return virtualConfig
 }
@@ -33,7 +33,7 @@ export function ConfigProvider({
 
   useEffect(() => {
     if (typeof window !== 'undefined' && import.meta.env.DEV)
-      window.localStorage.setItem(`vocs.config.${configHash}`, JSON.stringify(config))
+      window.localStorage.setItem(`vocs.config.${configHash}`, serializeConfig(config))
   }, [config])
 
   return <ConfigContext.Provider value={config}>{children}</ConfigContext.Provider>

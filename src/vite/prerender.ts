@@ -12,7 +12,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 
 export async function prerender({ logger, outDir }: PrerenderParameters) {
   const { config } = await resolveVocsConfig()
-  const { basePath, rootDir } = config
+  const { basePath, rootDir, theme } = config
 
   const outDir_resolved = resolveOutDir(rootDir, outDir)
 
@@ -25,10 +25,12 @@ export async function prerender({ logger, outDir }: PrerenderParameters) {
   // Prerender each route.
   for (const route of routes) {
     const { head, body } = await mod.prerender(route)
-    const html = template
+    let html = template
       .replace('<!--body-->', body)
       .replace('<!--head-->', head)
       .replace('../app/utils/initializeTheme.ts', `${basePath}/initializeTheme.iife.js`)
+    if (theme?.colorScheme && theme?.colorScheme !== 'system')
+      html = html.replace('lang="en"', `lang="en" class="${theme.colorScheme}"`)
     const isIndex = route.endsWith('/')
     const filePath = `${isIndex ? `${route}index` : route}.html`.replace(/^\//, '')
     const path = resolve(outDir_resolved, filePath)

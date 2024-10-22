@@ -28,23 +28,25 @@ export default defineConfig({
   },
   search: {
     // NOTE: the order is important
-    '/': {
-      placeholder: 'Search',
-      navigate: 'Navigate',
-      select: 'Select',
-      close: 'Close',
-      reset: 'Reset',
-      noResults: 'No results for',
-      labelClose: 'Close search dialog',
-    },
-    '/zh': {
-      placeholder: '搜索',
-      navigate: '导航',
-      select: '选择',
-      close: '关闭',
-      reset: '重置',
-      noResults: '没有结果',
-      labelClose: '关闭搜索对话框',
+    i18n: {
+      '/': {
+        placeholder: 'Search',
+        navigate: 'Navigate',
+        select: 'Select',
+        close: 'Close',
+        reset: 'Reset',
+        noResults: 'No results for',
+        labelClose: 'Close search dialog',
+      },
+      '/zh': {
+        placeholder: '搜索',
+        navigate: '导航',
+        select: '选择',
+        close: '关闭',
+        reset: '重置',
+        noResults: '没有结果',
+        labelClose: '关闭搜索对话框',
+      },
     },
   },
   sidebar: {

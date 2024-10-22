@@ -4,6 +4,7 @@ import * as Tabs from '../Tabs.js'
 import * as styles from './CodeGroup.css.js'
 
 export function CodeGroup({ children }: { children: ReactElement[] }) {
+  if (!Array.isArray(children)) return null
   const tabs = children.map((child_) => {
     const child = child_.props['data-title'] ? child_ : child_.props.children
     const { props } = child

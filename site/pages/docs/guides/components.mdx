@@ -1,0 +1,239 @@
+import { Authors, BlogPosts, Button, Callout, HomePage, Raw, Sponsors, Steps, Step  } from 'vocs/components'
+import * as MyButton from '../../../components/MyButton';
+
+# Components [How to use Vocs components & build your own]
+
+## Vocs Components
+
+The following are components native to Vocs and that can be used throughout your docs.
+
+### Authors
+
+Displays author or authors in a specific format.
+
+:::code-group
+
+<div data-title="Preview">
+  <Authors authors="codingwithmanny" date="2024-01-01" />
+</div>
+
+```mdx [index.mdx]
+import { Authors } from 'vocs/components'
+
+<Authors authors="codingwithmanny" date="2024-01-01" />
+```
+:::
+
+### BlogPosts
+
+Displays blog posts within the [`blogDir`](/docs/api/config#blogdir).
+
+:::code-group
+
+<div data-title="Preview">
+  <BlogPosts />
+</div>
+
+```mdx [index.mdx]
+import { BlogPosts } from 'vocs/components'
+
+<BlogPosts />
+```
+
+:::
+
+### Button
+
+Display a Vocs-flavored button.
+
+:::code-group
+
+<div data-title="Preview">
+  <div style={{ display: 'flex' }}>
+    <Button>Default Button</Button>
+    <div style={{ width: 8 }} />
+    <Button variant="accent">Accent Button</Button>
+    <div style={{ width: 8 }} />
+    <Button href="https://github.com/wevm">Link Button</Button>
+  </div>
+</div>
+
+```mdx [index.mdx]
+import { Button } from 'vocs/components'
+
+<Button>Default Button</Button>
+<Button className="custom-class">Custom Class Button</Button>
+<Button href="https://github.com/wevm">Ahref Button</Button>
+```
+
+:::
+
+### Callout
+
+Displays a callout with content.
+
+:::code-group
+
+<div data-title="Preview">
+  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+    <Callout>
+      Default Callout
+    </Callout>
+    <Callout type="note">
+      Note Callout
+    </Callout>
+    <Callout type="info">
+      Info Callout
+    </Callout>
+    <Callout type="warning">
+      Warning Callout
+    </Callout>
+    <Callout type="danger">
+      Danger Callout
+    </Callout>
+    <Callout type="tip">
+      Tip Callout
+    </Callout>
+    <Callout type="success">
+      Success Callout
+    </Callout>
+  </div>
+</div>
+
+```mdx [index.mdx]
+import { Callout } from 'vocs/components'
+
+<Callout>
+  Default Callout
+</Callout>
+<Callout type="note">
+  Note Callout
+</Callout>
+<Callout type="info">
+  Info Callout
+</Callout>
+<Callout type="warning">
+  Warning Callout
+</Callout>
+<Callout type="danger">
+  Danger Callout
+</Callout>
+<Callout type="tip">
+  Tip Callout
+</Callout>
+<Callout type="success">
+  Success Callout
+</Callout>
+```
+
+:::
+
+### HomePage
+
+Displays a "home page" section.
+
+:::code-group
+
+<div data-title="Preview">
+  <HomePage.Root>
+    <HomePage.Logo />
+    <HomePage.Tagline>Minimal Documentation Framework, powered by React + Vite.</HomePage.Tagline>
+    <HomePage.InstallPackage name="vocs" type="init" />
+    <HomePage.Description>Vocs is a minimal static documentation generator designed to supercharge your documentation workflow, built with modern web technologies.</HomePage.Description>
+    <HomePage.Buttons>
+      <HomePage.Button href="/docs" variant="accent">Get started</HomePage.Button>
+      <HomePage.Button href="https://github.com/wevm/vocs">GitHub</HomePage.Button>
+    </HomePage.Buttons>
+  </HomePage.Root>
+</div>
+
+```mdx [index.mdx]
+import { HomePage } from 'vocs/components'
+
+<HomePage.Root>
+  <HomePage.Logo />
+  <HomePage.Tagline>Minimal Documentation Framework, powered by React + Vite.</HomePage.Tagline>
+  <HomePage.InstallPackage name="vocs" type="init" />
+  <HomePage.Description>Vocs is a minimal static documentation generator designed to supercharge your documentation workflow, built with modern web technologies.</HomePage.Description>
+  <HomePage.Buttons>
+    <HomePage.Button href="/docs" variant="accent">Get started</HomePage.Button>
+    <HomePage.Button href="https://github.com/wevm/vocs">GitHub</HomePage.Button>
+  </HomePage.Buttons>
+</HomePage.Root>
+```
+
+:::
+
+### Sponsors
+
+Renders a list of [sponsors defined in the Vocs config](/docs/api/config#sponsors).
+
+:::code-group
+
+<div data-title="Preview">
+  <Sponsors />
+</div>
+
+```mdx [index.mdx]
+import { Sponsors } from 'vocs/components'
+
+<Sponsors />
+```
+
+:::
+
+## Custom Components
+
+You can also bring your own custom components by importing them in your MDX files.
+
+:::code-group
+
+<div data-title="Preview">
+  <button
+    style={{
+      background: 'var(--vocs-color_backgroundAccent)',
+      paddingLeft: 'var(--vocs-space_16)',
+      paddingRight: 'var(--vocs-space_16)',
+      borderRadius: 'var(--vocs-space_4)',
+      lineHeight: 'var(--vocs-space_32)',
+      fontWeight: 'var(--vocs-fontWeight_medium)',
+      fontSize: 'var(--vocs-fontSize_14)',
+    }}
+    type="button"
+  >
+    Hello world
+  </button>
+</div>
+
+```mdx [pages/index.mdx]
+import Custom from '../components/Custom';
+
+<Custom>Hello world</Custom>
+```
+
+```tsx [components/Custom.tsx]
+import * as React from 'react'
+
+export default function Custom({ children }: { children: React.ReactNode }) {
+  return (
+    <button className="primary">
+      {children}
+    </button>
+  )
+}
+```
+
+```css [styles.css]
+button.primary {
+  background: var(--vocs-color_backgroundAccent);
+  padding-left: var(--vocs-space_16);
+  padding-right: var(--vocs-space_16);
+  border-radius: var(--vocs-space_4);
+  line-height: var(--vocs-space_32);
+  font-weight: var(--vocs-fontWeight_medium);
+  font-size: var(--vocs-fontSize_14);
+}
+```
+
+:::
+

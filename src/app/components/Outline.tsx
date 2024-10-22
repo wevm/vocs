@@ -1,8 +1,10 @@
-import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { Fragment, useEffect, useMemo, useRef, useState, type ReactElement } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 
+import { useConfig } from '../hooks/useConfig.js'
 import { useLayout } from '../hooks/useLayout.js'
 import { debounce } from '../utils/debounce.js'
+import { deserializeElement } from '../utils/deserializeElement.js'
 import * as styles from './Outline.css.js'
 import { root as Heading, slugTarget } from './mdx/Heading.css.js'
 
@@ -27,6 +29,8 @@ export function Outline({
   onClickItem?: () => void
   showTitle?: boolean
 } = {}) {
+  const { outlineFooter } = useConfig()
+
   const { showOutline } = useLayout()
   const maxLevel = (() => {
     if (typeof showOutline === 'number') return minLevel + showOutline - 1
@@ -179,6 +183,7 @@ export function Outline({
           setActiveId={setActiveId}
         />
       </nav>
+      {deserializeElement(outlineFooter as ReactElement)}
     </aside>
   )
 }
@@ -196,8 +201,6 @@ function Items({
   onClickItem?: () => void
   setActiveId: (id: string) => void
 }) {
-  const { pathname } = useLocation()
-
   return (
     <ul className={styles.items}>
       {levelItems.map(({ id, level, text }) => {
@@ -222,10 +225,9 @@ function Items({
         return (
           <Fragment key={id}>
             <li className={styles.item}>
-              {/* biome-ignore lint/a11y/useValidAnchor: */}
-              <a
+              <Link
                 data-active={isActive}
-                href={`${pathname}${hash}`}
+                to={hash}
                 onClick={() => {
                   onClickItem?.()
                   setActiveId(id)
@@ -233,7 +235,7 @@ function Items({
                 className={styles.link}
               >
                 {text}
-              </a>
+              </Link>
             </li>
             {nextLevelItems && (
               <Items

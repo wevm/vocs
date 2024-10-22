@@ -23,6 +23,7 @@ import { KeyboardShortcut } from './KeyboardShortcut.js'
 import * as styles from './SearchDialog.css.js'
 
 export function SearchDialog(props: { open: boolean; onClose(): void }) {
+  const { search: searchOptions } = useConfig()
   const navigate = useNavigate()
   const config = useConfig()
   const { pathname } = useLocation()
@@ -33,9 +34,7 @@ export function SearchDialog(props: { open: boolean; onClose(): void }) {
     pathKey = keys[keys.length - 1]
   }
 
-  const configSearch = !config.search?.placeholder
-    ? (config?.search as any)?.[pathKey]
-    : config.search
+  const configSearch = (config?.search as any)?.i18n?.[pathKey]
 
   const inputRef = useRef<HTMLInputElement>(null)
   const listRef = useRef<HTMLUListElement>(null)
@@ -55,8 +54,8 @@ export function SearchDialog(props: { open: boolean; onClose(): void }) {
       return []
     }
     setSelectedIndex(0)
-    return searchIndex.search(searchTerm).slice(0, 16) as (SearchResult & Result)[]
-  }, [searchIndex, searchTerm])
+    return searchIndex.search(searchTerm, searchOptions).slice(0, 16) as (SearchResult & Result)[]
+  }, [searchIndex, searchOptions, searchTerm])
 
   const resultsCount = results.length
   const selectedResult = results[selectedIndex]

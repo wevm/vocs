@@ -220,15 +220,35 @@ export default defineConfig({
 })
 ```
 
+You can also define the font family for inline code & code blocks:
+
+```ts twoslash
+import { defineConfig } from 'vocs'
+
+export default defineConfig({
+  font: { 
+    default: { 
+      google: 'Inter', 
+    }, 
+    mono: { // [!code focus]
+      google: 'Dancing Script', // [!code focus]
+    }, // [!code focus]
+  },
+  title: 'Viem'
+})
+```
+
 ### head
 
-- **Type:** `ReactElement`
+- **Type:** `ReactElement | { [path: string]: ReactElement } | ({ path: string }) => ReactElement)`
 
 Additional tags to include in the `<head>` tag of the page HTML.
 
 :::tip
 When using JSX, remember to rename the config file extension to `.tsx` or `.jsx`.
 :::
+
+#### Element
 
 ```tsx twoslash
 // @noErrors
@@ -248,6 +268,46 @@ export default defineConfig({
   title: 'Viem'
 })
 ```
+
+#### Path → Element Object 
+
+You can specify a `path` → `ReactElement` object for the `head` with paths as keys.
+
+```tsx twoslash
+// @noErrors
+import * as React from 'react'
+import { defineConfig } from 'vocs'
+
+export default defineConfig({
+  head: { // [!code focus]
+    '/': /* ... */, // [!code focus]
+    '/docs': /* ... */, // [!code focus]
+  }, // [!code focus]
+  title: 'Viem'
+})
+```
+
+#### Function
+
+You can specify a function that returns a `ReactElement`. Useful if you want to have more dynamic control over rendering head tags.
+
+```tsx twoslash
+// @noErrors
+import * as React from 'react'
+import { defineConfig } from 'vocs'
+
+export default defineConfig({
+  head({ path }) { // [!code focus]
+    if (path === '/docs') return /* ... */ // [!code focus]
+    return /* ... */ // [!code focus]
+  }, // [!code focus]
+  title: 'Viem'
+})
+```
+
+:::tip[Tip]
+The `head` function can also be `async`.
+:::
 
 ### iconUrl
 
@@ -476,6 +536,25 @@ export default defineConfig({
 })
 ```
 
+### search
+
+- **Type:** `Search`
+
+Search configuration. Accepts [`MiniSearch` options](https://lucaong.github.io/minisearch/types/MiniSearch.SearchOptions.html).
+
+```tsx twoslash
+import { defineConfig } from 'vocs'
+
+export default defineConfig({
+  search: { // [!code focus]
+    boostDocument(documentId) { // [!code focus]
+      return documentId === '/core' ? 2 : 1 // [!code focus]
+    } // [!code focus]
+  }, // [!code focus]
+  title: 'Viem'
+})
+```
+
 ### sidebar
 
 - **Type:** `Sidebar`
@@ -534,7 +613,7 @@ export default defineConfig({
 
 Social links displayed in the top navigation.
 
-Supports **Discord**, **GitHub**, **Telegram**, and **X**.
+Supports **Discord**, **GitHub**, **Telegram**, **X**, and **Warpcast**.
 
 ```tsx twoslash
 import { defineConfig } from 'vocs'
@@ -548,6 +627,56 @@ export default defineConfig({
     { // [!code focus]
       icon: 'x', // [!code focus]
       link: 'https://twitter.com/wevm_dev', // [!code focus]
+    }, // [!code focus]
+  ], // [!code focus]
+  title: 'Viem'
+})
+```
+
+### sponsors
+
+- **Type:** `SponsorSet`
+
+Set of sponsors to display on MDX directives and (optionally) the sidebar.
+
+```tsx twoslash
+import { defineConfig } from 'vocs'
+
+export default defineConfig({
+  sponsors: [ // [!code focus]
+    { // [!code focus]
+      name: 'Collaborator', // [!code focus]
+      height: 120, // [!code focus]
+      items: [ // [!code focus]
+        [ // [!code focus]
+          { // [!code focus]
+            name: 'Paradigm', // [!code focus]
+            link: 'https://paradigm.xyz', // [!code focus]
+            image: // [!code focus]
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/paradigm-light.svg', // [!code focus]
+          }, // [!code focus]
+        ], // [!code focus]
+      ], // [!code focus]
+    }, // [!code focus]
+    { // [!code focus]
+      name: 'Large Enterprise', // [!code focus]
+      height: 60, // [!code focus]
+      items: [ // [!code focus]
+        [ // [!code focus]
+          { // [!code focus]
+            name: 'WalletConnect', // [!code focus]
+            link: 'https://walletconnect.com', // [!code focus]
+            image: // [!code focus]
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/walletconnect-light.svg', // [!code focus]
+          }, // [!code focus]
+          { // [!code focus]
+            name: 'Stripe', // [!code focus]
+            link: 'https://www.stripe.com', // [!code focus]
+            image: // [!code focus]
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/stripe-light.svg', // [!code focus]
+          }, // [!code focus]
+        ], // [!code focus]
+      ], // [!code focus]
     }, // [!code focus]
   ], // [!code focus]
   title: 'Viem'

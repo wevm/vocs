@@ -71,11 +71,11 @@ export function InstallPackage({
         {name}
       </Tabs.Content>
       <Tabs.Content className={styles.tabsContent} value="pnpm">
-        <span className={styles.packageManager}>pnpm</span> {type === 'init' ? 'create' : 'install'}{' '}
+        <span className={styles.packageManager}>pnpm</span> {type === 'init' ? 'create' : 'add'}{' '}
         {name}
       </Tabs.Content>
       <Tabs.Content className={styles.tabsContent} value="yarn">
-        <span className={styles.packageManager}>yarn</span> {type === 'init' ? 'create' : 'install'}{' '}
+        <span className={styles.packageManager}>yarn</span> {type === 'init' ? 'create' : 'add'}{' '}
         {name}
       </Tabs.Content>
     </Tabs.Root>

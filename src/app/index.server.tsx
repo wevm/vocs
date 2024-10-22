@@ -48,7 +48,7 @@ export async function prerender(location: string) {
     </ConfigProvider>,
   )
 
-  return { head: await head(), body }
+  return { head: await head({ path: location }), body }
 }
 
 export async function render(req: Request) {
@@ -69,12 +69,22 @@ export async function render(req: Request) {
     </ConfigProvider>,
   )
 
-  return { head: await head(), body }
+  return { head: await head({ path: context.location.pathname }), body }
 }
 
-async function head() {
+async function head({ path }: { path: string }) {
   const { config } = await resolveVocsConfig()
-  const { head } = config
+
+  const head = await (async () => {
+    if (typeof config.head === 'function') return await config.head({ path })
+    if (typeof config.head === 'object') {
+      const entry = Object.entries(config.head)
+        .reverse()
+        .find(([key]) => path.startsWith(key))
+      return entry?.[1]
+    }
+    return config.head
+  })()
 
   const helmet = Helmet.renderStatic()
 

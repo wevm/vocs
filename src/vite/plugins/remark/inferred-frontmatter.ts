@@ -18,7 +18,7 @@ export function remarkInferFrontmatter() {
         const value = child.value
         const [, title, description] = value.includes('[')
           ? value.match(/(.*) \[(.*)\]/) || []
-          : [undefined, value]
+          : [undefined, JSON.stringify(value)]
 
         const frontmatterIndex = parent.children.findIndex((child) => child.type === 'yaml')
         const index = frontmatterIndex > 0 ? frontmatterIndex : 0

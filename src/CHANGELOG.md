@@ -1,5 +1,157 @@
 # vocs
 
+## 1.0.0-alpha.61
+
+### Patch Changes
+
+- [`ad56fc7`](https://github.com/wevm/vocs/commit/ad56fc78e6d6d5c232b100c5ea6db048e27679ae) Thanks [@jxom](https://github.com/jxom)! - Fixed search index for pages that include relative imports.
+
+## 1.0.0-alpha.60
+
+### Patch Changes
+
+- [`6ebc071`](https://github.com/wevm/vocs/commit/6ebc071e13f68d3ba69fdc8761c10fa6a3f02753) Thanks [@jxom](https://github.com/jxom)! - Fixed inline code highlighter.
+
+- [`13db87c`](https://github.com/wevm/vocs/commit/13db87c1eeabe0f7cbccbdada70f95ea14c5908f) Thanks [@jxom](https://github.com/jxom)! - Updated dependencies.
+
+- [`13db87c`](https://github.com/wevm/vocs/commit/13db87c1eeabe0f7cbccbdada70f95ea14c5908f) Thanks [@jxom](https://github.com/jxom)! - Fixed copy button not displaying on code snippets.
+
+## 1.0.0-alpha.59
+
+### Patch Changes
+
+- [`91640f9`](https://github.com/wevm/vocs/commit/91640f9ca5f307a59337a73475ad4603e4e201ad) Thanks [@jxom](https://github.com/jxom)! - Defauled Twoslash to throw on syntax errors, and added a `// @noErrors` tag to disable this behavior.
+
+## 1.0.0-alpha.58
+
+### Patch Changes
+
+- [`d29b41e`](https://github.com/wevm/vocs/commit/d29b41ee5599679777f78a577987b1f577c6e000) Thanks [@jxom](https://github.com/jxom)! - Expand collapsed sidebar items when they have a link and are pressed.
+
+## 1.0.0-alpha.57
+
+### Patch Changes
+
+- [`daab75e`](https://github.com/wevm/vocs/commit/daab75edcc3546236751d7e40defd5139570c466) Thanks [@jxom](https://github.com/jxom)! - Fixed location match for collapsed sidebars.
+
+## 1.0.0-alpha.56
+
+### Patch Changes
+
+- [`1d02a16`](https://github.com/wevm/vocs/commit/1d02a166e14771259198d69e68897cd4d25cf7c6) Thanks [@jxom](https://github.com/jxom)! - Fixed location match for collapsed sidebars.
+
+## 1.0.0-alpha.55
+
+### Patch Changes
+
+- [`4a888ea`](https://github.com/wevm/vocs/commit/4a888eadf7136fa4d45ce8818a3a4be96aa27434) Thanks [@jxom](https://github.com/jxom)! - Fixed top nav search bar ↔ item gap.
+
+## 1.0.0-alpha.54
+
+### Patch Changes
+
+- [`66a0390`](https://github.com/wevm/vocs/commit/66a0390c97b82581b2ea49c5aa440b1a7b848ace) Thanks [@jxom](https://github.com/jxom)! - Fixed excessive \`createHighlighter\` instantiation.
+
+## 1.0.0-alpha.53
+
+### Patch Changes
+
+- [`7b49059`](https://github.com/wevm/vocs/commit/7b490595316be2618b5d8220735ebca984883efe) Thanks [@jxom](https://github.com/jxom)! - Updated dependencies.
+
+- [`879f297`](https://github.com/wevm/vocs/commit/879f297e5cfaceb592044802b85bf4d179842fbd) Thanks [@jxom](https://github.com/jxom)! - Allow navigable sidebar section header.
+
+## 1.0.0-alpha.52
+
+### Patch Changes
+
+- [`9eeb8b6`](https://github.com/wevm/vocs/commit/9eeb8b6635a6113d4ec7e354db4e1d0253a4665d) Thanks [@jxom](https://github.com/jxom)! - Fixed concurrent MDX page processing for search index.
+
+## 1.0.0-alpha.51
+
+### Patch Changes
+
+- [`0c3193e`](https://github.com/wevm/vocs/commit/0c3193ebd0f430a5d072ca044d39cd5e929fbffd) Thanks [@jxom](https://github.com/jxom)! - Fixed outline slug links when a `basePath` exists.
+
+## 1.0.0-alpha.50
+
+### Patch Changes
+
+- [`14b0594`](https://github.com/wevm/vocs/commit/14b05947d8356ed6644ba6f8c5ad6e29a52faa7b) Thanks [@jxom](https://github.com/jxom)! - Added ability to override the internal Vite React plugin.
+
+## 1.0.0-alpha.49
+
+### Patch Changes
+
+- [`7a8d54d`](https://github.com/wevm/vocs/commit/7a8d54d6eb61b2777251f69a75e1442ec0db7ae7) Thanks [@jxom](https://github.com/jxom)! - Added support to define a font family for inline code & code blocks.
+
+## 1.0.0-alpha.48
+
+### Patch Changes
+
+- [`f7ce3c7`](https://github.com/wevm/vocs/commit/f7ce3c702e25407fe32ffd565bea8746c5e32605) Thanks [@jxom](https://github.com/jxom)! - Tweaked socials visibility logic.
+
+## 1.0.0-alpha.47
+
+### Patch Changes
+
+- [`28db19b`](https://github.com/wevm/vocs/commit/28db19b5c9d502b193dd0f0c90eeddecd2035617) Thanks [@jxom](https://github.com/jxom)! - Added `search` config option.
+
+- [#144](https://github.com/wevm/vocs/pull/144) [`35c6314`](https://github.com/wevm/vocs/commit/35c63149e18c6b56c8a20c9bcc2c2c62fde8f0a5) Thanks [@voliva](https://github.com/voliva)! - Fixed outline with basePath config
+
+## 1.0.0-alpha.46
+
+### Patch Changes
+
+- [`9030ca6`](https://github.com/wevm/vocs/commit/9030ca6911d4c07f5a113063d21d1bbbd617c1e4) Thanks [@tmm](https://github.com/tmm)! - Fixed Warpcast icon attributes.
+
+## 1.0.0-alpha.45
+
+### Patch Changes
+
+- [`c1a23b7`](https://github.com/wevm/vocs/commit/c1a23b75b27b2447ceb485ba125c828db245f200) Thanks [@jxom](https://github.com/jxom)! - Fixed frontmatter parsing.
+
+- [`d3de99d`](https://github.com/wevm/vocs/commit/d3de99d40ff8605ff1b01214f2f2eb51d280ca97) Thanks [@jxom](https://github.com/jxom)! - Added assertion to `CodeGroup`.
+
+- [`c1a23b7`](https://github.com/wevm/vocs/commit/c1a23b75b27b2447ceb485ba125c828db245f200) Thanks [@jxom](https://github.com/jxom)! - Fixed nullish state case.
+
+## 1.0.0-alpha.44
+
+### Patch Changes
+
+- [#133](https://github.com/wevm/vocs/pull/133) [`ae4eca2`](https://github.com/wevm/vocs/commit/ae4eca28c40950c0cec45459670eabfa4fe81b0b) Thanks [@dalechyn](https://github.com/dalechyn)! - Fixed unsupported media-queries in iOS15^ Safari that led to incorrect rendering.
+
+## 1.0.0-alpha.43
+
+### Patch Changes
+
+- [`c7b1388`](https://github.com/wevm/vocs/commit/c7b138868c0ac54d3a5c889f1bf66c8e9d34532d) Thanks [@jxom](https://github.com/jxom)! - Added Warpcast social.
+
+## 1.0.0-alpha.42
+
+### Patch Changes
+
+- [`f5b2394`](https://github.com/wevm/vocs/commit/f5b2394d2efd72cb54e123c922ed5f39e69c64ec) Thanks [@jxom](https://github.com/jxom)! - Added ability for `head` on config to be path aware.
+
+## 1.0.0-alpha.41
+
+### Patch Changes
+
+- [`97867a3`](https://github.com/wevm/vocs/commit/97867a3fe8546e8520027ccaae4d986b066d4479) Thanks [@jxom](https://github.com/jxom)! - Added `outlineFooter` config.
+
+## 1.0.0-alpha.40
+
+### Patch Changes
+
+- [`fff96f9`](https://github.com/wevm/vocs/commit/fff96f97582b20682117b5245d6abca5d6db7595) Thanks [@jxom](https://github.com/jxom)! - Fixed JSX compilation.
+
+## 1.0.0-alpha.39
+
+### Patch Changes
+
+- [`fcec093`](https://github.com/wevm/vocs/commit/fcec0937fb34978f539f4f7b5d34105378d94447) Thanks [@jxom](https://github.com/jxom)! - Fixed issue where Vocs was loading assets from wrong path.
+
+- [`a3d7df0`](https://github.com/wevm/vocs/commit/a3d7df07f35ee5f4bc6699d5124d46d049cb3dde) Thanks [@jxom](https://github.com/jxom)! - Fixed an issue where `theme.colorScheme` in config would not register.
+
 ## 1.0.0-alpha.38
 
 ### Minor Changes

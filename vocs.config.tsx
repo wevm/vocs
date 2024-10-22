@@ -10,11 +10,13 @@ export default defineConfig({
     pattern: 'https://github.com/wagmi-dev/vocs/edit/main/site/pages/:path',
     text: 'Suggest changes to this page',
   },
-  head: (
-    <>
-      <script src="https://cdn.usefathom.com/script.js" data-site="IBTUTKMT" defer />
-    </>
-  ),
+  head() {
+    return (
+      <>
+        <script src="https://cdn.usefathom.com/script.js" data-site="IBTUTKMT" defer />
+      </>
+    )
+  },
   iconUrl: {
     light: '/vocs-icon-light.svg',
     dark: '/vocs-icon-dark.svg',
@@ -36,6 +38,10 @@ export default defineConfig({
     {
       icon: 'github',
       link: 'https://github.com/wagmi-dev/vocs',
+    },
+    {
+      icon: 'warpcast',
+      link: 'https://warpcast.com/wevm',
     },
     {
       icon: 'x',
@@ -63,16 +69,30 @@ export default defineConfig({
       items: [
         [
           {
-            name: 'WalletConnect',
-            link: 'https://walletconnect.com',
-            image:
-              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/walletconnect-light.svg',
-          },
-          {
             name: 'Stripe',
             link: 'https://www.stripe.com',
             image:
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/stripe-light.svg',
+          },
+          {
+            name: 'ZKsync',
+            link: 'https://zksync.io',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/zksync-light.svg',
+          },
+        ],
+        [
+          {
+            name: 'Brave',
+            link: 'https://brave.com',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/brave-light.svg',
+          },
+          {
+            name: 'Linea',
+            link: 'https://linea.build',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/linea-light.svg',
           },
         ],
       ],
@@ -95,6 +115,12 @@ export default defineConfig({
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/context-light.svg',
           },
           {
+            name: 'WalletConnect',
+            link: 'https://walletconnect.com',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/walletconnect-light.svg',
+          },
+          {
             name: 'PartyDAO',
             link: 'https://twitter.com/prtyDAO',
             image:
@@ -115,39 +141,19 @@ export default defineConfig({
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/dynamic-light.svg',
           },
           {
-            name: 'BitKeep',
-            link: 'https://bitkeep.com',
-            image:
-              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/bitkeep-light.svg',
-          },
-        ],
-        [
-          {
             name: 'Privy',
             link: 'https://privy.io',
             image:
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/privy-light.svg',
           },
           {
-            name: 'Spruce',
-            link: 'https://spruceid.com',
-            image:
-              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/spruce-light.svg',
-          },
-          {
-            name: 'rollup.id',
-            link: 'https://rollup.id',
-            image:
-              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/rollup.id-light.svg',
-          },
-        ],
-        [
-          {
             name: 'PancakeSwap',
-            link: 'https://pancakeswap.finance',
+            link: 'https://pancakeswap.finance/',
             image:
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/pancake-light.svg',
           },
+        ],
+        [
           {
             name: 'Celo',
             link: 'https://celo.org',
@@ -160,8 +166,6 @@ export default defineConfig({
             image:
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/rainbow-light.svg',
           },
-        ],
-        [
           {
             name: 'Pimlico',
             link: 'https://pimlico.io',
@@ -174,11 +178,54 @@ export default defineConfig({
             image:
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/zora-light.svg',
           },
+        ],
+        [
+          {
+            name: 'Lattice',
+            link: 'https://lattice.xyz',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/lattice-light.svg',
+          },
           {
             name: 'Supa',
             link: 'https://twitter.com/supafinance',
             image:
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/supa-light.svg',
+          },
+          {
+            name: 'Syndicate',
+            link: 'https://syndicate.io',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/syndicate-light.svg',
+          },
+          {
+            name: 'Reservoir',
+            link: 'https://reservoir.tools',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/reservoir-light.svg',
+          },
+        ],
+        [
+          {
+            name: 'Uniswap',
+            link: 'https://uniswap.org',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/uniswap-light.svg',
+          },
+          {
+            name: '',
+            image: '',
+            link: 'https://github.com/sponsors/wevm',
+          },
+          {
+            name: '',
+            image: '',
+            link: 'https://github.com/sponsors/wevm',
+          },
+          {
+            name: '',
+            image: '',
+            link: 'https://github.com/sponsors/wevm',
           },
         ],
       ],
@@ -208,6 +255,10 @@ export default defineConfig({
         {
           text: 'Code Snippets',
           link: '/docs/guides/code-snippets',
+        },
+        {
+          text: 'Components',
+          link: '/docs/guides/components',
         },
         {
           text: 'CSS & Styling',

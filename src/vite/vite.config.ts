@@ -1,7 +1,7 @@
 import { basename } from 'node:path'
 import { vanillaExtractPlugin } from '@vanilla-extract/vite-plugin'
 import react from '@vitejs/plugin-react'
-import { defineConfig, splitVendorChunkPlugin } from 'vite'
+import { type PluginOption, defineConfig, splitVendorChunkPlugin } from 'vite'
 
 import { css } from './plugins/css.js'
 import { mdx } from './plugins/mdx.js'
@@ -17,6 +17,8 @@ import { resolveVocsConfig } from './utils/resolveVocsConfig.js'
 export default defineConfig(async () => {
   const { config } = await resolveVocsConfig()
   const viteConfig = config.vite ?? {}
+  const hasReact = await hasReactPlugin(viteConfig.plugins ?? [])
+
   return {
     ...viteConfig,
     build: {
@@ -43,7 +45,7 @@ export default defineConfig(async () => {
     plugins: [
       splitVendorChunkPlugin(),
       virtualConfig(),
-      react(),
+
       vanillaExtractPlugin({
         identifiers({ filePath, debugId }) {
           const scope = basename(filePath).replace('.css.ts', '')
@@ -59,6 +61,7 @@ export default defineConfig(async () => {
       virtualConsumerComponents(),
       virtualRoutes(),
       virtualStyles(),
+      ...(hasReact ? [] : react()),
       ...(viteConfig.plugins ?? []),
     ],
     server: {
@@ -70,3 +73,14 @@ export default defineConfig(async () => {
     },
   }
 })
+
+async function hasReactPlugin(plugins: ReadonlyArray<PluginOption>) {
+  for await (const plugin of plugins)
+    if (
+      plugin &&
+      ((!Array.isArray(plugin) && plugin.name === 'vite:react-babel') ||
+        (Array.isArray(plugin) && (await hasReactPlugin(plugin))))
+    )
+      return true
+  return false
+}

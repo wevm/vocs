@@ -50,7 +50,7 @@ export function Pre({
   return wrap(
     <div className={clsx(styles.wrapper)}>
       <pre ref={ref} {...props} className={clsx(className, styles.root)}>
-        {'data-language' in props && <CopyButton copied={copied} copy={copy} />}
+        <CopyButton copied={copied} copy={copy} />
         {children_}
       </pre>
     </div>,

@@ -20,10 +20,10 @@ export function DesktopSearch() {
     keys = Object.keys(config?.title).filter((key) => pathname.startsWith(key))
     pathKey = keys[keys.length - 1]
   }
+  console.log(pathKey)
 
-  const configSearch = !config.search?.placeholder
-    ? (config?.search as any)?.[pathKey]
-    : config.search
+  const configSearch = (config.search as any)?.i18n?.[pathKey];
+
 
   useEffect(() => {
     function keyDownHandler(event: KeyboardEvent) {
@@ -52,7 +52,7 @@ export function DesktopSearch() {
       <Dialog.Trigger asChild>
         <button className={styles.search} type="button">
           <MagnifyingGlassIcon style={{ marginTop: 2 }} />
-          {configSearch.placeholder ?? 'Search'}
+          {configSearch?.placeholder ?? 'Search'}
           <div className={styles.searchCommand}>
             <div
               style={{
