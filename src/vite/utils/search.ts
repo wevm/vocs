@@ -49,6 +49,7 @@ export async function buildIndex({
         const href = relFile
           .replace(relative(baseDir, resolve(baseDir, 'pages')), '')
           .replace(/\.(.*)/, '')
+          .replace(/\/index$/, '')
 
         const document = sections.map((section) => ({
           href: `${href}#${section.anchor}`,
