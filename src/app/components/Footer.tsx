@@ -1,9 +1,9 @@
+import { Footer as ConsumerFooter } from 'virtual:consumer-components'
 import { Pencil2Icon } from '@radix-ui/react-icons'
 import { assignInlineVars } from '@vanilla-extract/dynamic'
 import clsx from 'clsx'
 import { useEffect, useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { Footer as ConsumerFooter } from 'virtual:consumer-components'
 
 import type { SidebarItem } from '../../config.js'
 import { useEditLink } from '../hooks/useEditLink.js'
@@ -105,12 +105,22 @@ function Navigation() {
         const nextPage = flattenedSidebar[index + 1]
         const prevPage = flattenedSidebar[index - 1]
         if (event.code === 'ArrowRight' && nextPage?.link) {
-          navigate(nextPage.link)
-          index++
+          const isExternalLink = !nextPage.link.match(/^(\.*\/|#)/)
+          if (isExternalLink) {
+            window.open(nextPage.link, 'noopener,noreferrer')
+          } else {
+            navigate(nextPage.link)
+            index++
+          }
         }
         if (event.code === 'ArrowLeft' && prevPage?.link) {
-          navigate(prevPage.link)
-          index--
+          const isExternalLink = !prevPage.link.match(/^(\.*\/|#)/)
+          if (isExternalLink) {
+            window.open(prevPage.link, 'noopener,noreferrer')
+          } else {
+            navigate(prevPage.link)
+            index--
+          }
         }
       }
     }
