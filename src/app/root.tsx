@@ -139,8 +139,8 @@ function Head({ frontmatter }: { frontmatter: Module['frontmatter'] }) {
                 typeof logoUrl === 'string' ? logoUrl : logoUrl?.dark || ''
               }`,
             )
-            .replace('%title', title || '')
-            .replace('%description', (description !== 'undefined' ? description : '') || '')}
+            .replace('%title', encodeURIComponent(title) || '')
+            .replace('%description', (description !== 'undefined' ? encodeURIComponent(description) : '') || '')}
         />
       )}
     </Helmet>
