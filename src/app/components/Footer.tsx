@@ -6,6 +6,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { Footer as ConsumerFooter } from 'virtual:consumer-components'
 
 import type { SidebarItem } from '../../config.js'
+import { useConfig } from '../hooks/useConfig.js'
 import { useEditLink } from '../hooks/useEditLink.js'
 import { useLayout } from '../hooks/useLayout.js'
 import { useMounted } from '../hooks/useMounted.js'
@@ -23,6 +24,19 @@ export function Footer() {
   const { layout } = useLayout()
   const mounted = useMounted()
   const pageData = usePageData()
+  const config = useConfig()
+  const { pathname } = useLocation()
+
+  let pathKey = ''
+  if (typeof config?.title === 'object' && Object.keys(config?.title ?? {}).length > 0) {
+    let keys: string[] = []
+    keys = Object.keys(config?.title).filter((key) => pathname.startsWith(key))
+    pathKey = keys[keys.length - 1]
+  }
+
+  const configEditLink = !config.editLink?.pattern
+    ? (config?.editLink as any)?.[pathKey]
+    : config.editLink
 
   const lastUpdatedAtDate = useMemo(
     () => (pageData.lastUpdatedAt ? new Date(pageData.lastUpdatedAt) : undefined),
@@ -41,7 +55,7 @@ export function Footer() {
             <EditLink />
             {mounted && pageData.lastUpdatedAt && (
               <div className={styles.lastUpdated}>
-                Last updated:{' '}
+                {configEditLink?.lastUpdated ?? 'Last updated'}:{' '}
                 <time dateTime={lastUpdatedAtISOString}>
                   {new Intl.DateTimeFormat(undefined, {
                     dateStyle: 'short',
@@ -76,7 +90,19 @@ function Navigation() {
   const mounted = useMounted()
   const sidebar = useSidebar()
 
+  const config = useConfig()
   const { pathname } = useLocation()
+
+  let pathKey = ''
+  if (typeof config?.title === 'object' && Object.keys(config?.title ?? {}).length > 0) {
+    let keys: string[] = []
+    keys = Object.keys(config?.title).filter((key) => pathname.startsWith(key))
+    pathKey = keys[keys.length - 1]
+  }
+  const configFooterNav = !config.footerNav?.previous
+    ? (config?.footerNav as any)?.[pathKey]
+    : config.footerNav
+
   const flattenedSidebar = useMemo(
     () => flattenSidebar(sidebar.items || []).filter((item) => item.link),
     [sidebar],
@@ -140,12 +166,15 @@ function Navigation() {
               className={clsx(styles.navigationIcon, styles.navigationIcon_left)}
               style={assignInlineVars({ [sizeVar]: '0.75em' })}
             >
-              <Icon label="Previous" icon={ArrowLeft} />
+              <Icon label={`${configFooterNav?.previous ?? 'Previous'}`} icon={ArrowLeft} />
             </div>
             <div className={styles.navigationTextInner}>{prevPage.text}</div>
           </div>
           {/* TODO: Place in hover card */}
-          <KeyboardShortcut description="Previous" keys={['shift', '←']} />
+          <KeyboardShortcut
+            description={`${configFooterNav?.previous ?? 'Previous'}`}
+            keys={['shift', '←']}
+          />
         </Link>
       ) : (
         <div />
@@ -164,11 +193,14 @@ function Navigation() {
               className={clsx(styles.navigationIcon, styles.navigationIcon_right)}
               style={assignInlineVars({ [sizeVar]: '0.75em' })}
             >
-              <Icon label="Next" icon={ArrowRight} />
+              <Icon label={`${configFooterNav?.next ?? 'Next'}`} icon={ArrowRight} />
             </div>
           </div>
           {/* TODO: Place in hover card */}
-          <KeyboardShortcut description="Next" keys={['shift', '→']} />
+          <KeyboardShortcut
+            description={`${configFooterNav?.next ?? 'Next'}`}
+            keys={['shift', '→']}
+          />
         </Link>
       ) : (
         <div />

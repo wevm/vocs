@@ -69,17 +69,39 @@ export type Config<
     /**
      * General description for the documentation.
      */
-    description?: string
+    description?:
+      | string
+      | {
+          [path: string]: string
+        }
     /**
      * Edit location for the documentation.
      */
-    editLink?: Normalize<EditLink>
+    editLink?:
+      | Normalize<EditLink>
+      | {
+          [path: string]: Normalize<EditLink>
+        }
     /**
      * Base font face.
      *
      * @default { google: "Inter" }
      */
     font?: Normalize<Font<parsed>>
+    /**
+     * Custom footer navigation text
+     */
+    footerNav?:
+      | {
+          previous: string
+          next: string
+        }
+      | {
+          [path: string]: {
+            previous: string
+            next: string
+          }
+        }
     /**
      * Additional tags to include in the `<head>` tag of the page HTML.
      */
@@ -91,6 +113,14 @@ export type Config<
      * Icon URL.
      */
     iconUrl?: Normalize<IconUrl>
+    /**
+     * Default selected locale
+     */
+    defaultLocale?: Locale
+    /**
+     * Localization support for i18n
+     */
+    locales?: Locales
     /**
      * Logo URL.
      */
@@ -143,7 +173,11 @@ export type Config<
      *
      * @default "Docs"
      */
-    title?: string
+    title?:
+      | string
+      | {
+          [path: string]: string
+        }
     /**
      * Template for the page title.
      *
@@ -197,7 +231,7 @@ export async function defineConfig<colorScheme extends ColorScheme = undefined>(
     }),
     markdown: parseMarkdown(config.markdown ?? {}),
     socials: parseSocials(config.socials ?? []),
-    topNav: parseTopNav(config.topNav ?? []),
+    topNav: parseTopNav(config?.topNav ?? []),
     theme: await parseTheme(config.theme ?? ({} as Theme)),
     vite: parseViteConfig(config.vite, {
       basePath,
@@ -317,15 +351,33 @@ function parseSocials(socials: Socials): Socials<true> {
 let id = 0
 
 function parseTopNav(topNav: TopNav): TopNav<true> {
-  const parsedTopNav: ParsedTopNavItem[] = []
-  for (const item of topNav) {
-    parsedTopNav.push({
-      ...item,
-      id: id++,
-      items: item.items ? parseTopNav(item.items) : [],
-    })
+  if (Array.isArray(topNav)) {
+    const parsedTopNav: ParsedTopNavItem[] = []
+    for (const item of topNav) {
+      parsedTopNav.push({
+        ...item,
+        id: id++,
+        items: item.items ? (parseTopNav(item.items) as ParsedTopNavItem[]) : [],
+      })
+    }
+    return parsedTopNav
+  } else if (typeof topNav === 'object' && Object.keys(topNav).length > 0) {
+    const parsePathTopNav: {
+      [path: string]: ParsedTopNavItem[]
+    } = {}
+    for (const path in topNav) {
+      parsePathTopNav[path] = []
+      for (const item of topNav[path]) {
+        parsePathTopNav[path].push({
+          ...item,
+          id: id++,
+          items: item.items ? (parseTopNav(item.items) as ParsedTopNavItem[]) : [],
+        })
+      }
+    }
+    return parsePathTopNav
   }
-  return parsedTopNav
+  return []
 }
 
 async function parseTheme<colorScheme extends ColorScheme = undefined>(
@@ -426,6 +478,10 @@ export type EditLink = {
    * @default "Edit page"
    */
   text?: string
+  /**
+   * Text used for 'Last updated:'
+   */
+  lastUpdated?: string
 }
 
 type FontSource = Normalize<{
@@ -444,6 +500,18 @@ export type ImageUrl = string | { light: string; dark: string }
 
 export type IconUrl = ImageUrl
 
+export type Locale = {
+  label: string
+  lang: string // optional, will be added  as `lang` attribute on `html` tag
+  link?: string // default /fr/ -- shows on navbar translations menu, can be external
+}
+
+export type Locales =
+  | undefined
+  | {
+      [key: string]: Locale
+    }
+
 export type LogoUrl = ImageUrl
 
 export type Markdown<parsed extends boolean = false> = RequiredBy<
@@ -455,7 +523,19 @@ export type Markdown<parsed extends boolean = false> = RequiredBy<
   parsed extends true ? 'code' : never
 >
 
-export type Search = SearchOptions
+export type Search = SearchOptions & {
+  i18n?: {
+    [path: string]: {
+      placeholder?: string
+      navigate?: string
+      select?: string
+      close?: string
+      reset?: string
+      noResults?: string
+      labelClose?: string
+    }
+  }
+}
 
 export type SidebarItem = {
   /** Whether or not to collapse the sidebar item by default. */
@@ -471,7 +551,9 @@ export type SidebarItem = {
 
 export type Sidebar =
   | SidebarItem[]
-  | { [path: string]: SidebarItem[] | { backLink?: boolean; items: SidebarItem[] } }
+  | {
+      [path: string]: SidebarItem[] | { backLink?: boolean; items: SidebarItem[] }
+    }
 
 export type SocialType = 'discord' | 'github' | 'telegram' | 'warpcast' | 'x'
 export type SocialItem = {
@@ -558,17 +640,29 @@ export type Theme<
 export type TopNavItem<parsed extends boolean = false> = {
   match?: string
   text: string
+  path?: string
 } & (
   | { link: string; items?: never }
-  | { link?: string; items: parsed extends true ? ParsedTopNavItem[] : TopNavItem[] }
+  | {
+      link?: string
+      items: parsed extends true ? ParsedTopNavItem[] : TopNavItem[]
+    }
 )
 export type ParsedTopNavItem = TopNavItem<true> & {
   id: number
 }
 
 export type TopNav<parsed extends boolean = false> = parsed extends true
-  ? ParsedTopNavItem[]
-  : TopNavItem[]
+  ?
+      | ParsedTopNavItem[]
+      | {
+          [path: string]: ParsedTopNavItem[]
+        }
+  :
+      | TopNavItem[]
+      | {
+          [path: string]: TopNavItem[]
+        }
 
 //////////////////////////////////////////////////////
 // Utilities
