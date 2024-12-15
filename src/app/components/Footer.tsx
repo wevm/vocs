@@ -105,12 +105,22 @@ function Navigation() {
         const nextPage = flattenedSidebar[index + 1]
         const prevPage = flattenedSidebar[index - 1]
         if (event.code === 'ArrowRight' && nextPage?.link) {
-          navigate(nextPage.link)
-          index++
+          const isExternalLink = !nextPage.link.match(/^(\.*\/|#)/)
+          if (isExternalLink) {
+            window.open(nextPage.link, 'noopener,noreferrer')
+          } else {
+            navigate(nextPage.link)
+            index++
+          }
         }
         if (event.code === 'ArrowLeft' && prevPage?.link) {
-          navigate(prevPage.link)
-          index--
+          const isExternalLink = !prevPage.link.match(/^(\.*\/|#)/)
+          if (isExternalLink) {
+            window.open(prevPage.link, 'noopener,noreferrer')
+          } else {
+            navigate(prevPage.link)
+            index--
+          }
         }
       }
     }
