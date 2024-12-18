@@ -19,9 +19,7 @@ export function Root({ children, className }: { children: ReactNode; className?:
 export function Logo({ className }: { className?: string }) {
   const { logoUrl, title } = useConfig()
   return logoUrl ? (
-    <div className={clsx(className, styles.logo)}>
-      <Logo_ />
-    </div>
+    <Logo_ className={clsx(className, styles.logo)} />
   ) : (
     <h1 className={clsx(className, styles.title)}>{title}</h1>
   )
