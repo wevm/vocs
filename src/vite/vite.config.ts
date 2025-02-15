@@ -1,8 +1,8 @@
 import { basename } from 'node:path'
+import tailwindcss from '@tailwindcss/vite'
 import { vanillaExtractPlugin } from '@vanilla-extract/vite-plugin'
 import react from '@vitejs/plugin-react'
 import { type PluginOption, defineConfig, splitVendorChunkPlugin } from 'vite'
-import tailwindcss from '@tailwindcss/vite'
 
 import { css } from './plugins/css.js'
 import { mdx } from './plugins/mdx.js'
