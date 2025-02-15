@@ -16,7 +16,7 @@ import {
 ////////////////////////////////////////////////////////////////////////
 // Root
 
-const globalLayer = layer('global')
+const globalLayer = layer()
 
 globalStyle(':root', {
   '@layer': {

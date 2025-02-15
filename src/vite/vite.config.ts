@@ -2,6 +2,7 @@ import { basename } from 'node:path'
 import { vanillaExtractPlugin } from '@vanilla-extract/vite-plugin'
 import react from '@vitejs/plugin-react'
 import { type PluginOption, defineConfig, splitVendorChunkPlugin } from 'vite'
+import tailwindcss from '@tailwindcss/vite'
 
 import { css } from './plugins/css.js'
 import { mdx } from './plugins/mdx.js'
@@ -49,13 +50,15 @@ export default defineConfig(async () => {
       vanillaExtractPlugin({
         identifiers({ filePath, debugId }) {
           const scope = basename(filePath).replace('.css.ts', '')
-          return `vocs_${scope}${debugId ? `_${debugId}` : ''}`
+          const prefix = scope === 'base' ? '' : 'vocs_'
+          return `${prefix}${scope}${debugId ? `_${debugId}` : ''}`
         },
       }),
       css(),
       mdx(),
       resolveVocsModules(),
       search(),
+      tailwindcss(),
       virtualBlog(),
       virtualConsumerComponents(),
       virtualRoutes(),
