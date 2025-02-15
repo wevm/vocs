@@ -59,43 +59,13 @@ import './theme.css' // [!code focus]
 This is me.
 ```
 
-## Tailwind CSS
+## Tailwind
 
-Vocs comes with built-in support for Tailwind CSS.
+Vocs comes with built-in support for [Tailwind](https://tailwindcss.com/).
 
-All you need to do is add a `tailwind.config.cjs` file to your root directory, as well as a `styles.css` file.
+All you need to do is add a `styles.css` file and import Tailwind.
 
 ::::steps
-
-### Add `tailwind.config.cjs` file
-
-Add a `tailwind.config.cjs` configuration to your project root.
-
-```
-my-project/             
-├── docs/
-│   ├── pages/ 
-|   |   ├── index.mdx 
-|   |   └── about.tsx 
-│   └── public/
-│       └── favicon.ico
-├── node_modules/
-├── tailwind.config.cjs // [!code ++]
-│   ...
-```
-
-With the following content:
-
-```js [tailwind.config.cjs]
-/** @type {import('tailwindcss').Config} */
-module.exports = {
-  content: ['./docs/**/*.{html,md,mdx,tsx,js,jsx}'],
-  theme: {
-    extend: {},
-  },
-  plugins: [],
-}
-```
 
 ### Add `styles.css` file
 
@@ -111,14 +81,11 @@ my-project/
 │   |   └── favicon.ico
 |   └── styles.css // [!code ++]
 ├── node_modules/
-├── tailwind.config.cjs
 │   ...
 ```
 
 ```css [styles.css]
-@layer vocs_preflight { @tailwind base; }
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 ```
 
 ### Add some Tailwind CSS

@@ -1,11 +1,7 @@
 {
   "editor.defaultFormatter": "biomejs.biome",
-  "editor.formatOnSave": true,
   "typescript.tsdk": "node_modules/typescript/lib",
   "typescript.enablePromptUseWorkspaceTsdk": true,
-  "editor.codeActionsOnSave": {
-    "source.organizeImports.biome": "explicit"
-  },
   "[json]": {
     "editor.defaultFormatter": "biomejs.biome"
   },

@@ -2,7 +2,7 @@ import { globalStyle, layer } from '@vanilla-extract/css'
 import { root as DocsLayout } from '../layouts/DocsLayout.css.js'
 import { fontFamilyVars, fontSizeVars, primitiveColorVars } from './vars.css.js'
 
-const resetLayer = layer('reset')
+const resetLayer = layer()
 
 globalStyle(['*', '::before', '::after'].join(','), {
   '@layer': {
