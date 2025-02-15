@@ -9,8 +9,8 @@
     "preview": "node --import tsx/esm ../../src/cli/index.ts preview"
   },
   "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-router-dom": "^6.17.0"
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "react-router-dom": "^6.29.0"
   }
 }
