@@ -1,3 +1,5 @@
-@layer vocs_preflight { @tailwind base; }
+@layer vocs_preflight {
+  @tailwind base;
+}
 @tailwind components;
 @tailwind utilities;

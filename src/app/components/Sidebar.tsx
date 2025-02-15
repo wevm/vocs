@@ -12,7 +12,7 @@ import {
 } from 'react'
 import { matchPath, useLocation, useMatch } from 'react-router-dom'
 
-import { type SidebarItem as SidebarItemType } from '../../config.js'
+import type { SidebarItem as SidebarItemType } from '../../config.js'
 import { usePageData } from '../hooks/usePageData.js'
 import { useSidebar } from '../hooks/useSidebar.js'
 import { Icon } from './Icon.js'
@@ -209,6 +209,7 @@ function SidebarItem(props: {
 
             {isCollapsable && (
               <div
+                // biome-ignore lint/a11y/useSemanticElements:
                 role="button"
                 tabIndex={0}
                 onClick={onCollapseTriggerInteraction}

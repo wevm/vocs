@@ -1,15 +1,15 @@
+import { Layout } from 'virtual:consumer-components'
 import { MDXProvider } from '@mdx-js/react'
 import { type ReactNode, useEffect, useRef } from 'react'
 import { Helmet } from 'react-helmet'
 import { ScrollRestoration, useLocation } from 'react-router-dom'
-import { Layout } from 'virtual:consumer-components'
 import 'virtual:styles'
 
 import { components } from './components/mdx/index.js'
 import { useConfig } from './hooks/useConfig.js'
 import { useOgImageUrl } from './hooks/useOgImageUrl.js'
 import { PageDataContext } from './hooks/usePageData.js'
-import { type Module } from './types.js'
+import type { Module } from './types.js'
 
 export function Root(props: {
   children: ReactNode
@@ -22,7 +22,6 @@ export function Root(props: {
   const { pathname } = useLocation()
 
   const previousPathRef = useRef<string>()
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     previousPathRef.current = pathname
   })

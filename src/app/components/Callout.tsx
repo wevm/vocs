@@ -1,5 +1,5 @@
 import { type ClassValue, clsx } from 'clsx'
-import { type ReactNode } from 'react'
+import type { ReactNode } from 'react'
 
 import * as styles from './Callout.css.js'
 

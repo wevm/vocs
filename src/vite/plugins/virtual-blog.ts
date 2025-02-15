@@ -3,7 +3,7 @@ import { default as fs } from 'fs-extra'
 import { globby } from 'globby'
 import remarkParse from 'remark-parse'
 import { type Plugin, unified } from 'unified'
-import { type PluginOption } from 'vite'
+import type { PluginOption } from 'vite'
 import { parse } from 'yaml'
 
 import type { BlogPost, Frontmatter } from '../../app/types.js'

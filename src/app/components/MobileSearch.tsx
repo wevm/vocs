@@ -1,6 +1,6 @@
-import { useState } from 'react'
-import { MagnifyingGlassIcon } from '@radix-ui/react-icons'
 import * as Dialog from '@radix-ui/react-dialog'
+import { MagnifyingGlassIcon } from '@radix-ui/react-icons'
+import { useState } from 'react'
 
 import * as styles from './MobileSearch.css.js'
 import { SearchDialog } from './SearchDialog.js'

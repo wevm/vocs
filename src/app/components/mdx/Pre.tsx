@@ -32,6 +32,7 @@ export function Pre({
       }
     return children
   }
+  // biome-ignore lint/correctness/useExhaustiveDependencies:
   const children_ = useMemo(() => recurseChildren(children), [children])
 
   const wrap = (children: ReactNode) => {
