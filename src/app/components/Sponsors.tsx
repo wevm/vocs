@@ -29,7 +29,9 @@ export function Sponsors() {
                   key={i}
                   variant="styleless"
                 >
-                  {sponsor?.image && <img className={styles.image} src={sponsor?.image} alt={sponsor?.name} />}
+                  {sponsor?.image && (
+                    <img className={styles.image} src={sponsor?.image} alt={sponsor?.name} />
+                  )}
                 </Link>
               ))}
             </div>
