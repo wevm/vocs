@@ -1,6 +1,6 @@
 import React, { type ReactElement, type ReactNode } from 'react'
 
-export function deserializeElement(element: ReactElement, key?: number): ReactNode {
+export function deserializeElement(element: ReactElement<any>, key?: number): ReactNode {
   if (typeof element !== 'object') return element
   if (element === null) return element
   if (Array.isArray(element)) return element.map<any>((el, i) => deserializeElement(el, i))

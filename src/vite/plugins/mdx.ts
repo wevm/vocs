@@ -99,10 +99,10 @@ export const getRehypePlugins = ({
       {
         transformers: [
           transformerLineNumbers(),
-          transformerNotationDiff(),
-          transformerNotationFocus(),
-          transformerNotationHighlight(),
-          transformerNotationWordHighlight(),
+          transformerNotationDiff({ matchAlgorithm: 'v3' }),
+          transformerNotationFocus({ matchAlgorithm: 'v3' }),
+          transformerNotationHighlight({ matchAlgorithm: 'v3' }),
+          transformerNotationWordHighlight({ matchAlgorithm: 'v3' }),
           transformerNotationInclude({ rootDir }),
           transformerEmptyLine(),
           transformerTagLine(),

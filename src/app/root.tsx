@@ -21,7 +21,7 @@ export function Root(props: {
   const { children, filePath, frontmatter, lastUpdatedAt, path } = props
   const { pathname } = useLocation()
 
-  const previousPathRef = useRef('')
+  const previousPathRef = useRef<string | undefined>(undefined)
   useEffect(() => {
     previousPathRef.current = pathname
   })

@@ -101,7 +101,7 @@ export async function processMdx(filePath: string, file: string) {
       remarkPlugins,
       rehypePlugins,
     })
-    const { default: MDXContent } = await run(compiled, { ...runtime, Fragment })
+    const { default: MDXContent } = await run(compiled, { ...runtime, Fragment } as never)
     const html = renderToStaticMarkup(
       MDXContent({
         // TODO: Pass components - vanilla extract and virtual module errors
