@@ -215,7 +215,11 @@ export function SearchDialog(props: { open: boolean; onClose(): void }) {
           )}
 
           {results.map((result, index) => (
-            <option
+            // biome-ignore lint/a11y/useFocusableInteractive:
+            <li
+              // biome-ignore lint/a11y/noNoninteractiveElementToInteractiveRole:
+              // biome-ignore lint/a11y/useSemanticElements:
+              role="option"
               key={result.id}
               className={clsx(styles.result, index === selectedIndex && styles.resultSelected)}
               aria-selected={index === selectedIndex}
@@ -269,7 +273,7 @@ export function SearchDialog(props: { open: boolean; onClose(): void }) {
                   </div>
                 )}
               </Link>
-            </option>
+            </li>
           ))}
         </ul>
 
