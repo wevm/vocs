@@ -14,7 +14,6 @@
   "dependencies": {
     "react": "catalog:",
     "react-dom": "catalog:",
-    "react-router-dom": "^6.29.0",
     "vocs": "workspace:*"
   }
 }
