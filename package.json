@@ -10,14 +10,14 @@
     "changeset:version": "changeset version && pnpm install --lockfile-only && bun scripts/postversion.ts",
     "check": "biome check . --write --unsafe",
     "check:deps": "pnpx taze -r",
+    "check:types": "tsc --noEmit",
     "docs:dev": "node --import tsx/esm ./src/cli/index.ts dev",
     "docs:build": "NODE_ENV=production node --import tsx/esm ./src/cli/index.ts build",
     "docs:search-index": "NODE_ENV=production node --import tsx/esm ./src/cli/index.ts search-index",
     "docs:preview": "node --import tsx/esm ./src/cli/index.ts preview",
     "playground": "pnpm --filter playgrounds/default dev",
     "preconstruct": "bun run scripts/preconstruct.ts",
-    "prepare": "simple-git-hooks",
-    "typecheck": "tsc --noEmit"
+    "prepare": "simple-git-hooks"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
