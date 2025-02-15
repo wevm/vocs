@@ -28,7 +28,7 @@ export function Sidebar(props: {
   const { className, onClickItem } = props
 
   const { previousPath } = usePageData()
-  const sidebarRef = useRef<HTMLElement>(null)
+  const sidebarRef = useRef<any>(null)
   const sidebar = useSidebar()
   const [backPath, setBackPath] = useState<string>('/')
 

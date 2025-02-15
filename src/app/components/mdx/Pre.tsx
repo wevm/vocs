@@ -1,5 +1,11 @@
 import { clsx } from 'clsx'
-import { type DetailedHTMLProps, type HTMLAttributes, type ReactNode, useMemo } from 'react'
+import {
+  type DetailedHTMLProps,
+  type HTMLAttributes,
+  type ReactElement,
+  type ReactNode,
+  useMemo,
+} from 'react'
 
 import { useCopyCode } from '../../hooks/useCopyCode.js'
 import { CopyButton } from '../CopyButton.js'
@@ -17,7 +23,7 @@ export function Pre({
 }) {
   const { copied, copy, ref } = useCopyCode()
 
-  function recurseChildren(children: ReactNode): ReactNode {
+  function recurseChildren(children: ReactElement<any>): ReactNode {
     if (!children) return children
     if (typeof children !== 'object') return children
     if ('props' in children)
@@ -33,7 +39,7 @@ export function Pre({
     return children
   }
   // biome-ignore lint/correctness/useExhaustiveDependencies:
-  const children_ = useMemo(() => recurseChildren(children), [children])
+  const children_ = useMemo(() => recurseChildren(children as ReactElement), [children])
 
   const wrap = (children: ReactNode) => {
     if (className?.includes('shiki'))
