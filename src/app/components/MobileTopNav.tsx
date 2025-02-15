@@ -49,12 +49,10 @@ export function MobileTopNav() {
           </div>
         )}
         {config.topNav && (
-          <>
-            <div className={styles.group}>
-              <Navigation items={config.topNav} />
-              <CompactNavigation items={config.topNav} />
-            </div>
-          </>
+          <div className={styles.group}>
+            <Navigation items={config.topNav} />
+            <CompactNavigation items={config.topNav} />
+          </div>
         )}
       </div>
 

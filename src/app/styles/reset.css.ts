@@ -67,7 +67,6 @@ globalStyle('h1,h2,h3,h4,h5,h6', {
     [resetLayer]: {
       fontSize: 'inherit',
       fontWeight: 'inherit',
-      // @ts-expect-error
       textWrap: 'balance',
     },
   },

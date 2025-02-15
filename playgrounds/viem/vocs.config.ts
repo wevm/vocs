@@ -1,5 +1,5 @@
-import { defineConfig } from '../../src/index.js'
 import react from '@vitejs/plugin-react'
+import { defineConfig } from '../../src/index.js'
 
 export default defineConfig({
   sidebar: [

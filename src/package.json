@@ -34,10 +34,10 @@
     "@shikijs/rehype": "^1.21.0",
     "@shikijs/transformers": "^1.21.0",
     "@shikijs/twoslash": "^1.21.0",
-    "@vanilla-extract/css": "^1.16.0",
+    "@vanilla-extract/css": "^1.17.1",
     "@vanilla-extract/dynamic": "^2.1.2",
-    "@vanilla-extract/vite-plugin": "^3.9.5",
-    "@vitejs/plugin-react": "4.3.1",
+    "@vanilla-extract/vite-plugin": "^5.0.1",
+    "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.20",
     "cac": "^6.7.14",
     "chroma-js": "^2.6.0",
@@ -48,7 +48,7 @@
     "fs-extra": "^11.2.0",
     "globby": "^13.2.2",
     "hastscript": "^8.0.0",
-    "hono": "^3.12.12",
+    "hono": "^4.7.1",
     "mark.js": "^8.11.1",
     "mdast-util-directive": "^3.0.0",
     "mdast-util-from-markdown": "^2.0.1",
@@ -78,7 +78,7 @@
     "ua-parser-js": "^1.0.39",
     "unified": "^11.0.5",
     "unist-util-visit": "^5.0.0",
-    "vite": "^5.4.8"
+    "vite": "^6.1.0"
   },
   "devDependencies": {
     "@types/chroma-js": "^2.4.3",
@@ -91,23 +91,12 @@
   "license": "MIT",
   "homepage": "https://vocs.dev",
   "repository": "wevm/vocs",
-  "authors": [
-    "awkweb.eth",
-    "jxom.eth"
-  ],
+  "authors": ["awkweb.eth", "jxom.eth"],
   "funding": [
     {
       "type": "github",
       "url": "https://github.com/sponsors/wevm"
     }
   ],
-  "keywords": [
-    "react",
-    "static",
-    "docs",
-    "generator",
-    "vite",
-    "documentation",
-    "mdx"
-  ]
+  "keywords": ["react", "static", "docs", "generator", "vite", "documentation", "mdx"]
 }

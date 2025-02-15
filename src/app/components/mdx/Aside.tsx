@@ -1,5 +1,5 @@
 import { clsx } from 'clsx'
-import { type DetailedHTMLProps, type HTMLAttributes } from 'react'
+import type { DetailedHTMLProps, HTMLAttributes } from 'react'
 
 import { Callout, type CalloutProps } from '../Callout.js'
 import * as styles from './Aside.css.js'

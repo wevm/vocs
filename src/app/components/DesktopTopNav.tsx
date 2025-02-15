@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { type ComponentType } from 'react'
+import type { ComponentType } from 'react'
 import { useLocation } from 'react-router-dom'
 
 import type { ParsedSocialItem, ParsedTopNavItem } from '../../config.js'

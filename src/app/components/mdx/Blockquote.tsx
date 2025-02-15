@@ -1,5 +1,5 @@
 import { clsx } from 'clsx'
-import { type BlockquoteHTMLAttributes, type DetailedHTMLProps } from 'react'
+import type { BlockquoteHTMLAttributes, DetailedHTMLProps } from 'react'
 
 import * as styles from './Blockquote.css.js'
 

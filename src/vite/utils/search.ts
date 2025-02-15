@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { join, relative, resolve } from 'node:path'
-import { pathToFileURL } from 'url'
+import { pathToFileURL } from 'node:url'
 import { compile, run } from '@mdx-js/mdx'
 import debug_ from 'debug'
 import { default as fs } from 'fs-extra'
@@ -140,7 +140,7 @@ export function splitPageIntoSections(html: string) {
   let parentTitles: string[] = []
   const sections: PageSection[] = []
   for (let i = 0; i < result.length; i += 3) {
-    const level = parseInt(result[i]) - 1
+    const level = Number.parseInt(result[i]) - 1
     const heading = result[i + 1]
     const headingResult = headingContentRegex.exec(heading)
     const title = clearHtmlTags(headingResult?.[1] ?? '').trim()

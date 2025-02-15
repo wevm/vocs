@@ -51,7 +51,6 @@ export default defineConfig(async () => {
           const scope = basename(filePath).replace('.css.ts', '')
           return `vocs_${scope}${debugId ? `_${debugId}` : ''}`
         },
-        emitCssInSsr: true,
       }),
       css(),
       mdx(),

@@ -1,6 +1,6 @@
+import { getSearchIndex } from 'virtual:searchIndex'
 import MiniSearch from 'minisearch'
 import { useEffect, useState } from 'react'
-import { getSearchIndex } from 'virtual:searchIndex'
 
 export type Result = {
   href: string
@@ -16,7 +16,6 @@ let promise: Promise<string>
 export function useSearchIndex(): MiniSearch<Result> | undefined {
   const [searchIndex, setSearchIndex] = useState<MiniSearch<Result>>()
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies:
   useEffect(() => {
     ;(async () => {
       if (!promise) promise = getSearchIndex()

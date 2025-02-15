@@ -1,4 +1,4 @@
-import { type PluginOption } from 'vite'
+import type { PluginOption } from 'vite'
 
 import { deserializeFunctionsStringified, serializeConfig } from '../../config.js'
 import { resolveVocsConfig } from '../utils/resolveVocsConfig.js'
