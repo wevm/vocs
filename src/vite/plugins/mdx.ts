@@ -1,6 +1,12 @@
 import mdxPlugin from '@mdx-js/rollup'
 import rehypeShiki, { type RehypeShikiOptions } from '@shikijs/rehype'
 import {
+  transformerNotationDiff,
+  transformerNotationFocus,
+  transformerNotationHighlight,
+  transformerNotationWordHighlight,
+} from '@shikijs/transformers'
+import {
   defaultTwoslashOptions as defaultTwoslashOptions_,
   transformerTwoslash,
 } from '@shikijs/twoslash'
@@ -34,11 +40,7 @@ import { remarkSubheading } from './remark/subheading.js'
 import { remarkTwoslash } from './remark/twoslash.js'
 import { transformerEmptyLine } from './shiki/transformerEmptyLine.js'
 import { transformerLineNumbers } from './shiki/transformerLineNumbers.js'
-import { transformerNotationDiff } from './shiki/transformerNotationDiff.js'
-import { transformerNotationFocus } from './shiki/transformerNotationFocus.js'
-import { transformerNotationHighlight } from './shiki/transformerNotationHighlight.js'
 import { transformerNotationInclude } from './shiki/transformerNotationInclude.js'
-import { transformerNotationWordHighlight } from './shiki/transformerNotationWordHighlight.js'
 import { transformerSplitIdentifiers } from './shiki/transformerSplitIdentifiers.js'
 import { transformerTagLine } from './shiki/transformerTagLine.js'
 import { transformerTitle } from './shiki/transformerTitle.js'
@@ -97,10 +99,10 @@ export const getRehypePlugins = ({
       {
         transformers: [
           transformerLineNumbers(),
-          transformerNotationDiff(),
-          transformerNotationFocus(),
-          transformerNotationHighlight(),
-          transformerNotationWordHighlight(),
+          transformerNotationDiff({ matchAlgorithm: 'v3' }),
+          transformerNotationFocus({ matchAlgorithm: 'v3' }),
+          transformerNotationHighlight({ matchAlgorithm: 'v3' }),
+          transformerNotationWordHighlight({ matchAlgorithm: 'v3' }),
           transformerNotationInclude({ rootDir }),
           transformerEmptyLine(),
           transformerTagLine(),
