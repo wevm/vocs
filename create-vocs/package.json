@@ -1,6 +1,6 @@
 {
   "name": "create-vocs",
-  "version": "1.0.0-alpha.5",
+  "version": "1.0.0",
   "type": "module",
   "bin": {
     "create-vocs": "./_lib/bin.js"
