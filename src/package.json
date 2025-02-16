@@ -73,7 +73,6 @@
     "remark-parse": "^11.0.0",
     "serve-static": "^1.16.2",
     "shiki": "^2.3.2",
-    "tailwindcss": "^4.0.6",
     "toml": "^3.0.0",
     "twoslash": "~0.2.12",
     "ua-parser-js": "^1.0.40",
