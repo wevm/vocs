@@ -26,7 +26,6 @@ const sizesForType = {
   x: '16px',
 } satisfies Record<ParsedSocialItem['type'], string>
 
-
 export function Socials() {
   const config = useConfig()
 
