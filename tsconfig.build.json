@@ -9,8 +9,6 @@
   "compilerOptions": {
     "declaration": true,
     "declarationMap": true,
-    "module": "ESNext",
-    "moduleResolution": "Node",
     "outDir": "./src/_lib",
     "sourceMap": true,
     "rootDir": "./src"
