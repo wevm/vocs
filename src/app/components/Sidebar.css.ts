@@ -134,7 +134,7 @@ export const items = style(
     gap: '0.625em',
     paddingTop: spaceVars['16'],
     paddingBottom: spaceVars['16'],
-    fontWeight: fontWeightVars.medium,
+    fontWeight: fontWeightVars.regular,
     selectors: {
       [`${level} &`]: {
         paddingTop: spaceVars['6'],
@@ -146,17 +146,18 @@ export const items = style(
 
 export const item = style(
   {
-    color: primitiveColorVars.text3,
+    color: primitiveColorVars.text2,
     letterSpacing: '0.25px',
     lineHeight: lineHeightVars.sidebarItem,
     width: '100%',
     transition: 'color 0.1s',
     selectors: {
       '&:hover': {
-        color: primitiveColorVars.text,
+        color: primitiveColorVars.textHover,
       },
       '&[data-active="true"]': {
         color: primitiveColorVars.textAccent,
+        fontWeight: fontWeightVars.medium,
       },
     },
   },
@@ -188,7 +189,7 @@ export const sectionTitle = style(
   {
     color: primitiveColorVars.title,
     fontSize: fontSizeVars['14'],
-    fontWeight: fontWeightVars.semibold,
+    fontWeight: fontWeightVars.medium,
     letterSpacing: '0.25px',
     width: '100%',
   },

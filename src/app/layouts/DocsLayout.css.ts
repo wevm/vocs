@@ -60,6 +60,7 @@ export const content_withSidebar = style(
 export const gutterLeft = style(
   {
     backgroundColor: primitiveColorVars.backgroundDark,
+    // borderRight: `1px solid ${primitiveColorVars.border}`,
     justifyContent: 'flex-end',
     display: 'flex',
     height: '100vh',

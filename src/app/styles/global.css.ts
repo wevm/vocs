@@ -1,6 +1,6 @@
 import { globalStyle, layer } from '@vanilla-extract/css'
 
-import { root as Callout } from '../components/Callout.css.js'
+import { content as Callout } from '../components/Callout.css.js'
 import { root as Content } from '../components/Content.css.js'
 import { root as Details } from '../components/mdx/Details.css.js'
 import {

@@ -113,6 +113,7 @@ export const navigationItem_right = style(
 export const navigationText = style(
   {
     alignItems: 'center',
+    color: primitiveColorVars.heading,
     display: 'flex',
     fontSize: fontSizeVars['18'],
     fontWeight: fontWeightVars.medium,

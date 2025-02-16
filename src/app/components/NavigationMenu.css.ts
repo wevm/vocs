@@ -36,11 +36,12 @@ export const link = style(
   {
     alignItems: 'center',
     display: 'flex',
+    color: primitiveColorVars.text2,
     fontSize: fontSizeVars[14],
     fontWeight: fontWeightVars.medium,
     height: '100%',
     selectors: {
-      '&:hover': { color: primitiveColorVars.textAccent },
+      '&:hover': { color: primitiveColorVars.textHover },
       '&[data-active="true"]': { color: primitiveColorVars.textAccent },
     },
   },
@@ -74,7 +75,7 @@ export const trigger = style(
 
 export const content = style(
   {
-    backgroundColor: primitiveColorVars.background2,
+    backgroundColor: primitiveColorVars.background,
     border: `1px solid ${primitiveColorVars.border}`,
     borderRadius: borderRadiusVars[4],
     boxShadow: `0 3px 10px ${primitiveColorVars.shadow}`,

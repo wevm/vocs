@@ -63,15 +63,15 @@ This is me.
 
 Vocs comes with built-in support for [Tailwind](https://tailwindcss.com/).
 
-All you need to do is add a `styles.css` file and import Tailwind.
+To enable Tailwind, simply import `tailwindcss` in the `styles.css` file of your project.
 
-::::steps
+:::code-group
 
-### Add `styles.css` file
-
-Then add a `styles.css` file, and import the Tailwind CSS.
-
+```css [styles.css]
+@import "tailwindcss";
 ```
+
+```txt [Project]
 my-project/             
 ├── docs/
 │   ├── pages/ 
@@ -79,25 +79,9 @@ my-project/
 |   |   └── about.tsx 
 │   └── public/
 │   |   └── favicon.ico
-|   └── styles.css // [!code ++]
+|   └── styles.css // [!code focus]
 ├── node_modules/
 │   ...
 ```
 
-```css [styles.css]
-@import "tailwindcss";
-```
-
-### Add some Tailwind CSS
-
-Now you can use Tailwind CSS in any of your Markdown files or React components.
-
-```mdx [example.md]
-# Hello world
-
-This is me.
-
-<p className="text-4xl text-red">With some Tailwind CSS</p>
-```
-
-::::
+:::

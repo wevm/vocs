@@ -24,7 +24,6 @@ export function Sponsors() {
               {sponsorRow.map((sponsor, i) => (
                 <Link
                   className={clsx(styles.column, sponsor ? styles.sponsor : undefined)}
-                  hideExternalIcon
                   href={sponsor?.link}
                   key={i}
                   variant="styleless"

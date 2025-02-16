@@ -90,7 +90,7 @@ export const icon = style(
     transition: 'color 0.1s',
     selectors: {
       [`${button}:hover &`]: {
-        color: primitiveColorVars.text,
+        color: primitiveColorVars.textHover,
       },
     },
   },

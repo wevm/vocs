@@ -51,6 +51,7 @@ export function Sidebar(props: {
             <NavLogo />
           </RouterLink>
         </div>
+
         <div className={styles.divider} />
       </div>
 
