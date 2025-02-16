@@ -3,11 +3,13 @@ import { primitiveColorVars, spaceVars } from '../styles/vars.css.js'
 
 export const root = style({ display: 'flex', flexDirection: 'row', gap: spaceVars[8] })
 
-export const socialButton = style(
+export const button = style(
   {
+    alignItems: 'center',
+    display: 'flex',
     padding: spaceVars[4],
   },
-  'social',
+  'button',
 )
 
 export const icon = style(
@@ -15,7 +17,7 @@ export const icon = style(
     color: primitiveColorVars.text3,
     transition: 'color 0.1s',
     selectors: {
-      [`${socialButton}:hover &`]: {
+      [`${button}:hover &`]: {
         color: primitiveColorVars.textHover,
       },
     },
