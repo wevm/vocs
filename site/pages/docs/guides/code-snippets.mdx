@@ -16,7 +16,7 @@ We will show you both approaches below.
 We will create a virtual file snippet called `example.ts`. We can define a virtual file in markdown using the `filename="example.ts"{:ts}` meta tag.
 
 ````mdx [example.md]
-```ts filename="example.ts" // [!code hl]
+```ts filename="example.ts"
 import { http, createPublicClient } from 'viem'
 import { mainnet } from 'viem/chains'
  
@@ -111,7 +111,8 @@ Next, we will import the snippet into our Markdown file using the `// [!include 
 // [!code hl] 
 // [!code focus]
 // [\!include ~/snippets/example.ts]
-``` // [!code focus]
+// [!code focus]
+```
 
 #### Use Actions
 

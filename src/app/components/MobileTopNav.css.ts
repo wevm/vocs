@@ -158,7 +158,6 @@ export const navigation_compact = style({}, 'navigation_compact')
 
 export const navigation = style(
   {
-    marginLeft: spaceVars[8],
     selectors: {
       [`&:not(${navigation_compact})`]: {
         '@media': {

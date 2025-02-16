@@ -76,7 +76,7 @@ export const link = style(
         color: primitiveColorVars.textAccentHover,
       },
       '&:hover': {
-        color: primitiveColorVars.text,
+        color: primitiveColorVars.textHover,
       },
     },
   },

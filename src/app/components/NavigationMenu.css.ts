@@ -36,7 +36,7 @@ export const link = style(
   {
     alignItems: 'center',
     display: 'flex',
-    color: primitiveColorVars.text2,
+    color: primitiveColorVars.text,
     fontSize: fontSizeVars[14],
     fontWeight: fontWeightVars.medium,
     height: '100%',

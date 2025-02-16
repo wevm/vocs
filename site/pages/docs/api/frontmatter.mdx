@@ -4,8 +4,10 @@ You can set page-specific metadata such as the page title and description in the
 
 ```md [example.md]
 --- // [!code focus]
-title: Example // [!code focus]
-description: This is an example page. // [!code focus]
+// [!code focus]
+title: Example
+// [!code focus]
+description: This is an example page.
 --- // [!code focus]
 
 # Hello world
@@ -22,13 +24,16 @@ Authors of the page. Used by the [`::authors` markdown directive](#TODO).
 ```md
 ---
 authors: // [!code focus]
-  - [jxom](https://x.com/jxom) // [!code focus]
-  - [awkweb](https://x.com/awkweb) // [!code focus]
+// [!code focus]
+  - [jxom](https://x.com/jxom)
+// [!code focus]
+  - [awkweb](https://x.com/awkweb)
 ---
 
 # gm
 
-::authors // [!code focus]
+// [!code focus]
+::authors
 
 we're so back
 ```
@@ -53,10 +58,14 @@ Page content attributes.
 
 ```md
 ---
-content: // [!code focus]
-  horizontalPadding: 0px // [!code focus]
-  width: 100% // [!code focus]
-  verticalPadding: 0px // [!code focus]
+// [!code focus]
+content:
+  // [!code focus]
+  horizontalPadding: 0px
+  // [!code focus]
+  width: 100%
+  // [!code focus]
+  verticalPadding: 0px
 ---
 
 # gm
@@ -77,12 +86,14 @@ Authors of the page. Used by the [`::authors` markdown directive](#TODO).
 authors: 
   - [jxom](https://x.com/jxom) 
   - [awkweb](https://x.com/awkweb) 
-date: 2023-12-01 // [!code focus]
+// [!code focus]
+date: 2023-12-01
 ---
 
 # gm
 
-::authors // [!code focus]
+// [!code focus]
+::authors
 
 we're so back
 ```

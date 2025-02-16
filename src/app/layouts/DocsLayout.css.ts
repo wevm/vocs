@@ -21,6 +21,8 @@ export const root = style({
 export const content = style(
   {
     backgroundColor: primitiveColorVars.background,
+    display: 'flex',
+    flexDirection: 'column',
     marginLeft: 'auto',
     marginRight: 'auto',
     maxWidth: contentVars.width,
@@ -207,7 +209,7 @@ export const outlinePopover = style(
 
 export const sidebar = style(
   {
-    padding: `${spaceVars['0']} ${sidebarVars.horizontalPadding} ${spaceVars['24']} ${sidebarVars.horizontalPadding}`,
+    padding: `${spaceVars['0']} ${sidebarVars.horizontalPadding}`,
   },
   'sidebar',
 )

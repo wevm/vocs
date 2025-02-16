@@ -40,10 +40,6 @@ export default defineConfig({
       link: 'https://github.com/wagmi-dev/vocs',
     },
     {
-      icon: 'warpcast',
-      link: 'https://warpcast.com/wevm',
-    },
-    {
       icon: 'x',
       link: 'https://twitter.com/wagmi_sh',
     },

@@ -14,6 +14,7 @@ export const root = style({
   display: 'flex',
   flexDirection: 'column',
   fontSize: fontSizeVars['14'],
+  justifyContent: 'space-between',
   overflowY: 'auto',
   width: sidebarVars.width,
   '@media': {
@@ -125,6 +126,51 @@ export const levelInset = style(
     },
   },
   'levelInset',
+)
+
+export const footer = style(
+  {
+    alignItems: 'flex-end',
+    bottom: 0,
+    backgroundColor: primitiveColorVars.backgroundDark,
+    display: 'flex',
+    padding: `${spaceVars['8']} ${sidebarVars.horizontalPadding} ${spaceVars['16']}`,
+    marginLeft: `calc(-1 * ${sidebarVars.horizontalPadding})`,
+    marginRight: `calc(-1 * ${sidebarVars.horizontalPadding})`,
+    position: 'sticky',
+    '@media': {
+      'screen and (max-width: 1080px)': {
+        backgroundColor: primitiveColorVars.background,
+      },
+    },
+  },
+  'footer',
+)
+
+export const footerContent = style(
+  {
+    alignItems: 'center',
+    display: 'flex',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  'footerContent',
+)
+export const footerCurtain = style(
+  {
+    background: `linear-gradient(transparent 50%, ${primitiveColorVars.backgroundDark})`,
+    position: 'absolute',
+    top: -58,
+    left: 0,
+    height: '60px',
+    width: '100%',
+    '@media': {
+      'screen and (max-width: 1080px)': {
+        display: 'none',
+      },
+    },
+  },
+  'footerCurtain',
 )
 
 export const items = style(

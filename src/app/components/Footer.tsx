@@ -16,6 +16,7 @@ import { sizeVar } from './Icon.css.js'
 import { Icon } from './Icon.js'
 import { KeyboardShortcut } from './KeyboardShortcut.js'
 import { Link } from './Link.js'
+import { Socials } from './Socials.js'
 import { ArrowLeft } from './icons/ArrowLeft.js'
 import { ArrowRight } from './icons/ArrowRight.js'
 
@@ -34,7 +35,7 @@ export function Footer() {
   )
 
   return (
-    <footer className={styles.root}>
+    <footer className={styles.root} data-layout={layout}>
       {layout === 'docs' && (
         <>
           <div className={styles.container}>
@@ -54,6 +55,7 @@ export function Footer() {
           <Navigation />
         </>
       )}
+      {layout !== 'docs' && <Socials />}
       <ConsumerFooter />
     </footer>
   )
