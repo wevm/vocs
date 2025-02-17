@@ -20,6 +20,8 @@ import { Outline } from './Outline.js'
 import { Popover } from './Popover.js'
 import { RouterLink } from './RouterLink.js'
 import { Sidebar } from './Sidebar.js'
+import { Socials } from './Socials.js'
+import { ThemeToggle } from './ThemeToggle.js'
 import { ChevronDown } from './icons/ChevronDown.js'
 import { ChevronRight } from './icons/ChevronRight.js'
 import { ChevronUp } from './icons/ChevronUp.js'
@@ -173,6 +175,10 @@ function CompactNavigation({ items }: { items: Config.ParsedTopNavItem[] }) {
               ),
             )}
           </Accordion.Root>
+          <div className={styles.topNavPopoverFooter}>
+            <Socials />
+            <ThemeToggle />
+          </div>
         </Popover>
       </Popover.Root>
     </div>

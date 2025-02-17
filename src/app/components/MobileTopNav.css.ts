@@ -319,3 +319,13 @@ export const topNavPopover = style(
   },
   'topNavPopover',
 )
+
+export const topNavPopoverFooter = style(
+  {
+    display: 'flex',
+    gap: spaceVars[16],
+    justifyContent: 'space-between',
+    marginTop: spaceVars[8],
+  },
+  'topNavPopoverFooter',
+)
