@@ -140,7 +140,10 @@ function Head({ frontmatter }: { frontmatter: Module['frontmatter'] }) {
               }`,
             )
             .replace('%title', encodeURIComponent(title) || '')
-            .replace('%description', (description !== 'undefined' ? encodeURIComponent(description) : '') || '')}
+            .replace(
+              '%description',
+              (description !== 'undefined' ? encodeURIComponent(description) : '') || '',
+            )}
         />
       )}
     </Helmet>
