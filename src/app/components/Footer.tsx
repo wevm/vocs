@@ -106,21 +106,19 @@ function Navigation() {
         const prevPage = flattenedSidebar[index - 1]
         if (event.code === 'ArrowRight' && nextPage?.link) {
           const isExternalLink = !nextPage.link.match(/^(\.*\/|#)/)
-          if (isExternalLink) {
+          if (isExternalLink) 
             window.open(nextPage.link, 'noopener,noreferrer')
-          } else {
+          else 
             navigate(nextPage.link)
             index++
-          }
         }
         if (event.code === 'ArrowLeft' && prevPage?.link) {
           const isExternalLink = !prevPage.link.match(/^(\.*\/|#)/)
-          if (isExternalLink) {
+          if (isExternalLink) 
             window.open(prevPage.link, 'noopener,noreferrer')
-          } else {
+          else 
             navigate(prevPage.link)
             index--
-          }
         }
       }
     }
