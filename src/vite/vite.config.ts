@@ -5,6 +5,7 @@ import react from '@vitejs/plugin-react'
 import { type PluginOption, defineConfig, splitVendorChunkPlugin } from 'vite'
 
 import { css } from './plugins/css.js'
+import { llms } from './plugins/llms.js'
 import { mdx } from './plugins/mdx.js'
 import { resolveVocsModules } from './plugins/resolve-vocs-modules.js'
 import { search } from './plugins/search.js'
@@ -55,6 +56,7 @@ export default defineConfig(async () => {
         },
       }),
       css(),
+      llms(),
       mdx(),
       resolveVocsModules(),
       search(),
