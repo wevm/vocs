@@ -43,6 +43,7 @@ export const divider = style(
 export const navigation = style(
   {
     outline: 0,
+    paddingBottom: spaceVars['32'],
     selectors: {
       '&:first-child': {
         paddingTop: spaceVars['16'],
@@ -158,11 +159,11 @@ export const footerContent = style(
 )
 export const footerCurtain = style(
   {
-    background: `linear-gradient(transparent 50%, ${primitiveColorVars.backgroundDark})`,
+    background: `linear-gradient(transparent, ${primitiveColorVars.backgroundDark} 80%)`,
     position: 'absolute',
-    top: -58,
+    top: -34,
     left: 0,
-    height: '60px',
+    height: '36px',
     width: '100%',
     '@media': {
       'screen and (max-width: 1080px)': {

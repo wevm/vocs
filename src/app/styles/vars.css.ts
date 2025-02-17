@@ -124,7 +124,7 @@ createGlobalTheme(':root.dark', primitiveColorVars, {
   backgroundAccentHover: globalColors.blueDark.blue10,
   backgroundAccentText: white,
   backgroundBlueTint: globalColors.blueA.blueA3,
-  backgroundDark: '#0e0d0f',
+  backgroundDark: black,
   backgroundDarkTint: globalColors.mauveDark.mauve3,
   backgroundGreenTint: globalColors.greenA.greenA3,
   backgroundGreenTint2: globalColors.greenA.greenA4,
