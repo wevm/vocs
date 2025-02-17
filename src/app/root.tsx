@@ -1,8 +1,8 @@
+import { Layout } from 'virtual:consumer-components'
 import { MDXProvider } from '@mdx-js/react'
 import { type ReactNode, useEffect, useRef } from 'react'
 import { Helmet } from 'react-helmet'
 import { ScrollRestoration, useLocation } from 'react-router-dom'
-import { Layout } from 'virtual:consumer-components'
 import 'virtual:styles'
 
 import { components } from './components/mdx/index.js'
@@ -139,11 +139,8 @@ function Head({ frontmatter }: { frontmatter: Module['frontmatter'] }) {
                 typeof logoUrl === 'string' ? logoUrl : logoUrl?.dark || ''
               }`,
             )
-            .replace('%title', encodeURIComponent(title) || '')
-            .replace(
-              '%description',
-              (description !== 'undefined' ? encodeURIComponent(description) : '') || '',
-            )}
+            .replace('%title', title ? encodeURIComponent(title) : '')
+            .replace('%description', description ? encodeURIComponent(description) : '')}
         />
       )}
     </Helmet>
