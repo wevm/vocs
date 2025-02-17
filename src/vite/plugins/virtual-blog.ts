@@ -62,7 +62,7 @@ export function virtualBlog(): PluginOption {
             }
             return ''
           })()
-          if (description.length > 200) description = `${description.slice(0, 200)}…`
+          if (description?.length > 200) description = `${description.slice(0, 200)}…`
 
           const title = (() => {
             if (frontmatter.title) return frontmatter.title
