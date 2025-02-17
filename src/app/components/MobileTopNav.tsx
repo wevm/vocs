@@ -104,6 +104,8 @@ function NavigationMenuContent({ items }: { items: Config.ParsedTopNavItem[] }) 
 function CompactNavigation({ items }: { items: Config.ParsedTopNavItem[] }) {
   const [showPopover, setShowPopover] = useState(false)
 
+  const { showSidebar } = useLayout()
+
   const { pathname } = useLocation()
   const activeIds = useActiveNavIds({ pathname, items })
   const activeItem = items.filter((item) => item.id === activeIds[0])[0]
@@ -115,9 +117,9 @@ function CompactNavigation({ items }: { items: Config.ParsedTopNavItem[] }) {
     <div className={clsx(styles.navigation, styles.navigation_compact)}>
       <Popover.Root modal open={showPopover} onOpenChange={setShowPopover}>
         <Popover.Trigger className={clsx(styles.menuTrigger, styles.navigationItem)}>
-          {activeItem ? (
+          {showSidebar || activeItem ? (
             <>
-              {activeItem.text}
+              {activeItem?.text ?? 'Menu'}
               <Icon label="Menu" icon={ChevronDown} size="16px" />
             </>
           ) : (

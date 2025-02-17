@@ -7,6 +7,7 @@ import {
   sidebarVars,
   spaceVars,
   topNavVars,
+  viewportVars,
   zIndexVars,
 } from '../styles/vars.css.js'
 
@@ -44,6 +45,11 @@ export const navigation = style(
   {
     outline: 0,
     paddingBottom: spaceVars['32'],
+    '@media': {
+      [viewportVars['max-720px']]: {
+        paddingBottom: 0,
+      },
+    },
     selectors: {
       '&:first-child': {
         paddingTop: spaceVars['16'],
