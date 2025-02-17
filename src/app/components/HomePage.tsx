@@ -1,6 +1,7 @@
 import clsx from 'clsx'
 import type { ReactNode } from 'react'
 
+import { useLocation } from 'react-router-dom'
 import { useConfig } from '../hooks/useConfig.js'
 import { Button as Button_, type ButtonProps } from './Button.js'
 import * as styles from './HomePage.css.js'
@@ -18,12 +19,23 @@ export function Root({ children, className }: { children: ReactNode; className?:
 
 export function Logo({ className }: { className?: string }) {
   const { logoUrl, title } = useConfig()
+  const { pathname } = useLocation()
+
+  let pathKey = ''
+  if (typeof title === 'object' && Object.keys(title ?? {}).length > 0) {
+    let keys: string[] = []
+    keys = Object.keys(title).filter((key) => pathname.startsWith(key))
+    pathKey = keys[keys.length - 1]
+  }
+
+  const configTitle = typeof title === 'string' ? title : title[pathKey]
+
   return logoUrl ? (
     <div className={clsx(className, styles.logo)}>
       <Logo_ />
     </div>
   ) : (
-    <h1 className={clsx(className, styles.title)}>{title}</h1>
+    <h1 className={clsx(className, styles.title)}>{configTitle}</h1>
   )
 }
 
