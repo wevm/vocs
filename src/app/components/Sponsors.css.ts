@@ -21,6 +21,7 @@ export const root = style({
 export const title = style(
   {
     backgroundColor: primitiveColorVars.background3,
+    border: `1px solid ${primitiveColorVars.border}`,
     color: primitiveColorVars.text3,
     fontSize: fontSizeVars['13'],
     fontWeight: fontWeightVars.medium,
@@ -43,6 +44,7 @@ export const column = style(
   {
     alignItems: 'center',
     backgroundColor: primitiveColorVars.background3,
+    border: `1px solid ${primitiveColorVars.border}`,
     display: 'flex',
     justifyContent: 'center',
     padding: spaceVars['32'],
@@ -56,10 +58,7 @@ export const sponsor = style(
     transition: 'background-color 0.1s',
     selectors: {
       '&:hover': {
-        backgroundColor: primitiveColorVars.background5,
-      },
-      '.dark &:hover': {
-        backgroundColor: primitiveColorVars.white,
+        backgroundColor: primitiveColorVars.background4,
       },
     },
   },
@@ -74,9 +73,6 @@ export const image = style(
     selectors: {
       '.dark &': {
         filter: 'grayscale(1) invert(1)',
-      },
-      [`${column}:hover &`]: {
-        filter: 'none',
       },
     },
   },
