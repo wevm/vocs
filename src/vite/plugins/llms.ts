@@ -1,6 +1,7 @@
 import { resolve } from 'node:path'
 import { default as fs } from 'fs-extra'
 import { globby } from 'globby'
+import { mdxJsxToMarkdown } from 'mdast-util-mdx-jsx'
 import { toMarkdown } from 'mdast-util-to-markdown'
 import remarkMdx from 'remark-mdx'
 import remarkParse from 'remark-parse'
@@ -62,7 +63,7 @@ export async function llms(): Promise<PluginOption> {
               if (found) return
               if (j && i && j <= i) return
               found = true
-              description = toMarkdown(n).trim()
+              description = toMarkdown(n, { extensions: [mdxJsxToMarkdown()] }).trim()
               return
             })
 
