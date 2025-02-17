@@ -46,7 +46,7 @@ export function virtualRoutes(): PluginOption {
           let lastUpdatedAt: number | undefined
           if (fileGitTimestamp) lastUpdatedAt = fileGitTimestamp
 
-          let pagePath = path.replace(replacer, '').replace(/\.(.*)/, '')
+          let pagePath = path.replace(replacer, '').replace(/\.[^.]*$/, '')
           if (pagePath.endsWith('index'))
             pagePath = pagePath.replace('index', '').replace(/\/$/, '')
           code += `  { lazy: () => import("${path}"), path: "/${pagePath}", type: "${type}", filePath: "${filePath}", lastUpdatedAt: ${lastUpdatedAt} },`
