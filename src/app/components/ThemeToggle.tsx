@@ -1,3 +1,4 @@
+import { useMounted } from '../hooks/useMounted.js'
 import { useTheme } from '../hooks/useTheme.js'
 import { Icon } from './Icon.js'
 import * as styles from './ThemeToggle.css.js'
@@ -6,6 +7,9 @@ import { Sun } from './icons/Sun.js'
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme()
+  const mounted = useMounted()
+  if (!mounted) return null
+  if (!theme) return null
   return (
     <div className={styles.root}>
       <button
