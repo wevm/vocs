@@ -15,6 +15,7 @@ cli
   .option('-c, --clean', 'clean the cache and re-bundle')
   .option('-h, --host', 'Expose host URL')
   .option('-p, --port [number]', 'Port used by the server (default: 5173)')
+  .option('--clearScreen', 'clear the terminal screen (default: true)')
   .action(dev)
 cli
   .command('build')
@@ -22,6 +23,7 @@ cli
   .option('-l, --logLevel [level]', 'info | warn | error | silent')
   .option('-o, --outDir [dir]', 'output directory (default: dist)')
   .option('-p, --publicDir [dir]', 'public (asset) directory (default: public)')
+  .option('--clearScreen', 'clear the terminal screen (default: true)')
   .option('--searchIndex', 'builds the search index (default: true)')
   .action(build)
 cli.command('preview').action(preview)
