@@ -1,10 +1,15 @@
 import { resolve } from 'node:path'
 import { default as fs } from 'fs-extra'
 import { globby } from 'globby'
+import type { Heading } from 'mdast'
+import { directiveToMarkdown } from 'mdast-util-directive'
+import { gfmToMarkdown } from 'mdast-util-gfm'
+import { mdxToMarkdown } from 'mdast-util-mdx'
 import { mdxJsxToMarkdown } from 'mdast-util-mdx-jsx'
 import { toMarkdown } from 'mdast-util-to-markdown'
 import remarkMdx from 'remark-mdx'
 import remarkParse from 'remark-parse'
+import remarkStringify from 'remark-stringify'
 import { type Plugin, unified } from 'unified'
 import { visit } from 'unist-util-visit'
 import type { PluginOption, UserConfig } from 'vite'
@@ -26,7 +31,7 @@ export async function llms(): Promise<PluginOption> {
       if (!outDir) return
 
       const { config } = await resolveVocsConfig()
-      const { description, rootDir, title = 'Docs' } = config ?? {}
+      const { basePath, description, rootDir, title = 'Docs' } = config ?? {}
 
       const content = [`# ${title}`, '']
       if (description) content.push(`> ${description}`, '')
@@ -35,7 +40,8 @@ export async function llms(): Promise<PluginOption> {
       const glob = `${pagesPath}/**/*.{md,mdx}`
       const files = await globby(glob)
 
-      content.push('## Docs', '')
+      const llmsTxtContent = [...content, '## Docs', '']
+      const llmsCtxTxtContent = content
 
       for (const file of files) {
         let path = file.replace(pagesPath, '').replace(/\.[^.]*$/, '')
@@ -44,11 +50,12 @@ export async function llms(): Promise<PluginOption> {
         if (!path) continue
 
         const contents = fs.readFileSync(file, 'utf-8')
-        const parser = unified().use(remarkParse).use(remarkMdx)
+        const parser = unified().use(remarkParse).use(remarkMdx).use(remarkStringify)
         for (const plugin of remarkPlugins) parser.use(plugin as Plugin)
 
         const ast = parser.parse(contents)
 
+        // process llms.txt content
         visit(ast, { type: 'heading', depth: 1 }, (n, i) => {
           const node = n.children[0]
           if (node.type !== 'text') return
@@ -67,14 +74,47 @@ export async function llms(): Promise<PluginOption> {
               return
             })
 
-          content.push(`- [${title}](${path})${description ? `: ${description}` : ''}`)
+          llmsTxtContent.push(
+            `- [${title}](${basePath}${path})${description ? `: ${description}` : ''}`,
+          )
         })
+
+        visit(
+          ast,
+          (n) => n.type === 'heading',
+          (n) => {
+            const node = n as Heading
+            if (node.depth === 1 || node.depth === 2 || node.depth === 3 || node.depth === 4)
+              node.depth = (node.depth + 1) as 2 | 3 | 4 | 5
+          },
+        )
+
+        // remove frontmatter
+        visit(ast, { type: 'yaml' }, (_, i, p) => {
+          if (!p) return
+          if (typeof i !== 'number') return
+          p.children.splice(i, 1)
+        })
+
+        llmsCtxTxtContent.push(
+          toMarkdown(ast, {
+            extensions: [
+              directiveToMarkdown(),
+              gfmToMarkdown(),
+              mdxJsxToMarkdown(),
+              mdxToMarkdown(),
+            ],
+          }),
+          '',
+        )
       }
 
-      const llmsTxt = content.join('\n')
+      const llmsTxt = llmsTxtContent.join('\n')
+      const llmsCtxTxt = llmsCtxTxtContent.join('\n')
 
       fs.ensureDirSync(outDir)
       fs.writeFileSync(resolve(outDir, 'llms.txt'), llmsTxt)
+      fs.writeFileSync(resolve(outDir, 'llms-ctx.txt'), llmsCtxTxt)
     },
   }
 }

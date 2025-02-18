@@ -278,9 +278,15 @@ importers:
       mdast-util-from-markdown:
         specifier: ^2.0.2
         version: 2.0.2
+      mdast-util-frontmatter:
+        specifier: ^2.0.1
+        version: 2.0.1
       mdast-util-gfm:
         specifier: ^3.1.0
         version: 3.1.0
+      mdast-util-mdx:
+        specifier: ^3.0.0
+        version: 3.0.0
       mdast-util-mdx-jsx:
         specifier: ^3.2.0
         version: 3.2.0
@@ -2349,7 +2355,6 @@ packages:
 
   bun@1.2.2:
     resolution: {integrity: sha512-RUc8uVVTw8WoASUzXaEQJR1s7mnwoHm3P871qBUIqSaoOpuwcU+bSVX151/xoqDwnyv38SjOX7yQ3oO0IeT73g==}
-    cpu: [arm64, x64, aarch64]
     os: [darwin, linux, win32]
     hasBin: true
 
