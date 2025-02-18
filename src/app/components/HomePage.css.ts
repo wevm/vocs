@@ -48,7 +48,7 @@ export const title = style(
 
 export const tagline = style(
   {
-    color: primitiveColorVars.text2,
+    color: primitiveColorVars.text,
     fontSize: fontSizeVars['20'],
     fontWeight: fontWeightVars.medium,
     lineHeight: '1.5em',
@@ -79,7 +79,7 @@ export const description = style(
 export const buttons = style(
   {
     display: 'flex',
-    gap: spaceVars['16'],
+    gap: spaceVars['8'],
   },
   'buttons',
 )

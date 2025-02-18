@@ -52,7 +52,7 @@ for (const packagePath of packagePaths) {
     // Skip `package.json` exports
     if (/package\.json$/.test(key)) continue
 
-    let entries
+    let entries: [string, string][]
     if (typeof exports === 'string')
       entries = [
         ['default', exports],

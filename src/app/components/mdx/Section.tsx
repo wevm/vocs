@@ -1,5 +1,5 @@
 import { clsx } from 'clsx'
-import { type DetailedHTMLProps, type HTMLAttributes } from 'react'
+import type { DetailedHTMLProps, HTMLAttributes } from 'react'
 
 import { Footnotes } from './Footnotes.js'
 import * as styles from './Section.css.js'

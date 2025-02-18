@@ -65,7 +65,7 @@ function getRoutes(routesDir: string) {
         recurseRoutes(path)
         continue
       }
-      const file = path.replace(routesDir, '').replace(/\..*$/, '')
+      const file = path.replace(routesDir, '').replace(/\.[^.]*$/, '')
       routes.push(file.endsWith('/index') ? file.replace('index', '') : file)
     }
   }

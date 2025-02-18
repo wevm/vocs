@@ -1,6 +1,5 @@
 import './styles/index.css.js'
 
-import type { ReactElement } from 'react'
 import { renderToString } from 'react-dom/server'
 import { Helmet } from 'react-helmet'
 import { Route, type RouteObject, Routes } from 'react-router-dom'
@@ -10,7 +9,7 @@ import {
   StaticRouterProvider,
   createStaticHandler,
   createStaticRouter,
-} from 'react-router-dom/server.js'
+} from 'react-router-dom'
 
 import { resolveVocsConfig } from '../vite/utils/resolveVocsConfig.js'
 import { ConfigProvider } from './hooks/useConfig.js'
@@ -103,6 +102,6 @@ async function head({ path }: { path: string }) {
     ${helmet.link.toString()}
     ${helmet.style.toString()}
     ${helmet.script.toString()}
-    ${renderToString(head as ReactElement)}
+    ${renderToString(head)}
   `
 }

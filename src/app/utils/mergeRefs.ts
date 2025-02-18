@@ -1,4 +1,4 @@
-import { type MutableRefObject, type RefCallback } from 'react'
+import type { MutableRefObject, RefCallback } from 'react'
 
 type MutableRefList<T> = Array<RefCallback<T> | MutableRefObject<T> | undefined | null>
 

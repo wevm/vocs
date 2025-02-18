@@ -6,11 +6,21 @@ A general overview of the structure of a Vocs project:
 
 ```
 my-project/             # Your project's root directory.
-├── docs/               # The root directory of your documentation. // [!code hl] // [!code focus]
-│   ├── pages/          # Directory for your documentation pages (routes). // [!code hl] // [!code focus]
-│   │   └── index.mdx   // [!code hl] // [!code focus]
-│   └── public/         # Directory for static assets. // [!code hl] // [!code focus]
-│       └── favicon.ico // [!code hl] // [!code focus]
+// [!code hl]
+// [!code focus]
+├── docs/               # The root directory of your documentation.
+// [!code hl]
+// [!code focus]
+│   ├── pages/          # Directory for your documentation pages (routes).
+// [!code hl]
+// [!code focus]
+│   │   └── index.mdx   # A documentation page.
+// [!code hl]
+// [!code focus]
+│   └── public/         # Directory for static assets.
+// [!code hl]
+// [!code focus]
+│       └── favicon.ico # A static asset.
 ├── node_modules/
 ├── src/
 ├── .gitignore
@@ -30,7 +40,8 @@ my-project/
 │   ...
 ├── .gitignore
 ├── package.json
-└── vocs.config.ts  // [!code focus]
+// [!code focus]
+└── vocs.config.ts 
 ```
 
 A basic `vocs.config.ts` could look like this:
@@ -55,8 +66,9 @@ By default, Vocs will look for a directory named `./docs` in your project's root
 You can change this directory by setting the [`rootDir` property](/docs/api/config#rootdir) in your [vocs.config.ts](/docs/api/config).
 
 ```
-my-project/             
-├── docs/ // [!code focus]
+my-project/     
+// [!code focus]
+├── docs/
 │   ├── pages/
 │   │   └── index.mdx   
 │   └── public/
@@ -73,9 +85,12 @@ Files within the pages directory can be: Markdown or MDX files, or React compone
 ```
 my-project/             
 ├── docs/
-│   ├── pages/ // [!code focus]
-|   |   ├── index.mdx // [!code focus]
-|   |   └── about.tsx // [!code focus]
+// [!code focus]
+│   ├── pages/
+// [!code focus]
+|   |   ├── index.mdx
+// [!code focus]
+|   |   └── about.tsx
 │   └── public/
 │       └── favicon.ico 
 ├── node_modules/
@@ -94,9 +109,12 @@ my-project/
 │   ├── pages/ 
 |   |   ├── index.mdx 
 |   |   └── about.tsx 
-│   └── public/ // [!code focus]
-│       ├── logo.svg // [!code focus]
-│       └── favicon.ico // [!code focus]
+// [!code focus]
+│   └── public/ 
+// [!code focus]
+│       ├── logo.svg
+// [!code focus]
+│       └── favicon.ico
 ├── node_modules/
 │   ...
 ```
@@ -126,7 +144,8 @@ my-project/
 |   |   └── about.tsx 
 │   └── public/
 │   |   └── favicon.ico
-|   └── layout.tsx // [!code focus]
+// [!code focus]
+|   └── layout.tsx
 ├── node_modules/
 │   ...
 ```
@@ -154,7 +173,8 @@ my-project/
 |   |   └── about.tsx 
 │   └── public/
 │   |   └── favicon.ico
-|   └── footer.tsx // [!code focus]
+// [!code focus]
+|   └── footer.tsx
 ├── node_modules/
 │   ...
 ```
@@ -184,7 +204,8 @@ my-project/
 |   |   └── about.tsx 
 │   └── public/
 │   |   └── favicon.ico
-|   └── styles.css // [!code focus]
+// [!code focus]
+|   └── styles.css
 ├── node_modules/
 │   ...
 ```
@@ -192,9 +213,7 @@ my-project/
 The `styles.css` file could look like:
 
 ```css [styles.css]
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 :root {
   --vocs-color_background: white;

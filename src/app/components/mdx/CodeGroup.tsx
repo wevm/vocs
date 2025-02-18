@@ -5,10 +5,10 @@ import * as styles from './CodeGroup.css.js'
 
 export function CodeGroup({ children }: { children: ReactElement[] }) {
   if (!Array.isArray(children)) return null
-  const tabs = children.map((child_) => {
+  const tabs = children.map((child_: any) => {
     const child = child_.props['data-title'] ? child_ : child_.props.children
     const { props } = child
-    const title = props['data-title'] as string
+    const title = (props as { 'data-title'?: string })['data-title'] as string
     const content = props.children as ReactElement
     return { title, content }
   })
@@ -21,8 +21,8 @@ export function CodeGroup({ children }: { children: ReactElement[] }) {
           </Tabs.Trigger>
         ))}
       </Tabs.List>
-      {tabs.map(({ title, content }, i) => {
-        const isShiki = content.props?.className?.includes('shiki')
+      {tabs.map(({ title, content }: any, i) => {
+        const isShiki = content.props?.children?.props?.className?.includes('shiki')
         return (
           <Tabs.Content
             key={title || i.toString()}

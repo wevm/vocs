@@ -1,6 +1,6 @@
 import { createContext, useContext } from 'react'
 
-import { type Module } from '../types.js'
+import type { Module } from '../types.js'
 
 export function usePageData() {
   const pageData = useContext(PageDataContext)

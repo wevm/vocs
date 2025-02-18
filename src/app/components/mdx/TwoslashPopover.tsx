@@ -32,8 +32,8 @@ export function TwoslashPopover({ children, ...props }: { children: ReactElement
 
   const { getReferenceProps, getFloatingProps } = useInteractions([hover])
 
-  const targetChildren = target.props.children
-  const popoverChildren = popover.props.children
+  const targetChildren = (target.props as { children: ReactElement }).children
+  const popoverChildren = (popover.props as { children: ReactElement }).children
 
   return (
     <span {...props}>

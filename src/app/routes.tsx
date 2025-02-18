@@ -1,5 +1,5 @@
-import { type RouteObject } from 'react-router-dom'
 import { routes as routes_virtual } from 'virtual:routes'
+import type { RouteObject } from 'react-router-dom'
 
 import { NotFound } from './components/NotFound.js'
 import { DocsLayout } from './layouts/DocsLayout.js'

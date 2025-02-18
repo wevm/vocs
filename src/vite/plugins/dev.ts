@@ -64,7 +64,13 @@ export function dev(): PluginOption {
             const head = `${render.head}${styles}`
             const body = render.body
 
-            let html = template.replace('<!--head-->', head).replace('<!--body-->', body)
+            let html = template
+              .replace('<!--head-->', head)
+              .replace('<!--body-->', body)
+              .replace(
+                /(src=".*app\/utils\/initializeTheme\.ts")/,
+                `type="module" fetchpriority="high" blocking="render" $1`,
+              )
             if (theme?.colorScheme && theme?.colorScheme !== 'system')
               html = html.replace('lang="en"', `lang="en" class="${theme.colorScheme}"`)
 

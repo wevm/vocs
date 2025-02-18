@@ -17,7 +17,13 @@ export const root = style({
   gap: spaceVars['32'],
   maxWidth: contentVars.width,
   overflowX: 'hidden',
-  padding: `${spaceVars['28']} ${contentVars.horizontalPadding} ${spaceVars['48']}`,
+  padding: `${spaceVars['28']} ${contentVars.horizontalPadding}`,
+  selectors: {
+    '&:not([data-layout="docs"])': {
+      alignItems: 'center',
+      gap: spaceVars['16'],
+    },
+  },
   vars: {
     [iconWidthVar]: '24px',
   },
@@ -113,6 +119,7 @@ export const navigationItem_right = style(
 export const navigationText = style(
   {
     alignItems: 'center',
+    color: primitiveColorVars.heading,
     display: 'flex',
     fontSize: fontSizeVars['18'],
     fontWeight: fontWeightVars.medium,

@@ -18,7 +18,7 @@ import remarkFrontmatter from 'remark-frontmatter'
 import remarkGfm from 'remark-gfm'
 import remarkMdxFrontmatter from 'remark-mdx-frontmatter'
 import type { PluggableList } from 'unified'
-import { type PluginOption } from 'vite'
+import type { PluginOption } from 'vite'
 
 import type { ParsedConfig } from '../../config.js'
 import { resolveVocsConfig } from '../utils/resolveVocsConfig.js'
@@ -99,10 +99,10 @@ export const getRehypePlugins = ({
       {
         transformers: [
           transformerLineNumbers(),
-          transformerNotationDiff(),
-          transformerNotationFocus(),
-          transformerNotationHighlight(),
-          transformerNotationWordHighlight(),
+          transformerNotationDiff({ matchAlgorithm: 'v3' }),
+          transformerNotationFocus({ matchAlgorithm: 'v3' }),
+          transformerNotationHighlight({ matchAlgorithm: 'v3' }),
+          transformerNotationWordHighlight({ matchAlgorithm: 'v3' }),
           transformerNotationInclude({ rootDir }),
           transformerEmptyLine(),
           transformerTagLine(),

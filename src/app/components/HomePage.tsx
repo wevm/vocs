@@ -2,7 +2,7 @@ import clsx from 'clsx'
 import type { ReactNode } from 'react'
 
 import { useConfig } from '../hooks/useConfig.js'
-import { Button as Button_, type ButtonProps } from './Button.js'
+import { type ButtonProps, Button as Button_ } from './Button.js'
 import * as styles from './HomePage.css.js'
 import { Logo as Logo_ } from './Logo.js'
 import * as Tabs from './Tabs.js'

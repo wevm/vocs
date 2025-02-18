@@ -57,7 +57,6 @@ export const item = style(
     marginBottom: spaceVars[8],
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-    // @ts-expect-error
     textWrap: 'nowrap',
   },
   'item',
@@ -77,7 +76,7 @@ export const link = style(
         color: primitiveColorVars.textAccentHover,
       },
       '&:hover': {
-        color: primitiveColorVars.text,
+        color: primitiveColorVars.textHover,
       },
     },
   },

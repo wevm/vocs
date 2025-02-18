@@ -2,7 +2,7 @@ import { globalStyle, layer } from '@vanilla-extract/css'
 import { root as DocsLayout } from '../layouts/DocsLayout.css.js'
 import { fontFamilyVars, fontSizeVars, primitiveColorVars } from './vars.css.js'
 
-const resetLayer = layer('reset')
+const resetLayer = layer()
 
 globalStyle(['*', '::before', '::after'].join(','), {
   '@layer': {
@@ -67,7 +67,6 @@ globalStyle('h1,h2,h3,h4,h5,h6', {
     [resetLayer]: {
       fontSize: 'inherit',
       fontWeight: 'inherit',
-      // @ts-expect-error
       textWrap: 'balance',
     },
   },

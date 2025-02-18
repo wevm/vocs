@@ -7,9 +7,16 @@ import { version } from '../version.js'
 export type BuildParameters = Pick<
   BuildParameters_,
   'clean' | 'logLevel' | 'outDir' | 'publicDir' | 'searchIndex'
->
+> & { clearScreen?: boolean }
 
-export async function build({ clean, logLevel, outDir, publicDir, searchIndex }: BuildParameters) {
+export async function build({
+  clean,
+  clearScreen = true,
+  logLevel,
+  outDir,
+  publicDir,
+  searchIndex,
+}: BuildParameters) {
   const { build } = await import('../../vite/build.js')
 
   const useLogger = logLevel !== 'info'
@@ -23,7 +30,7 @@ export async function build({ clean, logLevel, outDir, publicDir, searchIndex }:
     prerender: ora('prerendering pages...\n'),
   }
 
-  logger.clearScreen('info')
+  if (clearScreen) logger.clearScreen('info')
   logger.info('')
   logger.info(`  ${pc.blue('[building]')} ${pc.bold('vocs')}@${pc.dim(`v${version}`)}\n`)
   await build({
