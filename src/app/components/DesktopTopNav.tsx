@@ -21,6 +21,8 @@ import { Sun } from './icons/Sun.js'
 import { Telegram } from './icons/Telegram.js'
 import { Warpcast } from './icons/Warpcast.js'
 import { X } from './icons/X.js'
+import { GitLab } from './icons/GitLab.js'
+import { LinkedIn } from './icons/LinkedIn.js'
 
 DesktopTopNav.Curtain = Curtain
 
@@ -174,6 +176,8 @@ const iconsForIcon = {
   telegram: Telegram,
   warpcast: Warpcast,
   x: X,
+  gitlab: GitLab,
+  linkedin: LinkedIn,
 } satisfies Record<ParsedSocialItem['type'], ComponentType>
 
 const sizesForType = {
@@ -182,6 +186,8 @@ const sizesForType = {
   telegram: '21px',
   warpcast: '20px',
   x: '18px',
+  gitlab: '20px',
+  linkedin: '22px',
 } satisfies Record<ParsedSocialItem['type'], string>
 
 function SocialButton({ icon, label, link }: ParsedSocialItem) {
