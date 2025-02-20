@@ -48,7 +48,7 @@ export function virtualRoutes(): PluginOption {
 
           let pagePath = path.replace(replacer, '').replace(/\.(.*)/, '')
           if (pagePath.endsWith('index'))
-            pagePath = pagePath.replace('index', '').replace(/\/$/, '')
+            pagePath = pagePath.replace(/index$/, '').replace(/\/$/, '')
           code += `  { lazy: () => import("${path}"), path: "/${pagePath}", type: "${type}", filePath: "${filePath}", lastUpdatedAt: ${lastUpdatedAt} },`
           if (pagePath)
             code += `  { lazy: () => import("${path}"), path: "/${pagePath}.html", type: "${type}", filePath: "${filePath}", lastUpdatedAt: ${lastUpdatedAt} },`
