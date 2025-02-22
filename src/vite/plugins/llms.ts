@@ -114,7 +114,7 @@ export async function llms(): Promise<PluginOption> {
 
       fs.ensureDirSync(outDir)
       fs.writeFileSync(resolve(outDir, 'llms.txt'), llmsTxt)
-      fs.writeFileSync(resolve(outDir, 'llms-ctx.txt'), llmsCtxTxt)
+      fs.writeFileSync(resolve(outDir, 'llms-full.txt'), llmsCtxTxt)
     },
   }
 }
