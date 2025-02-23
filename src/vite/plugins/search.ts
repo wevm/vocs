@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { relative, resolve } from 'node:path'
-import MiniSearch from 'minisearch'
+import type MiniSearch from 'minisearch'
 import { type Plugin, type UserConfig, type ViteDevServer, createLogger } from 'vite'
 
 import * as cache from '../utils/cache.js'

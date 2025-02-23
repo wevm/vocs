@@ -1,5 +1,5 @@
-import { Fragment } from 'react'
 import { posts } from 'virtual:blog'
+import { Fragment } from 'react'
 
 import { Authors } from './Authors.js'
 import * as styles from './BlogPosts.css.js'

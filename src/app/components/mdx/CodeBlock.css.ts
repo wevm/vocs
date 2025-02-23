@@ -8,7 +8,7 @@ import {
   spaceVars,
   viewportVars,
 } from '../../styles/vars.css.js'
-import { root as Callout } from '../Callout.css.js'
+import { content as Callout } from '../Callout.css.js'
 import { root as Tabs } from '../Tabs.css.js'
 
 export const root = style({
@@ -24,10 +24,15 @@ export const root = style({
     },
   },
   selectors: {
-    [`${Tabs} &, ${Callout} &`]: {
+    [`${Tabs} &`]: {
       border: 'none',
       marginLeft: 'unset',
       marginRight: 'unset',
+    },
+    [`${Callout} &`]: {
+      marginLeft: '-22px',
+      marginRight: 'unset',
+      marginTop: '-4px',
     },
   },
 })
@@ -55,7 +60,7 @@ globalStyle(`${root} pre`, {
 
 globalStyle(`${Callout} ${root} pre`, {
   backgroundColor: `color-mix(in srgb, ${semanticColorVars.codeBlockBackground} 65%, transparent) !important`,
-  border: `1px solid ${semanticColorVars.codeInlineBorder}`,
+  border: 'none',
   borderRadius: borderRadiusVars['4'],
   padding: `${spaceVars['12']} ${spaceVars['0']}`,
 })
@@ -114,7 +119,7 @@ globalStyle(`${root} .highlighted`, {
 globalStyle(`${root} .highlighted-word`, {
   borderRadius: borderRadiusVars['2'],
   backgroundColor: `${semanticColorVars.codeCharacterHighlightBackground} !important`,
-  boxShadow: `0 0 0 4px ${semanticColorVars.codeCharacterHighlightBackground}`,
+  boxShadow: `0 0 0 2px ${semanticColorVars.codeCharacterHighlightBackground}, 0 0 0 3px ${semanticColorVars.codeCharacterHighlightBorder}`,
 })
 
 globalStyle(`${root} .has-diff`, {

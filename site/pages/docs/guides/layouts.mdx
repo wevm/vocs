@@ -12,7 +12,8 @@ The `docs` layout is the default layout for all pages. It includes documentation
 
 ```md
 ---
-layout: docs // [!code focus]
+// [!code focus]
+layout: docs
 ---
 
 # A docs page
@@ -26,7 +27,8 @@ The `landing` layout is a special layout that can be used for a homepage. It doe
 
 ```md
 ---
-layout: landing // [!code focus]
+// [!code focus]
+layout: landing
 ---
 
 This is a landing page.
@@ -82,7 +84,8 @@ The `minimal` layout is a barebones, blank layout. It does not include any docum
 
 ```md
 ---
-layout: minimal // [!code focus]
+// [!code focus]
+layout: minimal
 ---
 
 # A minimal page
@@ -106,9 +109,12 @@ The example below demonstrates a `docs` layout page with no sidebar, outline or 
 
 ```md
 ---
-showSidebar: false // [!code focus]
-showOutline: false // [!code focus]
-showLogo: false // [!code focus]
+// [!code focus]
+showSidebar: false 
+// [!code focus]
+showOutline: false 
+// [!code focus]
+showLogo: false 
 ---
 
 This is a page without a sidebar, outline, or logo.
@@ -118,8 +124,10 @@ The example below demonstrates a `minimal` layout page with no logo:
 
 ```md
 ---
-layout: minimal // [!code focus]
-showLogo: false // [!code focus]
+// [!code focus]
+layout: minimal
+// [!code focus]
+showLogo: false
 ---
 
 This is a minimal layout without the logo.
@@ -129,11 +137,16 @@ The example below demonstrates a `landing` layout page with a viewport width tha
 
 ```md
 ---
-layout: landing // [!code focus]
-content: // [!code focus]
-  horizontalPadding: 0px // [!code focus]
-  width: 100% // [!code focus]
-  verticalPadding: 0px // [!code focus]
+// [!code focus]
+layout: landing
+// [!code focus]
+content:
+  // [!code focus]
+  horizontalPadding: 0px
+  // [!code focus]
+  width: 100%
+  // [!code focus]
+  verticalPadding: 0px
 ---
 
 This is a minimal layout without the logo.

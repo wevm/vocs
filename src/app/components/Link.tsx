@@ -9,14 +9,13 @@ import { RouterLink, type RouterLinkProps } from './RouterLink.js'
 type LinkProps = {
   children: React.ReactNode
   className?: string
-  hideExternalIcon?: boolean
   onClick?: () => void
   href?: string
-  variant?: 'accent underlined' | 'styleless'
+  variant?: 'accent' | 'styleless'
 }
 
 export const Link = forwardRef((props: LinkProps, ref) => {
-  const { href, variant = 'accent underlined' } = props
+  const { href, variant = 'accent' } = props
 
   const { pathname } = useLocation()
 
@@ -26,13 +25,7 @@ export const Link = forwardRef((props: LinkProps, ref) => {
       <ExternalLink
         {...props}
         ref={ref}
-        className={clsx(
-          props.className,
-          styles.root,
-          variant === 'accent underlined' && styles.accent_underlined,
-          variant === 'styleless' && styles.styleless,
-        )}
-        hideExternalIcon={props.hideExternalIcon}
+        className={clsx(props.className, styles.root, variant === 'accent' && styles.accent)}
       />
     )
 
@@ -43,12 +36,7 @@ export const Link = forwardRef((props: LinkProps, ref) => {
     <RouterLink
       {...(props as RouterLinkProps)}
       ref={ref}
-      className={clsx(
-        props.className,
-        styles.root,
-        variant === 'accent underlined' && styles.accent_underlined,
-        variant === 'styleless' && styles.styleless,
-      )}
+      className={clsx(props.className, styles.root, variant === 'accent' && styles.accent)}
       to={to}
     />
   )

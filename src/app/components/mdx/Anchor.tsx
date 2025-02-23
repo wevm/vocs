@@ -21,7 +21,7 @@ export function Anchor(props: AnchorProps) {
     children &&
     typeof children === 'object' &&
     'props' in children &&
-    children.props['data-autolink-icon']
+    (children.props as { 'data-autolink-icon'?: boolean })['data-autolink-icon']
   )
     return <Autolink className={clsx(props.className, styles.root)} {...props} />
 

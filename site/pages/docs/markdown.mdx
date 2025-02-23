@@ -62,8 +62,8 @@ This is a tip callout. [Link](https://google.com)
 This is a success callout. [Link](https://google.com)
 :::
 
-:::tip[Handy Tip]
-This is a tip callout with title.
+:::note
+This is a callout with code.
 
 ```tsx
 console.log('hello world')
@@ -96,9 +96,6 @@ This is a tip callout. [Link](https://google.com)
 This is a success callout. [Link](https://google.com)
 :::
 
-:::tip[Handy Tip]
-This is a tip callout with title.
-:::
 ````
 
 ::::
@@ -178,8 +175,10 @@ const client = createPublicClient({
   transport: http(),
 })
 
-// 3. Consume an action! //$ [!code focus] // [!code hl]
-const blockNumber = await client.getBlockNumber() //$ [!code focus] // [!code hl]
+// [!code hl]
+// 3. Consume an action! // [\!code focus]
+// [!code hl]
+const blockNumber = await client.getBlockNumber() // [\!code focus]
 ```
 ````
 
@@ -200,7 +199,8 @@ const example: Example = 'example'
 
 ````md [Markdown]
 ```ts 
-type Example = string //$ [!code hl] // [!code hl]
+// [!code hl]
+type Example = string // [\!code hl]
 const example: Example = 'example'
 ```
 ````
@@ -330,11 +330,13 @@ const blockNumber = await client.getBlockNumber()
 ```ts 
 // 1. Import modules.
 import { createPublicClient, http } from 'viem'
-//$ [!code word:mainnet] // [!code hl]
+// [!code hl]
+// [\!code word:mainnet]
 import { mainnet } from 'viem/chains'
 
 // 2. Set up your client with desired chain & transport.
-//$ [!code word:client] // [!code hl]
+// [!code hl]
+// [\!code word:client]
 const client = createPublicClient({
   chain: mainnet,
   transport: http(),
@@ -374,8 +376,10 @@ const blockNumber = await client.getBlockNumber()
 ````md [Markdown]
 ```ts
 // 1. Import modules.
-import { createPublicClient } from 'viem' //$ [!code --] // [!code hl]
-import { createPublicClient, http } from 'viem' //$ [!code ++] // [!code hl]
+// [!code hl]
+import { createPublicClient } from 'viem' // [\!code --]
+// [!code hl]
+import { createPublicClient, http } from 'viem' // [\!code ++]
 import { mainnet } from 'viem/chains'
 
 // 2. Set up your client with desired chain & transport.

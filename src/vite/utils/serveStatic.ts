@@ -1,6 +1,6 @@
 // Fork of https://github.com/honojs/node-server/blob/main/src/serve-static.ts with support for absolute `root` path.
 
-import { ReadStream, createReadStream, existsSync, lstatSync } from 'fs'
+import { type ReadStream, createReadStream, existsSync, lstatSync } from 'node:fs'
 import type { MiddlewareHandler } from 'hono'
 import { getFilePath } from 'hono/utils/filepath'
 import { getMimeType } from 'hono/utils/mime'
@@ -78,8 +78,8 @@ export const serveStatic = (options: ServeStaticOptions = { root: '' }): Middlew
     c.header('Date', stat.birthtime.toUTCString())
 
     const parts = range.replace(/bytes=/, '').split('-', 2)
-    const start = parts[0] ? parseInt(parts[0], 10) : 0
-    let end = parts[1] ? parseInt(parts[1], 10) : stat.size - 1
+    const start = parts[0] ? Number.parseInt(parts[0], 10) : 0
+    let end = parts[1] ? Number.parseInt(parts[1], 10) : stat.size - 1
     if (size < end - start + 1) {
       end = size - 1
     }

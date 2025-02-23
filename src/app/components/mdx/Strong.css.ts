@@ -1,11 +1,12 @@
 import { style } from '@vanilla-extract/css'
 
-import { fontWeightVars, spaceVars } from '../../styles/vars.css.js'
-import { root as Callout } from '../Callout.css.js'
+import { fontWeightVars, lineHeightVars, spaceVars } from '../../styles/vars.css.js'
+import { content as Callout } from '../Callout.css.js'
 import { root as Content } from '../Content.css.js'
 
 export const root = style({
   fontWeight: fontWeightVars.semibold,
+  lineHeight: lineHeightVars.paragraph,
   selectors: {
     [`${Content} > &`]: {
       display: 'block',

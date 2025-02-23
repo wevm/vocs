@@ -24,8 +24,6 @@ export const root = style({
     },
     [`${Anchor}>&`]: {
       color: semanticColorVars.link,
-      textDecoration: 'underline',
-      textUnderlineOffset: spaceVars['2'],
     },
     [`${Anchor}:hover>&`]: {
       color: semanticColorVars.linkHover,
@@ -51,7 +49,6 @@ export const root = style({
     '.twoslash-popup-info-hover>&': {
       backgroundColor: 'inherit',
       padding: 0,
-      // @ts-expect-error
       textWrap: 'wrap',
     },
     '.twoslash-popup-jsdoc &': {
