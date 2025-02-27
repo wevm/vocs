@@ -5,6 +5,7 @@ import { build } from './commands/build.js'
 import { dev } from './commands/dev.js'
 import { preview } from './commands/preview.js'
 import { searchIndex } from './commands/search-index.js'
+import { twoslash } from './commands/twoslash.js'
 import { version } from './version.js'
 
 export const cli = cac('vocs')
@@ -31,6 +32,7 @@ cli
   .command('search-index')
   .option('-o, --outDir [dir]', 'output directory (default: dist)')
   .action(searchIndex)
+cli.command('twoslash').action(twoslash)
 
 cli.help()
 cli.version(version)

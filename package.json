@@ -14,6 +14,7 @@
     "docs:dev": "node --import tsx/esm ./src/cli/index.ts dev",
     "docs:build": "NODE_ENV=production node --import tsx/esm ./src/cli/index.ts build",
     "docs:search-index": "NODE_ENV=production node --import tsx/esm ./src/cli/index.ts search-index",
+    "docs:twoslash": "NODE_ENV=production node --import tsx/esm ./src/cli/index.ts twoslash",
     "docs:preview": "node --import tsx/esm ./src/cli/index.ts preview",
     "playground": "pnpm --filter playgrounds/default dev",
     "preconstruct": "bun run scripts/preconstruct.ts",
