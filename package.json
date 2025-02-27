@@ -3,10 +3,10 @@
   "type": "module",
   "scripts": {
     "build": "pnpm build:vocs && pnpm build:create-vocs",
-    "build:vocs": "rimraf src/_lib src/tsconfig.build.* && tsc -p tsconfig.build.json && bun scripts/postbuild.ts",
+    "build:vocs": "rimraf src/_lib src/tsconfig.build.* && tsc -p tsconfig.build.json && tsx scripts/postbuild.ts",
     "build:create-vocs": "rimraf create-vocs/_lib && tsc -p create-vocs/tsconfig.build.json",
     "changeset": "changeset",
-    "changeset:publish": "bun scripts/prepublish.ts && pnpm build && changeset publish",
+    "changeset:publish": "tsx scripts/prepublish.ts && pnpm build && changeset publish",
     "changeset:version": "changeset version && pnpm install --lockfile-only",
     "check": "biome check . --write --unsafe",
     "check:deps": "pnpx taze -r",
@@ -17,7 +17,7 @@
     "docs:twoslash": "NODE_ENV=production node --import tsx/esm ./src/cli/index.ts twoslash",
     "docs:preview": "node --import tsx/esm ./src/cli/index.ts preview",
     "playground": "pnpm --filter playgrounds/default dev",
-    "preconstruct": "bun run scripts/preconstruct.ts",
+    "preconstruct": "tsx scripts/preconstruct.ts",
     "prepare": "simple-git-hooks"
   },
   "devDependencies": {
@@ -32,8 +32,6 @@
     "@types/react-helmet": "^6.1.11",
     "@types/serve-static": "^1.15.7",
     "@vercel/og": "^0.5.20",
-    "bun": "^1.2.2",
-    "bun-types": "^1.2.2",
     "globby": "^13.2.2",
     "react": "catalog:",
     "react-dom": "catalog:",

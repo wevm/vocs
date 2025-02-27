@@ -1,7 +1,4 @@
 {
   "extends": "./tsconfig.base.json",
-  "include": ["playgrounds", "scripts", "src", "vocs.config.ts"],
-  "compilerOptions": {
-    "types": ["bun-types"]
-  }
+  "include": ["playgrounds", "scripts", "src", "vocs.config.ts"]
 }

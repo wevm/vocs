@@ -1,5 +1,5 @@
-import fs from 'node:fs/promises'
 import path from 'node:path'
+import { default as fs } from 'fs-extra'
 import { glob } from 'glob'
 
 // Symlinks package sources to dist for local development
@@ -19,8 +19,7 @@ for (const packagePath of packagePaths) {
     name?: string | undefined
     private?: boolean | undefined
   }
-  const file = Bun.file(packagePath)
-  const packageJson = (await file.json()) as Package
+  const packageJson = fs.readJsonSync(packagePath) as Package
 
   // Skip private packages
   if (packageJson.private) continue
