@@ -51,19 +51,19 @@ First, we will install `vocs` as a dependency in our project.
 :::code-group
 
 ```bash [npm]
-npm i vocs
+npm i vocs@next
 ```
 
 ```bash [pnpm]
-pnpm i vocs
+pnpm i vocs@next
 ```
 
 ```bash [yarn]
-yarn add vocs
+yarn add vocs@next
 ```
 
 ```bash [bun]
-bun i vocs
+bun i vocs@next
 ```
 
 :::
@@ -88,11 +88,14 @@ After that, let's add some scripts to our `package.json` for Vocs.
 
 Create a directory called `docs`, and add a file inside of it called `index.mdx` under a `pages` directory:
 
-```
+```md
 my-project/      
-├── docs/                // [!code focus]
-│   ├── pages/           // [!code focus]
-│   │   └── index.mdx   // [!code focus]
+// [!code focus]
+├── docs/               
+// [!code focus]
+│   ├── pages/         
+// [!code focus] 
+│   │   └── index.mdx  
 ├── node_modules/
 └── package.json  
 ```

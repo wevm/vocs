@@ -47,7 +47,7 @@ export const trigger = style(
       },
       '&[data-state="active"]': {
         borderBottom: `2px solid ${primitiveColorVars.borderAccent}`,
-        color: primitiveColorVars.text,
+        color: primitiveColorVars.title,
       },
     },
   },

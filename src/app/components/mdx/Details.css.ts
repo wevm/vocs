@@ -1,6 +1,6 @@
 import { style } from '@vanilla-extract/css'
 
-import { root as Callout } from '../Callout.css.js'
+import { content as Callout } from '../Callout.css.js'
 
 export const root = style({
   selectors: {

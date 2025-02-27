@@ -25,15 +25,15 @@ export type RehypeInlineShikiOptions = RehypeShikiCoreOptions & {
 
 let promise: Promise<HighlighterGeneric<BundledLanguage, BundledTheme>>
 
-export const rehypeInlineShiki: Plugin<[RehypeInlineShikiOptions], Root> = function (
+export const rehypeInlineShiki: Plugin<[RehypeInlineShikiOptions], Root> = (
   options = {} as any,
-) {
+) => {
   const themeNames = ('themes' in options ? Object.values(options.themes) : [options.theme]).filter(
     Boolean,
   ) as BuiltinTheme[]
   const langs = options.langs || Object.keys(bundledLanguages)
 
-  return async function (tree) {
+  return async (tree) => {
     if (!promise)
       promise = getSingletonHighlighter({
         themes: themeNames,

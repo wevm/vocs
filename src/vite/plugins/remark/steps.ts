@@ -24,7 +24,7 @@ export function remarkSteps() {
 
       const depth = (node.children.find((child) => child.type === 'heading') as Heading)?.depth ?? 2
 
-      let currentChild
+      let currentChild: any
       const children = []
       for (const child of node.children) {
         if (child.type === 'heading' && child.depth === depth) {

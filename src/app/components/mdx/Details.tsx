@@ -1,5 +1,5 @@
 import { clsx } from 'clsx'
-import { type DetailedHTMLProps, type DetailsHTMLAttributes } from 'react'
+import type { DetailedHTMLProps, DetailsHTMLAttributes } from 'react'
 
 import * as styles from './Details.css.js'
 

@@ -47,7 +47,7 @@ export function twoslashRenderer(): TwoslashRenderer {
                 lang,
               }).children[0] as Element
             }
-            return defaultHandlers.code(state, node)
+            return defaultHandlers.code(state, node) as any
           },
         },
       }) as Element

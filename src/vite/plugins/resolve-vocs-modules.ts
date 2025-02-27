@@ -1,6 +1,6 @@
 import { dirname, extname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { type PluginOption } from 'vite'
+import type { PluginOption } from 'vite'
 
 import type { ParsedConfig } from '../../config.js'
 import { resolveVocsConfig } from '../utils/resolveVocsConfig.js'

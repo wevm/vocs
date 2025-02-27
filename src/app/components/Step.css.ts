@@ -2,7 +2,6 @@ import { globalStyle, style } from '@vanilla-extract/css'
 
 import { fontWeightVars, primitiveColorVars, spaceVars, viewportVars } from '../styles/vars.css.js'
 import { root as Tabs } from './Tabs.css.js'
-import { root as CodeBlock } from './mdx/CodeBlock.css.js'
 import { root as H2 } from './mdx/H2.css.js'
 import { root as H3 } from './mdx/H3.css.js'
 import { root as H4 } from './mdx/H4.css.js'
@@ -23,7 +22,7 @@ export const title = style(
     position: 'relative',
     '::before': {
       alignItems: 'center',
-      backgroundColor: primitiveColorVars.background5,
+      backgroundColor: primitiveColorVars.background4,
       borderRadius: '100%',
       border: `0.5em solid ${primitiveColorVars.background}`,
       boxSizing: 'content-box',
@@ -63,7 +62,7 @@ globalStyle(`${content} > *:last-child`, {
   marginBottom: spaceVars['0'],
 })
 
-globalStyle(`${content} > ${Tabs}, ${content} > ${CodeBlock}`, {
+globalStyle(`${content} > ${Tabs}, ${content} > .vocs_CodeBlock`, {
   '@media': {
     [viewportVars['max-720px']]: {
       outline: `6px solid ${primitiveColorVars.background}`,

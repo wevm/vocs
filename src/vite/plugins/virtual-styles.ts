@@ -2,7 +2,7 @@ import { existsSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { default as fs } from 'fs-extra'
-import { type PluginOption } from 'vite'
+import type { PluginOption } from 'vite'
 
 import type { ParsedConfig, Theme } from '../../config.js'
 import { resolveVocsConfig } from '../utils/resolveVocsConfig.js'

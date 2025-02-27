@@ -12,13 +12,15 @@ import {
 } from 'react'
 import { matchPath, useLocation, useMatch } from 'react-router-dom'
 
-import { type SidebarItem as SidebarItemType } from '../../config.js'
+import type { SidebarItem as SidebarItemType } from '../../config.js'
 import { usePageData } from '../hooks/usePageData.js'
 import { useSidebar } from '../hooks/useSidebar.js'
 import { Icon } from './Icon.js'
 import { NavLogo } from './NavLogo.js'
 import { RouterLink } from './RouterLink.js'
 import * as styles from './Sidebar.css.js'
+import { Socials } from './Socials.js'
+import { ThemeToggle } from './ThemeToggle.js'
 import { ChevronRight } from './icons/ChevronRight.js'
 
 export function Sidebar(props: {
@@ -28,7 +30,7 @@ export function Sidebar(props: {
   const { className, onClickItem } = props
 
   const { previousPath } = usePageData()
-  const sidebarRef = useRef<HTMLElement>(null)
+  const sidebarRef = useRef<any>(null)
   const sidebar = useSidebar()
   const [backPath, setBackPath] = useState<string>('/')
 
@@ -45,40 +47,51 @@ export function Sidebar(props: {
 
   return (
     <aside ref={sidebarRef} key={sidebar.key} className={clsx(styles.root, className)}>
-      <div className={styles.logoWrapper}>
-        <div className={styles.logo}>
-          <RouterLink to="/" style={{ alignItems: 'center', display: 'flex', height: '100%' }}>
-            <NavLogo />
-          </RouterLink>
+      <div>
+        <div className={styles.logoWrapper}>
+          <div className={styles.logo}>
+            <RouterLink to="/" style={{ alignItems: 'center', display: 'flex', height: '100%' }}>
+              <NavLogo />
+            </RouterLink>
+          </div>
+
+          <div className={styles.divider} />
         </div>
-        <div className={styles.divider} />
+
+        <nav className={styles.navigation}>
+          <div className={styles.group}>
+            {sidebar.backLink && (
+              <section className={styles.section}>
+                <div className={styles.items}>
+                  <RouterLink className={clsx(styles.item, styles.backLink)} to={backPath}>
+                    ←{' '}
+                    {typeof history !== 'undefined' && history.state?.key && backPath !== '/'
+                      ? 'Back'
+                      : 'Home'}
+                  </RouterLink>
+                </div>
+              </section>
+            )}
+            {groups.map((group, i) => (
+              <SidebarItem
+                key={`${group.text}${i}`}
+                depth={0}
+                item={group}
+                onClick={onClickItem}
+                sidebarRef={sidebarRef}
+              />
+            ))}
+          </div>
+        </nav>
       </div>
 
-      <nav className={styles.navigation}>
-        <div className={styles.group}>
-          {sidebar.backLink && (
-            <section className={styles.section}>
-              <div className={styles.items}>
-                <RouterLink className={clsx(styles.item, styles.backLink)} to={backPath}>
-                  ←{' '}
-                  {typeof history !== 'undefined' && history.state?.key && backPath !== '/'
-                    ? 'Back'
-                    : 'Home'}
-                </RouterLink>
-              </div>
-            </section>
-          )}
-          {groups.map((group, i) => (
-            <SidebarItem
-              key={`${group.text}${i}`}
-              depth={0}
-              item={group}
-              onClick={onClickItem}
-              sidebarRef={sidebarRef}
-            />
-          ))}
+      <div className={styles.footer}>
+        <div className={styles.footerCurtain} />
+        <div className={styles.footerContent}>
+          <Socials />
+          <ThemeToggle />
         </div>
-      </nav>
+      </div>
     </aside>
   )
 }
@@ -209,6 +222,7 @@ function SidebarItem(props: {
 
             {isCollapsable && (
               <div
+                // biome-ignore lint/a11y/useSemanticElements:
                 role="button"
                 tabIndex={0}
                 onClick={onCollapseTriggerInteraction}
@@ -221,7 +235,7 @@ function SidebarItem(props: {
                   )}
                   label="toggle section"
                   icon={ChevronRight}
-                  size="10px"
+                  size="16px"
                 />
               </div>
             )}

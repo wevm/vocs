@@ -10,19 +10,19 @@ import {
 export const button = style(
   {
     alignItems: 'center',
-    background: primitiveColorVars.background4,
+    background: primitiveColorVars.background3,
     border: `1px solid ${primitiveColorVars.border}`,
-    borderRadius: borderRadiusVars['4'],
+    borderRadius: borderRadiusVars.round,
     color: primitiveColorVars.text,
     display: 'flex',
     fontSize: fontSizeVars['14'],
     fontWeight: fontWeightVars.medium,
-    height: '36px',
-    padding: `0 ${spaceVars['16']}`,
+    height: '40px',
+    padding: `0 ${spaceVars['18']}`,
     transition: 'background 0.1s',
     selectors: {
       '&:hover': {
-        background: primitiveColorVars.background3,
+        background: primitiveColorVars.background4,
       },
     },
     whiteSpace: 'pre',
@@ -34,8 +34,8 @@ export const button = style(
 export const button_accent = style(
   {
     background: primitiveColorVars.backgroundAccent,
-    color: primitiveColorVars.backgroundAccentText,
     border: `1px solid ${primitiveColorVars.borderAccent}`,
+    color: primitiveColorVars.backgroundAccentText,
     selectors: {
       '&:hover': {
         background: primitiveColorVars.backgroundAccentHover,

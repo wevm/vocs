@@ -4,7 +4,7 @@ import { defineConfig } from './src/index.js'
 import { version } from './src/package.json'
 
 export default defineConfig({
-  baseUrl: 'https://vocs.dev',
+  baseUrl: 'https://next.vocs.dev',
   description: 'Static documentation generator powered by Vite and React',
   editLink: {
     pattern: 'https://github.com/wagmi-dev/vocs/edit/main/site/pages/:path',
@@ -38,10 +38,6 @@ export default defineConfig({
     {
       icon: 'github',
       link: 'https://github.com/wagmi-dev/vocs',
-    },
-    {
-      icon: 'warpcast',
-      link: 'https://warpcast.com/wevm',
     },
     {
       icon: 'x',
