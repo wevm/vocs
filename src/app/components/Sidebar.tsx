@@ -13,6 +13,7 @@ import {
 import { matchPath, useLocation, useMatch } from 'react-router-dom'
 
 import { type SidebarItem as SidebarItemType } from '../../config.js'
+import { useLocale } from '../hooks/useLocale.js'
 import { usePageData } from '../hooks/usePageData.js'
 import { useSidebar } from '../hooks/useSidebar.js'
 import { Icon } from './Icon.js'
@@ -31,6 +32,7 @@ export function Sidebar(props: {
   const sidebarRef = useRef<HTMLElement>(null)
   const sidebar = useSidebar()
   const [backPath, setBackPath] = useState<string>('/')
+  const { locale } = useLocale()
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
@@ -47,7 +49,10 @@ export function Sidebar(props: {
     <aside ref={sidebarRef} key={sidebar.key} className={clsx(styles.root, className)}>
       <div className={styles.logoWrapper}>
         <div className={styles.logo}>
-          <RouterLink to="/" style={{ alignItems: 'center', display: 'flex', height: '100%' }}>
+          <RouterLink
+            to={`/${locale ?? ''}`}
+            style={{ alignItems: 'center', display: 'flex', height: '100%' }}
+          >
             <NavLogo />
           </RouterLink>
         </div>

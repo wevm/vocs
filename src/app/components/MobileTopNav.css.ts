@@ -48,11 +48,18 @@ export const button = style(
   'button',
 )
 
-export const content = style(
+export const contentLeft = style(
   {
     left: `calc(-1 * ${spaceVars['24']})`,
   },
-  'content',
+  'contentLeft',
+)
+
+export const contentRight = style(
+  {
+    right: `calc(-1 * ${spaceVars['24']})`,
+  },
+  'contentRight',
 )
 
 export const curtain = style(

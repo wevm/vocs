@@ -16,6 +16,7 @@ import * as NavigationMenu from './NavigationMenu.js'
 import { RouterLink } from './RouterLink.js'
 import { Discord } from './icons/Discord.js'
 import { GitHub } from './icons/GitHub.js'
+import { Language } from './icons/Language.js'
 import { Moon } from './icons/Moon.js'
 import { Sun } from './icons/Sun.js'
 import { Telegram } from './icons/Telegram.js'
@@ -37,7 +38,12 @@ export function DesktopTopNav() {
           <div className={styles.logo}>
             <RouterLink
               to="/"
-              style={{ alignItems: 'center', display: 'flex', height: '56px', marginTop: '4px' }}
+              style={{
+                alignItems: 'center',
+                display: 'flex',
+                height: '56px',
+                marginTop: '4px',
+              }}
             >
               <NavLogo />
             </RouterLink>
@@ -48,7 +54,9 @@ export function DesktopTopNav() {
       <div className={styles.section} />
 
       <div className={styles.section}>
-        {(config.topNav?.length || 0) > 0 && (
+        {(((Array.isArray(config.topNav) && config.topNav?.length) || 0) > 0 ||
+          ((!Array.isArray(config.topNav) && Object.keys(config?.topNav ?? {})?.length) || 0) >
+            0) && (
           <>
             <div className={styles.group}>
               <Navigation />
@@ -61,6 +69,18 @@ export function DesktopTopNav() {
             />
           </>
         )}
+
+        {config.defaultLocale?.label &&
+          config.defaultLocale.lang &&
+          config.locales &&
+          Object.keys(config.locales).length > 0 && (
+            <>
+              <div className={styles.group}>
+                <NavigationLocale />
+              </div>
+              <div className={clsx(styles.divider, styles.hideCompact)} />
+            </>
+          )}
 
         {config.socials && config.socials?.length > 0 && (
           <>
@@ -105,20 +125,27 @@ export function Curtain() {
 function Navigation() {
   const { topNav } = useConfig()
   if (!topNav) return null
-
   const { pathname } = useLocation()
-  const activeIds = useActiveNavIds({ pathname, items: topNav })
+
+  let pathKey = ''
+  if (typeof topNav === 'object' && Object.keys(topNav ?? {}).length > 0) {
+    let keys: string[] = []
+    keys = Object.keys(topNav).filter((key) => pathname.startsWith(key))
+    pathKey = keys[keys.length - 1]
+  }
+  const topNavLocale = Array.isArray(topNav) ? topNav : topNav[pathKey]
+  const activeIds = useActiveNavIds({ pathname, items: topNavLocale })
 
   return (
     <NavigationMenu.Root delayDuration={0}>
       <NavigationMenu.List>
-        {topNav.map((item, i) =>
+        {topNavLocale.map((item, i) =>
           item.link ? (
             <NavigationMenu.Link
               key={i}
               active={activeIds.includes(item.id)}
               className={styles.item}
-              href={item.link!}
+              href={`${item.link!}`}
             >
               {item.text}
             </NavigationMenu.Link>
@@ -149,6 +176,79 @@ function NavigationMenuContent({ items }: { items: ParsedTopNavItem[] }) {
         </NavigationMenu.Link>
       ))}
     </ul>
+  )
+}
+
+function NavigationLocale() {
+  const config = useConfig()
+  const { pathname } = useLocation()
+  /**
+   *
+   * @param item
+   * @param lang
+   * @returns
+   */
+  const removeLocalePrefix = (item: ParsedTopNavItem, lang: string) => {
+    // Get all language prefixes
+    const prefixLocales = [
+      config?.defaultLocale?.lang,
+      ...Object.keys(config?.locales ?? {}).map((i) =>
+        config?.locales ? config.locales[i]?.lang : null,
+      ),
+    ]
+    // Regex for removal
+    const regexString = `^\/(${prefixLocales.join('|')})`
+    const regex = new RegExp(regexString)
+    return {
+      ...item,
+      link: `${lang ? `/${lang}` : ''}${item.link?.replace(regex, '') ?? ''}`,
+    }
+  }
+
+  if (!(config.locales || (config.locales && Object.keys(config.locales).length === 0))) return null
+  return (
+    <NavigationMenu.Root delayDuration={0}>
+      <NavigationMenu.List>
+        <NavigationMenu.Item className={styles.item}>
+          <NavigationMenu.Trigger active={false}>
+            <Icon
+              className={clsx(styles.icon)}
+              size="20px"
+              label="Language"
+              icon={() => <Language />}
+            />
+          </NavigationMenu.Trigger>
+          <NavigationMenu.Content className={styles.content}>
+            <NavigationMenuContent
+              items={[
+                ...(config?.defaultLocale?.label && config?.defaultLocale?.lang
+                  ? [
+                      removeLocalePrefix(
+                        {
+                          id: 0,
+                          text: `${config?.defaultLocale?.label}`,
+                          link: `${pathname}`,
+                        },
+                        '',
+                      ),
+                    ]
+                  : []),
+                ...Object.keys(config.locales).map((locale, key) => {
+                  return removeLocalePrefix(
+                    {
+                      id: key + (config?.defaultLocale?.label ? 1 : 0),
+                      text: `${config.locales?.[locale].label}`,
+                      link: `${pathname}`,
+                    },
+                    `${config.locales?.[locale].lang}`,
+                  )
+                }),
+              ]}
+            />
+          </NavigationMenu.Content>
+        </NavigationMenu.Item>
+      </NavigationMenu.List>
+    </NavigationMenu.Root>
   )
 }
 
