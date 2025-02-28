@@ -2,7 +2,7 @@
 
 ## 1.0.0
 
-## Major Changes
+### Major Changes
 
 - **Breaking:** Updated `react` & `react-dom` peer dependencies to `^19`.
 - **Breaking:** Added support for Tailwind v4. [See docs for setup](https://vocs.dev/docs/guides/styling#tailwind).
