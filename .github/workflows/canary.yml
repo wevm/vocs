@@ -35,7 +35,7 @@ jobs:
 
       - name: Publish to npm
         run: | 
-          tsx ./scripts/prepublish.ts
+          pnpx tsx ./scripts/prepublish.ts
           cd src 
           npm publish --tag $(git branch --show-current | tr -cs '[:alnum:]-' '-' | tr '[:upper:]' '[:lower:]' | sed 's/-$//')
           cd ../create-vocs 
