@@ -44,6 +44,221 @@ export default defineConfig({
       link: 'https://twitter.com/wagmi_sh',
     },
   ],
+  sponsors: [
+    {
+      name: 'Collaborator',
+      height: 120,
+      items: [
+        [
+          {
+            name: 'Paradigm',
+            link: 'https://paradigm.xyz',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/paradigm-light.svg',
+          },
+          {
+            name: 'Ithaca',
+            link: 'https://ithaca.xyz',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/ithaca-light.svg',
+          },
+        ],
+      ],
+    },
+    {
+      name: 'Large Enterprise',
+      height: 60,
+      items: [
+        [
+          {
+            name: 'Stripe',
+            link: 'https://www.stripe.com',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/stripe-light.svg',
+          },
+          {
+            name: 'ZKsync',
+            link: 'https://zksync.io',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/zksync-light.svg',
+          },
+        ],
+        [
+          {
+            name: 'Linea',
+            link: 'https://linea.build',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/linea-light.svg',
+          },
+          {
+            name: 'Routescan',
+            link: 'https://routescan.io',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/routescan-light.svg',
+          },
+        ],
+      ],
+    },
+    {
+      name: 'Small Enterprise',
+      height: 40,
+      items: [
+        [
+          {
+            name: 'Family',
+            link: 'https://twitter.com/family',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/family-light.svg',
+          },
+          {
+            name: 'Context',
+            link: 'https://twitter.com/context',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/context-light.svg',
+          },
+          {
+            name: 'WalletConnect',
+            link: 'https://walletconnect.com',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/walletconnect-light.svg',
+          },
+          {
+            name: 'PartyDAO',
+            link: 'https://twitter.com/prtyDAO',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/partydao-light.svg',
+          },
+        ],
+        [
+          {
+            name: 'SushiSwap',
+            link: 'https://www.sushi.com',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/sushi-light.svg',
+          },
+          {
+            name: 'Dynamic',
+            link: 'https://www.dynamic.xyz',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/dynamic-light.svg',
+          },
+          {
+            name: 'Privy',
+            link: 'https://privy.io',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/privy-light.svg',
+          },
+          {
+            name: 'PancakeSwap',
+            link: 'https://pancakeswap.finance/',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/pancake-light.svg',
+          },
+        ],
+        [
+          {
+            name: 'Celo',
+            link: 'https://celo.org',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/celo-light.svg',
+          },
+          {
+            name: 'Rainbow',
+            link: 'https://rainbow.me',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/rainbow-light.svg',
+          },
+          {
+            name: 'Pimlico',
+            link: 'https://pimlico.io',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/pimlico-light.svg',
+          },
+          {
+            name: 'Zora',
+            link: 'https://zora.co',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/zora-light.svg',
+          },
+        ],
+        [
+          {
+            name: 'Lattice',
+            link: 'https://lattice.xyz',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/lattice-light.svg',
+          },
+          {
+            name: 'Supa',
+            link: 'https://twitter.com/supafinance',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/supa-light.svg',
+          },
+          {
+            name: 'Syndicate',
+            link: 'https://syndicate.io',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/syndicate-light.svg',
+          },
+          {
+            name: 'Reservoir',
+            link: 'https://reservoir.tools',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/reservoir-light.svg',
+          },
+        ],
+        [
+          {
+            name: 'Uniswap',
+            link: 'https://uniswap.org',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/uniswap-light.svg',
+          },
+          {
+            name: 'Biconomy',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/biconomy-light.svg',
+            link: 'https://biconomy.io',
+          },
+          {
+            name: 'Thirdweb',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/thirdweb-light.svg',
+            link: 'https://thirdweb.com',
+          },
+          {
+            name: 'Polymarket',
+            link: 'https://polymarket.com',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/polymarket-light.svg',
+          },
+        ],
+        [
+          {
+            name: 'Sequence',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/sequence-light.svg',
+            link: 'https://sequence.xyz',
+          },
+          {
+            name: '',
+            link: 'https://github.com/sponsors/wevm',
+            image: '',
+          },
+          {
+            name: '',
+            link: 'https://github.com/sponsors/wevm',
+            image: '',
+          },
+          {
+            name: '',
+            link: 'https://github.com/sponsors/wevm',
+            image: '',
+          },
+        ],
+      ],
+    },
+  ],
   sidebar: [
     {
       text: 'Getting Started',
