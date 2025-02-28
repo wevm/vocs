@@ -19,7 +19,7 @@ export function Banner({ hide }: BannerProps) {
     const content = banner?.content ?? ''
     if (!content) return null
     if (typeof content !== 'string') return () => deserializeElement(content)
-    const { default: MDXBanner } = runSync(content, { ...runtime, Fragment })
+    const { default: MDXBanner } = runSync(content, { ...runtime, Fragment } as never)
     return MDXBanner
   }, [banner])
 

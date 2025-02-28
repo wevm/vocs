@@ -584,36 +584,38 @@ export function deserializeConfig(config: string) {
 export function serializeFunctions(value: any, key?: string): any {
   if (Array.isArray(value)) {
     return value.map((v) => serializeFunctions(v))
-  } else if (typeof value === 'object' && value !== null) {
+  }
+  if (typeof value === 'object' && value !== null) {
     return Object.keys(value).reduce((acc, key) => {
       if (key[0] === '_') return acc
       acc[key] = serializeFunctions(value[key], key)
       return acc
     }, {} as any)
-  } else if (typeof value === 'function') {
+  }
+  if (typeof value === 'function') {
     let serialized = value.toString()
     if (key && (serialized.startsWith(key) || serialized.startsWith(`async ${key}`))) {
       serialized = serialized.replace(key, 'function')
     }
     return `_vocs-fn_${serialized}`
-  } else {
-    return value
   }
+  return value
 }
 
 export function deserializeFunctions(value: any): any {
   if (Array.isArray(value)) {
     return value.map(deserializeFunctions)
-  } else if (typeof value === 'object' && value !== null) {
+  }
+  if (typeof value === 'object' && value !== null) {
     return Object.keys(value).reduce((acc: any, key) => {
       acc[key] = deserializeFunctions(value[key])
       return acc
     }, {})
-  } else if (typeof value === 'string' && value.includes('_vocs-fn_')) {
-    return new Function(`return ${value.slice(9)}`)()
-  } else {
-    return value
   }
+  if (typeof value === 'string' && value.includes('_vocs-fn_')) {
+    return new Function(`return ${value.slice(9)}`)()
+  }
+  return value
 }
 
 export const deserializeFunctionsStringified = `

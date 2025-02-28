@@ -15,7 +15,8 @@ const blockNumber_$1 = await client.getBlockNumber()
 // [!endregion usage-1]
 
 // [!region usage-2-docs]
-const blockNumber_$2 = await client.getBlockNumber() //$ [!code hl] // [!code focus]
+// [!code focus]
+const blockNumber_$2 = await client.getBlockNumber() // [\!code hl]
 // [!endregion usage-2-docs]
 
 // [!region usage-2]
@@ -23,7 +24,8 @@ const blockNumber_$3 = await client.getBlockNumber() // [!code hl]
 // [!endregion usage-2]
 
 // [!region usage-3-docs]
-//$ [!code word:getBlockNumber] // [!code focus]
+// [!code focus]
+// [\!code word:getBlockNumber]
 const blockNumber_$4 = await client.getBlockNumber()
 // [!endregion usage-3-docs]
 

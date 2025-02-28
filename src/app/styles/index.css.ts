@@ -1,4 +1,4 @@
-import './preflight.css.js'
+import './base.css.js'
 
 import './vars.css.js'
 

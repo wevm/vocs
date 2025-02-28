@@ -7,6 +7,7 @@ import {
   sidebarVars,
   spaceVars,
   topNavVars,
+  viewportVars,
   zIndexVars,
 } from '../styles/vars.css.js'
 
@@ -14,6 +15,7 @@ export const root = style({
   display: 'flex',
   flexDirection: 'column',
   fontSize: fontSizeVars['14'],
+  justifyContent: 'space-between',
   overflowY: 'auto',
   width: sidebarVars.width,
   '@media': {
@@ -42,6 +44,12 @@ export const divider = style(
 export const navigation = style(
   {
     outline: 0,
+    paddingBottom: spaceVars['32'],
+    '@media': {
+      [viewportVars['max-720px']]: {
+        paddingBottom: 0,
+      },
+    },
     selectors: {
       '&:first-child': {
         paddingTop: spaceVars['16'],
@@ -127,6 +135,51 @@ export const levelInset = style(
   'levelInset',
 )
 
+export const footer = style(
+  {
+    alignItems: 'flex-end',
+    bottom: 0,
+    backgroundColor: primitiveColorVars.backgroundDark,
+    display: 'flex',
+    padding: `${spaceVars['8']} ${sidebarVars.horizontalPadding} ${spaceVars['16']}`,
+    marginLeft: `calc(-1 * ${sidebarVars.horizontalPadding})`,
+    marginRight: `calc(-1 * ${sidebarVars.horizontalPadding})`,
+    position: 'sticky',
+    '@media': {
+      'screen and (max-width: 1080px)': {
+        backgroundColor: primitiveColorVars.background,
+      },
+    },
+  },
+  'footer',
+)
+
+export const footerContent = style(
+  {
+    alignItems: 'center',
+    display: 'flex',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  'footerContent',
+)
+export const footerCurtain = style(
+  {
+    background: `linear-gradient(transparent, ${primitiveColorVars.backgroundDark} 80%)`,
+    position: 'absolute',
+    top: -34,
+    left: 0,
+    height: '36px',
+    width: '100%',
+    '@media': {
+      'screen and (max-width: 1080px)': {
+        display: 'none',
+      },
+    },
+  },
+  'footerCurtain',
+)
+
 export const items = style(
   {
     display: 'flex',
@@ -134,7 +187,7 @@ export const items = style(
     gap: '0.625em',
     paddingTop: spaceVars['16'],
     paddingBottom: spaceVars['16'],
-    fontWeight: fontWeightVars.medium,
+    fontWeight: fontWeightVars.regular,
     selectors: {
       [`${level} &`]: {
         paddingTop: spaceVars['6'],
@@ -146,17 +199,18 @@ export const items = style(
 
 export const item = style(
   {
-    color: primitiveColorVars.text3,
+    color: primitiveColorVars.text2,
     letterSpacing: '0.25px',
     lineHeight: lineHeightVars.sidebarItem,
     width: '100%',
     transition: 'color 0.1s',
     selectors: {
       '&:hover': {
-        color: primitiveColorVars.text,
+        color: primitiveColorVars.textHover,
       },
       '&[data-active="true"]': {
         color: primitiveColorVars.textAccent,
+        fontWeight: fontWeightVars.medium,
       },
     },
   },
@@ -188,7 +242,7 @@ export const sectionTitle = style(
   {
     color: primitiveColorVars.title,
     fontSize: fontSizeVars['14'],
-    fontWeight: fontWeightVars.semibold,
+    fontWeight: fontWeightVars.medium,
     letterSpacing: '0.25px',
     width: '100%',
   },

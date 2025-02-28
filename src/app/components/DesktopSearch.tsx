@@ -37,7 +37,7 @@ export function DesktopSearch() {
       <Dialog.Trigger asChild>
         <button className={styles.search} type="button">
           <MagnifyingGlassIcon style={{ marginTop: 2 }} />
-          Search
+          Search...
           <div className={styles.searchCommand}>
             <div
               style={{

@@ -24,12 +24,13 @@ export function Sponsors() {
               {sponsorRow.map((sponsor, i) => (
                 <Link
                   className={clsx(styles.column, sponsor ? styles.sponsor : undefined)}
-                  hideExternalIcon
                   href={sponsor?.link}
                   key={i}
                   variant="styleless"
                 >
-                  <img className={styles.image} src={sponsor?.image} alt={sponsor?.name} />
+                  {sponsor?.image && (
+                    <img className={styles.image} src={sponsor?.image} alt={sponsor?.name} />
+                  )}
                 </Link>
               ))}
             </div>

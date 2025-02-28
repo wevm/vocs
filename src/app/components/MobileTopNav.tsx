@@ -1,7 +1,7 @@
 import * as Accordion from '@radix-ui/react-accordion'
 import { assignInlineVars } from '@vanilla-extract/dynamic'
 import clsx from 'clsx'
-import { type ComponentType, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 
 import type * as Config from '../../config.js'
@@ -20,15 +20,12 @@ import { Outline } from './Outline.js'
 import { Popover } from './Popover.js'
 import { RouterLink } from './RouterLink.js'
 import { Sidebar } from './Sidebar.js'
+import { Socials } from './Socials.js'
+import { ThemeToggle } from './ThemeToggle.js'
 import { ChevronDown } from './icons/ChevronDown.js'
 import { ChevronRight } from './icons/ChevronRight.js'
 import { ChevronUp } from './icons/ChevronUp.js'
-import { Discord } from './icons/Discord.js'
-import { GitHub } from './icons/GitHub.js'
 import { Menu } from './icons/Menu.js'
-import { Telegram } from './icons/Telegram.js'
-import { Warpcast } from './icons/Warpcast.js'
-import { X } from './icons/X.js'
 
 MobileTopNav.Curtain = Curtain
 
@@ -49,12 +46,10 @@ export function MobileTopNav() {
           </div>
         )}
         {config.topNav && (
-          <>
-            <div className={styles.group}>
-              <Navigation items={config.topNav} />
-              <CompactNavigation items={config.topNav} />
-            </div>
-          </>
+          <div className={styles.group}>
+            <Navigation items={config.topNav} />
+            <CompactNavigation items={config.topNav} />
+          </div>
         )}
       </div>
 
@@ -62,16 +57,6 @@ export function MobileTopNav() {
         <div className={styles.group} style={{ marginRight: '-8px' }}>
           <MobileSearch />
         </div>
-        {config.socials && config.socials?.length > 0 && (
-          <>
-            <div className={styles.divider} />
-            <div className={styles.group} style={{ marginLeft: '-8px' }}>
-              {config.socials?.map((social, i) => (
-                <SocialButton key={i} {...social} />
-              ))}
-            </div>
-          </>
-        )}
       </div>
     </div>
   )
@@ -121,6 +106,8 @@ function NavigationMenuContent({ items }: { items: Config.ParsedTopNavItem[] }) 
 function CompactNavigation({ items }: { items: Config.ParsedTopNavItem[] }) {
   const [showPopover, setShowPopover] = useState(false)
 
+  const { showSidebar } = useLayout()
+
   const { pathname } = useLocation()
   const activeIds = useActiveNavIds({ pathname, items })
   const activeItem = items.filter((item) => item.id === activeIds[0])[0]
@@ -130,96 +117,71 @@ function CompactNavigation({ items }: { items: Config.ParsedTopNavItem[] }) {
 
   return (
     <div className={clsx(styles.navigation, styles.navigation_compact)}>
-      {activeItem ? (
-        <Popover.Root modal open={showPopover} onOpenChange={setShowPopover}>
-          <Popover.Trigger className={clsx(styles.menuTrigger, styles.navigationItem)}>
-            {activeItem.text}
-            <Icon label="Menu" icon={ChevronDown} size="11px" />
-          </Popover.Trigger>
-          <Popover className={styles.topNavPopover}>
-            <Accordion.Root
-              type="single"
-              collapsible
-              style={{ display: 'flex', flexDirection: 'column' }}
-            >
-              {items.map((item, i) =>
-                item?.link ? (
-                  <Link
-                    key={i}
+      <Popover.Root modal open={showPopover} onOpenChange={setShowPopover}>
+        <Popover.Trigger className={clsx(styles.menuTrigger, styles.navigationItem)}>
+          {showSidebar || activeItem ? (
+            <>
+              {activeItem?.text ?? 'Menu'}
+              <Icon label="Menu" icon={ChevronDown} size="16px" />
+            </>
+          ) : (
+            <Icon label="Menu" icon={Menu} size="16px" />
+          )}
+        </Popover.Trigger>
+        <Popover className={styles.topNavPopover}>
+          <Accordion.Root
+            type="single"
+            collapsible
+            style={{ display: 'flex', flexDirection: 'column' }}
+          >
+            {items.map((item, i) =>
+              item?.link ? (
+                <Link
+                  key={i}
+                  data-active={activeIds.includes(item.id)}
+                  className={styles.navigationItem}
+                  href={item.link!}
+                  onClick={() => setShowPopover(false)}
+                  variant="styleless"
+                >
+                  {item.text}
+                </Link>
+              ) : (
+                <Accordion.Item key={i} value={i.toString()}>
+                  <Accordion.Trigger
+                    className={clsx(styles.navigationItem, styles.navigationTrigger)}
                     data-active={activeIds.includes(item.id)}
-                    className={styles.navigationItem}
-                    href={item.link!}
-                    onClick={() => setShowPopover(false)}
-                    variant="styleless"
+                    style={assignInlineVars({
+                      [styles.chevronDownIcon]: `url(${assetBasePath}/.vocs/icons/chevron-down.svg)`,
+                      [styles.chevronUpIcon]: `url(${assetBasePath}/.vocs/icons/chevron-up.svg)`,
+                    })}
                   >
                     {item.text}
-                  </Link>
-                ) : (
-                  <Accordion.Item key={i} value={i.toString()}>
-                    <Accordion.Trigger
-                      className={clsx(styles.navigationItem, styles.navigationTrigger)}
-                      data-active={activeIds.includes(item.id)}
-                      style={assignInlineVars({
-                        [styles.chevronDownIcon]: `url(${assetBasePath}/.vocs/icons/chevron-down.svg)`,
-                        [styles.chevronUpIcon]: `url(${assetBasePath}/.vocs/icons/chevron-up.svg)`,
-                      })}
-                    >
-                      {item.text}
-                    </Accordion.Trigger>
-                    <Accordion.Content className={styles.navigationContent}>
-                      {item.items?.map((item, i) => (
-                        <Link
-                          key={i}
-                          className={styles.navigationItem}
-                          href={item.link!}
-                          onClick={() => setShowPopover(false)}
-                          variant="styleless"
-                        >
-                          {item.text}
-                        </Link>
-                      ))}
-                    </Accordion.Content>
-                  </Accordion.Item>
-                ),
-              )}
-            </Accordion.Root>
-          </Popover>
-        </Popover.Root>
-      ) : items[0]?.link ? (
-        <Link className={styles.navigationItem} href={items[0].link} variant="styleless">
-          {items[0].text}
-        </Link>
-      ) : null}
+                  </Accordion.Trigger>
+                  <Accordion.Content className={styles.navigationContent}>
+                    {item.items?.map((item, i) => (
+                      <Link
+                        key={i}
+                        className={styles.navigationItem}
+                        href={item.link!}
+                        onClick={() => setShowPopover(false)}
+                        variant="styleless"
+                      >
+                        {item.text}
+                      </Link>
+                    ))}
+                  </Accordion.Content>
+                </Accordion.Item>
+              ),
+            )}
+          </Accordion.Root>
+          <div className={styles.topNavPopoverFooter}>
+            <Socials />
+            <ThemeToggle />
+          </div>
+        </Popover>
+      </Popover.Root>
     </div>
-  )
-}
-
-const iconsForIcon = {
-  discord: Discord,
-  github: GitHub,
-  telegram: Telegram,
-  warpcast: Warpcast,
-  x: X,
-} satisfies Record<Config.ParsedSocialItem['type'], ComponentType>
-
-const sizesForTypes = {
-  discord: '21px',
-  github: '18px',
-  telegram: '21px',
-  warpcast: '18px',
-  x: '16px',
-} satisfies Record<Config.ParsedSocialItem['type'], string>
-
-function SocialButton({ icon, label, link, type }: Config.ParsedSocialItem) {
-  return (
-    <a className={styles.button} href={link} target="_blank" rel="noopener noreferrer">
-      <Icon
-        className={styles.icon}
-        label={label}
-        icon={iconsForIcon[icon]}
-        size={sizesForTypes[type] || '18px'}
-      />
-    </a>
   )
 }
 
@@ -281,7 +243,7 @@ export function Curtain({
                 type="button"
               >
                 Top
-                <Icon label="Scroll to top" icon={ChevronUp} size="10px" />
+                <Icon label="Scroll to top" icon={ChevronUp} size="16px" />
               </button>
             </div>
             <div className={styles.separator} />
@@ -292,7 +254,7 @@ export function Curtain({
             <Popover.Root modal open={isOutlineOpen} onOpenChange={setOutlineOpen}>
               <Popover.Trigger className={styles.outlineTrigger}>
                 On this page
-                <Icon label="On this page" icon={ChevronRight} size="10px" />
+                <Icon label="On this page" icon={ChevronRight} size="16px" />
               </Popover.Trigger>
               <Popover className={styles.outlinePopover}>
                 <Outline onClickItem={() => setOutlineOpen(false)} showTitle={false} />

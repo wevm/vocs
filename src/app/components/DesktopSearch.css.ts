@@ -11,13 +11,13 @@ import {
 export const search = style(
   {
     alignItems: 'center',
-    backgroundColor: primitiveColorVars.backgroundDark,
-    border: `1px solid ${primitiveColorVars.backgroundDark}`,
+    backgroundColor: primitiveColorVars.background3,
+    border: `1px solid ${primitiveColorVars.border}`,
     borderRadius: borderRadiusVars[8],
-    color: primitiveColorVars.text2,
+    color: primitiveColorVars.text3,
     display: 'flex',
     fontSize: fontSizeVars[14],
-    fontWeight: fontWeightVars.medium,
+    fontWeight: fontWeightVars.regular,
     gap: spaceVars[6],
     height: spaceVars[40],
     maxWidth: '15.5rem',
@@ -29,7 +29,7 @@ export const search = style(
     selectors: {
       '&:hover': {
         color: primitiveColorVars.text,
-        borderColor: primitiveColorVars.text3,
+        borderColor: primitiveColorVars.border2,
       },
     },
   },

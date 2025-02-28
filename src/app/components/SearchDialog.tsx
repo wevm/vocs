@@ -9,7 +9,7 @@ import {
 import * as Label from '@radix-ui/react-label'
 import clsx from 'clsx'
 import { default as Mark } from 'mark.js'
-import { type SearchResult } from 'minisearch'
+import type { SearchResult } from 'minisearch'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
@@ -215,8 +215,10 @@ export function SearchDialog(props: { open: boolean; onClose(): void }) {
           )}
 
           {results.map((result, index) => (
+            // biome-ignore lint/a11y/useFocusableInteractive:
             <li
               // biome-ignore lint/a11y/noNoninteractiveElementToInteractiveRole:
+              // biome-ignore lint/a11y/useSemanticElements:
               role="option"
               key={result.id}
               className={clsx(styles.result, index === selectedIndex && styles.resultSelected)}

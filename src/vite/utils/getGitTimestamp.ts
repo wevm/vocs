@@ -1,6 +1,6 @@
+import { basename, dirname } from 'node:path'
 import { spawn } from 'cross-spawn'
 import fs from 'fs-extra'
-import { basename, dirname } from 'path'
 
 const cache = new Map<string, number>()
 

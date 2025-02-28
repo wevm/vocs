@@ -6,8 +6,6 @@
   "compilerOptions": {
     "declaration": true,
     "declarationMap": true,
-    "module": "ESNext",
-    "moduleResolution": "Node",
     "outDir": "./_lib",
     "sourceMap": true
   }

@@ -11,8 +11,10 @@ import { content as stepContent } from './Step.css.js'
 
 export const root = style({
   borderRadius: borderRadiusVars['4'],
+  display: 'flex',
+  gap: spaceVars['8'],
   fontSize: fontSizeVars['14'],
-  padding: `${spaceVars['16']} ${spaceVars['20']}`,
+  padding: `${spaceVars['12']} ${spaceVars['12']}`,
   marginBottom: spaceVars['16'],
   selectors: {
     [`:not(${stepContent}) > &`]: {
@@ -28,6 +30,23 @@ export const root = style({
     },
   },
 })
+
+export const content = style(
+  {
+    // marginTop: '0.4em',
+    width: '100%',
+  },
+  'content',
+)
+
+export const icon = style(
+  {
+    height: '1em',
+    marginTop: '0.4em',
+    width: '1em',
+  },
+  'icon',
+)
 
 export const note = style(
   {

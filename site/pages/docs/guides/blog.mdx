@@ -12,8 +12,12 @@ First, create a new directory called `blog/`, and inside of it, create an index 
 my-project/             
 ├── docs/
 │   ├── pages/
-│   │   └── blog/ // [!code ++] // [!code focus]
-|   |       └── index.mdx // [!code ++] // [!code focus]
+// [!code focus]
+// [!code ++]
+│   │   └── blog/
+// [!code focus]
+// [!code ++]
+|   |       └── index.mdx 
 │   └── public/
 │       └── favicon.ico 
 ├── node_modules/
@@ -46,9 +50,13 @@ Now, create a new post in your `blog/` directory named `my-first-post.mdx`.
 my-project/             
 ├── docs/
 │   ├── pages/
-│   │   └── blog/ // [!code focus]
-|   |       ├── index.mdx // [!code focus]
-|   |       └── my-first-post.mdx // [!code ++] // [!code focus]
+// [!code focus]
+│   │   └── blog/
+// [!code focus]
+|   |       ├── index.mdx
+// [!code focus]
+// [!code ++]
+|   |       └── my-first-post.mdx
 │   └── public/
 │       └── favicon.ico 
 ├── node_modules/
@@ -75,12 +83,14 @@ layout: minimal
 authors: // [!code focus]
   - "[jxom](https://twitter.com/_jxom)" // [!code focus]
   - "[awkweb](https://twitter.com/awkweb)" // [!code focus]
-date: 2023-11-25 // [!code focus]
+// [!code focus]
+date: 2023-11-25
 ---
 
 # My First Post
 
-::authors // [!code focus]
+// [!code focus]
+::authors
 
 Hello everyone, this is my first post!
 ```

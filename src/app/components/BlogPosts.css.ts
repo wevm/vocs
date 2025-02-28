@@ -36,6 +36,7 @@ export const readMore = style(
 
 export const title = style(
   {
+    color: primitiveColorVars.heading,
     fontSize: fontSizeVars.h2,
     fontWeight: fontWeightVars.semibold,
   },

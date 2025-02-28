@@ -1,9 +1,9 @@
+import { Footer as ConsumerFooter } from 'virtual:consumer-components'
 import { Pencil2Icon } from '@radix-ui/react-icons'
 import { assignInlineVars } from '@vanilla-extract/dynamic'
 import clsx from 'clsx'
 import { useEffect, useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { Footer as ConsumerFooter } from 'virtual:consumer-components'
 
 import type { SidebarItem } from '../../config.js'
 import { useEditLink } from '../hooks/useEditLink.js'
@@ -16,6 +16,7 @@ import { sizeVar } from './Icon.css.js'
 import { Icon } from './Icon.js'
 import { KeyboardShortcut } from './KeyboardShortcut.js'
 import { Link } from './Link.js'
+import { Socials } from './Socials.js'
 import { ArrowLeft } from './icons/ArrowLeft.js'
 import { ArrowRight } from './icons/ArrowRight.js'
 
@@ -34,7 +35,7 @@ export function Footer() {
   )
 
   return (
-    <footer className={styles.root}>
+    <footer className={styles.root} data-layout={layout}>
       {layout === 'docs' && (
         <>
           <div className={styles.container}>
@@ -54,6 +55,7 @@ export function Footer() {
           <Navigation />
         </>
       )}
+      {layout !== 'docs' && <Socials />}
       <ConsumerFooter />
     </footer>
   )

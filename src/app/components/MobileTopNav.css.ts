@@ -158,7 +158,6 @@ export const navigation_compact = style({}, 'navigation_compact')
 
 export const navigation = style(
   {
-    marginLeft: spaceVars[8],
     selectors: {
       [`&:not(${navigation_compact})`]: {
         '@media': {
@@ -319,4 +318,14 @@ export const topNavPopover = style(
     },
   },
   'topNavPopover',
+)
+
+export const topNavPopoverFooter = style(
+  {
+    display: 'flex',
+    gap: spaceVars[16],
+    justifyContent: 'space-between',
+    marginTop: spaceVars[8],
+  },
+  'topNavPopoverFooter',
 )

@@ -30,7 +30,7 @@ export const twoslashVars = createGlobalThemeContract(
 createGlobalTheme(':root', twoslashVars, {
   borderColor: primitiveColorVars.border2,
   underlineColor: 'currentColor',
-  popupBackground: primitiveColorVars.background2,
+  popupBackground: primitiveColorVars.background,
   popupShadow: 'rgba(0, 0, 0, 0.08) 0px 1px 4px',
   matchedColor: 'inherit',
   unmatchedColor: '#888',
@@ -47,9 +47,9 @@ createGlobalTheme(':root', twoslashVars, {
   tagAnnotateBackground: primitiveColorVars.backgroundGreenTint2,
 })
 createGlobalTheme(':root.dark', twoslashVars, {
-  borderColor: primitiveColorVars.border2,
+  borderColor: primitiveColorVars.border,
   underlineColor: 'currentColor',
-  popupBackground: primitiveColorVars.background5,
+  popupBackground: primitiveColorVars.background,
   popupShadow: 'rgba(0, 0, 0, 0.08) 0px 1px 4px',
   matchedColor: 'inherit',
   unmatchedColor: '#888',
@@ -326,5 +326,5 @@ globalStyle('.twoslash-tag-line.twoslash-tag-annotate-line', {
 globalStyle('.twoslash-highlighted', {
   borderRadius: borderRadiusVars['2'],
   backgroundColor: `${semanticColorVars.codeCharacterHighlightBackground} !important`,
-  boxShadow: `0 0 0 4px ${semanticColorVars.codeCharacterHighlightBackground}`,
+  boxShadow: `0 0 0 2px ${semanticColorVars.codeCharacterHighlightBackground}, 0 0 0 3px ${semanticColorVars.codeCharacterHighlightBorder}`,
 })

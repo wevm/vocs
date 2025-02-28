@@ -16,7 +16,7 @@ We will show you both approaches below.
 We will create a virtual file snippet called `example.ts`. We can define a virtual file in markdown using the `filename="example.ts"{:ts}` meta tag.
 
 ````mdx [example.md]
-```ts filename="example.ts" // [!code hl]
+```ts filename="example.ts"
 import { http, createPublicClient } from 'viem'
 import { mainnet } from 'viem/chains'
  
@@ -47,10 +47,14 @@ const client = createPublicClient({
 #### Use Actions
 
 ```ts // [!code focus]
-//$ [!include example.ts] // [!code hl] // [!code focus]
+// [!code hl]
+// [!code focus]
+// [\!include example.ts]
  
-const blockNumber = await client.getBlockNumber() //$ [!code focus] // [!code focus]
-``` // [!code focus]
+// [!code focus]
+const blockNumber = await client.getBlockNumber() // [\!code focus]
+// [!code focus]
+```
 ````
 
 ### Output
@@ -104,16 +108,23 @@ Next, we will import the snippet into our Markdown file using the `// [!include 
 #### Create your Client
 
 ```ts // [!code focus]
-//$ [!include ~/snippets/example.ts] // [!code hl] // [!code focus]
-``` // [!code focus]
+// [!code hl] 
+// [!code focus]
+// [\!include ~/snippets/example.ts]
+// [!code focus]
+```
 
 #### Use Actions
 
 ```ts // [!code focus]
-//$ [!include ~/snippets/example.ts] // [!code hl] // [!code focus]
+// [!code hl] 
+// [!code focus]
+// [\!include ~/snippets/example.ts]
  
-const blockNumber = await client.getBlockNumber() //$ [!code focus] // [!code focus]
-``` // [!code focus]
+// [!code focus]
+const blockNumber = await client.getBlockNumber() // [\!code focus]
+// [!code focus]
+```
 ````
 
 :::info
@@ -151,21 +162,27 @@ const blockNumber = await client.getBlockNumber() // [!code focus]
 You can also include a specific region of a code snippet by using the `// [!region]` and `// [!endregion]` markers.
 
 ```ts [docs/snippets/example.ts]
-//$ [!region import] // [!code focus]
+// [!code focus]
+// [\!region import]
 import { http, createPublicClient } from 'viem'
 import { mainnet } from 'viem/chains'
-//$ [!endregion import] // [!code focus]
+// [!code focus]
+// [\!endregion import]
 
-//$ [!region setup] // [!code focus]
+// [!code focus]
+// [\!region setup]
 const client = createPublicClient({
   chain: mainnet,
   transport: http(),
 })
-//$ [!endregion setup] // [!code focus]
+// [!code focus]
+// [\!endregion setup]
 
-//$ [!region usage] // [!code focus]
+// [!code focus]
+// [\!region usage]
 const blockNumber = await client.getBlockNumber()
-//$ [!endregion usage] // [!code focus]
+// [!code focus]
+// [\!endregion usage]
 ```
 
 Then, we can include the regions in the Markdown with the `// [!include]` marker:
@@ -173,11 +190,14 @@ Then, we can include the regions in the Markdown with the `// [!include]` marker
 ````md [example.md]
 ```ts
 import { writeFileSync } from 'node:fs'
-//$ [!include ~/snippets/example.ts:import] // [!code focus]
+// [!code focus]
+// [\!include ~/snippets/example.ts:import]
 
-//$ [!include ~/snippets/example.ts:setup] // [!code focus]
+// [!code focus]
+// [\!include ~/snippets/example.ts:setup]
 
-//$ [!include ~/snippets/example.ts:usage] // [!code focus]
+// [!code focus]
+// [\!include ~/snippets/example.ts:usage]
 
 writeFileSync('test.txt', blockNumber.toString())
 ```
@@ -239,7 +259,8 @@ You can use `/(find)/(replace)/` syntax to find and replace text in the snippet.
 ````md [example.md]
 ```ts
 import { writeFileSync } from 'node:fs'
-//$ [!include ~/snippets/example.ts /viem/@viem\/core/ /mainnet/sepolia/] // [!code focus]
+// [!code focus]
+// [\!include ~/snippets/example.ts /viem/@viem\/core/ /mainnet/sepolia/]
 
 writeFileSync('test.txt', blockNumber.toString())
 ```
@@ -289,7 +310,7 @@ We can also include markers like [line highlight (`// [!code hl]`)](/docs/markdo
 ````md [example.md]
 ```ts
 import { writeFileSync } from 'node:fs'
-//$ [!include ~/snippets/example.ts]
+// [\!include ~/snippets/example.ts]
 
 writeFileSync('test.txt', blockNumber.toString())
 ```
@@ -326,7 +347,7 @@ We can also include Twoslash markers in our code snippets.
 
 ````md [example.md]
 ```ts twoslash
-//$ [!include ~/snippets/example.ts]
+// [\!include ~/snippets/example.ts]
 ```
 ````
 

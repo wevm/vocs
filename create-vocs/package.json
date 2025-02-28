@@ -1,6 +1,6 @@
 {
   "name": "create-vocs",
-  "version": "1.0.0-alpha.5",
+  "version": "1.0.0",
   "type": "module",
   "bin": {
     "create-vocs": "./_lib/bin.js"
@@ -12,9 +12,9 @@
   "dependencies": {
     "@clack/prompts": "^0.7.0",
     "cac": "^6.7.14",
-    "detect-package-manager": "^3.0.1",
-    "fs-extra": "^11.1.1",
-    "picocolors": "^1.0.0"
+    "detect-package-manager": "^3.0.2",
+    "fs-extra": "^11.3.0",
+    "picocolors": "^1.1.1"
   },
   "repository": "wevm/vocs"
 }

@@ -1,5 +1,5 @@
 import { clsx } from 'clsx'
-import { type DetailedHTMLProps, type HTMLAttributes } from 'react'
+import type { DetailedHTMLProps, HTMLAttributes } from 'react'
 
 import * as styles from './TableRow.css.js'
 

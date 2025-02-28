@@ -1,7 +1,6 @@
 import { Layout } from 'virtual:consumer-components'
 import { MDXProvider } from '@mdx-js/react'
 import { type ReactNode, useEffect, useRef } from 'react'
-import { Helmet } from 'react-helmet'
 import { ScrollRestoration, useLocation } from 'react-router-dom'
 import 'virtual:styles'
 
@@ -9,7 +8,7 @@ import { components } from './components/mdx/index.js'
 import { useConfig } from './hooks/useConfig.js'
 import { useOgImageUrl } from './hooks/useOgImageUrl.js'
 import { PageDataContext } from './hooks/usePageData.js'
-import { type Module } from './types.js'
+import type { Module } from './types.js'
 
 export function Root(props: {
   children: ReactNode
@@ -21,8 +20,7 @@ export function Root(props: {
   const { children, filePath, frontmatter, lastUpdatedAt, path } = props
   const { pathname } = useLocation()
 
-  const previousPathRef = useRef<string>()
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  const previousPathRef = useRef<string | undefined>(undefined)
   useEffect(() => {
     previousPathRef.current = pathname
   })
@@ -50,20 +48,22 @@ function Head({ frontmatter }: { frontmatter: Module['frontmatter'] }) {
 
   const { baseUrl, font, iconUrl, logoUrl } = config
 
-  const title = frontmatter?.title ?? config.title
   const description = frontmatter?.description ?? config.description
-
-  const enableTitleTemplate = config.title && !title.includes(config.title)
+  const title = frontmatter?.title ?? config.title
+  const titleTemplate = (() => {
+    if (!config.title) return undefined
+    if (title.includes(config.title)) return undefined
+    return config.titleTemplate
+  })()
 
   const isLocalhost = typeof window !== 'undefined' && window.location.hostname === 'localhost'
 
+  const fullTitle = titleTemplate ? titleTemplate.replace('%s', title) : title
+
   return (
-    <Helmet
-      defaultTitle={config.title}
-      titleTemplate={enableTitleTemplate ? config.titleTemplate : undefined}
-    >
+    <>
       {/* Title */}
-      {title && <title>{title}</title>}
+      {fullTitle && <title>{fullTitle}</title>}
 
       {/* Base URL */}
       {baseUrl && import.meta.env.PROD && !isLocalhost && <base href={baseUrl} />}
@@ -143,7 +143,7 @@ function Head({ frontmatter }: { frontmatter: Module['frontmatter'] }) {
             .replace('%description', description ? encodeURIComponent(description) : '')}
         />
       )}
-    </Helmet>
+    </>
   )
 }
 

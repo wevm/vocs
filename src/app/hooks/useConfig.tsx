@@ -1,8 +1,8 @@
+import { config as virtualConfig } from 'virtual:config'
 import { sha256 } from '@noble/hashes/sha256'
 import { bytesToHex } from '@noble/hashes/utils'
 import { type ReactNode, createContext, useContext, useEffect, useState } from 'react'
 import { type ParsedConfig, deserializeConfig, serializeConfig } from '../../config.js'
-import { config as virtualConfig } from 'virtual:config'
 
 const ConfigContext = createContext(virtualConfig)
 

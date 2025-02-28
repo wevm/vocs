@@ -13,7 +13,8 @@ my-project/
 |   |   └── about.tsx 
 │   └── public/
 │   |   └── favicon.ico
-|   └── styles.css // [!code focus]
+// [!code focus]
+|   └── styles.css
 ├── node_modules/
 │   ...
 ```
@@ -59,49 +60,19 @@ import './theme.css' // [!code focus]
 This is me.
 ```
 
-## Tailwind CSS
+## Tailwind
 
-Vocs comes with built-in support for Tailwind CSS.
+Vocs comes with built-in support for [Tailwind](https://tailwindcss.com/).
 
-All you need to do is add a `tailwind.config.cjs` file to your root directory, as well as a `styles.css` file.
+To enable Tailwind, simply import `tailwindcss` in the `styles.css` file of your project.
 
-::::steps
+:::code-group
 
-### Add `tailwind.config.cjs` file
-
-Add a `tailwind.config.cjs` configuration to your project root.
-
-```
-my-project/             
-├── docs/
-│   ├── pages/ 
-|   |   ├── index.mdx 
-|   |   └── about.tsx 
-│   └── public/
-│       └── favicon.ico
-├── node_modules/
-├── tailwind.config.cjs // [!code ++]
-│   ...
+```css [styles.css]
+@import "tailwindcss";
 ```
 
-With the following content:
-
-```js [tailwind.config.cjs]
-/** @type {import('tailwindcss').Config} */
-module.exports = {
-  content: ['./docs/**/*.{html,md,mdx,tsx,js,jsx}'],
-  theme: {
-    extend: {},
-  },
-  plugins: [],
-}
-```
-
-### Add `styles.css` file
-
-Then add a `styles.css` file, and import the Tailwind CSS.
-
-```
+```txt [Project]
 my-project/             
 ├── docs/
 │   ├── pages/ 
@@ -109,28 +80,10 @@ my-project/
 |   |   └── about.tsx 
 │   └── public/
 │   |   └── favicon.ico
-|   └── styles.css // [!code ++]
+// [!code focus]
+|   └── styles.css
 ├── node_modules/
-├── tailwind.config.cjs
 │   ...
 ```
 
-```css [styles.css]
-@layer vocs_preflight { @tailwind base; }
-@tailwind components;
-@tailwind utilities;
-```
-
-### Add some Tailwind CSS
-
-Now you can use Tailwind CSS in any of your Markdown files or React components.
-
-```mdx [example.md]
-# Hello world
-
-This is me.
-
-<p className="text-4xl text-red">With some Tailwind CSS</p>
-```
-
-::::
+:::

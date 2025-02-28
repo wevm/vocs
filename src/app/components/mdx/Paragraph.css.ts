@@ -11,6 +11,7 @@ import { root as List } from './List.css.js'
 
 export const root = style({
   lineHeight: lineHeightVars.paragraph,
+  letterSpacing: '0.005em',
   get selectors() {
     return {
       [`${Blockquote}>&`]: {
