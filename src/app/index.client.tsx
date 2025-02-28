@@ -1,7 +1,7 @@
 import './styles/index.css.js'
 
 import { hydrateRoot } from 'react-dom/client'
-import { RouterProvider, createBrowserRouter } from 'react-router-dom'
+import { RouterProvider, createBrowserRouter } from 'react-router'
 import { ConfigProvider, getConfig } from './hooks/useConfig.js'
 import { routes } from './routes.js'
 import { hydrateLazyRoutes } from './utils/hydrateLazyRoutes.js'

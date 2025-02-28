@@ -1,5 +1,5 @@
 import { Fragment, type ReactElement, useEffect, useMemo, useRef, useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation } from 'react-router'
 
 import { useConfig } from '../hooks/useConfig.js'
 import { useLayout } from '../hooks/useLayout.js'

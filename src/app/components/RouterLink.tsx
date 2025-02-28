@@ -1,7 +1,7 @@
 import { routes } from 'virtual:routes'
 import { forwardRef, useEffect } from 'react'
 import { useInView } from 'react-intersection-observer'
-import { Link, type LinkProps } from 'react-router-dom'
+import { Link, type LinkProps } from 'react-router'
 
 import { mergeRefs } from '../utils/mergeRefs.js'
 

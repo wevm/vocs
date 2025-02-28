@@ -2,7 +2,7 @@ import * as Accordion from '@radix-ui/react-accordion'
 import { assignInlineVars } from '@vanilla-extract/dynamic'
 import clsx from 'clsx'
 import { useMemo, useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router'
 
 import type * as Config from '../../config.js'
 import { useActiveNavIds } from '../hooks/useActiveNavIds.js'

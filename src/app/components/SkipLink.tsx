@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router'
 import { visuallyHidden } from '../styles/utils.css.js'
 import * as styles from './SkipLink.css.js'
 

@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router'
 
 import type { SidebarItem } from '../../config.js'
 import { useConfig } from './useConfig.js'

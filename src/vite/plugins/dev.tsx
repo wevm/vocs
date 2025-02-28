@@ -61,6 +61,10 @@ export function dev(): PluginOption {
               head: (
                 <>
                   <script
+                    type="module"
+                    // @ts-expect-error
+                    fetchPriority="high"
+                    blocking="render"
                     src={resolve(import.meta.dirname, '../../app/utils/initializeTheme.ts')}
                   />
                   {[...styleSet.values(), ...styleOverrideSet.values()].map((style, i) => (

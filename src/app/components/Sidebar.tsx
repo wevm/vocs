@@ -10,7 +10,7 @@ import {
   useRef,
   useState,
 } from 'react'
-import { matchPath, useLocation, useMatch } from 'react-router-dom'
+import { matchPath, useLocation, useMatch } from 'react-router'
 
 import type { SidebarItem as SidebarItemType } from '../../config.js'
 import { usePageData } from '../hooks/usePageData.js'

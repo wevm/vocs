@@ -1,6 +1,6 @@
 import { clsx } from 'clsx'
 import type { ReactNode } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router'
 
 import { Link } from '../Link.js'
 import * as styles from './Anchor.css.js'

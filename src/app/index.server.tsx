@@ -1,13 +1,13 @@
 import './styles/index.css.js'
 
-import { Route, type RouteObject, Routes } from 'react-router-dom'
+import { Route, type RouteObject, Routes } from 'react-router'
 import {
   type StaticHandlerContext,
   StaticRouter,
   StaticRouterProvider,
   createStaticHandler,
   createStaticRouter,
-} from 'react-router-dom'
+} from 'react-router'
 
 import { resolveVocsConfig } from '../vite/utils/resolveVocsConfig.js'
 import { ConfigProvider } from './hooks/useConfig.js'

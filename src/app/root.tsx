@@ -1,7 +1,7 @@
 import { Layout } from 'virtual:consumer-components'
 import { MDXProvider } from '@mdx-js/react'
 import { type ReactNode, useEffect, useRef } from 'react'
-import { ScrollRestoration, useLocation } from 'react-router-dom'
+import { ScrollRestoration, useLocation } from 'react-router'
 import 'virtual:styles'
 
 import { components } from './components/mdx/index.js'

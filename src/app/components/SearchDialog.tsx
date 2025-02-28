@@ -11,7 +11,7 @@ import clsx from 'clsx'
 import { default as Mark } from 'mark.js'
 import type { SearchResult } from 'minisearch'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router'
 
 import { useConfig } from '../hooks/useConfig.js'
 import { useDebounce } from '../hooks/useDebounce.js'

@@ -3,7 +3,7 @@ import { Pencil2Icon } from '@radix-ui/react-icons'
 import { assignInlineVars } from '@vanilla-extract/dynamic'
 import clsx from 'clsx'
 import { useEffect, useMemo } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router'
 
 import type { SidebarItem } from '../../config.js'
 import { useEditLink } from '../hooks/useEditLink.js'

@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router'
 
 import type { ParsedTopNavItem } from '../../config.js'
 import { useActiveNavIds } from '../hooks/useActiveNavIds.js'
