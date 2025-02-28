@@ -1,15 +1,12 @@
-import { dirname, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { resolve } from 'node:path'
 import { default as fs } from 'fs-extra'
-
-const __dirname = dirname(fileURLToPath(import.meta.url))
 
 export const search = create('search')
 export const twoslash = create('twoslash')
 
 export function create(
   key: string,
-  { cacheDir = resolve(__dirname, '../.vocs/cache') }: { cacheDir?: string } = {},
+  { cacheDir = resolve(import.meta.dirname, '../.vocs/cache') }: { cacheDir?: string } = {},
 ) {
   const pathname = (k: string) => resolve(cacheDir, `${key}${k ? `.${k}` : ''}.json`)
   return {
@@ -26,7 +23,7 @@ export function create(
 }
 
 export function clear({
-  cacheDir = resolve(__dirname, '../.vocs/cache'),
+  cacheDir = resolve(import.meta.dirname, '../.vocs/cache'),
 }: { cacheDir?: string } = {}) {
   if (!fs.existsSync(cacheDir)) return
   fs.rmSync(cacheDir, { recursive: true })

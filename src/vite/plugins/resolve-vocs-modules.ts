@@ -1,11 +1,8 @@
-import { dirname, extname, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { extname, resolve } from 'node:path'
 import type { PluginOption } from 'vite'
 
 import type { ParsedConfig } from '../../config.js'
 import { resolveVocsConfig } from '../utils/resolveVocsConfig.js'
-
-const __dirname = dirname(fileURLToPath(import.meta.url))
 
 export function resolveVocsModules(): PluginOption {
   let config: ParsedConfig
@@ -20,11 +17,11 @@ export function resolveVocsModules(): PluginOption {
         if (['.js', '.jsx', '.ts', '.tsx', '.md', '.mdx'].includes(extname(id))) {
           code = code.replace(
             /import (.*) from ("|')vocs("|')/g,
-            `import $1 from $2${resolve(__dirname, '../..')}$3`,
+            `import $1 from $2${resolve(import.meta.dirname, '../..')}$3`,
           )
           code = code.replace(
             /import (.*) from ("|')vocs\/components("|')/g,
-            `import $1 from $2${resolve(__dirname, '../../components')}$3`,
+            `import $1 from $2${resolve(import.meta.dirname, '../../components')}$3`,
           )
         }
       }

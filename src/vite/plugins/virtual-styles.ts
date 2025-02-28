@@ -1,13 +1,10 @@
 import { existsSync } from 'node:fs'
-import { dirname, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { resolve } from 'node:path'
 import { default as fs } from 'fs-extra'
 import type { PluginOption } from 'vite'
 
 import type { ParsedConfig, Theme } from '../../config.js'
 import { resolveVocsConfig } from '../utils/resolveVocsConfig.js'
-
-const __dirname = dirname(fileURLToPath(import.meta.url))
 
 export function virtualStyles(): PluginOption {
   const virtualModuleId = 'virtual:styles'
@@ -41,7 +38,7 @@ export function virtualStyles(): PluginOption {
 
       const { config } = await resolveVocsConfig()
       const { rootDir } = config
-      const themeStyles = resolve(__dirname, '../.vocs/theme.css')
+      const themeStyles = resolve(import.meta.dirname, '../.vocs/theme.css')
       const rootStyles = resolve(rootDir, 'styles.css')
       let code = ''
       if (existsSync(themeStyles)) code += `import "${themeStyles}";`
@@ -52,7 +49,7 @@ export function virtualStyles(): PluginOption {
 }
 
 function createThemeStyles({ theme }: { theme: ParsedConfig['theme'] }) {
-  const themeFile = resolve(__dirname, '../.vocs/theme.css')
+  const themeFile = resolve(import.meta.dirname, '../.vocs/theme.css')
 
   if (fs.existsSync(themeFile)) fs.rmSync(themeFile)
   if (!theme) return

@@ -38,7 +38,6 @@ export default defineConfig(async () => {
         'react',
         'react-dom',
         'react-dom/client',
-        'react-helmet',
         'style-to-object',
         ...(viteConfig.optimizeDeps?.include ?? []),
       ],

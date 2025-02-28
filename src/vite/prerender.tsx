@@ -1,36 +1,39 @@
 import { mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import { dirname, relative, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
 import pc from 'picocolors'
 import type { Logger } from 'vite'
+import { toMarkup } from './utils/html.js'
 import { resolveOutDir } from './utils/resolveOutDir.js'
 import { resolveVocsConfig } from './utils/resolveVocsConfig.js'
 
 type PrerenderParameters = { logger?: Logger; outDir?: string }
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
-
 export async function prerender({ logger, outDir }: PrerenderParameters) {
   const { config } = await resolveVocsConfig()
-  const { basePath, rootDir, theme } = config
+  const { basePath, rootDir } = config
 
   const outDir_resolved = resolveOutDir(rootDir, outDir)
 
   const template = readFileSync(resolve(outDir_resolved, 'index.html'), 'utf-8')
-  const mod = await import(resolve(__dirname, './.vocs/dist/index.server.js'))
+
+  const mod = await import(resolve(import.meta.dirname, './.vocs/dist/index.server.js'))
 
   // Get routes to prerender.
   const routes = getRoutes(resolve(rootDir, 'pages'))
 
   // Prerender each route.
   for (const route of routes) {
-    const { head, body } = await mod.prerender(route)
-    let html = template
-      .replace('<!--body-->', body)
-      .replace('<!--head-->', head)
-      .replace('../app/utils/initializeTheme.ts', `${basePath}/initializeTheme.iife.js`)
-    if (theme?.colorScheme && theme?.colorScheme !== 'system')
-      html = html.replace('lang="en"', `lang="en" class="${theme.colorScheme}"`)
+    const body = await mod.prerender(route)
+
+    const location = route.replace(/(.+)\/$/, '$1')
+    const html = await toMarkup({
+      body,
+      config,
+      head: <script src={`${basePath}/initializeTheme.iife.js`} />,
+      location,
+      template,
+    })
+
     const isIndex = route.endsWith('/')
     const filePath = `${isIndex ? `${route}index` : route}.html`.replace(/^\//, '')
     const path = resolve(outDir_resolved, filePath)

@@ -1,17 +1,14 @@
-import { dirname, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { resolve } from 'node:path'
 import { intro, log, outro, text } from '@clack/prompts'
 import { default as fs } from 'fs-extra'
 import pc from 'picocolors'
 
 export type InitParameters = { name: string }
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
-
 export async function init(params: InitParameters) {
   intro('Welcome to Vocs!')
 
-  const templateDir = resolve(__dirname, '../templates/default')
+  const templateDir = resolve(import.meta.dirname, '../templates/default')
 
   const displayName =
     params.name ||

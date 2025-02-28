@@ -2,7 +2,6 @@
 /// <reference types="mdast-util-directive" />
 
 import { dirname, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { default as fs } from 'fs-extra'
 import { globbySync } from 'globby'
 import type { Root } from 'mdast'
@@ -11,8 +10,7 @@ import { createLogger } from 'vite'
 
 import { resolveVocsConfig } from '../../utils/resolveVocsConfig.js'
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
-const deadlinksPath = resolve(__dirname, '../../.vocs/cache/deadlinks.json')
+const deadlinksPath = resolve(import.meta.dirname, '../../.vocs/cache/deadlinks.json')
 
 const logger = createLogger('info')
 
@@ -62,7 +60,7 @@ export function remarkLinks() {
       ])
       if (!resolvedPagePath) {
         deadlinks.add([node.url, filePath])
-        fs.ensureDirSync(resolve(__dirname, '../../.vocs/cache'))
+        fs.ensureDirSync(resolve(import.meta.dirname, '../../.vocs/cache'))
         fs.writeFileSync(deadlinksPath, JSON.stringify([...deadlinks], null, 2))
         if (process.env.NODE_ENV === 'development')
           logger.warn(`could not resolve URL "${node.url}" in ${filePath}\n`, { timestamp: true })

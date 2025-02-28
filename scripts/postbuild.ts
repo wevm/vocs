@@ -6,23 +6,23 @@ import { default as fs } from 'fs-extra'
 
 // Copy index.html
 fs.copyFileSync(
-  resolve(import.meta.dir, '../src/vite/index.html'),
-  resolve(import.meta.dir, '../src/_lib/vite/index.html'),
+  resolve(import.meta.dirname, '../src/vite/index.html'),
+  resolve(import.meta.dirname, '../src/_lib/vite/index.html'),
 )
 
 // Copy public folder
 fs.copy(
-  resolve(import.meta.dir, '../src/app/public'),
-  resolve(import.meta.dir, '../src/_lib/app/public'),
+  resolve(import.meta.dirname, '../src/app/public'),
+  resolve(import.meta.dirname, '../src/_lib/app/public'),
 )
 
 // Copy create-vocs templates
 fs.copy(
-  resolve(import.meta.dir, '../create-vocs/templates'),
-  resolve(import.meta.dir, '../create-vocs/_lib/templates'),
+  resolve(import.meta.dirname, '../create-vocs/templates'),
+  resolve(import.meta.dirname, '../create-vocs/_lib/templates'),
 )
 
-rewriteExtensions(resolve(import.meta.dir, '../src/_lib'))
+rewriteExtensions(resolve(import.meta.dirname, '../src/_lib'))
 rewriteMdxPlugin()
 
 ////////////////////////////////////////////////////////////////////
@@ -45,7 +45,7 @@ function rewriteExtensions(dir: string) {
 }
 
 function rewriteMdxPlugin() {
-  const path = resolve(import.meta.dir, '../src/_lib/vite/plugins/mdx.js')
+  const path = resolve(import.meta.dirname, '../src/_lib/vite/plugins/mdx.js')
   const content = fs.readFileSync(path, 'utf-8')
   fs.writeFileSync(path, content.replace('@mdx-js/react', 'vocs/mdx-react'))
 }

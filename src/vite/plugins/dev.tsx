@@ -1,13 +1,11 @@
 import { readFileSync } from 'node:fs'
-import { dirname, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { resolve } from 'node:path'
 import { default as serveStatic } from 'serve-static'
 import type { PluginOption } from 'vite'
 
 import type { ParsedConfig } from '../../config.js'
+import { toMarkup } from '../utils/html.js'
 import { resolveVocsConfig } from '../utils/resolveVocsConfig.js'
-
-const __dirname = dirname(fileURLToPath(import.meta.url))
 
 const cleanUrl = (url: string): string => url.replace(/#.*$/s, '').replace(/\?.*$/s, '')
 
@@ -30,9 +28,9 @@ export function dev(): PluginOption {
     },
     async configureServer(server) {
       const { config } = await resolveVocsConfig()
-      const { rootDir, theme } = config
+      const { rootDir } = config
       server.middlewares.use(serveStatic(resolve(rootDir, 'public')))
-      server.middlewares.use(serveStatic(resolve(__dirname, '../../app/public')))
+      server.middlewares.use(serveStatic(resolve(import.meta.dirname, '../../app/public')))
       return () => {
         server.middlewares.use(async (req, res, next) => {
           const url = req.url && cleanUrl(req.url)
@@ -47,32 +45,37 @@ export function dev(): PluginOption {
           try {
             if (typeof url === 'undefined') next()
 
-            const indexHtml = readFileSync(resolve(__dirname, '../index.html'), 'utf-8')
+            const indexHtml = readFileSync(resolve(import.meta.dirname, '../index.html'), 'utf-8')
             const template = await server.transformIndexHtml(
               url!,
-              indexHtml.replace(/\.\.\/app/g, `/@fs${resolve(__dirname, '../../app')}`),
+              indexHtml.replace(/\.\.\/app/g, `/@fs${resolve(import.meta.dirname, '../../app')}`),
             )
             const module = await server.ssrLoadModule(
-              resolve(__dirname, '../../app/index.server.tsx'),
+              resolve(import.meta.dirname, '../../app/index.server.tsx'),
             )
-            const render = await module.render(req)
+            const body = await module.render(req)
 
-            const styles = [...styleSet.values(), ...styleOverrideSet.values()]
-              .map((style) => `<style data-vocs-temp-style="true">${style}</style>`)
-              .join('')
-
-            const head = `${render.head}${styles}`
-            const body = render.body
-
-            let html = template
-              .replace('<!--head-->', head)
-              .replace('<!--body-->', body)
-              .replace(
-                /(src=".*app\/utils\/initializeTheme\.ts")/,
-                `type="module" fetchpriority="high" blocking="render" $1`,
-              )
-            if (theme?.colorScheme && theme?.colorScheme !== 'system')
-              html = html.replace('lang="en"', `lang="en" class="${theme.colorScheme}"`)
+            const html = await toMarkup({
+              body,
+              config,
+              head: (
+                <>
+                  <script
+                    src={resolve(import.meta.dirname, '../../app/utils/initializeTheme.ts')}
+                  />
+                  {[...styleSet.values(), ...styleOverrideSet.values()].map((style, i) => (
+                    <style
+                      key={i}
+                      data-vocs-temp-style="true"
+                      // biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
+                      dangerouslySetInnerHTML={{ __html: style }}
+                    />
+                  ))}
+                </>
+              ),
+              location: '/',
+              template,
+            })
 
             res.end(html)
           } finally {

@@ -29,7 +29,6 @@
     "@types/node": "^20.17.19",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
-    "@types/react-helmet": "^6.1.11",
     "@types/serve-static": "^1.15.7",
     "@vercel/og": "^0.5.20",
     "globby": "^13.2.2",

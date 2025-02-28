@@ -1,11 +1,9 @@
-import { dirname, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { resolve } from 'node:path'
 import { default as fs } from 'fs-extra'
 import pc from 'picocolors'
 import type { Logger, PluginOption } from 'vite'
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
-const deadlinksPath = resolve(__dirname, '../.vocs/cache/deadlinks.json')
+const deadlinksPath = resolve(import.meta.dirname, '../.vocs/cache/deadlinks.json')
 
 export function postbuild({ logger }: { logger?: Logger } = {}): PluginOption {
   return {

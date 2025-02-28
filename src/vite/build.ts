@@ -1,5 +1,4 @@
-import { dirname, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { resolve } from 'node:path'
 import { default as fs } from 'fs-extra'
 import * as vite from 'vite'
 
@@ -9,8 +8,6 @@ import * as cache from './utils/cache.js'
 import { resolveOutDir } from './utils/resolveOutDir.js'
 import { resolveVocsConfig } from './utils/resolveVocsConfig.js'
 import { vercelBuildOutputDir, writeBuildOutputConfig } from './utils/vercel.js'
-
-const __dirname = dirname(fileURLToPath(import.meta.url))
 
 export type BuildParameters = {
   clean?: boolean
@@ -58,19 +55,19 @@ export async function build({
         outDir: outDir_resolved,
       },
       publicDir: publicDir_resolved,
-      root: __dirname,
+      root: import.meta.dirname,
       logLevel,
       plugins: [postbuild({ logger })],
     })
     await vite.build({
       build: {
         emptyOutDir: false,
-        outDir: resolve(__dirname, '.vocs/dist'),
-        ssr: resolve(__dirname, '../app/index.server.tsx'),
+        outDir: resolve(import.meta.dirname, '.vocs/dist'),
+        ssr: resolve(import.meta.dirname, '../app/index.server.tsx'),
       },
       logLevel,
       publicDir: publicDir_resolved,
-      root: __dirname,
+      root: import.meta.dirname,
     })
     hooks?.onBundleEnd?.({})
   } catch (e) {
@@ -89,7 +86,7 @@ export async function build({
   }
 
   // copy public folder
-  fs.copySync(resolve(__dirname, '../app/public'), outDir_resolved)
+  fs.copySync(resolve(import.meta.dirname, '../app/public'), outDir_resolved)
 
   hooks?.onScriptsStart?.()
 
@@ -99,7 +96,7 @@ export async function build({
         lib: {
           formats: ['iife'],
           name: 'theme',
-          entry: [resolve(__dirname, '../app/utils/initializeTheme.ts')],
+          entry: [resolve(import.meta.dirname, '../app/utils/initializeTheme.ts')],
         },
         minify: true,
         outDir: outDir_resolved,

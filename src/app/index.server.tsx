@@ -1,7 +1,5 @@
 import './styles/index.css.js'
 
-import { renderToString } from 'react-dom/server'
-import { Helmet } from 'react-helmet'
 import { Route, type RouteObject, Routes } from 'react-router-dom'
 import {
   type StaticHandlerContext,
@@ -35,7 +33,7 @@ export async function prerender(location: string) {
   const { config } = await resolveVocsConfig()
   const { basePath } = config
 
-  const body = renderToString(
+  return (
     <ConfigProvider config={config}>
       <StaticRouter location={location} basename={basePath}>
         <Routes>
@@ -44,10 +42,8 @@ export async function prerender(location: string) {
           ))}
         </Routes>
       </StaticRouter>
-    </ConfigProvider>,
+    </ConfigProvider>
   )
-
-  return { head: await head({ path: location }), body }
 }
 
 export async function render(req: Request) {
@@ -62,46 +58,9 @@ export async function render(req: Request) {
 
   const router = createStaticRouter(dataRoutes, context)
 
-  const body = renderToString(
+  return (
     <ConfigProvider config={config}>
       <StaticRouterProvider router={router} context={context} />
-    </ConfigProvider>,
+    </ConfigProvider>
   )
-
-  return { head: await head({ path: context.location.pathname }), body }
-}
-
-async function head({ path }: { path: string }) {
-  const { config } = await resolveVocsConfig()
-
-  const head = await (async () => {
-    if (typeof config.head === 'function') return await config.head({ path })
-    if (typeof config.head === 'object') {
-      const entry = Object.entries(config.head)
-        .reverse()
-        .find(([key]) => path.startsWith(key))
-      return entry?.[1]
-    }
-    return config.head
-  })()
-
-  const helmet = Helmet.renderStatic()
-
-  let meta = helmet.meta.toString()
-  const match = helmet.meta.toString().match(/property="og:image" content="(.*)"/)
-  if (match?.[1]) {
-    meta = meta.replace(
-      /property="og:image" content="(.*)"/,
-      `property="og:image" content="${match[1].replace(/&amp;/g, '&')}"`,
-    )
-  }
-
-  return `
-    ${helmet.title.toString()}
-    ${meta}
-    ${helmet.link.toString()}
-    ${helmet.style.toString()}
-    ${helmet.script.toString()}
-    ${renderToString(head)}
-  `
 }

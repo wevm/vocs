@@ -10,7 +10,6 @@
   "exports": {
     ".": "./_lib/index.js",
     "./components": "./_lib/components.js",
-    "./head": "./_lib/head.js",
     "./mdx-react": "./_lib/mdx-react.js"
   },
   "peerDependencies": {
@@ -64,7 +63,6 @@
     "ora": "^7.0.1",
     "p-limit": "^5.0.0",
     "postcss": "^8.5.2",
-    "react-helmet": "^6.1.0",
     "react-intersection-observer": "^9.15.1",
     "react-router-dom": "^7.1.5",
     "rehype-autolink-headings": "^7.1.0",
