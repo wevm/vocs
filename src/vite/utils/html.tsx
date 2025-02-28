@@ -9,8 +9,16 @@ export async function toMarkup(parameters: {
   location: string
   template: string
 }) {
-  const { body, config, head, location, template } = parameters
+  const { body, config, location, template } = parameters
   const { theme } = config
+
+  const preHtml = renderToStaticMarkup(
+    <html lang="en">
+      <head />
+      <body>{body}</body>
+    </html>,
+  )
+  const preHead = preHtml.match(/<head>([\s\S]*?)<\/head>/)?.[1]
 
   const configHead = await (async () => {
     if (typeof config.head === 'function') return await config.head({ path: location })
@@ -22,21 +30,16 @@ export async function toMarkup(parameters: {
     }
     return config.head
   })()
-  const templateHead = template.match(/<head>([\s\S]*?)<\/head>/)?.[1]
-  const headstr = renderToString(
+  const head = renderToString(
     <>
+      {parameters.head}
       {configHead}
-      {head}
     </>,
   )
 
-  let html = renderToStaticMarkup(
-    <html lang="en">
-      {/* biome-ignore lint/security/noDangerouslySetInnerHtml: */}
-      {templateHead && <head dangerouslySetInnerHTML={{ __html: `${templateHead}${headstr}` }} />}
-      <body>{body}</body>
-    </html>,
-  )
+  let html = template.replace('<!--head-->', `${head}${preHead}`)
+  html = html.replace('<!--body-->', renderToString(body).replace(preHead ?? '', ''))
+
   const match = html.match(/property="og:image" content="(.*)"/)
   if (match?.[1]) {
     html = html.replace(
