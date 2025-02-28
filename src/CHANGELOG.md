@@ -1,5 +1,13 @@
 # vocs
 
+## 1.0.0
+
+## Major Changes
+
+- **Breaking:** Updated `react` & `react-dom` peer dependencies to `^19`.
+- **Breaking:** Added support for Tailwind v4. [See docs for setup](https://vocs.dev/docs/guides/styling#tailwind).
+- **Breaking:** Removed `vocs/head` entrypoint. You can now use [React `<head>` components](https://react.dev/reference/react-dom/components/meta).
+
 ## 1.0.0-alpha.62
 
 ### Patch Changes
