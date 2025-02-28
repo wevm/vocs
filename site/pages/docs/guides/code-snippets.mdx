@@ -16,7 +16,7 @@ We will show you both approaches below.
 We will create a virtual file snippet called `example.ts`. We can define a virtual file in markdown using the `filename="example.ts"{:ts}` meta tag.
 
 ````mdx [example.md]
-```ts filename="example.ts"
+```ts filename="example.ts" // [!code hl]
 import { http, createPublicClient } from 'viem'
 import { mainnet } from 'viem/chains'
  
@@ -47,14 +47,10 @@ const client = createPublicClient({
 #### Use Actions
 
 ```ts // [!code focus]
-// [!code hl]
-// [!code focus]
-// [\!include example.ts]
+// [\!include example.ts] // [!code hl] // [!code focus]
  
-// [!code focus]
-const blockNumber = await client.getBlockNumber() // [\!code focus]
-// [!code focus]
-```
+const blockNumber = await client.getBlockNumber() // [\!code focus] // [!code focus]
+``` // [!code focus]
 ````
 
 ### Output
@@ -108,23 +104,16 @@ Next, we will import the snippet into our Markdown file using the `// [!include 
 #### Create your Client
 
 ```ts // [!code focus]
-// [!code hl] 
-// [!code focus]
-// [\!include ~/snippets/example.ts]
-// [!code focus]
-```
+// [\!include ~/snippets/example.ts] // [!code hl] // [!code focus]
+``` // [!code focus]
 
 #### Use Actions
 
 ```ts // [!code focus]
-// [!code hl] 
-// [!code focus]
-// [\!include ~/snippets/example.ts]
+// [\!include ~/snippets/example.ts] // [!code hl] // [!code focus]
  
-// [!code focus]
-const blockNumber = await client.getBlockNumber() // [\!code focus]
-// [!code focus]
-```
+const blockNumber = await client.getBlockNumber() // [\!code focus] // [!code focus]
+``` // [!code focus]
 ````
 
 :::info
@@ -162,27 +151,21 @@ const blockNumber = await client.getBlockNumber() // [!code focus]
 You can also include a specific region of a code snippet by using the `// [!region]` and `// [!endregion]` markers.
 
 ```ts [docs/snippets/example.ts]
-// [!code focus]
-// [\!region import]
+// [\!region import] // [!code focus]
 import { http, createPublicClient } from 'viem'
 import { mainnet } from 'viem/chains'
-// [!code focus]
-// [\!endregion import]
+// [\!endregion import] // [!code focus]
 
-// [!code focus]
-// [\!region setup]
+// [\!region setup] // [!code focus]
 const client = createPublicClient({
   chain: mainnet,
   transport: http(),
 })
-// [!code focus]
-// [\!endregion setup]
+// [\!endregion setup] // [!code focus]
 
-// [!code focus]
-// [\!region usage]
+// [\!region usage] // [!code focus]
 const blockNumber = await client.getBlockNumber()
-// [!code focus]
-// [\!endregion usage]
+// [\!endregion usage] // [!code focus]
 ```
 
 Then, we can include the regions in the Markdown with the `// [!include]` marker:
@@ -190,14 +173,11 @@ Then, we can include the regions in the Markdown with the `// [!include]` marker
 ````md [example.md]
 ```ts
 import { writeFileSync } from 'node:fs'
-// [!code focus]
-// [\!include ~/snippets/example.ts:import]
+// [\!include ~/snippets/example.ts:import] // [!code focus]
 
-// [!code focus]
-// [\!include ~/snippets/example.ts:setup]
+// [\!include ~/snippets/example.ts:setup] // [!code focus]
 
-// [!code focus]
-// [\!include ~/snippets/example.ts:usage]
+// [\!include ~/snippets/example.ts:usage] // [!code focus]
 
 writeFileSync('test.txt', blockNumber.toString())
 ```
@@ -259,8 +239,7 @@ You can use `/(find)/(replace)/` syntax to find and replace text in the snippet.
 ````md [example.md]
 ```ts
 import { writeFileSync } from 'node:fs'
-// [!code focus]
-// [\!include ~/snippets/example.ts /viem/@viem\/core/ /mainnet/sepolia/]
+// [\!include ~/snippets/example.ts /viem/@viem\/core/ /mainnet/sepolia/] // [!code focus]
 
 writeFileSync('test.txt', blockNumber.toString())
 ```

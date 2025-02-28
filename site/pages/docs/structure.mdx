@@ -6,21 +6,11 @@ A general overview of the structure of a Vocs project:
 
 ```
 my-project/             # Your project's root directory.
-// [!code hl]
-// [!code focus]
-├── docs/               # The root directory of your documentation.
-// [!code hl]
-// [!code focus]
-│   ├── pages/          # Directory for your documentation pages (routes).
-// [!code hl]
-// [!code focus]
-│   │   └── index.mdx   # A documentation page.
-// [!code hl]
-// [!code focus]
-│   └── public/         # Directory for static assets.
-// [!code hl]
-// [!code focus]
-│       └── favicon.ico # A static asset.
+├── docs/               # The root directory of your documentation. <!-- [!code focus] [!code hl] -->
+│   ├── pages/          # Directory for your documentation pages (routes). <!-- [!code focus] [!code hl] -->
+│   │   └── index.mdx   # A documentation page. <!-- [!code focus] [!code hl] -->
+│   └── public/         # Directory for static assets. <!-- [!code focus] [!code hl] -->
+│       └── favicon.ico # A static asset. <!-- [!code focus] [!code hl] -->
 ├── node_modules/
 ├── src/
 ├── .gitignore
@@ -40,8 +30,7 @@ my-project/
 │   ...
 ├── .gitignore
 ├── package.json
-// [!code focus]
-└── vocs.config.ts 
+└── vocs.config.ts <!-- [!code focus] -->
 ```
 
 A basic `vocs.config.ts` could look like this:
@@ -67,8 +56,7 @@ You can change this directory by setting the [`rootDir` property](/docs/api/conf
 
 ```
 my-project/     
-// [!code focus]
-├── docs/
+├── docs/ <!-- [!code focus] -->
 │   ├── pages/
 │   │   └── index.mdx   
 │   └── public/
@@ -85,12 +73,9 @@ Files within the pages directory can be: Markdown or MDX files, or React compone
 ```
 my-project/             
 ├── docs/
-// [!code focus]
-│   ├── pages/
-// [!code focus]
-|   |   ├── index.mdx
-// [!code focus]
-|   |   └── about.tsx
+│   ├── pages/  <!-- [!code focus] -->
+|   |   ├── index.mdx <!-- [!code focus] -->
+|   |   └── about.tsx <!-- [!code focus] -->
 │   └── public/
 │       └── favicon.ico 
 ├── node_modules/
@@ -109,12 +94,9 @@ my-project/
 │   ├── pages/ 
 |   |   ├── index.mdx 
 |   |   └── about.tsx 
-// [!code focus]
-│   └── public/ 
-// [!code focus]
-│       ├── logo.svg
-// [!code focus]
-│       └── favicon.ico
+│   └── public/  <!-- [!code focus] -->
+│       ├── logo.svg <!-- [!code focus] -->
+│       └── favicon.ico <!-- [!code focus] -->
 ├── node_modules/
 │   ...
 ```
@@ -144,8 +126,7 @@ my-project/
 |   |   └── about.tsx 
 │   └── public/
 │   |   └── favicon.ico
-// [!code focus]
-|   └── layout.tsx
+|   └── layout.tsx <!-- [!code focus] -->
 ├── node_modules/
 │   ...
 ```
@@ -173,8 +154,7 @@ my-project/
 |   |   └── about.tsx 
 │   └── public/
 │   |   └── favicon.ico
-// [!code focus]
-|   └── footer.tsx
+|   └── footer.tsx <!-- [!code focus] -->
 ├── node_modules/
 │   ...
 ```
@@ -204,8 +184,7 @@ my-project/
 |   |   └── about.tsx 
 │   └── public/
 │   |   └── favicon.ico
-// [!code focus]
-|   └── styles.css
+|   └── styles.css <!-- [!code focus] -->
 ├── node_modules/
 │   ...
 ```

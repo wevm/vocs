@@ -3,12 +3,10 @@
 You can set page-specific metadata such as the page title and description in the frontmatter of Markdown pages. The frontmatter is a YAML block encapulated in a `---` separator at the top of the page.
 
 ```md [example.md]
---- // [!code focus]
-// [!code focus]
+---
 title: Example
-// [!code focus]
 description: This is an example page.
---- // [!code focus]
+---
 
 # Hello world
 
@@ -23,17 +21,14 @@ Authors of the page. Used by the [`::authors` markdown directive](#TODO).
 
 ```md
 ---
-authors: // [!code focus]
-// [!code focus]
-  - [jxom](https://x.com/jxom)
-// [!code focus]
-  - [awkweb](https://x.com/awkweb)
+authors: # [!code focus]
+  - [jxom](https://x.com/jxom) # [!code focus]
+  - [awkweb](https://x.com/awkweb)  # [!code focus]
 ---
 
 # gm
 
-// [!code focus]
-::authors
+::authors  # [!code focus]
 
 we're so back
 ```
@@ -58,14 +53,10 @@ Page content attributes.
 
 ```md
 ---
-// [!code focus]
-content:
-  // [!code focus]
-  horizontalPadding: 0px
-  // [!code focus]
-  width: 100%
-  // [!code focus]
-  verticalPadding: 0px
+content:  # [!code focus]
+  horizontalPadding: 0px  # [!code focus]
+  width: 100%  # [!code focus]
+  verticalPadding: 0px  # [!code focus]
 ---
 
 # gm
@@ -86,13 +77,11 @@ Authors of the page. Used by the [`::authors` markdown directive](#TODO).
 authors: 
   - [jxom](https://x.com/jxom) 
   - [awkweb](https://x.com/awkweb) 
-// [!code focus]
-date: 2023-12-01
+date: 2023-12-01 # [!code focus]
 ---
 
 # gm
 
-// [!code focus]
 ::authors
 
 we're so back

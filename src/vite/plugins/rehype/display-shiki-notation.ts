@@ -7,7 +7,8 @@ import { visit } from 'unist-util-visit'
 export function rehypeShikiDisplayNotation() {
   return (tree: Root) => {
     visit(tree, 'text', (node) => {
-      node.value = node.value.replace('// [\\!', '// [!')
+      if (node.value.includes('// [\\!'))
+        node.value = node.value.replace('// [\\!', '// [!').replaceAll('// //', '')
     })
   }
 }

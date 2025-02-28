@@ -175,10 +175,8 @@ const client = createPublicClient({
   transport: http(),
 })
 
-// [!code hl]
-// 3. Consume an action! // [\!code focus]
-// [!code hl]
-const blockNumber = await client.getBlockNumber() // [\!code focus]
+// 3. Consume an action! // [\!code focus] // [!code hl]
+const blockNumber = await client.getBlockNumber() // [\!code focus] // [!code hl]
 ```
 ````
 
@@ -199,8 +197,7 @@ const example: Example = 'example'
 
 ````md [Markdown]
 ```ts 
-// [!code hl]
-type Example = string // [\!code hl]
+type Example = string // [\!code hl] // [!code hl]
 const example: Example = 'example'
 ```
 ````
@@ -330,13 +327,11 @@ const blockNumber = await client.getBlockNumber()
 ```ts 
 // 1. Import modules.
 import { createPublicClient, http } from 'viem'
-// [!code hl]
-// [\!code word:mainnet]
+// [\!code word:mainnet] // [!code hl]
 import { mainnet } from 'viem/chains'
 
 // 2. Set up your client with desired chain & transport.
-// [!code hl]
-// [\!code word:client]
+// [\!code word:client] // [!code hl]
 const client = createPublicClient({
   chain: mainnet,
   transport: http(),
@@ -376,10 +371,8 @@ const blockNumber = await client.getBlockNumber()
 ````md [Markdown]
 ```ts
 // 1. Import modules.
-// [!code hl]
-import { createPublicClient } from 'viem' // [\!code --]
-// [!code hl]
-import { createPublicClient, http } from 'viem' // [\!code ++]
+import { createPublicClient } from 'viem' // [\!code --] // [!code hl]
+import { createPublicClient, http } from 'viem' // [\!code ++] // [!code hl]
 import { mainnet } from 'viem/chains'
 
 // 2. Set up your client with desired chain & transport.
