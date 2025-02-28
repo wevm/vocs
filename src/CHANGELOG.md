@@ -1,5 +1,13 @@
 # vocs
 
+## 1.0.1
+
+### Patch Changes
+
+- [`1bcdee3fa96554a378b9c5bce2e585dc8ed9e90e`](https://github.com/wevm/vocs/commit/1bcdee3fa96554a378b9c5bce2e585dc8ed9e90e) Thanks [@jxom](https://github.com/jxom)! - Fixed theme script in dev.
+
+- [`1bcdee3fa96554a378b9c5bce2e585dc8ed9e90e`](https://github.com/wevm/vocs/commit/1bcdee3fa96554a378b9c5bce2e585dc8ed9e90e) Thanks [@jxom](https://github.com/jxom)! - Updated `react-router` and fixed imports.
+
 ## 1.0.0
 
 ### Major Changes
