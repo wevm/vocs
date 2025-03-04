@@ -16,6 +16,7 @@ import type { SidebarItem as SidebarItemType } from '../../config.js'
 import { usePageData } from '../hooks/usePageData.js'
 import { useSidebar } from '../hooks/useSidebar.js'
 import { Icon } from './Icon.js'
+import { Link } from './Link.js'
 import { NavLogo } from './NavLogo.js'
 import { RouterLink } from './RouterLink.js'
 import * as styles from './Sidebar.css.js'
@@ -200,7 +201,7 @@ function SidebarItem(props: {
           >
             {item.text &&
               (item.link ? (
-                <RouterLink
+                <Link
                   data-active={Boolean(match)}
                   onClick={(e) => {
                     onClick?.(e)
@@ -210,10 +211,11 @@ function SidebarItem(props: {
                     depth === 0 ? [styles.sectionTitle, styles.sectionTitleLink] : styles.item,
                     hasActiveChildItem && styles.sectionHeaderActive,
                   )}
-                  to={item.link}
+                  href={item.link}
+                  variant="styleless"
                 >
                   {item.text}
-                </RouterLink>
+                </Link>
               ) : (
                 <div className={clsx(depth === 0 ? styles.sectionTitle : styles.item)}>
                   {item.text}
@@ -264,15 +266,16 @@ function SidebarItem(props: {
   return (
     <>
       {item.link ? (
-        <RouterLink
+        <Link
           ref={itemRef}
           data-active={Boolean(match)}
           onClick={onClick}
           className={styles.item}
-          to={item.link}
+          href={item.link}
+          variant="styleless"
         >
           {item.text}
-        </RouterLink>
+        </Link>
       ) : (
         <div className={styles.item}>{item.text}</div>
       )}

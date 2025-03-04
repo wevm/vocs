@@ -10,7 +10,7 @@ type LinkProps = {
   children: React.ReactNode
   className?: string
   hideExternalIcon?: boolean
-  onClick?: () => void
+  onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void
   href?: string
   variant?: 'accent' | 'styleless'
 }
@@ -26,7 +26,12 @@ export const Link = forwardRef((props: LinkProps, ref) => {
       <ExternalLink
         {...props}
         ref={ref}
-        className={clsx(props.className, styles.root, variant === 'accent' && styles.accent)}
+        className={clsx(
+          props.className,
+          styles.root,
+          variant === 'accent' && styles.accent,
+          variant === 'styleless' && styles.styleless,
+        )}
         hideExternalIcon={props.hideExternalIcon}
       />
     )
@@ -38,7 +43,12 @@ export const Link = forwardRef((props: LinkProps, ref) => {
     <RouterLink
       {...(props as RouterLinkProps)}
       ref={ref}
-      className={clsx(props.className, styles.root, variant === 'accent' && styles.accent)}
+      className={clsx(
+        props.className,
+        styles.root,
+        variant === 'accent' && styles.accent,
+        variant === 'styleless' && styles.styleless,
+      )}
       to={to}
     />
   )

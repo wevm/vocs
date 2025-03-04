@@ -11,6 +11,7 @@ export const root = style({
       color: arrowColor,
       display: 'inline-block',
       height: '0.5em',
+      marginBottom: '0.1em',
       marginLeft: '0.325em',
       marginRight: '0.25em',
       width: '0.5em',

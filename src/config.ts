@@ -463,7 +463,6 @@ export type SidebarItem = {
   /** Text to display on the sidebar. */
   text: string
   /** Optional pathname to the target documentation page. */
-  // TODO: support external links
   link?: string
   /** Optional children to nest under this item. */
   items?: SidebarItem[]

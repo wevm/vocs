@@ -26,6 +26,7 @@ export function Sponsors() {
                   className={clsx(styles.column, sponsor ? styles.sponsor : undefined)}
                   href={sponsor?.link}
                   key={i}
+                  hideExternalIcon
                   variant="styleless"
                 >
                   {sponsor?.image && (
