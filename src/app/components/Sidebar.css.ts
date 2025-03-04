@@ -217,6 +217,14 @@ export const item = style(
   'item',
 )
 
+export const disabledItem = style(
+  {
+    color: primitiveColorVars.text4,
+    pointerEvents: 'none',
+  },
+  'disabledItem',
+)
+
 export const sectionHeader = style(
   {
     alignItems: 'center',

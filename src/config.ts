@@ -460,6 +460,8 @@ export type Search = SearchOptions
 export type SidebarItem = {
   /** Whether or not to collapse the sidebar item by default. */
   collapsed?: boolean
+  /** Whether or not to disable the sidebar item. */
+  disabled?: boolean
   /** Text to display on the sidebar. */
   text: string
   /** Optional pathname to the target documentation page. */

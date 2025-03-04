@@ -210,6 +210,7 @@ function SidebarItem(props: {
                   className={clsx(
                     depth === 0 ? [styles.sectionTitle, styles.sectionTitleLink] : styles.item,
                     hasActiveChildItem && styles.sectionHeaderActive,
+                    item.disabled && styles.disabledItem,
                   )}
                   href={item.link}
                   variant="styleless"
@@ -217,7 +218,12 @@ function SidebarItem(props: {
                   {item.text}
                 </Link>
               ) : (
-                <div className={clsx(depth === 0 ? styles.sectionTitle : styles.item)}>
+                <div
+                  className={clsx(
+                    depth === 0 ? styles.sectionTitle : styles.item,
+                    item.disabled && styles.disabledItem,
+                  )}
+                >
                   {item.text}
                 </div>
               ))}
@@ -270,14 +276,14 @@ function SidebarItem(props: {
           ref={itemRef}
           data-active={Boolean(match)}
           onClick={onClick}
-          className={styles.item}
+          className={clsx(styles.item, item.disabled && styles.disabledItem)}
           href={item.link}
           variant="styleless"
         >
           {item.text}
         </Link>
       ) : (
-        <div className={styles.item}>{item.text}</div>
+        <div className={clsx(styles.item, item.disabled && styles.disabledItem)}>{item.text}</div>
       )}
     </>
   )
