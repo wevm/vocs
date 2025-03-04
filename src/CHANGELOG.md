@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.3
+
+### Patch Changes
+
+- [`c034f42f293cd206bc35790ea681aa137f7cc634`](https://github.com/wevm/vocs/commit/c034f42f293cd206bc35790ea681aa137f7cc634) Thanks [@jxom](https://github.com/jxom)! - Added support for disabled sidebar items.
+
 ## 1.0.2
 
 ### Patch Changes
