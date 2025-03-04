@@ -9,6 +9,7 @@ import { RouterLink, type RouterLinkProps } from './RouterLink.js'
 type LinkProps = {
   children: React.ReactNode
   className?: string
+  hideExternalIcon?: boolean
   onClick?: () => void
   href?: string
   variant?: 'accent' | 'styleless'
@@ -26,6 +27,7 @@ export const Link = forwardRef((props: LinkProps, ref) => {
         {...props}
         ref={ref}
         className={clsx(props.className, styles.root, variant === 'accent' && styles.accent)}
+        hideExternalIcon={props.hideExternalIcon}
       />
     )
 

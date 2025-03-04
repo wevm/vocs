@@ -31,5 +31,5 @@ export function Anchor(props: AnchorProps) {
       <a className={clsx(props.className, styles.root)} {...props} href={`${pathname}${href}`} />
     )
 
-  return <Link className={clsx(props.className, styles.root)} {...props} />
+  return <Link className={clsx(props.className, styles.root)} {...props} hideExternalIcon />
 }
