@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.2
+
+### Patch Changes
+
+- [`aef063ad02005ad22be46e88b090ab228e693eb2`](https://github.com/wevm/vocs/commit/aef063ad02005ad22be46e88b090ab228e693eb2) Thanks [@jxom](https://github.com/jxom)! - Added support for external links on sidebar.
+
 ## 1.0.1
 
 ### Patch Changes
