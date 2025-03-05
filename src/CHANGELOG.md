@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.5
+
+### Patch Changes
+
+- [`6286b509471f1f4a8a355b5a7c0aef3aeb775fc8`](https://github.com/wevm/vocs/commit/6286b509471f1f4a8a355b5a7c0aef3aeb775fc8) Thanks [@jxom](https://github.com/jxom)! - Added `TopNavEnd` layout export to `layout.tsx`.
+
 ## 1.0.4
 
 ### Patch Changes
