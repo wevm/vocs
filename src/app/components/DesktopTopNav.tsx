@@ -5,6 +5,7 @@ import type { ParsedTopNavItem } from '../../config.js'
 import { useActiveNavIds } from '../hooks/useActiveNavIds.js'
 import { useConfig } from '../hooks/useConfig.js'
 import { useLayout } from '../hooks/useLayout.js'
+import { deserializeElement } from '../utils/deserializeElement.js'
 import { DesktopSearch } from './DesktopSearch.js'
 import * as styles from './DesktopTopNav.css.js'
 import { NavLogo } from './NavLogo.js'
@@ -61,27 +62,32 @@ function Navigation() {
   return (
     <NavigationMenu.Root delayDuration={0}>
       <NavigationMenu.List>
-        {topNav.map((item, i) =>
-          item.link ? (
-            <NavigationMenu.Link
-              key={i}
-              active={activeIds.includes(item.id)}
-              className={styles.item}
-              href={item.link!}
-            >
-              {item.text}
-            </NavigationMenu.Link>
-          ) : item.items ? (
-            <NavigationMenu.Item key={i} className={styles.item}>
-              <NavigationMenu.Trigger active={activeIds.includes(item.id)}>
+        {topNav.map((item, i) => {
+          if (item.element) return deserializeElement(item.element)
+          if (item.link)
+            return (
+              <NavigationMenu.Link
+                key={i}
+                active={activeIds.includes(item.id)}
+                className={styles.item}
+                href={item.link!}
+              >
                 {item.text}
-              </NavigationMenu.Trigger>
-              <NavigationMenu.Content className={styles.content}>
-                <NavigationMenuContent items={item.items} />
-              </NavigationMenu.Content>
-            </NavigationMenu.Item>
-          ) : null,
-        )}
+              </NavigationMenu.Link>
+            )
+          if (item.items)
+            return (
+              <NavigationMenu.Item key={i} className={styles.item}>
+                <NavigationMenu.Trigger active={activeIds.includes(item.id)}>
+                  {item.text}
+                </NavigationMenu.Trigger>
+                <NavigationMenu.Content className={styles.content}>
+                  <NavigationMenuContent items={item.items} />
+                </NavigationMenu.Content>
+              </NavigationMenu.Item>
+            )
+          return null
+        })}
       </NavigationMenu.List>
     </NavigationMenu.Root>
   )

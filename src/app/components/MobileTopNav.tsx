@@ -10,6 +10,7 @@ import { useConfig } from '../hooks/useConfig.js'
 import { useLayout } from '../hooks/useLayout.js'
 import { usePageData } from '../hooks/usePageData.js'
 import { useSidebar } from '../hooks/useSidebar.js'
+import { deserializeElement } from '../utils/deserializeElement.js'
 import { Icon } from './Icon.js'
 import { Link } from './Link.js'
 import { MobileSearch } from './MobileSearch.js'
@@ -68,12 +69,16 @@ function Navigation({ items }: { items: Config.ParsedTopNavItem[] }) {
   return (
     <NavigationMenu.Root className={styles.navigation}>
       <NavigationMenu.List>
-        {items.map((item, i) =>
-          item?.link ? (
-            <NavigationMenu.Link key={i} active={activeIds?.includes(item.id)} href={item.link!}>
-              {item.text}
-            </NavigationMenu.Link>
-          ) : (
+        {items.map((item, i) => {
+          if (item.element) return deserializeElement(item.element)
+          if (item.link) {
+            return (
+              <NavigationMenu.Link key={i} active={activeIds?.includes(item.id)} href={item.link!}>
+                {item.text}
+              </NavigationMenu.Link>
+            )
+          }
+          return (
             <NavigationMenu.Item className={styles.item} key={i}>
               <NavigationMenu.Trigger active={activeIds?.includes(item.id)}>
                 {item.text}
@@ -82,8 +87,8 @@ function Navigation({ items }: { items: Config.ParsedTopNavItem[] }) {
                 <NavigationMenuContent items={item.items || []} />
               </NavigationMenu.Content>
             </NavigationMenu.Item>
-          ),
-        )}
+          )
+        })}
       </NavigationMenu.List>
     </NavigationMenu.Root>
   )
@@ -134,19 +139,23 @@ function CompactNavigation({ items }: { items: Config.ParsedTopNavItem[] }) {
             collapsible
             style={{ display: 'flex', flexDirection: 'column' }}
           >
-            {items.map((item, i) =>
-              item?.link ? (
-                <Link
-                  key={i}
-                  data-active={activeIds.includes(item.id)}
-                  className={styles.navigationItem}
-                  href={item.link!}
-                  onClick={() => setShowPopover(false)}
-                  variant="styleless"
-                >
-                  {item.text}
-                </Link>
-              ) : (
+            {items.map((item, i) => {
+              if (item.element) return deserializeElement(item.element)
+              if (item.link) {
+                return (
+                  <Link
+                    key={i}
+                    data-active={activeIds.includes(item.id)}
+                    className={styles.navigationItem}
+                    href={item.link!}
+                    onClick={() => setShowPopover(false)}
+                    variant="styleless"
+                  >
+                    {item.text}
+                  </Link>
+                )
+              }
+              return (
                 <Accordion.Item key={i} value={i.toString()}>
                   <Accordion.Trigger
                     className={clsx(styles.navigationItem, styles.navigationTrigger)}
@@ -172,8 +181,8 @@ function CompactNavigation({ items }: { items: Config.ParsedTopNavItem[] }) {
                     ))}
                   </Accordion.Content>
                 </Accordion.Item>
-              ),
-            )}
+              )
+            })}
           </Accordion.Root>
           <div className={styles.topNavPopoverFooter}>
             <Socials />

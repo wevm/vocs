@@ -323,7 +323,7 @@ function parseTopNav(topNav: TopNav): TopNav<true> {
       ...item,
       id: id++,
       items: item.items ? parseTopNav(item.items) : [],
-    })
+    } as ParsedTopNavItem)
   }
   return parsedTopNav
 }
@@ -556,13 +556,23 @@ export type Theme<
   }
 }
 
-export type TopNavItem<parsed extends boolean = false> = {
-  match?: string
-  text: string
-} & (
-  | { link: string; items?: never }
-  | { link?: string; items: parsed extends true ? ParsedTopNavItem[] : TopNavItem[] }
-)
+export type TopNavItem<parsed extends boolean = false> =
+  | {
+      element: ReactElement
+      link?: never
+      items?: never
+      match?: never
+      text?: never
+    }
+  | ({
+      element?: never
+      match?: string
+      text: string
+    } & (
+      | { link: string; items?: never }
+      | { link?: string; items: parsed extends true ? ParsedTopNavItem[] : TopNavItem[] }
+    ))
+
 export type ParsedTopNavItem = TopNavItem<true> & {
   id: number
 }

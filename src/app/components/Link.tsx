@@ -16,7 +16,7 @@ type LinkProps = {
 }
 
 export const Link = forwardRef((props: LinkProps, ref) => {
-  const { href, variant = 'accent' } = props
+  const { hideExternalIcon, href, variant = 'accent' } = props
 
   const { pathname } = useLocation()
 
@@ -32,7 +32,7 @@ export const Link = forwardRef((props: LinkProps, ref) => {
           variant === 'accent' && styles.accent,
           variant === 'styleless' && styles.styleless,
         )}
-        hideExternalIcon={props.hideExternalIcon}
+        hideExternalIcon={hideExternalIcon}
       />
     )
 
