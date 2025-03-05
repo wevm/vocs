@@ -15,6 +15,7 @@ declare module 'virtual:routes' {
 declare module 'virtual:consumer-components' {
   export const Layout: import('react').ElementType
   export const Footer: import('react').ElementType
+  export const TopNavEnd: import('react').ElementType
 }
 
 declare module 'virtual:searchIndex' {

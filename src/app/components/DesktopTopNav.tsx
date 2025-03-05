@@ -1,3 +1,4 @@
+import { TopNavEnd } from 'virtual:consumer-components'
 import clsx from 'clsx'
 import { useLocation } from 'react-router'
 
@@ -88,6 +89,7 @@ function Navigation() {
             )
           return null
         })}
+        <TopNavEnd />
       </NavigationMenu.List>
     </NavigationMenu.Root>
   )

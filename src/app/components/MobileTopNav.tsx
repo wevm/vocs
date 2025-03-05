@@ -1,3 +1,4 @@
+import { TopNavEnd } from 'virtual:consumer-components'
 import * as Accordion from '@radix-ui/react-accordion'
 import { assignInlineVars } from '@vanilla-extract/dynamic'
 import clsx from 'clsx'
@@ -89,6 +90,7 @@ function Navigation({ items }: { items: Config.ParsedTopNavItem[] }) {
             </NavigationMenu.Item>
           )
         })}
+        <TopNavEnd />
       </NavigationMenu.List>
     </NavigationMenu.Root>
   )
@@ -183,6 +185,7 @@ function CompactNavigation({ items }: { items: Config.ParsedTopNavItem[] }) {
                 </Accordion.Item>
               )
             })}
+            <TopNavEnd />
           </Accordion.Root>
           <div className={styles.topNavPopoverFooter}>
             <Socials />
