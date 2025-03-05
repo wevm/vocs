@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.4
+
+### Patch Changes
+
+- [`c342b97526cbf8a2ac8d3e823ce2501d57d10588`](https://github.com/wevm/vocs/commit/c342b97526cbf8a2ac8d3e823ce2501d57d10588) Thanks [@jxom](https://github.com/jxom)! - Added `element` property to `config.topNav` items.
+
 ## 1.0.3
 
 ### Patch Changes
