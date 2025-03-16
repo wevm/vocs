@@ -94,7 +94,11 @@ export function saveIndex(outDir: string, index: MiniSearch) {
 
 const remarkPlugins = getRemarkPlugins()
 
-export async function processMdx(filePath: string, file: string, options: { rehypePlugins: PluggableList }) {
+export async function processMdx(
+  filePath: string,
+  file: string,
+  options: { rehypePlugins: PluggableList },
+) {
   const { rehypePlugins } = options
   try {
     const compiled = await compile(file, {
