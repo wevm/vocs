@@ -10,8 +10,8 @@ import pLimit from 'p-limit'
 import { Fragment } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import * as runtime from 'react/jsx-runtime'
-
 import type { PluggableList } from 'unified'
+
 import { getRehypePlugins, getRemarkPlugins } from '../plugins/mdx.js'
 import * as cache from './cache.js'
 import { hash } from './hash.js'
@@ -37,7 +37,7 @@ export async function buildIndex({
         const pageCache = cache.search.get(key) ?? {}
         if (pageCache.mdx === mdx) return pageCache.document
 
-        const html = await processMdx({ filePath: pagePath, file: mdx, rehypePlugins })
+        const html = await processMdx(pagePath, mdx, { rehypePlugins })
 
         const sections = splitPageIntoSections(html)
         if (sections.length === 0) {
@@ -94,11 +94,8 @@ export function saveIndex(outDir: string, index: MiniSearch) {
 
 const remarkPlugins = getRemarkPlugins()
 
-export async function processMdx({
-  filePath,
-  file,
-  rehypePlugins,
-}: { filePath: string; file: string; rehypePlugins: PluggableList }) {
+export async function processMdx(filePath: string, file: string, options: { rehypePlugins: PluggableList }) {
+  const { rehypePlugins } = options
   try {
     const compiled = await compile(file, {
       baseUrl: pathToFileURL(filePath).href,
