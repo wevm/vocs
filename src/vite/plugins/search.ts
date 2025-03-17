@@ -15,6 +15,7 @@ import {
   splitPageIntoSections,
 } from '../utils/search.js'
 import { slash } from '../utils/slash.js'
+import { getRehypePlugins } from './mdx.js'
 
 const virtualModuleId = 'virtual:searchIndex'
 const resolvedVirtualModuleId = `\0${virtualModuleId}`
@@ -119,7 +120,14 @@ export async function search(): Promise<Plugin> {
       if (!existsSync(file)) return
 
       const mdx = readFileSync(file, 'utf-8')
-      const rendered = await processMdx(file, mdx)
+      const rehypePlugins = getRehypePlugins({
+        markdown: config.markdown,
+        rootDir: config.rootDir,
+        twoslash: false,
+      })
+      const rendered = await processMdx(file, mdx, {
+        rehypePlugins,
+      })
       const sections = splitPageIntoSections(rendered)
       if (sections.length === 0) return
 
