@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.6
+
+### Patch Changes
+
+- [#261](https://github.com/wevm/vocs/pull/261) [`f0e658ba06b34eadd031c2f22e55ea22e3cecdfe`](https://github.com/wevm/vocs/commit/f0e658ba06b34eadd031c2f22e55ea22e3cecdfe) Thanks [@plusminushalf](https://github.com/plusminushalf)! - Fixed search indexing for files which had code snippets.
+
 ## 1.0.5
 
 ### Patch Changes
