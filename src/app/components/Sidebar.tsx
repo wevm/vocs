@@ -13,6 +13,7 @@ import {
 import { matchPath, useLocation, useMatch } from 'react-router'
 
 import type { SidebarItem as SidebarItemType } from '../../config.js'
+import { useConfig } from '../hooks/useConfig.js'
 import { usePageData } from '../hooks/usePageData.js'
 import { useSidebar } from '../hooks/useSidebar.js'
 import { Icon } from './Icon.js'
@@ -29,6 +30,7 @@ export function Sidebar(props: {
   onClickItem?: MouseEventHandler<HTMLAnchorElement>
 }) {
   const { className, onClickItem } = props
+  const { theme } = useConfig()
 
   const { previousPath } = usePageData()
   const sidebarRef = useRef<any>(null)
@@ -90,7 +92,7 @@ export function Sidebar(props: {
         <div className={styles.footerCurtain} />
         <div className={styles.footerContent}>
           <Socials />
-          <ThemeToggle />
+          {!theme?.colorScheme ? <ThemeToggle /> : null}
         </div>
       </div>
     </aside>

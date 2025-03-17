@@ -119,7 +119,7 @@ function CompactNavigation({ items }: { items: Config.ParsedTopNavItem[] }) {
   const activeIds = useActiveNavIds({ pathname, items })
   const activeItem = items.filter((item) => item.id === activeIds[0])[0]
 
-  const { basePath } = useConfig()
+  const { basePath, theme } = useConfig()
   const assetBasePath = import.meta.env.PROD ? basePath : ''
 
   return (
@@ -189,7 +189,7 @@ function CompactNavigation({ items }: { items: Config.ParsedTopNavItem[] }) {
           </Accordion.Root>
           <div className={styles.topNavPopoverFooter}>
             <Socials />
-            <ThemeToggle />
+            {!theme?.colorScheme ? <ThemeToggle /> : null}
           </div>
         </Popover>
       </Popover.Root>
