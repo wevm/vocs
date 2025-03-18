@@ -8,10 +8,19 @@ import {
   lineHeightVars,
   primitiveColorVars,
   spaceVars,
+  viewportVars,
 } from '../styles/vars.css.js'
 
 export const root = style({
   width: '100%',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spaceVars[24],
+  '@media': {
+    [viewportVars['max-1080px']]: {
+      gap: spaceVars[12],
+    },
+  },
 })
 
 export const nav = style(

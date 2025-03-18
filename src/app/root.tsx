@@ -12,12 +12,13 @@ import type { Module } from './types.js'
 
 export function Root(props: {
   children: ReactNode
+  content?: string
   filePath?: string
   frontmatter: Module['frontmatter']
   lastUpdatedAt?: number
   path: string
 }) {
-  const { children, filePath, frontmatter, lastUpdatedAt, path } = props
+  const { children, content, filePath, frontmatter, lastUpdatedAt, path } = props
   const { pathname } = useLocation()
 
   const previousPathRef = useRef<string | undefined>(undefined)
@@ -32,7 +33,13 @@ export function Root(props: {
       <MDXProvider components={components}>
         <Layout frontmatter={frontmatter} path={path}>
           <PageDataContext.Provider
-            value={{ filePath, frontmatter, lastUpdatedAt, previousPath: previousPathRef.current }}
+            value={{
+              content,
+              filePath,
+              frontmatter,
+              lastUpdatedAt,
+              previousPath: previousPathRef.current,
+            }}
           >
             {children}
           </PageDataContext.Provider>

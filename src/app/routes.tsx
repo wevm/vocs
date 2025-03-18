@@ -51,6 +51,7 @@ export const routes = [
           ...route,
           element: (
             <Root
+              content={decodeURIComponent(route_virtual.content ?? '')}
               filePath={route_virtual.filePath}
               frontmatter={frontmatter}
               lastUpdatedAt={route_virtual.lastUpdatedAt}

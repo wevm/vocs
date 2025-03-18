@@ -5,6 +5,7 @@ import { useConfig } from '../hooks/useConfig.js'
 import { useLayout } from '../hooks/useLayout.js'
 import { debounce } from '../utils/debounce.js'
 import { deserializeElement } from '../utils/deserializeElement.js'
+import { AiCtaDropdown } from './AiCtaDropdown.js'
 import * as styles from './Outline.css.js'
 import { root as Heading, slugTarget } from './mdx/Heading.css.js'
 
@@ -31,7 +32,7 @@ export function Outline({
 } = {}) {
   const { outlineFooter } = useConfig()
 
-  const { showOutline } = useLayout()
+  const { showOutline, showAiCta } = useLayout()
   const maxLevel = (() => {
     if (typeof showOutline === 'number') return minLevel + showOutline - 1
     return maxLevel_
@@ -167,6 +168,7 @@ export function Outline({
   const levelItems = items.filter((item) => item.level === minLevel)
   return (
     <aside className={styles.root}>
+      {showAiCta && <AiCtaDropdown />}
       <nav className={styles.nav}>
         {showTitle && <h2 className={styles.heading}>On this page</h2>}
         <Items
