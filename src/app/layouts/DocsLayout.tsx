@@ -107,7 +107,9 @@ export function DocsLayout({
           [contentVars.verticalPadding]: content?.verticalPadding,
         })}
       >
-        <Content>{children}</Content>
+        <Content>
+          {children}
+        </Content>
         <Footer />
       </div>
       <div data-bottom-observer />

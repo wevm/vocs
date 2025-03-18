@@ -12,6 +12,9 @@ import {
 
 export const root = style({
   width: '100%',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spaceVars[24],
 })
 
 export const nav = style(

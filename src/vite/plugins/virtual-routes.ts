@@ -1,4 +1,5 @@
 import { extname, resolve } from 'node:path'
+import { readFileSync } from 'node:fs'
 import { globby } from 'globby'
 import type { PluginOption } from 'vite'
 
@@ -39,6 +40,7 @@ export function virtualRoutes(): PluginOption {
           const type = extname(path).match(/(mdx|md)/) ? 'mdx' : 'jsx'
           const replacer = glob.split('*')[0]
 
+          const content = readFileSync(path, 'utf-8')
           const filePath = path.replace(`${pagesPath}/`, '')
           const fileGitTimestamp = await getGitTimestamp(path)
 
@@ -49,9 +51,9 @@ export function virtualRoutes(): PluginOption {
           let pagePath = path.replace(replacer, '').replace(/\.[^.]*$/, '')
           if (pagePath.endsWith('index'))
             pagePath = pagePath.replace(/index$/, '').replace(/\/$/, '')
-          code += `  { lazy: () => import("${path}"), path: "/${pagePath}", type: "${type}", filePath: "${filePath}", lastUpdatedAt: ${lastUpdatedAt} },`
+          code += `  { lazy: () => import("${path}"), path: "/${pagePath}", type: "${type}", filePath: "${filePath}", content: "${encodeURIComponent(content)}", lastUpdatedAt: ${lastUpdatedAt} },`
           if (pagePath)
-            code += `  { lazy: () => import("${path}"), path: "/${pagePath}.html", type: "${type}", filePath: "${filePath}", lastUpdatedAt: ${lastUpdatedAt} },`
+            code += `  { lazy: () => import("${path}"), path: "/${pagePath}.html", type: "${type}", filePath: "${filePath}", content: "${encodeURIComponent(content)}", lastUpdatedAt: ${lastUpdatedAt} },`
         }
         code += ']'
         return code

@@ -10,6 +10,7 @@ export function usePageData() {
 
 export const PageDataContext = createContext<
   | {
+      content?: string
       filePath?: string
       frontmatter: Module['frontmatter']
       lastUpdatedAt?: number

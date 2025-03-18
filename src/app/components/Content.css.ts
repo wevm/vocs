@@ -6,5 +6,6 @@ export const root = style({
   flex: 1,
   maxWidth: contentVars.width,
   padding: `${contentVars.verticalPadding} ${contentVars.horizontalPadding}`,
+  position: 'relative',
   width: '100%',
 })

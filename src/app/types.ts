@@ -23,6 +23,7 @@ export type Frontmatter = {
 
 export type Layout = {
   layout: 'docs' | 'landing' | 'minimal'
+  showAiCta: boolean
   showLogo: boolean
   showOutline: number | boolean
   showSidebar: boolean
@@ -40,6 +41,7 @@ export type PageData = {
 }
 
 export type Route = {
+  content?: string
   filePath: string
   lazy: () => Promise<Module>
   lastUpdatedAt?: number

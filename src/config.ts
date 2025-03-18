@@ -31,6 +31,10 @@ export type Config<
 > = RequiredBy<
   {
     /**
+     * Whether or not to show the AI call-to-action dropdown on docs pages (ie. "Open in ChatGPT").
+     */
+    aiCta?: boolean
+    /**
      * Configuration for the banner fixed to the top of the page.
      *
      * Can be a Markdown string, a React Element, or an object with the following properties:
@@ -169,6 +173,7 @@ export type Config<
 export type ParsedConfig = Config<true>
 
 export async function defineConfig<colorScheme extends ColorScheme = undefined>({
+  aiCta = true,
   blogDir = './pages/blog',
   head,
   ogImageUrl,
@@ -179,6 +184,7 @@ export async function defineConfig<colorScheme extends ColorScheme = undefined>(
 }: Config<false, colorScheme>): Promise<ParsedConfig> {
   const basePath = parseBasePath(config.basePath)
   return {
+    aiCta,
     blogDir,
     head,
     ogImageUrl,

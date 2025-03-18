@@ -29,6 +29,21 @@ export default defineConfig({
 
 ## Parameters
 
+### aiCta
+
+- **Type:** `boolean`
+
+Whether or not to show the AI call-to-action dropdown (ie. "Open in ChatGPT").
+
+```ts twoslash
+import { defineConfig } from 'vocs'
+
+export default defineConfig({
+  aiCta: false, // [!code focus]
+  title: 'Viem'
+})
+```
+
 ### banner
 
 - **Type:** `Banner`
