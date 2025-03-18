@@ -5,9 +5,9 @@ import { useConfig } from '../hooks/useConfig.js'
 import { useLayout } from '../hooks/useLayout.js'
 import { debounce } from '../utils/debounce.js'
 import { deserializeElement } from '../utils/deserializeElement.js'
+import { AiCtaDropdown } from './AiCtaDropdown.js'
 import * as styles from './Outline.css.js'
 import { root as Heading, slugTarget } from './mdx/Heading.css.js'
-import { AiCtaDropdown } from './AiCtaDropdown.js'
 
 type OutlineItems = {
   id: string

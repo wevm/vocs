@@ -7,7 +7,14 @@ export function useLayout(): Layout {
   const { aiCta } = useConfig()
   const sidebar = useSidebar()
   const { frontmatter } = usePageData()
-  const { layout: layout_, showLogo, showAiCta, showOutline, showSidebar, showTopNav } = frontmatter || {}
+  const {
+    layout: layout_,
+    showLogo,
+    showAiCta,
+    showOutline,
+    showSidebar,
+    showTopNav,
+  } = frontmatter || {}
 
   const layout = layout_ ?? 'docs'
 

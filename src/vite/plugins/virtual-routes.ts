@@ -1,5 +1,5 @@
-import { extname, resolve } from 'node:path'
 import { readFileSync } from 'node:fs'
+import { extname, resolve } from 'node:path'
 import { globby } from 'globby'
 import type { PluginOption } from 'vite'
 

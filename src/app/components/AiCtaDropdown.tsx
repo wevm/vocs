@@ -1,15 +1,15 @@
 import clsx from 'clsx'
 import { DropdownMenu } from 'radix-ui'
-import { useEffect, useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
-import { Link } from './Link.js'
-import * as buttonStyles from './Button.css.js'
-import * as styles from './AiCtaDropdown.css.js'
-import { ChevronDown } from './icons/ChevronDown.js'
-import { OpenAi } from './icons/OpenAi.js'
-import { Copy } from './icons/Copy.js'
 import { usePageData } from '../hooks/usePageData.js'
+import * as styles from './AiCtaDropdown.css.js'
+import * as buttonStyles from './Button.css.js'
+import { Link } from './Link.js'
 import { CheckCircle } from './icons/CheckCircle.js'
+import { ChevronDown } from './icons/ChevronDown.js'
+import { Copy } from './icons/Copy.js'
+import { OpenAi } from './icons/OpenAi.js'
 
 export function AiCtaDropdown() {
   const { content } = usePageData()

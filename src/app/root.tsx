@@ -33,7 +33,13 @@ export function Root(props: {
       <MDXProvider components={components}>
         <Layout frontmatter={frontmatter} path={path}>
           <PageDataContext.Provider
-            value={{ content, filePath, frontmatter, lastUpdatedAt, previousPath: previousPathRef.current }}
+            value={{
+              content,
+              filePath,
+              frontmatter,
+              lastUpdatedAt,
+              previousPath: previousPathRef.current,
+            }}
           >
             {children}
           </PageDataContext.Provider>
