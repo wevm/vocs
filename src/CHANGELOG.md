@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.7
+
+### Patch Changes
+
+- [#270](https://github.com/wevm/vocs/pull/270) [`eb7091119f5badd6276b8a0630540906e6e685d7`](https://github.com/wevm/vocs/commit/eb7091119f5badd6276b8a0630540906e6e685d7) Thanks [@jxom](https://github.com/jxom)! - Added AI call-to-action dropdown.
+
 ## 1.0.6
 
 ### Patch Changes
