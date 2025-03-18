@@ -5,12 +5,18 @@ import {
   fontWeightVars,
   primitiveColorVars,
   spaceVars,
+  viewportVars,
   zIndexVars,
 } from '../styles/vars.css.js'
 import * as buttonStyles from './Button.css.js'
 
 export const root = style({
   display: 'flex',
+  '@media': {
+    [viewportVars['max-1080px']]: {
+      display: 'none',
+    },
+  },
 })
 
 export const button = style(
