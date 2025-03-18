@@ -25,7 +25,6 @@ export function useLayout(): Layout {
       return true
     },
     get showAiCta() {
-      console.log(showAiCta)
       if (typeof showAiCta !== 'undefined') return showAiCta
       if (aiCta === false) return false
       return layout === 'docs'
