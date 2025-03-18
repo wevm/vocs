@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.8
+
+### Patch Changes
+
+- [`bcbaa644c0be76ae353ec9f3122717d9105f667f`](https://github.com/wevm/vocs/commit/bcbaa644c0be76ae353ec9f3122717d9105f667f) Thanks [@jxom](https://github.com/jxom)! - Removed `console.log`.
+
 ## 1.0.7
 
 ### Patch Changes
