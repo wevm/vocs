@@ -1,5 +1,13 @@
 # vocs
 
+## 1.0.9
+
+### Patch Changes
+
+- [`3c2f29372a0effd74b3fc4aa753f51a1770a1bf2`](https://github.com/wevm/vocs/commit/3c2f29372a0effd74b3fc4aa753f51a1770a1bf2) Thanks [@jxom](https://github.com/jxom)! - Added `aiCta.query` config option to allow customizing the LLM query.
+
+- [`3c2f29372a0effd74b3fc4aa753f51a1770a1bf2`](https://github.com/wevm/vocs/commit/3c2f29372a0effd74b3fc4aa753f51a1770a1bf2) Thanks [@jxom](https://github.com/jxom)! - Added `config.cacheDir` config option.
+
 ## 1.0.8
 
 ### Patch Changes
