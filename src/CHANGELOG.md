@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.10
+
+### Patch Changes
+
+- [`a9bfe4a45eda6ffe0596d2a277f5e618888adafc`](https://github.com/wevm/vocs/commit/a9bfe4a45eda6ffe0596d2a277f5e618888adafc) Thanks [@jxom](https://github.com/jxom)! - Fixed typo.
+
 ## 1.0.9
 
 ### Patch Changes
