@@ -78,6 +78,7 @@ export const getRemarkPlugins = ({ markdown }: RemarkPluginsParameters = {}) =>
 
 type RehypePluginsParameters = {
   markdown?: ParsedConfig['markdown']
+  cacheDir?: ParsedConfig['cacheDir']
   rootDir?: ParsedConfig['rootDir']
   twoslash?: ParsedConfig['twoslash'] | false
 }
@@ -89,6 +90,7 @@ const defaultThemes = {
 
 export const getRehypePlugins = ({
   markdown,
+  cacheDir,
   rootDir = '',
   twoslash = {},
 }: RehypePluginsParameters = {}) =>
@@ -111,7 +113,7 @@ export const getRehypePlugins = ({
             ? transformerTwoslash({
                 explicitTrigger: true,
                 renderer: twoslashRenderer(),
-                twoslasher,
+                twoslasher: twoslasher({ cacheDir }),
                 twoslashOptions: {
                   ...twoslash,
                   customTags: [
@@ -154,9 +156,9 @@ export const getRehypePlugins = ({
 
 export async function mdx(): Promise<PluginOption[]> {
   const { config } = await resolveVocsConfig()
-  const { markdown, rootDir, twoslash } = config
+  const { cacheDir, markdown, rootDir, twoslash } = config
   const remarkPlugins = getRemarkPlugins({ markdown })
-  const rehypePlugins = getRehypePlugins({ markdown, rootDir, twoslash })
+  const rehypePlugins = getRehypePlugins({ cacheDir, markdown, rootDir, twoslash })
   return [
     mdxPlugin({
       providerImportSource: '@mdx-js/react',

@@ -31,9 +31,17 @@ export type Config<
 > = RequiredBy<
   {
     /**
-     * Whether or not to show the AI call-to-action dropdown on docs pages (ie. "Open in ChatGPT").
+     * Whether or not to show the AI call-to-action dropdown on docs pages (ie. "Open in ChatGPT"),
+     * as well as any configuration.
      */
-    aiCta?: boolean
+    aiCta?:
+      | boolean
+      | {
+          /**
+           * Query for the LLM.
+           */
+          query: (p: { location: string }) => string
+        }
     /**
      * Configuration for the banner fixed to the top of the page.
      *
@@ -70,6 +78,12 @@ export type Config<
      * @default "./pages/blog"
      */
     blogDir?: string
+    /**
+     * Directory to store cache files.
+     *
+     * @default "node_modules/vocs/_lib/vite/.vocs/cache"
+     */
+    cacheDir?: string
     /**
      * General description for the documentation.
      */
@@ -175,6 +189,7 @@ export type ParsedConfig = Config<true>
 export async function defineConfig<colorScheme extends ColorScheme = undefined>({
   aiCta = true,
   blogDir = './pages/blog',
+  cacheDir,
   head,
   ogImageUrl,
   rootDir = 'docs',
@@ -186,6 +201,7 @@ export async function defineConfig<colorScheme extends ColorScheme = undefined>(
   return {
     aiCta,
     blogDir,
+    cacheDir,
     head,
     ogImageUrl,
     rootDir,

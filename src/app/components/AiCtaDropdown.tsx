@@ -1,7 +1,8 @@
 import clsx from 'clsx'
 import { DropdownMenu } from 'radix-ui'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
+import { useConfig } from '../hooks/useConfig.js'
 import { usePageData } from '../hooks/usePageData.js'
 import * as styles from './AiCtaDropdown.css.js'
 import * as buttonStyles from './Button.css.js'
@@ -13,6 +14,7 @@ import { OpenAi } from './icons/OpenAi.js'
 
 export function AiCtaDropdown() {
   const { content } = usePageData()
+  const { aiCta } = useConfig()
 
   const [copied, setCopied] = useState(false)
 
@@ -27,6 +29,11 @@ export function AiCtaDropdown() {
     navigator.clipboard.writeText(content ?? '')
   }, [content])
 
+  const query = useMemo(() => {
+    if (typeof aiCta === 'object') return aiCta.query({ location: window.location.href })
+    return `Please research and analyze this page: ${window.location.href} so I can ask you questions about it. Once you have read it, prompt me with any questions I have. Do not post content of the from the page. Any of my follow up questions must reference the site I gave you.`
+  }, [aiCta])
+
   return (
     <div className={styles.root}>
       {copied ? (
@@ -39,9 +46,7 @@ export function AiCtaDropdown() {
       ) : (
         <Link
           className={clsx(buttonStyles.button, styles.buttonLeft)}
-          href={`https://chatgpt.com?hints=search&q=${encodeURIComponent(
-            `Hi there! Please research and analyze this page: ${window.location.href} so I can ask you questions about it. Once you have read it, ask me if you have any questions. Do not post content of the from the page.`,
-          )}`}
+          href={`https://chatgpt.com?hints=search&q=${encodeURIComponent(query)}`}
           variant="styleless"
         >
           <div style={{ width: '14px', height: '14px' }}>

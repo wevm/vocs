@@ -3,7 +3,7 @@ import { relative, resolve } from 'node:path'
 import type MiniSearch from 'minisearch'
 import { type Plugin, type UserConfig, type ViteDevServer, createLogger } from 'vite'
 
-import * as cache from '../utils/cache.js'
+import * as cache_ from '../utils/cache.js'
 import { hash as hash_ } from '../utils/hash.js'
 import { resolveVocsConfig } from '../utils/resolveVocsConfig.js'
 import {
@@ -36,6 +36,8 @@ const dev = process.env.NODE_ENV === 'development'
 
 export async function search(): Promise<Plugin> {
   const { config } = await resolveVocsConfig()
+  const { cacheDir } = config
+  const cache = cache_.search({ cacheDir })
 
   let hash: string | undefined
   let index: MiniSearch<IndexObject>
@@ -76,10 +78,10 @@ export async function search(): Promise<Plugin> {
     },
     async buildStart() {
       if (!viteConfig?.build?.ssr) {
-        const buildSearchIndex = cache.search.get('buildSearchIndex')
+        const buildSearchIndex = cache.get('buildSearchIndex')
         if (!dev && !buildSearchIndex) return
 
-        searchPromise = buildIndex({ baseDir: config.rootDir })
+        searchPromise = buildIndex({ baseDir: config.rootDir, cacheDir: config.cacheDir })
         if (dev) {
           logger.info('building search index...', { timestamp: true })
           index = await searchPromise
@@ -103,13 +105,13 @@ export async function search(): Promise<Plugin> {
       if (searchPromise) {
         index = await searchPromise
         searchPromise = undefined
-        hash = saveIndex(viteConfig?.build?.outDir!, index)
+        hash = saveIndex(viteConfig?.build?.outDir!, index, { cacheDir })
       } else if (!hash) {
         if (!viteConfig?.build?.ssr) hash = hash_(Date.now().toString(), 8)
-        else hash = cache.search.get('hash')
+        else hash = cache.get('hash')
       }
 
-      cache.search.set('hash', hash)
+      cache.set('hash', hash)
 
       return `export const getSearchIndex = async () => JSON.stringify(await ((await fetch("${config.basePath}/.vocs/search-index-${hash}.json")).json()))`
     },
@@ -121,6 +123,7 @@ export async function search(): Promise<Plugin> {
 
       const mdx = readFileSync(file, 'utf-8')
       const rehypePlugins = getRehypePlugins({
+        cacheDir: config.cacheDir,
         markdown: config.markdown,
         rootDir: config.rootDir,
         twoslash: false,

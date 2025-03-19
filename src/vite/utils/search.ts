@@ -13,7 +13,7 @@ import * as runtime from 'react/jsx-runtime'
 import type { PluggableList } from 'unified'
 
 import { getRehypePlugins, getRemarkPlugins } from '../plugins/mdx.js'
-import * as cache from './cache.js'
+import * as cache_ from './cache.js'
 import { hash } from './hash.js'
 import { slash } from './slash.js'
 
@@ -23,25 +23,29 @@ export const debug = debug_('vocs:search')
 
 export async function buildIndex({
   baseDir,
+  cacheDir,
 }: {
   baseDir: string
+  cacheDir?: string
 }) {
+  const cache = cache_.search({ cacheDir })
+
   const pagesPaths = await globby(`${resolve(baseDir, 'pages')}/**/*.{md,mdx}`)
-  const rehypePlugins = getRehypePlugins({ rootDir: baseDir, twoslash: false })
+  const rehypePlugins = getRehypePlugins({ cacheDir, rootDir: baseDir, twoslash: false })
 
   const documents = await Promise.all(
     pagesPaths.map((pagePath) =>
       limit(async (pagePath) => {
         const mdx = readFileSync(pagePath, 'utf-8')
         const key = `index.${hash(pagePath)}`
-        const pageCache = cache.search.get(key) ?? {}
+        const pageCache = cache.get(key) ?? {}
         if (pageCache.mdx === mdx) return pageCache.document
 
         const html = await processMdx(pagePath, mdx, { rehypePlugins })
 
         const sections = splitPageIntoSections(html)
         if (sections.length === 0) {
-          cache.search.set(key, { mdx, document: [] })
+          cache.set(key, { mdx, document: [] })
           return []
         }
 
@@ -63,7 +67,7 @@ export async function buildIndex({
           titles: section.titles.slice(0, -1),
         }))
 
-        cache.search.set(key, { mdx, document })
+        cache.set(key, { mdx, document })
 
         return document
       }, pagePath),
@@ -83,9 +87,14 @@ export async function buildIndex({
   return index
 }
 
-export function saveIndex(outDir: string, index: MiniSearch) {
+export function saveIndex(
+  outDir: string,
+  index: MiniSearch,
+  { cacheDir }: { cacheDir?: string } = {},
+) {
+  const cache = cache_.search({ cacheDir })
   const json = index.toJSON()
-  const hash_ = cache.search.get('hash') || hash(JSON.stringify(json), 8)
+  const hash_ = cache.get('hash') || hash(JSON.stringify(json), 8)
   const dir = join(outDir, '.vocs')
   fs.ensureDirSync(dir)
   fs.writeJSONSync(join(dir, `search-index-${hash_}.json`), json)

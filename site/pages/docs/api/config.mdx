@@ -31,7 +31,8 @@ export default defineConfig({
 
 ### aiCta
 
-- **Type:** `boolean`
+- **Type:** `boolean | { query: ((p: { location: string }) => string) }`
+- **Default:** `true`
 
 Whether or not to show the AI call-to-action dropdown (ie. "Open in ChatGPT").
 
@@ -40,6 +41,21 @@ import { defineConfig } from 'vocs'
 
 export default defineConfig({
   aiCta: false, // [!code focus]
+  title: 'Viem'
+})
+```
+
+You can also specify a custom query for the AI.
+
+```ts twoslash
+import { defineConfig } from 'vocs'
+
+export default defineConfig({
+  aiCta: {  // [!code focus]
+    query({ location }) { // [!code focus]
+      return `Please research and analyze this page: ${location} so I can ask you questions about it.` // [!code focus]
+    } // [!code focus]
+  }, // [!code focus]
   title: 'Viem'
 })
 ```

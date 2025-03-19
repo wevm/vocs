@@ -36,14 +36,14 @@ export async function build({
   searchIndex = true,
 }: BuildParameters = {}) {
   const { config } = await resolveVocsConfig()
-  const { rootDir } = config
+  const { rootDir, cacheDir } = config
 
   const outDir_resolved = resolveOutDir(rootDir, outDir)
   const publicDir_resolved = resolve(rootDir, publicDir)
 
-  if (clean) cache.clear()
+  if (clean) cache.clear({ cacheDir })
 
-  cache.search.set('buildSearchIndex', searchIndex)
+  cache.search({ cacheDir }).set('buildSearchIndex', searchIndex)
 
   fs.rmSync(outDir_resolved, { recursive: true, force: true })
 

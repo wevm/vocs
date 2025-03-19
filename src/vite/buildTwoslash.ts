@@ -7,10 +7,10 @@ import { resolveVocsConfig } from './utils/resolveVocsConfig.js'
 
 export async function buildTwoslash() {
   const { config } = await resolveVocsConfig()
-  const { rootDir } = config
+  const { cacheDir, rootDir } = config
   const pagesPaths = await globby(`${resolve(rootDir, 'pages')}/**/*.{md,mdx}`)
 
-  const rehypePlugins = getRehypePlugins({ rootDir })
+  const rehypePlugins = getRehypePlugins({ cacheDir, rootDir })
   const remarkPlugins = getRemarkPlugins()
 
   for (const pagePath of pagesPaths) {

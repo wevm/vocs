@@ -8,9 +8,9 @@ export type BuildSearchIndexParameters = {
 
 export async function buildSearchIndex({ outDir }: BuildSearchIndexParameters) {
   const { config } = await resolveVocsConfig()
-  const { rootDir } = config
+  const { cacheDir, rootDir } = config
   const outDir_resolved = resolveOutDir(rootDir, outDir)
 
-  const index = await buildIndex({ baseDir: rootDir })
-  saveIndex(outDir_resolved, index)
+  const index = await buildIndex({ baseDir: rootDir, cacheDir })
+  saveIndex(outDir_resolved, index, { cacheDir })
 }
