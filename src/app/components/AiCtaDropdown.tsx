@@ -1,6 +1,7 @@
 import clsx from 'clsx'
 import { DropdownMenu } from 'radix-ui'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useLocation } from 'react-router'
 
 import { useConfig } from '../hooks/useConfig.js'
 import { usePageData } from '../hooks/usePageData.js'
@@ -15,6 +16,7 @@ import { OpenAi } from './icons/OpenAi.js'
 export function AiCtaDropdown() {
   const { content } = usePageData()
   const { aiCta } = useConfig()
+  const location = useLocation()
 
   const [copied, setCopied] = useState(false)
 
@@ -30,9 +32,10 @@ export function AiCtaDropdown() {
   }, [content])
 
   const query = useMemo(() => {
-    if (typeof aiCta === 'object') return aiCta.query({ location: window.location.href })
-    return `Please research and analyze this page: ${window.location.href} so I can ask you questions about it. Once you have read it, prompt me with any questions I have. Do not post content from the page in your response. Any of my follow up questions must reference the site I gave you.`
-  }, [aiCta])
+    const href = window.location.origin + location.pathname
+    if (typeof aiCta === 'object') return aiCta.query({ location: href })
+    return `Please research and analyze this page: ${href} so I can ask you questions about it. Once you have read it, prompt me with any questions I have. Do not post content from the page in your response. Any of my follow up questions must reference the site I gave you.`
+  }, [aiCta, location.pathname])
 
   return (
     <div className={styles.root}>
