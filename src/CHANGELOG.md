@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.11
+
+### Patch Changes
+
+- [`e7e4a69259939de116599e094f5d72ce8fa3aa24`](https://github.com/wevm/vocs/commit/e7e4a69259939de116599e094f5d72ce8fa3aa24) Thanks [@jxom](https://github.com/jxom)! - Fixed `aiCta` location.
+
 ## 1.0.10
 
 ### Patch Changes
