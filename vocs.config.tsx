@@ -360,4 +360,11 @@ export default defineConfig({
       },
     },
   },
+  viewTransition: {
+    enabled: true,
+    options: {
+      pages: 'docs',
+      duration: 300,
+    },
+  },
 })
