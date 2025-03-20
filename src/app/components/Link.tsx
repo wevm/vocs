@@ -1,5 +1,5 @@
 import { clsx } from 'clsx'
-import { forwardRef } from 'react'
+import { forwardRef, useMemo } from 'react'
 
 import { useLocation } from 'react-router'
 import { ExternalLink } from './ExternalLink.js'
@@ -20,6 +20,19 @@ export const Link = forwardRef((props: LinkProps, ref) => {
 
   const { pathname } = useLocation()
 
+  const enableViewTransition = useMemo(() => {
+    const config = Object.hasOwn(__VOCSDOC_VIEW_TRANSITION__, 'enabled')
+      ? __VOCSDOC_VIEW_TRANSITION__
+      : { enabled: false }
+
+    if (!config.enabled) return false
+    if (config.options?.pages === 'all') return true
+    if (Array.isArray(config.options?.pages)) return config.options.pages.includes(pathname)
+    if (config.options?.pages === 'docs') return pathname.startsWith('/docs')
+
+    return config.enabled
+  }, [pathname])
+
   // External links
   if (href?.match(/^(www|https?)/))
     return (
@@ -39,9 +52,11 @@ export const Link = forwardRef((props: LinkProps, ref) => {
   // Internal links
   const [before, after] = (href || '').split('#')
   const to = `${before ? before : pathname}${after ? `#${after}` : ''}`
+
   return (
     <RouterLink
       {...(props as RouterLinkProps)}
+      viewTransition={enableViewTransition}
       ref={ref}
       className={clsx(
         props.className,

@@ -12,13 +12,17 @@ export type CreateDevServerParameters = {
 
 export async function createDevServer(params: CreateDevServerParameters = {}) {
   const { config } = await resolveVocsConfig()
-  const { cacheDir } = config
+  const { cacheDir, viewTransition } = config
   if (params.clean) cache.clear({ cacheDir })
+
   return createServer({
     root: import.meta.dirname,
     server: {
       host: params.host,
       port: params.port,
+    },
+    define: {
+      __VOCSDOC_VIEW_TRANSITION__: JSON.stringify(viewTransition),
     },
     plugins: [dev()],
   })

@@ -177,6 +177,10 @@ export type Config<
      */
     twoslash?: Normalize<TwoslashOptions>
     /**
+     * View transition configuration.
+     */
+    viewTransition?: Normalize<ViewTransition>
+    /**
      * Vite configuration.
      */
     vite?: UserConfig
@@ -224,6 +228,7 @@ export async function defineConfig<colorScheme extends ColorScheme = undefined>(
     vite: parseViteConfig(config.vite, {
       basePath,
     }),
+    viewTransition: config.viewTransition,
   }
 }
 
@@ -602,6 +607,27 @@ export type ParsedTopNavItem = TopNavItem<true> & {
 export type TopNav<parsed extends boolean = false> = parsed extends true
   ? ParsedTopNavItem[]
   : TopNavItem[]
+
+export type ViewTransition = {
+  /**
+   * Whether or not to enable view transitions.
+   * @default false
+   */
+  enabled: boolean
+  /**
+   * View transition options.
+   */
+  options?: {
+    /**
+     * The pages to enable view transitions for.
+     * - `all` - Enable for all pages.
+     * - `docs` - Enable for /docs pages.
+     * - `Array<string>` - Enable for the paths in the array.
+     * @default "docs"
+     */
+    pages?: 'all' | 'docs' | Array<string>
+  }
+}
 
 //////////////////////////////////////////////////////
 // Utilities

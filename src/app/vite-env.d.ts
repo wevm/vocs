@@ -21,3 +21,10 @@ declare module 'virtual:consumer-components' {
 declare module 'virtual:searchIndex' {
   export const getSearchIndex: () => Promise<string>
 }
+
+declare const __VOCSDOC_VIEW_TRANSITION__: {
+  enabled?: boolean
+  options?: {
+    pages?: 'all' | 'docs' | Array<string>
+  }
+}

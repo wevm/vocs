@@ -36,7 +36,7 @@ export async function build({
   searchIndex = true,
 }: BuildParameters = {}) {
   const { config } = await resolveVocsConfig()
-  const { rootDir, cacheDir } = config
+  const { rootDir, cacheDir, viewTransition } = config
 
   const outDir_resolved = resolveOutDir(rootDir, outDir)
   const publicDir_resolved = resolve(rootDir, publicDir)
@@ -68,6 +68,9 @@ export async function build({
       logLevel,
       publicDir: publicDir_resolved,
       root: import.meta.dirname,
+      define: {
+        __VOCSDOC_VIEW_TRANSITION__: JSON.stringify(viewTransition),
+      },
     })
     hooks?.onBundleEnd?.({})
   } catch (e) {
