@@ -364,6 +364,7 @@ export default defineConfig({
     enabled: true,
     options: {
       pages: 'docs',
+      duration: 300,
     },
   },
 })

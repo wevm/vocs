@@ -614,10 +614,13 @@ export type ViewTransition = {
    * @default false
    */
   enabled: boolean
-  /**
-   * View transition options.
-   */
+  /** View transition options. */
   options?: {
+    /**
+     * The duration of the view transition in milliseconds.
+     * @default 300 (0.3s)
+     */
+    duration?: number
     /**
      * The pages to enable view transitions for.
      * - `all` - Enable for all pages.

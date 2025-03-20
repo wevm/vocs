@@ -1,5 +1,5 @@
 import { clsx } from 'clsx'
-import { forwardRef, useMemo } from 'react'
+import { forwardRef, useCallback, useMemo } from 'react'
 
 import { useLocation } from 'react-router'
 import { useConfig } from '../hooks/useConfig.js'
@@ -34,6 +34,14 @@ export const Link = forwardRef((props: LinkProps, ref) => {
     return viewTransition.enabled
   }, [pathname, viewTransition])
 
+  const setTransitionDuration = useCallback(
+    (duration = viewTransition?.options?.duration || 300) => {
+      if (!viewTransition?.enabled) return
+      document.documentElement.style.setProperty('--view-transition-duration', `${duration}ms`)
+    },
+    [viewTransition?.enabled, viewTransition?.options?.duration],
+  )
+
   // External links
   if (href?.match(/^(www|https?)/))
     return (
@@ -58,6 +66,7 @@ export const Link = forwardRef((props: LinkProps, ref) => {
     <RouterLink
       {...(props as RouterLinkProps)}
       viewTransition={enableViewTransition}
+      onClick={() => setTransitionDuration(viewTransition?.options?.duration || 300)}
       ref={ref}
       className={clsx(
         props.className,
