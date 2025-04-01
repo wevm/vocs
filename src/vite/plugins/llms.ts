@@ -70,7 +70,12 @@ export async function llms(): Promise<PluginOption> {
               if (found) return
               if (j && i && j <= i) return
               found = true
-              description = toMarkdown(n, { extensions: [mdxJsxToMarkdown()] }).trim()
+              try {
+                description = toMarkdown(n, { extensions: [mdxJsxToMarkdown()] }).trim()
+              } catch(e) {
+                console.error(`Failed to parse markdown file while generating LLM.txt in file ${file}`)
+                throw e
+              }
               return
             })
 
