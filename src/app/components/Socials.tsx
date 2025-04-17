@@ -4,6 +4,7 @@ import { useConfig } from '../hooks/useConfig.js'
 import { primitiveColorVars, spaceVars } from '../styles/vars.css.js'
 import { Icon } from './Icon.js'
 import * as styles from './Socials.css.js'
+import { Bluesky } from './icons/Bluesky.js'
 import { Discord } from './icons/Discord.js'
 import { GitHub } from './icons/GitHub.js'
 import { Telegram } from './icons/Telegram.js'
@@ -11,6 +12,7 @@ import { Warpcast } from './icons/Warpcast.js'
 import { X } from './icons/X.js'
 
 const iconsForIcon = {
+  bluesky: Bluesky,
   discord: Discord,
   github: GitHub,
   telegram: Telegram,
@@ -19,6 +21,7 @@ const iconsForIcon = {
 } satisfies Record<ParsedSocialItem['type'], ComponentType>
 
 const sizesForType = {
+  bluesky: '17px',
   discord: '18px',
   github: '17px',
   telegram: '17px',
