@@ -49,7 +49,7 @@ export default defineConfig(async () => {
 
       vanillaExtractPlugin({
         identifiers({ filePath, debugId }) {
-          const scope = basename(filePath).replace('.css.ts', '')
+          const scope = basename(filePath).replace(/\.css\.(js|ts)$/, '')
           const prefix = scope === 'base' ? '' : 'vocs_'
           return `${prefix}${scope}${debugId ? `_${debugId}` : ''}`
         },
