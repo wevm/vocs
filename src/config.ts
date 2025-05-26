@@ -496,7 +496,7 @@ export type Sidebar =
   | SidebarItem[]
   | { [path: string]: SidebarItem[] | { backLink?: boolean; items: SidebarItem[] } }
 
-export type SocialType = 'discord' | 'github' | 'telegram' | 'warpcast' | 'x'
+export type SocialType = 'bluesky' | 'discord' | 'github' | 'telegram' | 'warpcast' | 'x'
 export type SocialItem = {
   /** Social icon to display. */
   icon: SocialType // TODO: Support custom SVG icons
