@@ -12,6 +12,7 @@ import {
 } from '@shikijs/twoslash'
 import { h } from 'hastscript'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
+import rehypeMermaid from 'rehype-mermaid'
 import rehypeSlug from 'rehype-slug'
 import remarkDirective from 'remark-directive'
 import remarkFrontmatter from 'remark-frontmatter'
@@ -96,6 +97,7 @@ export const getRehypePlugins = ({
 }: RehypePluginsParameters = {}) =>
   [
     rehypeSlug,
+    [rehypeMermaid, { dark: true, strategy: 'img-svg' }],
     [
       rehypeShiki,
       {
