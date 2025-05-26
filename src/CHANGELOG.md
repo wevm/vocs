@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.12
+
+### Patch Changes
+
+- [`bce14ba930ec8d61d03b5507bf29dd0ac945a911`](https://github.com/wevm/vocs/commit/bce14ba930ec8d61d03b5507bf29dd0ac945a911) Thanks [@jxom](https://github.com/jxom)! - Added support for Mermaid.
+
 ## 1.0.11
 
 ### Patch Changes
