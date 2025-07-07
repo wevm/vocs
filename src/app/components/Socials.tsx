@@ -5,6 +5,7 @@ import { primitiveColorVars, spaceVars } from '../styles/vars.css.js'
 import { Icon } from './Icon.js'
 import * as styles from './Socials.css.js'
 import { Discord } from './icons/Discord.js'
+import { Farcaster } from './icons/Farcaster.js'
 import { GitHub } from './icons/GitHub.js'
 import { Telegram } from './icons/Telegram.js'
 import { Warpcast } from './icons/Warpcast.js'
@@ -12,6 +13,7 @@ import { X } from './icons/X.js'
 
 const iconsForIcon = {
   discord: Discord,
+  farcaster: Farcaster,
   github: GitHub,
   telegram: Telegram,
   warpcast: Warpcast,
@@ -20,6 +22,7 @@ const iconsForIcon = {
 
 const sizesForType = {
   discord: '18px',
+  farcaster: '18px',
   github: '17px',
   telegram: '17px',
   warpcast: '17px',
