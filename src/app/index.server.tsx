@@ -1,5 +1,6 @@
 import './styles/index.css.js'
 
+import { NuqsAdapter } from 'nuqs/adapters/react'
 import { Route, type RouteObject, Routes } from 'react-router'
 import {
   type StaticHandlerContext,
@@ -35,13 +36,15 @@ export async function prerender(location: string) {
 
   return (
     <ConfigProvider config={config}>
-      <StaticRouter location={location} basename={basePath}>
-        <Routes>
-          {unwrappedRoutes.map((route) => (
-            <Route key={route.path} path={route.path} element={route.element} />
-          ))}
-        </Routes>
-      </StaticRouter>
+      <NuqsAdapter>
+        <StaticRouter location={location} basename={basePath}>
+          <Routes>
+            {unwrappedRoutes.map((route) => (
+              <Route key={route.path} path={route.path} element={route.element} />
+            ))}
+          </Routes>
+        </StaticRouter>
+      </NuqsAdapter>
     </ConfigProvider>
   )
 }
@@ -60,7 +63,9 @@ export async function render(req: Request) {
 
   return (
     <ConfigProvider config={config}>
-      <StaticRouterProvider router={router} context={context} />
+      <NuqsAdapter>
+        <StaticRouterProvider router={router} context={context} />
+      </NuqsAdapter>
     </ConfigProvider>
   )
 }
