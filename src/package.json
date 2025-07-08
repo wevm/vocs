@@ -60,6 +60,7 @@
     "mdast-util-to-markdown": "^2.1.2",
     "minimatch": "^9.0.5",
     "minisearch": "^6.3.0",
+    "nuqs": "^2.4.3",
     "ora": "^7.0.1",
     "p-limit": "^5.0.0",
     "playwright": "^1.52.0",
