@@ -2,4 +2,4 @@
 "vocs": patch
 ---
 
-Fixed search input clearing
+Only persist input for current session
