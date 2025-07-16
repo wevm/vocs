@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.14
+
+### Patch Changes
+
+- [#310](https://github.com/wevm/vocs/pull/310) [`43d227584fb6c3bd4b987bea9e000ac7d4169d5e`](https://github.com/wevm/vocs/commit/43d227584fb6c3bd4b987bea9e000ac7d4169d5e) Thanks [@pavlovdog](https://github.com/pavlovdog)! - Added query param synced search.
+
 ## 1.0.13
 
 ### Patch Changes
