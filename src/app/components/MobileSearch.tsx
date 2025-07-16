@@ -7,33 +7,8 @@ import * as styles from './MobileSearch.css.js'
 import { SearchDialog } from './SearchDialog.js'
 
 export function MobileSearch() {
-  const [open, setOpen] = useState(false)
-  const [queryParam, setQueryParam] = useQueryState('q', { defaultValue: '' })
-  const [hasAutoOpened, setHasAutoOpened] = useState(false)
-
-  // Auto-open dialog when there's a query parameter (only once)
-  useEffect(() => {
-    if (queryParam && !open && !hasAutoOpened) {
-      setOpen(true)
-      setHasAutoOpened(true)
-    }
-  }, [queryParam, open, hasAutoOpened])
-
-  // Auto-close dialog that was previously auto-opened once the query param is cleared
-  useEffect(() => {
-    if (hasAutoOpened && open && !queryParam) {
-      setOpen(false)
-      setHasAutoOpened(false)
-    }
-  }, [hasAutoOpened, open, queryParam])
-
-  const handleClose = useCallback(() => {
-    setOpen(false)
-    // Only clear query parameter when closing dialog, leave localStorage alone
-    if (queryParam) {
-      setQueryParam(null)
-    }
-  }, [queryParam, setQueryParam])
+  const [queryParam] = useQueryState('q', { defaultValue: '' })
+  const [open, setOpen] = useState(!!queryParam)
 
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
@@ -43,7 +18,7 @@ export function MobileSearch() {
         </button>
       </Dialog.Trigger>
 
-      <SearchDialog open={open} onClose={handleClose} />
+      <SearchDialog open={open} onClose={() => setOpen(false)} />
     </Dialog.Root>
   )
 }

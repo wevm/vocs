@@ -30,18 +30,19 @@ export function SearchDialog(props: { open: boolean; onClose(): void }) {
   const listRef = useRef<HTMLUListElement>(null)
 
   const [queryParam, setQueryParam] = useQueryState('q', { defaultValue: '' })
-  const [localStorageValue, setLocalStorageValue] = useLocalStorage('filterText', '')
+  const [filterText, setFilterText] = useLocalStorage('filterText', queryParam)
+  const searchTerm = useDebounce(filterText, 200)
 
-  // Use query param if present, otherwise fall back to localStorage
-  const searchValue = queryParam || localStorageValue
-  const searchTerm = useDebounce(searchValue, 200)
-
-  // Update localStorage when query param changes
   useEffect(() => {
-    if (queryParam) {
-      setLocalStorageValue(queryParam)
-    }
-  }, [queryParam, setLocalStorageValue])
+    // Keep filter text in sync with query param.
+    if (queryParam) setFilterText(queryParam)
+  }, [queryParam, setFilterText])
+
+  useEffect(() => {
+    // Keep query param in sync with filter text.
+    setQueryParam(props.open ? (filterText ?? '') : '')
+  }, [filterText, setQueryParam, props.open])
+
   const searchIndex = useSearchIndex()
 
   const [selectedIndex, setSelectedIndex] = useState(-1)
@@ -117,8 +118,7 @@ export function SearchDialog(props: { open: boolean; onClose(): void }) {
         case 'Backspace': {
           if (!event.metaKey) return
           event.preventDefault()
-          setQueryParam(null)
-          setLocalStorageValue('')
+          setFilterText('')
           inputRef.current?.focus()
           break
         }
@@ -137,15 +137,7 @@ export function SearchDialog(props: { open: boolean; onClose(): void }) {
     return () => {
       window.removeEventListener('keydown', keyDownHandler)
     }
-  }, [
-    navigate,
-    resultsCount,
-    selectedResult,
-    props.open,
-    props.onClose,
-    setQueryParam,
-    setLocalStorageValue,
-  ])
+  }, [navigate, resultsCount, selectedResult, props.open, props.onClose, setFilterText])
 
   useEffect(() => {
     if (searchTerm === '') return
@@ -196,14 +188,10 @@ export function SearchDialog(props: { open: boolean; onClose(): void }) {
             tabIndex={0}
             className={styles.searchInput}
             id="search-input"
-            onChange={(event) => {
-              const value = event.target.value
-              setQueryParam(value || null)
-              setLocalStorageValue(value)
-            }}
+            onChange={(event) => setFilterText(event.target.value)}
             placeholder="Search"
             type="search"
-            value={searchValue}
+            value={filterText}
           />
 
           <button
@@ -219,8 +207,7 @@ export function SearchDialog(props: { open: boolean; onClose(): void }) {
             type="button"
             className={styles.searchInputIcon}
             onClick={() => {
-              setQueryParam(null)
-              setLocalStorageValue('')
+              setFilterText('')
               inputRef.current?.focus()
             }}
           >
