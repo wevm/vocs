@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { type ReactNode, useEffect, useState } from 'react'
+import type { ReactNode } from 'react'
 import { useInView } from 'react-intersection-observer'
 
 import { assignInlineVars } from '@vanilla-extract/dynamic'
@@ -37,16 +37,6 @@ export function DocsLayout({
 
   const [showBanner, setShowBanner] = useLocalStorage('banner', true)
 
-  const [mobile, setMobile] = useState(() => {
-    if (typeof window === 'undefined') return undefined
-    return window.matchMedia('(max-width: 1080px)').matches
-  })
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(max-width: 1080px)')
-    mediaQuery.addEventListener('change', (e) => setMobile(e.matches))
-    return () => mediaQuery.removeEventListener('change', (e) => setMobile(e.matches))
-  }, [])
-
   return (
     <div
       className={styles.root}
@@ -81,7 +71,8 @@ export function DocsLayout({
               (layout === 'minimal' || layout === 'landing') && styles.gutterTop_sticky,
             )}
           >
-            {mobile ? <MobileTopNav /> : <DesktopTopNav />}
+            <DesktopTopNav />
+            <MobileTopNav />
           </div>
 
           <div
@@ -91,11 +82,8 @@ export function DocsLayout({
               (layout === 'minimal' || layout === 'landing') && styles.gutterTopCurtain_hidden,
             )}
           >
-            {mobile ? (
-              <MobileTopNav.Curtain enableScrollToTop={!inView} />
-            ) : (
-              <DesktopTopNav.Curtain />
-            )}
+            <DesktopTopNav.Curtain />
+            <MobileTopNav.Curtain enableScrollToTop={!inView} />
           </div>
         </>
       )}
