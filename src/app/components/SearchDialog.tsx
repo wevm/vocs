@@ -18,6 +18,7 @@ import { useConfig } from '../hooks/useConfig.js'
 import { useDebounce } from '../hooks/useDebounce.js'
 import { useLocalStorage } from '../hooks/useLocalStorage.js'
 import { type Result, useSearchIndex } from '../hooks/useSearchIndex.js'
+import { useSessionStorage } from '../hooks/useSessionStorage.js'
 import { visuallyHidden } from '../styles/utils.css.js'
 import { Content } from './Content.js'
 import { KeyboardShortcut } from './KeyboardShortcut.js'
@@ -30,7 +31,7 @@ export function SearchDialog(props: { open: boolean; onClose(): void }) {
   const listRef = useRef<HTMLUListElement>(null)
 
   const [queryParam, setQueryParam] = useQueryState('q', { defaultValue: '' })
-  const [filterText, setFilterText] = useLocalStorage('filterText', queryParam)
+  const [filterText, setFilterText] = useSessionStorage('filterText', queryParam)
   const searchTerm = useDebounce(filterText, 200)
 
   useEffect(() => {

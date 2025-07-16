@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.13
+
+### Patch Changes
+
+- [#121](https://github.com/wevm/vocs/pull/121) [`75880533b3a8caa65edff228c1184d9293c5a36a`](https://github.com/wevm/vocs/commit/75880533b3a8caa65edff228c1184d9293c5a36a) Thanks [@kvmanas](https://github.com/kvmanas)! - Only persist input for current session
+
 ## 1.0.12
 
 ### Patch Changes
