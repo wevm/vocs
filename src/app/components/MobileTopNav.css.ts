@@ -28,16 +28,11 @@ export const root = style({
   alignItems: 'center',
   backgroundColor: primitiveColorVars.backgroundDark,
   borderBottom: `1px solid ${primitiveColorVars.border}`,
-  display: 'none',
+  display: 'flex',
   height: '100%',
   justifyContent: 'space-between',
   padding: `${spaceVars['0']} ${contentVars.horizontalPadding}`,
   width: '100%',
-  '@media': {
-    [viewportVars['max-1080px']]: {
-      display: 'flex',
-    },
-  },
 })
 
 export const button = style(
