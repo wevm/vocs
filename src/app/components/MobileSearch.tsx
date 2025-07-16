@@ -1,6 +1,6 @@
 import * as Dialog from '@radix-ui/react-dialog'
 import { MagnifyingGlassIcon } from '@radix-ui/react-icons'
-import { useCallback, useEffect, useState } from 'react'
+import { useState } from 'react'
 
 import { useQueryState } from 'nuqs'
 import * as styles from './MobileSearch.css.js'
