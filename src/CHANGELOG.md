@@ -1,5 +1,11 @@
 # vocs
 
+## 1.0.15
+
+### Patch Changes
+
+- [`7a08dcf9fb570f9280af3385b36d39ea99456233`](https://github.com/wevm/vocs/commit/7a08dcf9fb570f9280af3385b36d39ea99456233) Thanks [@jxom](https://github.com/jxom)! - Fixed mobile search UI.
+
 ## 1.0.14
 
 ### Patch Changes
