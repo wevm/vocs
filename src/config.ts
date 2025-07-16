@@ -320,6 +320,7 @@ function parseMarkdown(markdown: Markdown): Markdown<true> {
 
 const socialsMeta = {
   discord: { label: 'Discord', type: 'discord' },
+  farcaster: { label: 'Farcaster', type: 'farcaster' },
   github: { label: 'GitHub', type: 'github' },
   telegram: { label: 'Telegram', type: 'telegram' },
   warpcast: { label: 'Warpcast', type: 'warpcast' },
@@ -496,7 +497,7 @@ export type Sidebar =
   | SidebarItem[]
   | { [path: string]: SidebarItem[] | { backLink?: boolean; items: SidebarItem[] } }
 
-export type SocialType = 'discord' | 'github' | 'telegram' | 'warpcast' | 'x'
+export type SocialType = 'discord' | 'farcaster' | 'github' | 'telegram' | 'warpcast' | 'x'
 export type SocialItem = {
   /** Social icon to display. */
   icon: SocialType // TODO: Support custom SVG icons
