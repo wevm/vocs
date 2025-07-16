@@ -1,12 +1,14 @@
 import * as Dialog from '@radix-ui/react-dialog'
 import { MagnifyingGlassIcon } from '@radix-ui/react-icons'
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
+import { useQueryState } from 'nuqs'
 import * as styles from './MobileSearch.css.js'
 import { SearchDialog } from './SearchDialog.js'
 
 export function MobileSearch() {
-  const [open, setOpen] = useState(false)
+  const [queryParam] = useQueryState('q', { defaultValue: '' })
+  const [open, setOpen] = useState(!!queryParam)
 
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>

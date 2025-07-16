@@ -13,6 +13,7 @@ import type { SearchResult } from 'minisearch'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
 
+import { useQueryState } from 'nuqs'
 import { useConfig } from '../hooks/useConfig.js'
 import { useDebounce } from '../hooks/useDebounce.js'
 import { useLocalStorage } from '../hooks/useLocalStorage.js'
@@ -29,8 +30,20 @@ export function SearchDialog(props: { open: boolean; onClose(): void }) {
   const inputRef = useRef<HTMLInputElement>(null)
   const listRef = useRef<HTMLUListElement>(null)
 
-  const [filterText, setFilterText] = useSessionStorage('filterText', '')
+  const [queryParam, setQueryParam] = useQueryState('q', { defaultValue: '' })
+  const [filterText, setFilterText] = useSessionStorage('filterText', queryParam)
   const searchTerm = useDebounce(filterText, 200)
+
+  useEffect(() => {
+    // Keep filter text in sync with query param.
+    if (queryParam) setFilterText(queryParam)
+  }, [queryParam, setFilterText])
+
+  useEffect(() => {
+    // Keep query param in sync with filter text.
+    setQueryParam(props.open ? (filterText ?? '') : '')
+  }, [filterText, setQueryParam, props.open])
+
   const searchIndex = useSearchIndex()
 
   const [selectedIndex, setSelectedIndex] = useState(-1)
@@ -125,7 +138,7 @@ export function SearchDialog(props: { open: boolean; onClose(): void }) {
     return () => {
       window.removeEventListener('keydown', keyDownHandler)
     }
-  }, [navigate, resultsCount, setFilterText, selectedResult, props.open, props.onClose])
+  }, [navigate, resultsCount, selectedResult, props.open, props.onClose, setFilterText])
 
   useEffect(() => {
     if (searchTerm === '') return

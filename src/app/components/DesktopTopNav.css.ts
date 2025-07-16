@@ -18,11 +18,6 @@ export const root = style({
   justifyContent: 'space-between',
   padding: `0 ${topNavVars.horizontalPadding}`,
   height: topNavVars.height,
-  '@media': {
-    [viewportVars['max-1080px']]: {
-      display: 'none',
-    },
-  },
 })
 
 export const withLogo = style(

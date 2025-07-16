@@ -1,5 +1,6 @@
 import './styles/index.css.js'
 
+import { NuqsAdapter } from 'nuqs/adapters/react'
 import { hydrateRoot } from 'react-dom/client'
 import { RouterProvider, createBrowserRouter } from 'react-router'
 import { ConfigProvider, getConfig } from './hooks/useConfig.js'
@@ -19,7 +20,9 @@ async function hydrate() {
   hydrateRoot(
     document.getElementById('app')!,
     <ConfigProvider>
-      <RouterProvider router={router} />
+      <NuqsAdapter>
+        <RouterProvider router={router} />
+      </NuqsAdapter>
     </ConfigProvider>,
   )
 }

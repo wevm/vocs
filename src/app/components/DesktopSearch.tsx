@@ -2,13 +2,15 @@ import * as Dialog from '@radix-ui/react-dialog'
 import { MagnifyingGlassIcon } from '@radix-ui/react-icons'
 import { useEffect, useState } from 'react'
 
+import { useQueryState } from 'nuqs'
 import { useSearchIndex } from '../hooks/useSearchIndex.js'
 import * as styles from './DesktopSearch.css.js'
 import { SearchDialog } from './SearchDialog.js'
 
 export function DesktopSearch() {
   useSearchIndex()
-  const [open, setOpen] = useState(false)
+  const [queryParam] = useQueryState('q', { defaultValue: '' })
+  const [open, setOpen] = useState(!!queryParam)
 
   useEffect(() => {
     function keyDownHandler(event: KeyboardEvent) {
