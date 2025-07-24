@@ -141,9 +141,7 @@ export const footer = style(
     bottom: 0,
     backgroundColor: primitiveColorVars.backgroundDark,
     display: 'flex',
-    padding: `${spaceVars['8']} ${sidebarVars.horizontalPadding} ${spaceVars['16']}`,
-    marginLeft: `calc(-1 * ${sidebarVars.horizontalPadding})`,
-    marginRight: `calc(-1 * ${sidebarVars.horizontalPadding})`,
+    padding: `${spaceVars['8']} 0 ${spaceVars['16']}`,
     position: 'sticky',
     '@media': {
       'screen and (max-width: 1080px)': {
