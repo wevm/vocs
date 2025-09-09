@@ -31,7 +31,7 @@ export async function llms(): Promise<PluginOption> {
       if (!outDir) return
 
       const { config } = await resolveVocsConfig()
-      const { basePath, description, rootDir, title = 'Docs' } = config ?? {}
+      const { basePath, description, rootDir, title = 'Docs', llm } = config ?? {}
 
       const content = [`# ${title}`, '']
       if (description) content.push(`> ${description}`, '')
@@ -39,6 +39,15 @@ export async function llms(): Promise<PluginOption> {
       const pagesPath = resolve(rootDir, 'pages')
       const glob = `${pagesPath}/**/*.{md,mdx}`
       const files = await globby(glob)
+
+      // Gather ignored files from llm.ignore patterns (supports relative to rootDir or absolute)
+      const ignorePatterns: string[] = Array.isArray(llm?.ignore) ? llm!.ignore : []
+      const absoluteIgnorePatterns = ignorePatterns.map((p) =>
+        p.startsWith('/') ? p : resolve(rootDir, p),
+      )
+      const ignoredFiles = new Set<string>(
+        absoluteIgnorePatterns.length ? await globby(absoluteIgnorePatterns) : [],
+      )
 
       const llmsTxtContent = [...content, '## Docs', '']
       const llmsCtxTxtContent = content
@@ -50,6 +59,7 @@ export async function llms(): Promise<PluginOption> {
         if (!path) continue
 
         const contents = fs.readFileSync(file, 'utf-8')
+        const isIgnored = ignoredFiles.has(file)
         const parser = unified().use(remarkParse).use(remarkMdx).use(remarkStringify)
         for (const plugin of remarkPlugins) parser.use(plugin as Plugin)
 
@@ -96,17 +106,19 @@ export async function llms(): Promise<PluginOption> {
           p.children.splice(i, 1)
         })
 
-        llmsCtxTxtContent.push(
-          toMarkdown(ast, {
-            extensions: [
-              directiveToMarkdown(),
-              gfmToMarkdown(),
-              mdxJsxToMarkdown(),
-              mdxToMarkdown(),
-            ],
-          }),
-          '',
-        )
+        if (!isIgnored) {
+          llmsCtxTxtContent.push(
+            toMarkdown(ast, {
+              extensions: [
+                directiveToMarkdown(),
+                gfmToMarkdown(),
+                mdxJsxToMarkdown(),
+                mdxToMarkdown(),
+              ],
+            }),
+            '',
+          )
+        }
       }
 
       const llmsTxt = llmsTxtContent.join('\n')

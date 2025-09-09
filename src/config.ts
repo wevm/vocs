@@ -180,6 +180,10 @@ export type Config<
      * Vite configuration.
      */
     vite?: UserConfig
+    /**
+     * LLM related configuration.
+     */
+    llm?: Normalize<Llm>
   },
   parsed extends true ? RequiredProperties : never
 >
@@ -224,6 +228,7 @@ export async function defineConfig<colorScheme extends ColorScheme = undefined>(
     vite: parseViteConfig(config.vite, {
       basePath,
     }),
+    llm: config.llm,
   }
 }
 
@@ -602,6 +607,14 @@ export type ParsedTopNavItem = TopNavItem<true> & {
 export type TopNav<parsed extends boolean = false> = parsed extends true
   ? ParsedTopNavItem[]
   : TopNavItem[]
+
+export type Llm = {
+  /**
+   * Array of glob patterns (relative to project root or absolute) to exclude from llms-full.txt
+   * while still allowing pages to appear in the summary list (llms.txt).
+   */
+  ignore?: string[]
+}
 
 //////////////////////////////////////////////////////
 // Utilities
