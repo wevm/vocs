@@ -1,0 +1,5 @@
+---
+"vocs": patch
+---
+
+Updated dependencies.
