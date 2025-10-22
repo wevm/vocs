@@ -1,5 +1,13 @@
 # vocs
 
+## 1.0.16
+
+### Patch Changes
+
+- [`29e3f0b51ff55e84ec45dde564911ab4e10e39e3`](https://github.com/wevm/vocs/commit/29e3f0b51ff55e84ec45dde564911ab4e10e39e3) Thanks [@jxom](https://github.com/jxom)! - Fixed `hideExternalIcon` leaking into DOM.
+
+- [`29e3f0b51ff55e84ec45dde564911ab4e10e39e3`](https://github.com/wevm/vocs/commit/29e3f0b51ff55e84ec45dde564911ab4e10e39e3) Thanks [@jxom](https://github.com/jxom)! - Fixed left gutter CSS.
+
 ## 1.0.15
 
 ### Patch Changes
