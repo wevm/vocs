@@ -1,4 +1,4 @@
-import { type RouteObject, matchRoutes } from 'react-router'
+import { matchRoutes, type RouteObject } from 'react-router'
 
 export async function hydrateLazyRoutes(routes: RouteObject[], basePath: string | undefined) {
   // Determine if any of the initial routes are lazy
@@ -9,7 +9,7 @@ export async function hydrateLazyRoutes(routes: RouteObject[], basePath: string 
   if (lazyMatches && lazyMatches?.length > 0) {
     await Promise.all(
       lazyMatches.map(async (m) => {
-        const routeModule = await m.route.lazy!()
+        const routeModule = typeof m.route.lazy === 'function' ? await m.route.lazy() : m.route.lazy
         Object.assign(m.route, {
           ...routeModule,
           lazy: undefined,

@@ -1,8 +1,8 @@
 import { config as virtualConfig } from 'virtual:config'
 import { sha256 } from '@noble/hashes/sha256'
 import { bytesToHex } from '@noble/hashes/utils'
-import { type ReactNode, createContext, useContext, useEffect, useState } from 'react'
-import { type ParsedConfig, deserializeConfig, serializeConfig } from '../../config.js'
+import { createContext, type ReactNode, useContext, useEffect, useState } from 'react'
+import { deserializeConfig, type ParsedConfig, serializeConfig } from '../../config.js'
 
 const ConfigContext = createContext(virtualConfig)
 
@@ -21,7 +21,10 @@ export function getConfig(): ParsedConfig {
 export function ConfigProvider({
   children,
   config: initialConfig,
-}: { children: ReactNode; config?: ParsedConfig }) {
+}: {
+  children: ReactNode
+  config?: ParsedConfig
+}) {
   const [config, setConfig] = useState(() => {
     if (initialConfig) return initialConfig
     return getConfig()

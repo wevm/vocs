@@ -9,7 +9,6 @@ export function mergeRefs<T>(...refs: MutableRefList<T>): RefCallback<T> {
 }
 
 export function setRef<T>(val: T, ...refs: MutableRefList<T>): void {
-  // biome-ignore lint/complexity/noForEach:
   refs.forEach((ref) => {
     if (typeof ref === 'function') {
       ref(val)

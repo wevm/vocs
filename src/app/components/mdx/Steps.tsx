@@ -1,4 +1,4 @@
-import { type ReactNode, cloneElement } from 'react'
+import { cloneElement, type ReactNode } from 'react'
 
 import * as stepStyles from '../Step.css.js'
 import { Step } from '../Step.js'

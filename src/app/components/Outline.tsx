@@ -6,8 +6,8 @@ import { useLayout } from '../hooks/useLayout.js'
 import { debounce } from '../utils/debounce.js'
 import { deserializeElement } from '../utils/deserializeElement.js'
 import { AiCtaDropdown } from './AiCtaDropdown.js'
-import * as styles from './Outline.css.js'
 import { root as Heading, slugTarget } from './mdx/Heading.css.js'
+import * as styles from './Outline.css.js'
 
 type OutlineItems = {
   id: string
@@ -40,15 +40,14 @@ export function Outline({
 
   const active = useRef(true)
 
-  const { pathname, hash } = useLocation()
+  const { hash } = useLocation()
 
   const [headingElements, setHeadingElements] = useState<Element[]>([])
-  // biome-ignore lint/correctness/useExhaustiveDependencies:
   useEffect(() => {
     if (typeof window === 'undefined') return
     const elements = Array.from(document.querySelectorAll(`.${Heading}`))
     setHeadingElements(elements)
-  }, [pathname])
+  }, [])
 
   const items = useMemo(() => {
     if (!headingElements) return []

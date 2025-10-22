@@ -17,13 +17,13 @@ import { useConfig } from '../hooks/useConfig.js'
 import { usePageData } from '../hooks/usePageData.js'
 import { useSidebar } from '../hooks/useSidebar.js'
 import { Icon } from './Icon.js'
+import { ChevronRight } from './icons/ChevronRight.js'
 import { Link } from './Link.js'
 import { NavLogo } from './NavLogo.js'
 import { RouterLink } from './RouterLink.js'
 import * as styles from './Sidebar.css.js'
 import { Socials } from './Socials.js'
 import { ThemeToggle } from './ThemeToggle.js'
-import { ChevronRight } from './icons/ChevronRight.js'
 
 export function Sidebar(props: {
   className?: string
@@ -37,7 +37,7 @@ export function Sidebar(props: {
   const sidebar = useSidebar()
   const [backPath, setBackPath] = useState<string>('/')
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  // biome-ignore lint/correctness/useExhaustiveDependencies: _
   useEffect(() => {
     if (typeof window === 'undefined') return
     if (!previousPath) return
@@ -232,7 +232,6 @@ function SidebarItem(props: {
 
             {isCollapsable && (
               <div
-                // biome-ignore lint/a11y/useSemanticElements:
                 role="button"
                 tabIndex={0}
                 onClick={onCollapseTriggerInteraction}

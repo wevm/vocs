@@ -8,14 +8,14 @@ export function useOgImageUrl(): string | undefined {
   const config = useConfig()
   const { ogImageUrl } = config
 
-  if (!ogImageUrl) return undefined
-  if (typeof ogImageUrl === 'string') return ogImageUrl
-
   const pathKey = useMemo(() => {
+    if (!ogImageUrl) return undefined
     const keys = Object.keys(ogImageUrl).filter((key) => pathname.startsWith(key))
     return keys[keys.length - 1]
   }, [ogImageUrl, pathname])
   if (!pathKey) return undefined
 
+  if (!ogImageUrl) return undefined
+  if (typeof ogImageUrl === 'string') return ogImageUrl
   return ogImageUrl[pathKey]
 }

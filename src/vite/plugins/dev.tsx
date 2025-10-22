@@ -62,7 +62,6 @@ export function dev(): PluginOption {
                 <>
                   <script
                     type="module"
-                    // @ts-expect-error
                     fetchPriority="high"
                     blocking="render"
                     src={resolve(import.meta.dirname, '../../app/utils/initializeTheme.ts')}
@@ -71,7 +70,7 @@ export function dev(): PluginOption {
                     <style
                       key={i}
                       data-vocs-temp-style="true"
-                      // biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
+                      // biome-ignore lint/security/noDangerouslySetInnerHtml: _
                       dangerouslySetInnerHTML={{ __html: style }}
                     />
                   ))}

@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import toml from 'toml'
 import { type ConfigEnv, loadConfigFromFile } from 'vite'
-import { type ParsedConfig, defineConfig, getDefaultConfig } from '../../config.js'
+import { defineConfig, getDefaultConfig, type ParsedConfig } from '../../config.js'
 
 const moduleExtensions = ['js', 'jsx', 'ts', 'tsx', 'mjs', 'mts']
 const staticExtensions = ['toml', 'json']

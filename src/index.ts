@@ -1,4 +1,3 @@
-export { defineConfig } from './config.js'
 export type {
   ColorScheme,
   Config,
@@ -9,12 +8,13 @@ export type {
   Sidebar,
   SidebarItem,
   SocialItem,
-  SocialType,
   Socials,
+  SocialType,
   Theme,
   TopNav,
   TopNavItem,
 } from './config.js'
+export { defineConfig } from './config.js'
 
 export { build } from './vite/build.js'
 export { createDevServer } from './vite/devServer.js'

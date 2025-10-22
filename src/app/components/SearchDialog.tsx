@@ -10,10 +10,9 @@ import * as Label from '@radix-ui/react-label'
 import clsx from 'clsx'
 import { default as Mark } from 'mark.js'
 import type { SearchResult } from 'minisearch'
+import { useQueryState } from 'nuqs'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
-
-import { useQueryState } from 'nuqs'
 import { useConfig } from '../hooks/useConfig.js'
 import { useDebounce } from '../hooks/useDebounce.js'
 import { useLocalStorage } from '../hooks/useLocalStorage.js'
@@ -138,7 +137,7 @@ export function SearchDialog(props: { open: boolean; onClose(): void }) {
     return () => {
       window.removeEventListener('keydown', keyDownHandler)
     }
-  }, [navigate, resultsCount, selectedResult, props.open, props.onClose, setFilterText])
+  }, [navigate, resultsCount, selectedResult, props.open, props.onClose, setFilterText, props])
 
   useEffect(() => {
     if (searchTerm === '') return
@@ -184,6 +183,7 @@ export function SearchDialog(props: { open: boolean; onClose(): void }) {
               width={20}
             />
           </Label.Root>
+          {/** biome-ignore lint/correctness/useUniqueElementIds: _ */}
           <input
             ref={inputRef}
             tabIndex={0}
@@ -229,11 +229,8 @@ export function SearchDialog(props: { open: boolean; onClose(): void }) {
           )}
 
           {results.map((result, index) => (
-            // biome-ignore lint/a11y/useFocusableInteractive:
+            // biome-ignore lint/a11y/useAriaPropsSupportedByRole: _
             <li
-              // biome-ignore lint/a11y/noNoninteractiveElementToInteractiveRole:
-              // biome-ignore lint/a11y/useSemanticElements:
-              role="option"
               key={result.id}
               className={clsx(styles.result, index === selectedIndex && styles.resultSelected)}
               aria-selected={index === selectedIndex}
@@ -262,7 +259,7 @@ export function SearchDialog(props: { open: boolean; onClose(): void }) {
                     .map((title: string) => (
                       <span className={styles.title} key={title}>
                         <span
-                          // biome-ignore lint/security/noDangerouslySetInnerHtml:
+                          // biome-ignore lint/security/noDangerouslySetInnerHtml: _
                           dangerouslySetInnerHTML={{ __html: title }}
                         />
                         <ChevronRightIcon className={styles.titleIcon} />
@@ -270,7 +267,7 @@ export function SearchDialog(props: { open: boolean; onClose(): void }) {
                     ))}
                   <span className={styles.title}>
                     <span
-                      // biome-ignore lint/security/noDangerouslySetInnerHtml:
+                      // biome-ignore lint/security/noDangerouslySetInnerHtml: _
                       dangerouslySetInnerHTML={{ __html: result.title }}
                     />
                   </span>
@@ -280,7 +277,7 @@ export function SearchDialog(props: { open: boolean; onClose(): void }) {
                   <div className={styles.excerpt}>
                     <Content className={styles.content}>
                       <div
-                        // biome-ignore lint/security/noDangerouslySetInnerHtml:
+                        // biome-ignore lint/security/noDangerouslySetInnerHtml: _
                         dangerouslySetInnerHTML={{ __html: result.html }}
                       />
                     </Content>

@@ -7,7 +7,9 @@ export const twoslash = create('twoslash')
 export function create(key: string) {
   return ({
     cacheDir = resolve(import.meta.dirname, '../.vocs/cache'),
-  }: { cacheDir?: string } = {}) => {
+  }: {
+    cacheDir?: string
+  } = {}) => {
     const pathname = (k: string) => resolve(cacheDir, `${key}${k ? `.${k}` : ''}.json`)
     return {
       get(k: string) {
@@ -25,7 +27,9 @@ export function create(key: string) {
 
 export function clear({
   cacheDir = resolve(import.meta.dirname, '../.vocs/cache'),
-}: { cacheDir?: string } = {}) {
+}: {
+  cacheDir?: string
+} = {}) {
   if (!fs.existsSync(cacheDir)) return
   fs.rmSync(cacheDir, { recursive: true })
 }

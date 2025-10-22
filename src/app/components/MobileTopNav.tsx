@@ -13,21 +13,21 @@ import { usePageData } from '../hooks/usePageData.js'
 import { useSidebar } from '../hooks/useSidebar.js'
 import { deserializeElement } from '../utils/deserializeElement.js'
 import { Icon } from './Icon.js'
+import { ChevronDown } from './icons/ChevronDown.js'
+import { ChevronRight } from './icons/ChevronRight.js'
+import { ChevronUp } from './icons/ChevronUp.js'
+import { Menu } from './icons/Menu.js'
 import { Link } from './Link.js'
 import { MobileSearch } from './MobileSearch.js'
 import * as styles from './MobileTopNav.css.js'
-import { NavLogo } from './NavLogo.js'
 import * as NavigationMenu from './NavigationMenu.js'
+import { NavLogo } from './NavLogo.js'
 import { Outline } from './Outline.js'
 import { Popover } from './Popover.js'
 import { RouterLink } from './RouterLink.js'
 import { Sidebar } from './Sidebar.js'
 import { Socials } from './Socials.js'
 import { ThemeToggle } from './ThemeToggle.js'
-import { ChevronDown } from './icons/ChevronDown.js'
-import { ChevronRight } from './icons/ChevronRight.js'
-import { ChevronUp } from './icons/ChevronUp.js'
-import { Menu } from './icons/Menu.js'
 
 MobileTopNav.Curtain = Curtain
 
@@ -197,11 +197,7 @@ function CompactNavigation({ items }: { items: Config.ParsedTopNavItem[] }) {
   )
 }
 
-export function Curtain({
-  enableScrollToTop,
-}: {
-  enableScrollToTop?: boolean
-}) {
+export function Curtain({ enableScrollToTop }: { enableScrollToTop?: boolean }) {
   const { pathname } = useLocation()
   const { layout, showSidebar } = useLayout()
   const { frontmatter = {} } = usePageData()
@@ -282,7 +278,10 @@ export function Curtain({
 function getSidebarItemFromPathname({
   sidebarItems,
   pathname: pathname_,
-}: { sidebarItems: Config.SidebarItem[]; pathname: string }): Config.SidebarItem | undefined {
+}: {
+  sidebarItems: Config.SidebarItem[]
+  pathname: string
+}): Config.SidebarItem | undefined {
   const pathname = pathname_.replace(/(.+)\/$/, '$1')
   for (const item of sidebarItems) {
     if (item?.link === pathname) return item
