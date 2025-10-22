@@ -86,9 +86,7 @@ export async function build({
   }
 
   // copy public folder
-  try {
-    fs.copySync(resolve(import.meta.dirname, '../app/public'), outDir_resolved)
-  } catch {}
+  fs.copySync(resolve(import.meta.dirname, '../app/public'), outDir_resolved)
 
   hooks?.onScriptsStart?.()
 
