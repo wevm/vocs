@@ -34,7 +34,7 @@ importers:
         version: 0.5.1
       '@changesets/cli':
         specifier: ^2.29.7
-        version: 2.29.7(@types/node@20.19.23)
+        version: 2.29.7(@types/node@24.9.1)
       '@types/compression':
         specifier: ^1.8.1
         version: 1.8.1
@@ -42,8 +42,8 @@ importers:
         specifier: ^11.0.4
         version: 11.0.4
       '@types/node':
-        specifier: ^20.19.23
-        version: 20.19.23
+        specifier: ^24.9.1
+        version: 24.9.1
       '@types/react':
         specifier: 'catalog:'
         version: 19.2.2
@@ -2195,9 +2195,6 @@ packages:
 
   '@types/node@14.18.33':
     resolution: {integrity: sha512-qelS/Ra6sacc4loe/3MSjXNL1dNQ/GjxNHVzuChwMfmk7HuycRLVQN2qNY3XahK+fZc5E2szqQSKUyAF0E+2bg==}
-
-  '@types/node@20.19.23':
-    resolution: {integrity: sha512-yIdlVVVHXpmqRhtyovZAcSy0MiPcYWGkoO4CGe/+jpP0hmNuihm4XhHbADpK++MsiLHP5MVlv+bcgdF99kSiFQ==}
 
   '@types/node@24.9.1':
     resolution: {integrity: sha512-QoiaXANRkSXK6p0Duvt56W208du4P9Uye9hWLWgGMDTEoKPhuenzNcC4vGUmrNkiOKTlIrBoyNQYNpSwfEZXSg==}
@@ -5073,9 +5070,6 @@ packages:
   uid-promise@1.0.0:
     resolution: {integrity: sha512-R8375j0qwXyIu/7R0tjdF06/sElHqbmdmWC9M2qQHpEVbvE4I5+38KJI7LUUmQMp7NVq4tKHiBMkT0NFM453Ig==}
 
-  undici-types@6.21.0:
-    resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
-
   undici-types@7.16.0:
     resolution: {integrity: sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw==}
 
@@ -5677,7 +5671,7 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
-  '@changesets/cli@2.29.7(@types/node@20.19.23)':
+  '@changesets/cli@2.29.7(@types/node@24.9.1)':
     dependencies:
       '@changesets/apply-release-plan': 7.0.13
       '@changesets/assemble-release-plan': 6.0.9
@@ -5693,7 +5687,7 @@ snapshots:
       '@changesets/should-skip-package': 0.1.2
       '@changesets/types': 6.1.0
       '@changesets/write': 0.4.0
-      '@inquirer/external-editor': 1.0.2(@types/node@20.19.23)
+      '@inquirer/external-editor': 1.0.2(@types/node@24.9.1)
       '@manypkg/get-packages': 1.1.3
       ansi-colors: 4.1.3
       ci-info: 3.9.0
@@ -5990,12 +5984,12 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@inquirer/external-editor@1.0.2(@types/node@20.19.23)':
+  '@inquirer/external-editor@1.0.2(@types/node@24.9.1)':
     dependencies:
       chardet: 2.1.0
       iconv-lite: 0.7.0
     optionalDependencies:
-      '@types/node': 20.19.23
+      '@types/node': 24.9.1
 
   '@isaacs/cliui@8.0.2':
     dependencies:
@@ -7126,18 +7120,18 @@ snapshots:
   '@types/body-parser@1.19.4':
     dependencies:
       '@types/connect': 3.4.37
-      '@types/node': 20.19.23
+      '@types/node': 24.9.1
 
   '@types/chroma-js@3.1.1': {}
 
   '@types/compression@1.8.1':
     dependencies:
       '@types/express': 4.17.20
-      '@types/node': 20.19.23
+      '@types/node': 24.9.1
 
   '@types/connect@3.4.37':
     dependencies:
-      '@types/node': 20.19.23
+      '@types/node': 24.9.1
 
   '@types/cross-spawn@6.0.6':
     dependencies:
@@ -7278,7 +7272,7 @@ snapshots:
 
   '@types/express-serve-static-core@4.17.39':
     dependencies:
-      '@types/node': 20.19.23
+      '@types/node': 24.9.1
       '@types/qs': 6.9.9
       '@types/range-parser': 1.2.6
       '@types/send': 0.17.3
@@ -7293,7 +7287,7 @@ snapshots:
   '@types/fs-extra@11.0.4':
     dependencies:
       '@types/jsonfile': 6.1.3
-      '@types/node': 20.19.23
+      '@types/node': 24.9.1
 
   '@types/geojson@7946.0.16': {}
 
@@ -7319,7 +7313,7 @@ snapshots:
 
   '@types/jsonfile@6.1.3':
     dependencies:
-      '@types/node': 20.19.23
+      '@types/node': 24.9.1
 
   '@types/mark.js@8.11.12':
     dependencies:
@@ -7338,10 +7332,6 @@ snapshots:
   '@types/node@12.20.55': {}
 
   '@types/node@14.18.33': {}
-
-  '@types/node@20.19.23':
-    dependencies:
-      undici-types: 6.21.0
 
   '@types/node@24.9.1':
     dependencies:
@@ -7366,12 +7356,12 @@ snapshots:
   '@types/send@0.17.3':
     dependencies:
       '@types/mime': 1.3.4
-      '@types/node': 20.19.23
+      '@types/node': 24.9.1
 
   '@types/serve-static@1.15.9':
     dependencies:
       '@types/http-errors': 2.0.3
-      '@types/node': 20.19.23
+      '@types/node': 24.9.1
       '@types/send': 0.17.3
 
   '@types/sizzle@2.3.8': {}
@@ -10823,8 +10813,6 @@ snapshots:
   ufo@1.5.4: {}
 
   uid-promise@1.0.0: {}
-
-  undici-types@6.21.0: {}
 
   undici-types@7.16.0: {}
 

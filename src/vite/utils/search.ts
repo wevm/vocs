@@ -1,10 +1,10 @@
 import { readFileSync } from 'node:fs'
+import { glob } from 'node:fs/promises'
 import { join, relative, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { compile, run } from '@mdx-js/mdx'
 import debug_ from 'debug'
 import { default as fs } from 'fs-extra'
-import { globby } from 'globby'
 import MiniSearch from 'minisearch'
 import pLimit from 'p-limit'
 import { Fragment } from 'react'
@@ -24,7 +24,7 @@ export const debug = debug_('vocs:search')
 export async function buildIndex({ baseDir, cacheDir }: { baseDir: string; cacheDir?: string }) {
   const cache = cache_.search({ cacheDir })
 
-  const pagesPaths = await globby(`${resolve(baseDir, 'pages')}/**/*.{md,mdx}`)
+  const pagesPaths = await Array.fromAsync(glob(`${resolve(baseDir, 'pages')}/**/*.{md,mdx}`))
   const rehypePlugins = getRehypePlugins({ cacheDir, rootDir: baseDir, twoslash: false })
 
   const documents = await Promise.all(

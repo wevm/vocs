@@ -1,6 +1,6 @@
+import { glob } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { default as fs } from 'fs-extra'
-import { globby } from 'globby'
 import type { Heading } from 'mdast'
 import { directiveToMarkdown } from 'mdast-util-directive'
 import { gfmToMarkdown } from 'mdast-util-gfm'
@@ -38,8 +38,8 @@ export async function llms(): Promise<PluginOption[]> {
         if (description) content.push(`> ${description}`, '')
 
         const pagesPath = resolve(rootDir, 'pages')
-        const glob = `${pagesPath}/**/*.{md,mdx}`
-        const files = await globby(glob)
+        const globPattern = `${pagesPath}/**/*.{md,mdx}`
+        const files = await Array.fromAsync(glob(globPattern))
 
         const llmsTxtContent = [...content, '## Docs', '']
         const llmsCtxTxtContent = content

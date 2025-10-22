@@ -47,7 +47,6 @@
     "create-vocs": "^1.0.0-alpha.5",
     "cross-spawn": "^7.0.6",
     "fs-extra": "^11.3.2",
-    "globby": "^14.1.0",
     "hastscript": "^8.0.0",
     "hono": "^4.7.1",
     "mark.js": "^8.11.1",
@@ -117,5 +116,8 @@
     "vite",
     "documentation",
     "mdx"
-  ]
+  ],
+  "engines": {
+    "node": ">=22"
+  }
 }
