@@ -4,7 +4,7 @@ import { forwardRef } from 'react'
 import { useLocation } from 'react-router'
 import { ExternalLink } from './ExternalLink.js'
 import * as styles from './Link.css.js'
-import { RouterLink, type RouterLinkProps } from './RouterLink.js'
+import { RouterLink } from './RouterLink.js'
 
 type LinkProps = {
   children: React.ReactNode
