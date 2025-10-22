@@ -8,8 +8,8 @@ import { globby } from 'globby'
 import MiniSearch from 'minisearch'
 import pLimit from 'p-limit'
 import { Fragment } from 'react'
-import { renderToStaticMarkup } from 'react-dom/server'
 import * as runtime from 'react/jsx-runtime'
+import { renderToStaticMarkup } from 'react-dom/server'
 import type { PluggableList } from 'unified'
 
 import { getRehypePlugins, getRemarkPlugins } from '../plugins/mdx.js'
@@ -21,13 +21,7 @@ const limit = pLimit(30)
 
 export const debug = debug_('vocs:search')
 
-export async function buildIndex({
-  baseDir,
-  cacheDir,
-}: {
-  baseDir: string
-  cacheDir?: string
-}) {
+export async function buildIndex({ baseDir, cacheDir }: { baseDir: string; cacheDir?: string }) {
   const cache = cache_.search({ cacheDir })
 
   const pagesPaths = await globby(`${resolve(baseDir, 'pages')}/**/*.{md,mdx}`)
@@ -124,7 +118,7 @@ export async function processMdx(
       }),
     )
     return html
-  } catch (error) {
+  } catch (_error) {
     // TODO: Resolve imports (e.g. virtual modules)
     return ''
   }
@@ -155,7 +149,7 @@ export function splitPageIntoSections(html: string) {
   let parentTitles: string[] = []
   const sections: PageSection[] = []
   for (let i = 0; i < result.length; i += 3) {
-    const level = Number.parseInt(result[i]) - 1
+    const level = Number.parseInt(result[i], 10) - 1
     const heading = result[i + 1]
     const headingResult = headingContentRegex.exec(heading)
     const title = clearHtmlTags(headingResult?.[1] ?? '').trim()

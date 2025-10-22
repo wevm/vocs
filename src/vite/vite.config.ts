@@ -2,7 +2,7 @@ import { basename } from 'node:path'
 import tailwindcss from '@tailwindcss/vite'
 import { vanillaExtractPlugin } from '@vanilla-extract/vite-plugin'
 import react from '@vitejs/plugin-react'
-import { type PluginOption, defineConfig } from 'vite'
+import { defineConfig, type PluginOption } from 'vite'
 
 import { css } from './plugins/css.js'
 import { llms } from './plugins/llms.js'
@@ -48,6 +48,7 @@ export default defineConfig(async () => {
       splitVendorChunkPlugin(),
       virtualConfig(),
       vanillaExtractPlugin({
+        unstable_mode: 'inlineCssInDev',
         identifiers({ filePath, debugId }) {
           const scope = basename(filePath).replace('.css.ts', '')
           const prefix = scope === 'base' ? '' : 'vocs_'

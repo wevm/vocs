@@ -11,15 +11,15 @@ export function useSidebar(): UseSidebarReturnType {
   const config = useConfig()
   const { sidebar } = config
 
-  if (!sidebar) return { items: [] }
-  if (Array.isArray(sidebar)) return { items: sidebar }
-
   const sidebarKey = useMemo(() => {
+    if (!sidebar) return undefined
     const keys = Object.keys(sidebar).filter((key) => pathname.startsWith(key))
     return keys[keys.length - 1]
   }, [sidebar, pathname])
-  if (!sidebarKey) return { items: [] }
 
+  if (!sidebar) return { items: [] }
+  if (Array.isArray(sidebar)) return { items: sidebar }
+  if (!sidebarKey) return { items: [] }
   if (Array.isArray(sidebar[sidebarKey]))
     return { key: sidebarKey, items: sidebar[sidebarKey] } as UseSidebarReturnType
   return { ...sidebar[sidebarKey], key: sidebarKey } as UseSidebarReturnType

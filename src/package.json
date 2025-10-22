@@ -59,8 +59,8 @@
     "mdast-util-mdx-jsx": "^3.2.0",
     "mdast-util-to-hast": "^13.2.0",
     "mdast-util-to-markdown": "^2.1.2",
-    "minisearch": "^6.3.0",
-    "nuqs": "^2.4.3",
+    "minisearch": "^7.2.0",
+    "nuqs": "^2.7.2",
     "ora": "^7.0.1",
     "p-limit": "^5.0.0",
     "playwright": "^1.52.0",
@@ -99,12 +99,23 @@
   "license": "MIT",
   "homepage": "https://vocs.dev",
   "repository": "wevm/vocs",
-  "authors": ["awkweb.eth", "jxom.eth"],
+  "authors": [
+    "awkweb.eth",
+    "jxom.eth"
+  ],
   "funding": [
     {
       "type": "github",
       "url": "https://github.com/sponsors/wevm"
     }
   ],
-  "keywords": ["react", "static", "docs", "generator", "vite", "documentation", "mdx"]
+  "keywords": [
+    "react",
+    "static",
+    "docs",
+    "generator",
+    "vite",
+    "documentation",
+    "mdx"
+  ]
 }

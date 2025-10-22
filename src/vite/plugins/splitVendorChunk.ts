@@ -112,7 +112,7 @@ export function splitVendorChunkPlugin(): PluginOption {
       }
     },
     buildStart() {
-      // biome-ignore lint/complexity/noForEach: _
+      // biome-ignore lint/suspicious/useIterableCallbackReturn: _
       caches.forEach((cache) => cache.reset())
     },
   }

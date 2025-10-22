@@ -1,5 +1,4 @@
 import { ImageResponse } from '@vercel/og'
-import * as React from 'react'
 
 export const config = {
   runtime: 'edge',
@@ -26,7 +25,7 @@ export default async function handler(request: Request) {
         padding: '80px',
       }}
     >
-      {/* biome-ignore lint/a11y/useAltText: */}
+      {/* biome-ignore lint/a11y/useAltText: _ */}
       {logo && <img src={logo} height="60px" style={{ marginTop: 48 }} />}
       <div style={{ fontSize: '42px', fontWeight: 'bold', marginTop: 48, marginBottom: -12 }}>
         {title}

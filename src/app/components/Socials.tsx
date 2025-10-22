@@ -3,12 +3,12 @@ import type { ParsedSocialItem } from '../../config.js'
 import { useConfig } from '../hooks/useConfig.js'
 import { primitiveColorVars, spaceVars } from '../styles/vars.css.js'
 import { Icon } from './Icon.js'
-import * as styles from './Socials.css.js'
 import { Discord } from './icons/Discord.js'
 import { GitHub } from './icons/GitHub.js'
 import { Telegram } from './icons/Telegram.js'
 import { Warpcast } from './icons/Warpcast.js'
 import { X } from './icons/X.js'
+import * as styles from './Socials.css.js'
 
 const iconsForIcon = {
   discord: Discord,

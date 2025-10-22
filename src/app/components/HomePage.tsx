@@ -2,7 +2,7 @@ import clsx from 'clsx'
 import type { ReactNode } from 'react'
 
 import { useConfig } from '../hooks/useConfig.js'
-import { type ButtonProps, Button as Button_ } from './Button.js'
+import { Button as Button_, type ButtonProps } from './Button.js'
 import * as styles from './HomePage.css.js'
 import { Logo as Logo_ } from './Logo.js'
 import * as Tabs from './Tabs.js'
@@ -46,7 +46,12 @@ export function Button(props: ButtonProps) {
 export function InstallPackage({
   name,
   type = 'install',
-}: { children: ReactNode; className?: string; name: string; type?: 'install' | 'init' }) {
+}: {
+  children: ReactNode
+  className?: string
+  name: string
+  type?: 'install' | 'init'
+}) {
   return (
     <Tabs.Root className={styles.tabs} defaultValue="npm">
       <Tabs.List className={styles.tabsList}>

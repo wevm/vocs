@@ -28,8 +28,8 @@ import { rehypeInlineShiki } from './rehype/inline-shiki.js'
 import { remarkAuthors } from './remark/authors.js'
 import { remarkBlogPosts } from './remark/blog-posts.js'
 import { remarkCallout } from './remark/callout.js'
-import { remarkCodeGroup } from './remark/code-group.js'
 import { remarkCode } from './remark/code.js'
+import { remarkCodeGroup } from './remark/code-group.js'
 import { remarkDetails } from './remark/details.js'
 import { remarkFilename } from './remark/filename.js'
 import { remarkInferFrontmatter } from './remark/inferred-frontmatter.js'
@@ -45,8 +45,8 @@ import { transformerNotationInclude } from './shiki/transformerNotationInclude.j
 import { transformerSplitIdentifiers } from './shiki/transformerSplitIdentifiers.js'
 import { transformerTagLine } from './shiki/transformerTagLine.js'
 import { transformerTitle } from './shiki/transformerTitle.js'
-import { twoslashRenderer } from './shiki/twoslashRenderer.js'
 import { twoslasher } from './shiki/twoslasher.js'
+import { twoslashRenderer } from './shiki/twoslashRenderer.js'
 
 const defaultTwoslashOptions = defaultTwoslashOptions_()
 

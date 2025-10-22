@@ -62,7 +62,7 @@ export async function llms(): Promise<PluginOption[]> {
             if (node.type !== 'text') return
 
             const value = node.value
-            const [, title, subTitle] = value.match(/^([^\[\]]+)(?: \[([^\[\]]+)\])?$/) ?? []
+            const [, title, subTitle] = value.match(/^([^[\]]+)(?: \[([^[\]]+)\])?$/) ?? []
 
             let found = false
             let description = subTitle

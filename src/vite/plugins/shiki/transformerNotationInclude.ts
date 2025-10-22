@@ -32,7 +32,10 @@ export const transformerNotationInclude = ({
 export function processIncludes({
   code,
   getSource,
-}: { code: string; getSource: (fileName: string) => string | undefined }) {
+}: {
+  code: string
+  getSource: (fileName: string) => string | undefined
+}) {
   const includes = code.includes('// [!include')
   if (!includes)
     return code

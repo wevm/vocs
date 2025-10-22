@@ -70,7 +70,7 @@ export function dev(): PluginOption {
                     <style
                       key={i}
                       data-vocs-temp-style="true"
-                      // biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
+                      // biome-ignore lint/security/noDangerouslySetInnerHtml: _
                       dangerouslySetInnerHTML={{ __html: style }}
                     />
                   ))}

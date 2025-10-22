@@ -12,7 +12,7 @@ export function remarkCode() {
       if (parent?.type === 'containerDirective' && parent.name !== 'steps') return
 
       const [match, title] = node.meta?.match(/\[(.*)\]/) || []
-      if (match) node.meta = node.meta?.replace(match, `title=\"${title}\"`)
+      if (match) node.meta = node.meta?.replace(match, `title="${title}"`)
     })
   }
 }
