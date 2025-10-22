@@ -16,7 +16,7 @@ type LinkProps = {
 }
 
 export const Link = forwardRef((props: LinkProps, ref) => {
-  const { hideExternalIcon, href, variant = 'accent' } = props
+  const { hideExternalIcon, href, variant = 'accent', ...rest } = props
 
   const { pathname } = useLocation()
 
@@ -24,7 +24,6 @@ export const Link = forwardRef((props: LinkProps, ref) => {
   if (href?.match(/^(www|https?)/))
     return (
       <ExternalLink
-        {...props}
         ref={ref}
         className={clsx(
           props.className,
@@ -33,6 +32,8 @@ export const Link = forwardRef((props: LinkProps, ref) => {
           variant === 'styleless' && styles.styleless,
         )}
         hideExternalIcon={hideExternalIcon}
+        href={href}
+        {...rest}
       />
     )
 
@@ -41,7 +42,7 @@ export const Link = forwardRef((props: LinkProps, ref) => {
   const to = `${before ? before : pathname}${after ? `#${after}` : ''}`
   return (
     <RouterLink
-      {...(props as RouterLinkProps)}
+      {...rest}
       ref={ref}
       className={clsx(
         props.className,
