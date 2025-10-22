@@ -18,4 +18,5 @@ jobs:
       - name: Prerelease
         run: | 
           pnpm run build
+          cd src
           pnpx pkg-pr-new publish --pnpm
