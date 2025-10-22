@@ -62,7 +62,6 @@ export function dev(): PluginOption {
                 <>
                   <script
                     type="module"
-                    // @ts-expect-error
                     fetchPriority="high"
                     blocking="render"
                     src={resolve(import.meta.dirname, '../../app/utils/initializeTheme.ts')}

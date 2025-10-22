@@ -9,7 +9,7 @@ export async function hydrateLazyRoutes(routes: RouteObject[], basePath: string 
   if (lazyMatches && lazyMatches?.length > 0) {
     await Promise.all(
       lazyMatches.map(async (m) => {
-        const routeModule = await m.route.lazy!()
+        const routeModule = m.route.lazy
         Object.assign(m.route, {
           ...routeModule,
           lazy: undefined,
