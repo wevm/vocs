@@ -11,10 +11,11 @@ export function useEditLink() {
     const { pattern = '', text = 'Edit page' } = config.editLink ?? {}
 
     let url = ''
-    // TODO: pattern as function
-    if (typeof pattern === 'function') url = ''
-    else if (pageData.filePath) url = pattern.replace(/:path/g, pageData.filePath)
+    if (pageData.filePath) {
+      if (typeof pattern === 'function') url = pattern(pageData)
+      else url = pattern.replace(/:path/g, pageData.filePath)
+    }
 
     return { url, text }
-  }, [config.editLink, pageData.filePath])
+  }, [config.editLink, pageData])
 }

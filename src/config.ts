@@ -20,6 +20,7 @@ import type {
   viewportVars,
   zIndexVars,
 } from './app/styles/vars.css.js'
+import type { PageData } from './app/hooks/usePageData.js'
 
 type RequiredBy<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>
 
@@ -441,7 +442,7 @@ export type EditLink = {
   /**
    * Link pattern
    */
-  pattern: string | (() => string)
+  pattern: string | ((pageData: PageData) => string)
   /**
    * Link text
    *
