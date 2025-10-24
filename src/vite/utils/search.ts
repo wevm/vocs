@@ -12,7 +12,6 @@ import * as runtime from 'react/jsx-runtime'
 import { renderToStaticMarkup } from 'react-dom/server'
 import type { PluggableList } from 'unified'
 import { matter } from 'vfile-matter'
-import { parse as parseYaml } from 'yaml'
 
 import type { Frontmatter } from '../../app/types.js'
 import { getRehypePlugins, getRemarkPlugins } from '../plugins/mdx.js'
