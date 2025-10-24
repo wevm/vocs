@@ -4,6 +4,7 @@ import type { ReactElement } from 'react'
 import type { TwoslashOptions } from 'twoslash'
 import type { PluggableList } from 'unified'
 import type { UserConfig } from 'vite'
+import type { PageData } from './app/hooks/usePageData.js'
 import type {
   borderRadiusVars,
   contentVars,
@@ -20,7 +21,6 @@ import type {
   viewportVars,
   zIndexVars,
 } from './app/styles/vars.css.js'
-import type { PageData } from './app/hooks/usePageData.js'
 
 type RequiredBy<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>
 

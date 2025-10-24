@@ -16,7 +16,4 @@ export function usePageData() {
   return pageData
 }
 
-export const PageDataContext = createContext<
-  | PageData
-  | undefined
->(undefined)
+export const PageDataContext = createContext<PageData | undefined>(undefined)
