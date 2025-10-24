@@ -32,6 +32,7 @@ export function AiCtaDropdown() {
   }, [content])
 
   const query = useMemo(() => {
+    if (typeof window === 'undefined') return ''
     const href = window.location.origin + location.pathname
     if (typeof aiCta === 'object') return aiCta.query({ location: href })
     return `Please research and analyze this page: ${href} so I can ask you questions about it. Once you have read it, prompt me with any questions I have. Do not post content from the page in your response. Any of my follow up questions must reference the site I gave you.`

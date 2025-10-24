@@ -189,14 +189,3 @@ function getSearchableText(content: string) {
 function clearHtmlTags(str: string) {
   return str.replace(/<[^>]*>/g, '')
 }
-
-function _parseFrontmatter(mdx: string): Frontmatter {
-  const frontmatterMatch = mdx.match(/^---\n([\s\S]*?)\n---/)
-  if (!frontmatterMatch) return {}
-
-  try {
-    return parseYaml(frontmatterMatch[1]) as Frontmatter
-  } catch {
-    return {}
-  }
-}
