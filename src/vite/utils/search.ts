@@ -11,7 +11,10 @@ import { Fragment } from 'react'
 import * as runtime from 'react/jsx-runtime'
 import { renderToStaticMarkup } from 'react-dom/server'
 import type { PluggableList } from 'unified'
+import { matter } from 'vfile-matter'
+import { parse as parseYaml } from 'yaml'
 
+import type { Frontmatter } from '../../app/types.js'
 import { getRehypePlugins, getRemarkPlugins } from '../plugins/mdx.js'
 import * as cache_ from './cache.js'
 import { hash } from './hash.js'
@@ -35,7 +38,12 @@ export async function buildIndex({ baseDir, cacheDir }: { baseDir: string; cache
         const pageCache = cache.get(key) ?? {}
         if (pageCache.mdx === mdx) return pageCache.document
 
-        const html = await processMdx(pagePath, mdx, { rehypePlugins })
+        const { html, frontmatter } = await processMdx(pagePath, mdx, { rehypePlugins })
+
+        if (frontmatter.searchable === false) {
+          cache.set(key, { mdx, document: [] })
+          return []
+        }
 
         const sections = splitPageIntoSections(html)
         if (sections.length === 0) {
@@ -107,7 +115,7 @@ export async function processMdx(
     const compiled = await compile(file, {
       baseUrl: pathToFileURL(filePath).href,
       outputFormat: 'function-body',
-      remarkPlugins,
+      remarkPlugins: [...remarkPlugins, () => (_, file) => matter(file)],
       rehypePlugins,
     })
     const { default: MDXContent } = await run(compiled, { ...runtime, Fragment } as never)
@@ -117,10 +125,10 @@ export async function processMdx(
         // components,
       }),
     )
-    return html
+    return { html, frontmatter: compiled.data?.matter as Frontmatter }
   } catch (_error) {
     // TODO: Resolve imports (e.g. virtual modules)
-    return ''
+    return { html: '', frontmatter: {} }
   }
 }
 
@@ -180,4 +188,15 @@ function getSearchableText(content: string) {
 
 function clearHtmlTags(str: string) {
   return str.replace(/<[^>]*>/g, '')
+}
+
+function _parseFrontmatter(mdx: string): Frontmatter {
+  const frontmatterMatch = mdx.match(/^---\n([\s\S]*?)\n---/)
+  if (!frontmatterMatch) return {}
+
+  try {
+    return parseYaml(frontmatterMatch[1]) as Frontmatter
+  } catch {
+    return {}
+  }
 }

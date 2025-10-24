@@ -84,6 +84,7 @@
     "ua-parser-js": "^1.0.40",
     "unified": "^11.0.5",
     "unist-util-visit": "^5.0.0",
+    "vfile-matter": "^5.0.1",
     "vite": "^7.1.11",
     "yaml": "^2.8.1"
   },
