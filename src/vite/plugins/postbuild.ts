@@ -28,9 +28,7 @@ export function postbuild({ logger }: { logger?: Logger } = {}): PluginOption {
       const message = [
         'found dead links:',
         '',
-        ...deadlinks.map(
-          ([link, path]: [string, string]) => `${pc.red(link)} in ${pc.blue(path)}`,
-        ),
+        ...deadlinks.map(([link, path]: [string, string]) => `${pc.red(link)} in ${pc.blue(path)}`),
         pc.italic(pc.gray('skip by setting link to "#TODO".')),
         '\n',
       ].join('\n')
