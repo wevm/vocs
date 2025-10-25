@@ -1,6 +1,6 @@
+import { glob } from 'node:fs/promises'
 import { relative, resolve } from 'node:path'
 import { default as fs } from 'fs-extra'
-import { globby } from 'globby'
 import remarkParse from 'remark-parse'
 import { type Plugin, unified } from 'unified'
 import type { PluginOption } from 'vite'
@@ -29,7 +29,7 @@ export function virtualBlog(): PluginOption {
 
         const blogDir_resolved = resolve(rootDir, blogDir)
 
-        const files = await globby(`${blogDir_resolved}/**/*.{md,mdx}`)
+        const files = await Array.fromAsync(glob(`${blogDir_resolved}/**/*.{md,mdx}`))
 
         const posts: BlogPost[] = []
 

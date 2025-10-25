@@ -1,5 +1,37 @@
 # vocs
 
+## 1.0.16
+
+### Patch Changes
+
+- [`29e3f0b51ff55e84ec45dde564911ab4e10e39e3`](https://github.com/wevm/vocs/commit/29e3f0b51ff55e84ec45dde564911ab4e10e39e3) Thanks [@jxom](https://github.com/jxom)! - Fixed `hideExternalIcon` leaking into DOM.
+
+- [`29e3f0b51ff55e84ec45dde564911ab4e10e39e3`](https://github.com/wevm/vocs/commit/29e3f0b51ff55e84ec45dde564911ab4e10e39e3) Thanks [@jxom](https://github.com/jxom)! - Fixed left gutter CSS.
+
+## 1.0.15
+
+### Patch Changes
+
+- [`7a08dcf9fb570f9280af3385b36d39ea99456233`](https://github.com/wevm/vocs/commit/7a08dcf9fb570f9280af3385b36d39ea99456233) Thanks [@jxom](https://github.com/jxom)! - Fixed mobile search UI.
+
+## 1.0.14
+
+### Patch Changes
+
+- [#310](https://github.com/wevm/vocs/pull/310) [`43d227584fb6c3bd4b987bea9e000ac7d4169d5e`](https://github.com/wevm/vocs/commit/43d227584fb6c3bd4b987bea9e000ac7d4169d5e) Thanks [@pavlovdog](https://github.com/pavlovdog)! - Added query param synced search.
+
+## 1.0.13
+
+### Patch Changes
+
+- [#121](https://github.com/wevm/vocs/pull/121) [`75880533b3a8caa65edff228c1184d9293c5a36a`](https://github.com/wevm/vocs/commit/75880533b3a8caa65edff228c1184d9293c5a36a) Thanks [@kvmanas](https://github.com/kvmanas)! - Only persist input for current session
+
+## 1.0.12
+
+### Patch Changes
+
+- [`bce14ba930ec8d61d03b5507bf29dd0ac945a911`](https://github.com/wevm/vocs/commit/bce14ba930ec8d61d03b5507bf29dd0ac945a911) Thanks [@jxom](https://github.com/jxom)! - Added support for Mermaid.
+
 ## 1.0.11
 
 ### Patch Changes

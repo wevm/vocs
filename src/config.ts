@@ -4,6 +4,7 @@ import type { ReactElement } from 'react'
 import type { TwoslashOptions } from 'twoslash'
 import type { PluggableList } from 'unified'
 import type { UserConfig } from 'vite'
+import type { PageData } from './app/hooks/usePageData.js'
 import type {
   borderRadiusVars,
   contentVars,
@@ -441,7 +442,7 @@ export type EditLink = {
   /**
    * Link pattern
    */
-  pattern: string | (() => string)
+  pattern: string | ((pageData: PageData) => string)
   /**
    * Link text
    *

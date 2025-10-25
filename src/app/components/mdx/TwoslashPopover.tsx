@@ -1,6 +1,6 @@
 import {
-  FloatingArrow,
   arrow,
+  FloatingArrow,
   offset,
   safePolygon,
   shift,

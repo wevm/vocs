@@ -1,14 +1,21 @@
 import * as Dialog from '@radix-ui/react-dialog'
 import { MagnifyingGlassIcon } from '@radix-ui/react-icons'
+import { useQueryState } from 'nuqs'
 import { useEffect, useState } from 'react'
-
+import { useMediaQuery } from '../hooks/useMediaQuery.js'
 import { useSearchIndex } from '../hooks/useSearchIndex.js'
 import * as styles from './DesktopSearch.css.js'
 import { SearchDialog } from './SearchDialog.js'
 
 export function DesktopSearch() {
   useSearchIndex()
+  const [queryParam] = useQueryState('q', { defaultValue: '' })
   const [open, setOpen] = useState(false)
+
+  const matches = useMediaQuery('(min-width: 1080px)')
+  useEffect(() => {
+    if (matches && queryParam) setOpen(true)
+  }, [matches, queryParam])
 
   useEffect(() => {
     function keyDownHandler(event: KeyboardEvent) {
@@ -52,7 +59,7 @@ export function DesktopSearch() {
         </button>
       </Dialog.Trigger>
 
-      <SearchDialog open={open} onClose={() => setOpen(false)} />
+      {matches && <SearchDialog open={open} onClose={() => setOpen(false)} />}
     </Dialog.Root>
   )
 }

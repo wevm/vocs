@@ -17,13 +17,13 @@ import { useConfig } from '../hooks/useConfig.js'
 import { usePageData } from '../hooks/usePageData.js'
 import { useSidebar } from '../hooks/useSidebar.js'
 import { Icon } from './Icon.js'
+import { ChevronRight } from './icons/ChevronRight.js'
 import { Link } from './Link.js'
 import { NavLogo } from './NavLogo.js'
 import { RouterLink } from './RouterLink.js'
 import * as styles from './Sidebar.css.js'
 import { Socials } from './Socials.js'
 import { ThemeToggle } from './ThemeToggle.js'
-import { ChevronRight } from './icons/ChevronRight.js'
 
 export function Sidebar(props: {
   className?: string
@@ -33,11 +33,12 @@ export function Sidebar(props: {
   const { theme } = useConfig()
 
   const { previousPath } = usePageData()
+  const navRef = useRef<any>(null)
   const sidebarRef = useRef<any>(null)
   const sidebar = useSidebar()
   const [backPath, setBackPath] = useState<string>('/')
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  // biome-ignore lint/correctness/useExhaustiveDependencies: _
   useEffect(() => {
     if (typeof window === 'undefined') return
     if (!previousPath) return
@@ -61,7 +62,7 @@ export function Sidebar(props: {
           <div className={styles.divider} />
         </div>
 
-        <nav className={styles.navigation}>
+        <nav ref={navRef} className={styles.navigation}>
           <div className={styles.group}>
             {sidebar.backLink && (
               <section className={styles.section}>
@@ -81,6 +82,7 @@ export function Sidebar(props: {
                 depth={0}
                 item={group}
                 onClick={onClickItem}
+                navRef={navRef}
                 sidebarRef={sidebarRef}
               />
             ))}
@@ -132,9 +134,10 @@ function SidebarItem(props: {
   depth: number
   item: SidebarItemType
   onClick?: MouseEventHandler<HTMLAnchorElement>
+  navRef?: RefObject<HTMLElement>
   sidebarRef?: RefObject<HTMLElement>
 }) {
-  const { depth, item, onClick, sidebarRef } = props
+  const { depth, item, onClick, navRef, sidebarRef } = props
 
   const itemRef = useRef<HTMLElement>(null)
 
@@ -173,11 +176,11 @@ function SidebarItem(props: {
 
     requestAnimationFrame(() => {
       const offsetTop = itemRef.current?.offsetTop ?? 0
-      const sidebarHeight = sidebarRef?.current?.clientHeight ?? 0
-      if (offsetTop < sidebarHeight) return
+      const navHeight = (navRef?.current?.clientHeight ?? 0) - 50
+      if (offsetTop < navHeight) return
       sidebarRef?.current?.scrollTo({ top: offsetTop - 100 })
     })
-  }, [item, pathname, sidebarRef])
+  }, [item, pathname, navRef, sidebarRef])
 
   if (item.items)
     return (
@@ -232,7 +235,6 @@ function SidebarItem(props: {
 
             {isCollapsable && (
               <div
-                // biome-ignore lint/a11y/useSemanticElements:
                 role="button"
                 tabIndex={0}
                 onClick={onCollapseTriggerInteraction}

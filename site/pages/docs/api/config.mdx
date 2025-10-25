@@ -197,9 +197,9 @@ export default defineConfig({
 
 #### editLink.pattern
 
-- **Type:** `string | (() => string)`
+- **Type:** `string | ((pageData: PageData) => string)`
 
-Edit link pattern.
+Edit link pattern. Can be a string with `:path` placeholder, or a function that receives a `PageData` object and returns the edit URL.
 
 ```ts twoslash
 import { defineConfig } from 'vocs'
@@ -207,6 +207,22 @@ import { defineConfig } from 'vocs'
 export default defineConfig({
   editLink: { // [!code focus]
     pattern: 'https://github.com/wevm/viem/edit/main/site/pages/:path' // [!code focus]
+  }, // [!code focus]
+  title: 'Viem'
+})
+```
+
+```ts twoslash
+import { defineConfig } from 'vocs'
+
+export default defineConfig({
+  editLink: { // [!code focus]
+    pattern: (pageData) => { // [!code focus]
+      if (pageData.filePath?.startsWith('foo/')) // [!code focus]
+        return `https://github.com/wevm/vocs/edit/main/src/pages/foo/${pageData.filePath}` // [!code focus]
+      return `https://github.com/wevm/vocs/edit/main/src/pages/${pageData.filePath}` // [!code focus]
+    }, // [!code focus]
+    text: 'Edit on Github' // [!code focus]
   }, // [!code focus]
   title: 'Viem'
 })

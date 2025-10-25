@@ -6,8 +6,8 @@ import { useLayout } from '../hooks/useLayout.js'
 import { debounce } from '../utils/debounce.js'
 import { deserializeElement } from '../utils/deserializeElement.js'
 import { AiCtaDropdown } from './AiCtaDropdown.js'
-import * as styles from './Outline.css.js'
 import { root as Heading, slugTarget } from './mdx/Heading.css.js'
+import * as styles from './Outline.css.js'
 
 type OutlineItems = {
   id: string
@@ -40,15 +40,14 @@ export function Outline({
 
   const active = useRef(true)
 
-  const { pathname, hash } = useLocation()
+  const { hash } = useLocation()
 
   const [headingElements, setHeadingElements] = useState<Element[]>([])
-  // biome-ignore lint/correctness/useExhaustiveDependencies:
   useEffect(() => {
     if (typeof window === 'undefined') return
     const elements = Array.from(document.querySelectorAll(`.${Heading}`))
     setHeadingElements(elements)
-  }, [pathname])
+  }, [])
 
   const items = useMemo(() => {
     if (!headingElements) return []
@@ -163,28 +162,33 @@ export function Outline({
     return () => window.removeEventListener('scroll', callback)
   }, [items])
 
-  if (items.length === 0) return null
+  const hasItems = items.length > 0
 
-  const levelItems = items.filter((item) => item.level === minLevel)
+  // If there are no items and no AI CTA, don't render anything
+  if (!hasItems && !showAiCta) return null
+
+  const levelItems = hasItems ? items.filter((item) => item.level === minLevel) : []
   return (
     <aside className={styles.root}>
       {showAiCta && <AiCtaDropdown />}
-      <nav className={styles.nav}>
-        {showTitle && <h2 className={styles.heading}>On this page</h2>}
-        <Items
-          activeId={highlightActive ? activeId : null}
-          items={items}
-          onClickItem={() => {
-            onClickItem?.()
-            active.current = false
-            setTimeout(() => {
-              active.current = true
-            }, 500)
-          }}
-          levelItems={levelItems}
-          setActiveId={setActiveId}
-        />
-      </nav>
+      {hasItems && (
+        <nav className={styles.nav}>
+          {showTitle && <h2 className={styles.heading}>On this page</h2>}
+          <Items
+            activeId={highlightActive ? activeId : null}
+            items={items}
+            onClickItem={() => {
+              onClickItem?.()
+              active.current = false
+              setTimeout(() => {
+                active.current = true
+              }, 500)
+            }}
+            levelItems={levelItems}
+            setActiveId={setActiveId}
+          />
+        </nav>
+      )}
       {deserializeElement(outlineFooter as ReactElement)}
     </aside>
   )

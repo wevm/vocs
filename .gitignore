@@ -6,4 +6,4 @@ tsconfig.tsbuildinfo
 tsconfig.*.tsbuildinfo
 vocs.config.ts.timestamp-*
 .vercel
-.vocs
+src/vite/.vocs

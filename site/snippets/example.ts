@@ -1,6 +1,8 @@
+/** biome-ignore-all lint/correctness/noUnusedVariables: _ */
 // [!region import]
-import { http, createPublicClient } from 'viem'
+import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
+
 // [!endregion import]
 
 // [!region setup]

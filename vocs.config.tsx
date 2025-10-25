@@ -1,5 +1,3 @@
-import * as React from 'react'
-
 import { defineConfig } from './src/index.js'
 import { version } from './src/package.json'
 
@@ -11,11 +9,7 @@ export default defineConfig({
     text: 'Suggest changes to this page',
   },
   head() {
-    return (
-      <>
-        <script src="https://cdn.usefathom.com/script.js" data-site="IBTUTKMT" defer />
-      </>
-    )
+    return <script src="https://cdn.usefathom.com/script.js" data-site="IBTUTKMT" defer />
   },
   iconUrl: {
     light: '/vocs-icon-light.svg',

@@ -64,7 +64,7 @@ export const gutterLeft = style(
     backgroundColor: primitiveColorVars.backgroundDark,
     justifyContent: 'flex-end',
     display: 'flex',
-    height: '100vh',
+    height: `calc(100vh - ${fallbackVar(bannerHeight, '0px')})`,
     position: 'fixed',
     top: fallbackVar(bannerHeight, '0px'),
     width: leftGutterWidthVar,

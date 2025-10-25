@@ -1,4 +1,4 @@
 {
   "extends": "./tsconfig.base.json",
-  "include": ["playgrounds", "scripts", "src", "vocs.config.ts"]
+  "include": ["api", "playgrounds", "scripts", "src", "vocs.config.ts"]
 }

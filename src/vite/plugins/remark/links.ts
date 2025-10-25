@@ -1,9 +1,9 @@
 /// <reference types="mdast-util-to-hast" />
 /// <reference types="mdast-util-directive" />
 
+import { globSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { default as fs } from 'fs-extra'
-import { globbySync } from 'globby'
 import type { Root } from 'mdast'
 import { visit } from 'unist-util-visit'
 import { createLogger } from 'vite'
@@ -37,10 +37,10 @@ export function remarkLinks() {
 
       const [url, after] = (node.url || '').split('#')
 
-      const [pagePath, baseDir] = (() => {
-        if (url.startsWith('.')) return [resolve(directory, url), directory]
-        return [resolve(rootDir, `./pages${url}`), resolve(rootDir, './pages')]
-      })()
+      const baseDir = resolve(rootDir, './pages')
+      const pagePath = url.startsWith('.')
+        ? resolve(directory, url)
+        : resolve(rootDir, `./pages${url}`)
 
       const isFile = (() => {
         try {
@@ -54,10 +54,10 @@ export function remarkLinks() {
         return
       }
 
-      const [resolvedPagePath] = globbySync([
-        `${pagePath}/index.{html,md,mdx,js,jsx,ts,tsx}`,
-        `${pagePath}.{html,md,mdx,js,jsx,ts,tsx}`,
-      ])
+      const [resolvedPagePath] = [
+        ...globSync(`${pagePath}/index.{html,md,mdx,js,jsx,ts,tsx}`),
+        ...globSync(`${pagePath}.{html,md,mdx,js,jsx,ts,tsx}`),
+      ]
       if (!resolvedPagePath) {
         deadlinks.add([node.url, filePath])
         fs.ensureDirSync(resolve(import.meta.dirname, '../../.vocs/cache'))
