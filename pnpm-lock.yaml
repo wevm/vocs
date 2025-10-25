@@ -168,8 +168,8 @@ importers:
         specifier: ^0.27.16
         version: 0.27.16(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@hono/node-server':
-        specifier: ^1.13.8
-        version: 1.13.8(hono@4.7.1)
+        specifier: ^1.19.5
+        version: 1.19.5(hono@4.10.3)
       '@mdx-js/mdx':
         specifier: ^3.1.1
         version: 3.1.1
@@ -258,8 +258,8 @@ importers:
         specifier: ^8.0.0
         version: 8.0.0
       hono:
-        specifier: ^4.7.1
-        version: 4.7.1
+        specifier: ^4.10.3
+        version: 4.10.3
       mark.js:
         specifier: ^8.11.1
         version: 8.11.1
@@ -946,8 +946,8 @@ packages:
     resolution: {integrity: sha512-JUOtgFW6k9u4Y+xeIaEiLr3+cjoUPiAuLXoyKOJSia6Duzb7pq+A76P9ZdPDoAoxHdHzq6gE9/jKBGXlZT8FbA==}
     engines: {node: '>=6'}
 
-  '@hono/node-server@1.13.8':
-    resolution: {integrity: sha512-fsn8ucecsAXUoVxrUil0m13kOEq4mkX4/4QozCqmY+HpGfKl74OYSn8JcMA8GnG0ClfdRI4/ZSeG7zhFaVg+wg==}
+  '@hono/node-server@1.19.5':
+    resolution: {integrity: sha512-iBuhh+uaaggeAuf+TftcjZyWh2GEgZcVGXkNtskLVoWaXhnJtC5HLHrU8W1KHDoucqO1MswwglmkWLFyiDn4WQ==}
     engines: {node: '>=18.14.1'}
     peerDependencies:
       hono: ^4
@@ -3520,8 +3520,8 @@ packages:
     resolution: {integrity: sha512-Ox1pJVrDCyGHMG9CFg1tmrRUMRPRsAWYc/PinY0XzJU4K7y7vjNoLKIQ7BR5UJMCxNN8EM1MNDmHWA/B3aZUuw==}
     engines: {node: '>=6'}
 
-  hono@4.7.1:
-    resolution: {integrity: sha512-V3eWoPkBxoNgFCkSc5Y5rpLF6YoQQx1pkYO4qrF6YfOw8RZbujUNlJLZCxh0z9gZct70+je2Ih7Zrdpv21hP9w==}
+  hono@4.10.3:
+    resolution: {integrity: sha512-2LOYWUbnhdxdL8MNbNg9XZig6k+cZXm5IjHn2Aviv7honhBMOHb+jxrKIeJRZJRmn+htUCKhaicxwXuUDlchRA==}
     engines: {node: '>=16.9.0'}
 
   html-void-elements@3.0.0:
@@ -5926,9 +5926,9 @@ snapshots:
 
   '@fortawesome/fontawesome-free@6.7.2': {}
 
-  '@hono/node-server@1.13.8(hono@4.7.1)':
+  '@hono/node-server@1.19.5(hono@4.10.3)':
     dependencies:
-      hono: 4.7.1
+      hono: 4.10.3
 
   '@iconify/types@2.0.0': {}
 
@@ -8812,7 +8812,7 @@ snapshots:
 
   hex-rgb@4.3.0: {}
 
-  hono@4.7.1: {}
+  hono@4.10.3: {}
 
   html-void-elements@3.0.0: {}
 

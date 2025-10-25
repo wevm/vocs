@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@floating-ui/react": "^0.27.16",
-    "@hono/node-server": "^1.13.8",
+    "@hono/node-server": "^1.19.5",
     "@mdx-js/mdx": "^3.1.1",
     "@mdx-js/react": "^3.1.1",
     "@mdx-js/rollup": "^3.1.1",
@@ -48,7 +48,7 @@
     "cross-spawn": "^7.0.6",
     "fs-extra": "^11.3.2",
     "hastscript": "^8.0.0",
-    "hono": "^4.7.1",
+    "hono": "^4.10.3",
     "mark.js": "^8.11.1",
     "mdast-util-directive": "^3.1.0",
     "mdast-util-from-markdown": "^2.0.2",
