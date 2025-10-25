@@ -37,10 +37,10 @@ export function remarkLinks() {
 
       const [url, after] = (node.url || '').split('#')
 
-      const [pagePath, baseDir] = (() => {
-        if (url.startsWith('.')) return [resolve(directory, url), directory]
-        return [resolve(rootDir, `./pages${url}`), resolve(rootDir, './pages')]
-      })()
+      const baseDir = resolve(rootDir, './pages')
+      const pagePath = url.startsWith('.') 
+        ? resolve(directory, url)
+        : resolve(rootDir, `./pages${url}`)
 
       const isFile = (() => {
         try {
