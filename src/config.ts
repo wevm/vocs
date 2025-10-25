@@ -332,6 +332,7 @@ function parseMarkdown(markdown: Markdown): Markdown<true> {
 }
 
 const socialsMeta = {
+  bluesky: { label: 'Bluesky', type: 'bluesky' },
   discord: { label: 'Discord', type: 'discord' },
   farcaster: { label: 'Farcaster', type: 'farcaster' },
   github: { label: 'GitHub', type: 'github' },
