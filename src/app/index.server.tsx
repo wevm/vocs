@@ -1,13 +1,15 @@
 import './styles/index.css.js'
 
 import { NuqsAdapter } from 'nuqs/adapters/react'
-import { Route, type RouteObject, Routes } from 'react-router'
 import {
+  createStaticHandler,
+  createStaticRouter,
+  Route,
+  type RouteObject,
+  Routes,
   type StaticHandlerContext,
   StaticRouter,
   StaticRouterProvider,
-  createStaticHandler,
-  createStaticRouter,
 } from 'react-router'
 
 import { resolveVocsConfig } from '../vite/utils/resolveVocsConfig.js'

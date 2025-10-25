@@ -21,32 +21,32 @@
     "prepare": "simple-git-hooks"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
-    "@changesets/changelog-github": "^0.4.8",
-    "@changesets/cli": "^2.27.12",
-    "@types/compression": "^1.7.5",
+    "@biomejs/biome": "^2.2.6",
+    "@changesets/changelog-github": "^0.5.1",
+    "@changesets/cli": "^2.29.7",
+    "@types/compression": "^1.8.1",
     "@types/fs-extra": "^11.0.4",
-    "@types/node": "^20.17.19",
+    "@types/node": "^24.9.1",
+    "@types/picomatch": "^4.0.2",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
-    "@types/serve-static": "^1.15.7",
+    "@types/serve-static": "^1.15.9",
     "@vercel/og": "^0.5.20",
-    "globby": "^13.2.2",
     "react": "catalog:",
     "react-dom": "catalog:",
     "rimraf": "^5.0.10",
-    "simple-git-hooks": "^2.11.1",
-    "tsx": "^4.19.2",
+    "simple-git-hooks": "^2.13.1",
+    "tsx": "^4.20.6",
     "typescript": "catalog:",
     "vercel": "^32.7.2",
-    "viem": "^2.23.2",
+    "viem": "^2.38.3",
     "vocs": "workspace:*"
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm check"
   },
-  "packageManager": "pnpm@9.15.5",
+  "packageManager": "pnpm@10.19.0",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   }
 }

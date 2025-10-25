@@ -1,12 +1,11 @@
 import { type ClassValue, clsx } from 'clsx'
 import type { ReactNode } from 'react'
-
-import * as styles from './Step.css.js'
 import { H2 } from './mdx/H2.js'
 import { H3 } from './mdx/H3.js'
 import { H4 } from './mdx/H4.js'
 import { H5 } from './mdx/H5.js'
 import { H6 } from './mdx/H6.js'
+import * as styles from './Step.css.js'
 
 export type StepProps = {
   children: ReactNode

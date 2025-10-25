@@ -1,7 +1,6 @@
 import * as Popover_ from '@radix-ui/react-popover'
-import type { ReactNode } from 'react'
-
 import clsx from 'clsx'
+import type { ReactNode } from 'react'
 import * as styles from './Popover.css.js'
 
 Popover.Root = Popover_.Root

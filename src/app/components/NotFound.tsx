@@ -1,8 +1,8 @@
 import { spaceVars } from '../styles/vars.css.js'
 import { Link } from './Link.js'
-import * as styles from './NotFound.css.js'
 import { H1 } from './mdx/H1.js'
 import { Paragraph } from './mdx/Paragraph.js'
+import * as styles from './NotFound.css.js'
 
 export function NotFound() {
   return (

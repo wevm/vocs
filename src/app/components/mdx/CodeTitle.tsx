@@ -10,7 +10,11 @@ export function CodeTitle({
   className,
   language,
   ...props
-}: { children: string; className?: string; language?: string }) {
+}: {
+  children: string
+  className?: string
+  language?: string
+}) {
   return (
     <div {...props} className={clsx(className, styles.root)}>
       {language === 'bash' ? (

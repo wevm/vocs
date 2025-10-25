@@ -1,6 +1,6 @@
+import { glob } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { default as fs } from 'fs-extra'
-import { globby } from 'globby'
 import type { Heading } from 'mdast'
 import { directiveToMarkdown } from 'mdast-util-directive'
 import { gfmToMarkdown } from 'mdast-util-gfm'
@@ -19,7 +19,7 @@ import { getRemarkPlugins } from './mdx.js'
 
 const remarkPlugins = getRemarkPlugins()
 
-export async function llms(): Promise<PluginOption> {
+export async function llms(): Promise<PluginOption[]> {
   let viteConfig: UserConfig | undefined
   return {
     name: 'llms',
@@ -37,8 +37,8 @@ export async function llms(): Promise<PluginOption> {
       if (description) content.push(`> ${description}`, '')
 
       const pagesPath = resolve(rootDir, 'pages')
-      const glob = `${pagesPath}/**/*.{md,mdx}`
-      const files = await globby(glob)
+      const globPattern = `${pagesPath}/**/*.{md,mdx}`
+      const files = await Array.fromAsync(glob(globPattern))
 
       const llmsTxtContent = [...content, '## Docs', '']
       const llmsCtxTxtContent = content
@@ -62,7 +62,7 @@ export async function llms(): Promise<PluginOption> {
             if (node.type !== 'text') return
 
             const value = node.value
-            const [, title, subTitle] = value.match(/^([^\[\]]+)(?: \[([^\[\]]+)\])?$/) ?? []
+            const [, title, subTitle] = value.match(/^([^[\]]+)(?: \[([^[\]]+)\])?$/) ?? []
 
             let found = false
             let description = subTitle
@@ -120,5 +120,5 @@ export async function llms(): Promise<PluginOption> {
       fs.writeFileSync(resolve(outDir, 'llms.txt'), llmsTxt)
       fs.writeFileSync(resolve(outDir, 'llms-full.txt'), llmsCtxTxt)
     },
-  }
+  ]
 }

@@ -160,98 +160,186 @@ globalStyle('button,input,optgroup,select,textarea', {
 })
 
 globalStyle('button,select', {
-  textTransform: 'none',
+  '@layer': {
+    [resetLayer]: {
+      textTransform: 'none',
+    },
+  },
 })
 
 globalStyle('button,select', {
-  appearance: 'button',
-  backgroundColor: 'transparent',
-  backgroundImage: 'none',
+  '@layer': {
+    [resetLayer]: {
+      appearance: 'button',
+      backgroundColor: 'transparent',
+      backgroundImage: 'none',
+    },
+  },
 })
 
 globalStyle(':-moz-focusring', {
-  outline: 'auto',
+  '@layer': {
+    [resetLayer]: {
+      outline: 'auto',
+    },
+  },
 })
 
 globalStyle(':-moz-ui-invalid', {
-  outline: 'auto',
+  '@layer': {
+    [resetLayer]: {
+      outline: 'auto',
+    },
+  },
 })
 
 globalStyle('progress', {
-  verticalAlign: 'baseline',
+  '@layer': {
+    [resetLayer]: {
+      verticalAlign: 'baseline',
+    },
+  },
 })
 
 globalStyle('::-webkit-inner-spin-button, ::-webkit-outer-spin-button', {
-  height: 'auto',
+  '@layer': {
+    [resetLayer]: {
+      height: 'auto',
+    },
+  },
 })
 
 globalStyle('[type="search"]', {
-  appearance: 'textfield',
-  outlineOffset: '-2px',
+  '@layer': {
+    [resetLayer]: {
+      appearance: 'textfield',
+      outlineOffset: '-2px',
+    },
+  },
 })
 
 globalStyle('::-webkit-search-decoration', {
-  appearance: 'none',
+  '@layer': {
+    [resetLayer]: {
+      appearance: 'none',
+    },
+  },
 })
 
 globalStyle('::-webkit-file-upload-button', {
-  appearance: 'button',
-  font: 'inherit',
+  '@layer': {
+    [resetLayer]: {
+      appearance: 'button',
+      font: 'inherit',
+    },
+  },
 })
 
 globalStyle('summary', {
-  display: 'list-item',
+  '@layer': {
+    [resetLayer]: {
+      display: 'list-item',
+    },
+  },
 })
 
 globalStyle('blockquote,dl,dd,h1,h2,h3,h4,h5,h6,hr,figure,p,pre', {
-  margin: 0,
+  '@layer': {
+    [resetLayer]: {
+      margin: 0,
+    },
+  },
 })
 
 globalStyle('fieldset', {
-  margin: 0,
-  padding: 0,
+  '@layer': {
+    [resetLayer]: {
+      margin: 0,
+      padding: 0,
+    },
+  },
 })
 
 globalStyle('legend', {
-  padding: 0,
+  '@layer': {
+    [resetLayer]: {
+      padding: 0,
+    },
+  },
 })
 
 globalStyle('ol,ul,menu', {
-  listStyle: 'none',
-  margin: 0,
-  padding: 0,
+  '@layer': {
+    [resetLayer]: {
+      listStyle: 'none',
+      margin: 0,
+      padding: 0,
+    },
+  },
 })
 
 globalStyle('dialog', {
-  padding: 0,
+  '@layer': {
+    [resetLayer]: {
+      padding: 0,
+    },
+  },
 })
 
 globalStyle('textarea', {
-  resize: 'vertical',
+  '@layer': {
+    [resetLayer]: {
+      resize: 'vertical',
+    },
+  },
 })
 
 globalStyle('input::placeholder,textarea::placeholder', {
-  opacity: 1,
+  '@layer': {
+    [resetLayer]: {
+      opacity: 1,
+    },
+  },
 })
 
 globalStyle('button,[role="button"]', {
-  cursor: 'pointer',
+  '@layer': {
+    [resetLayer]: {
+      cursor: 'pointer',
+    },
+  },
 })
 
 globalStyle(':disabled', {
-  overflow: 'default',
+  '@layer': {
+    [resetLayer]: {
+      overflow: 'default',
+    },
+  },
 })
 
 globalStyle('img,svg,video,canvas,audio,iframe,embed,object', {
-  display: 'block',
-  verticalAlign: 'middle',
+  '@layer': {
+    [resetLayer]: {
+      display: 'block',
+      verticalAlign: 'middle',
+    },
+  },
 })
 
 globalStyle('img,video', {
-  maxWidth: '100%',
-  height: 'auto',
+  '@layer': {
+    [resetLayer]: {
+      maxWidth: '100%',
+      height: 'auto',
+    },
+  },
 })
 
 globalStyle('[hidden]', {
-  display: 'none',
+  '@layer': {
+    [resetLayer]: {
+      display: 'none',
+    },
+  },
 })

@@ -6,3 +6,5 @@ runs:
   steps:
     - name: Set up pnpm
       uses: wevm/actions/.github/actions/pnpm@main
+      with:
+        node-version: 24.5

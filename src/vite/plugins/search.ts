@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { relative, resolve } from 'node:path'
 import type MiniSearch from 'minisearch'
-import { type Plugin, type UserConfig, type ViteDevServer, createLogger } from 'vite'
+import { createLogger, type Plugin, type UserConfig, type ViteDevServer } from 'vite'
 
 import * as cache_ from '../utils/cache.js'
 import { hash as hash_ } from '../utils/hash.js'
@@ -128,9 +128,13 @@ export async function search(): Promise<Plugin> {
         rootDir: config.rootDir,
         twoslash: false,
       })
-      const rendered = await processMdx(file, mdx, {
+
+      const { html: rendered, frontmatter } = await processMdx(file, mdx, {
         rehypePlugins,
       })
+
+      if (frontmatter.searchable === false) return
+
       const sections = splitPageIntoSections(rendered)
       if (sections.length === 0) return
 
@@ -139,9 +143,7 @@ export async function search(): Promise<Plugin> {
 
       for (const section of sections) {
         const id = `${fileId}#${section.anchor}`
-        if (index.has(id)) {
-          index.discard(id)
-        }
+        if (index.has(id)) index.discard(id)
         const relFile = slash(relative(config.rootDir, fileId))
         const href = relFile.replace(relativePagesDirPath, '').replace(/\.(.*)/, '')
         index.add({
