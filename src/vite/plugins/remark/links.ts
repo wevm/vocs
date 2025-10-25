@@ -38,7 +38,7 @@ export function remarkLinks() {
       const [url, after] = (node.url || '').split('#')
 
       const baseDir = resolve(rootDir, './pages')
-      const pagePath = url.startsWith('.') 
+      const pagePath = url.startsWith('.')
         ? resolve(directory, url)
         : resolve(rootDir, `./pages${url}`)
 
