@@ -62,6 +62,7 @@
     "nuqs": "^2.7.2",
     "ora": "^7.0.1",
     "p-limit": "^5.0.0",
+    "picomatch": "^4.0.3",
     "playwright": "^1.52.0",
     "postcss": "^8.5.2",
     "radix-ui": "^1.1.3",
