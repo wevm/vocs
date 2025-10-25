@@ -162,6 +162,35 @@ export default defineConfig({
 })
 ```
 
+### checkDeadlinks
+
+- **Type:** `boolean | "warn"`
+- **Default:** `true`
+
+Whether or not to check for dead links in the documentation.
+
+```ts twoslash
+import { defineConfig } from 'vocs'
+
+// Disable dead link checking
+export default defineConfig({
+  checkDeadlinks: false, // [!code focus]
+  title: 'Viem'
+})
+```
+
+You can also set it to `"warn"` to only warn about dead links instead of throwing errors during build.
+
+```ts twoslash
+import { defineConfig } from 'vocs'
+
+// Warn about dead links instead of erroring
+export default defineConfig({
+  checkDeadlinks: 'warn', // [!code focus]
+  title: 'Viem'
+})
+```
+
 ### description
 
 - **Type:** `string`

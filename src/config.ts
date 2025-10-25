@@ -86,6 +86,16 @@ export type Config<
      */
     cacheDir?: string
     /**
+     * Whether or not to check for dead links in the documentation.
+     *
+     * - `true`: Enable dead link checking and throw errors on dead links.
+     * - `false`: Disable dead link checking.
+     * - `"warn"`: Enable dead link checking but only warn instead of throwing errors.
+     *
+     * @default true
+     */
+    checkDeadlinks?: boolean | 'warn'
+    /**
      * General description for the documentation.
      */
     description?: string
@@ -191,6 +201,7 @@ export async function defineConfig<colorScheme extends ColorScheme = undefined>(
   aiCta = true,
   blogDir = './pages/blog',
   cacheDir,
+  checkDeadlinks = true,
   head,
   ogImageUrl,
   rootDir = 'docs',
@@ -203,6 +214,7 @@ export async function defineConfig<colorScheme extends ColorScheme = undefined>(
     aiCta,
     blogDir,
     cacheDir,
+    checkDeadlinks,
     head,
     ogImageUrl,
     rootDir,
