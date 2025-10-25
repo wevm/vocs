@@ -1,5 +1,29 @@
 # vocs
 
+## 1.1.0
+
+### Minor Changes
+
+- [`6b665e7`](https://github.com/wevm/vocs/commit/6b665e75fd37c9007e5c894e2e308ce2bceda0f1) Thanks [@jxom](https://github.com/jxom)! - Support wildcard patterns in path-based OG images.
+
+- [`6525608`](https://github.com/wevm/vocs/commit/6525608552b5015af7739eb5042b3f2cb58d25cf) Thanks [@jxom](https://github.com/jxom)! - Added `searchable` frontmatter option.
+
+- [`8394be3`](https://github.com/wevm/vocs/commit/8394be3102e489f2e98d696769a923d3eabfb1c1) Thanks [@jxom](https://github.com/jxom)! - Supported function `editLink.pattern`
+
+- [`794737c`](https://github.com/wevm/vocs/commit/794737c060d1ecb7477640a5134e0052a05393a5) Thanks [@jxom](https://github.com/jxom)! - Added `checkDeadlinks` config option.
+
+- [#330](https://github.com/wevm/vocs/pull/330) [`d4719ec`](https://github.com/wevm/vocs/commit/d4719ec02f973d69aa99368013b66a59db8ba542) Thanks [@jxom](https://github.com/jxom)! - Updated dependencies.
+
+### Patch Changes
+
+- [`794737c`](https://github.com/wevm/vocs/commit/794737c060d1ecb7477640a5134e0052a05393a5) Thanks [@jxom](https://github.com/jxom)! - Fixed deadlinks check on reference links.
+
+- [`c0b022b`](https://github.com/wevm/vocs/commit/c0b022b1b61490ec4dcea2146947feb0bbf5e771) Thanks [@jxom](https://github.com/jxom)! - Added missing reset layers.
+
+- [`b8db2df`](https://github.com/wevm/vocs/commit/b8db2df5ce6d9db869daa73ae3905a626317aea9) Thanks [@jxom](https://github.com/jxom)! - Fixed sidebar auto-scroll.
+
+- [`e61cf34`](https://github.com/wevm/vocs/commit/e61cf34047c848206d44ab9ff92dd89e3341b1f0) Thanks [@jxom](https://github.com/jxom)! - Fixed AI CTA not rendering when no sub-levels.
+
 ## 1.0.16
 
 ### Patch Changes
