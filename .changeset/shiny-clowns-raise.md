@@ -1,5 +1,5 @@
 ---
-"vocs": patch
+"vocs": minor
 ---
 
 Supported function `editLink.pattern`

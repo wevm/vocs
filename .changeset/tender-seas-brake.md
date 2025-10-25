@@ -1,5 +1,5 @@
 ---
-"vocs": patch
+"vocs": minor
 ---
 
 Added `checkDeadlinks` config option.
