@@ -21,30 +21,30 @@ const remarkPlugins = getRemarkPlugins()
 
 export async function llms(): Promise<PluginOption[]> {
   let viteConfig: UserConfig | undefined
-  return [
-    {
-      name: 'llms',
-      config(c) {
-        viteConfig = c
-      },
-      async buildStart() {
-        const outDir = viteConfig?.build?.outDir
-        if (!outDir) return
+  return {
+    name: 'llms',
+    config(c) {
+      viteConfig = c
+    },
+    async buildStart() {
+      const outDir = viteConfig?.build?.outDir
+      if (!outDir) return
 
-        const { config } = await resolveVocsConfig()
-        const { basePath, description, rootDir, title = 'Docs' } = config ?? {}
+      const { config } = await resolveVocsConfig()
+      const { basePath, description, rootDir, title = 'Docs' } = config ?? {}
 
-        const content = [`# ${title}`, '']
-        if (description) content.push(`> ${description}`, '')
+      const content = [`# ${title}`, '']
+      if (description) content.push(`> ${description}`, '')
 
-        const pagesPath = resolve(rootDir, 'pages')
-        const globPattern = `${pagesPath}/**/*.{md,mdx}`
-        const files = await Array.fromAsync(glob(globPattern))
+      const pagesPath = resolve(rootDir, 'pages')
+      const globPattern = `${pagesPath}/**/*.{md,mdx}`
+      const files = await Array.fromAsync(glob(globPattern))
 
-        const llmsTxtContent = [...content, '## Docs', '']
-        const llmsCtxTxtContent = content
+      const llmsTxtContent = [...content, '## Docs', '']
+      const llmsCtxTxtContent = content
 
-        for (const file of files) {
+      for (const file of files) {
+        try {
           let path = file.replace(pagesPath, '').replace(/\.[^.]*$/, '')
           if (path.endsWith('index')) path = path.replace('index', '').replace(/\/$/, '')
 
@@ -108,15 +108,17 @@ export async function llms(): Promise<PluginOption[]> {
             }),
             '',
           )
+        } catch (e) {
+          console.error(e)
         }
+      }
 
-        const llmsTxt = llmsTxtContent.join('\n')
-        const llmsCtxTxt = llmsCtxTxtContent.join('\n')
+      const llmsTxt = llmsTxtContent.join('\n')
+      const llmsCtxTxt = llmsCtxTxtContent.join('\n')
 
-        fs.ensureDirSync(outDir)
-        fs.writeFileSync(resolve(outDir, 'llms.txt'), llmsTxt)
-        fs.writeFileSync(resolve(outDir, 'llms-full.txt'), llmsCtxTxt)
-      },
+      fs.ensureDirSync(outDir)
+      fs.writeFileSync(resolve(outDir, 'llms.txt'), llmsTxt)
+      fs.writeFileSync(resolve(outDir, 'llms-full.txt'), llmsCtxTxt)
     },
   ]
 }
