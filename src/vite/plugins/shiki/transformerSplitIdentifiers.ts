@@ -9,7 +9,7 @@ export const transformerSplitIdentifiers = (): ShikiTransformer => ({
     const child = hast.children[0]
     if (child.type !== 'text') return
     if (child.value.trim().length === 0) return
-    if ([/\/\/ \[!/,/\/\* \[!/].some(reg => child.value.match(reg))) return
+    if ([/\/\/ \[!/, /\/\* \[!/].some((reg) => child.value.match(reg))) return
 
     let identifier = false
     let item = ''
