@@ -1,13 +1,13 @@
 packages:
-  - 'create-vocs'
-  - 'og'
-  - 'playgrounds/*'
-  - 'site'
-  - 'src'
+  - create-vocs
+  - og
+  - playgrounds/*
+  - site
+  - src
 
 catalog:
-  '@types/react': ^19
-  '@types/react-dom': ^19
-  react: ^19
-  react-dom: ^19
-  typescript: ^5.7.3
+  '@types/react': ^19.2.2
+  '@types/react-dom': ^19.2.2
+  react: ^19.2.0
+  react-dom: ^19.2.0
+  typescript: ^5.9.3

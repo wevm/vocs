@@ -38,8 +38,11 @@ export function Pre({
       }
     return children
   }
-  // biome-ignore lint/correctness/useExhaustiveDependencies:
-  const children_ = useMemo(() => recurseChildren(children as ReactElement), [children])
+  const children_ = useMemo(
+    () => recurseChildren(children as ReactElement),
+    // biome-ignore lint/correctness/useExhaustiveDependencies: _
+    [children, recurseChildren],
+  )
 
   const wrap = (children: ReactNode) => {
     if (className?.includes('shiki'))

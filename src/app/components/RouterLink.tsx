@@ -11,10 +11,10 @@ export const RouterLink = forwardRef((props: RouterLinkProps, ref) => {
   const loadRoute = () => routes.find((route) => route.path === props.to)?.lazy()
 
   const { ref: intersectionRef, inView } = useInView()
-  // biome-ignore lint/correctness/useExhaustiveDependencies:
   useEffect(() => {
     if (inView) loadRoute()
-  }, [inView])
+    // biome-ignore lint/correctness/useExhaustiveDependencies: _
+  }, [inView, loadRoute])
 
   return <Link ref={mergeRefs(ref, intersectionRef)} {...props} />
 })

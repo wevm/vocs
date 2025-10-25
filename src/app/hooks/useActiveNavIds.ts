@@ -4,7 +4,10 @@ import type { ParsedTopNavItem } from '../../config.js'
 function getActiveNavIds({
   items,
   pathname,
-}: { items: ParsedTopNavItem[]; pathname: string }): number[] {
+}: {
+  items: ParsedTopNavItem[]
+  pathname: string
+}): number[] {
   const path = pathname.replace(/\.html$/, '')
   const activeIds = []
   for (const item of items) {
@@ -20,6 +23,9 @@ function getActiveNavIds({
 export function useActiveNavIds({
   items,
   pathname,
-}: { items: ParsedTopNavItem[]; pathname: string }): number[] {
+}: {
+  items: ParsedTopNavItem[]
+  pathname: string
+}): number[] {
   return useMemo(() => getActiveNavIds({ items, pathname }), [items, pathname])
 }

@@ -1,14 +1,15 @@
 {
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
   "files": {
-    "ignore": [
-      "_lib",
-      "dist",
-      "**/node_modules",
-      "tsconfig.json",
-      "tsconfig.*.json",
-      ".vercel",
-      ".vocs"
+    "includes": [
+      "**",
+      "!**/_lib",
+      "!**/dist",
+      "!**/node_modules",
+      "!**/tsconfig.json",
+      "!**/tsconfig.*.json",
+      "!**/.vercel",
+      "!**/.vocs"
     ]
   },
   "formatter": {
@@ -24,6 +25,12 @@
       "style": {
         "noNonNullAssertion": "off"
       },
+      "a11y": {
+        "useSemanticElements": "off"
+      },
+      "performance": {
+        "noDynamicNamespaceImportAccess": "off"
+      },
       "suspicious": {
         "noAssignInExpressions": "off",
         "noExplicitAny": "off",
@@ -38,7 +45,5 @@
       "semicolons": "asNeeded"
     }
   },
-  "organizeImports": {
-    "enabled": true
-  }
+  "assist": { "actions": { "source": { "organizeImports": "on" } } }
 }

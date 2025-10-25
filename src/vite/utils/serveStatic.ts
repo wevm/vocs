@@ -1,6 +1,6 @@
 // Fork of https://github.com/honojs/node-server/blob/main/src/serve-static.ts with support for absolute `root` path.
 
-import { type ReadStream, createReadStream, existsSync, lstatSync } from 'node:fs'
+import { createReadStream, existsSync, lstatSync, type ReadStream } from 'node:fs'
 import type { MiddlewareHandler } from 'hono'
 import { getFilePath } from 'hono/utils/filepath'
 import { getMimeType } from 'hono/utils/mime'

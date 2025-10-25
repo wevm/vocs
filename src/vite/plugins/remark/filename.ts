@@ -50,7 +50,11 @@ function processImports({
   code: code_,
   fileName,
   sourceCode,
-}: { code: string; fileName: string; sourceCode: string }) {
+}: {
+  code: string
+  fileName: string
+  sourceCode: string
+}) {
   let code = code_
 
   const importMatches = code.matchAll(importRegex)

@@ -1,5 +1,5 @@
 import type { Element, Text } from 'hast'
-import { type ShikiTransformer, type ShikiTransformerContext, addClassToHast } from 'shiki'
+import { addClassToHast, type ShikiTransformer, type ShikiTransformerContext } from 'shiki'
 
 export interface TransformerNotationMapOptions {
   classMap?: Record<string, string | string[]>
@@ -26,7 +26,6 @@ export function transformerNotationMap(
     ),
     function ([_, match, range = ':1'], _line, _comment, lines, index) {
       const lineNum = Number.parseInt(range.slice(1), 10)
-      // biome-ignore lint/complexity/noForEach:
       lines.slice(index, index + lineNum).forEach((line) => {
         addClassToHast(line, classMap[match])
       })
