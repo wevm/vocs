@@ -33,7 +33,6 @@ export function Sidebar(props: {
   const { theme } = useConfig()
 
   const { previousPath } = usePageData()
-  const navRef = useRef<any>(null)
   const sidebarRef = useRef<any>(null)
   const sidebar = useSidebar()
   const [backPath, setBackPath] = useState<string>('/')
@@ -62,7 +61,7 @@ export function Sidebar(props: {
           <div className={styles.divider} />
         </div>
 
-        <nav ref={navRef} className={styles.navigation}>
+        <nav className={styles.navigation}>
           <div className={styles.group}>
             {sidebar.backLink && (
               <section className={styles.section}>
@@ -82,7 +81,6 @@ export function Sidebar(props: {
                 depth={0}
                 item={group}
                 onClick={onClickItem}
-                navRef={navRef}
                 sidebarRef={sidebarRef}
               />
             ))}
@@ -134,10 +132,9 @@ function SidebarItem(props: {
   depth: number
   item: SidebarItemType
   onClick?: MouseEventHandler<HTMLAnchorElement>
-  navRef?: RefObject<HTMLElement>
   sidebarRef?: RefObject<HTMLElement>
 }) {
-  const { depth, item, onClick, navRef, sidebarRef } = props
+  const { depth, item, onClick, sidebarRef } = props
 
   const itemRef = useRef<HTMLElement>(null)
 
@@ -176,11 +173,11 @@ function SidebarItem(props: {
 
     requestAnimationFrame(() => {
       const offsetTop = itemRef.current?.offsetTop ?? 0
-      const navHeight = (navRef?.current?.clientHeight ?? 0) - 50
+      const navHeight = (sidebarRef?.current?.clientHeight ?? 0) - 120
       if (offsetTop < navHeight) return
       sidebarRef?.current?.scrollTo({ top: offsetTop - 100 })
     })
-  }, [item, pathname, navRef, sidebarRef])
+  }, [item, pathname, sidebarRef])
 
   if (item.items)
     return (
