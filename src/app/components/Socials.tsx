@@ -3,6 +3,8 @@ import type { ParsedSocialItem } from '../../config.js'
 import { useConfig } from '../hooks/useConfig.js'
 import { primitiveColorVars, spaceVars } from '../styles/vars.css.js'
 import { Icon } from './Icon.js'
+import * as styles from './Socials.css.js'
+import { Bluesky } from './icons/Bluesky.js'
 import { Discord } from './icons/Discord.js'
 import { Farcaster } from './icons/Farcaster.js'
 import { GitHub } from './icons/GitHub.js'
@@ -12,6 +14,7 @@ import { X } from './icons/X.js'
 import * as styles from './Socials.css.js'
 
 const iconsForIcon = {
+  bluesky: Bluesky,
   discord: Discord,
   farcaster: Farcaster,
   github: GitHub,
@@ -21,6 +24,7 @@ const iconsForIcon = {
 } satisfies Record<ParsedSocialItem['type'], ComponentType>
 
 const sizesForType = {
+  bluesky: '17px',
   discord: '18px',
   farcaster: '18px',
   github: '17px',
