@@ -19,7 +19,7 @@ jobs:
       - name: Check code
         run: pnpm check
       
-      - uses: stefanzweifel/git-auto-commit-action@v6
+      - uses: stefanzweifel/git-auto-commit-action@v7
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
