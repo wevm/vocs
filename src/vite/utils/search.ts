@@ -37,7 +37,10 @@ export async function buildIndex({ baseDir, cacheDir }: { baseDir: string; cache
         const pageCache = cache.get(key) ?? {}
         if (pageCache.mdx === mdx) return pageCache.document
 
-        const { html, frontmatter } = await processMdx(pagePath, mdx, { rehypePlugins })
+        // Temporary fix to include files with components in the search index until the todo in `processMdx()` is resolved
+        const mdxNoImports = mdx.replace(/^(import|export).*/gm, '')
+        const mdxNoComponents = mdxNoImports.replace(/<\/?\s*[A-Z][^>]*>/g, '')
+        const { html, frontmatter } = await processMdx(pagePath, mdxNoComponents, { rehypePlugins })
 
         if (frontmatter.searchable === false) {
           cache.set(key, { mdx, document: [] })
@@ -55,7 +58,7 @@ export async function buildIndex({ baseDir, cacheDir }: { baseDir: string; cache
         const relFile = slash(relative(baseDir, fileId))
         const href = relFile
           .replace(relative(baseDir, resolve(baseDir, 'pages')), '')
-          .replace(/\.(.*)/, '')
+          .replace(/\.(md|mdx)$/, '')
           .replace(/\/index$/, '')
 
         const document = sections.map((section) => ({
