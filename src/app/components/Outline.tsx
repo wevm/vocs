@@ -40,14 +40,15 @@ export function Outline({
 
   const active = useRef(true)
 
-  const { hash } = useLocation()
+  const { pathname, hash } = useLocation()
 
   const [headingElements, setHeadingElements] = useState<Element[]>([])
+  // biome-ignore lint/correctness/useExhaustiveDependencies: _
   useEffect(() => {
     if (typeof window === 'undefined') return
     const elements = Array.from(document.querySelectorAll(`.${Heading}`))
     setHeadingElements(elements)
-  }, [])
+  }, [pathname])
 
   const items = useMemo(() => {
     if (!headingElements) return []
