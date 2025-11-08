@@ -1,5 +1,13 @@
 # vocs
 
+## 1.1.1
+
+### Patch Changes
+
+- [`6264712`](https://github.com/wevm/vocs/commit/62647125448f56bdd4af2ff553e02c7f05953e7d) Thanks [@jxom](https://github.com/jxom)! - Added search index improvements.
+
+- [`6264712`](https://github.com/wevm/vocs/commit/62647125448f56bdd4af2ff553e02c7f05953e7d) Thanks [@jxom](https://github.com/jxom)! - Fixed sidebar outline not updating between pages.
+
 ## 1.1.0
 
 ### Minor Changes
