@@ -13,9 +13,10 @@ my-project/             # Your project's root directory.
 │       └── favicon.ico # A static asset. <!-- [!code focus] [!code hl] -->
 ├── node_modules/
 ├── src/
+├── .env                # Environment variables. Follows Vite's environment variable API. <!-- [!code focus] [!code hl] -->
 ├── .gitignore
 ├── package.json
-└── vocs.config.ts      # Vocs configuration file. // [!code hl] // [!code focus]
+└── vocs.config.ts      # Vocs configuration file. <!-- [!code focus] [!code hl] -->
 ```
 
 Vocs is designed to reside within a [subdirectory](/docs/api/config#rootdir) (default: `"./docs"`) of a larger project (ie. a library). However, it is also possible to use Vocs standalone, and you can [change the root directory](/docs/api/config#rootdir) from `"./docs"` to `"."` if you wish.
