@@ -1,4 +1,5 @@
 import { basename } from 'node:path'
+import { cwd } from 'node:process'
 import tailwindcss from '@tailwindcss/vite'
 import { vanillaExtractPlugin } from '@vanilla-extract/vite-plugin'
 import react from '@vitejs/plugin-react'
@@ -28,6 +29,7 @@ export default defineConfig(async () => {
       ...viteConfig?.build,
       cssCodeSplit: false,
     },
+    envDir: viteConfig.envDir ?? cwd(),
     optimizeDeps: {
       ...(viteConfig.optimizeDeps ?? {}),
       include: [
@@ -68,6 +70,7 @@ export default defineConfig(async () => {
       ...(hasReact ? [] : react()),
       ...(viteConfig.plugins ?? []),
     ],
+    root: viteConfig.root ?? import.meta.dirname,
     server: {
       ...viteConfig.server,
       fs: {

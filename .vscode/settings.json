@@ -17,5 +17,8 @@
   "[typescriptreact]": {
     "editor.defaultFormatter": "biomejs.biome"
   },
-  "css.validate": false
+  "css.validate": false,
+  "search.exclude": {
+    "pnpm-lock.yaml": true
+  }
 }
