@@ -1,5 +1,11 @@
 # vocs
 
+## 1.1.3
+
+### Patch Changes
+
+- [`251d5ea`](https://github.com/wevm/vocs/commit/251d5ea3d7d017d2c3e1e6c1ca09e4d8a4f1909a) Thanks [@jxom](https://github.com/jxom)! - Fixed issue where `vocs dev` would crash on `vocs.config.ts` syntax errors.
+
 ## 1.1.2
 
 ### Patch Changes
