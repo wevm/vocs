@@ -1,5 +1,11 @@
 # vocs
 
+## 1.1.2
+
+### Patch Changes
+
+- [`2164a41`](https://github.com/wevm/vocs/commit/2164a4126e0773da9f28fdc4895f67d9512634db) Thanks [@jxom](https://github.com/jxom)! - Fixed env file detection
+
 ## 1.1.1
 
 ### Patch Changes
