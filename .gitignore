@@ -7,3 +7,7 @@ tsconfig.*.tsbuildinfo
 vocs.config.ts.timestamp-*
 .vercel
 src/vite/.vocs
+_
+mise.toml
+.env*
+!.env.example

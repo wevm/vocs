@@ -3,5 +3,5 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export function TopNavEnd() {
-  return <div>TopNavEnd</div>
+  return <div>{import.meta.env.VITE_TOP_NAV_END}</div>
 }

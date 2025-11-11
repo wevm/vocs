@@ -1,4 +1,5 @@
 import { resolve } from 'node:path'
+import { cwd } from 'node:process'
 import { default as fs } from 'fs-extra'
 import * as vite from 'vite'
 
@@ -40,6 +41,7 @@ export async function build({
 
   const outDir_resolved = resolveOutDir(rootDir, outDir)
   const publicDir_resolved = resolve(rootDir, publicDir)
+  const envDir_resolved = cwd()
 
   if (clean) cache.clear({ cacheDir })
 
@@ -54,6 +56,7 @@ export async function build({
         emptyOutDir: false,
         outDir: outDir_resolved,
       },
+      envDir: envDir_resolved,
       publicDir: publicDir_resolved,
       root: import.meta.dirname,
       logLevel,
@@ -65,6 +68,7 @@ export async function build({
         outDir: resolve(import.meta.dirname, '.vocs/dist'),
         ssr: resolve(import.meta.dirname, '../app/index.server.tsx'),
       },
+      envDir: envDir_resolved,
       logLevel,
       publicDir: publicDir_resolved,
       root: import.meta.dirname,

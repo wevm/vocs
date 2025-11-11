@@ -16,7 +16,7 @@
     "docs:search-index": "NODE_ENV=production node --import tsx/esm ./src/cli/index.ts search-index",
     "docs:twoslash": "NODE_ENV=production node --import tsx/esm ./src/cli/index.ts twoslash",
     "docs:preview": "node --import tsx/esm ./src/cli/index.ts preview",
-    "playground": "pnpm --filter playgrounds/default dev",
+    "playground": "pnpm --filter playgrounds-default dev",
     "preconstruct": "tsx scripts/preconstruct.ts",
     "prepare": "simple-git-hooks"
   },

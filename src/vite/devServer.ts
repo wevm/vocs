@@ -1,3 +1,5 @@
+import { resolve } from 'node:path'
+import { cwd } from 'node:process'
 import { createServer } from 'vite'
 
 import { dev } from './plugins/dev.js'
@@ -15,6 +17,8 @@ export async function createDevServer(params: CreateDevServerParameters = {}) {
   const { cacheDir } = config
   if (params.clean) cache.clear({ cacheDir })
   return createServer({
+    configFile: resolve(import.meta.dirname, './vite.config.ts'),
+    envDir: cwd(),
     root: import.meta.dirname,
     server: {
       host: params.host,

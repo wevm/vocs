@@ -1,3 +1,10 @@
 {
-  "recommendations": ["biomejs.biome", "vunguyentuan.vscode-css-variables"]
+  "recommendations": [
+    "biomejs.biome",
+    "vunguyentuan.vscode-css-variables"
+  ],
+  "unwantedRecommendations": [
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint"
+  ]
 }
