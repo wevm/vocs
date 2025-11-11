@@ -23,9 +23,11 @@ export function virtualStyles(): PluginOption {
         server.watcher.add(configPath)
         server.watcher.on('change', async (path) => {
           if (path !== configPath) return
-          const { config } = await resolveVocsConfig()
-          const { theme } = config
-          createThemeStyles({ theme })
+          try {
+            const { config } = await resolveVocsConfig()
+            const { theme } = config
+            createThemeStyles({ theme })
+          } catch {}
         })
       }
     },
