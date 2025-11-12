@@ -10,24 +10,83 @@ export function virtualStyles(): PluginOption {
   const virtualModuleId = 'virtual:styles'
   const resolvedVirtualModuleId = `\0${virtualModuleId}`
 
+  let configPath: string | undefined
+  let cleanupHandlers: Array<() => void> = []
+  let debounceTimer: NodeJS.Timeout | undefined
+
   return {
     name: 'styles',
     async buildStart() {
-      const { config } = await resolveVocsConfig()
-      const { theme } = config
-      createThemeStyles({ theme })
+      try {
+        const { config } = await resolveVocsConfig()
+        const { theme } = config
+        createThemeStyles({ theme })
+      } catch (_error) {
+        // (error already logged by resolveVocsConfig)
+      }
     },
     async configureServer(server) {
-      const { configPath } = await resolveVocsConfig()
+      const resolved = await resolveVocsConfig()
+      configPath = resolved.configPath
+
       if (configPath) {
         server.watcher.add(configPath)
-        server.watcher.on('change', async (path) => {
+
+        const changeHandler = async (path: string) => {
           if (path !== configPath) return
-          try {
-            const { config } = await resolveVocsConfig()
-            const { theme } = config
-            createThemeStyles({ theme })
-          } catch {}
+
+          if (debounceTimer) clearTimeout(debounceTimer)
+
+          // debounce to handle rapid config edits
+          debounceTimer = setTimeout(async () => {
+            try {
+              const { config } = await resolveVocsConfig()
+              const { theme } = config
+              createThemeStyles({ theme })
+
+              const mod = server.moduleGraph.getModuleById(resolvedVirtualModuleId)
+              if (mod) {
+                server.moduleGraph.invalidateModule(mod)
+
+                server.ws.send({
+                  type: 'update',
+                  updates: [
+                    {
+                      acceptedPath: mod.url,
+                      path: mod.url,
+                      timestamp: Date.now(),
+                      type: 'js-update',
+                    },
+                  ],
+                })
+              }
+            } catch (error) {
+              const err = error instanceof Error ? error : new Error(String(error))
+
+              server.ws.send({
+                type: 'error',
+                err: {
+                  message: `Failed to update theme styles: ${err.message}`,
+                  stack: err.stack || '',
+                  plugin: 'vocs:styles',
+                },
+              })
+            }
+          }, 100)
+        }
+
+        server.watcher.on('change', changeHandler)
+
+        cleanupHandlers.push(() => {
+          server.watcher.off('change', changeHandler)
+          if (debounceTimer) clearTimeout(debounceTimer)
+        })
+
+        server.httpServer?.on('close', () => {
+          cleanupHandlers.forEach((cleanup) => {
+            cleanup()
+          })
+          cleanupHandlers = []
         })
       }
     },
@@ -46,6 +105,13 @@ export function virtualStyles(): PluginOption {
       if (existsSync(themeStyles)) code += `import "${themeStyles}";`
       if (existsSync(rootStyles)) code += `import "${rootStyles}";`
       return code
+    },
+    buildEnd() {
+      cleanupHandlers.forEach((cleanup) => {
+        cleanup()
+      })
+      cleanupHandlers = []
+      if (debounceTimer) clearTimeout(debounceTimer)
     },
   }
 }

@@ -115,51 +115,103 @@ export async function search(): Promise<Plugin> {
 
       return `export const getSearchIndex = async () => JSON.stringify(await ((await fetch("${config.basePath}/.vocs/search-index-${hash}.json")).json()))`
     },
-    async handleHotUpdate({ file }) {
+    async handleHotUpdate({ file, server }) {
       if (!file.endsWith('.md') && !file.endsWith('.mdx')) return
 
-      const fileId = getDocId(config.rootDir, file)
-      if (!existsSync(file)) return
+      try {
+        const fileId = getDocId(config.rootDir, file)
 
-      const mdx = readFileSync(file, 'utf-8')
-      const rehypePlugins = getRehypePlugins({
-        cacheDir: config.cacheDir,
-        markdown: config.markdown,
-        rootDir: config.rootDir,
-        twoslash: false,
-      })
+        // check if file still exists (might have been deleted)
+        if (!existsSync(file)) {
+          // remove all sections for this file from the index
+          if (index) {
+            const pagesDirPath = resolve(config.rootDir, 'pages')
+            const relativePagesDirPath = relative(config.rootDir, pagesDirPath)
+            const relFile = slash(relative(config.rootDir, fileId))
+            const href = relFile.replace(relativePagesDirPath, '').replace(/\.(.*)/, '')
 
-      const { html: rendered, frontmatter } = await processMdx(file, mdx, {
-        rehypePlugins,
-      })
+            // try to remove potential sections
+            for (const doc of (index.toJSON() as any) || []) {
+              if (doc.href?.startsWith(href)) index.discard(doc.id)
+            }
 
-      if (frontmatter.searchable === false) return
+            onIndexUpdated()
+          }
+          return
+        }
 
-      const sections = splitPageIntoSections(rendered)
-      if (sections.length === 0) return
-
-      const pagesDirPath = resolve(config.rootDir, 'pages')
-      const relativePagesDirPath = relative(config.rootDir, pagesDirPath)
-
-      for (const section of sections) {
-        const id = `${fileId}#${section.anchor}`
-        if (index.has(id)) index.discard(id)
-        const relFile = slash(relative(config.rootDir, fileId))
-        const href = relFile.replace(relativePagesDirPath, '').replace(/\.(.*)/, '')
-        index.add({
-          href: `${href}#${section.anchor}`,
-          html: section.html,
-          id,
-          isPage: section.isPage,
-          text: section.text,
-          title: section.titles.at(-1)!,
-          titles: section.titles.slice(0, -1),
+        const mdx = readFileSync(file, 'utf-8')
+        const rehypePlugins = getRehypePlugins({
+          cacheDir: config.cacheDir,
+          markdown: config.markdown,
+          rootDir: config.rootDir,
+          twoslash: false,
         })
+
+        const { html: rendered, frontmatter } = await processMdx(file, mdx, {
+          rehypePlugins,
+        })
+
+        if (frontmatter.searchable === false) {
+          // remove from index if marked as not searchable
+          if (index) {
+            for (const doc of (index.toJSON() as any) || []) {
+              if (doc.id?.startsWith(fileId)) index.discard(doc.id)
+            }
+            onIndexUpdated()
+          }
+          return
+        }
+
+        const sections = splitPageIntoSections(rendered)
+        if (sections.length === 0) return
+
+        const pagesDirPath = resolve(config.rootDir, 'pages')
+        const relativePagesDirPath = relative(config.rootDir, pagesDirPath)
+
+        // remove old sections for this file
+        if (index) {
+          for (const doc of (index.toJSON() as any) || []) {
+            if (doc.id?.startsWith(fileId)) index.discard(doc.id)
+          }
+        }
+
+        // add new sections
+        for (const section of sections) {
+          const id = `${fileId}#${section.anchor}`
+          const relFile = slash(relative(config.rootDir, fileId))
+          const href = relFile.replace(relativePagesDirPath, '').replace(/\.(.*)/, '')
+          index.add({
+            href: `${href}#${section.anchor}`,
+            html: section.html,
+            id,
+            isPage: section.isPage,
+            text: section.text,
+            title: section.titles.at(-1)!,
+            titles: section.titles.slice(0, -1),
+          })
+        }
+
+        debug('vocs:search > updated', file)
+
+        onIndexUpdated()
+      } catch (error) {
+        const err = error instanceof Error ? error : new Error(String(error))
+
+        if (server) {
+          server.ws.send({
+            type: 'error',
+            err: {
+              message: `Failed to process MDX file for search indexing:\n${file}\n\n${err.message}`,
+              stack: err.stack || '',
+              plugin: 'vocs:search',
+            },
+          })
+        }
+
+        // don't throw - keep server running with old index
+        return
       }
-
-      debug('vocs:search > updated', file)
-
-      onIndexUpdated()
     },
   }
 }

@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { glob } from 'node:fs/promises'
 import { extname, resolve } from 'node:path'
 import type { PluginOption } from 'vite'
@@ -12,6 +12,8 @@ export function virtualRoutes(): PluginOption {
 
   let globPattern: string
   let paths: string[] = []
+  let cleanupHandlers: Array<() => void> = []
+  let restartDebounceTimer: NodeJS.Timeout | undefined
 
   return {
     name: 'routes',
@@ -19,10 +21,64 @@ export function virtualRoutes(): PluginOption {
       const { config } = await resolveVocsConfig()
       const { rootDir } = config
       const pagesPath = resolve(rootDir, 'pages')
+
       if (pagesPath) {
         server.watcher.add(pagesPath)
-        server.watcher.on('add', () => server.restart())
-        server.watcher.on('unlink', () => server.restart())
+
+        const invalidateModule = () => {
+          const mod = server.moduleGraph.getModuleById(resolvedVirtualModuleId)
+          if (mod) {
+            server.moduleGraph.invalidateModule(mod)
+            server.ws.send({
+              type: 'full-reload',
+              path: '*',
+            })
+          }
+        }
+
+        const addHandler = async (_path: string) => {
+          // debounce to handle multiple rapid file additions
+          if (restartDebounceTimer) clearTimeout(restartDebounceTimer)
+
+          restartDebounceTimer = setTimeout(async () => {
+            try {
+              await refreshPaths()
+              invalidateModule()
+            } catch (_error) {
+              // (error already logged in refreshPaths)
+            }
+          }, 100)
+        }
+
+        const unlinkHandler = async (_path: string) => {
+          // debounce to handle multiple rapid file deletions
+          if (restartDebounceTimer) clearTimeout(restartDebounceTimer)
+
+          restartDebounceTimer = setTimeout(async () => {
+            try {
+              await refreshPaths()
+              invalidateModule()
+            } catch (_error) {
+              // (error already logged in refreshPaths)
+            }
+          }, 100)
+        }
+
+        server.watcher.on('add', addHandler)
+        server.watcher.on('unlink', unlinkHandler)
+
+        cleanupHandlers.push(() => {
+          server.watcher.off('add', addHandler)
+          server.watcher.off('unlink', unlinkHandler)
+          if (restartDebounceTimer) clearTimeout(restartDebounceTimer)
+        })
+
+        server.httpServer?.on('close', () => {
+          cleanupHandlers.forEach((cleanup) => {
+            cleanup()
+          })
+          cleanupHandlers = []
+        })
       }
     },
     resolveId(id) {
@@ -61,15 +117,53 @@ export function virtualRoutes(): PluginOption {
       return
     },
     async buildStart() {
+      await refreshPaths()
+    },
+    async handleHotUpdate({ file, server }) {
+      // handle mdx/md/tsx/jsx hmr in pages dir
+      if (!file.match(/\.(md|mdx|ts|tsx|js|jsx)$/)) return
+
+      try {
+        const { config } = await resolveVocsConfig()
+        const { rootDir } = config
+        const pagesPath = resolve(rootDir, 'pages')
+
+        if (!file.startsWith(pagesPath)) return
+
+        if (!existsSync(file)) {
+          // file was deleted -> update paths
+          paths = paths.filter((p) => p !== file)
+        } else if (!paths.includes(file)) paths.push(file)
+
+        const mod = server.moduleGraph.getModuleById(resolvedVirtualModuleId)
+        if (mod) {
+          server.moduleGraph.invalidateModule(mod)
+          return [mod]
+        }
+      } catch (_error) {
+        // (errors already handled by resolveVocsConfig)
+      }
+
+      return
+    },
+    buildEnd() {
+      cleanupHandlers.forEach((cleanup) => {
+        cleanup()
+      })
+      cleanupHandlers = []
+      if (restartDebounceTimer) clearTimeout(restartDebounceTimer)
+    },
+  }
+
+  async function refreshPaths() {
+    try {
       const { config } = await resolveVocsConfig()
       const { rootDir } = config
       const pagesPath = resolve(rootDir, 'pages')
       globPattern = `${pagesPath}/**/*.{md,mdx,ts,tsx,js,jsx}`
       paths = await Array.fromAsync(glob(globPattern))
-    },
-    handleHotUpdate() {
-      // TODO: handle changes
-      return
-    },
+    } catch (_error) {
+      // (error already logged by resolveVocsConfig)
+    }
   }
 }
