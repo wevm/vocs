@@ -1,5 +1,11 @@
 # vocs
 
+## 1.1.4
+
+### Patch Changes
+
+- [`d9736cf`](https://github.com/wevm/vocs/commit/d9736cf5e155668416a505408212cf1a30d92a6a) Thanks [@tmm](https://github.com/tmm)! - Fixed collapse when selecting sidebar item chevron button.
+
 ## 1.1.3
 
 ### Patch Changes
