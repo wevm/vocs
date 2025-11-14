@@ -160,6 +160,7 @@ function SidebarItem(props: {
   }, [])
   const onCollapseTriggerInteraction = useCallback((event: KeyboardEvent | MouseEvent) => {
     if ('key' in event && event.key !== 'Enter') return
+    event.stopPropagation()
     setCollapsed((x) => !x)
   }, [])
 
