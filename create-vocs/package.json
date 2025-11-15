@@ -2,6 +2,10 @@
   "name": "create-vocs",
   "version": "1.0.0",
   "type": "module",
+  "scripts": {
+    "prepack": "mv templates/default/.gitignore templates/default/_gitignore",
+    "postpack": "mv templates/default/_gitignore templates/default/.gitignore"
+  },
   "bin": {
     "create-vocs": "./_lib/bin.js"
   },
