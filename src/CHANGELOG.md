@@ -1,5 +1,11 @@
 # vocs
 
+## 1.2.0
+
+### Minor Changes
+
+- [#350](https://github.com/wevm/vocs/pull/350) [`20dcec5`](https://github.com/wevm/vocs/commit/20dcec57ace3199e8c38109003ea96150401ba2e) Thanks [@tmm](https://github.com/tmm)! - Added support for custom tags in non-twoslash code blocks.
+
 ## 1.1.4
 
 ### Patch Changes
