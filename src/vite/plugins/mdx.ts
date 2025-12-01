@@ -39,6 +39,7 @@ import { remarkSteps } from './remark/steps.js'
 import { remarkStrongBlock } from './remark/strong-block.js'
 import { remarkSubheading } from './remark/subheading.js'
 import { remarkTwoslash } from './remark/twoslash.js'
+import { transformerCustomTags } from './shiki/transformerCustomTags.js'
 import { transformerEmptyLine } from './shiki/transformerEmptyLine.js'
 import { transformerLineNumbers } from './shiki/transformerLineNumbers.js'
 import { transformerNotationInclude } from './shiki/transformerNotationInclude.js'
@@ -109,6 +110,7 @@ export const getRehypePlugins = ({
           transformerNotationWordHighlight(),
           transformerNotationInclude({ rootDir }),
           transformerEmptyLine(),
+          transformerCustomTags(),
           transformerTagLine(),
           transformerTitle(),
           twoslash !== false

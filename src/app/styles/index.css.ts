@@ -6,4 +6,6 @@ import './reset.css.js'
 
 import './global.css.js'
 
+import './shiki.css.js'
+
 import './twoslash.css.js'

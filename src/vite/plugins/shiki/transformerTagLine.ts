@@ -8,7 +8,8 @@ export const transformerTagLine = (): ShikiTransformer => ({
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i]
-      if (line.properties?.class.includes('twoslash-tag-line')) {
+      const classes = line.properties?.class || ''
+      if (classes.includes('twoslash-tag-line') && classes.includes('tag-line')) {
         lines.splice(i - 1, 0, line)
         lines.splice(i + 1, 1)
         if (i + 1 === lines.length) lines.splice(i, 1)
