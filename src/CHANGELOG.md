@@ -1,5 +1,11 @@
 # vocs
 
+## 1.2.1
+
+### Patch Changes
+
+- [`1bb96f6`](https://github.com/wevm/vocs/commit/1bb96f6771fdb43d3dbae2dd7ebef2a7257c45d0) Thanks [@jxom](https://github.com/jxom)! - Added config option to disable twoslash.
+
 ## 1.2.0
 
 ### Minor Changes
