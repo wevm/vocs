@@ -184,9 +184,9 @@ export type Config<
      */
     topNav?: Normalize<TopNav<parsed>>
     /**
-     * TwoSlash configuration.
+     * TwoSlash configuration. Set to `false` to disable.
      */
-    twoslash?: Normalize<TwoslashOptions>
+    twoslash?: Normalize<TwoslashOptions> | false
     /**
      * Vite configuration.
      */
