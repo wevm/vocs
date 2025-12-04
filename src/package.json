@@ -1,6 +1,6 @@
 {
   "name": "vocs",
-  "description": "React Documentation Generator, powered by Vite.",
+  "description": "React Documentation Generator, powered by Vite & Rolldown.",
   "version": "1.2.0",
   "type": "module",
   "bin": {
@@ -86,7 +86,7 @@
     "unified": "^11.0.5",
     "unist-util-visit": "^5.0.0",
     "vfile-matter": "^5.0.1",
-    "vite": "^7.1.11",
+    "vite": "npm:rolldown-vite@^7.2.9",
     "yaml": "^2.8.1"
   },
   "devDependencies": {

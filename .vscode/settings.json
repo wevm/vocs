@@ -20,5 +20,8 @@
   "css.validate": false,
   "search.exclude": {
     "pnpm-lock.yaml": true
+  },
+  "files.exclude": {
+    "tsconfig.tsbuildinfo": true
   }
 }
