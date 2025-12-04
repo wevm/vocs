@@ -51,7 +51,7 @@
   "simple-git-hooks": {
     "pre-commit": "pnpm check"
   },
-  "packageManager": "pnpm@10.19.0",
+  "packageManager": "pnpm@10.24.0",
   "engines": {
     "node": ">=22"
   }
