@@ -147,11 +147,16 @@ function SidebarItem(props: {
   )
 
   const [collapsed, setCollapsed] = useState(() => {
-    if (item.link && match) return false
     if (!item.items) return false
     if (hasActiveChildItem) return false
     return Boolean(item.collapsed)
   })
+
+  useEffect(() => {
+    if (hasActiveChildItem) {
+      setCollapsed(false)
+    }
+  }, [hasActiveChildItem])
 
   const isCollapsable = item.collapsed !== undefined && item.items !== undefined
   const onCollapseInteraction = useCallback((event: KeyboardEvent | MouseEvent) => {
