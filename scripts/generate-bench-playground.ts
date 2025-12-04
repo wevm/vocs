@@ -9,7 +9,7 @@ const TWOSLASH_COUNT = 50
 const argCount = Number.parseInt(process.argv[2] ?? '', 10)
 const pageCount = Number.isFinite(argCount) ? argCount : DEFAULT_COUNT
 
-const benchDir = process.argv[3] ?? join(__dirname, '../playgrounds/default/docs/pages/bench')
+const benchDir = process.argv[3] ?? join(__dirname, '../playgrounds/bench/docs/pages/bench')
 
 const pad = (value: number, size = 3) => String(value).padStart(size, '0')
 

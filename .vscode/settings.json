@@ -22,6 +22,6 @@
     "pnpm-lock.yaml": true
   },
   "files.exclude": {
-    "tsconfig.tsbuildinfo": true
+    "**/*.tsbuildinfo": true
   }
 }
