@@ -82,7 +82,7 @@ type RehypePluginsParameters = {
   markdown?: ParsedConfig['markdown']
   cacheDir?: ParsedConfig['cacheDir']
   rootDir?: ParsedConfig['rootDir']
-  twoslash?: ParsedConfig['twoslash'] | false
+  twoslash?: ParsedConfig['twoslash']
 }
 
 const defaultThemes = {
