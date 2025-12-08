@@ -1,5 +1,11 @@
 # vocs
 
+## 1.3.0
+
+### Minor Changes
+
+- [`892835c`](https://github.com/wevm/vocs/commit/892835cc3bc81142c390944b99395d644f212c45) Thanks [@tmm](https://github.com/tmm)! - Added `topNav.match` function
+
 ## 1.2.2
 
 ### Patch Changes
