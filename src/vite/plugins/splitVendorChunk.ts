@@ -1,5 +1,4 @@
-import type { GetManualChunk, GetModuleInfo, ManualChunkMeta, OutputOptions } from 'rollup'
-import type { PluginOption, UserConfig } from 'vite'
+import type { PluginOption } from 'vite'
 
 // copy from constants.ts
 const CSS_LANGS_RE =
@@ -7,113 +6,95 @@ const CSS_LANGS_RE =
   /\.(css|less|sass|scss|styl|stylus|pcss|postcss|sss)(?:$|\?)/
 export const isCSSRequest = (request: string): boolean => CSS_LANGS_RE.test(request)
 
-export class SplitVendorChunkCache {
-  cache: Map<string, boolean>
-  constructor() {
-    this.cache = new Map<string, boolean>()
-  }
-  reset(): void {
-    this.cache = new Map<string, boolean>()
+type AdvancedChunksGroup = {
+  name: string
+  test: RegExp
+  priority?: number
+  minSize?: number
+  maxSize?: number
+}
+
+type AdvancedChunksOptions = {
+  minSize?: number
+  maxSize?: number
+  groups?: AdvancedChunksGroup[]
+}
+
+type OutputOptions = {
+  format?: string
+  manualChunks?: unknown
+  advancedChunks?: AdvancedChunksOptions
+  [key: string]: unknown
+}
+
+type OutputWithAdvancedChunks = OutputOptions & {
+  advancedChunks?: AdvancedChunksOptions
+}
+
+const VENDOR_GROUP: AdvancedChunksGroup = {
+  name: 'vendor',
+  // keep CSS out of the vendor chunk to mirror Vite's default behaviour
+  test: /node_modules\/(?!.*\.(css|less|sass|scss|styl|stylus|pcss|postcss|sss)(?:$|\?))/,
+  priority: 1,
+}
+
+function mergeAdvancedChunks(
+  existing: AdvancedChunksOptions | undefined,
+  group: AdvancedChunksGroup,
+): AdvancedChunksOptions {
+  const groups = existing?.groups ? [...existing.groups] : []
+  const hasGroup = groups.some((g) => g.name === group.name)
+  if (!hasGroup) groups.push(group)
+
+  return {
+    ...existing,
+    groups,
   }
 }
 
-export function splitVendorChunk(options: { cache?: SplitVendorChunkCache } = {}): GetManualChunk {
-  const cache = options.cache ?? new SplitVendorChunkCache()
-  return (id, { getModuleInfo }) => {
-    if (
-      id.includes('node_modules') &&
-      !isCSSRequest(id) &&
-      staticImportedByEntry(id, getModuleInfo, cache.cache)
-    )
-      return 'vendor'
-    return undefined
-  }
+function normalizeOutputs(output: any): OutputWithAdvancedChunks[] {
+  if (!output) return []
+  return Array.isArray(output)
+    ? (output as OutputWithAdvancedChunks[])
+    : [output as OutputWithAdvancedChunks]
 }
 
-function staticImportedByEntry(
-  id: string,
-  getModuleInfo: GetModuleInfo,
-  cache: Map<string, boolean>,
-  importStack: string[] = [],
-): boolean {
-  if (cache.has(id)) {
-    return cache.get(id) as boolean
-  }
-  if (importStack.includes(id)) {
-    // circular deps!
-    cache.set(id, false)
-    return false
-  }
-  const mod = getModuleInfo(id)
-  if (!mod) {
-    cache.set(id, false)
-    return false
-  }
-
-  if (mod.isEntry) {
-    cache.set(id, true)
-    return true
-  }
-  const someImporterIs = mod.importers.some((importer) =>
-    staticImportedByEntry(importer, getModuleInfo, cache, importStack.concat(id)),
-  )
-  cache.set(id, someImporterIs)
-  return someImporterIs
+function addVendorGroupToOutputs(
+  output: any,
+): OutputWithAdvancedChunks | OutputWithAdvancedChunks[] | undefined {
+  if (!output) return { advancedChunks: { groups: [VENDOR_GROUP] } }
+  if (Array.isArray(output))
+    return output.map((o) => ({
+      ...o,
+      advancedChunks: mergeAdvancedChunks(o.advancedChunks, VENDOR_GROUP),
+    }))
+  return { ...output, advancedChunks: mergeAdvancedChunks(output.advancedChunks, VENDOR_GROUP) }
 }
 
 export function splitVendorChunkPlugin(): PluginOption {
-  const caches: SplitVendorChunkCache[] = []
-  function createSplitVendorChunk(output: OutputOptions, config: UserConfig) {
-    const cache = new SplitVendorChunkCache()
-    caches.push(cache)
-    const build = config.build ?? {}
-    const format = output?.format
-    if (!build.ssr && !build.lib && format !== 'umd' && format !== 'iife')
-      return splitVendorChunk({ cache })
-    return undefined
-  }
   return {
     name: 'vite:split-vendor-chunk',
     config(config) {
-      let outputs = config?.build?.rollupOptions?.output
-      if (outputs) {
-        outputs = Array.isArray(outputs) ? outputs : [outputs]
-        for (const output of outputs) {
-          const viteManualChunks = createSplitVendorChunk(output, config)
-          if (viteManualChunks) {
-            if (output.manualChunks) {
-              if (typeof output.manualChunks === 'function') {
-                const userManualChunks = output.manualChunks
-                output.manualChunks = (id: string, api: ManualChunkMeta) => {
-                  return userManualChunks(id, api) ?? viteManualChunks(id, api)
-                }
-              } else {
-                // else, leave the object form of manualChunks untouched, as
-                // we can't safely replicate rollup handling.
-                // eslint-disable-next-line no-console
-                console.warn(
-                  "(!) the `splitVendorChunk` plugin doesn't have any effect when using the object form of `build.rollupOptions.output.manualChunks`. Consider using the function form instead.",
-                )
-              }
-            } else {
-              output.manualChunks = viteManualChunks
-            }
-          }
-        }
-      }
+      const rolldownOutput = config?.build?.rolldownOptions?.output
+      const legacyRollupOutput = config?.build?.rollupOptions?.output
+      const userOutput = rolldownOutput ?? legacyRollupOutput
+
+      const outputs = normalizeOutputs(userOutput)
+      for (const output of outputs)
+        output.advancedChunks = mergeAdvancedChunks(output.advancedChunks, VENDOR_GROUP)
+
+      const baseRolldownOptions =
+        config?.build?.rolldownOptions ?? config?.build?.rollupOptions ?? {}
+
       return {
         build: {
-          rollupOptions: {
-            output: {
-              manualChunks: createSplitVendorChunk({}, config),
-            },
+          // rolldownOptions is the preferred key; rollupOptions remains for user compatibility
+          rolldownOptions: {
+            ...baseRolldownOptions,
+            output: addVendorGroupToOutputs(userOutput) as any,
           },
         },
       }
-    },
-    buildStart() {
-      // biome-ignore lint/suspicious/useIterableCallbackReturn: _
-      caches.forEach((cache) => cache.reset())
     },
   }
 }

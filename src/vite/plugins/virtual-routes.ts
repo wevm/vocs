@@ -12,10 +12,12 @@ export function virtualRoutes(): PluginOption {
 
   let globPattern: string
   let paths: string[] = []
+  let isDev = false
 
   return {
     name: 'routes',
     async configureServer(server) {
+      isDev = true
       const { config } = await resolveVocsConfig()
       const { rootDir } = config
       const pagesPath = resolve(rootDir, 'pages')
@@ -42,11 +44,11 @@ export function virtualRoutes(): PluginOption {
 
           const content = readFileSync(path, 'utf-8')
           const filePath = path.replace(`${pagesPath}/`, '')
-          const fileGitTimestamp = await getGitTimestamp(path)
-
-          // fileGitTimestamp can be `NaN` when not in git repo
           let lastUpdatedAt: number | undefined
-          if (fileGitTimestamp) lastUpdatedAt = fileGitTimestamp
+          if (!isDev && paths.length <= 200) {
+            const fileGitTimestamp = await getGitTimestamp(path)
+            if (fileGitTimestamp) lastUpdatedAt = fileGitTimestamp
+          }
 
           let pagePath = path.replace(replacer, '').replace(/\.[^.]*$/, '')
           if (pagePath.endsWith('index'))

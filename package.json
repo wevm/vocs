@@ -17,6 +17,7 @@
     "docs:twoslash": "NODE_ENV=production node --import tsx/esm ./src/cli/index.ts twoslash",
     "docs:preview": "node --import tsx/esm ./src/cli/index.ts preview",
     "playground": "pnpm --filter playgrounds-default dev",
+    "bench:generate-pages": "tsx scripts/generate-bench-playground.ts 500",
     "preconstruct": "tsx scripts/preconstruct.ts",
     "prepare": "simple-git-hooks"
   },
@@ -42,10 +43,15 @@
     "viem": "^2.38.3",
     "vocs": "workspace:*"
   },
+  "pnpm": {
+    "overrides": {
+      "vite": "8.0.0-beta.0"
+    }
+  },
   "simple-git-hooks": {
     "pre-commit": "pnpm check"
   },
-  "packageManager": "pnpm@10.19.0",
+  "packageManager": "pnpm@10.24.0",
   "engines": {
     "node": ">=22"
   }
