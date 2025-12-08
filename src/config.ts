@@ -610,7 +610,7 @@ export type TopNavItem<parsed extends boolean = false> =
     }
   | ({
       element?: never
-      match?: string
+      match?: string | ((path: string) => boolean)
       text: string
     } & (
       | { link: string; items?: never }

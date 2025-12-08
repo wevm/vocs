@@ -12,7 +12,12 @@ function getActiveNavIds({
   const matches: { id: number; children: number[] }[] = []
 
   for (const item of items) {
-    if (item.link && path.startsWith(item.match || item.link))
+    if (
+      item.link &&
+      (typeof item.match === 'function'
+        ? item.match(path)
+        : path.startsWith(item.match || item.link))
+    )
       matches.push({ id: item.id, children: [] })
     else if (item.items) {
       const activeChildItems = getActiveNavIds({ items: item.items, pathname })
