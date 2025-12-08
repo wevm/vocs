@@ -1,5 +1,11 @@
 # vocs
 
+## 1.2.2
+
+### Patch Changes
+
+- [`1914333`](https://github.com/wevm/vocs/commit/1914333e40d7353676812b6e45f3d0357e5da6dd) Thanks [@jxom](https://github.com/jxom)! - Enhanced sidebar active match mechanism to avoid duplicate topnav matches.
+
 ## 1.2.1
 
 ### Patch Changes
