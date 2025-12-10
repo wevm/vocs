@@ -4,6 +4,7 @@ import type { RouteObject } from 'react-router'
 import { NotFound } from './components/NotFound.js'
 import { DocsLayout } from './layouts/DocsLayout.js'
 import { Root } from './root.js'
+import { handleChunkError } from './utils/chunkError.js'
 
 const notFoundRoute = (() => {
   const virtualRoute = routes_virtual.find(({ path }) => path === '*')
@@ -11,18 +12,23 @@ const notFoundRoute = (() => {
     return {
       path: virtualRoute.path,
       lazy: async () => {
-        const { frontmatter, ...route } = await virtualRoute.lazy()
+        try {
+          const { frontmatter, ...route } = await virtualRoute.lazy()
 
-        return {
-          ...route,
-          element: (
-            <Root frontmatter={frontmatter} path={virtualRoute.path}>
-              <DocsLayout>
-                <route.default />
-              </DocsLayout>
-            </Root>
-          ),
-        } satisfies RouteObject
+          return {
+            ...route,
+            element: (
+              <Root frontmatter={frontmatter} path={virtualRoute.path}>
+                <DocsLayout>
+                  <route.default />
+                </DocsLayout>
+              </Root>
+            ),
+          } satisfies RouteObject
+        } catch (error) {
+          handleChunkError(error as Error)
+          throw error
+        }
       },
     }
 
@@ -45,24 +51,29 @@ export const routes = [
     .map((route_virtual) => ({
       path: route_virtual.path,
       lazy: async () => {
-        const { frontmatter, ...route } = await route_virtual.lazy()
+        try {
+          const { frontmatter, ...route } = await route_virtual.lazy()
 
-        return {
-          ...route,
-          element: (
-            <Root
-              content={decodeURIComponent(route_virtual.content ?? '')}
-              filePath={route_virtual.filePath}
-              frontmatter={frontmatter}
-              lastUpdatedAt={route_virtual.lastUpdatedAt}
-              path={route_virtual.path}
-            >
-              <DocsLayout>
-                <route.default />
-              </DocsLayout>
-            </Root>
-          ),
-        } satisfies RouteObject
+          return {
+            ...route,
+            element: (
+              <Root
+                content={decodeURIComponent(route_virtual.content ?? '')}
+                filePath={route_virtual.filePath}
+                frontmatter={frontmatter}
+                lastUpdatedAt={route_virtual.lastUpdatedAt}
+                path={route_virtual.path}
+              >
+                <DocsLayout>
+                  <route.default />
+                </DocsLayout>
+              </Root>
+            ),
+          } satisfies RouteObject
+        } catch (error) {
+          handleChunkError(error as Error)
+          throw error
+        }
       },
     })),
   notFoundRoute,

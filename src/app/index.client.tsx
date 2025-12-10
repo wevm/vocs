@@ -5,6 +5,7 @@ import { hydrateRoot } from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router'
 import { ConfigProvider, getConfig } from './hooks/useConfig.js'
 import { routes } from './routes.js'
+import { clearChunkReloadFlag } from './utils/chunkError.js'
 import { hydrateLazyRoutes } from './utils/hydrateLazyRoutes.js'
 import { removeTempStyles } from './utils/removeTempStyles.js'
 
@@ -17,6 +18,9 @@ async function hydrate() {
   removeTempStyles()
 
   const router = createBrowserRouter(routes, { basename: basePath })
+  router.subscribe(() => {
+    clearChunkReloadFlag()
+  })
   hydrateRoot(
     document.getElementById('app')!,
     <ConfigProvider>
