@@ -1,5 +1,11 @@
 # vocs
 
+## 1.3.1
+
+### Patch Changes
+
+- [#357](https://github.com/wevm/vocs/pull/357) [`dc417ac`](https://github.com/wevm/vocs/commit/dc417ac51d256459a40e1188120def0070a20a36) Thanks [@tmm](https://github.com/tmm)! - Added handling for "Failed to fetch dynamically imported module" errors, which can be caused by version skew.
+
 ## 1.3.0
 
 ### Minor Changes
