@@ -1,6 +1,6 @@
 import { matchRoutes, type RouteObject } from 'react-router'
 
-import { handleChunkError } from './chunkError.js'
+import { maybeHandleChunkError } from './chunkError.js'
 
 export async function hydrateLazyRoutes(routes: RouteObject[], basePath: string | undefined) {
   // Determine if any of the initial routes are lazy
@@ -21,7 +21,7 @@ export async function hydrateLazyRoutes(routes: RouteObject[], basePath: string 
         }),
       )
     } catch (error) {
-      handleChunkError(error as Error)
+      maybeHandleChunkError(error as Error)
       throw error
     }
 }

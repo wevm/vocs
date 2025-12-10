@@ -16,11 +16,9 @@ async function hydrate() {
 
   await hydrateLazyRoutes(routes, basePath)
   removeTempStyles()
+  clearChunkReloadFlag()
 
   const router = createBrowserRouter(routes, { basename: basePath })
-  router.subscribe(() => {
-    clearChunkReloadFlag()
-  })
   hydrateRoot(
     document.getElementById('app')!,
     <ConfigProvider>

@@ -4,7 +4,7 @@ import type { RouteObject } from 'react-router'
 import { NotFound } from './components/NotFound.js'
 import { DocsLayout } from './layouts/DocsLayout.js'
 import { Root } from './root.js'
-import { handleChunkError } from './utils/chunkError.js'
+import { maybeHandleChunkError } from './utils/chunkError.js'
 
 const notFoundRoute = (() => {
   const virtualRoute = routes_virtual.find(({ path }) => path === '*')
@@ -26,7 +26,7 @@ const notFoundRoute = (() => {
             ),
           } satisfies RouteObject
         } catch (error) {
-          handleChunkError(error as Error)
+          maybeHandleChunkError(error as Error)
           throw error
         }
       },
@@ -71,7 +71,7 @@ export const routes = [
             ),
           } satisfies RouteObject
         } catch (error) {
-          handleChunkError(error as Error)
+          maybeHandleChunkError(error as Error)
           throw error
         }
       },
