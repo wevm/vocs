@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs'
 import { glob } from 'node:fs/promises'
 import { relative, resolve } from 'node:path'
 import { default as fs } from 'fs-extra'
@@ -101,8 +102,40 @@ export function virtualBlog(): PluginOption {
       }
       return
     },
-    handleHotUpdate() {
-      // TODO: handle changes
+    async handleHotUpdate({ file, server }) {
+      if (!file.endsWith('.md') && !file.endsWith('.mdx')) return
+
+      try {
+        const { config } = await resolveVocsConfig()
+        const { blogDir, rootDir } = config
+        const blogDirResolved = resolve(rootDir, blogDir)
+
+        // check if file is in blog directory
+        if (!file.startsWith(blogDirResolved)) return
+
+        // skip index file
+        if (file.startsWith(`${blogDirResolved}/index`)) return
+
+        // invalidate module if file is deleted
+        if (!existsSync(file)) {
+          const mod = server.moduleGraph.getModuleById(resolvedVirtualModuleId)
+          if (mod) {
+            server.moduleGraph.invalidateModule(mod)
+            return [mod]
+          }
+          return
+        }
+
+        // invalidate virtual mod to trigger reload
+        const mod = server.moduleGraph.getModuleById(resolvedVirtualModuleId)
+        if (mod) {
+          server.moduleGraph.invalidateModule(mod)
+          return [mod]
+        }
+      } catch (_error) {
+        // errors already handled by resolveVocsConfig
+      }
+
       return
     },
   }
