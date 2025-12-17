@@ -1,10 +1,11 @@
-import { mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, relative, resolve } from 'node:path'
 import pc from 'picocolors'
 import type { Logger } from 'vite'
 import { toMarkup } from './utils/html.js'
 import { resolveOutDir } from './utils/resolveOutDir.js'
 import { resolveVocsConfig } from './utils/resolveVocsConfig.js'
+import { convertMdxToMarkdown } from './utils/mdxToMarkdown.js'
 
 type PrerenderParameters = { logger?: Logger; outDir?: string }
 
@@ -20,6 +21,7 @@ export async function prerender({ logger, outDir }: PrerenderParameters) {
 
   // Get routes to prerender.
   const routes = getRoutes(resolve(rootDir, 'pages'))
+  const pagesDir = resolve(rootDir, 'pages')
 
   // Prerender each route.
   for (const route of routes) {
@@ -50,6 +52,40 @@ export async function prerender({ logger, outDir }: PrerenderParameters) {
 
     const fileName = path.split('/').pop()!
     logger?.info(`${pc.dim(relative(rootDir, path).replace(fileName, ''))}${pc.cyan(fileName)}`)
+
+    // Generate .md file for MDX pages
+    const routeWithoutLeadingSlash = route.replace(/^\//, '')
+    const possibleSources = [
+      resolve(pagesDir, `${routeWithoutLeadingSlash}.mdx`),
+      resolve(pagesDir, `${routeWithoutLeadingSlash}.md`),
+      resolve(pagesDir, `${routeWithoutLeadingSlash}/index.mdx`),
+      resolve(pagesDir, `${routeWithoutLeadingSlash}/index.md`),
+    ]
+
+    let sourceFile: string | null = null
+    for (const src of possibleSources) {
+      if (existsSync(src)) {
+        sourceFile = src
+        break
+      }
+    }
+
+    if (sourceFile) {
+      try {
+        const markdown = await convertMdxToMarkdown(sourceFile)
+        const mdFilePath = `${isIndex ? `${route.replace(/\/$/, '')}` : route}.md`.replace(/^\//, '')
+        const mdPath = resolve(outDir_resolved, mdFilePath)
+        const mdPathDir = dirname(mdPath)
+
+        if (!isDir(mdPathDir)) mkdirSync(mdPathDir, { recursive: true })
+        writeFileSync(mdPath, markdown)
+
+        const mdFileName = mdPath.split('/').pop()!
+        logger?.info(`${pc.dim(relative(rootDir, mdPath).replace(mdFileName, ''))}${pc.cyan(mdFileName)}`)
+      } catch (error) {
+        logger?.warn(`Failed to convert ${route} to markdown: ${error}`)
+      }
+    }
   }
 
   logger?.info(`\n${pc.green('✓')} ${routes.length} pages prerendered.`)

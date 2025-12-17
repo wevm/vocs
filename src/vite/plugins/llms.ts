@@ -77,7 +77,7 @@ export async function llms(): Promise<PluginOption[]> {
                 })
 
               llmsTxtContent.push(
-                `- [${title}](${basePath}${path})${description ? `: ${description}` : ''}`,
+                `- [${title}](${basePath}${path}.md)${description ? `: ${description}` : ''}`,
               )
             })
 
