@@ -30,7 +30,7 @@ export function recmaMdxMeta() {
 
     const lastModified = vfile.path ? fs.statSync(vfile.path).mtime.toISOString() : undefined
 
-    const wrapperMeta = esast.fromJs(
+    const { body } = esast.fromJs(
       `export const meta = (args) => [
           ...(frontmatter?.title ? [{ title: frontmatter.title }] : []),
           ...(frontmatter?.description ? [{ name: 'description', content: frontmatter.description }] : []),
@@ -39,6 +39,6 @@ export function recmaMdxMeta() {
         ]`,
       { module: true },
     )
-    tree.body.push(...wrapperMeta.body)
+    tree.body.push(...body)
   }
 }
