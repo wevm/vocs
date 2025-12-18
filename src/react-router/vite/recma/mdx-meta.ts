@@ -28,15 +28,21 @@ export function recmaMdxMeta() {
       if (declarator?.id.type === 'Identifier') declarator.id.name = 'meta_user'
     }
 
-    const lastModified = vfile.path ? fs.statSync(vfile.path).mtime.toISOString() : undefined
+    const filePath = vfile.path
+    // TODO: edit url
+    const editUrl = `https://github.com/TODO`
+    const lastModified = filePath ? fs.statSync(filePath).mtime.toISOString() : undefined
 
     const { body } = esast.fromJs(
-      `export const meta = (args) => [
+      `
+        export const meta = (args) => [
           ...(frontmatter?.title ? [{ title: frontmatter.title }] : []),
           ...(frontmatter?.description ? [{ name: 'description', content: frontmatter.description }] : []),
+          ${editUrl ? `{ name: 'edit-url', content: '${editUrl}' },` : ''}
           ${lastModified ? `{ name: 'last-modified', content: '${lastModified}' },` : ''}
           ${metaNode ? `...meta_user(args),` : ''}
-        ]`,
+        ]
+      `,
       { module: true },
     )
     tree.body.push(...body)
