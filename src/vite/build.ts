@@ -133,13 +133,7 @@ export async function build({
  * For each .md/.mdx source file, creates a corresponding .md file in the output directory
  * with human-only content removed and agent-only content unwrapped.
  */
-async function generateMarkdownFiles({
-  rootDir,
-  outDir,
-}: {
-  rootDir: string
-  outDir: string
-}) {
+async function generateMarkdownFiles({ rootDir, outDir }: { rootDir: string; outDir: string }) {
   const pagesDir = resolve(rootDir, 'pages')
   const globPattern = `${pagesDir}/**/*.{md,mdx}`
   const files = await Array.fromAsync(glob(globPattern))
@@ -147,13 +141,7 @@ async function generateMarkdownFiles({
   for (const file of files) {
     try {
       // Calculate the output path (same structure but .md extension)
-      let relativePath = file.replace(pagesDir, '').replace(/\.[^.]*$/, '.md')
-
-      // Handle index files
-      if (relativePath.endsWith('/index.md')) {
-        relativePath = relativePath.replace('/index.md', '/index.md')
-      }
-
+      const relativePath = file.replace(pagesDir, '').replace(/\.[^.]*$/, '.md')
       const outputPath = resolve(outDir, relativePath.replace(/^\//, ''))
 
       // Read and process the markdown
