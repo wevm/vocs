@@ -1,5 +1,5 @@
 import { glob } from 'node:fs/promises'
-import { resolve } from 'node:path'
+import { dirname, resolve } from 'node:path'
 import { default as fs } from 'fs-extra'
 import type { Heading } from 'mdast'
 import { directiveToMarkdown } from 'mdast-util-directive'
@@ -121,17 +121,24 @@ export async function llms(): Promise<PluginOption[]> {
               }
             })
 
-            llmsCtxTxtContent.push(
-              toMarkdown(ast, {
-                extensions: [
-                  directiveToMarkdown(),
-                  gfmToMarkdown(),
-                  mdxJsxToMarkdown(),
-                  mdxToMarkdown(),
-                ],
-              }),
-              '',
-            )
+            const processedMarkdown = toMarkdown(ast, {
+              extensions: [
+                directiveToMarkdown(),
+                gfmToMarkdown(),
+                mdxJsxToMarkdown(),
+                mdxToMarkdown(),
+              ],
+            })
+
+            llmsCtxTxtContent.push(processedMarkdown, '')
+
+            // Write individual .md files for AI agents when flag is set
+            if (agentMarkdown) {
+              const relativePath = file.replace(pagesPath, '').replace(/\.[^.]*$/, '.md')
+              const outputPath = resolve(outDir, relativePath.replace(/^\//, ''))
+              fs.ensureDirSync(dirname(outputPath))
+              fs.writeFileSync(outputPath, processedMarkdown)
+            }
           } catch (e) {
             console.error(e)
           }
