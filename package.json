@@ -75,6 +75,11 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
+    "./globals": {
+      "src": "./src/globals.d.ts",
+      "types": "./dist/globals.d.d.ts",
+      "default": "./dist/globals.d.js"
+    },
     "./vite": {
       "src": "./src/vite.ts",
       "types": "./dist/vite.d.ts",
