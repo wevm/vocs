@@ -3,8 +3,8 @@
 <p align="center">
   <a href="https://vocs.dev">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://github.com/wevm/vocs-next/blob/main/.github/logo-dark.svg">
-      <img alt="vocs logo" src="https://github.com/wevm/vocs-next/blob/main/.github/logo-light.svg" width="auto" height="40">
+      <source media="(prefers-color-scheme: dark)" srcset="https://github.com/wevm/vocs-next/blob/main/.github/logo-dark.png">
+      <img alt="vocs logo" src="https://github.com/wevm/vocs-next/blob/main/.github/logo-light.png" width="auto" height="100">
     </picture>
   </a>
 </p>
