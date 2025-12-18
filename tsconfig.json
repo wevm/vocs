@@ -1,0 +1,9 @@
+{
+  "files": [],
+  "references": [{ "path": "./src" }, { "path": "./playground" }],
+  "compilerOptions": {
+    "customConditions": ["src"],
+    "module": "nodenext",
+    "moduleResolution": "nodenext"
+  }
+}

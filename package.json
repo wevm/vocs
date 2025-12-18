@@ -1,0 +1,94 @@
+{
+  "scripts": {
+    "build": "zile && cp src/globals.d.ts dist/globals.d.ts",
+    "clean": "tsc -b --clean && rm -rf dist",
+    "changeset:publish": "zile publish:prepare && changeset publish && zile publish:post",
+    "changeset:version": "changeset version",
+    "check": "biome check --fix --unsafe",
+    "check:types": "tsc -b",
+    "dev": "zile dev",
+    "dev:playground": "pnpm --filter playground dev",
+    "test": "vitest"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "catalog:",
+    "@changesets/cli": "catalog:",
+    "@react-router/dev": "catalog:",
+    "@types/estree": "^1.0.8",
+    "@types/mdast": "^4.0.4",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "astring": "^1.9.0",
+    "react": "catalog:",
+    "simple-git-hooks": "catalog:",
+    "tsx": "^4.21.0",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:",
+    "zile": "catalog:"
+  },
+  "packageManager": "pnpm@10.25.0",
+  "simple-git-hooks": {
+    "pre-commit": "pnpm check"
+  },
+  "[!start-pkg]": "",
+  "name": "vocs",
+  "type": "module",
+  "version": "0.0.0",
+  "main": "./dist/index.js",
+  "license": "MIT",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "dependencies": {
+    "@mdx-js/rollup": "^3.1.1",
+    "esast-util-from-js": "^2.0.1",
+    "estree-util-visit": "^2.0.0",
+    "react-router": "7.10.1",
+    "remark-frontmatter": "^5.0.0",
+    "remark-mdx-frontmatter": "^5.2.0"
+  },
+  "peerDependencies": {
+    "@react-router/dev": "^7",
+    "react": "^19",
+    "react-router": "^7",
+    "vite": "^7"
+  },
+  "peerDependenciesMeta": {
+    "@react-router/dev": {
+      "optional": true
+    },
+    "react-router": {
+      "optional": true
+    },
+    "vite": {
+      "optional": true
+    }
+  },
+  "sideEffects": false,
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "src": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./vite": {
+      "src": "./src/vite.ts",
+      "types": "./dist/vite.d.ts",
+      "default": "./dist/vite.js"
+    },
+    "./react-router": {
+      "src": "./src/react-router/index.ts",
+      "types": "./dist/react-router/index.d.ts",
+      "default": "./dist/react-router/index.js"
+    },
+    "./react-router/vite": {
+      "src": "./src/react-router/vite.ts",
+      "types": "./dist/react-router/vite.d.ts",
+      "default": "./dist/react-router/vite.js"
+    }
+  }
+}

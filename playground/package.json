@@ -1,0 +1,28 @@
+{
+  "name": "playground",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "NODE_OPTIONS='--import=tsx' react-router build",
+    "dev": "NODE_OPTIONS='--import=tsx' react-router dev",
+    "start": "react-router-serve ./build/server/index.js",
+    "typecheck": "react-router typegen && tsc"
+  },
+  "dependencies": {
+    "@mdx-js/rollup": "^3.1.1",
+    "@react-router/node": "7.10.1",
+    "@react-router/serve": "7.10.1",
+    "isbot": "^5.1.31",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "react-router": "7.10.1",
+    "vocs": "workspace:*"
+  },
+  "devDependencies": {
+    "@react-router/dev": "7.10.1",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "typescript": "^5.9.2",
+    "vite": "^7.1.7"
+  }
+}

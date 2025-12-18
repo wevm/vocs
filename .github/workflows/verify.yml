@@ -1,0 +1,37 @@
+name: Verify
+on:
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  checks:
+    name: Checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
+
+      - name: Check code
+        run: pnpm check
+
+      - name: Check types
+        run: pnpm check:types
+
+  test:
+    name: Test Runtime
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
+
+      - name: Run tests
+        run: pnpm run test --bail=1
+        env:
+          CI: true
