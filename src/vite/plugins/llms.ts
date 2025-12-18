@@ -14,6 +14,7 @@ import { type Plugin, unified } from 'unified'
 import { visit } from 'unist-util-visit'
 import type { PluginOption, UserConfig } from 'vite'
 
+import * as cache from '../utils/cache.js'
 import { resolveVocsConfig } from '../utils/resolveVocsConfig.js'
 import { getRemarkPlugins } from './mdx.js'
 
@@ -32,7 +33,10 @@ export async function llms(): Promise<PluginOption[]> {
         if (!outDir) return
 
         const { config } = await resolveVocsConfig()
-        const { basePath, description, rootDir, title = 'Docs' } = config ?? {}
+        const { basePath, cacheDir, description, rootDir, title = 'Docs' } = config ?? {}
+
+        // Check if agentMarkdown flag was set during build
+        const agentMarkdown = cache.search({ cacheDir }).get('agentMarkdown') ?? false
 
         const content = [`# ${title}`, '']
         if (description) content.push(`> ${description}`, '')
@@ -76,8 +80,10 @@ export async function llms(): Promise<PluginOption[]> {
                   return
                 })
 
+              // Link to .md files if agentMarkdown is enabled, otherwise link to HTML pages
+              const linkExtension = agentMarkdown ? '.md' : ''
               llmsTxtContent.push(
-                `- [${title}](${basePath}${path})${description ? `: ${description}` : ''}`,
+                `- [${title}](${basePath}${path}${linkExtension})${description ? `: ${description}` : ''}`,
               )
             })
 
@@ -96,6 +102,23 @@ export async function llms(): Promise<PluginOption[]> {
               if (!p) return
               if (typeof i !== 'number') return
               p.children.splice(i, 1)
+            })
+
+            // filter audience directives for llms output:
+            // - remove human-only content (not for AI agents)
+            // - unwrap agent-only content (include it, but remove the directive wrapper)
+            visit(ast, 'containerDirective', (node: any, i, parent: any) => {
+              if (!parent || typeof i !== 'number') return
+              if (node.name === 'human-only') {
+                // Remove human-only content entirely
+                parent.children.splice(i, 1)
+                return i // Revisit this index since we removed an element
+              }
+              if (node.name === 'agent-only') {
+                // Unwrap agent-only content (keep children, remove wrapper)
+                parent.children.splice(i, 1, ...node.children)
+                return i // Revisit this index
+              }
             })
 
             llmsCtxTxtContent.push(

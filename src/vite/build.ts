@@ -1,4 +1,5 @@
-import { resolve } from 'node:path'
+import { glob } from 'node:fs/promises'
+import { dirname, resolve } from 'node:path'
 import { cwd } from 'node:process'
 import { default as fs } from 'fs-extra'
 import * as vite from 'vite'
@@ -6,11 +7,13 @@ import * as vite from 'vite'
 import { postbuild } from './plugins/postbuild.js'
 import { prerender } from './prerender.js'
 import * as cache from './utils/cache.js'
+import { processMarkdownForAgent } from './utils/processMarkdownForAgent.js'
 import { resolveOutDir } from './utils/resolveOutDir.js'
 import { resolveVocsConfig } from './utils/resolveVocsConfig.js'
 import { vercelBuildOutputDir, writeBuildOutputConfig } from './utils/vercel.js'
 
 export type BuildParameters = {
+  agentMarkdown?: boolean
   clean?: boolean
   logger?: vite.Logger
   hooks?: {
@@ -28,6 +31,7 @@ export type BuildParameters = {
 }
 
 export async function build({
+  agentMarkdown = false,
   clean,
   logger,
   hooks,
@@ -46,6 +50,7 @@ export async function build({
   if (clean) cache.clear({ cacheDir })
 
   cache.search({ cacheDir }).set('buildSearchIndex', searchIndex)
+  cache.search({ cacheDir }).set('agentMarkdown', agentMarkdown)
 
   fs.rmSync(outDir_resolved, { recursive: true, force: true })
 
@@ -89,6 +94,11 @@ export async function build({
     hooks?.onPrerenderEnd?.({ error: error as Error })
   }
 
+  // Generate .md files for AI agents (only if --agentMarkdown flag is set)
+  if (agentMarkdown) {
+    await generateMarkdownFiles({ rootDir, outDir: outDir_resolved })
+  }
+
   // copy public folder
   fs.copySync(resolve(import.meta.dirname, '../app/public'), outDir_resolved)
 
@@ -116,4 +126,45 @@ export async function build({
   }
 
   if (outDir_resolved.startsWith(vercelBuildOutputDir)) writeBuildOutputConfig()
+}
+
+/**
+ * Generates .md files for AI agents by processing source markdown files.
+ * For each .md/.mdx source file, creates a corresponding .md file in the output directory
+ * with human-only content removed and agent-only content unwrapped.
+ */
+async function generateMarkdownFiles({
+  rootDir,
+  outDir,
+}: {
+  rootDir: string
+  outDir: string
+}) {
+  const pagesDir = resolve(rootDir, 'pages')
+  const globPattern = `${pagesDir}/**/*.{md,mdx}`
+  const files = await Array.fromAsync(glob(globPattern))
+
+  for (const file of files) {
+    try {
+      // Calculate the output path (same structure but .md extension)
+      let relativePath = file.replace(pagesDir, '').replace(/\.[^.]*$/, '.md')
+
+      // Handle index files
+      if (relativePath.endsWith('/index.md')) {
+        relativePath = relativePath.replace('/index.md', '/index.md')
+      }
+
+      const outputPath = resolve(outDir, relativePath.replace(/^\//, ''))
+
+      // Read and process the markdown
+      const content = fs.readFileSync(file, 'utf-8')
+      const processedContent = processMarkdownForAgent(content)
+
+      // Ensure output directory exists and write the file
+      fs.ensureDirSync(dirname(outputPath))
+      fs.writeFileSync(outputPath, processedContent)
+    } catch (e) {
+      console.error(`Error generating markdown for ${file}:`, e)
+    }
+  }
 }

@@ -25,6 +25,7 @@ import type { ParsedConfig } from '../../config.js'
 import { resolveVocsConfig } from '../utils/resolveVocsConfig.js'
 import { rehypeShikiDisplayNotation } from './rehype/display-shiki-notation.js'
 import { rehypeInlineShiki } from './rehype/inline-shiki.js'
+import { remarkAudience } from './remark/audience.js'
 import { remarkAuthors } from './remark/authors.js'
 import { remarkBlogPosts } from './remark/blog-posts.js'
 import { remarkCallout } from './remark/callout.js'
@@ -65,6 +66,7 @@ export const getRemarkPlugins = ({ markdown }: RemarkPluginsParameters = {}) =>
     remarkLinks,
     remarkBlogPosts,
     remarkCallout,
+    remarkAudience,
     remarkCode,
     remarkCodeGroup,
     remarkDetails,

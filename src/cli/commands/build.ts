@@ -6,10 +6,11 @@ import { version } from '../version.js'
 
 export type BuildParameters = Pick<
   BuildParameters_,
-  'clean' | 'logLevel' | 'outDir' | 'publicDir' | 'searchIndex'
+  'clean' | 'logLevel' | 'outDir' | 'publicDir' | 'searchIndex' | 'agentMarkdown'
 > & { clearScreen?: boolean }
 
 export async function build({
+  agentMarkdown = false,
   clean,
   clearScreen = true,
   logLevel,
@@ -34,6 +35,7 @@ export async function build({
   logger.info('')
   logger.info(`  ${pc.blue('[building]')} ${pc.bold('vocs')}@${pc.dim(`v${version}`)}\n`)
   await build({
+    agentMarkdown,
     clean,
     hooks: {
       onBundleStart() {

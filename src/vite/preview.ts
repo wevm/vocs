@@ -17,6 +17,7 @@ export async function preview({ outDir = 'dist' }: PreviewParameters = {}) {
   const app = new Hono()
 
   app.use('*', compress())
+
   app.use(
     '/*',
     serveStatic({
