@@ -3,6 +3,7 @@
   "references": [{ "path": "./src" }, { "path": "./playground" }],
   "compilerOptions": {
     "customConditions": ["src"],
+    "lib": ["ESNext"],
     "module": "nodenext",
     "moduleResolution": "nodenext",
     "jsx": "react-jsx"

@@ -10,22 +10,31 @@ import type { VFile } from 'vfile'
  */
 export function recmaMdxMeta() {
   return (tree: Program, vfile: VFile) => {
+    let loaderNode: ExportNamedDeclaration | undefined
     let metaNode: ExportNamedDeclaration | undefined
 
     estree.visit(tree, (node) => {
       if (
         node.type === 'ExportNamedDeclaration' &&
         node.declaration?.type === 'VariableDeclaration' &&
-        node.declaration.declarations[0]?.id.type === 'Identifier' &&
-        node.declaration.declarations[0].id.name === 'meta'
-      )
-        metaNode = node
+        node.declaration.declarations[0]?.id.type === 'Identifier'
+      ) {
+        const pattern = node.declaration.declarations[0]?.id
+        if (pattern.name === 'meta') metaNode = node
+        if (pattern.name === 'loader') loaderNode = node
+      }
     })
 
     const declaration = metaNode?.declaration
     if (declaration?.type === 'VariableDeclaration') {
       const declarator = declaration.declarations[0]
       if (declarator?.id.type === 'Identifier') declarator.id.name = 'meta_user'
+    }
+
+    const loaderDeclaration = loaderNode?.declaration
+    if (loaderDeclaration?.type === 'VariableDeclaration') {
+      const declarator = loaderDeclaration.declarations[0]
+      if (declarator?.id.type === 'Identifier') declarator.id.name = 'loader_user'
     }
 
     const filePath = vfile.path
@@ -36,12 +45,20 @@ export function recmaMdxMeta() {
     const { body } = esast.fromJs(
       `
         export const meta = (args) => [
-          ...(frontmatter?.title ? [{ title: frontmatter.title }] : []),
-          ...(frontmatter?.description ? [{ name: 'description', content: frontmatter.description }] : []),
+          { title: frontmatter?.title ?? 'TODO' },
+          { name: 'description', content: frontmatter?.description ?? 'TODO' },
           ${editUrl ? `{ name: 'edit-url', content: '${editUrl}' },` : ''}
           ${lastModified ? `{ name: 'last-modified', content: '${lastModified}' },` : ''}
           ${metaNode ? `...meta_user(args),` : ''}
         ]
+
+        export const loader = async (args) => {
+          ${loaderNode ? `const result = await loader_user(args)` : 'const result = {}'}
+          return {
+            ...result,
+            ...(args.content ? { content: ${JSON.stringify(String(vfile.value))} } : {}),
+          }
+        }
       `,
       { module: true },
     )

@@ -1,0 +1,113 @@
+---
+title: "Data Fetching 213"
+description: "Efficient data loading strategies"
+---
+
+# Data Fetching 213
+
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce vestibulum ante non neque convallis tempor. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.
+
+## Basic Types
+
+Nunc nunc dui, varius eget diam vitae, sagittis rutrum ante. Vestibulum ut nulla in ante tincidunt lacinia.
+
+```ts twoslash
+type User = {
+  id: number
+  name: string
+  email: string
+}
+
+const user: User = {
+  id: 1,
+  name: "Alice",
+  email: "alice@example.com"
+}
+```
+
+## Functions
+
+In bibendum sapien at nisi pharetra tincidunt. Etiam eleifend lacus dictum lorem ornare euismod.
+
+```ts twoslash
+function greet(name: string): string {
+  return `Hello, ${name}!`
+}
+
+const message = greet("World")
+//    ^?
+```
+
+## Generics
+
+Pellentesque cursus mi id tortor convallis eleifend. Lorem ipsum dolor sit amet.
+
+```ts twoslash
+function identity<T>(value: T): T {
+  return value
+}
+
+const num = identity(42)
+//    ^?
+const str = identity("hello")
+//    ^?
+```
+
+## Async Operations
+
+Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.
+
+```ts twoslash
+async function fetchData<T>(url: string): Promise<T> {
+  const response = await fetch(url)
+  return response.json()
+}
+
+interface Post {
+  id: number
+  title: string
+}
+
+const post = fetchData<Post>("/api/posts/1")
+//    ^?
+```
+
+## Classes
+
+Vitae iaculis sapien tincidunt vel. Nunc nunc dui, varius eget diam vitae.
+
+```ts twoslash
+class Counter {
+  private count = 0
+
+  increment(): void {
+    this.count++
+  }
+
+  getCount(): number {
+    return this.count
+  }
+}
+
+const counter = new Counter()
+//    ^?
+```
+
+## Utility Types
+
+Suspendisse ex orci, elementum vitae enim sed, pellentesque fermentum tortor.
+
+```ts twoslash
+interface Config {
+  host: string
+  port: number
+}
+
+type PartialConfig = Partial<Config>
+//   ^?
+
+type ConfigKeys = keyof Config
+//   ^?
+```
+

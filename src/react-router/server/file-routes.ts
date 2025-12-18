@@ -3,9 +3,12 @@
  * Additional changes:
  * - Support for sibling TSX/MDX routes
  * - Fallback routes
+ * - Alternative import compatible escape characters
  */
 
 import './fallback-routes/$.js'
+import './fallback-routes/llms!.txt!.js'
+import './fallback-routes/llms-full!.txt!.js'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { getAppDirectory, type RouteConfigEntry } from '@react-router/dev/routes'
@@ -121,6 +124,7 @@ export const routeModuleExts = ['.js', '.jsx', '.ts', '.tsx', '.md', '.mdx']
 export const paramPrefixChar = '$' as const
 export const escapeStart = '[' as const
 export const escapeEnd = ']' as const
+export const escapeChar = '!' as const
 
 export const optionalStart = '(' as const
 export const optionalEnd = ')' as const
@@ -462,6 +466,16 @@ export function getRouteSegments(routeId: string): [string[], string[]] {
           state = 'NORMAL'
           break
         }
+        if (char === escapeChar) {
+          // ! escapes the next character (e.g., !. becomes literal .)
+          const nextChar = routeId[index]
+          if (nextChar) {
+            index++
+            routeSegment += nextChar
+            rawRouteSegment += char + nextChar
+          }
+          break
+        }
         if (char === escapeStart) {
           state = 'ESCAPE'
           rawRouteSegment += char
@@ -503,6 +517,16 @@ export function getRouteSegments(routeId: string): [string[], string[]] {
           routeSegment += '?'
           rawRouteSegment += char
           state = 'NORMAL'
+          break
+        }
+
+        if (char === escapeChar) {
+          const nextChar = routeId[index]
+          if (nextChar) {
+            index++
+            routeSegment += nextChar
+            rawRouteSegment += char + nextChar
+          }
           break
         }
 
