@@ -47,7 +47,8 @@
     "estree-util-visit": "^2.0.0",
     "react-router": "7.10.1",
     "remark-frontmatter": "^5.0.0",
-    "remark-mdx-frontmatter": "^5.2.0"
+    "remark-mdx-frontmatter": "^5.2.0",
+    "vfile": "^6.0.3"
   },
   "peerDependencies": {
     "@react-router/dev": "^7",
@@ -86,14 +87,19 @@
       "default": "./dist/react-router/index.js"
     },
     "./react-router/vite": {
-      "src": "./src/react-router/vite.ts",
-      "types": "./dist/react-router/vite.d.ts",
-      "default": "./dist/react-router/vite.js"
+      "src": "./src/react-router/vite/index.ts",
+      "types": "./dist/react-router/vite/index.d.ts",
+      "default": "./dist/react-router/vite/index.js"
+    },
+    "./react-router/server": {
+      "src": "./src/react-router/server/index.ts",
+      "types": "./dist/react-router/server/index.d.ts",
+      "default": "./dist/react-router/server/index.js"
     },
     "./vite": {
-      "src": "./src/vite.ts",
-      "types": "./dist/vite.d.ts",
-      "default": "./dist/vite.js"
+      "src": "./src/vite/index.ts",
+      "types": "./dist/vite/index.d.ts",
+      "default": "./dist/vite/index.js"
     }
   }
 }

@@ -4,6 +4,7 @@
   "compilerOptions": {
     "customConditions": ["src"],
     "module": "nodenext",
-    "moduleResolution": "nodenext"
+    "moduleResolution": "nodenext",
+    "jsx": "react-jsx"
   }
 }

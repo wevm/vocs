@@ -5,6 +5,7 @@
  * - Fallback routes
  */
 
+import './fallback-routes/$.js'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { getAppDirectory, type RouteConfigEntry } from '@react-router/dev/routes'

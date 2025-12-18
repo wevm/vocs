@@ -1,4 +1,5 @@
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from 'react-router'
+import { VocsProvider } from 'vocs/react-router'
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -10,7 +11,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        {children}
+        <VocsProvider>{children}</VocsProvider>
         <ScrollRestoration />
         <Scripts />
       </body>

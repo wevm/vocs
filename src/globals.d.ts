@@ -9,3 +9,8 @@ declare module '*.md' {
   export default function MDXContent(props: Record<string, unknown>): JSX.Element
   export const frontmatter: Frontmatter
 }
+
+declare module '*?raw' {
+  const content: string
+  export default content
+}

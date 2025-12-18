@@ -8,7 +8,7 @@ export function vocs(options: vocs.Options = {}): PluginOption {
   const { jsxImportSource = 'react', remarkPlugins = [] } = mdxOptions ?? {}
   return [
     mdx({
-      ...options,
+      ...mdxOptions,
       jsxImportSource,
       remarkPlugins: [remarkFrontmatter, remarkMdxFrontmatter, ...(remarkPlugins ?? [])],
     }),

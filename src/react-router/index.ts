@@ -1,3 +1,3 @@
 import '../globals.d.ts'
 
-export { fileRoutes } from './file-routes.js'
+export { VocsProvider } from './Provider.js'
