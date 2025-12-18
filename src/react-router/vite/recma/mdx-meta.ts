@@ -1,7 +1,7 @@
-import { statSync } from 'node:fs'
-import { fromJs } from 'esast-util-from-js'
+import * as fs from 'node:fs'
+import * as esast from 'esast-util-from-js'
 import type { ExportNamedDeclaration, Program } from 'estree'
-import { visit } from 'estree-util-visit'
+import * as estree from 'estree-util-visit'
 import type { VFile } from 'vfile'
 
 /**
@@ -12,7 +12,7 @@ export function recmaMdxMeta() {
   return (tree: Program, vfile: VFile) => {
     let metaNode: ExportNamedDeclaration | undefined
 
-    visit(tree, (node) => {
+    estree.visit(tree, (node) => {
       if (
         node.type === 'ExportNamedDeclaration' &&
         node.declaration?.type === 'VariableDeclaration' &&
@@ -28,9 +28,9 @@ export function recmaMdxMeta() {
       if (declarator?.id.type === 'Identifier') declarator.id.name = 'meta_user'
     }
 
-    const lastModified = vfile.path ? statSync(vfile.path).mtime.toISOString() : undefined
+    const lastModified = vfile.path ? fs.statSync(vfile.path).mtime.toISOString() : undefined
 
-    const wrapperMeta = fromJs(
+    const wrapperMeta = esast.fromJs(
       `export const meta = (args) => [
           ...(frontmatter?.title ? [{ title: frontmatter.title }] : []),
           ...(frontmatter?.description ? [{ name: 'description', content: frontmatter.description }] : []),
