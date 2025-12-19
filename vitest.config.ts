@@ -7,5 +7,6 @@ export default defineConfig({
       vocs: path.resolve(import.meta.dirname, 'src'),
     },
     globals: true,
+    passWithNoTests: true,
   },
 })

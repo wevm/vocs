@@ -78,7 +78,7 @@
     },
     "./globals": {
       "src": "./src/globals.d.ts",
-      "types": "./dist/globals.d.d.ts",
+      "types": "./dist/globals.d.ts",
       "default": "./dist/globals.d.js"
     },
     "./react-router": {
