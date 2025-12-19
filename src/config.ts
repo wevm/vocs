@@ -191,7 +191,7 @@ export type Config<
      * LLM-related output configuration.
      */
     llms?: {
-      /** Generate .md files for AI agents alongside HTML pages. */
+      /** Generate .md files for LLMs alongside HTML pages. */
       generateMarkdown?: boolean
     }
     /**

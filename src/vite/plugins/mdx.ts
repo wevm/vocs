@@ -25,12 +25,12 @@ import type { ParsedConfig } from '../../config.js'
 import { resolveVocsConfig } from '../utils/resolveVocsConfig.js'
 import { rehypeShikiDisplayNotation } from './rehype/display-shiki-notation.js'
 import { rehypeInlineShiki } from './rehype/inline-shiki.js'
-import { remarkAudience } from './remark/audience.js'
 import { remarkAuthors } from './remark/authors.js'
 import { remarkBlogPosts } from './remark/blog-posts.js'
 import { remarkCallout } from './remark/callout.js'
 import { remarkCode } from './remark/code.js'
 import { remarkCodeGroup } from './remark/code-group.js'
+import { remarkContentVisibility } from './remark/content-visibility.js'
 import { remarkDetails } from './remark/details.js'
 import { remarkFilename } from './remark/filename.js'
 import { remarkInferFrontmatter } from './remark/inferred-frontmatter.js'
@@ -66,9 +66,9 @@ export const getRemarkPlugins = ({ markdown }: RemarkPluginsParameters = {}) =>
     remarkLinks,
     remarkBlogPosts,
     remarkCallout,
-    remarkAudience,
     remarkCode,
     remarkCodeGroup,
+    remarkContentVisibility,
     remarkDetails,
     remarkFilename,
     remarkSponsors,

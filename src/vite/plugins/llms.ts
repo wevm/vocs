@@ -16,6 +16,7 @@ import type { PluginOption, UserConfig } from 'vite'
 
 import { resolveVocsConfig } from '../utils/resolveVocsConfig.js'
 import { getRemarkPlugins } from './mdx.js'
+import { filterContentVisibility } from './remark/content-visibility.js'
 
 const remarkPlugins = getRemarkPlugins()
 
@@ -103,23 +104,8 @@ export async function llms(): Promise<PluginOption[]> {
               p.children.splice(i, 1)
             })
 
-            // filter audience directives for llms output:
-            // - remove human-only content (not for AI agents)
-            // - unwrap agent-only content (include it, but remove the directive wrapper)
-            visit(ast, 'containerDirective', (node: any, i, parent: any) => {
-              if (!parent || typeof i !== 'number') return
-              if (node.name === 'human-only') {
-                // Remove human-only content entirely
-                parent.children.splice(i, 1)
-                return i // Revisit this index since we removed an element
-              }
-              if (node.name === 'agent-only') {
-                // Unwrap agent-only content (keep children, remove wrapper)
-                parent.children.splice(i, 1, ...node.children)
-                return i // Revisit this index
-              }
-              return undefined
-            })
+            // filter content type directives for markdown output
+            filterContentVisibility(ast, 'md')
 
             const processedMarkdown = toMarkdown(ast, {
               extensions: [

@@ -467,6 +467,51 @@ import { Example } from './components/Example'
 :::
 ````
 
+## Content Visibility
+
+:::::code-group
+
+<div data-title="Preview">
+
+::::show[md]
+This content is only for Markdown output.
+::::
+
+::::show[html]
+This content is only for HTML output.
+::::
+
+::::hide[md]
+This content is hidden for Markdown output.
+::::
+
+::::hide[html]
+This content is hidden for HTML output.
+::::
+
+</div>
+
+```md [Markdown]
+:::show[md]
+This content is only for Markdown output.
+::::
+
+::::show[html]
+This content is only for HTML output.
+::::
+
+::::hide[md]
+This content is hidden for Markdown output.
+::::
+
+::::hide[html]
+This content is hidden for HTML output.
+::::
+```
+
+
+:::::
+
 ## Details
 
 :::::code-group
