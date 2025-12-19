@@ -206,6 +206,13 @@ export type Config<
      */
     twoslash?: Normalize<TwoslashOptions> | false
     /**
+     * LLM-related output configuration.
+     */
+    llms?: {
+      /** Generate .md files for LLMs alongside HTML pages. */
+      generateMarkdown?: boolean
+    }
+    /**
      * Vite configuration.
      */
     vite?: UserConfig

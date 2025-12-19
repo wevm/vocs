@@ -1,5 +1,5 @@
 import { glob } from 'node:fs/promises'
-import { resolve } from 'node:path'
+import { dirname, resolve } from 'node:path'
 import { default as fs } from 'fs-extra'
 import type { Heading } from 'mdast'
 import { directiveToMarkdown } from 'mdast-util-directive'
@@ -16,6 +16,7 @@ import type { PluginOption, UserConfig } from 'vite'
 
 import { resolveVocsConfig } from '../utils/resolveVocsConfig.js'
 import { getRemarkPlugins } from './mdx.js'
+import { filterContentVisibility } from './remark/content-visibility.js'
 
 const remarkPlugins = getRemarkPlugins()
 
@@ -32,7 +33,10 @@ export async function llms(): Promise<PluginOption[]> {
         if (!outDir) return
 
         const { config } = await resolveVocsConfig()
-        const { basePath, description, rootDir, title = 'Docs' } = config ?? {}
+        const { basePath, description, llms, rootDir, title = 'Docs' } = config ?? {}
+
+        // Check if generateMarkdown is enabled in config
+        const generateMarkdown = llms?.generateMarkdown ?? false
 
         const content = [`# ${title}`, '']
         if (description) content.push(`> ${description}`, '')
@@ -76,8 +80,10 @@ export async function llms(): Promise<PluginOption[]> {
                   return
                 })
 
+              // Link to .md files if generateMarkdown is enabled, otherwise link to HTML pages
+              const linkExtension = generateMarkdown ? '.md' : ''
               llmsTxtContent.push(
-                `- [${title}](${basePath}${path})${description ? `: ${description}` : ''}`,
+                `- [${title}](${basePath}${path}${linkExtension})${description ? `: ${description}` : ''}`,
               )
             })
 
@@ -98,17 +104,27 @@ export async function llms(): Promise<PluginOption[]> {
               p.children.splice(i, 1)
             })
 
-            llmsCtxTxtContent.push(
-              toMarkdown(ast, {
-                extensions: [
-                  directiveToMarkdown(),
-                  gfmToMarkdown(),
-                  mdxJsxToMarkdown(),
-                  mdxToMarkdown(),
-                ],
-              }),
-              '',
-            )
+            // filter content type directives for markdown output
+            filterContentVisibility(ast, 'md')
+
+            const processedMarkdown = toMarkdown(ast, {
+              extensions: [
+                directiveToMarkdown(),
+                gfmToMarkdown(),
+                mdxJsxToMarkdown(),
+                mdxToMarkdown(),
+              ],
+            })
+
+            llmsCtxTxtContent.push(processedMarkdown, '')
+
+            // Write individual .md files for AI agents when config is enabled
+            if (generateMarkdown) {
+              const relativePath = file.replace(pagesPath, '').replace(/\.[^.]*$/, '.md')
+              const outputPath = resolve(outDir, relativePath.replace(/^\//, ''))
+              fs.ensureDirSync(dirname(outputPath))
+              fs.writeFileSync(outputPath, processedMarkdown)
+            }
           } catch (e) {
             console.error(e)
           }

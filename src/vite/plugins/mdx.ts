@@ -30,6 +30,7 @@ import { remarkBlogPosts } from './remark/blog-posts.js'
 import { remarkCallout } from './remark/callout.js'
 import { remarkCode } from './remark/code.js'
 import { remarkCodeGroup } from './remark/code-group.js'
+import { remarkContentVisibility } from './remark/content-visibility.js'
 import { remarkDetails } from './remark/details.js'
 import { remarkFilename } from './remark/filename.js'
 import { remarkInferFrontmatter } from './remark/inferred-frontmatter.js'
@@ -67,6 +68,7 @@ export const getRemarkPlugins = ({ markdown }: RemarkPluginsParameters = {}) =>
     remarkCallout,
     remarkCode,
     remarkCodeGroup,
+    remarkContentVisibility,
     remarkDetails,
     remarkFilename,
     remarkSponsors,
