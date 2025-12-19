@@ -28,6 +28,7 @@ export function remarkAudience() {
         parent.children.splice(i, 1, ...node.children)
         return i // Revisit this index
       }
+      return undefined
     })
   }
 }

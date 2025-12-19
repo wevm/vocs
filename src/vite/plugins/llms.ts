@@ -119,6 +119,7 @@ export async function llms(): Promise<PluginOption[]> {
                 parent.children.splice(i, 1, ...node.children)
                 return i // Revisit this index
               }
+              return undefined
             })
 
             const processedMarkdown = toMarkdown(ast, {
