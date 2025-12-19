@@ -11,6 +11,7 @@ export function useLayout(): Layout {
     layout: layout_,
     showLogo,
     showAiCta,
+    showLlmLink,
     showOutline,
     showSidebar,
     showTopNav,
@@ -27,6 +28,11 @@ export function useLayout(): Layout {
     get showAiCta() {
       if (typeof showAiCta !== 'undefined') return showAiCta
       if (aiCta === false) return false
+      return layout === 'docs'
+    },
+    get showLlmLink() {
+      if (typeof showLlmLink !== 'undefined') return showLlmLink
+      if (showLlmLink === false) return false
       return layout === 'docs'
     },
     get showOutline() {

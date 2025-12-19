@@ -6,6 +6,7 @@ import { useLayout } from '../hooks/useLayout.js'
 import { debounce } from '../utils/debounce.js'
 import { deserializeElement } from '../utils/deserializeElement.js'
 import { AiCtaDropdown } from './AiCtaDropdown.js'
+import { LlmLink } from './LlmLink.js'
 import { root as Heading, slugTarget } from './mdx/Heading.css.js'
 import * as styles from './Outline.css.js'
 
@@ -30,7 +31,7 @@ export function Outline({
   onClickItem?: () => void
   showTitle?: boolean
 } = {}) {
-  const { outlineFooter } = useConfig()
+  const { outlineFooter, llmLink } = useConfig()
 
   const { showOutline, showAiCta } = useLayout()
   const maxLevel = (() => {
@@ -165,13 +166,14 @@ export function Outline({
 
   const hasItems = items.length > 0
 
-  // If there are no items and no AI CTA, don't render anything
-  if (!hasItems && !showAiCta) return null
+  // If there are no items and no AI CTA and no LLM link, don't render anything
+  if (!hasItems && !showAiCta && !llmLink) return null
 
   const levelItems = hasItems ? items.filter((item) => item.level === minLevel) : []
   return (
     <aside className={styles.root}>
       {showAiCta && <AiCtaDropdown />}
+      {llmLink && <LlmLink />}
       {hasItems && (
         <nav className={styles.nav}>
           {showTitle && <h2 className={styles.heading}>On this page</h2>}

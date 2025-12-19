@@ -24,7 +24,8 @@ export type Frontmatter = {
 
 export type Layout = {
   layout: 'docs' | 'landing' | 'minimal'
-  showAiCta: boolean
+  showAiCta?: boolean
+  showLlmLink?: boolean
   showLogo: boolean
   showOutline: number | boolean
   showSidebar: boolean

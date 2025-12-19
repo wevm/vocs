@@ -44,6 +44,24 @@ export type Config<
           query: (p: { location: string }) => string
         }
     /**
+     * Whether or not to show the LLM link in the outline (ie. "LLM? Read llms.txt"),
+     * as well as any configuration.
+     */
+    llmLink?:
+      | boolean
+      | {
+          /**
+           * Custom URL for the LLM link.
+           * @default "/llms.txt"
+           */
+          url?: string
+          /**
+           * Custom text for the link.
+           * @default "llms.txt"
+           */
+          text?: string
+        }
+    /**
      * Configuration for the banner fixed to the top of the page.
      *
      * Can be a Markdown string, a React Element, or an object with the following properties:
@@ -203,6 +221,7 @@ export async function defineConfig<colorScheme extends ColorScheme = undefined>(
   cacheDir,
   checkDeadlinks = true,
   head,
+  llmLink = true,
   ogImageUrl,
   rootDir = 'docs',
   title = 'Docs',
@@ -216,6 +235,7 @@ export async function defineConfig<colorScheme extends ColorScheme = undefined>(
     cacheDir,
     checkDeadlinks,
     head,
+    llmLink,
     ogImageUrl,
     rootDir,
     title,

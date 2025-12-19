@@ -8,6 +8,7 @@ export type PageData = {
   frontmatter: Module['frontmatter']
   lastUpdatedAt?: number
   previousPath?: string
+  showLlmLink?: boolean
 }
 
 export function usePageData() {
