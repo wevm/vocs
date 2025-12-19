@@ -78,7 +78,7 @@
     },
     "./globals": {
       "src": "./src/globals.d.ts",
-      "types": "./dist/globals.d.ts",
+      "types": "./dist/globals.d.d.ts",
       "default": "./dist/globals.d.js"
     },
     "./react-router": {
@@ -90,11 +90,6 @@
       "src": "./src/react-router/config.ts",
       "types": "./dist/react-router/config.d.ts",
       "default": "./dist/react-router/config.js"
-    },
-    "./react-router/internal": {
-      "src": "./src/react-router/internal/index.ts",
-      "types": "./dist/react-router/internal/index.d.ts",
-      "default": "./dist/react-router/internal/index.js"
     },
     "./react-router/server": {
       "src": "./src/react-router/server.ts",

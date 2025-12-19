@@ -1,8 +1,12 @@
 export type Frontmatter = {
+  /** Author of the page. */
+  author?: string | undefined
   /** Title of the page. */
   title?: string | undefined
   /** Description of the page. */
   description?: string | undefined
+  /** Robots directive (e.g., "noindex", "nofollow"). */
+  robots?: string | undefined
   /** Additional metadata for the page. */
   [key: string]: unknown
 }

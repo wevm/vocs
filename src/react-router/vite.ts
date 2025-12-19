@@ -9,7 +9,6 @@ import * as estree from 'estree-util-visit'
 import type { VFile } from 'vfile'
 import type { PluginOption } from 'vite'
 
-import * as Config from '../config.js'
 import * as plugin from '../vite.js'
 
 /**
@@ -146,10 +145,7 @@ export function reactRouterConfig(c?: ReactRouterConfig): PluginOption {
  */
 export function recmaMdxMeta() {
   return (tree: Program, vfile: VFile) => {
-    const config = Config.getGlobal()
-
     let loaderNode: ExportNamedDeclaration | undefined
-    let metaNode: ExportNamedDeclaration | undefined
 
     estree.visit(tree, (node) => {
       if (
@@ -158,16 +154,9 @@ export function recmaMdxMeta() {
         node.declaration.declarations[0]?.id.type === 'Identifier'
       ) {
         const pattern = node.declaration.declarations[0]?.id
-        if (pattern.name === 'meta') metaNode = node
         if (pattern.name === 'loader') loaderNode = node
       }
     })
-
-    const declaration = metaNode?.declaration
-    if (declaration?.type === 'VariableDeclaration') {
-      const declarator = declaration.declarations[0]
-      if (declarator?.id.type === 'Identifier') declarator.id.name = 'meta_user'
-    }
 
     const loaderDeclaration = loaderNode?.declaration
     if (loaderDeclaration?.type === 'VariableDeclaration') {
@@ -181,24 +170,9 @@ export function recmaMdxMeta() {
 
     const { body } = esast.fromJs(
       `
-        import { MdxRoute } from 'vocs/react-router/internal'
-        
-        export const meta = (args) => {
-          const userResult = ${metaNode ? `meta_user?.(args),` : '[]'}
-          const mdxResult = MdxRoute.meta({
-            config: ${Config.serialize(config)},
-            frontmatter,
-            ...${JSON.stringify({ editUrl, lastModified })},
-          })
-          return [...(mdxResult ?? []), ...(userResult ?? [])]
-        }
-
         export const loader = async (args) => {
-          const [mdxResult, userResult] = await Promise.all([
-            MdxRoute.loader(${JSON.stringify({ content: String(vfile.value) })}),
-            ${loaderNode ? `loader_user?.(args),` : 'Promise.resolve({})'}
-          ])
-          return { ...(mdxResult ?? {}), ...(userResult ?? {}) }
+          const userResult = ${loaderNode ? `await loader_user?.(args)` : '{}'}
+          return { frontmatter, ...(${JSON.stringify({ content: String(vfile.value), editUrl, lastModified })}), ...(userResult ?? {}) }
         }
       `,
       { module: true },

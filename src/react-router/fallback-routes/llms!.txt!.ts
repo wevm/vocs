@@ -9,19 +9,36 @@ export async function loader(): Promise<Response> {
 
   const content = [`# ${title}`, '', description ? description : '', '']
 
-  for (const route of Object.values(build.routes)) {
-    if (!route) continue
+  const routeData = await Promise.all(
+    Object.values(build.routes).map(async (route) => {
+      if (!route) return null
+      if (route.path?.endsWith('.txt')) return null
 
-    const meta = (route?.module as TODO)?.meta?.() as TODO[]
-    if (!meta) continue
+      const loader = (route?.module as TODO)?.loader
+      if (!loader) return null
 
-    const title = meta.find((m: TODO) => 'title' in m)?.title
-    if (!title) continue
+      try {
+        const { frontmatter } = await loader()
 
-    const description = meta.find((m: TODO) => m.name === 'description')?.content
-    if (!description) continue
+        const title = frontmatter?.title ?? 'TODO'
+        const description = frontmatter?.description ?? 'TODO'
 
-    content.push(`- [${title}](${`/${route.path ?? ''}`})${description ? `: ${description}` : ''}`)
+        return {
+          title,
+          description,
+          path: route.path ?? '',
+        }
+      } catch {
+        return null
+      }
+    }),
+  )
+
+  for (const data of routeData) {
+    if (!data) continue
+    content.push(
+      `- [${data.title}](${`/${data.path}`})${data.description ? `: ${data.description}` : ''}`,
+    )
   }
 
   return new Response(content.join('\n'), {

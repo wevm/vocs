@@ -87,22 +87,22 @@ export type Config = {
   //   | ReactElement
   //   | { [path: string]: ReactElement }
   //   | ((params: { path: string }) => ReactElement | Promise<ReactElement>)
-  // /**
-  //  * Icon URL.
-  //  */
-  // iconUrl?: Normalize<IconUrl>
-  // /**
-  //  * Logo URL.
-  //  */
-  // logoUrl?: Normalize<LogoUrl>
-  // /**
-  //  * OG Image URL. `null` to disable.
-  //  *
-  //  * Template variables: `%logo`, `%title`, `%description`
-  //  *
-  //  * @default "https://vocs.dev/api/og?logo=%logo&title=%title&description=%description"
-  //  */
-  // ogImageUrl?: string | { [path: string]: string }
+  /**
+   * Icon URL.
+   */
+  iconUrl?: string | { light: string; dark: string } | undefined
+  /**
+   * Logo URL.
+   */
+  logoUrl?: string | { light: string; dark: string } | undefined
+  /**
+   * OG Image URL. `null` to disable.
+   *
+   * Template variables: `%logo`, `%title`, `%description`
+   *
+   * @default "https://vocs.dev/api/og?logo=%logo&title=%title&description=%description"
+   */
+  ogImageUrl?: string | { [path: string]: string } | undefined
   // /**
   //  * Outline footer.
   //  */
