@@ -31,9 +31,9 @@ export function Outline({
   onClickItem?: () => void
   showTitle?: boolean
 } = {}) {
-  const { outlineFooter, llmLink } = useConfig()
+  const { outlineFooter } = useConfig()
 
-  const { showOutline, showAiCta } = useLayout()
+  const { showOutline, showAiCta, showLlmLink } = useLayout()
   const maxLevel = (() => {
     if (typeof showOutline === 'number') return minLevel + showOutline - 1
     return maxLevel_
@@ -167,13 +167,13 @@ export function Outline({
   const hasItems = items.length > 0
 
   // If there are no items and no AI CTA and no LLM link, don't render anything
-  if (!hasItems && !showAiCta && !llmLink) return null
+  if (!hasItems && !showAiCta && !showLlmLink) return null
 
   const levelItems = hasItems ? items.filter((item) => item.level === minLevel) : []
   return (
     <aside className={styles.root}>
       {showAiCta && <AiCtaDropdown />}
-      {llmLink && <LlmLink />}
+      {showLlmLink && <LlmLink />}
       {hasItems && (
         <nav className={styles.nav}>
           {showTitle && <h2 className={styles.heading}>On this page</h2>}
