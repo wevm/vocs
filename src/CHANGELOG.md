@@ -1,5 +1,13 @@
 # vocs
 
+## 1.4.0
+
+### Minor Changes
+
+- [`f22f3ca`](https://github.com/wevm/vocs/commit/f22f3ca18662f3e242fa4808bebecb997fe803c4) Thanks [@jxom](https://github.com/jxom)! - Added an "Are you an LLM?" callout in index.html
+
+- [`f22f3ca`](https://github.com/wevm/vocs/commit/f22f3ca18662f3e242fa4808bebecb997fe803c4) Thanks [@jxom](https://github.com/jxom)! - Added content visbility directives (e.g. :::show[html] or :::hide[md]) to show/hide content based on document content type (.md vs html).
+
 ## 1.3.1
 
 ### Patch Changes
