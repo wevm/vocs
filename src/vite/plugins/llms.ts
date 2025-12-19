@@ -14,7 +14,6 @@ import { type Plugin, unified } from 'unified'
 import { visit } from 'unist-util-visit'
 import type { PluginOption, UserConfig } from 'vite'
 
-import * as cache from '../utils/cache.js'
 import { resolveVocsConfig } from '../utils/resolveVocsConfig.js'
 import { getRemarkPlugins } from './mdx.js'
 
@@ -33,10 +32,10 @@ export async function llms(): Promise<PluginOption[]> {
         if (!outDir) return
 
         const { config } = await resolveVocsConfig()
-        const { basePath, cacheDir, description, rootDir, title = 'Docs' } = config ?? {}
+        const { basePath, description, llms, rootDir, title = 'Docs' } = config ?? {}
 
-        // Check if agentMarkdown flag was set during build
-        const agentMarkdown = cache.search({ cacheDir }).get('agentMarkdown') ?? false
+        // Check if generateMarkdown is enabled in config
+        const generateMarkdown = llms?.generateMarkdown ?? false
 
         const content = [`# ${title}`, '']
         if (description) content.push(`> ${description}`, '')
@@ -80,8 +79,8 @@ export async function llms(): Promise<PluginOption[]> {
                   return
                 })
 
-              // Link to .md files if agentMarkdown is enabled, otherwise link to HTML pages
-              const linkExtension = agentMarkdown ? '.md' : ''
+              // Link to .md files if generateMarkdown is enabled, otherwise link to HTML pages
+              const linkExtension = generateMarkdown ? '.md' : ''
               llmsTxtContent.push(
                 `- [${title}](${basePath}${path}${linkExtension})${description ? `: ${description}` : ''}`,
               )
@@ -133,8 +132,8 @@ export async function llms(): Promise<PluginOption[]> {
 
             llmsCtxTxtContent.push(processedMarkdown, '')
 
-            // Write individual .md files for AI agents when flag is set
-            if (agentMarkdown) {
+            // Write individual .md files for AI agents when config is enabled
+            if (generateMarkdown) {
               const relativePath = file.replace(pagesPath, '').replace(/\.[^.]*$/, '.md')
               const outputPath = resolve(outDir, relativePath.replace(/^\//, ''))
               fs.ensureDirSync(dirname(outputPath))

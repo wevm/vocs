@@ -11,7 +11,6 @@ import { resolveVocsConfig } from './utils/resolveVocsConfig.js'
 import { vercelBuildOutputDir, writeBuildOutputConfig } from './utils/vercel.js'
 
 export type BuildParameters = {
-  agentMarkdown?: boolean
   clean?: boolean
   logger?: vite.Logger
   hooks?: {
@@ -29,7 +28,6 @@ export type BuildParameters = {
 }
 
 export async function build({
-  agentMarkdown = false,
   clean,
   logger,
   hooks,
@@ -48,7 +46,6 @@ export async function build({
   if (clean) cache.clear({ cacheDir })
 
   cache.search({ cacheDir }).set('buildSearchIndex', searchIndex)
-  cache.search({ cacheDir }).set('agentMarkdown', agentMarkdown)
 
   fs.rmSync(outDir_resolved, { recursive: true, force: true })
 

@@ -26,7 +26,6 @@ cli
   .option('-p, --publicDir [dir]', 'public (asset) directory (default: public)')
   .option('--clearScreen', 'clear the terminal screen (default: true)')
   .option('--searchIndex', 'builds the search index (default: true)')
-  .option('--agentMarkdown', 'generate .md files for AI agents (default: false)')
   .action(build)
 cli.command('preview').action(preview)
 cli
