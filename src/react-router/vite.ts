@@ -12,6 +12,12 @@ import type { PluginOption } from 'vite'
 import * as Config from '../config.js'
 import * as plugin from '../vite.js'
 
+/**
+ * Creates a Vite plugin for Vocs, with given configuration.
+ *
+ * @param options - Configuration options.
+ * @returns Plugin
+ */
 export function vocs(options: vocs.Options = {}): PluginOption {
   const { reactRouter = {}, ...rest } = options
 
@@ -35,6 +41,11 @@ export declare namespace vocs {
   }
 }
 
+/**
+ * Creates a Vite plugin that enables Hot Module Replacement (HMR) for MDX files.
+ *
+ * @returns A Vite plugin for MDX HMR support
+ */
 export function mdxHmr(): PluginOption {
   return {
     name: 'vocs:mdx-hmr',
@@ -54,6 +65,12 @@ export function mdxHmr(): PluginOption {
   }
 }
 
+/**
+ * Creates a Vite plugin that configures React Router with Vocs-specific settings
+ *
+ * @param c - React Router configuration
+ * @returns Plugin.
+ */
 export function reactRouterConfig(c?: ReactRouterConfig): PluginOption {
   const prerender = (() => {
     if (!c?.prerender) return undefined
@@ -123,8 +140,9 @@ export function reactRouterConfig(c?: ReactRouterConfig): PluginOption {
 }
 
 /**
- * Recma plugin that exports `meta` decorated with MDX metadata for React Router routes.
- * This allows layouts to access metadata via `useMatches()`.
+ * Recma plugin that exports `meta` and `loader` functions decorated with MDX metadata for React Router routes.
+ *
+ * @returns Recma plugin.
  */
 export function recmaMdxMeta() {
   return (tree: Program, vfile: VFile) => {

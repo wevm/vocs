@@ -4,6 +4,12 @@ import remarkMdxFrontmatter from 'remark-mdx-frontmatter'
 import type { PluginOption } from 'vite'
 import * as Config from './config.js'
 
+/**
+ * Vite plugin for Vocs.
+ *
+ * @param options - Configuration options.
+ * @returns Plugin.
+ */
 export function vocs(options: vocs.Options = {}): PluginOption {
   const conf = Config.define(options)
   const { markdown } = conf
@@ -26,6 +32,12 @@ export declare namespace vocs {
 const virtualModuleId = 'virtual:vocs/config'
 const resolvedVirtualModuleId = `\0${virtualModuleId}`
 
+/**
+ * Vite plugin that provides the Vocs configuration.
+ *
+ * @param config - Vocs configuration.
+ * @returns Plugin.
+ */
 export function config(config: Config.Config): PluginOption {
   return {
     name: 'vocs:config',
