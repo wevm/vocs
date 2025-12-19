@@ -3,6 +3,7 @@ import { reactRouter as reactRouterPlugin } from '@react-router/dev/vite'
 import type { PluginOption } from 'vite'
 
 import * as plugin from '../../vite/index.js'
+import { mdxHmr } from './mdx-hmr.js'
 import { reactRouterConfig } from './react-router-config.js'
 import { recmaMdxMeta } from './recma/mdx-meta.js'
 
@@ -17,6 +18,7 @@ export function vocs(options: vocs.Options = {}): PluginOption {
         recmaPlugins: [...(rest.markdown?.recmaPlugins ?? []), recmaMdxMeta],
       },
     }),
+    mdxHmr(),
     reactRouterConfig(reactRouter),
     reactRouterPlugin(),
   ]
