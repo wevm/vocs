@@ -78,13 +78,13 @@
     },
     "./globals": {
       "src": "./src/globals.d.ts",
-      "types": "./dist/globals.d.ts",
+      "types": "./dist/globals.d.d.ts",
       "default": "./dist/globals.d.js"
     },
     "./react-router": {
-      "src": "./src/react-router/index.ts",
-      "types": "./dist/react-router/index.d.ts",
-      "default": "./dist/react-router/index.js"
+      "src": "./src/react-router/client.tsx",
+      "types": "./dist/react-router/client.d.ts",
+      "default": "./dist/react-router/client.js"
     },
     "./react-router/config": {
       "src": "./src/react-router/config.ts",
@@ -96,20 +96,20 @@
       "types": "./dist/react-router/internal/index.d.ts",
       "default": "./dist/react-router/internal/index.js"
     },
-    "./react-router/vite": {
-      "src": "./src/react-router/vite/index.ts",
-      "types": "./dist/react-router/vite/index.d.ts",
-      "default": "./dist/react-router/vite/index.js"
-    },
     "./react-router/server": {
-      "src": "./src/react-router/server/index.ts",
-      "types": "./dist/react-router/server/index.d.ts",
-      "default": "./dist/react-router/server/index.js"
+      "src": "./src/react-router/server.ts",
+      "types": "./dist/react-router/server.d.ts",
+      "default": "./dist/react-router/server.js"
+    },
+    "./react-router/vite": {
+      "src": "./src/react-router/vite.ts",
+      "types": "./dist/react-router/vite.d.ts",
+      "default": "./dist/react-router/vite.js"
     },
     "./vite": {
-      "src": "./src/vite/index.ts",
-      "types": "./dist/vite/index.d.ts",
-      "default": "./dist/vite/index.js"
+      "src": "./src/vite.ts",
+      "types": "./dist/vite.d.ts",
+      "default": "./dist/vite.js"
     }
   }
 }
