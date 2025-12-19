@@ -1,4 +1,4 @@
-export async function loader() {
+export async function loader(): Promise<Response> {
   const build = await import('virtual:react-router/server-build')
 
   const title = 'TODO'

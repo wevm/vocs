@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "build": "zile && cp src/globals.d.ts dist/globals.d.ts",
+    "build": "mkdir src/.vocs && touch src/.vocs/react-router.config.ts && zile && cp src/globals.d.ts dist/globals.d.ts",
     "clean": "tsc -b --clean && rm -rf dist",
     "changeset:publish": "zile publish:prepare && changeset publish && zile publish:post",
     "changeset:version": "changeset version",
@@ -85,6 +85,11 @@
       "src": "./src/react-router/index.ts",
       "types": "./dist/react-router/index.d.ts",
       "default": "./dist/react-router/index.js"
+    },
+    "./react-router/config": {
+      "src": "./src/react-router/config.ts",
+      "types": "./dist/react-router/config.d.ts",
+      "default": "./dist/react-router/config.js"
     },
     "./react-router/vite": {
       "src": "./src/react-router/vite/index.ts",

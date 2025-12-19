@@ -19,7 +19,7 @@
     "vocs": "workspace:*"
   },
   "devDependencies": {
-    "@react-router/dev": "7.10.1",
+    "@react-router/dev": "catalog:",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "typescript": "^5.9.2",
