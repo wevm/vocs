@@ -15,3 +15,8 @@ declare module 'virtual:react-router/server-build' {
   const build: ServerBuild
   export = build
 }
+
+declare module 'virtual:vocs/config' {
+  import type { Config } from './config.js'
+  export const config: Config
+}

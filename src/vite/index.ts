@@ -1,22 +1,25 @@
-import mdx, { type Options as mdx_Options } from '@mdx-js/rollup'
+import mdx from '@mdx-js/rollup'
 import remarkFrontmatter from 'remark-frontmatter'
 import remarkMdxFrontmatter from 'remark-mdx-frontmatter'
 import type { PluginOption } from 'vite'
+import * as Config from '../config.js'
+import { config as vocs_config } from './config.js'
 
 export function vocs(options: vocs.Options = {}): PluginOption {
-  const { mdx: mdxOptions } = options
-  const { jsxImportSource = 'react', remarkPlugins = [] } = mdxOptions ?? {}
+  const config = Config.define(options)
+  const { markdown } = config
+  const { jsxImportSource = 'react', remarkPlugins = [] } = markdown ?? {}
+
   return [
     mdx({
-      ...mdxOptions,
+      ...markdown,
       jsxImportSource,
       remarkPlugins: [remarkFrontmatter, remarkMdxFrontmatter, ...(remarkPlugins ?? [])],
     }),
+    vocs_config(config),
   ]
 }
 
 export declare namespace vocs {
-  type Options = {
-    mdx?: mdx_Options | undefined
-  }
+  type Options = Config.define.Options
 }

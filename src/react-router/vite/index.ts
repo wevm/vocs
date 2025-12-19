@@ -7,12 +7,14 @@ import { reactRouterConfig } from './react-router-config.js'
 import { recmaMdxMeta } from './recma/mdx-meta.js'
 
 export function vocs(options: vocs.Options = {}): PluginOption {
-  const { reactRouter = {} } = options
+  const { reactRouter = {}, ...rest } = options
 
   return [
     plugin.vocs({
-      mdx: {
-        recmaPlugins: [recmaMdxMeta],
+      ...rest,
+      markdown: {
+        ...rest.markdown,
+        recmaPlugins: [...(rest.markdown?.recmaPlugins ?? []), recmaMdxMeta],
       },
     }),
     reactRouterConfig(reactRouter),
@@ -21,7 +23,7 @@ export function vocs(options: vocs.Options = {}): PluginOption {
 }
 
 export declare namespace vocs {
-  type Options = {
+  type Options = plugin.vocs.Options & {
     reactRouter?: Config | undefined
   }
 }
