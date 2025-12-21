@@ -1,0 +1,187 @@
+import { type FunctionComponent, lazy, type ReactNode } from 'react'
+import { createPages } from 'waku/router/server'
+import { isIgnoredPath } from './utils/fs-router.js'
+
+type Pages = ReturnType<typeof createPages>
+
+export function router(
+  /**
+   * A mapping from a file path to a route module, e.g.
+   *   {
+   *     "_layout.tsx": () => ({ default: ... }),
+   *     "index.tsx": () => ({ default: ... }),
+   *     "foo/index.tsx": () => ...,
+   *   }
+   * This mapping can be created by Vite's import.meta.glob, e.g.
+   *   import.meta.glob("./**\/*.{tsx,ts}", { base: "./pages" })
+   */
+  pages: { [file: string]: () => Promise<unknown> },
+  options: {
+    /** e.g. `"api"` will detect pages in `src/pages/api`. */
+    apiDir: string
+    /** e.g. `"_slices"` will detect slices in `src/pages/_slices`. */
+    slicesDir: string
+  } = {
+    apiDir: 'api',
+    slicesDir: '_slices',
+  },
+): Pages {
+  return createPages(async ({ createPage, createLayout, createRoot, createApi, createSlice }) => {
+    for (const file in pages) {
+      if (!pages[file]) continue
+
+      const importFn = pages[file]
+      if (!importFn) continue
+
+      const pathItems = file
+        // strip "./" prefix
+        .replace(/^\.\//, '')
+        .replace(/\.\w+$/, '')
+        .split('/')
+        .filter(Boolean)
+      if (isIgnoredPath(pathItems)) {
+        continue
+      }
+      const path =
+        '/' +
+        // biome-ignore lint/style/noNonNullAssertion: _
+        (['_layout', 'index', '_root'].includes(pathItems.at(-1)!) ||
+        pathItems.at(-1)?.startsWith('_part')
+          ? pathItems.slice(0, -1)
+          : pathItems
+        ).join('/')
+
+      // For MDX files, create a lazy component without importing the module eagerly.
+      if (/\.mdx?$/.test(file)) {
+        const component = lazy(importFn as never)
+        if (pathItems.at(-1) === '[path]') {
+          throw new Error(
+            'Page file cannot be named [path]. This will conflict with the path prop of the page component.',
+          )
+        } else if (pathItems.at(0) === options.slicesDir) {
+          createSlice({
+            component,
+            render: 'static',
+            id: pathItems.slice(1).join('/'),
+          })
+        } else if (pathItems.at(-1) === '_layout') {
+          createLayout({
+            path,
+            component,
+            render: 'static',
+          })
+        } else if (pathItems.at(-1) === '_root') {
+          createRoot({
+            component,
+            render: 'static',
+          })
+        } else {
+          createPage({
+            path,
+            component,
+            render: 'static',
+          } as never)
+        }
+        continue
+      }
+
+      // For non-MDX files, import the module eagerly
+      const mod = (await importFn()) as {
+        default: FunctionComponent<{ children: ReactNode }>
+        getConfig?: () => Promise<{
+          render?: 'static' | 'dynamic'
+        }>
+        GET?: (req: Request) => Promise<Response>
+      }
+      const config = await mod.getConfig?.()
+      if (pathItems.at(-1) === '[path]') {
+        throw new Error(
+          'Page file cannot be named [path]. This will conflict with the path prop of the page component.',
+        )
+      } else if (pathItems.at(0) === options.apiDir) {
+        if (config?.render === 'static') {
+          if (Object.keys(mod).length !== 2 || !mod.GET) {
+            console.warn(
+              `API ${path} is invalid. For static API routes, only a single GET handler is supported.`,
+            )
+          }
+          createApi({
+            ...config,
+            path: pathItems.join('/'),
+            render: 'static',
+            method: 'GET',
+            // biome-ignore lint/style/noNonNullAssertion: _
+            handler: mod.GET!,
+          })
+        } else {
+          const METHODS = [
+            'GET',
+            'HEAD',
+            'POST',
+            'PUT',
+            'DELETE',
+            'CONNECT',
+            'OPTIONS',
+            'TRACE',
+            'PATCH',
+          ]
+          const validMethods = new Set(METHODS)
+          const handlers = Object.fromEntries(
+            Object.entries(mod).flatMap(([exportName, handler]) => {
+              const isValidExport =
+                exportName === 'getConfig' ||
+                exportName === 'default' ||
+                validMethods.has(exportName)
+              if (!isValidExport) {
+                console.warn(
+                  `API ${path} has an invalid export: ${exportName}. Valid exports are: ${METHODS.join(
+                    ', ',
+                  )}`,
+                )
+              }
+              return isValidExport && exportName !== 'getConfig'
+                ? exportName === 'default'
+                  ? [['all', handler]]
+                  : [[exportName, handler]]
+                : []
+            }),
+          )
+          createApi({
+            path: pathItems.join('/'),
+            render: 'dynamic',
+            handlers,
+          })
+        }
+      } else if (pathItems.at(0) === options.slicesDir) {
+        createSlice({
+          component: mod.default,
+          render: 'static',
+          id: pathItems.slice(1).join('/'),
+          ...config,
+        })
+      } else if (pathItems.at(-1) === '_layout') {
+        createLayout({
+          path,
+          component: mod.default,
+          render: 'static',
+          ...config,
+        })
+      } else if (pathItems.at(-1) === '_root') {
+        createRoot({
+          component: mod.default,
+          render: 'static',
+          ...config,
+        })
+      } else {
+        createPage({
+          path,
+          component: mod.default,
+          render: 'static',
+          ...config,
+        } as never) // FIXME avoid as never
+      }
+    }
+    // HACK: to satisfy the return type, unused at runtime
+    return null as never
+  })
+}

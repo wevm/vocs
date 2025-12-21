@@ -1,28 +1,24 @@
 {
   "name": "playground",
   "private": true,
+  "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "build": "NODE_OPTIONS='--import=tsx' react-router build",
-    "dev": "NODE_OPTIONS='--import=tsx' react-router dev",
-    "start": "react-router-serve ./build/server/index.js",
-    "typecheck": "react-router typegen && tsc"
+    "dev": "NODE_OPTIONS='--import=tsx' vite",
+    "build": "tsc -b && NODE_OPTIONS='--import=tsx' vite build",
+    "preview": "NODE_OPTIONS='--import=tsx' vite preview"
   },
   "dependencies": {
-    "@mdx-js/rollup": "^3.1.1",
-    "@react-router/node": "7.10.1",
-    "@react-router/serve": "7.10.1",
-    "isbot": "^5.1.31",
-    "react": "^19.2.3",
-    "react-dom": "^19.2.3",
-    "react-router": "7.10.1",
-    "vocs": "workspace:*"
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "vocs": "workspace:*",
+    "waku": "catalog:"
   },
   "devDependencies": {
-    "@react-router/dev": "catalog:",
-    "@types/react": "^19.2.7",
-    "@types/react-dom": "^19.2.3",
-    "typescript": "^5.9.2",
-    "vite": "^7.1.7"
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
+    "vite": "catalog:"
   }
 }

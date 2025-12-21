@@ -10,12 +10,6 @@ declare module '*.md' {
   export const frontmatter: Frontmatter
 }
 
-declare module 'virtual:react-router/server-build' {
-  import type { ServerBuild } from 'react-router'
-  const build: ServerBuild
-  export = build
-}
-
 declare module 'virtual:vocs/config' {
   import type { Config } from './config.js'
   export const config: Config

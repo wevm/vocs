@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "build": "mkdir -p src/.vocs && touch src/.vocs/react-router.config.ts && zile && cp src/globals.d.ts dist/globals.d.ts",
+    "build": "zile && cp src/globals.d.ts dist/globals.d.ts",
     "clean": "tsc -b --clean && rm -rf dist",
     "changeset:publish": "zile publish:prepare && changeset publish && zile publish:post",
     "changeset:version": "changeset version",
@@ -13,7 +13,6 @@
   "devDependencies": {
     "@biomejs/biome": "catalog:",
     "@changesets/cli": "catalog:",
-    "@react-router/dev": "catalog:",
     "@types/estree": "^1.0.8",
     "@types/mdast": "^4.0.4",
     "@types/node": "catalog:",
@@ -25,6 +24,7 @@
     "typescript": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:",
+    "waku": "catalog:",
     "zile": "catalog:"
   },
   "packageManager": "pnpm@10.25.0",
@@ -43,24 +43,21 @@
   ],
   "dependencies": {
     "@mdx-js/rollup": "^3.1.1",
+    "@vitejs/plugin-react": "^5.1.2",
+    "@vitejs/plugin-rsc": "^0.5.9",
     "esast-util-from-js": "^2.0.1",
     "estree-util-visit": "^2.0.0",
-    "react-router": "7.10.1",
     "remark-frontmatter": "^5.0.0",
     "remark-mdx-frontmatter": "^5.2.0",
     "vfile": "^6.0.3"
   },
   "peerDependencies": {
-    "@react-router/dev": "^7",
     "react": "^19",
-    "react-router": "^7",
-    "vite": "^7"
+    "vite": "^7",
+    "waku": "^0"
   },
   "peerDependenciesMeta": {
-    "@react-router/dev": {
-      "optional": true
-    },
-    "react-router": {
+    "waku": {
       "optional": true
     },
     "vite": {
@@ -81,25 +78,15 @@
       "types": "./dist/globals.d.d.ts",
       "default": "./dist/globals.d.js"
     },
-    "./react-router": {
-      "src": "./src/react-router/client.tsx",
-      "types": "./dist/react-router/client.d.ts",
-      "default": "./dist/react-router/client.js"
+    "./waku/router": {
+      "src": "./src/waku/patches/router.ts",
+      "types": "./dist/waku/patches/router.d.ts",
+      "default": "./dist/waku/patches/router.js"
     },
-    "./react-router/config": {
-      "src": "./src/react-router/config.ts",
-      "types": "./dist/react-router/config.d.ts",
-      "default": "./dist/react-router/config.js"
-    },
-    "./react-router/server": {
-      "src": "./src/react-router/server.ts",
-      "types": "./dist/react-router/server.d.ts",
-      "default": "./dist/react-router/server.js"
-    },
-    "./react-router/vite": {
-      "src": "./src/react-router/vite.ts",
-      "types": "./dist/react-router/vite.d.ts",
-      "default": "./dist/react-router/vite.js"
+    "./waku/vite": {
+      "src": "./src/waku/vite.ts",
+      "types": "./dist/waku/vite.d.ts",
+      "default": "./dist/waku/vite.js"
     },
     "./vite": {
       "src": "./src/vite.ts",

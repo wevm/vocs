@@ -16,6 +16,7 @@ export function vocs(options: vocs.Options = {}): PluginOption {
   const { jsxImportSource = 'react', remarkPlugins = [] } = markdown ?? {}
 
   return [
+    dedupe(),
     mdx({
       ...markdown,
       jsxImportSource,
@@ -58,6 +59,20 @@ export function config(config: Config.Config): PluginOption {
         return content
       }
       return
+    },
+  }
+}
+
+function dedupe(): PluginOption {
+  return {
+    name: 'dedupe',
+    config(config) {
+      return {
+        resolve: {
+          ...config?.resolve,
+          dedupe: ['react', 'react-dom', 'react-server-dom-webpack'],
+        },
+      }
     },
   }
 }
