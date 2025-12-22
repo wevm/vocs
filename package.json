@@ -43,6 +43,9 @@
   ],
   "dependencies": {
     "@mdx-js/rollup": "^3.1.1",
+    "@shikijs/rehype": "^3.20.0",
+    "@shikijs/twoslash": "^3.20.0",
+    "@shikijs/types": "^3.20.0",
     "@vitejs/plugin-react": "^5.1.2",
     "@vitejs/plugin-rsc": "^0.5.9",
     "esast-util-from-js": "^2.0.1",
@@ -52,6 +55,9 @@
     "mdast-util-to-markdown": "^2.1.2",
     "remark-frontmatter": "^5.0.0",
     "remark-mdx-frontmatter": "^5.2.0",
+    "shiki": "^3.20.0",
+    "twoslash": "^0.3.6",
+    "unified": "^11.0.5",
     "vfile": "^6.0.3"
   },
   "peerDependencies": {

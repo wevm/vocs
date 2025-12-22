@@ -2,6 +2,8 @@ import * as fs from 'node:fs'
 import * as path from 'node:path'
 import type { Options as mdx_Options } from '@mdx-js/rollup'
 import type { ExactPartial } from '../types.js'
+import type { rehypeShiki } from './mdx-plugins.js'
+import type { twoslash } from './shiki-transformers.js'
 
 export type Config = {
   // /**
@@ -55,7 +57,7 @@ export type Config = {
   // /**
   //  * Directory to store cache files.
   //  *
-  //  * @default "node_modules/vocs/_lib/vite/.vocs/cache"
+  //  * @default "node_modules/vocs/.cache"
   //  */
   // cacheDir?: string
   // /**
@@ -112,7 +114,11 @@ export type Config = {
   /**
    * Markdown configuration.
    */
-  markdown?: mdx_Options | undefined
+  markdown?:
+    | (mdx_Options & {
+        codeHighlight?: Omit<rehypeShiki.Options, 'twoslash'> | undefined
+      })
+    | undefined
   /**
    * The output directory relative to root.
    * @default "dist"
@@ -159,10 +165,10 @@ export type Config = {
   //  * Navigation displayed on the top.
   //  */
   // topNav?: Normalize<TopNav<parsed>>
-  // /**
-  //  * TwoSlash configuration. Set to `false` to disable.
-  //  */
-  // twoslash?: Normalize<TwoslashOptions> | false
+  /**
+   * TwoSlash configuration. Set to `false` to disable.
+   */
+  twoslash?: twoslash.Options | false | undefined
 }
 
 export function define(config: define.Options = {}): Config {
@@ -174,6 +180,7 @@ export function define(config: define.Options = {}): Config {
     srcDir = 'src',
     title = 'Docs',
     titleTemplate = `%s – ${title}`,
+    twoslash,
   } = config
   return {
     basePath,
@@ -183,6 +190,7 @@ export function define(config: define.Options = {}): Config {
     srcDir,
     title,
     titleTemplate,
+    twoslash,
   }
 }
 

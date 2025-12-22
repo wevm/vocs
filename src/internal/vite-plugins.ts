@@ -32,12 +32,21 @@ export function dedupe(): PluginOption {
  * @returns Plugin.
  */
 export function mdx(config: Config.Config): PluginOption {
-  const { markdown } = config
-  const { jsxImportSource = 'react', remarkPlugins = [] } = markdown ?? {}
+  const { markdown, twoslash } = config
+  const {
+    jsxImportSource = 'react',
+    recmaPlugins = [],
+    rehypePlugins = [],
+    remarkPlugins = [],
+  } = markdown ?? {}
 
   return mdxPlugin({
     ...markdown,
     jsxImportSource,
+    rehypePlugins: [
+      Plugins.rehypeShiki({ ...markdown?.codeHighlight, twoslash }),
+      ...(rehypePlugins ?? []),
+    ],
     remarkPlugins: [
       Plugins.remarkFrontmatter,
       Plugins.remarkDefaultFrontmatter,
@@ -45,7 +54,7 @@ export function mdx(config: Config.Config): PluginOption {
       ...(remarkPlugins ?? []),
       Plugins.remarkContentExport,
     ],
-    recmaPlugins: [Plugins.recmaMdxLayout],
+    recmaPlugins: [Plugins.recmaMdxLayout, ...(recmaPlugins ?? [])],
   })
 }
 

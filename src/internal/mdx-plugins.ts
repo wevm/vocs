@@ -1,10 +1,13 @@
-import { fromJs } from 'esast-util-from-js'
-import type { Program } from 'estree'
-import type { Root } from 'mdast'
-import { mdxToMarkdown } from 'mdast-util-mdx'
-import { toMarkdown } from 'mdast-util-to-markdown'
+import shiki, { type RehypeShikiOptions } from '@shikijs/rehype'
+import * as EstreeUtil from 'esast-util-from-js'
+import type * as Estree from 'estree'
+import type * as MdAst from 'mdast'
+import * as MdAstExtensions from 'mdast-util-mdx'
+import * as MdAstUtil from 'mdast-util-to-markdown'
 import type { VFile } from 'vfile'
+import type { ExactPartial } from '../types.js'
 import * as Context from './context.js'
+import * as ShikiTransformers from './shiki-transformers.js'
 
 export { default as remarkFrontmatter } from 'remark-frontmatter'
 export { default as remarkMdxFrontmatter } from 'remark-mdx-frontmatter'
@@ -14,7 +17,7 @@ export { default as remarkMdxFrontmatter } from 'remark-mdx-frontmatter'
  * This gives the layout access to frontmatter and path props.
  */
 export function recmaMdxLayout() {
-  return (tree: Program, vfile: VFile) => {
+  return (tree: Estree.Program, vfile: VFile) => {
     // Skip layouts, roots, and slices - they shouldn't be wrapped
     const fileName = vfile.basename ?? ''
     if (!fileName.endsWith('.mdx') && !fileName.endsWith('.md')) return
@@ -26,14 +29,14 @@ export function recmaMdxLayout() {
     if (defaultExportIndex === -1) return
 
     // Add imports for MdxLayout and createElement at the top
-    const importAst = fromJs(
+    const importAst = EstreeUtil.fromJs(
       `import { MdxPageLayout as _MdxPageLayout } from 'vocs';
        import { createElement as _createElement } from 'react';`,
       { module: true },
     )
     tree.body.unshift(...importAst.body)
 
-    const wrapperAst = fromJs(
+    const wrapperAst = EstreeUtil.fromJs(
       `export function WithPageLayout(props = {}) {
         return _createElement(_MdxPageLayout, { ...props, frontmatter: typeof frontmatter !== 'undefined' ? frontmatter : undefined, pathname: props.path }, _createElement(MDXContent, props));
       }`,
@@ -46,22 +49,53 @@ export function recmaMdxLayout() {
 }
 
 /**
+ * Rehype plugin that processes code blocks with Shiki.
+ */
+export function rehypeShiki(
+  options: ExactPartial<rehypeShiki.Options> = {},
+): [typeof shiki, RehypeShikiOptions] {
+  const { twoslash = true } = options
+  return [
+    shiki,
+    {
+      ...(options ?? {}),
+      themes: (options as { themes?: unknown }).themes ?? {
+        light: 'github-light',
+        dark: 'github-dark-dimmed',
+      },
+      transformers: [
+        twoslash
+          ? ShikiTransformers.twoslash(typeof twoslash === 'object' ? twoslash : {})
+          : undefined,
+        ...(options.transformers ?? []),
+      ],
+    } as RehypeShikiOptions,
+  ]
+}
+
+export declare namespace rehypeShiki {
+  export type Options = ExactPartial<RehypeShikiOptions> & {
+    twoslash?: ShikiTransformers.twoslash.Options | false | undefined
+  }
+}
+
+/**
  * Remark plugin that exports the processed markdown content from MDX files.
  * Only runs for files marked in the llmsContext.
  */
 export function remarkContentExport() {
-  return (tree: Root, vfile: VFile) => {
+  return (tree: MdAst.Root, vfile: VFile) => {
     try {
       const contentType = Context.contentType.get(vfile.path)
       if (contentType !== 'md') return
 
-      const content = toMarkdown(tree, { extensions: [mdxToMarkdown()] })
+      const content = MdAstUtil.toMarkdown(tree, { extensions: [MdAstExtensions.mdxToMarkdown()] })
       const code = `export const content = ${JSON.stringify(content)}`
 
       tree.children.unshift({
         type: 'mdxjsEsm',
         value: code,
-        data: { estree: fromJs(code, { module: true }) },
+        data: { estree: EstreeUtil.fromJs(code, { module: true }) },
       } as never)
     } catch {}
   }
@@ -71,7 +105,7 @@ export function remarkContentExport() {
  * Remark plugin that extracts frontmatter attributes from the document.
  */
 export function remarkDefaultFrontmatter() {
-  return (tree: Root, vfile: VFile) => {
+  return (tree: MdAst.Root, vfile: VFile) => {
     const contentType = Context.contentType.get(vfile.path)
     if (contentType === 'md') return
 
