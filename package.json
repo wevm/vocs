@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "build": "zile && cp src/globals.d.ts dist/globals.d.ts",
+    "build": "zile",
     "clean": "tsc -b --clean && rm -rf dist",
     "changeset:publish": "zile publish:prepare && changeset publish && zile publish:post",
     "changeset:version": "changeset version",
@@ -82,9 +82,8 @@
       "default": "./dist/config.js"
     },
     "./globals": {
-      "src": "./src/globals.d.ts",
-      "types": "./dist/globals.d.d.ts",
-      "default": "./dist/globals.d.js"
+      "types": "./dist/globals.d.ts",
+      "src": "./src/globals.d.ts"
     },
     "./waku/router": {
       "src": "./src/waku/router.ts",
