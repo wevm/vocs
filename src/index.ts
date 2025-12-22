@@ -1,4 +1,4 @@
-import './globals.js'
+import './globals.d.js'
 
-export * as Config from './config.js'
+export { Head, MdxPageLayout } from './react.js'
 export type { Frontmatter } from './types.js'

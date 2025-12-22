@@ -4,6 +4,8 @@ import { isIgnoredPath } from './utils/fs-router.js'
 
 type Pages = ReturnType<typeof createPages>
 
+const METHODS = ['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'CONNECT', 'OPTIONS', 'TRACE', 'PATCH']
+
 export function router(
   /**
    * A mapping from a file path to a route module, e.g.
@@ -27,10 +29,17 @@ export function router(
   },
 ): Pages {
   return createPages(async ({ createPage, createLayout, createRoot, createApi, createSlice }) => {
-    for (const file in pages) {
-      if (!pages[file]) continue
+    const defaultFiles = import.meta.glob(`../routes/**/*.tsx`)
+    const defaultPages = Object.fromEntries(
+      Object.entries(defaultFiles).map(([file, module]) => [file.replace('../routes', ''), module]),
+    )
 
-      const importFn = pages[file]
+    const allPages = { ...defaultPages, ...pages }
+
+    for (const file in allPages) {
+      if (!allPages[file]) continue
+
+      const importFn = allPages[file]
       if (!importFn) continue
 
       const pathItems = file
@@ -52,8 +61,16 @@ export function router(
         ).join('/')
 
       // For MDX files, create a lazy component without importing the module eagerly.
-      if (/\.mdx?$/.test(file)) {
-        const component = lazy(importFn as never)
+      const mdxRegex = /\.mdx?$/
+      if (mdxRegex.test(file)) {
+        const exists = allPages[file.replace(mdxRegex, '.tsx')]
+        if (exists) continue
+
+        const component = lazy(() =>
+          (importFn() as Promise<{ WithPageLayout: FunctionComponent }>).then((mod) => ({
+            default: mod.WithPageLayout,
+          })),
+        )
         if (pathItems.at(-1) === '[path]') {
           throw new Error(
             'Page file cannot be named [path]. This will conflict with the path prop of the page component.',
@@ -98,7 +115,27 @@ export function router(
         throw new Error(
           'Page file cannot be named [path]. This will conflict with the path prop of the page component.',
         )
-      } else if (pathItems.at(0) === options.apiDir) {
+      } else if (pathItems.at(0) === options.slicesDir) {
+        createSlice({
+          component: mod.default,
+          render: 'static',
+          id: pathItems.slice(1).join('/'),
+          ...config,
+        })
+      } else if (pathItems.at(-1) === '_layout') {
+        createLayout({
+          path,
+          component: mod.default,
+          render: 'static',
+          ...config,
+        })
+      } else if (pathItems.at(-1) === '_root') {
+        createRoot({
+          component: mod.default,
+          render: 'static',
+          ...config,
+        })
+      } else if (METHODS.some((method) => mod[method as keyof typeof mod])) {
         if (config?.render === 'static') {
           if (Object.keys(mod).length !== 2 || !mod.GET) {
             console.warn(
@@ -114,17 +151,6 @@ export function router(
             handler: mod.GET!,
           })
         } else {
-          const METHODS = [
-            'GET',
-            'HEAD',
-            'POST',
-            'PUT',
-            'DELETE',
-            'CONNECT',
-            'OPTIONS',
-            'TRACE',
-            'PATCH',
-          ]
           const validMethods = new Set(METHODS)
           const handlers = Object.fromEntries(
             Object.entries(mod).flatMap(([exportName, handler]) => {
@@ -152,26 +178,6 @@ export function router(
             handlers,
           })
         }
-      } else if (pathItems.at(0) === options.slicesDir) {
-        createSlice({
-          component: mod.default,
-          render: 'static',
-          id: pathItems.slice(1).join('/'),
-          ...config,
-        })
-      } else if (pathItems.at(-1) === '_layout') {
-        createLayout({
-          path,
-          component: mod.default,
-          render: 'static',
-          ...config,
-        })
-      } else if (pathItems.at(-1) === '_root') {
-        createRoot({
-          component: mod.default,
-          render: 'static',
-          ...config,
-        })
       } else {
         createPage({
           path,

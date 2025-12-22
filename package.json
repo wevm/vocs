@@ -46,7 +46,10 @@
     "@vitejs/plugin-react": "^5.1.2",
     "@vitejs/plugin-rsc": "^0.5.9",
     "esast-util-from-js": "^2.0.1",
+    "estree-util-value-to-estree": "^3.5.0",
     "estree-util-visit": "^2.0.0",
+    "mdast-util-mdx": "^3.0.0",
+    "mdast-util-to-markdown": "^2.1.2",
     "remark-frontmatter": "^5.0.0",
     "remark-mdx-frontmatter": "^5.2.0",
     "vfile": "^6.0.3"
@@ -73,15 +76,20 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
+    "./config": {
+      "src": "./src/config.ts",
+      "types": "./dist/config.d.ts",
+      "default": "./dist/config.js"
+    },
     "./globals": {
       "src": "./src/globals.d.ts",
       "types": "./dist/globals.d.d.ts",
       "default": "./dist/globals.d.js"
     },
     "./waku/router": {
-      "src": "./src/waku/patches/router.ts",
-      "types": "./dist/waku/patches/router.d.ts",
-      "default": "./dist/waku/patches/router.js"
+      "src": "./src/waku/router.ts",
+      "types": "./dist/waku/router.d.ts",
+      "default": "./dist/waku/router.js"
     },
     "./waku/vite": {
       "src": "./src/waku/vite.ts",

@@ -65,9 +65,18 @@ importers:
       esast-util-from-js:
         specifier: ^2.0.1
         version: 2.0.1
+      estree-util-value-to-estree:
+        specifier: ^3.5.0
+        version: 3.5.0
       estree-util-visit:
         specifier: ^2.0.0
         version: 2.0.0
+      mdast-util-mdx:
+        specifier: ^3.0.0
+        version: 3.0.0
+      mdast-util-to-markdown:
+        specifier: ^2.1.2
+        version: 2.1.2
       remark-frontmatter:
         specifier: ^5.0.0
         version: 5.0.0

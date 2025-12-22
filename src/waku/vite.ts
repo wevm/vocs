@@ -1,7 +1,7 @@
 import reactPlugin from '@vitejs/plugin-react'
 import rscPlugin from '@vitejs/plugin-rsc'
 import type { Plugin, PluginOption } from 'vite'
-import type { Config } from 'waku/config'
+import type { Config as WakuConfig } from 'waku/config'
 import {
   unstable_allowServerPlugin,
   unstable_buildMetadataPlugin,
@@ -13,7 +13,7 @@ import {
   unstable_privateDirPlugin,
   unstable_virtualConfigPlugin,
 } from 'waku/vite-plugins'
-
+import * as Config from '../internal/config.js'
 import * as plugin from '../vite.js'
 import {
   EXTENSIONS,
@@ -21,9 +21,9 @@ import {
   SRC_MIDDLEWARE,
   SRC_PAGES,
   SRC_SERVER_ENTRY,
-} from './patches/constants.js'
-import { getDefaultAdapter } from './patches/utils/default-adapter.js'
-import { fsRouterTypegenPlugin } from './patches/vite-plugins/fs-router-typegen.js'
+} from './internal/patches/constants.js'
+import { getDefaultAdapter } from './internal/patches/utils/default-adapter.js'
+import { fsRouterTypegenPlugin } from './internal/patches/vite-plugins/fs-router-typegen.js'
 
 /**
  * Creates a Vite plugin for Vocs, with given configuration.
@@ -31,22 +31,28 @@ import { fsRouterTypegenPlugin } from './patches/vite-plugins/fs-router-typegen.
  * @param options - Configuration options.
  * @returns Plugin
  */
-export function vocs(options: vocs.Options = {}): PluginOption {
-  const { waku = {}, ...rest } = options
+export async function vocs(options: vocs.Options = {}): Promise<PluginOption[]> {
+  const {
+    privateDir = 'private',
+    rscBase = 'RSC',
+    unstable_adapter = getDefaultAdapter(),
+  } = options
 
-  const config: Required<Config> = {
-    basePath: '/',
-    srcDir: 'src',
-    distDir: 'dist',
-    privateDir: 'private',
-    rscBase: 'RSC',
-    unstable_adapter: getDefaultAdapter(),
+  const config = await Config.resolve()
+  const { basePath, srcDir, outDir } = config
+
+  const wakuConfig = {
+    basePath,
+    srcDir,
+    distDir: outDir,
+    privateDir,
+    rscBase,
+    unstable_adapter,
     vite: {},
-    ...waku,
   }
 
   return [
-    plugin.vocs(rest),
+    plugin.vocs(),
     reactPlugin(),
     unstable_allowServerPlugin(),
     rscPlugin({
@@ -55,26 +61,24 @@ export function vocs(options: vocs.Options = {}): PluginOption {
       useBuildAppHook: true,
       clientChunks: (meta) => meta.serverChunk,
     }),
-    unstable_mainPlugin(config),
-    userEntriesPlugin(config),
-    unstable_virtualConfigPlugin(config),
-    unstable_defaultAdapterPlugin(config),
+    unstable_mainPlugin(wakuConfig),
+    userEntriesPlugin(wakuConfig),
+    unstable_virtualConfigPlugin(wakuConfig),
+    unstable_defaultAdapterPlugin(wakuConfig),
     unstable_notFoundPlugin(),
     unstable_patchRsdwPlugin(),
-    unstable_buildMetadataPlugin(config),
-    unstable_privateDirPlugin(config),
+    unstable_buildMetadataPlugin(wakuConfig),
+    unstable_privateDirPlugin(wakuConfig),
     unstable_fallbackHtmlPlugin(),
-    fsRouterTypegenPlugin(config),
+    fsRouterTypegenPlugin(wakuConfig),
   ]
 }
 
 export declare namespace vocs {
-  type Options = plugin.vocs.Options & {
-    waku?: Config | undefined
-  }
+  type Options = Omit<WakuConfig, 'basePath' | 'srcDir' | 'vite'>
 }
 
-function userEntriesPlugin(config: Required<Config>): Plugin {
+function userEntriesPlugin(config: Required<WakuConfig>): Plugin {
   return {
     name: 'waku:vite-plugins:user-entries',
     // resolve user entries and fallbacks to "managed mode" if not found.
