@@ -22,3 +22,11 @@ declare module 'virtual:vocs/pages' {
 declare module 'virtual:vocs/pages?contentType=md' {
   export const pages: Record<string, () => Promise<unknown>>
 }
+
+declare module 'virtual:vocs/pages?contentType=html' {
+  export const pages: Record<string, () => Promise<unknown>>
+}
+
+declare module 'virtual:vocs/pages?contentType=html-minimal' {
+  export const pages: Record<string, () => Promise<unknown>>
+}

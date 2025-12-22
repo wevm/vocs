@@ -2,7 +2,7 @@ import type { Frontmatter } from '../../../types.js'
 
 export const GET = async () => {
   const { config } = await import('virtual:vocs/config')
-  const { pages } = await import('virtual:vocs/pages')
+  const { pages } = await import('virtual:vocs/pages?contentType=html-minimal')
 
   const { title, description } = config
 

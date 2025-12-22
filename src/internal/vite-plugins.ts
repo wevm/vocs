@@ -1,4 +1,5 @@
 import mdxPlugin from '@mdx-js/rollup'
+import type { VFile } from 'vfile'
 import type { PluginOption } from 'vite'
 import * as Config from './config.js'
 import * as Context from './context.js'
@@ -43,10 +44,10 @@ export function mdx(config: Config.Config): PluginOption {
   return mdxPlugin({
     ...markdown,
     jsxImportSource,
-    rehypePlugins: [
-      Plugins.rehypeShiki({ ...markdown?.codeHighlight, twoslash }),
-      ...(rehypePlugins ?? []),
-    ],
+    rehypePlugins: filterContentType(
+      [Plugins.rehypeShiki({ ...markdown?.codeHighlight, twoslash }), ...(rehypePlugins ?? [])],
+      (contentType) => contentType === 'html',
+    ),
     remarkPlugins: [
       Plugins.remarkFrontmatter,
       Plugins.remarkDefaultFrontmatter,
@@ -54,7 +55,10 @@ export function mdx(config: Config.Config): PluginOption {
       ...(remarkPlugins ?? []),
       Plugins.remarkContentExport,
     ],
-    recmaPlugins: [Plugins.recmaMdxLayout, ...(recmaPlugins ?? [])],
+    recmaPlugins: filterContentType(
+      [Plugins.recmaMdxLayout, ...(recmaPlugins ?? [])],
+      (contentType) => contentType === 'html',
+    ),
   })
 }
 
@@ -106,42 +110,48 @@ export function virtualPages(config: Config.Config): PluginOption {
   const { srcDir } = config
 
   const virtualPagesId = 'virtual:vocs/pages'
-  const resolvedVirtualPagesId = `\0${virtualPagesId}`
-
-  const virtualPagesMdId = 'virtual:vocs/pages?contentType=md'
-  const resolvedVirtualPagesMdId = `\0${virtualPagesMdId}`
 
   return {
     name: 'vocs:virtual-pages',
     resolveId(id) {
-      if (id === virtualPagesId) return resolvedVirtualPagesId
-      if (id === virtualPagesMdId) return resolvedVirtualPagesMdId
+      if (id.startsWith(virtualPagesId)) return `\0${id}`
       return
     },
     load(id) {
-      if (id === resolvedVirtualPagesId) {
-        return `
-export const pages = import.meta.glob(
-  "/${srcDir}/pages/**/*.{${extensions.map((ext) => ext.slice(1)).join(',')}}",
-  { base: "/${srcDir}/pages" }
-);
-`
-      }
-      if (id === resolvedVirtualPagesMdId) {
-        return `
-export const pages = import.meta.glob(
-  "/${srcDir}/pages/**/*.{md,mdx}",
-  { query: "?contentType=md", base: "/${srcDir}/pages" }
-);
-`
+      if (!id.startsWith(`\0${virtualPagesId}`)) {
+        const { pathname, searchParams } = new URL(id, 'file://')
+        const contentType = searchParams.get('contentType')
+        if (contentType) Context.contentType.set(pathname, contentType)
+        else Context.contentType.delete(pathname)
+        return
       }
 
-      const { pathname, searchParams } = new URL(id, 'file://')
-      const contentType = searchParams.get('contentType')
-      if (contentType) Context.contentType.set(pathname, contentType)
-      else Context.contentType.delete(pathname)
-
-      return
+      {
+        const { searchParams } = new URL(id, 'file://')
+        const query = searchParams ? `query: "?${searchParams}", ` : ''
+        return `
+  export const pages = import.meta.glob(
+    "/${srcDir}/pages/**/*.{${extensions.map((ext) => ext.slice(1)).join(',')}}",
+    { ${query}base: "/${srcDir}/pages" }
+  );
+  `
+      }
     },
   }
+}
+
+type Transform = (tree: unknown, vfile: VFile) => void
+function filterContentType(
+  plugins: unknown[],
+  filter: (contentType: string) => boolean,
+): (() => Transform)[] {
+  return plugins.map((plugin) => {
+    const [fn, options] = Array.isArray(plugin) ? plugin : [plugin, undefined]
+    let transform: Transform | undefined
+    return () => (tree, vfile) => {
+      if (!filter(Context.contentType.get(vfile.path) ?? 'html')) return
+      transform ??= (fn as (options: unknown) => Transform)(options)
+      return transform(tree, vfile)
+    }
+  })
 }

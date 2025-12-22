@@ -1,0 +1,740 @@
+# Twoslash
+
+[TypeScript Twoslash](https://www.typescriptlang.org/dev/twoslash/) can be seen as a pre-processor that enhances your code-samples. 
+It is a markup language for JavaScript and TypeScript. 
+
+It leverages the compiler APIs used by text editors to offer type-driven hover information, precise error messages, and type callouts. 
+
+## Queries
+
+One of the key reasons for making Twoslash is the ability to use the TypeScript compiler to pull out type information about your code mechanically. Twoslash comes with two different ways to query your code: `^?` and `^|`.
+
+### Extract Type
+
+Using `^?` you can pull out type information about a particular identifier in the line of code above it.
+
+:::code-group
+
+```ts [Output] twoslash
+import { getSingletonHighlighterCore } from 'shiki/core'
+import { createOnigurumaEngine } from 'shiki/engine/oniguruma'
+
+const shiki = await getSingletonHighlighterCore({
+//    ^?
+
+  engine: createOnigurumaEngine(import('shiki/wasm')),
+})
+```
+
+````md [Markdown]
+```ts twoslash
+import { getSingletonHighlighterCore } from 'shiki/core'
+import { createOnigurumaEngine } from 'shiki/engine/oniguruma'
+
+const shiki = await getSingletonHighlighterCore({
+//    ^?
+
+  engine: createOnigurumaEngine(import('shiki/wasm')),
+})
+```
+````
+
+:::
+
+
+### Completions
+
+Using `^|` you can pull out information about a what the auto-complete looks like at a particular location.
+
+:::code-group
+
+```ts [Output] twoslash
+// @noErrors
+type Example = { apple: 'foo' | 'bar' | 'baz', ant: number, anchovy: string }
+const example: Example = { a: 'foo' }
+
+example.a 
+//       ^|
+
+
+
+example.apple === ' 
+//                 ^|
+
+
+```
+
+````md [Markdown]
+```ts twoslash
+// @noErrors
+console.e 
+//       ^|
+```
+````
+
+:::
+
+### Highlighting
+
+You can use `^^^` to highlight a range of the line above it.
+
+:::code-group
+
+```ts twoslash [Output]
+function add(foo: number, bar: number) {
+  //     ^^^
+  return foo + bar
+  //           ^^^
+}
+```
+
+````md [Markdown]
+```ts twoslash [Output]
+function add(foo: number, bar: number) {
+  //     ^^^
+  return foo + bar
+  //           ^^^
+}
+```
+````
+
+:::
+
+## Cutting
+
+Every Twoslash code sample needs to be a complete TypeScript program realistically, basically it needs to compile. Quite often to make it compiler, there is a bunch of code which isn't relevant to the user. This can be extracted out of the code sample via `// ---cut---` which removes all of the code above it from the output.
+
+### `---cut---`
+
+Cut works after TypeScript has generated the project and pulled out all the editor information (like identifiers, queries, highlights etc) and then amends all of their offsets and lines to re-fit the smaller output. What your user sees is everything below the `---cut---`.
+
+The below example only shows a single line.
+
+:::code-group
+
+```ts [Output] twoslash
+const level = "Danger"
+// ---cut---
+console.log(level)
+```
+
+````md [Markdown]
+```ts twoslash
+const level = "Danger"
+// ---cut---
+console.log(level)
+```
+````
+
+:::
+
+The example below shows the last two lines, but to TypeScript it was a program with 2 files and all of the IDE information is hooked up correctly across the files. 
+
+This is why `// @filename: [file]` is specifically the only Twoslash command which is not removed, because if it's not relevant it can be `---cut---` away.
+
+:::code-group
+
+```ts [Output] twoslash
+// @filename: a.ts
+export const helloWorld = "Hi"
+
+// @filename: b.ts
+// ---cut---
+import { helloWorld } from "./a"
+console.log(helloWorld)
+```
+
+````md [Markdown]
+```ts twoslash
+// @filename: a.ts
+export const helloWorld = "Hi"
+
+// @filename: b.ts
+// ---cut---
+import { helloWorld } from "./a"
+console.log(helloWorld)
+```
+````
+
+:::
+
+### `---cut-after---`
+
+The sibling to `---cut---` which trims anything after the sigil:
+
+:::code-group
+
+```tsx [Output] twoslash
+// @noErrors
+import { createContext } from 'react'
+
+const Context = createContext('foo')
+
+const Page = () => (
+// ---cut---
+<Context.Provider value="bar">
+  Hello world
+</Context.Provider>
+// ---cut-after---
+)
+```
+
+````md [Markdown]
+```ts twoslash
+// @noErrors
+import { createContext } from 'react'
+
+const Context = createContext('foo')
+
+const Page = () => (
+// ---cut---
+<Context.Provider value="bar">
+  Hello world
+</Context.Provider>
+// ---cut-after---
+)
+```
+````
+
+:::
+
+## Errors
+
+Most of the time, unless you are the TypeScript team, you want to avoid errors in your code samples. Strictly speaking, this usually means setting the right compiler flags and environment in each code sample.
+
+Some times however, you do want to raise a compiler error - to show incorrect states. In those cases, twoslash has a way to mark the compiler errors you expect.
+
+### `@errors: [num]`
+
+All TypeScript compiler errors have a number, this number is relatively arbitrary and can change between TypeScript versions. For our case these numbers are useful in declaring what we expect to see.
+
+Taking this example:
+
+:::code-group
+
+```ts [Output] twoslash
+const a = "123"
+a = 132
+```
+
+````md [Markdown]
+```ts twoslash
+const a = "123"
+a = 132
+```
+````
+
+:::
+
+TypeScript gives the following error: `Cannot assign to 'a' because it is a constant. [2588]`.
+
+Which the code sample does not reference, and thus the codesample has raise the mis-match as an 'exception'. Shiki Twoslash then shows a pretty error, and will set the process exit code to 1 failing any builds. You can use `// @errors: 2588` to tell Shiki Twoslash that you expect this error to occur:
+
+:::code-group
+
+```ts [Output] twoslash
+// @errors: 2588
+const a = "123"
+a = 132
+```
+
+````md [Markdown]
+```ts twoslash
+// @errors: 2588
+const a = "123"
+a = 132
+```
+````
+
+:::
+
+### `@noErrors`
+
+Sometimes you have needs in which a broken TypeScript build is OK, a good example of this is using a completion query `// ^|` which requires a broken TypeScript project to work. You can use `// @noErrors` to supress all errors in a code sample, and not have them show inline.
+
+:::code-group
+
+```ts [Output] twoslash
+// @noErrors
+const a = "123"
+a = 132
+```
+
+````md [Markdown]
+```ts twoslash
+// @noErrors
+const a = "123"
+a = 132
+```
+````
+
+:::
+
+## Multi-file
+
+Twoslash code samples aren't limited to creating a single file, by using `// @filename: [file]` you can write any file to the virtual file system used by TypeScript to power your code samples.
+
+### `@filename: [file]`
+
+After seeing `@filename` Twoslash creates a new virtual file-system file and adds the new lines to that. You can't edit a file after it was created, but you can overwrite it.
+
+For example, if you want to quickly fake a node module:
+
+:::code-group
+
+```tsx [Output] twoslash
+// @filename: node_modules/@types/mylib/index.d.ts
+export function doit(): string
+
+// @filename: index.ts
+import { doit } from "mylib"
+console.log(doit)
+```
+
+````md [Markdown]
+```ts twoslash
+// @filename: node_modules/@types/mylib/index.d.ts
+export function doit(): string
+
+// @filename: index.ts
+import { doit } from "mylib"
+console.log(doit)
+```
+````
+
+:::
+
+This code sample sets up the types for a non-existent npm module, and TypeScript picks it up as the definitions in the same way it would in a non-virtual TypeScript project.
+
+:::code-group
+
+```tsx [Output] twoslash
+// @resolveJsonModule
+// @filename: app.json
+{ "version": "23.2.3" }
+
+// @filename: index.ts
+import appSettings from "./app.json"
+appSettings.version
+//          ^?
+
+```
+
+````md [Markdown]
+```ts twoslash 
+// @resolveJsonModule
+// @filename: app.json
+{ "version": "23.2.3" }
+
+// @filename: index.ts
+import appSettings from "./app.json"
+appSettings.version
+//          ^?
+```
+````
+
+:::
+
+This code sets up a JSON object which can be imported in a TypeScript file.
+
+:::code-group
+
+```tsx [Output] twoslash
+// @filename: ambient.d.ts
+declare module '*.mdx' {
+    export default any
+}
+declare module "react"
+
+// @filename: MultiFileDocs.mdx
+## Hello world
+
+// @filename: index.tsx
+// ---cut---
+import React from "react"
+import MultiFileDocs from "./MultiFileDocs.mdx"
+
+export default () => <MultiFileDocs/>
+```
+
+```tsx [Markdown]
+// @filename: ambient.d.ts
+declare module '*.mdx' {
+    export default any
+}
+declare module "react"
+
+// @filename: MultiFileDocs.mdx
+## Hello world
+
+// @filename: index.tsx
+// ---cut---
+import React from "react"
+import MultiFileDocs from "./MultiFileDocs.mdx"
+
+export default () => <MultiFileDocs/>
+```
+
+:::
+
+## External Types
+
+Unless you're teaching TypeScript/JavaScript, you're probably going to want to import libraries into your code samples.
+
+Twoslash works by faking a virtual file system over your existing file system. This means any `@types` or libraries with TypeScript definitions should work out of the box with no config.
+
+### Globals
+
+Setting up globals is a little bit more complex, but not drastically. You need to use the [triple slash reference](https://www.typescriptlang.org/docs/handbook/triple-slash-directives.html#-reference-types-) which adds a particular library to the global scope.
+
+:::code-group
+
+```ts [Output] twoslash
+/// <reference types="node" />
+// ---cut---
+import { writeFileSync } from "fs" 
+writeFileSync("myfile.txt", "// TODO")
+```
+
+````md [Markdown]
+```ts twoslash
+/// <reference types="node" />
+// ---cut---
+import { writeFileSync } from "fs" 
+writeFileSync("myfile.txt", "// TODO")
+```
+````
+
+:::
+
+## Callouts 
+
+:::code-group
+
+```ts [Output] twoslash
+const a = 1
+// @log: Custom log message
+const b = 1
+// @error: Custom error message
+const c = 1
+// @warn: Custom warning message
+const d = 1
+// @annotate: Custom annotation message
+```
+
+````md [Markdown]
+```ts twoslash
+const a = 1
+// @log: Custom log message
+const b = 1
+// @error: Custom error message
+const c = 1
+// @warn: Custom warning message
+const d = 1
+// @annotate: Custom annotation message
+```
+````
+
+:::
+
+## Compiler flags
+
+```md
+// @allowJs
+Allow JavaScript files to be a part of your program. Use the `checkJS` option to get errors from these files..
+
+// @allowSyntheticDefaultImports
+Allow 'import x from y' when a module doesn't have a default export..
+
+// @allowUmdGlobalAccess
+Allow accessing UMD globals from modules..
+
+// @allowUnreachableCode
+Disable error reporting for unreachable code..
+
+// @allowUnusedLabels
+Disable error reporting for unused labels..
+
+// @alwaysStrict
+Ensure 'use strict' is always emitted..
+
+// @assumeChangesOnlyAffectDirectDependencies
+Have recompiles in projects that use `incremental` and `watch` mode assume that changes within a file will only affect files directly depending on it..
+
+// @baseUrl
+Specify the base directory to resolve non-relative module names..
+
+// @charset
+No longer supported. In early versions, manually set the text encoding for reading files..
+
+// @checkJs
+Enable error reporting in type-checked JavaScript files..
+
+// @composite
+Enable constraints that allow a TypeScript project to be used with project references..
+
+// @declaration
+Generate .d.ts files from TypeScript and JavaScript files in your project..
+
+// @declarationDir
+Specify the output directory for generated declaration files..
+
+// @declarationMap
+Create sourcemaps for d.ts files..
+
+// @diagnostics
+Output compiler performance information after building..
+
+// @disableReferencedProjectLoad
+Reduce the number of projects loaded automatically by TypeScript..
+
+// @disableSizeLimit
+Remove the 20mb cap on total source code size for JavaScript files in the TypeScript language server..
+
+// @disableSolutionSearching
+Opt a project out of multi-project reference checking when editing..
+
+// @disableSourceOfProjectReferenceRedirect
+Disable preferring source files instead of declaration files when referencing composite projects.
+
+// @downlevelIteration
+Emit more compliant, but verbose and less performant JavaScript for iteration..
+
+// @emitBOM
+Emit a UTF-8 Byte Order Mark (BOM) in the beginning of output files..
+
+// @emitDeclarationOnly
+Only output d.ts files and not JavaScript files..
+
+// @emitDecoratorMetadata
+Emit design-type metadata for decorated declarations in source files..
+
+// @esModuleInterop
+Emit additional JavaScript to ease support for importing CommonJS modules. This enables `allowSyntheticDefaultImports` for type compatibility..
+
+// @exactOptionalPropertyTypes
+Interpret optional property types as written, rather than adding 'undefined'..
+
+// @experimentalDecorators
+Enable experimental support for TC39 stage 2 draft decorators..
+
+// @explainFiles
+Print files read during the compilation including why it was included..
+
+// @extendedDiagnostics
+Output more detailed compiler performance information after building..
+
+// @forceConsistentCasingInFileNames
+Ensure that casing is correct in imports..
+
+// @generateCpuProfile
+Emit a v8 CPU profile of the compiler run for debugging..
+
+// @importHelpers
+Allow importing helper functions from tslib once per project, instead of including them per-file..
+
+// @importsNotUsedAsValues
+Specify emit/checking behavior for imports that are only used for types.
+
+// @incremental
+Enable incremental compilation.
+
+// @inlineSourceMap
+Include sourcemap files inside the emitted JavaScript..
+
+// @inlineSources
+Include source code in the sourcemaps inside the emitted JavaScript..
+
+// @isolatedModules
+Ensure that each file can be safely transpiled without relying on other imports..
+
+// @jsx
+Specify what JSX code is generated..
+
+// @jsxFactory
+Specify the JSX factory function used when targeting React JSX emit, e.g. 'React.createElement' or 'h'.
+
+// @jsxFragmentFactory
+Specify the JSX Fragment reference used for fragments when targeting React JSX emit e.g. 'React.Fragment' or 'Fragment'..
+
+// @jsxImportSource
+Specify module specifier used to import the JSX factory functions when using `jsx: react-jsx*`.`.
+
+// @keyofStringsOnly
+Make keyof only return strings instead of string, numbers or symbols. Legacy option..
+
+// @lib
+Specify a set of bundled library declaration files that describe the target runtime environment..
+
+// @listEmittedFiles
+Print the names of emitted files after a compilation..
+
+// @listFiles
+Print all of the files read during the compilation..
+
+// @mapRoot
+Specify the location where debugger should locate map files instead of generated locations..
+
+// @maxNodeModuleJsDepth
+Specify the maximum folder depth used for checking JavaScript files from `node_modules`. Only applicable with `allowJs`..
+
+// @module
+Specify what module code is generated..
+
+// @moduleResolution
+Specify how TypeScript looks up a file from a given module specifier..
+
+// @newLine
+Set the newline character for emitting files..
+
+// @noEmit
+Disable emitting file from a compilation..
+
+// @noEmitHelpers
+Disable generating custom helper functions like `__extends` in compiled output..
+
+// @noEmitOnError
+Disable emitting files if any type checking errors are reported..
+
+// @noErrorTruncation
+Disable truncating types in error messages..
+
+// @noFallthroughCasesInSwitch
+Enable error reporting for fallthrough cases in switch statements..
+
+// @noImplicitAny
+Enable error reporting for expressions and declarations with an implied `any` type...
+
+// @noImplicitOverride
+Add `undefined` to a type when accessed using an index..
+
+// @noImplicitReturns
+Enable error reporting for codepaths that do not explicitly return in a function..
+
+// @noImplicitThis
+Enable error reporting when `this` is given the type `any`..
+
+// @noImplicitUseStrict
+Disable adding 'use strict' directives in emitted JavaScript files..
+
+// @noLib
+Disable including any library files, including the default lib.d.ts..
+
+// @noPropertyAccessFromIndexSignature
+Enforces using indexed accessors for keys declared using an indexed type.
+
+// @noResolve
+Disallow `import`s, `require`s or ``s from expanding the number of files TypeScript should add to a project..
+
+// @noStrictGenericChecks
+Disable strict checking of generic signatures in function types..
+
+// @noUncheckedIndexedAccess
+Include 'undefined' in index signature results.
+
+// @noUnusedLocals
+Enable error reporting when a local variables aren't read..
+
+// @noUnusedParameters
+Raise an error when a function parameter isn't read.
+
+// @out
+Deprecated setting. Use `outFile` instead..
+
+// @outDir
+Specify an output folder for all emitted files..
+
+// @outFile
+Specify a file that bundles all outputs into one JavaScript file. If `declaration` is true, also designates a file that bundles all .d.ts output..
+
+// @paths
+Specify a set of entries that re-map imports to additional lookup locations..
+
+// @plugins
+List of language service plugins..
+
+// @preserveConstEnums
+Disable erasing `const enum` declarations in generated code..
+
+// @preserveSymlinks
+Disable resolving symlinks to their realpath. This correlates to the same flag in node..
+
+// @preserveWatchOutput
+Disable wiping the console in watch mode.
+
+// @pretty
+Enable color and formatting in output to make compiler errors easier to read.
+
+// @reactNamespace
+Specify the object invoked for `createElement`. This only applies when targeting `react` JSX emit..
+
+// @removeComments
+Disable emitting comments..
+
+// @resolveJsonModule
+Enable importing .json files.
+
+// @rootDir
+Specify the root folder within your source files..
+
+// @rootDirs
+Allow multiple folders to be treated as one when resolving modules..
+
+// @skipDefaultLibCheck
+Skip type checking .d.ts files that are included with TypeScript..
+
+// @skipLibCheck
+Skip type checking all .d.ts files..
+
+// @sourceMap
+Create source map files for emitted JavaScript files..
+
+// @sourceRoot
+Specify the root path for debuggers to find the reference source code..
+
+// @strict
+Enable all strict type-checking options..
+
+// @strictBindCallApply
+Check that the arguments for `bind`, `call`, and `apply` methods match the original function..
+
+// @strictFunctionTypes
+When assigning functions, check to ensure parameters and the return values are subtype-compatible..
+
+// @strictNullChecks
+When type checking, take into account `null` and `undefined`..
+
+// @strictPropertyInitialization
+Check for class properties that are declared but not set in the constructor..
+
+// @stripInternal
+Disable emitting declarations that have `@internal` in their JSDoc comments..
+
+// @suppressExcessPropertyErrors
+Disable reporting of excess property errors during the creation of object literals..
+
+// @suppressImplicitAnyIndexErrors
+Suppress `noImplicitAny` errors when indexing objects that lack index signatures..
+
+// @target
+Set the JavaScript language version for emitted JavaScript and include compatible library declarations..
+
+// @traceResolution
+Log paths used during the `moduleResolution` process..
+
+// @tsBuildInfoFile
+Specify the folder for .tsbuildinfo incremental compilation files..
+
+// @typeRoots
+Specify multiple folders that act like `./node_modules/@types`..
+
+// @types
+Specify type package names to be included without being referenced in a source file..
+
+// @useDefineForClassFields
+Emit ECMAScript-standard-compliant class fields..
+
+// @useUnknownInCatchVariables
+Type catch clause variables as 'unknown' instead of 'any'..
+```
+
