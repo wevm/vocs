@@ -1,12 +1,15 @@
+import * as fs from 'node:fs/promises'
+import * as path from 'node:path'
 import mdxPlugin from '@mdx-js/rollup'
 import tailwindcss, { type PluginOptions as TailwindOptions } from '@tailwindcss/vite'
-import type { VFile } from 'vfile'
-import type { PluginOption } from 'vite'
+import remarkMdx from 'remark-mdx'
+import remarkParse from 'remark-parse'
+import remarkStringify from 'remark-stringify'
+import { unified } from 'unified'
+import type { PluginOption, ResolvedConfig } from 'vite'
+import type { Frontmatter } from '../types.js'
 import * as Config from './config.js'
-import * as Context from './context.js'
-import * as Plugins from './mdx-plugins.js'
-
-const extensions = ['.js', '.ts', '.tsx', '.jsx', '.mjs', '.cjs', '.md', '.mdx']
+import * as Mdx from './mdx.js'
 
 export const tailwind = tailwindcss as unknown as (opts?: TailwindOptions) => PluginOption
 
@@ -29,6 +32,98 @@ export function dedupe(): PluginOption {
   }
 }
 
+export function llms(config: Config.Config): PluginOption {
+  const { description, title } = config
+  let viteConfig: ResolvedConfig
+
+  const { rehypePlugins, remarkPlugins } = Mdx.getCompileOptions('txt', config)
+
+  async function buildLlmsContent() {
+    const pagesDir = path.resolve(viteConfig.root, config.srcDir, config.pagesDir)
+    const pages = await Array.fromAsync(fs.glob(`${pagesDir}/**/*.{md,mdx}`))
+
+    const results = await Promise.all(
+      pages.map(async (page) => {
+        const content = await fs.readFile(page, 'utf-8')
+        const file = await unified()
+          .use(remarkParse)
+          .use(remarkMdx)
+          .use(remarkStringify)
+          .use(remarkPlugins)
+          .use(rehypePlugins)
+          .process(content)
+
+        // biome-ignore lint/complexity/useLiteralKeys: _
+        const { title, description } = file.data['frontmatter'] as Frontmatter
+        if (!title) return
+
+        const path = page
+          .replace(pagesDir, '')
+          .replace(/\.mdx?$/, '')
+          .replace(/index$/, '')
+        return {
+          title,
+          description,
+          file,
+          path,
+        }
+      }),
+    )
+      .then((data) => data.filter((data): data is NonNullable<typeof data> => data !== null))
+      .then((data) =>
+        data.sort((a, b) => {
+          const depthA = a.path.split('/').filter(Boolean).length
+          const depthB = b.path.split('/').filter(Boolean).length
+          if (depthA !== depthB) return depthA - depthB
+          return a.path.localeCompare(b.path)
+        }),
+      )
+
+    const llmsTxtContent: string[] = [`# ${title}`, '']
+    if (description) llmsTxtContent.push(description, '')
+
+    const short = [...llmsTxtContent]
+    for (const { title, description, path } of results)
+      short.push(`- [${title}](${path})${description ? `: ${description}` : ''}`)
+
+    const full = [...llmsTxtContent]
+    for (const { file } of results) full.push(String(file))
+
+    return { full: full.join('\n'), short: short.join('\n') }
+  }
+
+  return {
+    name: 'llms',
+    enforce: 'post',
+    configResolved(config) {
+      viteConfig = config
+    },
+    async configureServer(server) {
+      const content = await buildLlmsContent()
+
+      server.middlewares.use((req, res, next) => {
+        if (req.url === '/llms.txt') {
+          res.setHeader('Content-Type', 'text/plain')
+          res.end(content.short)
+          return
+        }
+        if (req.url === '/llms-full.txt') {
+          res.setHeader('Content-Type', 'text/plain')
+          res.end(content.full)
+          return
+        }
+        next()
+      })
+    },
+    async buildEnd() {
+      const content = await buildLlmsContent()
+      const outDir = path.resolve(viteConfig.root, config.outDir, 'public')
+      await fs.writeFile(path.join(outDir, 'llms-full.txt'), content.full, { encoding: 'utf-8' })
+      await fs.writeFile(path.join(outDir, 'llms.txt'), content.short, { encoding: 'utf-8' })
+    },
+  }
+}
+
 /**
  * Processes MDX files.
  *
@@ -36,38 +131,7 @@ export function dedupe(): PluginOption {
  * @returns Plugin.
  */
 export function mdx(config: Config.Config): PluginOption {
-  const { markdown, twoslash } = config
-  const {
-    jsxImportSource = 'react',
-    recmaPlugins = [],
-    rehypePlugins = [],
-    remarkPlugins = [],
-  } = markdown ?? {}
-
-  return mdxPlugin({
-    ...markdown,
-    jsxImportSource,
-    rehypePlugins: filterContentType(
-      [
-        Plugins.rehypeShiki({ ...markdown?.codeHighlight, twoslash }),
-        ...(rehypePlugins ?? []),
-        Plugins.rehypeVocsScope,
-      ],
-      (contentType) => contentType === 'html',
-    ),
-    remarkPlugins: [
-      Plugins.remarkFrontmatter,
-      Plugins.remarkDefaultFrontmatter,
-      Plugins.remarkMdxFrontmatter,
-      Plugins.remarkSubheading,
-      ...(remarkPlugins ?? []),
-      Plugins.remarkContentExport,
-    ],
-    recmaPlugins: filterContentType(
-      [Plugins.recmaMdxLayout, ...(recmaPlugins ?? [])],
-      (contentType) => contentType === 'html',
-    ),
-  })
+  return mdxPlugin(Mdx.getCompileOptions('react', config))
 }
 
 /**
@@ -112,54 +176,4 @@ export function virtualConfig(config: Config.Config): PluginOption {
       return
     },
   }
-}
-
-export function virtualPages(config: Config.Config): PluginOption {
-  const { srcDir } = config
-
-  const virtualPagesId = 'virtual:vocs/pages'
-
-  return {
-    name: 'vocs:virtual-pages',
-    resolveId(id) {
-      if (id.startsWith(virtualPagesId)) return `\0${id}`
-      return
-    },
-    load(id) {
-      if (!id.startsWith(`\0${virtualPagesId}`)) {
-        const { pathname, searchParams } = new URL(id, 'file://')
-        const contentType = searchParams.get('contentType')
-        if (contentType) Context.contentType.set(pathname, contentType)
-        else Context.contentType.delete(pathname)
-        return
-      }
-
-      {
-        const { searchParams } = new URL(id, 'file://')
-        const query = searchParams ? `query: "?${searchParams}", ` : ''
-        return `
-  export const pages = import.meta.glob(
-    "/${srcDir}/pages/**/*.{${extensions.map((ext) => ext.slice(1)).join(',')}}",
-    { ${query}base: "/${srcDir}/pages" }
-  );
-  `
-      }
-    },
-  }
-}
-
-type Transform = (tree: unknown, vfile: VFile) => void
-function filterContentType(
-  plugins: unknown[],
-  filter: (contentType: string) => boolean,
-): (() => Transform)[] {
-  return plugins.map((plugin) => {
-    const [fn, options] = Array.isArray(plugin) ? plugin : [plugin, undefined]
-    let transform: Transform | undefined
-    return () => (tree, vfile) => {
-      if (!filter(Context.contentType.get(vfile.path) ?? 'html')) return
-      transform ??= (fn as (options: unknown) => Transform)(options)
-      return transform(tree, vfile)
-    }
-  })
 }

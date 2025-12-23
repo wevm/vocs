@@ -50,6 +50,9 @@ importers:
 
   .:
     dependencies:
+      '@mdx-js/mdx':
+        specifier: ^3.1.1
+        version: 3.1.1
       '@mdx-js/rollup':
         specifier: ^3.1.1
         version: 3.1.1(rollup@4.53.5)
@@ -89,9 +92,18 @@ importers:
       remark-frontmatter:
         specifier: ^5.0.0
         version: 5.0.0
+      remark-mdx:
+        specifier: ^3.1.1
+        version: 3.1.1
       remark-mdx-frontmatter:
         specifier: ^5.2.0
         version: 5.2.0
+      remark-parse:
+        specifier: ^11.0.0
+        version: 11.0.0
+      remark-stringify:
+        specifier: ^11.0.0
+        version: 11.0.0
       shiki:
         specifier: ^3.20.0
         version: 3.20.0
@@ -110,6 +122,9 @@ importers:
       vfile:
         specifier: ^6.0.3
         version: 6.0.3
+      yaml:
+        specifier: ^2.8.2
+        version: 2.8.2
     devDependencies:
       '@biomejs/biome':
         specifier: 'catalog:'
@@ -1952,6 +1967,9 @@ packages:
 
   remark-rehype@11.1.2:
     resolution: {integrity: sha512-Dh7l57ianaEoIpzbp0PC9UKAdCSVklD8E5Rpw7ETfbTl3FqcOOgq5q2LVDhgGCkaBv7p24JXikPdvhhmHvKMsw==}
+
+  remark-stringify@11.0.0:
+    resolution: {integrity: sha512-1OSmLd3awB/t8qdoEOMazZkNsfVTeY4fTsgzcQFdXNq8ToTN4ZGwrMnlda4K6smTFKD+GRV6O48i6Z4iKgPPpw==}
 
   require-from-string@2.0.2:
     resolution: {integrity: sha512-Xf0nWe6RseziFMu+Ap9biiUbmplq6S9/p+7w7YXP/JBHhrUDDUhwa+vANyubuqfZWTveU//DYVGsDG7RKL/vEw==}
@@ -4445,6 +4463,12 @@ snapshots:
       mdast-util-to-hast: 13.2.1
       unified: 11.0.5
       vfile: 6.0.3
+
+  remark-stringify@11.0.0:
+    dependencies:
+      '@types/mdast': 4.0.4
+      mdast-util-to-markdown: 2.1.2
+      unified: 11.0.5
 
   require-from-string@2.0.2: {}
 

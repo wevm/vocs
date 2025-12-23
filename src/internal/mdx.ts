@@ -1,18 +1,75 @@
+import * as fs from 'node:fs'
+import type { CompileOptions } from '@mdx-js/mdx'
 import shiki, { type RehypeShikiOptions } from '@shikijs/rehype'
 import * as EstreeUtil from 'esast-util-from-js'
 import type * as Estree from 'estree'
 import type * as HAst from 'hast'
 import type * as MdAst from 'mdast'
-import * as MdAstExtensions from 'mdast-util-mdx'
-import * as MdAstUtil from 'mdast-util-to-markdown'
+import remarkFrontmatter from 'remark-frontmatter'
+import remarkMdxFrontmatter from 'remark-mdx-frontmatter'
+import type { PluggableList } from 'unified'
 import * as UnistUtil from 'unist-util-visit'
 import type { VFile } from 'vfile'
+import * as yaml from 'yaml'
 import type { ExactPartial } from '../types.js'
-import * as Context from './context.js'
+import type * as Config from './config.js'
 import * as ShikiTransformers from './shiki-transformers.js'
 
 export { default as remarkFrontmatter } from 'remark-frontmatter'
 export { default as remarkMdxFrontmatter } from 'remark-mdx-frontmatter'
+
+export function getCompileOptions(
+  type: 'txt' | 'react',
+  config: Config.Config,
+): Omit<CompileOptions, 'remarkPlugins' | 'rehypePlugins' | 'recmaPlugins'> & {
+  remarkPlugins: PluggableList
+  rehypePlugins: PluggableList
+  recmaPlugins: PluggableList
+} {
+  const { markdown, twoslash } = config
+  const { jsxImportSource = 'react' } = markdown ?? {}
+
+  const { recmaPlugins, rehypePlugins, remarkPlugins } = (() => {
+    if (type === 'txt')
+      return {
+        recmaPlugins: [],
+        rehypePlugins: [],
+        remarkPlugins: [
+          remarkFrontmatter,
+          remarkDefaultFrontmatter,
+          remarkExtractFrontmatter,
+          remarkStripFrontmatter,
+          remarkStripJs,
+        ],
+      }
+    if (type === 'react')
+      return {
+        rehypePlugins: [
+          rehypeShiki({ ...markdown?.codeHighlight, twoslash }),
+          ...(markdown?.rehypePlugins ?? []),
+          rehypeVocsScope,
+        ],
+        remarkPlugins: [
+          remarkFrontmatter,
+          remarkDefaultFrontmatter,
+          remarkMetaFrontmatter,
+          remarkMdxFrontmatter,
+          remarkSubheading,
+          ...(markdown?.remarkPlugins ?? []),
+        ],
+        recmaPlugins: [recmaMdxLayout, ...(markdown?.recmaPlugins ?? [])],
+      }
+    throw new Error(`Invalid type: ${type}`)
+  })()
+
+  return {
+    ...markdown,
+    jsxImportSource,
+    recmaPlugins,
+    rehypePlugins,
+    remarkPlugins,
+  }
+}
 
 /**
  * Recma plugin that wraps the MDX default export with MdxLayout.
@@ -102,35 +159,10 @@ export declare namespace rehypeShiki {
 }
 
 /**
- * Remark plugin that exports the processed markdown content from MDX files.
- * Only runs for files marked in the llmsContext.
- */
-export function remarkContentExport() {
-  return (tree: MdAst.Root, vfile: VFile) => {
-    try {
-      const contentType = Context.contentType.get(vfile.path)
-      if (contentType !== 'md') return
-
-      const content = MdAstUtil.toMarkdown(tree, { extensions: [MdAstExtensions.mdxToMarkdown()] })
-      const code = `export const content = ${JSON.stringify(content)}`
-
-      tree.children.unshift({
-        type: 'mdxjsEsm',
-        value: code,
-        data: { estree: EstreeUtil.fromJs(code, { module: true }) },
-      } as never)
-    } catch {}
-  }
-}
-
-/**
  * Remark plugin that extracts frontmatter attributes from the document.
  */
 export function remarkDefaultFrontmatter() {
-  return (tree: MdAst.Root, vfile: VFile) => {
-    const contentType = Context.contentType.get(vfile.path)
-    if (contentType === 'md') return
-
+  return (tree: MdAst.Root) => {
     // Find existing frontmatter
     const frontmatterNode = tree.children.find((node) => node.type === 'yaml') as
       | { type: 'yaml'; value: string }
@@ -169,6 +201,59 @@ export function remarkDefaultFrontmatter() {
         type: 'yaml',
         value: newLines.join('\n'),
       } as never)
+  }
+}
+
+/**
+ * Remark plugin that extracts the frontmatter from the document.
+ */
+export function remarkExtractFrontmatter() {
+  return (tree: MdAst.Root, file: VFile) => {
+    const yamlNode = tree.children.find((node) => node.type === 'yaml')
+    // biome-ignore lint/complexity/useLiteralKeys: _
+    if (yamlNode) file.data['frontmatter'] = yaml.parse(yamlNode.value)
+  }
+}
+
+/**
+ * Remark plugin that adds metadata to the frontmatter.
+ */
+function remarkMetaFrontmatter() {
+  return (tree: MdAst.Root, file: VFile) => {
+    const yamlNode = tree.children.find((node) => node.type === 'yaml')
+    const existing = yamlNode ? yaml.parse(yamlNode.value) : {}
+    const lastModified = file.path
+      ? fs.statSync(file.path).mtime.toISOString()
+      : new Date().toISOString()
+    console.log('test', file.path)
+    const data = { ...existing, lastModified }
+
+    if (yamlNode) yamlNode.value = yaml.stringify(data).trim()
+    else tree.children.unshift({ type: 'yaml', value: yaml.stringify(data).trim() })
+  }
+}
+
+/**
+ * Remark plugin that strips the JSX expressions from the document.
+ */
+export function remarkStripJs() {
+  return (tree: MdAst.Root) => {
+    UnistUtil.visit(tree, 'mdxjsEsm', (node) => {
+      tree.children.splice(tree.children.indexOf(node), 1)
+    })
+    UnistUtil.visit(tree, 'mdxFlowExpression', (node) => {
+      tree.children.splice(tree.children.indexOf(node), 1)
+    })
+  }
+}
+
+/**
+ * Remark plugin that strips the frontmatter from the document.
+ */
+export function remarkStripFrontmatter() {
+  return (tree: MdAst.Root) => {
+    const yamlNode = tree.children.find((node) => node.type === 'yaml')
+    if (yamlNode) tree.children.splice(tree.children.indexOf(yamlNode), 1)
   }
 }
 

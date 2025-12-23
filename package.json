@@ -43,12 +43,12 @@
     "src"
   ],
   "dependencies": {
-    "@tailwindcss/vite": "^4.1.8",
-    "tailwindcss": "^4.1.8",
+    "@mdx-js/mdx": "^3.1.1",
     "@mdx-js/rollup": "^3.1.1",
     "@shikijs/rehype": "^3.20.0",
     "@shikijs/twoslash": "^3.20.0",
     "@shikijs/types": "^3.20.0",
+    "@tailwindcss/vite": "^4.1.8",
     "@vitejs/plugin-react": "^5.1.2",
     "@vitejs/plugin-rsc": "^0.5.9",
     "esast-util-from-js": "^2.0.1",
@@ -57,12 +57,17 @@
     "mdast-util-mdx": "^3.0.0",
     "mdast-util-to-markdown": "^2.1.2",
     "remark-frontmatter": "^5.0.0",
+    "remark-mdx": "^3.1.1",
     "remark-mdx-frontmatter": "^5.2.0",
+    "remark-parse": "^11.0.0",
+    "remark-stringify": "^11.0.0",
     "shiki": "^3.20.0",
+    "tailwindcss": "^4.1.8",
     "twoslash": "^0.3.6",
     "unified": "^11.0.5",
     "unist-util-visit": "^5.0.0",
-    "vfile": "^6.0.3"
+    "vfile": "^6.0.3",
+    "yaml": "^2.8.2"
   },
   "peerDependencies": {
     "react": "^19",

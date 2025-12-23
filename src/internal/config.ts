@@ -2,7 +2,7 @@ import * as fs from 'node:fs'
 import * as path from 'node:path'
 import type { Options as mdx_Options } from '@mdx-js/rollup'
 import type { ExactPartial } from '../types.js'
-import type { rehypeShiki } from './mdx-plugins.js'
+import type { rehypeShiki } from './mdx.js'
 import type { twoslash } from './shiki-transformers.js'
 
 export type Config = {
@@ -124,6 +124,11 @@ export type Config = {
    * @default "dist"
    */
   outDir: string
+  /**
+   * The directory to store pages relative to `srcDir`.
+   * @default "pages"
+   */
+  pagesDir: string
   // /**
   //  * Configuration for docs search.
   //  */
@@ -187,6 +192,7 @@ export function define(config: define.Options = {}): Config {
     description,
     markdown,
     outDir,
+    pagesDir: 'pages',
     srcDir,
     title,
     titleTemplate,
@@ -195,7 +201,7 @@ export function define(config: define.Options = {}): Config {
 }
 
 export declare namespace define {
-  export type Options = ExactPartial<Config>
+  export type Options = ExactPartial<Omit<Config, 'pagesDir'>>
 }
 
 export async function resolve(options: resolve.Options = {}): Promise<Config> {

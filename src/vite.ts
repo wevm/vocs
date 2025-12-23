@@ -13,9 +13,9 @@ export async function vocs(): Promise<PluginOption[]> {
 
   return [
     Plugins.dedupe(),
+    Plugins.llms(config),
     Plugins.mdx(config),
     Plugins.tailwind(),
     Plugins.virtualConfig(config),
-    Plugins.virtualPages(config),
   ]
 }
