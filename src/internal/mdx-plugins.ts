@@ -1,9 +1,11 @@
 import shiki, { type RehypeShikiOptions } from '@shikijs/rehype'
 import * as EstreeUtil from 'esast-util-from-js'
 import type * as Estree from 'estree'
+import type * as HAst from 'hast'
 import type * as MdAst from 'mdast'
 import * as MdAstExtensions from 'mdast-util-mdx'
 import * as MdAstUtil from 'mdast-util-to-markdown'
+import * as UnistUtil from 'unist-util-visit'
 import type { VFile } from 'vfile'
 import type { ExactPartial } from '../types.js'
 import * as Context from './context.js'
@@ -45,6 +47,26 @@ export function recmaMdxLayout() {
 
     // Add the wrapper export
     tree.body.push(...wrapperAst.body)
+  }
+}
+
+/**
+ * Rehype plugin that adds `data-vocs` attribute to every element.
+ * This enables scoped styling for vocs-rendered content, without conflicting with user styles.
+ */
+export function rehypeVocsScope() {
+  function visit(node: HAst.Node) {
+    if (node.type === 'element') {
+      const element = node as HAst.Element
+      element.properties = element.properties ?? {}
+      element.properties['data-vocs'] = ''
+    }
+    if ('children' in node && Array.isArray(node.children)) {
+      for (const child of node.children) visit(child)
+    }
+  }
+  return (tree: HAst.Root) => {
+    visit(tree)
   }
 }
 
@@ -147,5 +169,55 @@ export function remarkDefaultFrontmatter() {
         type: 'yaml',
         value: newLines.join('\n'),
       } as never)
+  }
+}
+
+/**
+ * Remark plugin that extracts subheadings from h1 elements.
+ * Converts `# Title [Subheading text]` into a `<header>` with both title and subtitle.
+ */
+export function remarkSubheading() {
+  const subheadingRegex = / \[(.*)\]$/
+
+  return (tree: MdAst.Root) => {
+    UnistUtil.visit(tree, 'heading', (node, index, parent) => {
+      if (index === undefined || !parent) return
+      if (node.depth !== 1) return
+      if (node.children.length === 0) return
+
+      // Find child with subheading pattern
+      const textChild = node.children.find(
+        (child): child is MdAst.Text => child.type === 'text' && subheadingRegex.test(child.value),
+      )
+      if (!textChild) return
+
+      // Extract and remove subheading from text
+      const match = textChild.value.match(subheadingRegex)
+      if (!match) return
+      const subheading = match[1]
+      textChild.value = textChild.value.replace(match[0], '')
+
+      // Build hgroup wrapper with h1 and optional subtitle (p)
+      const hgroup = {
+        type: 'paragraph',
+        data: { hName: 'hgroup' },
+        children: [
+          node as unknown as MdAst.PhrasingContent,
+          ...(subheading
+            ? [
+                {
+                  type: 'paragraph',
+                  data: { hName: 'p' },
+                  children: [{ type: 'text', value: subheading }],
+                } as unknown as MdAst.PhrasingContent,
+              ]
+            : []),
+        ],
+      } satisfies MdAst.Paragraph
+
+      // Replace heading with hgroup wrapper
+      parent.children.splice(index, 1, hgroup)
+      return UnistUtil.SKIP
+    })
   }
 }

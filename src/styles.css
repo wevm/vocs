@@ -1,0 +1,222 @@
+@layer vocs.theme,
+  vocs.base,
+  vocs.components,
+  vocs.utilities,
+  theme,
+  base,
+  components,
+  utilities;
+
+@import "tailwindcss/theme.css" layer(vocs.theme) prefix(vocs);
+@import "tailwindcss/preflight.css" layer(vocs.base);
+@import "tailwindcss/utilities.css" layer(vocs.utilities) prefix(vocs);
+
+@source "./";
+
+@layer vocs.theme {
+  @theme {
+    --color-*: initial;
+
+    --color-white: white;
+    --color-black: black;
+
+    --color-gray1: oklch(0.162 0 0);
+    --color-gray2: oklch(0.195 0 0);
+    --color-gray3: oklch(0.223 0 0);
+    --color-gray4: oklch(0.302 0 0);
+    --color-gray5: oklch(0.348 0 0);
+    --color-gray6: oklch(0.396 0 0);
+    --color-gray7: oklch(0.459 0 0);
+    --color-gray8: oklch(0.549 0 0);
+    --color-gray9: oklch(0.649 0 0);
+    --color-gray10: oklch(0.72 0 0);
+    --color-gray11: oklch(0.863 0 0);
+    --color-gray12: oklch(0.933 0 0);
+    --color-gray13: oklch(0.973 0 0);
+
+    --color-red1: oklch(0.195 0.03 17);
+    --color-red2: oklch(0.227 0.041 17);
+    --color-red3: oklch(0.295 0.082 17);
+    --color-red4: oklch(0.348 0.111 17);
+    --color-red5: oklch(0.394 0.133 17);
+    --color-red6: oklch(0.445 0.151 17);
+    --color-red7: oklch(0.513 0.168 17);
+    --color-red8: oklch(0.599 0.184 17);
+    --color-red9: oklch(0.647 0.176 17);
+    --color-red10: oklch(0.699 0.166 17);
+    --color-red11: oklch(0.863 0.102 17);
+    --color-red12: oklch(0.927 0.062 17);
+
+    --color-blue1: oklch(0.181 0.028 252);
+    --color-blue2: oklch(0.212 0.039 252);
+    --color-blue3: oklch(0.277 0.077 252);
+    --color-blue4: oklch(0.328 0.107 252);
+    --color-blue5: oklch(0.374 0.131 252);
+    --color-blue6: oklch(0.425 0.152 252);
+    --color-blue7: oklch(0.493 0.172 252);
+    --color-blue8: oklch(0.579 0.191 252);
+    --color-blue9: oklch(0.629 0.187 252);
+    --color-blue10: oklch(0.682 0.176 252);
+    --color-blue11: oklch(0.849 0.107 252);
+    --color-blue12: oklch(0.921 0.063 252);
+
+    --color-green1: oklch(0.178 0.029 145);
+    --color-green2: oklch(0.209 0.041 145);
+    --color-green3: oklch(0.272 0.076 145);
+    --color-green4: oklch(0.322 0.103 145);
+    --color-green5: oklch(0.367 0.125 145);
+    --color-green6: oklch(0.417 0.145 145);
+    --color-green7: oklch(0.484 0.164 145);
+    --color-green8: oklch(0.571 0.181 145);
+    --color-green9: oklch(0.623 0.178 145);
+    --color-green10: oklch(0.676 0.167 145);
+    --color-green11: oklch(0.843 0.107 145);
+    --color-green12: oklch(0.919 0.063 145);
+
+    --color-yellow1: oklch(0.192 0.026 91);
+    --color-yellow2: oklch(0.223 0.037 91);
+    --color-yellow3: oklch(0.286 0.07 91);
+    --color-yellow4: oklch(0.336 0.097 91);
+    --color-yellow5: oklch(0.381 0.119 91);
+    --color-yellow6: oklch(0.431 0.14 91);
+    --color-yellow7: oklch(0.498 0.161 91);
+    --color-yellow8: oklch(0.588 0.183 91);
+    --color-yellow9: oklch(0.725 0.187 91);
+    --color-yellow10: oklch(0.78 0.171 91);
+    --color-yellow11: oklch(0.892 0.108 91);
+    --color-yellow12: oklch(0.943 0.063 91);
+
+    --color-background: light-dark(white, var(--vocs-color-gray3));
+    --color-background2: light-dark(
+      var(--vocs-color-gray13),
+      var(--vocs-color-gray2)
+    );
+
+    --color-border: light-dark(
+      var(--vocs-color-gray12),
+      var(--vocs-color-gray4)
+    );
+
+    --color-heading: light-dark(black, white);
+
+    --color-text: light-dark(var(--vocs-color-gray1), var(--vocs-color-gray12));
+    --color-text2: light-dark(
+      var(--vocs-color-gray3),
+      var(--vocs-color-gray10)
+    );
+
+    --spacing-content-px: 3rem;
+    --spacing-content-py: 2rem;
+    --spacing-content: calc(65ch + (var(--vocs-spacing-content-px) * 2));
+    --spacing-outline: 280px;
+    --spacing-sidebar-px: 1.5rem;
+    --spacing-sidebar-py: 0rem;
+    --spacing-sidebar: 300px;
+    --spacing-topNav-px: var(--vocs-spacing-content-px);
+    --spacing-topNav: 60px;
+  }
+
+  /* biome-ignore lint/correctness/noUnknownFunction: _ */
+  @media (width <= theme(--breakpoint-lg)) {
+    :root {
+      --vocs-spacing-content-px: 1.5rem;
+      --vocs-spacing-content-py: 3rem;
+      --vocs-spacing-sidebar-px: 1rem;
+      --vocs-spacing-sidebar-py: 1rem;
+      --spacing-topNav: 48rem;
+    }
+  }
+
+  /* biome-ignore lint/correctness/noUnknownFunction: _ */
+  @media (width <= theme(--breakpoint-md)) {
+    :root {
+      --vocs-spacing-content-px: 1rem;
+      --vocs-spacing-content-py: 2rem;
+    }
+  }
+}
+
+@layer vocs.base {
+  :root {
+    background-color: var(--vocs-color-background);
+    color-scheme: light dark;
+    color: var(--vocs-color-text);
+    font-feature-settings:
+      "rlig" 1,
+      "calt" 1;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@layer vocs.components {
+  /** Primitives */
+
+  h1[data-vocs] {
+    @apply vocs:text-heading vocs:text-4xl vocs:font-[550] vocs:tracking-tight vocs:leading-9;
+  }
+
+  h2[data-vocs] {
+    @apply vocs:text-heading vocs:text-2xl vocs:font-[550] vocs:tracking-tight vocs:leading-7;
+  }
+
+  h3[data-vocs] {
+    @apply vocs:text-heading vocs:text-xl vocs:font-[550] vocs:tracking-tight vocs:leading-7;
+  }
+
+  h4[data-vocs] {
+    @apply vocs:text-heading vocs:text-lg vocs:font-[550] vocs:tracking-tight;
+  }
+
+  h5[data-vocs] {
+    @apply vocs:text-heading vocs:text-base vocs:font-[550] vocs:tracking-tight;
+  }
+
+  h6[data-vocs] {
+    @apply vocs:text-heading vocs:text-base vocs:font-[550] vocs:tracking-tight;
+  }
+
+  strong[data-vocs] {
+    @apply vocs:font-[550];
+  }
+
+  p[data-vocs] {
+    @apply vocs:tracking-[0.005em] vocs:leading-relaxed;
+  }
+
+  /** Content Paragraphs */
+
+  /* TODO: [`${Blockquote}>&`]: {
+    color: semanticColorVars.blockquoteText,
+    marginBottom: spaceVars['8'],
+  }, */
+  /* Reduce spacing between paragraphs and their preceding elements (headings, lists, other paragraphs) */
+  [data-vocs][data-content]
+    > :is(h1, h2, h3, h4, h5, h6, ul, ol, p)[data-vocs]
+    + p[data-vocs] {
+    @apply vocs:-mt-2!;
+  }
+
+  /** Heading Groups */
+
+  hgroup[data-vocs] {
+    @apply vocs:border-b vocs:border-border;
+  }
+
+  hgroup[data-vocs] p[data-vocs] {
+    @apply vocs:text-text2 vocs:text-lg vocs:font-[450] vocs:mt-1.5 vocs:leading-6;
+  }
+
+  hgroup[data-vocs]:not(:last-child) {
+    @apply vocs:mb-6 vocs:pb-6;
+  }
+
+  [data-layout="landing"] hgroup[data-vocs] {
+    @apply vocs:pb-4;
+  }
+
+  [data-layout="landing"] hgroup[data-vocs]:not(:first-child) {
+    @apply vocs:pt-9;
+  }
+}

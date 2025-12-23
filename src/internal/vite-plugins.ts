@@ -1,4 +1,5 @@
 import mdxPlugin from '@mdx-js/rollup'
+import tailwindcss, { type PluginOptions as TailwindOptions } from '@tailwindcss/vite'
 import type { VFile } from 'vfile'
 import type { PluginOption } from 'vite'
 import * as Config from './config.js'
@@ -6,6 +7,8 @@ import * as Context from './context.js'
 import * as Plugins from './mdx-plugins.js'
 
 const extensions = ['.js', '.ts', '.tsx', '.jsx', '.mjs', '.cjs', '.md', '.mdx']
+
+export const tailwind = tailwindcss as unknown as (opts?: TailwindOptions) => PluginOption
 
 /**
  * Deduplicates dependencies.
@@ -45,13 +48,18 @@ export function mdx(config: Config.Config): PluginOption {
     ...markdown,
     jsxImportSource,
     rehypePlugins: filterContentType(
-      [Plugins.rehypeShiki({ ...markdown?.codeHighlight, twoslash }), ...(rehypePlugins ?? [])],
+      [
+        Plugins.rehypeShiki({ ...markdown?.codeHighlight, twoslash }),
+        ...(rehypePlugins ?? []),
+        Plugins.rehypeVocsScope,
+      ],
       (contentType) => contentType === 'html',
     ),
     remarkPlugins: [
       Plugins.remarkFrontmatter,
       Plugins.remarkDefaultFrontmatter,
       Plugins.remarkMdxFrontmatter,
+      Plugins.remarkSubheading,
       ...(remarkPlugins ?? []),
       Plugins.remarkContentExport,
     ],

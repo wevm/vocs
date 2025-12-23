@@ -31,7 +31,10 @@ export function router(
   return createPages(async ({ createPage, createLayout, createRoot, createApi, createSlice }) => {
     const defaultFiles = import.meta.glob(`../routes/**/*.tsx`)
     const defaultPages = Object.fromEntries(
-      Object.entries(defaultFiles).map(([file, module]) => [file.replace('../routes', ''), module]),
+      Object.entries(defaultFiles).map(([file, module]) => [
+        file.replace('../routes', '.'),
+        module,
+      ]),
     )
 
     const allPages = { ...defaultPages, ...pages }
