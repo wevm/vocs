@@ -1,11 +1,4 @@
-@layer vocs.theme,
-  vocs.base,
-  vocs.components,
-  vocs.utilities,
-  theme,
-  base,
-  components,
-  utilities;
+@layer vocs.theme, vocs.base, vocs.components, vocs.utilities, theme, base, components, utilities;
 
 @import "tailwindcss/theme.css" layer(vocs.theme) prefix(vocs);
 @import "tailwindcss/preflight.css" layer(vocs.base);
@@ -34,76 +27,29 @@
     --color-gray12: oklch(0.933 0 0);
     --color-gray13: oklch(0.973 0 0);
 
-    --color-red1: oklch(0.195 0.03 17);
-    --color-red2: oklch(0.227 0.041 17);
-    --color-red3: oklch(0.295 0.082 17);
-    --color-red4: oklch(0.348 0.111 17);
-    --color-red5: oklch(0.394 0.133 17);
-    --color-red6: oklch(0.445 0.151 17);
-    --color-red7: oklch(0.513 0.168 17);
-    --color-red8: oklch(0.599 0.184 17);
-    --color-red9: oklch(0.647 0.176 17);
-    --color-red10: oklch(0.699 0.166 17);
-    --color-red11: oklch(0.863 0.102 17);
-    --color-red12: oklch(0.927 0.062 17);
-
-    --color-blue1: oklch(0.181 0.028 252);
-    --color-blue2: oklch(0.212 0.039 252);
-    --color-blue3: oklch(0.277 0.077 252);
-    --color-blue4: oklch(0.328 0.107 252);
-    --color-blue5: oklch(0.374 0.131 252);
-    --color-blue6: oklch(0.425 0.152 252);
-    --color-blue7: oklch(0.493 0.172 252);
-    --color-blue8: oklch(0.579 0.191 252);
-    --color-blue9: oklch(0.629 0.187 252);
-    --color-blue10: oklch(0.682 0.176 252);
-    --color-blue11: oklch(0.849 0.107 252);
-    --color-blue12: oklch(0.921 0.063 252);
-
-    --color-green1: oklch(0.178 0.029 145);
-    --color-green2: oklch(0.209 0.041 145);
-    --color-green3: oklch(0.272 0.076 145);
-    --color-green4: oklch(0.322 0.103 145);
-    --color-green5: oklch(0.367 0.125 145);
-    --color-green6: oklch(0.417 0.145 145);
-    --color-green7: oklch(0.484 0.164 145);
-    --color-green8: oklch(0.571 0.181 145);
-    --color-green9: oklch(0.623 0.178 145);
-    --color-green10: oklch(0.676 0.167 145);
-    --color-green11: oklch(0.843 0.107 145);
-    --color-green12: oklch(0.919 0.063 145);
-
-    --color-yellow1: oklch(0.192 0.026 91);
-    --color-yellow2: oklch(0.223 0.037 91);
-    --color-yellow3: oklch(0.286 0.07 91);
-    --color-yellow4: oklch(0.336 0.097 91);
-    --color-yellow5: oklch(0.381 0.119 91);
-    --color-yellow6: oklch(0.431 0.14 91);
-    --color-yellow7: oklch(0.498 0.161 91);
-    --color-yellow8: oklch(0.588 0.183 91);
-    --color-yellow9: oklch(0.725 0.187 91);
-    --color-yellow10: oklch(0.78 0.171 91);
-    --color-yellow11: oklch(0.892 0.108 91);
-    --color-yellow12: oklch(0.943 0.063 91);
+    --color-red: light-dark(oklch(0.7 0.25 23), oklch(0.75 0.23 23));
+    --color-blue: light-dark(oklch(0.68 0.25 251.8), oklch(0.8 0.23 251.8));
+    --color-green: light-dark(oklch(0.6 0.23 170.7), oklch(0.8 0.195 170.7));
+    --color-yellow: light-dark(oklch(0.65 0.2 84.1), oklch(0.95 0.2 84.1));
 
     --color-background: light-dark(white, var(--vocs-color-gray3));
-    --color-background2: light-dark(
-      var(--vocs-color-gray13),
-      var(--vocs-color-gray2)
-    );
+    --color-background2: light-dark(var(--vocs-color-gray13), var(--vocs-color-gray2));
 
-    --color-border: light-dark(
-      var(--vocs-color-gray12),
-      var(--vocs-color-gray4)
-    );
+    --color-destructive: var(--vocs-color-red);
+    --color-destructive-tint: oklch(from var(--vocs-color-red) l c h / 8%);
+    --color-info: var(--vocs-color-blue);
+    --color-info-tint: oklch(from var(--vocs-color-blue) l c h / 8%);
+    --color-success: oklch(from var(--vocs-color-green) l c h);
+    --color-success-tint: oklch(from var(--vocs-color-green) l c h / 8%);
+    --color-warning: var(--vocs-color-yellow);
+    --color-warning-tint: oklch(from var(--vocs-color-yellow) l c h / 8%);
+
+    --color-border: light-dark(var(--vocs-color-gray12), var(--vocs-color-gray4));
 
     --color-heading: light-dark(black, white);
 
     --color-text: light-dark(var(--vocs-color-gray1), var(--vocs-color-gray12));
-    --color-text2: light-dark(
-      var(--vocs-color-gray3),
-      var(--vocs-color-gray10)
-    );
+    --color-text2: light-dark(var(--vocs-color-gray3), var(--vocs-color-gray10));
 
     --spacing-content-px: 3rem;
     --spacing-content-py: 2rem;
@@ -192,9 +138,7 @@
     marginBottom: spaceVars['8'],
   }, */
   /* Reduce spacing between paragraphs and their preceding elements (headings, lists, other paragraphs) */
-  [data-vocs][data-content]
-    > :is(h1, h2, h3, h4, h5, h6, ul, ol, p)[data-vocs]
-    + p[data-vocs] {
+  [data-vocs][data-content] > :is(h1, h2, h3, h4, h5, h6, ul, ol, p)[data-vocs] + p[data-vocs] {
     @apply vocs:-mt-2!;
   }
 

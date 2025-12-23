@@ -3,6 +3,9 @@
   "css": {
     "parser": {
       "tailwindDirectives": true
+    },
+    "formatter": {
+      "lineWidth": 120
     }
   },
   "vcs": {
