@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "NODE_OPTIONS='--import=tsx' vite",
     "build": "tsc -b && NODE_OPTIONS='--import=tsx' vite build",
-    "preview": "NODE_OPTIONS='--import=tsx' vite preview"
+    "preview": "NODE_OPTIONS='--import=tsx' node dist/preview.js"
   },
   "dependencies": {
     "react": "catalog:",
@@ -19,7 +19,6 @@
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
-    "@vitejs/plugin-react": "catalog:",
     "vite": "catalog:"
   }
 }

@@ -1,3 +1,6 @@
+import { existsSync } from 'node:fs'
+import * as fs from 'node:fs/promises'
+import * as path from 'node:path'
 import type { Plugin } from 'vite'
 import type { Config as WakuConfig } from 'waku/config'
 import {
@@ -20,6 +23,60 @@ export {
   unstable_virtualConfigPlugin as virtualConfig,
 } from 'waku/vite-plugins'
 export { fsRouterTypegenPlugin as fsRouterTypegen } from './patches/vite-plugins/fs-router-typegen.js'
+
+/**
+ * Builds a script to preview the build output.
+ */
+export function preview(): Plugin {
+  let outDir: string
+
+  return {
+    name: 'vocs:preview',
+    apply: 'build',
+    configResolved(resolvedConfig) {
+      outDir = path.resolve(resolvedConfig.root, resolvedConfig.build.outDir)
+    },
+    async closeBundle() {
+      const previewScript = `\
+import { existsSync } from 'node:fs';
+import { createServer } from 'node:net';
+import { join } from 'node:path';
+
+const serveNodePath = join(import.meta.dirname, 'serve-node.js');
+
+if (!existsSync(serveNodePath)) {
+  console.error('Error: serve-node.js not found.');
+  console.error('The preview script is only compatible with the Node.js adapter for now.');
+  process.exit(1);
+}
+
+function findFreePort(startPort = 3000) {
+  return new Promise((resolve, reject) => {
+    const server = createServer();
+    server.listen(startPort, () => {
+      const { port } = server.address();
+      server.close(() => resolve(port));
+    });
+    server.on('error', (err) => {
+      if (err.code === 'EADDRINUSE') resolve(findFreePort(startPort + 1));
+      else reject(err);
+    });
+  });
+}
+
+process.env.PORT ??= String(await findFreePort());
+
+console.log(\`Starting preview server at http://localhost:\${process.env.PORT}\`);
+
+await import('./serve-node.js');
+`
+
+      const previewPath = path.join(outDir, 'preview.js')
+      if (!existsSync(outDir)) await fs.mkdir(outDir, { recursive: true })
+      await fs.writeFile(previewPath, previewScript, { encoding: 'utf-8' })
+    },
+  }
+}
 
 export function userEntries(config: Required<WakuConfig>): Plugin {
   return {
