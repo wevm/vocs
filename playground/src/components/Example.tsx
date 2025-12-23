@@ -1,3 +1,3 @@
-export function Example() {
-  return <div>Hello world!</div>
+export async function Example() {
+  return <div>Example!</div>
 }
