@@ -225,7 +225,6 @@ function remarkMetaFrontmatter() {
     const lastModified = file.path
       ? fs.statSync(file.path).mtime.toISOString()
       : new Date().toISOString()
-    console.log('test', file.path)
     const data = { ...existing, lastModified }
 
     if (yamlNode) yamlNode.value = yaml.stringify(data).trim()

@@ -98,18 +98,13 @@ export function llms(config: Config.Config): PluginOption {
     configResolved(config) {
       viteConfig = config
     },
-    async configureServer(server) {
-      const content = await buildLlmsContent()
-
-      server.middlewares.use((req, res, next) => {
-        if (req.url === '/llms.txt') {
+    configureServer(server) {
+      let content: Awaited<ReturnType<typeof buildLlmsContent>> | undefined
+      server.middlewares.use(async (req, res, next) => {
+        if (req.url === '/llms.txt' || req.url === '/llms-full.txt') {
+          content ??= await buildLlmsContent()
           res.setHeader('Content-Type', 'text/plain')
-          res.end(content.short)
-          return
-        }
-        if (req.url === '/llms-full.txt') {
-          res.setHeader('Content-Type', 'text/plain')
-          res.end(content.full)
+          res.end(req.url === '/llms.txt' ? content.short : content.full)
           return
         }
         next()
