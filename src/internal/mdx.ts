@@ -5,7 +5,9 @@ import * as EstreeUtil from 'esast-util-from-js'
 import type * as Estree from 'estree'
 import type * as HAst from 'hast'
 import type * as MdAst from 'mdast'
+import remarkDirective from 'remark-directive'
 import remarkFrontmatter from 'remark-frontmatter'
+import remarkGfm from 'remark-gfm'
 import remarkMdxFrontmatter from 'remark-mdx-frontmatter'
 import type { PluggableList } from 'unified'
 import * as UnistUtil from 'unist-util-visit'
@@ -51,7 +53,10 @@ export function getCompileOptions(
         ],
         remarkPlugins: [
           remarkFrontmatter,
+          remarkCallout,
           remarkDefaultFrontmatter,
+          remarkDirective,
+          remarkGfm,
           remarkMetaFrontmatter,
           remarkMdxFrontmatter,
           remarkSubheading,
@@ -138,6 +143,7 @@ export function rehypeShiki(
     shiki,
     {
       ...(options ?? {}),
+      // TODO: infer `langs` for faster cold start.
       themes: (options as { themes?: unknown }).themes ?? {
         light: 'github-light',
         dark: 'github-dark-dimmed',
@@ -155,6 +161,52 @@ export function rehypeShiki(
 export declare namespace rehypeShiki {
   export type Options = ExactPartial<RehypeShikiOptions> & {
     twoslash?: ShikiTransformers.twoslash.Options | false | undefined
+  }
+}
+
+export function remarkCallout() {
+  return (tree: MdAst.Root) => {
+    UnistUtil.visit(tree, (node) => {
+      if (node.type !== 'containerDirective') return
+      if (
+        node.name !== 'callout' &&
+        node.name !== 'info' &&
+        node.name !== 'warning' &&
+        node.name !== 'danger' &&
+        node.name !== 'tip' &&
+        node.name !== 'success' &&
+        node.name !== 'note'
+      )
+        return
+
+      // @ts-expect-error
+      const label = node.children.find((child) => child.data?.directiveLabel)?.children[0].value
+
+      // biome-ignore lint/suspicious/noAssignInExpressions: _
+      const data = node.data || (node.data = {})
+      const tagName = 'aside'
+
+      if (label) {
+        node.children = node.children.filter((child: any) => !child.data?.directiveLabel)
+        node.children.unshift({
+          type: 'paragraph',
+          data: { hProperties: { 'data-callout-title': true } },
+          children: [
+            {
+              type: 'strong',
+              children: [{ type: 'text', value: label }],
+            },
+          ],
+        })
+      }
+
+      data.hName = tagName
+      data.hProperties = {
+        ...(node.attributes ?? {}),
+        'data-callout': true,
+        'data-context': node.name !== 'callout' ? node.name : 'info',
+      }
+    })
   }
 }
 

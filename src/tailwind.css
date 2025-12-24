@@ -1,4 +1,4 @@
-@layer vocs.theme, vocs.base, vocs.components, vocs.utilities, theme, base, components, utilities;
+@layer vocs.theme, vocs.base, vocs.utilities, vocs.components, theme, base, components, utilities;
 
 @import "tailwindcss/theme.css" layer(vocs.theme) prefix(vocs);
 @import "tailwindcss/preflight.css" layer(vocs.base);
@@ -30,26 +30,54 @@
     --color-red: light-dark(oklch(0.7 0.25 23), oklch(0.75 0.23 23));
     --color-blue: light-dark(oklch(0.68 0.25 251.8), oklch(0.8 0.23 251.8));
     --color-green: light-dark(oklch(0.6 0.23 170.7), oklch(0.8 0.195 170.7));
+    --color-iris: light-dark(oklch(0.54 0.184 278.3), oklch(0.85 0.35 278.3));
     --color-yellow: light-dark(oklch(0.65 0.2 84.1), oklch(0.95 0.2 84.1));
 
     --color-background: light-dark(white, var(--vocs-color-gray3));
     --color-background2: light-dark(var(--vocs-color-gray13), var(--vocs-color-gray2));
 
     --color-destructive: var(--vocs-color-red);
+    --color-destructive-hover: oklch(from var(--vocs-color-red) calc(l - 0.1) c h);
     --color-destructive-tint: oklch(from var(--vocs-color-red) l c h / 8%);
+    --color-destructive-tint-border: oklch(from var(--vocs-color-red) l c h / 16%);
     --color-info: var(--vocs-color-blue);
+    --color-info-hover: oklch(from var(--vocs-color-blue) calc(l - 0.1) c h);
     --color-info-tint: oklch(from var(--vocs-color-blue) l c h / 8%);
+    --color-info-tint-border: oklch(from var(--vocs-color-blue) l c h / 16%);
+    --color-note: light-dark(var(--vocs-color-gray8), var(--vocs-color-gray10));
+    --color-note-hover: oklch(from var(--vocs-color-gray8) calc(l - 0.1) c h);
+    --color-note-tint: oklch(from var(--vocs-color-gray10) l c h / 8%);
+    --color-note-tint-border: oklch(from var(--vocs-color-gray10) l c h / 16%);
     --color-success: oklch(from var(--vocs-color-green) l c h);
+    --color-success-hover: oklch(from var(--vocs-color-green) calc(l - 0.1) c h);
     --color-success-tint: oklch(from var(--vocs-color-green) l c h / 8%);
+    --color-success-tint-border: oklch(from var(--vocs-color-green) l c h / 16%);
+    --color-tip: var(--vocs-color-iris);
+    --color-tip-hover: oklch(from var(--vocs-color-iris) calc(l - 0.1) c h);
+    --color-tip-tint: oklch(from var(--vocs-color-iris) l c h / 8%);
+    --color-tip-tint-border: oklch(from var(--vocs-color-iris) l c h / 16%);
     --color-warning: var(--vocs-color-yellow);
+    --color-warning-hover: oklch(from var(--vocs-color-yellow) calc(l - 0.1) c h);
     --color-warning-tint: oklch(from var(--vocs-color-yellow) l c h / 8%);
+    --color-warning-tint-border: oklch(from var(--vocs-color-yellow) l c h / 16%);
 
     --color-border: light-dark(var(--vocs-color-gray12), var(--vocs-color-gray4));
 
     --color-heading: light-dark(black, white);
 
+    --color-link: var(--vocs-color-blue);
+    --color-link-hover: oklch(from var(--vocs-color-blue) calc(l - 0.1) c h);
+
     --color-text: light-dark(var(--vocs-color-gray1), var(--vocs-color-gray12));
     --color-text2: light-dark(var(--vocs-color-gray3), var(--vocs-color-gray10));
+
+    --leading-*: initial;
+    --leading-base: 1.5rem;
+    --leading-p: 1.625rem;
+    --leading-h1: 2.25rem;
+    --leading-h2: 1.75rem;
+    --leading-h3: 1.75rem;
+    --leading-li: 1.5rem;
 
     --spacing-content-px: 3rem;
     --spacing-content-py: 2rem;
@@ -84,9 +112,7 @@
 
 @layer vocs.base {
   :root {
-    background-color: var(--vocs-color-background);
-    color-scheme: light dark;
-    color: var(--vocs-color-text);
+    @apply vocs:bg-background vocs:scheme-light-dark vocs:text-text vocs:tracking-[0.005em];
     font-feature-settings:
       "rlig" 1,
       "calt" 1;
@@ -100,15 +126,15 @@
   /** Primitives */
 
   h1[data-vocs] {
-    @apply vocs:text-heading vocs:text-4xl vocs:font-[550] vocs:tracking-tight vocs:leading-9;
+    @apply vocs:text-heading vocs:text-4xl vocs:font-[550] vocs:tracking-tight vocs:leading-h1;
   }
 
   h2[data-vocs] {
-    @apply vocs:text-heading vocs:text-2xl vocs:font-[550] vocs:tracking-tight vocs:leading-7;
+    @apply vocs:text-heading vocs:text-2xl vocs:font-[550] vocs:tracking-tight vocs:leading-h2;
   }
 
   h3[data-vocs] {
-    @apply vocs:text-heading vocs:text-xl vocs:font-[550] vocs:tracking-tight vocs:leading-7;
+    @apply vocs:text-heading vocs:text-xl vocs:font-[550] vocs:tracking-tight vocs:leading-h3;
   }
 
   h4[data-vocs] {
@@ -128,7 +154,7 @@
   }
 
   p[data-vocs] {
-    @apply vocs:tracking-[0.005em] vocs:leading-relaxed;
+    @apply vocs:leading-p;
   }
 
   /** Content Paragraphs */
@@ -137,30 +163,183 @@
     color: semanticColorVars.blockquoteText,
     marginBottom: spaceVars['8'],
   }, */
-  /* Reduce spacing between paragraphs and their preceding elements (headings, lists, other paragraphs) */
-  [data-vocs][data-content] > :is(h1, h2, h3, h4, h5, h6, ul, ol, p)[data-vocs] + p[data-vocs] {
-    @apply vocs:-mt-2!;
+  /* Reduce spacing between elements (headings, lists, other paragraphs) */
+  [data-vocs][data-content]
+    > :is(p, h1, h2, h3, h4, h5, h6, hgroup, strong, a, blockquote, ol, ul)[data-vocs]
+    + :is(p, h1, h2, h3, h4, h5, h6, hgroup, strong, a, blockquote, ol, ul)[data-vocs] {
+    @apply vocs:-mt-2;
   }
 
-  /** Heading Groups */
+  /** Main Heading (hgroup/h1) */
 
-  hgroup[data-vocs] {
+  hgroup[data-vocs],
+  :not(hgroup) > h1[data-vocs] {
     @apply vocs:border-b vocs:border-border;
   }
 
   hgroup[data-vocs] p[data-vocs] {
-    @apply vocs:text-text2 vocs:text-lg vocs:font-[450] vocs:mt-1.5 vocs:leading-6;
+    @apply vocs:text-text2 vocs:text-lg vocs:font-[450] vocs:mt-1.5 vocs:leading-base;
   }
 
-  hgroup[data-vocs]:not(:last-child) {
-    @apply vocs:mb-6 vocs:pb-6;
+  hgroup[data-vocs]:not(:last-child),
+  :not(hgroup) > h1[data-vocs]:not(:last-child) {
+    @apply vocs:pb-7;
+    margin-block-end: calc(calc(var(--vocs-spacing) * 8) * calc(1 - var(--tw-space-y-reverse))) !important;
   }
 
-  [data-layout="landing"] hgroup[data-vocs] {
+  [data-layout="landing"] hgroup[data-vocs],
+  [data-layout="landing"] :not(hgroup) > h1[data-vocs] {
     @apply vocs:pb-4;
   }
 
-  [data-layout="landing"] hgroup[data-vocs]:not(:first-child) {
+  [data-layout="landing"] hgroup[data-vocs]:not(:first-child),
+  [data-layout="landing"] :not(hgroup) > h1[data-vocs]:not(:first-child) {
     @apply vocs:pt-9;
+  }
+
+  /** h2 */
+
+  :not(:is(hgroup[data-vocs], h1[data-vocs])) > h2[data-vocs]:not(:only-child) {
+    @apply vocs:pt-6 vocs:mt-12!;
+  }
+
+  /** h3 */
+
+  :not(:is(hgroup[data-vocs], h1[data-vocs])) > h3[data-vocs]:not(:only-child) {
+    @apply vocs:pt-4;
+  }
+
+  /** h4,h5,h6 */
+
+  :not(:is(hgroup[data-vocs], h1[data-vocs])) > h4,
+  h5,
+  h6[data-vocs]:not(:only-child) {
+    @apply vocs:pt-3;
+  }
+
+  /** Anchors */
+
+  a[data-vocs] {
+    @apply vocs:text-link vocs:font-[450] vocs:underline vocs:underline-offset-3 vocs:decoration-1 vocs:transition-colors vocs:duration-75;
+  }
+
+  a[data-vocs]:hover {
+    @apply vocs:text-link-hover;
+  }
+
+  [data-context="info"] a[data-vocs] {
+    @apply vocs:text-info;
+  }
+
+  [data-context="info"] a[data-vocs]:hover {
+    @apply vocs:text-info-hover;
+  }
+
+  [data-context="warning"] a[data-vocs] {
+    @apply vocs:text-warning;
+  }
+
+  [data-context="warning"] a[data-vocs]:hover {
+    @apply vocs:text-warning-hover;
+  }
+
+  [data-context="danger"] a[data-vocs] {
+    @apply vocs:text-destructive;
+  }
+
+  [data-context="danger"] a[data-vocs]:hover {
+    @apply vocs:text-destructive-hover;
+  }
+
+  [data-context="tip"] a[data-vocs] {
+    @apply vocs:text-tip;
+  }
+
+  [data-context="tip"] a[data-vocs]:hover {
+    @apply vocs:text-tip-hover;
+  }
+
+  [data-context="success"] a[data-vocs] {
+    @apply vocs:text-success;
+  }
+
+  [data-context="success"] a[data-vocs]:hover {
+    @apply vocs:text-success-hover;
+  }
+
+  /** Callouts */
+
+  aside[data-callout] {
+    @apply vocs:rounded vocs:flex vocs:gap-2 vocs:text-sm vocs:p-3;
+  }
+
+  /* aside[data-callout] > [data-callout-content] {
+    @apply vocs:w-full;
+  } */
+
+  /* aside[data-callout] > [data-callout-icon] {
+    @apply vocs:size-4 vocs:mt-[0.4em];
+  } */
+
+  aside[data-context="note"] {
+    @apply vocs:bg-note-tint vocs:border vocs:border-note-tint-border vocs:text-note;
+  }
+
+  aside[data-context="info"] {
+    @apply vocs:bg-info-tint vocs:border vocs:border-info-tint-border vocs:text-info;
+  }
+
+  aside[data-context="warning"] {
+    @apply vocs:bg-warning-tint vocs:border vocs:border-warning-tint-border vocs:text-warning;
+  }
+
+  aside[data-context="danger"] {
+    @apply vocs:bg-destructive-tint vocs:border vocs:border-destructive-tint-border vocs:text-destructive;
+  }
+
+  aside[data-context="tip"] {
+    @apply vocs:bg-tip-tint vocs:border vocs:border-tip-tint-border vocs:text-tip;
+  }
+
+  aside[data-context="success"] {
+    @apply vocs:bg-success-tint vocs:border vocs:border-success-tint-border vocs:text-success;
+  }
+
+  /** Lists */
+
+  ol[data-vocs] {
+    @apply vocs:list-decimal vocs:ps-5 vocs:mb-4;
+  }
+
+  li[data-vocs] {
+    @apply vocs:leading-li;
+  }
+
+  ol[data-vocs] ol[data-vocs] {
+    list-style-type: lower-alpha;
+  }
+
+  ol[data-vocs] ol[data-vocs] ol[data-vocs] {
+    list-style-type: lower-roman;
+  }
+
+  ul[data-vocs] {
+    @apply vocs:list-disc vocs:ps-6 vocs:mb-4;
+  }
+
+  ul[data-vocs] ul[data-vocs] {
+    list-style-type: circle;
+  }
+
+  :is(ol, ul)[data-vocs] :is(ol, ul)[data-vocs] {
+    @apply vocs:mb-0 vocs:pt-2 vocs:ps-4 vocs:pb-0;
+  }
+
+  ul[data-vocs].contains-task-list {
+    @apply vocs:list-none vocs:ps-3;
+  }
+
+  li[data-vocs]:not(:last-child) {
+    @apply vocs:mb-2;
   }
 }
