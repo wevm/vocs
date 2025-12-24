@@ -87,37 +87,47 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "src": "./src/index.ts",
       "types": "./dist/index.d.ts",
+      "src": "./src/index.ts",
       "default": "./dist/index.js"
     },
     "./config": {
-      "src": "./src/config.ts",
       "types": "./dist/config.d.ts",
+      "src": "./src/config.ts",
       "default": "./dist/config.js"
     },
     "./globals": {
       "types": "./dist/globals.d.ts",
       "src": "./src/globals.d.ts"
     },
+    "./react": {
+      "types": "./dist/react/index.d.ts",
+      "src": "./src/react/index.ts",
+      "default": "./dist/react/index.js"
+    },
+    "./waku/internal/routes/*": {
+      "types": "./dist/waku/internal/routes/*.d.ts",
+      "src": "./src/waku/internal/routes/*.tsx",
+      "default": "./dist/waku/internal/routes/*.js"
+    },
     "./waku/router": {
-      "src": "./src/waku/router.ts",
       "types": "./dist/waku/router.d.ts",
+      "src": "./src/waku/router.ts",
       "default": "./dist/waku/router.js"
     },
     "./waku/vite": {
-      "src": "./src/waku/vite.ts",
       "types": "./dist/waku/vite.d.ts",
+      "src": "./src/waku/vite.ts",
       "default": "./dist/waku/vite.js"
     },
     "./vite": {
-      "src": "./src/vite.ts",
       "types": "./dist/vite.d.ts",
+      "src": "./src/vite.ts",
       "default": "./dist/vite.js"
     },
-    "./styles.css": {
-      "src": "./src/styles.css",
-      "default": "./src/styles.css"
+    "./tailwind.css": {
+      "src": "./src/tailwind.css",
+      "default": "./dist/tailwind.css"
     }
   }
 }

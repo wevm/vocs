@@ -16,7 +16,7 @@ catalog:
   vite: ^7.2.7
   vitest: ^4.0.16
   waku: https://pkg.pr.new/wakujs/waku@4edb1b3
-  zile: 0.0.14
+  zile: 0.0.15
 
 overrides:
   vite: 'catalog:'

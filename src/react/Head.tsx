@@ -1,31 +1,8 @@
-'use client'
-
 import { config } from 'virtual:vocs/config'
-import { useRouter } from 'waku'
-import type { Frontmatter } from './types.js'
-
-export function MdxPageLayout({ children, frontmatter, pathname }: MdxPageLayout.Props) {
-  return (
-    <>
-      <Head frontmatter={frontmatter} pathname={pathname} />
-      {children}
-    </>
-  )
-}
-
-export declare namespace MdxPageLayout {
-  export type Props = {
-    children: React.ReactNode
-    frontmatter?: Frontmatter | undefined
-    pathname: string
-  }
-}
+import type { Frontmatter } from '../types.js'
 
 export function Head(props: Head.Props) {
-  const { frontmatter } = props
-
-  const router = useRouter()
-  const pathname = props.pathname ?? router.path
+  const { pathname, frontmatter } = props
 
   const { baseUrl, iconUrl, logoUrl, ogImageUrl, basePath } = config
 

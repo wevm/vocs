@@ -89,7 +89,7 @@ export function recmaMdxLayout() {
 
     // Add imports for MdxLayout and createElement at the top
     const importAst = EstreeUtil.fromJs(
-      `import { MdxPageLayout as _MdxPageLayout } from 'vocs';
+      `import { MdxPage as _MdxPage } from 'vocs/react';
        import { createElement as _createElement } from 'react';`,
       { module: true },
     )
@@ -97,7 +97,7 @@ export function recmaMdxLayout() {
 
     const wrapperAst = EstreeUtil.fromJs(
       `export function WithPageLayout(props = {}) {
-        return _createElement(_MdxPageLayout, { ...props, frontmatter: typeof frontmatter !== 'undefined' ? frontmatter : undefined, pathname: props.path }, _createElement(MDXContent, props));
+        return _createElement(_MdxPage, { ...props, frontmatter: typeof frontmatter !== 'undefined' ? frontmatter : undefined, pathname: props.path }, _createElement(MDXContent, props));
       }`,
       { module: true },
     )

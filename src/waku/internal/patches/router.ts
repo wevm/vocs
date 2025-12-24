@@ -29,7 +29,7 @@ export function router(
   },
 ): Pages {
   return createPages(async ({ createPage, createLayout, createRoot, createApi, createSlice }) => {
-    const defaultFiles = import.meta.glob(`../routes/**/*.tsx`)
+    const defaultFiles = import.meta.glob(`../routes/**/*.{tsx,js}`)
     const defaultPages = Object.fromEntries(
       Object.entries(defaultFiles).map(([file, module]) => [
         file.replace('../routes', '.'),
