@@ -331,22 +331,41 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce vestibulum ante n
 
 ## Tables
 
-Colons can be used to align columns.
+### Basic Table with Alignment
 
-| Tables        | Are           | Cool  |
-| ------------- |:-------------:| -----:|
-| col 3 is      | right-aligned | $1600 |
-| col 2 is      | centered      |   $12 |
-| zebra stripes | are neat      |    $1 |
+| Method | Description | Returns |
+| ------ | ----------- | ------: |
+| `getBalance` | Returns the balance of an address | `bigint` |
+| `getBlock` | Returns information about a block | `Block` |
+| `getTransaction` | Returns transaction details | `Transaction` |
+| `estimateGas` | Estimates gas for a transaction | `bigint` |
 
-There must be at least 3 dashes separating each header cell.
-The outer pipes (|) are optional, and you don't need to make the 
-raw Markdown line up prettily. You can also use inline Markdown.
+### Numeric Data
 
-Markdown | Less | Pretty
---- | --- | ---
-*Still* | `renders` | **nicely**
-1 | 2 | 3
+| Chain | Chain ID | Block Time | Gas Limit |
+| ----- | -------: | ---------: | --------: |
+| Ethereum | 1 | 12s | 30,000,000 |
+| Optimism | 10 | 2s | 15,000,000 |
+| Arbitrum | 42161 | 0.25s | 32,000,000 |
+| Base | 8453 | 2s | 15,000,000 |
+| Polygon | 137 | 2s | 30,000,000 |
+
+### Mixed Content
+
+| Feature | Status | Version | Notes |
+| ------- | :----: | ------: | ----- |
+| WebSocket Support | ✅ | `2.0.0` | Enabled by default |
+| Batch Requests | ✅ | `1.5.0` | Up to 1000 requests |
+| Auto Retry | ⚠️ | `2.1.0` | Experimental |
+| HTTP/3 | ❌ | - | Planned for v3 |
+
+### Long Content Truncation
+
+| Function | Parameters | Description |
+| -------- | ---------- | ----------- |
+| `createPublicClient` | `transport`, `chain`, `batch`, `cacheTime`, `pollingInterval` | Creates a public client for reading blockchain data and interacting with smart contracts |
+| `createWalletClient` | `account`, `transport`, `chain`, `cacheTime`, `pollingInterval` | Creates a wallet client for signing transactions and messages |
+| `createTestClient` | `mode`, `transport`, `chain`, `account` | Creates a test client for local development and testing environments |
 
 ## Footnotes
 
