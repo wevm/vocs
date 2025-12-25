@@ -55,6 +55,7 @@ export function getCompileOptions(
           remarkFrontmatter,
           remarkCallout,
           remarkDefaultFrontmatter,
+          remarkDetails,
           remarkDirective,
           remarkGfm,
           remarkMetaFrontmatter,
@@ -95,6 +96,7 @@ export function recmaMdxLayout() {
     // Add imports for MdxLayout and createElement at the top
     const importAst = EstreeUtil.fromJs(
       `import { MdxPage as _MdxPage } from 'vocs/react';
+       import { components as _components } from 'virtual:vocs/mdx-components';
        import { createElement as _createElement } from 'react';`,
       { module: true },
     )
@@ -102,7 +104,7 @@ export function recmaMdxLayout() {
 
     const wrapperAst = EstreeUtil.fromJs(
       `export function WithPageLayout(props = {}) {
-        return _createElement(_MdxPage, { ...props, frontmatter: typeof frontmatter !== 'undefined' ? frontmatter : undefined, pathname: props.path }, _createElement(MDXContent, props));
+        return _createElement(_MdxPage, { ...props, frontmatter: typeof frontmatter !== 'undefined' ? frontmatter : undefined, pathname: props.path }, _createElement(MDXContent, { ...props, components: _components }));
       }`,
       { module: true },
     )
@@ -253,6 +255,30 @@ export function remarkDefaultFrontmatter() {
         type: 'yaml',
         value: newLines.join('\n'),
       } as never)
+  }
+}
+
+export function remarkDetails() {
+  return (tree: MdAst.Root) => {
+    UnistUtil.visit(tree, (node) => {
+      if (node.type !== 'containerDirective') return
+      if (node.name !== 'details') return
+
+      // biome-ignore lint/suspicious/noAssignInExpressions: _
+      const data = node.data || (node.data = {})
+
+      const summaryChild = node.children[0]
+      if (summaryChild?.type === 'paragraph' && summaryChild.data?.directiveLabel)
+        summaryChild.data.hName = 'summary'
+      else
+        node.children.unshift({
+          type: 'paragraph',
+          children: [{ type: 'text', value: 'Details' }],
+          data: { hName: 'summary' },
+        } as never)
+
+      data.hName = 'details'
+    })
   }
 }
 

@@ -1,4 +1,4 @@
-@layer vocs.theme, vocs.base, vocs.utilities, vocs.components, theme, base, components, utilities;
+@layer vocs.theme, vocs.base, vocs.components, vocs.utilities, theme, base, components, utilities;
 
 @import "tailwindcss/theme.css" layer(vocs.theme) prefix(vocs);
 @import "tailwindcss/preflight.css" layer(vocs.base);
@@ -127,7 +127,6 @@
 
 @layer vocs.components {
   /** Primitives */
-
   h1[data-vocs] {
     @apply vocs:text-heading vocs:text-4xl vocs:font-[550] vocs:tracking-tight vocs:leading-h1;
   }
@@ -166,7 +165,7 @@
   [data-vocs][data-content]
     > :is(p, h1, h2, h3, h4, h5, h6, hgroup, strong, a, blockquote, ol, ul)[data-vocs]
     + :is(p, h1, h2, h3, h4, h5, h6, hgroup, strong, a, blockquote, ol, ul)[data-vocs] {
-    @apply vocs:-mt-2;
+    @apply vocs:-mt-2!;
   }
 
   /** Main Heading (hgroup/h1) */
@@ -416,5 +415,35 @@
 
   section[data-footnotes] > h2 {
     @apply vocs:pt-0! vocs:pb-4!;
+  }
+
+  /** details */
+
+  details[data-vocs] > summary[data-vocs] {
+    @apply vocs:cursor-pointer vocs:hover:underline vocs:underline-offset-2 vocs:decoration-1 vocs:leading-base vocs:flex vocs:items-center vocs:font-[500];
+    list-style: none;
+  }
+
+  details[data-vocs] > summary[data-vocs]::-webkit-details-marker {
+    display: none;
+  }
+
+  details[data-vocs] > summary[data-vocs]::before {
+    @apply vocs:content-[''] vocs:inline-block vocs:size-[1em] vocs:mr-[0.25em] vocs:align-middle vocs:bg-current vocs:transition-transform vocs:duration-200;
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1em' height='1em' viewBox='0 0 24 24'%3E%3Cpath fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m9 18l6-6l-6-6'/%3E%3C/svg%3E");
+    mask-size: contain;
+    mask-repeat: no-repeat;
+  }
+
+  details[data-vocs][open] > summary[data-vocs]::before {
+    @apply vocs:rotate-90;
+  }
+
+  details[data-vocs] summary {
+    @apply vocs:mb-2;
+  }
+
+  aside[data-vocs] summary {
+    @apply vocs:mb-0;
   }
 }

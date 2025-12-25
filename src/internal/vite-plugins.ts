@@ -11,6 +11,8 @@ import type { Frontmatter } from '../types.js'
 import * as Config from './config.js'
 import * as Mdx from './mdx.js'
 
+export { default as icons } from 'unplugin-icons/vite'
+
 export const tailwind = tailwindcss as unknown as (opts?: TailwindOptions) => PluginOption
 
 /**
@@ -167,6 +169,28 @@ export function virtualConfig(config: Config.Config): PluginOption {
         content += `export const config = ${Config.serialize(config)}`
 
         return content
+      }
+      return
+    },
+  }
+}
+
+/**
+ * Vite plugin that provides MDX components as a virtual module.
+ */
+export function virtualMdxComponents(): PluginOption {
+  const virtualModuleId = 'virtual:vocs/mdx-components'
+  const resolvedVirtualModuleId = `\0${virtualModuleId}`
+  return {
+    name: 'vocs:virtual-mdx-components',
+    enforce: 'pre',
+    resolveId(id) {
+      if (id === virtualModuleId) return resolvedVirtualModuleId
+      return
+    },
+    load(id) {
+      if (id === resolvedVirtualModuleId) {
+        return `export { components } from '${import.meta.resolve('../react/Mdx.js').replace('file://', '')}'`
       }
       return
     },

@@ -10,7 +10,7 @@
     "paths": {
       "vocs": ["./index.ts"]
     },
-    "types": ["node", "vitest/globals"],
+    "types": ["node", "vitest/globals", "unplugin-icons/types/react"],
     "jsx": "react-jsx",
 
     // Other Outputs

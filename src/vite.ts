@@ -13,9 +13,14 @@ export async function vocs(): Promise<PluginOption[]> {
 
   return [
     Plugins.dedupe(),
+    Plugins.icons({
+      compiler: 'jsx',
+      jsx: 'react',
+    }),
     Plugins.llms(config),
     Plugins.mdx(config),
     Plugins.tailwind(),
     Plugins.virtualConfig(config),
+    Plugins.virtualMdxComponents(),
   ]
 }
