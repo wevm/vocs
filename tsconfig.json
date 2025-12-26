@@ -2,7 +2,7 @@
   "files": [],
   "references": [{ "path": "./src" }, { "path": "./playground" }],
   "compilerOptions": {
-    "lib": ["ESNext"],
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "module": "nodenext",
     "moduleResolution": "nodenext",
     "jsx": "react-jsx"

@@ -1,3 +1,5 @@
+/// <reference types="unplugin-icons/types/react" />
+
 declare module '*.mdx' {
   import type { Frontmatter } from './types.ts'
   export default function MDXContent(props: Record<string, unknown>): JSX.Element

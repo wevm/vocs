@@ -26,6 +26,9 @@
       "recommended": true,
       "style": {
         "useTemplate": "off"
+      },
+      "complexity": {
+        "noImportantStyles": "off"
       }
     }
   },

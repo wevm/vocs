@@ -4,3 +4,5 @@ node_modules
 routeTree.gen.ts
 *.tsbuildinfo
 **/.cache
+tsconfig.tsbuildinfo
+tsconfig.tmp.*

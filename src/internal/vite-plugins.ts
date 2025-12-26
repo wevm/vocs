@@ -115,8 +115,11 @@ export function llms(config: Config.Config): PluginOption {
     async buildEnd() {
       const content = await buildLlmsContent()
       const outDir = path.resolve(viteConfig.root, config.outDir, 'public')
-      await fs.writeFile(path.join(outDir, 'llms-full.txt'), content.full, { encoding: 'utf-8' })
-      await fs.writeFile(path.join(outDir, 'llms.txt'), content.short, { encoding: 'utf-8' })
+      await fs.mkdir(outDir, { recursive: true })
+      await Promise.all([
+        fs.writeFile(path.join(outDir, 'llms-full.txt'), content.full, { encoding: 'utf-8' }),
+        fs.writeFile(path.join(outDir, 'llms.txt'), content.short, { encoding: 'utf-8' }),
+      ])
     },
   }
 }
@@ -190,7 +193,7 @@ export function virtualMdxComponents(): PluginOption {
     },
     load(id) {
       if (id === resolvedVirtualModuleId) {
-        return `export { components } from '${import.meta.resolve('../react/Mdx.js').replace('file://', '')}'`
+        return `export { components } from 'vocs/react'`
       }
       return
     },
