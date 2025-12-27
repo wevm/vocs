@@ -10,9 +10,10 @@
   @theme {
     --color-*: initial;
 
+    /** Primitive Colors */
+
     --color-white: white;
     --color-black: black;
-
     --color-gray1: oklch(0.162 0 0);
     --color-gray2: oklch(0.195 0 0);
     --color-gray3: oklch(0.223 0 0);
@@ -26,53 +27,62 @@
     --color-gray11: oklch(0.863 0 0);
     --color-gray12: oklch(0.933 0 0);
     --color-gray13: oklch(0.973 0 0);
-
     --color-red: light-dark(oklch(0.7 0.25 23), oklch(0.75 0.23 23));
     --color-blue: light-dark(oklch(0.68 0.25 251.8), oklch(0.8 0.23 251.8));
     --color-green: light-dark(oklch(0.6 0.23 170.7), oklch(0.8 0.195 170.7));
     --color-iris: light-dark(oklch(0.54 0.184 278.3), oklch(0.85 0.35 278.3));
     --color-yellow: light-dark(oklch(0.65 0.2 84.1), oklch(0.95 0.2 84.1));
 
-    --color-background: light-dark(white, var(--vocs-color-gray3));
-    --color-background2: light-dark(var(--vocs-color-gray13), var(--vocs-color-gray4));
+    /** Standard Colors */
+
+    --background-color-primary: light-dark(white, var(--vocs-color-gray3));
+    --background-color-secondary: light-dark(var(--vocs-color-gray13), var(--vocs-color-gray4));
+    --text-color-primary: light-dark(var(--vocs-color-gray1), var(--vocs-color-gray12));
+    --text-color-secondary: light-dark(var(--vocs-color-gray3), var(--vocs-color-gray10));
+
+    /** Contextual Colors */
 
     --color-destructive: var(--vocs-color-red);
     --color-destructive-hover: oklch(from var(--vocs-color-red) calc(l - 0.1) c h);
     --color-destructive-tint: oklch(from var(--vocs-color-red) l c h / 8%);
-    --color-destructive-tint-border: oklch(from var(--vocs-color-red) l c h / 16%);
+    --border-color-destructive-tint: oklch(from var(--vocs-color-red) l c h / 16%);
+
     --color-info: var(--vocs-color-blue);
     --color-info-hover: oklch(from var(--vocs-color-blue) calc(l - 0.1) c h);
-    --color-info-tint: oklch(from var(--vocs-color-blue) l c h / 8%);
-    --color-info-tint-border: oklch(from var(--vocs-color-blue) l c h / 16%);
+    --background-color-info-tint: oklch(from var(--vocs-color-blue) l c h / 8%);
+    --border-color-info-tint: oklch(from var(--vocs-color-blue) l c h / 16%);
+
     --color-note: light-dark(var(--vocs-color-gray8), var(--vocs-color-gray10));
     --color-note-hover: oklch(from var(--vocs-color-gray8) calc(l - 0.1) c h);
-    --color-note-tint: oklch(from var(--vocs-color-gray10) l c h / 8%);
-    --color-note-tint-border: oklch(from var(--vocs-color-gray10) l c h / 16%);
+    --background-color-note-tint: oklch(from var(--vocs-color-gray10) l c h / 8%);
+    --border-color-note-tint: oklch(from var(--vocs-color-gray10) l c h / 16%);
+
     --color-success: oklch(from var(--vocs-color-green) l c h);
     --color-success-hover: oklch(from var(--vocs-color-green) calc(l - 0.1) c h);
-    --color-success-tint: oklch(from var(--vocs-color-green) l c h / 8%);
-    --color-success-tint-border: oklch(from var(--vocs-color-green) l c h / 16%);
+    --background-color-success-tint: oklch(from var(--vocs-color-green) l c h / 8%);
+    --border-color-success-tint: oklch(from var(--vocs-color-green) l c h / 16%);
+
     --color-tip: var(--vocs-color-iris);
     --color-tip-hover: oklch(from var(--vocs-color-iris) calc(l - 0.1) c h);
-    --color-tip-tint: oklch(from var(--vocs-color-iris) l c h / 8%);
-    --color-tip-tint-border: oklch(from var(--vocs-color-iris) l c h / 16%);
+    --background-color-tip-tint: oklch(from var(--vocs-color-iris) l c h / 8%);
+    --border-color-tip-tint: oklch(from var(--vocs-color-iris) l c h / 16%);
+
     --color-warning: var(--vocs-color-yellow);
     --color-warning-hover: oklch(from var(--vocs-color-yellow) calc(l - 0.1) c h);
-    --color-warning-tint: oklch(from var(--vocs-color-yellow) l c h / 8%);
-    --color-warning-tint-border: oklch(from var(--vocs-color-yellow) l c h / 16%);
+    --background-color-warning-tint: oklch(from var(--vocs-color-yellow) l c h / 8%);
+    --border-color-warning-tint: oklch(from var(--vocs-color-yellow) l c h / 16%);
 
-    --color-border: light-dark(var(--vocs-color-gray12), var(--vocs-color-gray4));
-    --color-border2: light-dark(var(--vocs-color-gray12), var(--vocs-color-gray5));
+    --border-color-primary: light-dark(var(--vocs-color-gray12), var(--vocs-color-gray4));
+    --border-color-secondary: light-dark(var(--vocs-color-gray12), var(--vocs-color-gray5));
 
-    --color-heading: light-dark(black, white);
+    /** Semantic Colors */
 
-    --color-link: var(--vocs-color-blue);
-    --color-link-hover: oklch(from var(--vocs-color-blue) calc(l - 0.1) c h);
+    --text-color-heading: light-dark(black, white);
+    --text-color-link: var(--vocs-color-blue);
+    --text-color-link-hover: oklch(from var(--vocs-color-blue) calc(l - 0.1) c h);
+    --text-color-quote: light-dark(var(--vocs-color-gray9), var(--vocs-color-gray11));
 
-    --color-quote: light-dark(var(--vocs-color-gray9), var(--vocs-color-gray11));
-
-    --color-text: light-dark(var(--vocs-color-gray1), var(--vocs-color-gray12));
-    --color-text2: light-dark(var(--vocs-color-gray3), var(--vocs-color-gray10));
+    /** Leading */
 
     --leading-*: initial;
     --leading-base: 1.5rem;
@@ -81,6 +91,8 @@
     --leading-h2: 1.75rem;
     --leading-h3: 1.75rem;
     --leading-li: 1.5rem;
+
+    /** Spacing */
 
     --spacing-content-px: 3rem;
     --spacing-content-py: 2rem;
@@ -115,7 +127,7 @@
 
 @layer vocs.base {
   :root {
-    @apply vocs:bg-background vocs:scheme-light-dark vocs:text-text vocs:tracking-[0.005em];
+    @apply vocs:bg-primary vocs:scheme-light-dark vocs:text-primary vocs:tracking-[0.005em];
     font-feature-settings:
       "rlig" 1,
       "calt" 1;
@@ -172,11 +184,11 @@
 
   hgroup[data-vocs],
   :not(hgroup) > h1[data-vocs] {
-    @apply vocs:border-b vocs:border-border;
+    @apply vocs:border-b vocs:border-primary;
   }
 
   hgroup[data-vocs] p[data-vocs] {
-    @apply vocs:text-text2 vocs:text-lg vocs:font-[450] vocs:mt-1.5 vocs:leading-base;
+    @apply vocs:text-secondary vocs:text-lg vocs:font-[450] vocs:mt-1.5 vocs:leading-base;
   }
 
   hgroup[data-vocs]:not(:last-child),
@@ -275,7 +287,7 @@
   /** Blockquotes */
 
   blockquote[data-vocs] {
-    @apply vocs:border-l-3 vocs:border-border2 vocs:bg-background2 vocs:ps-4 vocs:py-4 vocs:text-quote;
+    @apply vocs:border-l-3 vocs:border-secondary vocs:bg-secondary vocs:ps-4 vocs:py-4 vocs:text-quote;
   }
 
   /** Callouts */
@@ -293,27 +305,27 @@
   } */
 
   aside[data-context="note"] {
-    @apply vocs:bg-note-tint vocs:border vocs:border-note-tint-border vocs:text-note;
+    @apply vocs:bg-note-tint vocs:border vocs:border-note-tint vocs:text-note;
   }
 
   aside[data-context="info"] {
-    @apply vocs:bg-info-tint vocs:border vocs:border-info-tint-border vocs:text-info;
+    @apply vocs:bg-info-tint vocs:border vocs:border-info-tint vocs:text-info;
   }
 
   aside[data-context="warning"] {
-    @apply vocs:bg-warning-tint vocs:border vocs:border-warning-tint-border vocs:text-warning;
+    @apply vocs:bg-warning-tint vocs:border vocs:border-warning-tint vocs:text-warning;
   }
 
   aside[data-context="danger"] {
-    @apply vocs:bg-destructive-tint vocs:border vocs:border-destructive-tint-border vocs:text-destructive;
+    @apply vocs:bg-destructive-tint vocs:border vocs:border-destructive-tint vocs:text-destructive;
   }
 
   aside[data-context="tip"] {
-    @apply vocs:bg-tip-tint vocs:border vocs:border-tip-tint-border vocs:text-tip;
+    @apply vocs:bg-tip-tint vocs:border vocs:border-tip-tint vocs:text-tip;
   }
 
   aside[data-context="success"] {
-    @apply vocs:bg-success-tint vocs:border vocs:border-success-tint-border vocs:text-success;
+    @apply vocs:bg-success-tint vocs:border vocs:border-success-tint vocs:text-success;
   }
 
   /** Lists */
@@ -394,30 +406,30 @@
   }
 
   tbody[data-vocs] tr[data-vocs] {
-    @apply vocs:border-border2 vocs:border-t;
+    @apply vocs:border-secondary vocs:border-t;
   }
 
   /** superscript */
 
   sup[data-vocs] > a[data-vocs] {
-    @apply vocs:ms-0.5 vocs:text-text! vocs:underline-offset-2;
+    @apply vocs:ms-0.5 vocs:text-primary! vocs:underline-offset-2;
   }
 
   /** hr */
 
   hr[data-vocs] {
-    @apply vocs:border-border2;
+    @apply vocs:border-secondary;
   }
 
   /** footnote */
 
   a.data-footnote-backref {
-    @apply vocs:text-text2 vocs:text-sm vocs:font-[450] vocs:underline-offset-2;
+    @apply vocs:text-secondary vocs:text-sm vocs:font-[450] vocs:underline-offset-2;
     font-variant-emoji: text;
   }
 
   a.data-footnote-backref:hover {
-    @apply vocs:text-text;
+    @apply vocs:text-primary;
   }
 
   section[data-footnotes] > h2 {
