@@ -107,14 +107,24 @@ export function router(
 
       // For non-MDX files, import the module eagerly
       const mod = (await importFn()) as {
-        default: FunctionComponent<{ children: ReactNode }>
+        default:
+          | FunctionComponent<{ children: ReactNode }>
+          | { fetch: (req: Request) => Promise<Response> }
         getConfig?: () => Promise<{
           render?: 'static' | 'dynamic'
         }>
         GET?: (req: Request) => Promise<Response>
       }
       const config = await mod.getConfig?.()
-      if (pathItems.at(-1) === '[path]') {
+      if (typeof mod.default === 'object' && 'fetch' in mod.default) {
+        createApi({
+          path: pathItems.join('/'),
+          render: 'dynamic',
+          handlers: {
+            all: mod.default.fetch,
+          },
+        })
+      } else if (pathItems.at(-1) === '[path]') {
         throw new Error(
           'Page file cannot be named [path]. This will conflict with the path prop of the page component.',
         )
