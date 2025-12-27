@@ -7,6 +7,7 @@ import remarkParse from 'remark-parse'
 import remarkStringify from 'remark-stringify'
 import { unified } from 'unified'
 import type { PluginOption, ResolvedConfig } from 'vite'
+import { createLogger } from 'vite'
 import type { Frontmatter } from '../types.js'
 import * as Config from './config.js'
 import * as Mdx from './mdx.js'
@@ -14,6 +15,8 @@ import * as Mdx from './mdx.js'
 export { default as icons } from 'unplugin-icons/vite'
 
 export const tailwind = tailwindcss as unknown as (opts?: TailwindOptions) => PluginOption
+
+const logger = createLogger(undefined, { allowClearScreen: false, prefix: '[vocs]' })
 
 /**
  * Deduplicates dependencies.
@@ -152,7 +155,10 @@ export function mdx(config: Config.Config): PluginOption {
         const cached = cache.get(id)
         if (cached) {
           // TODO: display UI error overlay
-          console.error(`[vocs] MDX compilation error in ${id}:`, error)
+          logger.error(`MDX compilation error in ${id}: ${error}`, {
+            error: error as Error,
+            timestamp: true,
+          })
           return cached
         }
         throw error
@@ -186,9 +192,7 @@ export function virtualConfig(config: Config.Config): PluginOption {
           if (mod) server.moduleGraph.invalidateModule(mod)
           Config.setGlobal(newConfig)
           server.ws.send({ type: 'custom', event: 'vocs:config', data: newConfig })
-        } catch (error) {
-          console.error('[vocs] Config error:', error)
-        }
+        } catch {}
       })
     },
     resolveId(id) {
