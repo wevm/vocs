@@ -30,6 +30,13 @@
     "zile": "catalog:"
   },
   "packageManager": "pnpm@10.25.0",
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "24.12.0",
+      "onFail": "download"
+    }
+  },
   "simple-git-hooks": {
     "pre-commit": "pnpm check"
   },

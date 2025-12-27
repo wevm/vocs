@@ -189,6 +189,7 @@ export function remarkCallout() {
       const tagName = 'aside'
 
       if (label) {
+        // biome-ignore lint/suspicious/noExplicitAny: _
         node.children = node.children.filter((child: any) => !child.data?.directiveLabel)
         node.children.unshift({
           type: 'paragraph',

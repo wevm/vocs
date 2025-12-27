@@ -9,5 +9,10 @@
   },
   "[typescriptreact]": {
     "editor.defaultFormatter": "biomejs.biome"
-  }
+  },
+  "files.exclude": {
+    "tsconfig.tmp.*": true,
+    "tsconfig.tsbuildinfo": true
+  },
+  "typescript.tsdk": "node_modules/typescript/lib"
 }
