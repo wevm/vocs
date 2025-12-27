@@ -125,13 +125,40 @@ export function llms(config: Config.Config): PluginOption {
 }
 
 /**
- * Processes MDX files.
+ * Processes MDX files with graceful error handling.
+ *
+ * When MDX compilation fails (e.g., malformed JSX), it returns the previous
+ * successful result and logs the error to the console instead of breaking the page.
  *
  * @param config - Vocs configuration.
  * @returns Plugin.
  */
 export function mdx(config: Config.Config): PluginOption {
-  return mdxPlugin(Mdx.getCompileOptions('react', config))
+  const plugin = mdxPlugin(Mdx.getCompileOptions('react', config))
+
+  const cache = new Map<string, Awaited<ReturnType<typeof plugin.transform>>>()
+
+  return {
+    ...plugin,
+    async transform(code, id) {
+      if (!id.endsWith('.mdx') && !id.endsWith('.md')) return null
+      if (!plugin.transform) return null
+
+      try {
+        const result = await plugin.transform(code, id)
+        if (result) cache.set(id, result)
+        return result
+      } catch (error) {
+        const cached = cache.get(id)
+        if (cached) {
+          // TODO: display UI error overlay
+          console.error(`[vocs] MDX compilation error in ${id}:`, error)
+          return cached
+        }
+        throw error
+      }
+    },
+  }
 }
 
 /**
@@ -150,15 +177,18 @@ export function virtualConfig(config: Config.Config): PluginOption {
       Config.setGlobal(config)
     },
     configureServer(server) {
-      server.watcher.add('vocs.config.*')
-      server.watcher.on('change', async (path) => {
-        if (!path.includes('vocs.config')) return
+      server.watcher.on('change', async (changedPath) => {
+        if (!changedPath.includes('vocs.config')) return
 
-        const mod = server.moduleGraph.getModuleById(resolvedVirtualModuleId)
-        if (mod) server.moduleGraph.invalidateModule(mod)
-
-        const config = await Config.resolve()
-        server.ws.send('vocs:config', config)
+        try {
+          const newConfig = await Config.resolve()
+          const mod = server.moduleGraph.getModuleById(resolvedVirtualModuleId)
+          if (mod) server.moduleGraph.invalidateModule(mod)
+          Config.setGlobal(newConfig)
+          server.ws.send({ type: 'custom', event: 'vocs:config', data: newConfig })
+        } catch (error) {
+          console.error('[vocs] Config error:', error)
+        }
       })
     },
     resolveId(id) {

@@ -145,6 +145,11 @@ if (globalThis.__WAKU_HYDRATE__) {
 } else {
   createRoot(document).render(rootElement);
 }
+
+if (import.meta.hot)
+  import.meta.hot.on('vocs:config', (data) => {
+    globalThis.dispatchEvent(new CustomEvent('vocs:config', { detail: data }));
+  });
 `
       }
       return

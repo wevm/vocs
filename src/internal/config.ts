@@ -1,6 +1,6 @@
 import * as fs from 'node:fs'
-import * as path from 'node:path'
 import type { Options as mdx_Options } from '@mdx-js/rollup'
+import { loadConfigFromFile } from 'vite'
 import type { ExactPartial } from '../types.js'
 import type { rehypeShiki } from './mdx.js'
 import type { twoslash } from './shiki-transformers.js'
@@ -210,8 +210,14 @@ export async function resolve(options: resolve.Options = {}): Promise<Config> {
   const configFile = fs.globSync('vocs.config.{ts,js,mjs,mts}', { cwd: root })[0]
   if (!configFile) return define()
 
-  const mod = await import(path.join(root, configFile) + '?t=' + Date.now())
-  return define(mod.default ?? mod)
+  const result = await loadConfigFromFile(
+    { command: 'build', mode: 'development' },
+    configFile,
+    root,
+  )
+  if (!result) return define()
+
+  return define(result.config as define.Options)
 }
 
 declare namespace resolve {

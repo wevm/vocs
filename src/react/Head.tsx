@@ -1,8 +1,12 @@
-import { config } from 'virtual:vocs/config'
+'use client'
+
 import type { Frontmatter } from '../types.js'
+import { useConfig } from './useConfig.js'
 
 export function Head(props: Head.Props) {
   const { pathname, frontmatter } = props
+
+  const config = useConfig()
 
   const { baseUrl, iconUrl, logoUrl, ogImageUrl, basePath } = config
 
