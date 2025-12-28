@@ -50,7 +50,6 @@ export function getCompileOptions(
           rehypeShiki({ ...markdown?.codeHighlight, twoslash }),
           ...(markdown?.rehypePlugins ?? []),
           rehypeCodeInLink,
-          rehypeVocsScope,
         ],
         remarkPlugins: [
           remarkFrontmatter,
@@ -62,6 +61,7 @@ export function getCompileOptions(
           remarkMetaFrontmatter,
           remarkMdxFrontmatter,
           remarkSubheading,
+          remarkMdScope,
           ...(markdown?.remarkPlugins ?? []),
         ],
         recmaPlugins: [recmaMdxLayout, ...(markdown?.recmaPlugins ?? [])],
@@ -148,22 +148,17 @@ export function rehypeCodeInLink() {
 }
 
 /**
- * Rehype plugin that adds `data-vocs` attribute to every element.
- * This enables scoped styling for vocs-rendered content, without conflicting with user styles.
+ * Remark plugin that adds `data-md` attribute to MDX component elements.
+ * This enables scoped styling for markdown-rendered content, without conflicting with user styles.
  */
-export function rehypeVocsScope() {
-  function visit(node: HAst.Node) {
-    if (node.type === 'element') {
-      const element = node as HAst.Element
-      element.properties = element.properties ?? {}
-      element.properties['data-vocs'] = ''
-    }
-    if ('children' in node && Array.isArray(node.children)) {
-      for (const child of node.children) visit(child)
-    }
-  }
-  return (tree: HAst.Root) => {
-    visit(tree)
+export function remarkMdScope() {
+  return (tree: MdAst.Root) => {
+    UnistUtil.visit(tree, (node) => {
+      const n = node as MdAst.Node & { data?: { hProperties?: Record<string, unknown> } }
+      n.data ??= {}
+      n.data.hProperties ??= {}
+      n.data.hProperties['data-md'] = ''
+    })
   }
 }
 
@@ -190,6 +185,13 @@ export function rehypeShiki(
         twoslash
           ? ShikiTransformers.twoslash(typeof twoslash === 'object' ? twoslash : {})
           : undefined,
+        ShikiTransformers.lineNumbers(),
+        ShikiTransformers.notationDiff(),
+        ShikiTransformers.notationFocus(),
+        ShikiTransformers.notationHighlight(),
+        ShikiTransformers.notationWordHighlight(),
+        ShikiTransformers.removeNotationEscape(),
+        ShikiTransformers.transformerTagLine(),
         ShikiTransformers.transformerEmptyLine(),
         ...(options.transformers ?? []),
       ],

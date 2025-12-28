@@ -5,8 +5,8 @@ import LucideTriangleAlert from '~icons/lucide/triangle-alert'
 
 export function Callout(props: Callout.Props) {
   return (
-    <aside {...props} data-content data-vocs>
-      <div data-callout-icon data-vocs>
+    <aside {...props} data-content>
+      <div data-callout-icon>
         {props.variant === 'note' ? <LucideInfo /> : null}
         {props.variant === 'info' ? <LucideInfo /> : null}
         {props.variant === 'warning' ? <LucideTriangleAlert /> : null}

@@ -50,7 +50,12 @@ Using `^|` you can pull out information about a what the auto-complete looks lik
 
 ```ts [Output] twoslash
 // @noErrors
-type Example = { apple: 'foo' | 'bar' | 'baz', ant: number, anchovy: string }
+type Example = { 
+  apple: 'foo' | 'bar' | 'baz', 
+  ant: number, 
+  /** @deprecated */
+  anchovy: string 
+}
 const example: Example = { a: 'foo' }
 
 example.a 
@@ -67,8 +72,23 @@ example.apple === '
 ````md [Markdown]
 ```ts twoslash
 // @noErrors
-console.e 
+type Example = { 
+  apple: 'foo' | 'bar' | 'baz', 
+  ant: number, 
+  /** @deprecated */
+  anchovy: string 
+}
+const example: Example = { a: 'foo' }
+
+example.a 
 //       ^|
+
+
+
+example.apple === ' 
+//                 ^|
+
+
 ```
 ````
 

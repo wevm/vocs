@@ -1,5 +1,7 @@
+export { Callout } from './Callout.js'
 export { Head } from './Head.js'
 export { Layout } from './Layout.js'
+export { Link } from './Link.js'
 export { MdxPage } from './MdxPage.js'
 export { ScrollRestoration } from './ScrollRestoration.js'
 export { useConfig } from './useConfig.js'

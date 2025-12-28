@@ -196,10 +196,11 @@ npm i vocs
 
 ```ts [example.ts]
 type Example = string // [!code hl]
-const example: Example = 'example'
+const example: Example = 'example' 
 ```
  
-```ts [Line Highlight & Numbers] showLineNumbers {2,3,6-9}
+```ts [Line Highlight & Numbers]
+// [!code line-numbers]
 // 1. Import modules.
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
@@ -214,12 +215,14 @@ const client = createPublicClient({
 const blockNumber = await client.getBlockNumber()
 ```
 
-```ts [Word Focus] /mainnet/1-2 /client/2-3
+```ts [Word Focus]
+// [!code word:mainnet]
 // 1. Import modules.
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
 // 2. Set up your client with desired chain & transport.
+// [!code word:client:1]
 const client = createPublicClient({
   chain: mainnet,
   transport: http(),
@@ -408,12 +411,9 @@ You can also use words, to fit your writing style more closely[^note].
 
 ## Inline HTML
 
-<dl>
-  <dt>Definition list</dt>
-  <dd>Is something people use sometimes.</dd>
-  <dt>Markdown in HTML</dt>
-  <dd>Does *not* work **very** well. Use HTML <em>tags</em>.</dd>
-</dl>
+<div className="vocs:text-red">
+  Hello world!
+</div>
 
 ## Inline React
 

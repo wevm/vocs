@@ -1,8 +1,8 @@
 export function Layout({ children }: Layout.Props) {
   return (
-    <article data-content data-vocs>
-      {children}
-    </article>
+    <main className="vocs:isolate">
+      <article data-content>{children}</article>
+    </main>
   )
 }
 

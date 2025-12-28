@@ -1,14 +1,23 @@
 import { createHash } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
+import { createCommentNotationTransformer } from '@shikijs/transformers'
 import type { TwoslashShikiFunction, TwoslashTypesCache } from '@shikijs/twoslash'
 import {
   createTransformerFactory,
-  rendererClassic,
+  rendererRich,
   type TransformerTwoslashIndexOptions,
 } from '@shikijs/twoslash'
 import type { ShikiTransformer } from '@shikijs/types'
 import { createTwoslasher, type TwoslashGenericFunction } from 'twoslash'
+
+export {
+  transformerNotationDiff as notationDiff,
+  transformerNotationFocus as notationFocus,
+  transformerNotationHighlight as notationHighlight,
+  transformerNotationWordHighlight as notationWordHighlight,
+  transformerRemoveNotationEscape as removeNotationEscape,
+} from '@shikijs/transformers'
 
 // We will need to cache the transformer between Vite runs.
 let twoslashTransformer: ShikiTransformer | undefined
@@ -22,7 +31,11 @@ export function twoslash(options: twoslash.Options = {}): ShikiTransformer {
     includesMap,
     langAlias,
     langs,
-    renderer = rendererClassic(),
+    renderer = rendererRich({
+      // TODO: add custom icons
+      completionIcons: false,
+      customTagIcons: false,
+    }),
     // TODO: default true
     throws = false,
     twoslashOptions,
@@ -83,15 +96,39 @@ export function transformerEmptyLine(): ShikiTransformer {
   }
 }
 
-export interface FileSystemTypeResultCacheOptions {
-  /**
-   * The directory to store the cache files.
-   */
-  dir?: string
+export const transformerTagLine = (): ShikiTransformer => ({
+  name: 'tag-line',
+  root(hast) {
+    // biome-ignore lint/suspicious/noExplicitAny: _
+    const lines = (hast.children[0] as any)?.children[0]?.children
+    if (!lines) return
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i]
+      const classes = line.properties?.class || ''
+      if (classes.includes('twoslash-tag-line') && classes.includes('tag-line')) {
+        lines.splice(i - 1, 0, line)
+        lines.splice(i + 1, 1)
+        if (i + 1 === lines.length) lines.splice(i, 1)
+      }
+    }
+  },
+})
+
+export function lineNumbers(): ShikiTransformer {
+  return createCommentNotationTransformer(
+    'vocs:line-numbers',
+    /\s*\[!code line-numbers\]/,
+    function () {
+      this.addClassToHast(this.code, 'line-numbers')
+      return true
+    },
+    'v3',
+  )
 }
 
 export function createFileSystemTypesCache(
-  options: FileSystemTypeResultCacheOptions = {},
+  options: createFileSystemTypesCache.Options = {},
 ): TwoslashTypesCache {
   const dir = options.dir ?? resolve(import.meta.dirname, '../.cache/twoslash')
 
@@ -111,5 +148,14 @@ export function createFileSystemTypesCache(
       const json = JSON.stringify(data)
       writeFileSync(filePath, json, { encoding: 'utf-8' })
     },
+  }
+}
+
+export declare namespace createFileSystemTypesCache {
+  export type Options = {
+    /**
+     * The directory to store the cache files.
+     */
+    dir?: string
   }
 }
