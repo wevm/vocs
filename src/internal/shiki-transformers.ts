@@ -66,6 +66,23 @@ export declare namespace twoslash {
   export type Options = TransformerTwoslashIndexOptions
 }
 
+export function transformerEmptyLine(): ShikiTransformer {
+  return {
+    name: 'empty-line',
+    line(hast) {
+      const child = hast.children[0]
+      if (child) return
+      hast.properties['data-empty-line'] = true
+      hast.children = [
+        {
+          type: 'text',
+          value: ' ',
+        },
+      ]
+    },
+  }
+}
+
 export interface FileSystemTypeResultCacheOptions {
   /**
    * The directory to store the cache files.

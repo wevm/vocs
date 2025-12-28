@@ -25,6 +25,7 @@
     "rules": {
       "recommended": true,
       "style": {
+        "noDescendingSpecificity": "off",
         "useTemplate": "off"
       },
       "complexity": {

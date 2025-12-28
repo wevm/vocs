@@ -144,9 +144,9 @@
       "src": "./src/vite.ts",
       "default": "./dist/vite.js"
     },
-    "./tailwind.css": {
-      "src": "./src/tailwind.css",
-      "default": "./dist/tailwind.css"
+    "./styles.tw.css": {
+      "src": "./src/styles.tw.css",
+      "default": "./dist/styles.tw.css"
     }
   }
 }

@@ -10,7 +10,7 @@
   @theme {
     --color-*: initial;
 
-    /** Primitive Colors */
+    /* #region Primitive Colors */
 
     --color-white: white;
     --color-black: black;
@@ -30,17 +30,21 @@
     --color-red: light-dark(oklch(0.7 0.25 23), oklch(0.75 0.23 23));
     --color-blue: light-dark(oklch(0.68 0.25 251.8), oklch(0.8 0.23 251.8));
     --color-green: light-dark(oklch(0.6 0.23 170.7), oklch(0.8 0.195 170.7));
-    --color-iris: light-dark(oklch(0.54 0.184 278.3), oklch(0.85 0.35 278.3));
+    --color-iris: light-dark(oklch(0.54 0.184 278.3), oklch(0.85 0.35 270.3));
     --color-yellow: light-dark(oklch(0.65 0.2 84.1), oklch(0.95 0.2 84.1));
 
-    /** Standard Colors */
+    /* #endregion */
+
+    /* #region Standard Colors */
 
     --background-color-primary: light-dark(white, var(--vocs-color-gray3));
     --background-color-secondary: light-dark(var(--vocs-color-gray13), var(--vocs-color-gray4));
     --text-color-primary: light-dark(var(--vocs-color-gray1), var(--vocs-color-gray12));
     --text-color-secondary: light-dark(var(--vocs-color-gray3), var(--vocs-color-gray10));
 
-    /** Contextual Colors */
+    /* #endregion */
+
+    /* #region Contextual Colors */
 
     --color-destructive: var(--vocs-color-red);
     --color-destructive-hover: oklch(from var(--vocs-color-red) calc(l - 0.1) c h);
@@ -64,7 +68,7 @@
 
     --color-tip: var(--vocs-color-iris);
     --color-tip-hover: oklch(from var(--vocs-color-iris) calc(l - 0.1) c h);
-    --background-color-tip-tint: oklch(from var(--vocs-color-iris) l c h / 8%);
+    --background-color-tip-tint: oklch(from var(--vocs-color-iris) l calc(c + 0.3) h / 4%);
     --border-color-tip-tint: oklch(from var(--vocs-color-iris) l c h / 16%);
 
     --color-warning: var(--vocs-color-yellow);
@@ -75,34 +79,59 @@
     --border-color-primary: light-dark(var(--vocs-color-gray12), var(--vocs-color-gray4));
     --border-color-secondary: light-dark(var(--vocs-color-gray12), var(--vocs-color-gray5));
 
-    /** Semantic Colors */
+    /* #endregion */
 
+    /* #region Semantic Colors */
+
+    --background-color-blockquote: var(--vocs-color-background2);
+    --background-color-code-block: light-dark(var(--vocs-color-gray13), var(--vocs-color-gray2));
+    --background-color-inline-code: light-dark(var(--vocs-color-gray13), var(--vocs-color-gray2));
     --text-color-heading: light-dark(black, white);
     --text-color-link: var(--vocs-color-blue);
     --text-color-link-hover: oklch(from var(--vocs-color-blue) calc(l - 0.1) c h);
     --text-color-quote: light-dark(var(--vocs-color-gray9), var(--vocs-color-gray11));
 
-    /** Leading */
+    /* #endregion */
+
+    /* #region Font size */
+
+    --text-code-block: 0.875rem;
+    --text-inline-code: 0.875em;
+
+    /* #endregion */
+
+    /* #region Leading */
 
     --leading-*: initial;
-    --leading-base: 1.5rem;
-    --leading-p: 1.625rem;
-    --leading-h1: 2.25rem;
-    --leading-h2: 1.75rem;
-    --leading-h3: 1.75rem;
-    --leading-li: 1.5rem;
+    --leading-base: 1.5em;
+    --leading-code: 1.75em;
+    --leading-p: 1.625em;
+    --leading-h1: 2.25em;
+    --leading-h2: 1.75em;
+    --leading-h3: 1.75em;
+    --leading-li: 1.5em;
 
-    /** Spacing */
+    /* #endregion */
+
+    /* #region Spacing */
 
     --spacing-content-px: 3rem;
     --spacing-content-py: 2rem;
-    --spacing-content: calc(65ch + (var(--vocs-spacing-content-px) * 2));
+    --spacing-content: calc(70ch + (var(--vocs-spacing-content-px) * 2));
     --spacing-outline: 280px;
     --spacing-sidebar-px: 1.5rem;
     --spacing-sidebar-py: 0rem;
     --spacing-sidebar: 300px;
     --spacing-topNav-px: var(--vocs-spacing-content-px);
     --spacing-topNav: 60px;
+
+    /* #endregion */
+
+    /* #region Breakpoints */
+
+    --breakpoint-content: 748px;
+
+    /* #endregion */
   }
 
   /* biome-ignore lint/correctness/noUnknownFunction: _ */
@@ -117,7 +146,7 @@
   }
 
   /* biome-ignore lint/correctness/noUnknownFunction: _ */
-  @media (width <= theme(--breakpoint-md)) {
+  @media (width <= theme(--breakpoint-content)) {
     :root {
       --vocs-spacing-content-px: 1rem;
       --vocs-spacing-content-py: 2rem;
@@ -138,7 +167,34 @@
 }
 
 @layer vocs.components {
-  /** Primitives */
+  /* #region Layout */
+
+  article[data-content][data-vocs] {
+    @apply vocs:px-content-px vocs:py-content-py vocs:relative vocs:w-full;
+
+    /* biome-ignore lint/correctness/noUnknownFunction: _ */
+    @media (width > theme(--breakpoint-content)) {
+      & {
+        @apply vocs:mx-auto vocs:max-w-content;
+      }
+    }
+
+    /* biome-ignore lint/correctness/noUnknownFunction: _ */
+    @media (width <= theme(--breakpoint-content)) {
+      & {
+        @apply vocs:overflow-x-hidden;
+      }
+    }
+  }
+
+  [data-content] {
+    @apply vocs:space-y-6;
+  }
+
+  /* #endregion */
+
+  /* #region Primitives */
+
   h1[data-vocs] {
     @apply vocs:text-heading vocs:text-4xl vocs:font-[550] vocs:tracking-tight vocs:leading-h1;
   }
@@ -171,16 +227,19 @@
     @apply vocs:leading-p;
   }
 
-  /** Content Paragraphs */
+  /* #endregion */
 
-  /* Reduce spacing between elements (headings, lists, other paragraphs) */
+  /* #region Content Paragraphs */
+
   [data-vocs][data-content]
     > :is(p, h1, h2, h3, h4, h5, h6, hgroup, strong, a, blockquote, ol, ul)[data-vocs]
     + :is(p, h1, h2, h3, h4, h5, h6, hgroup, strong, a, blockquote, ol, ul)[data-vocs] {
     @apply vocs:-mt-2!;
   }
 
-  /** Main Heading (hgroup/h1) */
+  /* #endregion */
+
+  /* #region Main Heading (hgroup/h1) */
 
   hgroup[data-vocs],
   :not(hgroup) > h1[data-vocs] {
@@ -197,29 +256,17 @@
     margin-block-end: calc(calc(var(--vocs-spacing) * 8) * calc(1 - var(--tw-space-y-reverse))) !important;
   }
 
-  [data-layout="landing"] hgroup[data-vocs],
-  [data-layout="landing"] :not(hgroup) > h1[data-vocs] {
-    @apply vocs:pb-4;
-  }
+  /* #endregion */
 
-  [data-layout="landing"] hgroup[data-vocs]:not(:first-child),
-  [data-layout="landing"] :not(hgroup) > h1[data-vocs]:not(:first-child) {
-    @apply vocs:pt-9;
-  }
-
-  /** h2 */
+  /* #region Secondary Headings (h2, h3, h4, h5, h6) */
 
   :not(:is(hgroup[data-vocs], h1[data-vocs])) > h2[data-vocs]:not(:only-child) {
     @apply vocs:pt-6 vocs:mt-12!;
   }
 
-  /** h3 */
-
   :not(:is(hgroup[data-vocs], h1[data-vocs])) > h3[data-vocs]:not(:only-child) {
     @apply vocs:pt-4;
   }
-
-  /** h4,h5,h6 */
 
   :not(:is(hgroup[data-vocs], h1[data-vocs])) > h4,
   h5,
@@ -227,231 +274,258 @@
     @apply vocs:pt-3;
   }
 
-  /** Anchors */
+  /* #endregion */
+
+  /* #region Anchors */
 
   a[data-vocs] {
     @apply vocs:text-link vocs:font-[450] vocs:underline vocs:underline-offset-3 vocs:decoration-1 vocs:transition-colors vocs:duration-75;
-  }
 
-  a[data-vocs]:hover {
-    @apply vocs:text-link-hover;
-  }
+    &:hover {
+      @apply vocs:text-link-hover;
+    }
 
-  a[data-vocs][data-external]::after {
-    @apply vocs:content-[''] vocs:inline-block vocs:size-[0.9em] vocs:align-middle vocs:bg-current;
-    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1em' height='1em' viewBox='0 0 24 24'%3E%3C!-- Icon from Lucide by Lucide Contributors - https://github.com/lucide-icons/lucide/blob/main/LICENSE --%3E%3Cpath fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M7 7h10v10M7 17L17 7'/%3E%3C/svg%3E");
-    mask-size: contain;
-    mask-repeat: no-repeat;
+    &[data-external] {
+      @apply vocs:whitespace-nowrap;
+    }
+
+    &[data-external]::after {
+      @apply vocs:content-[''] vocs:inline-block vocs:size-[0.9em] vocs:align-middle vocs:bg-current;
+      mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1em' height='1em' viewBox='0 0 24 24'%3E%3C!-- Icon from Lucide by Lucide Contributors - https://github.com/lucide-icons/lucide/blob/main/LICENSE --%3E%3Cpath fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M7 7h10v10M7 17L17 7'/%3E%3C/svg%3E");
+      mask-size: contain;
+      mask-repeat: no-repeat;
+    }
   }
 
   [data-context="info"] a[data-vocs] {
     @apply vocs:text-info;
-  }
 
-  [data-context="info"] a[data-vocs]:hover {
-    @apply vocs:text-info-hover;
+    &:hover {
+      @apply vocs:text-info-hover;
+    }
   }
 
   [data-context="warning"] a[data-vocs] {
     @apply vocs:text-warning;
-  }
 
-  [data-context="warning"] a[data-vocs]:hover {
-    @apply vocs:text-warning-hover;
+    &:hover {
+      @apply vocs:text-warning-hover;
+    }
   }
 
   [data-context="danger"] a[data-vocs] {
     @apply vocs:text-destructive;
-  }
 
-  [data-context="danger"] a[data-vocs]:hover {
-    @apply vocs:text-destructive-hover;
+    &:hover {
+      @apply vocs:text-destructive-hover;
+    }
   }
 
   [data-context="tip"] a[data-vocs] {
     @apply vocs:text-tip;
-  }
 
-  [data-context="tip"] a[data-vocs]:hover {
-    @apply vocs:text-tip-hover;
+    &:hover {
+      @apply vocs:text-tip-hover;
+    }
   }
 
   [data-context="success"] a[data-vocs] {
     @apply vocs:text-success;
+
+    &:hover {
+      @apply vocs:text-success-hover;
+    }
   }
 
-  [data-context="success"] a[data-vocs]:hover {
-    @apply vocs:text-success-hover;
-  }
+  /* #endregion */
 
-  /** Blockquotes */
+  /* #region Blockquotes */
 
   blockquote[data-vocs] {
-    @apply vocs:border-l-3 vocs:border-secondary vocs:bg-secondary vocs:ps-4 vocs:py-4 vocs:text-quote;
+    @apply vocs:border-l-3 vocs:border-secondary vocs:bg-secondary vocs:px-4 vocs:py-4 vocs:text-quote;
   }
 
-  /** Callouts */
+  /* #endregion */
+
+  /* #region Callouts */
 
   aside[data-callout] {
-    @apply vocs:rounded vocs:flex vocs:gap-2 vocs:text-sm vocs:p-3;
+    @apply vocs:rounded vocs:text-sm vocs:p-3 vocs:relative vocs:border;
+
+    &,
+    & [data-content] {
+      @apply vocs:space-y-4;
+    }
+
+    /* biome-ignore lint/correctness/noUnknownFunction: _ */
+    @media (width <= theme(--breakpoint-content)) {
+      & {
+        @apply vocs:-ml-4 vocs:-mr-4 vocs:rounded-none vocs:border-l-0 vocs:border-r-0;
+      }
+    }
+
+    & > [data-callout-icon] {
+      @apply vocs:h-4 vocs:w-4 vocs:mt-[0.15rem] vocs:absolute;
+    }
+
+    &[data-content] > :not(:is([data-callout-icon], .shiki)) {
+      @apply vocs:ps-6;
+    }
+
+    &[data-context="note"] {
+      @apply vocs:bg-note-tint vocs:border-note-tint vocs:text-note;
+    }
+
+    &[data-context="info"] {
+      @apply vocs:bg-info-tint vocs:border-info-tint vocs:text-info;
+    }
+
+    &[data-context="warning"] {
+      @apply vocs:bg-warning-tint vocs:border-warning-tint vocs:text-warning;
+    }
+
+    &[data-context="danger"] {
+      @apply vocs:bg-destructive-tint vocs:border-destructive-tint vocs:text-destructive;
+    }
+
+    &[data-context="tip"] {
+      @apply vocs:bg-tip-tint vocs:border-tip-tint vocs:text-tip;
+    }
+
+    &[data-context="success"] {
+      @apply vocs:bg-success-tint vocs:border-success-tint vocs:text-success;
+    }
   }
 
-  /* aside[data-callout] > [data-callout-content] {
-    @apply vocs:w-full;
-  } */
+  /* #endregion */
 
-  /* aside[data-callout] > [data-callout-icon] {
-    @apply vocs:size-4 vocs:mt-[0.4em];
-  } */
-
-  aside[data-context="note"] {
-    @apply vocs:bg-note-tint vocs:border vocs:border-note-tint vocs:text-note;
-  }
-
-  aside[data-context="info"] {
-    @apply vocs:bg-info-tint vocs:border vocs:border-info-tint vocs:text-info;
-  }
-
-  aside[data-context="warning"] {
-    @apply vocs:bg-warning-tint vocs:border vocs:border-warning-tint vocs:text-warning;
-  }
-
-  aside[data-context="danger"] {
-    @apply vocs:bg-destructive-tint vocs:border vocs:border-destructive-tint vocs:text-destructive;
-  }
-
-  aside[data-context="tip"] {
-    @apply vocs:bg-tip-tint vocs:border vocs:border-tip-tint vocs:text-tip;
-  }
-
-  aside[data-context="success"] {
-    @apply vocs:bg-success-tint vocs:border vocs:border-success-tint vocs:text-success;
-  }
-
-  /** Lists */
+  /* #region Lists */
 
   ol[data-vocs] {
     @apply vocs:list-decimal vocs:ps-5 vocs:mb-4;
+
+    & & {
+      list-style-type: lower-alpha;
+    }
+
+    & & & {
+      list-style-type: lower-roman;
+    }
   }
 
   li[data-vocs] {
     @apply vocs:leading-li;
-  }
 
-  ol[data-vocs] ol[data-vocs] {
-    list-style-type: lower-alpha;
-  }
-
-  ol[data-vocs] ol[data-vocs] ol[data-vocs] {
-    list-style-type: lower-roman;
+    &:not(:last-child) {
+      @apply vocs:mb-2;
+    }
   }
 
   ul[data-vocs] {
     @apply vocs:list-disc vocs:ps-6 vocs:mb-4;
-  }
 
-  ul[data-vocs] ul[data-vocs] {
-    list-style-type: circle;
+    & & {
+      list-style-type: circle;
+    }
+
+    &.contains-task-list {
+      @apply vocs:list-none vocs:ps-1;
+    }
   }
 
   :is(ol, ul)[data-vocs] :is(ol, ul)[data-vocs] {
     @apply vocs:mb-0 vocs:pt-2 vocs:ps-4 vocs:pb-0;
   }
 
-  ul[data-vocs].contains-task-list {
-    @apply vocs:list-none vocs:ps-1;
-  }
+  /* #endregion */
 
-  li[data-vocs]:not(:last-child) {
-    @apply vocs:mb-2;
-  }
-
-  /** Tables */
+  /* #region Tables */
 
   table[data-vocs] {
-    @apply vocs:border-collapse vocs:overflow-x-auto vocs:mb-6 vocs:w-full vocs:table;
+    @apply vocs:border-collapse vocs:overflow-x-auto vocs:mb-6 vocs:w-[calc(100%+calc(var(--vocs-spacing)*6))] vocs:table vocs:-mx-3;
     table-layout: fixed;
   }
 
   td[data-vocs] {
     @apply vocs:text-sm vocs:py-2;
-  }
 
-  td[data-vocs]:first-child {
-    @apply vocs:font-medium vocs:text-heading;
+    &:first-child {
+      @apply vocs:font-medium vocs:text-heading;
+    }
   }
 
   :is(th, td)[data-vocs] {
+    @apply vocs:px-3;
     min-width: 6rem;
   }
 
-  :is(th, td)[data-vocs]:not(:first-child) {
-    @apply vocs:ps-1.5;
-  }
-
-  :is(th, td)[data-vocs]:not(:last-child) {
-    @apply vocs:pe-1.5;
-  }
-
   th[data-vocs] {
-    @apply vocs:text-heading vocs:text-sm vocs:font-medium vocs:py-2 vocs:text-left vocs:whitespace-nowrap;
-  }
+    @apply vocs:text-primary/80 vocs:bg-secondary vocs:text-[13px] vocs:font-medium vocs:py-2 vocs:text-left vocs:whitespace-nowrap;
 
-  th[data-vocs][align="center"] {
-    @apply vocs:text-center;
-  }
+    &[align="center"] {
+      @apply vocs:text-center;
+    }
 
-  th[data-vocs][align="right"] {
-    @apply vocs:text-right;
+    &[align="right"] {
+      @apply vocs:text-right;
+    }
   }
 
   tbody[data-vocs] tr[data-vocs] {
     @apply vocs:border-secondary vocs:border-t;
   }
 
-  /** superscript */
+  /* #endregion */
+
+  /* #region Superscript */
 
   sup[data-vocs] > a[data-vocs] {
     @apply vocs:ms-0.5 vocs:text-primary! vocs:underline-offset-2;
   }
 
-  /** hr */
+  /* #endregion */
+
+  /* #region Horizontal Rule */
 
   hr[data-vocs] {
     @apply vocs:border-secondary;
   }
 
-  /** footnote */
+  /* #endregion */
+
+  /* #region Footnote */
 
   a.data-footnote-backref {
     @apply vocs:text-secondary vocs:text-sm vocs:font-[450] vocs:underline-offset-2;
     font-variant-emoji: text;
-  }
 
-  a.data-footnote-backref:hover {
-    @apply vocs:text-primary;
+    &:hover {
+      @apply vocs:text-primary;
+    }
   }
 
   section[data-footnotes] > h2 {
     @apply vocs:pt-0! vocs:pb-4!;
   }
 
-  /** details */
+  /* #endregion */
+
+  /* #region Details */
 
   details[data-vocs] > summary[data-vocs] {
     @apply vocs:cursor-pointer vocs:hover:underline vocs:underline-offset-2 vocs:decoration-1 vocs:leading-base vocs:flex vocs:items-center vocs:font-[500];
     list-style: none;
-  }
 
-  details[data-vocs] > summary[data-vocs]::-webkit-details-marker {
-    display: none;
-  }
+    &::-webkit-details-marker {
+      display: none;
+    }
 
-  details[data-vocs] > summary[data-vocs]::before {
-    @apply vocs:content-[''] vocs:inline-block vocs:size-[1em] vocs:mr-[0.25em] vocs:align-middle vocs:bg-current vocs:transition-transform vocs:duration-200;
-    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1em' height='1em' viewBox='0 0 24 24'%3E%3Cpath fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m9 18l6-6l-6-6'/%3E%3C/svg%3E");
-    mask-size: contain;
-    mask-repeat: no-repeat;
+    &::before {
+      @apply vocs:content-[''] vocs:inline-block vocs:size-[1em] vocs:mr-[0.25em] vocs:align-middle vocs:bg-current vocs:transition-transform vocs:duration-200;
+      mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1em' height='1em' viewBox='0 0 24 24'%3E%3Cpath fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m9 18l6-6l-6-6'/%3E%3C/svg%3E");
+      mask-size: contain;
+      mask-repeat: no-repeat;
+    }
   }
 
   details[data-vocs][open] > summary[data-vocs]::before {
@@ -465,4 +539,77 @@
   aside[data-vocs] summary {
     @apply vocs:mb-0;
   }
+
+  /* #endregion */
+
+  /* #region Code blocks */
+
+  pre[data-vocs] {
+    @apply vocs:bg-code-block vocs:py-5 vocs:overflow-x-auto vocs:rounded-sm vocs:border vocs:border-secondary;
+
+    & code[data-vocs] {
+      @apply vocs:grid vocs:text-code-block;
+    }
+
+    & .line {
+      @apply vocs:border-l-2 vocs:border-l-transparent vocs:leading-code vocs:px-5.5;
+    }
+
+    /* biome-ignore lint/correctness/noUnknownFunction: _ */
+    @media (width <= theme(--breakpoint-content)) {
+      & {
+        @apply vocs:rounded-none vocs:border-l-0 vocs:border-r-0 vocs:-mx-4;
+      }
+    }
+  }
+
+  /* #endregion */
+
+  /* #region Code blocks in Callouts */
+
+  aside[data-vocs] pre[data-vocs] {
+    @apply vocs:-mx-3 vocs:border-none vocs:rounded-none vocs:bg-code-block/80;
+
+    & code[data-vocs] {
+      @apply vocs:text-[13px];
+    }
+  }
+
+  /* #endregion */
+
+  /* #region Inline code */
+
+  :not(pre) > code[data-vocs] {
+    @apply vocs:bg-primary vocs:font-medium vocs:border vocs:border-secondary vocs:text-inline-code vocs:rounded-sm vocs:px-1.5 vocs:py-0.5;
+
+    & a[data-external] {
+      @apply vocs:underline-offset-2;
+    }
+  }
+
+  [data-context="note"] code[data-vocs] {
+    @apply vocs:bg-inline-code/60 vocs:border-note-tint;
+  }
+
+  [data-context="info"] code[data-vocs] {
+    @apply vocs:bg-inline-code/60 vocs:border-info-tint;
+  }
+
+  [data-context="warning"] code[data-vocs] {
+    @apply vocs:bg-inline-code/60 vocs:border-warning-tint;
+  }
+
+  [data-context="danger"] code[data-vocs] {
+    @apply vocs:bg-inline-code/60 vocs:border-destructive-tint;
+  }
+
+  [data-context="tip"] code[data-vocs] {
+    @apply vocs:bg-inline-code/60 vocs:border-tip-tint;
+  }
+
+  [data-context="success"] code[data-vocs] {
+    @apply vocs:bg-inline-code/60 vocs:border-success-tint;
+  }
+
+  /* #endregion */
 }

@@ -49,6 +49,7 @@ export function getCompileOptions(
         rehypePlugins: [
           rehypeShiki({ ...markdown?.codeHighlight, twoslash }),
           ...(markdown?.rehypePlugins ?? []),
+          rehypeCodeInLink,
           rehypeVocsScope,
         ],
         remarkPlugins: [
@@ -115,6 +116,38 @@ export function recmaMdxLayout() {
 }
 
 /**
+ * Rehype plugin that inverts `<a><code>` to `<code><a>`.
+ * This allows styling inline code links more naturally.
+ */
+export function rehypeCodeInLink() {
+  return (tree: HAst.Root) => {
+    UnistUtil.visit(tree, 'element', (node) => {
+      const element = node as HAst.Element
+      if (element.tagName !== 'a') return
+      if (element.children.length !== 1) return
+
+      const child = element.children[0]
+      if (!child || child.type !== 'element' || child.tagName !== 'code') return
+
+      const codeProps = child.properties
+      const linkProps = element.properties
+      const codeChildren = child.children
+
+      element.tagName = 'code'
+      element.properties = codeProps
+      element.children = [
+        {
+          type: 'element',
+          tagName: 'a',
+          properties: linkProps,
+          children: codeChildren,
+        },
+      ]
+    })
+  }
+}
+
+/**
  * Rehype plugin that adds `data-vocs` attribute to every element.
  * This enables scoped styling for vocs-rendered content, without conflicting with user styles.
  */
@@ -145,6 +178,9 @@ export function rehypeShiki(
     shiki,
     {
       ...(options ?? {}),
+      defaultColor: 'light-dark()',
+      inline: 'tailing-curly-colon',
+      rootStyle: false,
       // TODO: infer `langs` for faster cold start.
       themes: (options as { themes?: unknown }).themes ?? {
         light: 'github-light',
@@ -154,6 +190,7 @@ export function rehypeShiki(
         twoslash
           ? ShikiTransformers.twoslash(typeof twoslash === 'object' ? twoslash : {})
           : undefined,
+        ShikiTransformers.transformerEmptyLine(),
         ...(options.transformers ?? []),
       ],
     } as RehypeShikiOptions,

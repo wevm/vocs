@@ -1,6 +1,6 @@
 // biome-ignore lint/suspicious/noTsIgnore: _
 // @ts-ignore
-import '../../../tailwind.css'
+import '../../../styles.tw.css'
 
 import { ScrollRestoration } from '../../../react/ScrollRestoration.js'
 import { Head } from '../../react/Head.js'

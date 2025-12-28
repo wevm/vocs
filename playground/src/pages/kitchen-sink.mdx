@@ -51,30 +51,34 @@ Strikethrough uses two tildes. ~~Scratch this.~~
 ## Callouts
 
 :::note
-This is a note callout. [Link](https://google.com)
+This is a note callout. [`code`](https://google.com) `console.log('hello world'){:js}` [Link](https://google.com)
 :::
 
 :::info
-This is an info callout. [Link](https://google.com)
+This is an info callout. [`code`](https://google.com) `console.log('hello world'){:js}` [Link](https://google.com)
 :::
 
 :::warning
-This is a warning callout. [Link](https://google.com)
+This is a warning callout. [`code`](https://google.com) `console.log('hello world'){:js}` [Link](https://google.com)
 :::
 
 :::danger
-This is a danger callout. [Link](https://google.com)
+This is a danger callout. [`code`](https://google.com) `console.log('hello world'){:js}` [Link](https://google.com)
 :::
 
 :::tip
-This is a tip callout. [Link](https://google.com)
+This is a tip callout. [`code`](https://google.com) `console.log('hello world'){:js}` [Link](https://google.com)
 :::
 
 :::success
-This is a success callout. [Link](https://google.com)
+This is a success callout. [`code`](https://google.com) `console.log('hello world'){:js}` [Link](https://google.com)
 :::
 
 :::note
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce vestibulum ante non neque convallis tempor. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce vestibulum ante non neque convallis tempor. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.
+
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce vestibulum ante non neque convallis tempor. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.
 :::
 
@@ -262,6 +266,21 @@ const blockNumber = await client.getBlockNumber()
 
 :::tip[Tip]
 Make sure to do the thing that does stuff.
+
+```tsx [example.tsx]
+// 1. Import modules.
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+ 
+// 2. Set up your client with desired chain & transport. asd asd asd asd 
+const client = createPublicClient({
+  chain: mainnet,
+  transport: http(),
+})
+ 
+// 3. Consume an action!
+const blockNumber = await client.getBlockNumber()
+```
 :::
 
 ## Code group
@@ -332,6 +351,13 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce vestibulum ante n
 > This is a very long line that will still be quoted properly when it wraps. Oh boy let's keep writing to make sure this is long enough to actually wrap for everyone. Oh, you can *put* **Markdown** into a blockquote. 
 
 ## Tables
+
+
+| Tables        | Are           | Cool  |
+| ------------- |:-------------:| -----:|
+| col 3 is      | right-aligned | $1600 |
+| col 2 is      | centered      |   $12 |
+| zebra stripes | are neat      |    $1 |
 
 ### Basic Table with Alignment
 
