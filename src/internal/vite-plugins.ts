@@ -226,9 +226,7 @@ export function virtualMdxComponents(): PluginOption {
       return
     },
     load(id) {
-      if (id === resolvedVirtualModuleId) {
-        return `export { components } from 'vocs/react'`
-      }
+      if (id === resolvedVirtualModuleId) return `export { components } from 'vocs/mdx'`
       return
     },
   }

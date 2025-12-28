@@ -119,6 +119,11 @@
       "types": "./dist/globals.d.ts",
       "src": "./src/globals.d.ts"
     },
+    "./mdx": {
+      "types": "./dist/mdx.d.ts",
+      "src": "./src/mdx.tsx",
+      "default": "./dist/mdx.js"
+    },
     "./react": {
       "types": "./dist/react/index.d.ts",
       "src": "./src/react/index.ts",

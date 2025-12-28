@@ -76,8 +76,7 @@
     --background-color-warning-tint: oklch(from var(--vocs-color-yellow) l c h / 8%);
     --border-color-warning-tint: oklch(from var(--vocs-color-yellow) l c h / 16%);
 
-    --border-color-primary: light-dark(var(--vocs-color-gray12), var(--vocs-color-gray4));
-    --border-color-secondary: light-dark(var(--vocs-color-gray12), var(--vocs-color-gray5));
+    --border-color-primary: light-dark(var(--vocs-color-gray12), var(--vocs-color-gray5));
 
     /* #endregion */
 
@@ -95,8 +94,18 @@
 
     /* #region Font size */
 
-    --text-code-block: 0.875rem;
+    --text-callout: 0.875rem;
+    --text-code-block: 0.875em;
+    --text-h1: 2.25rem;
+    --text-h2: 1.5rem;
+    --text-h3: 1.25rem;
+    --text-h4: 1.125rem;
+    --text-h5: 1rem;
+    --text-h6: 1rem;
     --text-inline-code: 0.875em;
+    --text-subtitle: 1.125rem;
+    --text-td: 0.875rem;
+    --text-th: 0.8125rem;
 
     /* #endregion */
 
@@ -106,10 +115,10 @@
     --leading-base: 1.5em;
     --leading-code: 1.75em;
     --leading-p: 1.625em;
-    --leading-h1: 2.25em;
-    --leading-h2: 1.75em;
-    --leading-h3: 1.75em;
-    --leading-li: 1.5em;
+    --leading-h1: 1em;
+    --leading-h2: 1em;
+    --leading-h3: 1em;
+    --leading-li: 1em;
 
     /* #endregion */
 
@@ -129,7 +138,7 @@
 
     /* #region Breakpoints */
 
-    --breakpoint-content: 748px;
+    --breakpoint-md: 748px;
 
     /* #endregion */
   }
@@ -141,13 +150,15 @@
       --vocs-spacing-content-py: 3rem;
       --vocs-spacing-sidebar-px: 1rem;
       --vocs-spacing-sidebar-py: 1rem;
-      --spacing-topNav: 48rem;
+      --vocs-spacing-topNav: 48rem;
     }
   }
 
   /* biome-ignore lint/correctness/noUnknownFunction: _ */
-  @media (width <= theme(--breakpoint-content)) {
+  @media (width <= theme(--breakpoint-md)) {
     :root {
+      --vocs-text-h1: 1.75rem;
+
       --vocs-spacing-content-px: 1rem;
       --vocs-spacing-content-py: 2rem;
     }
@@ -173,14 +184,14 @@
     @apply vocs:px-content-px vocs:py-content-py vocs:relative vocs:w-full;
 
     /* biome-ignore lint/correctness/noUnknownFunction: _ */
-    @media (width > theme(--breakpoint-content)) {
+    @media (width > theme(--breakpoint-md)) {
       & {
         @apply vocs:mx-auto vocs:max-w-content;
       }
     }
 
     /* biome-ignore lint/correctness/noUnknownFunction: _ */
-    @media (width <= theme(--breakpoint-content)) {
+    @media (width <= theme(--breakpoint-md)) {
       & {
         @apply vocs:overflow-x-hidden;
       }
@@ -196,31 +207,31 @@
   /* #region Primitives */
 
   h1[data-vocs] {
-    @apply vocs:text-heading vocs:text-4xl vocs:font-[550] vocs:tracking-tight vocs:leading-h1;
+    @apply vocs:text-heading vocs:text-h1 vocs:font-medium vocs:tracking-tight vocs:leading-h1;
   }
 
   h2[data-vocs] {
-    @apply vocs:text-heading vocs:text-2xl vocs:font-[550] vocs:tracking-tight vocs:leading-h2;
+    @apply vocs:text-heading vocs:text-h2 vocs:font-medium vocs:tracking-tight vocs:leading-h2;
   }
 
   h3[data-vocs] {
-    @apply vocs:text-heading vocs:text-xl vocs:font-[550] vocs:tracking-tight vocs:leading-h3;
+    @apply vocs:text-heading vocs:text-h3 vocs:font-medium vocs:tracking-tight vocs:leading-h3;
   }
 
   h4[data-vocs] {
-    @apply vocs:text-heading vocs:text-lg vocs:font-[550] vocs:tracking-tight;
+    @apply vocs:text-heading vocs:text-h4 vocs:font-semibold vocs:tracking-tight;
   }
 
   h5[data-vocs] {
-    @apply vocs:text-heading vocs:text-base vocs:font-[550] vocs:tracking-tight;
+    @apply vocs:text-heading vocs:text-h5 vocs:font-semibold vocs:tracking-tight;
   }
 
   h6[data-vocs] {
-    @apply vocs:text-heading vocs:text-base vocs:font-[550] vocs:tracking-tight;
+    @apply vocs:text-heading vocs:text-h6 vocs:font-semibold vocs:tracking-tight;
   }
 
   strong[data-vocs] {
-    @apply vocs:font-[600];
+    @apply vocs:font-semibold;
   }
 
   p[data-vocs] {
@@ -232,8 +243,8 @@
   /* #region Content Paragraphs */
 
   [data-vocs][data-content]
-    > :is(p, h1, h2, h3, h4, h5, h6, hgroup, strong, a, blockquote, ol, ul)[data-vocs]
-    + :is(p, h1, h2, h3, h4, h5, h6, hgroup, strong, a, blockquote, ol, ul)[data-vocs] {
+    > :is(p, h3, h4, h5, h6, hgroup, strong, a, blockquote, ol, ul)[data-vocs]
+    + :is(p, h3, h4, h5, h6, hgroup, strong, a, blockquote, ol, ul)[data-vocs] {
     @apply vocs:-mt-2!;
   }
 
@@ -241,18 +252,22 @@
 
   /* #region Main Heading (hgroup/h1) */
 
+  hgroup[data-vocs] {
+    @apply vocs:text-h1;
+  }
+
   hgroup[data-vocs],
   :not(hgroup) > h1[data-vocs] {
     @apply vocs:border-b vocs:border-primary;
   }
 
   hgroup[data-vocs] p[data-vocs] {
-    @apply vocs:text-secondary vocs:text-lg vocs:font-[450] vocs:mt-1.5 vocs:leading-base;
+    @apply vocs:text-secondary vocs:text-subtitle vocs:font-[450] vocs:leading-base vocs:mt-[0.25em];
   }
 
   hgroup[data-vocs]:not(:last-child),
   :not(hgroup) > h1[data-vocs]:not(:last-child) {
-    @apply vocs:pb-7;
+    @apply vocs:pb-[0.75em];
     margin-block-end: calc(calc(var(--vocs-spacing) * 8) * calc(1 - var(--tw-space-y-reverse))) !important;
   }
 
@@ -261,7 +276,7 @@
   /* #region Secondary Headings (h2, h3, h4, h5, h6) */
 
   :not(:is(hgroup[data-vocs], h1[data-vocs])) > h2[data-vocs]:not(:only-child) {
-    @apply vocs:pt-6 vocs:mt-12!;
+    @apply vocs:pt-8 vocs:mt-10! vocs:border-t vocs:border-primary;
   }
 
   :not(:is(hgroup[data-vocs], h1[data-vocs])) > h3[data-vocs]:not(:only-child) {
@@ -342,7 +357,7 @@
   /* #region Blockquotes */
 
   blockquote[data-vocs] {
-    @apply vocs:border-l-3 vocs:border-secondary vocs:bg-secondary vocs:px-4 vocs:py-4 vocs:text-quote;
+    @apply vocs:border-l-3 vocs:border-primary vocs:bg-secondary vocs:px-4 vocs:py-4 vocs:text-quote;
   }
 
   /* #endregion */
@@ -350,7 +365,7 @@
   /* #region Callouts */
 
   aside[data-callout] {
-    @apply vocs:rounded vocs:text-sm vocs:p-3 vocs:relative vocs:border;
+    @apply vocs:rounded vocs:text-callout vocs:p-3 vocs:relative vocs:border;
 
     &,
     & [data-content] {
@@ -358,7 +373,7 @@
     }
 
     /* biome-ignore lint/correctness/noUnknownFunction: _ */
-    @media (width <= theme(--breakpoint-content)) {
+    @media (width <= theme(--breakpoint-md)) {
       & {
         @apply vocs:-ml-4 vocs:-mr-4 vocs:rounded-none vocs:border-l-0 vocs:border-r-0;
       }
@@ -447,7 +462,7 @@
   }
 
   td[data-vocs] {
-    @apply vocs:text-sm vocs:py-2;
+    @apply vocs:text-td vocs:py-2;
 
     &:first-child {
       @apply vocs:font-medium vocs:text-heading;
@@ -460,7 +475,7 @@
   }
 
   th[data-vocs] {
-    @apply vocs:text-primary/80 vocs:bg-secondary vocs:text-[13px] vocs:font-medium vocs:py-2 vocs:text-left vocs:whitespace-nowrap;
+    @apply vocs:text-primary/80 vocs:bg-secondary vocs:text-th vocs:font-medium vocs:py-2 vocs:text-left vocs:whitespace-nowrap;
 
     &[align="center"] {
       @apply vocs:text-center;
@@ -472,7 +487,7 @@
   }
 
   tbody[data-vocs] tr[data-vocs] {
-    @apply vocs:border-secondary vocs:border-t;
+    @apply vocs:border-primary vocs:border-t;
   }
 
   /* #endregion */
@@ -488,7 +503,7 @@
   /* #region Horizontal Rule */
 
   hr[data-vocs] {
-    @apply vocs:border-secondary;
+    @apply vocs:border-primary;
   }
 
   /* #endregion */
@@ -513,7 +528,7 @@
   /* #region Details */
 
   details[data-vocs] > summary[data-vocs] {
-    @apply vocs:cursor-pointer vocs:hover:underline vocs:underline-offset-2 vocs:decoration-1 vocs:leading-base vocs:flex vocs:items-center vocs:font-[500];
+    @apply vocs:cursor-pointer vocs:hover:underline vocs:underline-offset-2 vocs:decoration-1 vocs:leading-base vocs:flex vocs:items-center vocs:font-medium vocs:text-secondary;
     list-style: none;
 
     &::-webkit-details-marker {
@@ -545,7 +560,7 @@
   /* #region Code blocks */
 
   pre[data-vocs] {
-    @apply vocs:bg-code-block vocs:py-5 vocs:overflow-x-auto vocs:rounded-sm vocs:border vocs:border-secondary;
+    @apply vocs:bg-code-block vocs:py-5 vocs:overflow-x-auto vocs:rounded-sm vocs:border vocs:border-primary;
 
     & code[data-vocs] {
       @apply vocs:grid vocs:text-code-block;
@@ -556,9 +571,13 @@
     }
 
     /* biome-ignore lint/correctness/noUnknownFunction: _ */
-    @media (width <= theme(--breakpoint-content)) {
+    @media (width <= theme(--breakpoint-md)) {
       & {
-        @apply vocs:rounded-none vocs:border-l-0 vocs:border-r-0 vocs:-mx-4;
+        @apply vocs:rounded-none vocs:border-l-0 vocs:border-r-0 vocs:-mx-4 vocs:py-4;
+      }
+
+      & .line {
+        @apply vocs:px-3;
       }
     }
   }
@@ -571,7 +590,7 @@
     @apply vocs:-mx-3 vocs:border-none vocs:rounded-none vocs:bg-code-block/80;
 
     & code[data-vocs] {
-      @apply vocs:text-[13px];
+      @apply vocs:text-code-block;
     }
   }
 
@@ -580,7 +599,7 @@
   /* #region Inline code */
 
   :not(pre) > code[data-vocs] {
-    @apply vocs:bg-primary vocs:font-medium vocs:border vocs:border-secondary vocs:text-inline-code vocs:rounded-sm vocs:px-1.5 vocs:py-0.5;
+    @apply vocs:bg-primary vocs:font-medium vocs:border vocs:border-primary vocs:text-inline-code vocs:rounded-sm vocs:px-1.5 vocs:py-0.5;
 
     & a[data-external] {
       @apply vocs:underline-offset-2;

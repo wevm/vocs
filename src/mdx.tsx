@@ -1,6 +1,6 @@
 import type { MDXComponents } from 'mdx/types.js'
-import { Callout } from './Callout.js'
-import { Link } from './Link.js'
+import { Callout } from './react/Callout.js'
+import { Link } from './react/Link.js'
 
 export const components: MDXComponents = {
   a(props: React.ComponentProps<'a'> & { children: React.ReactNode }) {
