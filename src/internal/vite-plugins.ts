@@ -139,6 +139,7 @@ export function llms(config: Config.Config): PluginOption {
 export function mdx(config: Config.Config): PluginOption {
   const plugin = mdxPlugin(Mdx.getCompileOptions('react', config))
 
+  // TODO: fs cache
   const cache = new Map<
     string,
     { code: string; result: Awaited<ReturnType<typeof plugin.transform>> }
