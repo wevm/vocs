@@ -11,6 +11,7 @@ import { mdx } from './plugins/mdx.js'
 import { resolveVocsModules } from './plugins/resolve-vocs-modules.js'
 import { search } from './plugins/search.js'
 import { splitVendorChunkPlugin } from './plugins/splitVendorChunk.js'
+import { tailwindHmr } from './plugins/tailwind-hmr.js'
 import { virtualBlog } from './plugins/virtual-blog.js'
 import { virtualConfig } from './plugins/virtual-config.js'
 import { virtualConsumerComponents } from './plugins/virtual-consumer-components.js'
@@ -57,6 +58,7 @@ export default defineConfig(async () => {
           return `${prefix}${scope}${debugId ? `_${debugId}` : ''}`
         },
       }),
+      tailwindHmr(),
       css(),
       llms(),
       mdx(),

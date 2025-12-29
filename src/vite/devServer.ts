@@ -19,10 +19,13 @@ export async function createDevServer(params: CreateDevServerParameters = {}) {
   return createServer({
     configFile: resolve(import.meta.dirname, './vite.config.ts'),
     envDir: cwd(),
-    root: import.meta.dirname,
+    root: cwd(),
     server: {
       host: params.host,
       port: params.port,
+      fs: {
+        allow: [process.cwd(), resolve(import.meta.dirname, '../../')],
+      },
     },
     plugins: [dev()],
   })
