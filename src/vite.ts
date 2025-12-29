@@ -17,6 +17,7 @@ export async function vocs(): Promise<PluginOption[]> {
       compiler: 'jsx',
       jsx: 'react',
     }),
+    Plugins.langWatcher(config),
     Plugins.llms(config),
     Plugins.mdx(config),
     Plugins.tailwind(),

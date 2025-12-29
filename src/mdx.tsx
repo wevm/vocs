@@ -1,6 +1,7 @@
 import type { MDXComponents } from 'mdx/types.js'
 
 import { Callout } from './react/Callout.js'
+import { CodeGroup } from './react/internal/CodeGroup.js'
 import { CodeToHtml } from './react/internal/CodeToHtml.js'
 import { TwoslashCompletionList } from './react/internal/TwoslashCompletionList.js'
 import { TwoslashHover } from './react/internal/TwoslashHover.js'
@@ -9,7 +10,8 @@ import { Link } from './react/Link.js'
 export const components: MDXComponents = {
   a(props: React.ComponentProps<'a'> & { children: React.ReactNode }) {
     // TODO: slugs (autolink), ids (#)
-    return <Link {...props} />
+    // biome-ignore lint/style/noNonNullAssertion: _
+    return <Link {...props} to={props.href!} />
   },
   aside(
     props: React.PropsWithChildren<
@@ -18,6 +20,10 @@ export const components: MDXComponents = {
   ) {
     if ('data-callout' in props) return <Callout {...props} variant={props['data-context']} />
     return <aside data-md {...props} />
+  },
+  div(props: React.PropsWithChildren<React.ComponentProps<'div'>>) {
+    if ('data-code-group' in props) return <CodeGroup {...props} />
+    return <div {...props} />
   },
   code(props: React.PropsWithChildren<React.ComponentProps<'code'>>) {
     return <code {...props} data-md />

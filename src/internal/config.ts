@@ -1,11 +1,9 @@
 import * as fs from 'node:fs'
-import * as path from 'node:path'
 import type { Options as mdx_Options } from '@mdx-js/rollup'
 import { loadConfigFromFile } from 'vite'
+import * as Langs from './langs.js'
 import type { rehypeShiki } from './mdx.js'
-import type { ExactPartial, UnionOmit } from './types.js'
-
-type MaybePartial<value extends boolean, type> = value extends true ? ExactPartial<type> : type
+import type { MaybePartial, UnionOmit } from './types.js'
 
 export type Config<partial extends boolean = false> = MaybePartial<
   partial,
@@ -54,7 +52,7 @@ export type Config<partial extends boolean = false> = MaybePartial<
     /**
      * Code highlight configuration.
      */
-    codeHighlight: UnionOmit<rehypeShiki.Options, 'twoslash'>
+    codeHighlight: MaybePartial<partial, UnionOmit<rehypeShiki.Options, 'twoslash'>>
     // /**
     //  * Path to blog pages relative to project root.
     //  * Used to extract posts from the filesystem.
@@ -200,14 +198,13 @@ export function define(config: define.Options = {}): Config {
     twoslash,
   } = config
 
-  const pagesDir = path.join(rootDir, srcDir, 'pages')
-  const langs = codeHighlight?.langs ?? inferLangs({ pagesDir })
+  const pagesDir = 'pages'
 
   return {
     basePath,
     codeHighlight: {
       ...codeHighlight,
-      langs: langs as never,
+      langs: codeHighlight?.langs ?? (Langs.infer({ rootDir, srcDir, pagesDir }) as never),
       themes: {
         light: 'github-light',
         dark: 'github-dark-dimmed',
@@ -217,7 +214,7 @@ export function define(config: define.Options = {}): Config {
     description,
     markdown,
     outDir,
-    pagesDir: 'pages',
+    pagesDir,
     rootDir,
     srcDir,
     title,
@@ -230,10 +227,22 @@ export declare namespace define {
   export type Options = UnionOmit<Config<true>, 'pagesDir'>
 }
 
+export function getConfigFile(options: getConfigFile.Options = {}): string | undefined {
+  const { rootDir = process.cwd() } = options
+
+  return fs.globSync('vocs.config.{ts,js,mjs,mts}', { cwd: rootDir })[0]
+}
+
+declare namespace getConfigFile {
+  export type Options = {
+    rootDir?: string | undefined
+  }
+}
+
 export async function resolve(options: resolve.Options = {}): Promise<Config> {
   const { rootDir = process.cwd() } = options
 
-  const configFile = fs.globSync('vocs.config.{ts,js,mjs,mts}', { cwd: rootDir })[0]
+  const configFile = getConfigFile({ rootDir })
   if (!configFile) return define({})
 
   const result = await loadConfigFromFile(
@@ -328,40 +337,3 @@ export const deserializeFunctionsStringified = `
     }
   }
 `
-
-/**
- * Scans MDX/MD files in a directory and extracts code block language identifiers.
- * This enables faster Shiki cold starts by only loading languages that are actually used.
- *
- * @internal
- */
-// biome-ignore lint/correctness/noUnusedVariables: _
-function inferLangs(options: inferLangs.Options): string[] {
-  const { pagesDir, defaultLangs = ['ts', 'tsx', 'js', 'jsx', 'json', 'md', 'mdx'] } = options
-
-  const langs = new Set(defaultLangs)
-  const codeBlockRegex = /```(\w+)/g
-
-  try {
-    const files = fs.globSync('**/*.{md,mdx}', { cwd: pagesDir })
-
-    for (const file of files) {
-      const content = fs.readFileSync(path.join(pagesDir, file), 'utf-8')
-      let match: RegExpExecArray | null
-      // biome-ignore lint/suspicious/noAssignInExpressions: _
-      while ((match = codeBlockRegex.exec(content)) !== null) {
-        const lang = match[1]
-        if (lang) langs.add(lang.toLowerCase())
-      }
-    }
-  } catch {}
-
-  return [...langs]
-}
-
-export declare namespace inferLangs {
-  export type Options = {
-    pagesDir: string
-    defaultLangs?: string[]
-  }
-}

@@ -59,6 +59,7 @@ export function getCompileOptions(
         remarkPlugins: [
           remarkFrontmatter,
           remarkCallout,
+          remarkCodeGroup,
           remarkDefaultFrontmatter,
           remarkDetails,
           remarkDirective,
@@ -202,7 +203,7 @@ export function rehypeShiki(
 }
 
 export declare namespace rehypeShiki {
-  export type Options = ExactPartial<UnionOmit<RehypeShikiOptions, 'inline' | 'rootStyle'>> &
+  export type Options = UnionOmit<ExactPartial<RehypeShikiOptions>, 'inline' | 'rootStyle'> &
     UnionOmit<CodeOptionsMultipleThemes<BuiltinTheme>, 'defaultColor'> & {
       twoslash?: ShikiTransformers.twoslash.Options | false | undefined
     }
@@ -251,6 +252,47 @@ export function remarkCallout() {
         'data-callout': true,
         'data-context': node.name !== 'callout' ? node.name : 'info',
       }
+    })
+  }
+}
+
+export function remarkCodeGroup() {
+  return (tree: MdAst.Root) => {
+    UnistUtil.visit(tree, (node) => {
+      if (node.type !== 'containerDirective') return
+      if (node.name !== 'code-group') return
+
+      // biome-ignore lint/suspicious/noAssignInExpressions: _
+      const data = node.data || (node.data = {})
+      const tagName = 'div'
+
+      node.attributes = {
+        ...node.attributes,
+        'data-code-group': '',
+      }
+
+      data.hName = tagName
+      data.hProperties = node.attributes || {}
+
+      node.children = node.children
+        .map((child) => {
+          if (child.type !== 'code') return child
+          const match = 'meta' in child && child?.meta?.match(/\[(.*)\]/)
+          return {
+            type: 'paragraph',
+            children: [child],
+            data: {
+              hName: 'div',
+              hProperties: match
+                ? {
+                    'data-code-group-item': '',
+                    'data-title': match[1],
+                  }
+                : undefined,
+            },
+          }
+        })
+        .filter(Boolean) as (MdAst.BlockContent | MdAst.DefinitionContent)[]
     })
   }
 }

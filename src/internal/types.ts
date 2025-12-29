@@ -287,10 +287,16 @@ export type IsUnion<
 > = union extends union2 ? ([union2] extends [union] ? false : true) : never
 
 /** @internal */
-export type MaybePartial<type, enabled extends boolean | undefined> = enabled extends true
+export type MaybePartial<enabled extends boolean | undefined, type> = enabled extends true
   ? Compute<ExactPartial<type>>
-  : type
+  : Exact<type>
 
+/** @internal */
+export type Exact<type> = {
+  [key in keyof type]: undefined extends type[key] ? type[key] | undefined : type[key]
+}
+
+/** @internal */
 export type ExactPartial<type> = {
   [key in keyof type]?: type[key] | undefined
 }

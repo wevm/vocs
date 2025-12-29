@@ -15,19 +15,19 @@ export async function CodeToHtml(props: CodeToHtml.Props) {
   const { langAlias = {}, themes } = codeHighlight
 
   const highlighter = await getHighlighter({
-    themes: Object.values(themes) as never,
-    langs: Object.keys(bundledLanguages) as never,
+    themes: import.meta.env.DEV ? ['none'] : (Object.values(themes) as never),
+    langs: import.meta.env.DEV ? ['txt'] : (Object.keys(bundledLanguages) as never),
     langAlias,
   })
 
   const hast = highlighter.codeToHast(code, {
     defaultColor: 'light-dark()',
-    lang,
+    lang: import.meta.env.DEV ? 'txt' : lang,
     rootStyle: false,
     meta: {
       'data-overflow-fade': true,
     },
-    themes,
+    ...(import.meta.env.DEV ? { theme: 'none' } : { themes }),
     transformers: [transformerShrinkIndent()],
   })
 

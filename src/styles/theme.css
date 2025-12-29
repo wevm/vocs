@@ -8,17 +8,17 @@
     --color-black: black;
     --color-gray1: oklch(0.162 0 0);
     --color-gray2: oklch(0.195 0 0);
-    --color-gray3: oklch(0.223 0 0);
-    --color-gray4: oklch(0.25 0 0);
-    --color-gray5: oklch(0.3 0 0);
-    --color-gray6: oklch(0.35 0 0);
-    --color-gray7: oklch(0.459 0 0);
+    --color-gray3: oklch(0.21 0 0);
+    --color-gray4: oklch(0.223 0 0);
+    --color-gray5: oklch(0.25 0 0);
+    --color-gray6: oklch(0.29 0 0);
+    --color-gray7: oklch(0.5 0 0);
     --color-gray8: oklch(0.549 0 0);
     --color-gray9: oklch(0.649 0 0);
     --color-gray10: oklch(0.72 0 0);
     --color-gray11: oklch(0.863 0 0);
     --color-gray12: oklch(0.933 0 0);
-    --color-gray13: oklch(0.973 0 0);
+    --color-gray13: oklch(0.985 0 0);
     --color-red: light-dark(oklch(0.7 0.25 23), oklch(0.75 0.23 23));
     --color-blue: light-dark(oklch(0.68 0.25 251.8), oklch(0.8 0.23 251.8));
     --color-green: light-dark(oklch(0.6 0.23 170.7), oklch(0.8 0.195 170.7));
@@ -29,8 +29,8 @@
 
     /* #region Standard Colors */
 
-    --background-color-primary: light-dark(white, var(--vocs-color-gray3));
-    --background-color-secondary: light-dark(var(--vocs-color-gray13), var(--vocs-color-gray4));
+    --background-color-primary: light-dark(white, var(--vocs-color-gray4));
+    --background-color-secondary: light-dark(var(--vocs-color-gray13), var(--vocs-color-gray5));
     --text-color-primary: light-dark(var(--vocs-color-gray6), var(--vocs-color-gray12));
     --text-color-secondary: light-dark(var(--vocs-color-gray3), var(--vocs-color-gray10));
     --text-color-muted: light-dark(var(--vocs-color-gray9), var(--vocs-color-gray8));
@@ -49,7 +49,7 @@
     --background-color-info-tint: oklch(from var(--vocs-color-blue) l c h / 8%);
     --border-color-info-tint: oklch(from var(--vocs-color-blue) l c h / 16%);
 
-    --color-note: light-dark(var(--vocs-color-gray8), var(--vocs-color-gray10));
+    --color-note: light-dark(var(--vocs-color-gray7), var(--vocs-color-gray10));
     --color-note-hover: oklch(from var(--vocs-color-gray8) calc(l - 0.1) c h);
     --background-color-note-tint: oklch(from var(--vocs-color-gray10) l c h / 8%);
     --border-color-note-tint: oklch(from var(--vocs-color-gray10) l c h / 16%);
@@ -69,7 +69,7 @@
     --background-color-warning-tint: oklch(from var(--vocs-color-yellow) l c h / 8%);
     --border-color-warning-tint: oklch(from var(--vocs-color-yellow) l c h / 16%);
 
-    --border-color-primary: light-dark(var(--vocs-color-gray12), var(--vocs-color-gray5));
+    --border-color-primary: light-dark(var(--vocs-color-gray12), var(--vocs-color-gray6));
 
     /* #endregion */
 
@@ -80,6 +80,7 @@
     --background-color-code-highlighted: light-dark(var(--vocs-color-gray12), var(--vocs-color-gray4));
     --background-color-inline-code: light-dark(var(--vocs-color-gray13), var(--vocs-color-gray2));
     --border-color-code-highlighted: light-dark(var(--vocs-color-gray11), var(--vocs-color-gray6));
+    --border-color-tab-active: light-dark(black, white);
     --text-color-heading: light-dark(black, white);
     --text-color-link: light-dark(black, white);
     --text-color-link-hover: light-dark(var(--vocs-color-gray7), var(--vocs-color-gray11));

@@ -65,16 +65,18 @@ export declare namespace twoslash {
 export function transformerEmptyLine(): ShikiTransformer {
   return {
     name: 'empty-line',
-    line(hast) {
-      const child = hast.children[0]
-      if (child) return
-      hast.properties['data-empty-line'] = true
-      hast.children = [
-        {
-          type: 'text',
-          value: ' ',
-        },
-      ]
+    root(hast) {
+      // biome-ignore lint/suspicious/noExplicitAny: _
+      const code = (hast.children[0] as any)?.children[0]
+      if (!code) return
+      // biome-ignore lint/suspicious/noExplicitAny: _
+      const lines = code.children as any[]
+      for (let i = 0; i < lines.length - 1; i++) {
+        const line = lines[i]
+        if (!line.properties || line.children?.[0]) continue
+        line.properties['data-empty-line'] = true
+        line.children = [{ type: 'text', value: ' ' }]
+      }
     },
   }
 }

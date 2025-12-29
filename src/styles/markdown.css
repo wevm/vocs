@@ -70,7 +70,7 @@
   }
 
   hgroup[data-md],
-  [data-md] :not(hgroup) > h1 {
+  :not(hgroup) > h1[data-md] {
     @apply vocs:border-b vocs:border-primary;
   }
 
@@ -79,7 +79,7 @@
   }
 
   hgroup[data-md]:not(:last-child),
-  [data-md] :not(hgroup) > h1:not(:last-child) {
+  :not(hgroup) > h1[data-md]:not(:last-child) {
     @apply vocs:pb-[0.75em];
     margin-block-end: calc(calc(var(--vocs-spacing) * 8) * calc(1 - var(--tw-space-y-reverse))) !important;
   }
@@ -147,7 +147,7 @@
   /* #region Callouts */
 
   aside[data-md][data-callout] {
-    @apply vocs:rounded vocs:text-callout vocs:p-3 vocs:relative vocs:border;
+    @apply vocs:rounded-lg vocs:text-callout vocs:p-3 vocs:relative vocs:border;
 
     &,
     & [data-content] {
@@ -348,7 +348,7 @@
   /* #region Code blocks */
 
   pre[data-md] {
-    @apply vocs:bg-code-block vocs:py-5 vocs:overflow-x-auto vocs:rounded-sm vocs:border vocs:border-primary;
+    @apply vocs:bg-code-block vocs:py-5 vocs:overflow-x-auto vocs:rounded-lg vocs:border vocs:border-primary;
 
     & > code {
       @apply vocs:grid vocs:text-code-block;
@@ -437,12 +437,15 @@
     }
   }
 
+  :not(.shiki) > code {
+    @apply vocs:px-code-block-px;
+  }
+
   /* #endregion */
 
   /* #region Inline code */
-
   :not(pre) > code[data-md]:not(.twoslash-popup-code) {
-    @apply vocs:bg-primary vocs:font-medium vocs:border vocs:border-primary vocs:text-inline-code vocs:rounded-sm vocs:px-1.5 vocs:py-0.5;
+    @apply vocs:bg-inline-code vocs:font-medium vocs:border vocs:border-primary vocs:text-inline-code vocs:rounded-sm vocs:px-1.5 vocs:py-0.5;
   }
 
   [data-context="note"] code[data-md] {
