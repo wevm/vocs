@@ -96,7 +96,7 @@
   "peerDependencies": {
     "react": "^19",
     "vite": "^7",
-    "waku": "^0"
+    "waku": "^1"
   },
   "peerDependenciesMeta": {
     "waku": {

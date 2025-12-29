@@ -12,7 +12,7 @@ export async function vocs(): Promise<PluginOption[]> {
   const config = await Config.resolve()
 
   return [
-    Plugins.dedupe(),
+    Plugins.deps(),
     Plugins.icons({
       compiler: 'jsx',
       jsx: 'react',

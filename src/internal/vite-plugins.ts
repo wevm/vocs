@@ -19,18 +19,26 @@ export const tailwind = tailwindcss as unknown as (opts?: TailwindOptions) => Pl
 const logger = createLogger(undefined, { allowClearScreen: false, prefix: '[vocs]' })
 
 /**
- * Deduplicates dependencies.
+ * Configures dependencies.
  *
  * @returns Plugin.
  */
-export function dedupe(): PluginOption {
+export function deps(): PluginOption {
   return {
-    name: 'dedupe',
+    name: 'vocs:deps',
     config(config) {
       return {
+        optimizeDeps: {
+          include: [...(config?.optimizeDeps?.include ?? []), '@base-ui/react/popover'],
+        },
         resolve: {
           ...config?.resolve,
-          dedupe: ['react', 'react-dom', 'react-server-dom-webpack'],
+          dedupe: [
+            ...(config?.resolve?.dedupe ?? []),
+            'react',
+            'react-dom',
+            'react-server-dom-webpack',
+          ],
         },
       }
     },
@@ -98,7 +106,7 @@ export function llms(config: Config.Config): PluginOption {
   }
 
   return {
-    name: 'llms',
+    name: 'vocs:llms',
     enforce: 'post',
     configResolved(config) {
       viteConfig = config
