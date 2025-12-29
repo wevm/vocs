@@ -1,11 +1,15 @@
 @layer vocs.components {
   .twoslash {
-    & [data-twoslash-trigger] {
-      @apply vocs:border-transparent vocs:border-b vocs:border-dotted vocs:leading-[1em] vocs:transition-colors vocs:duration-200;
+    & [data-twoslash-trigger] span {
+      @apply vocs:border-transparent vocs:border-b vocs:border-dotted vocs:transition-colors vocs:duration-200;
+    }
+
+    &:hover [data-twoslash-trigger] span {
+      @apply vocs:border-inherit;
     }
 
     &:hover [data-twoslash-trigger] {
-      @apply vocs:border-inherit;
+      @apply vocs:select-text vocs:cursor-text!;
     }
 
     & .twoslash-error-line {
@@ -18,7 +22,7 @@
   }
 
   .twoslash-popup-container {
-    @apply vocs:bg-primary vocs:border vocs:border-primary vocs:rounded-sm vocs:max-w-140;
+    @apply vocs:bg-primary vocs:border vocs:border-primary vocs:rounded-sm vocs:max-w-140 vocs:select-none;
 
     @media (width <= 560px) {
       & {
@@ -27,11 +31,19 @@
     }
 
     & pre {
-      @apply vocs:text-code-block vocs:leading-code vocs:max-h-60 vocs:overflow-y-scroll;
+      @apply vocs:text-[0.75em] vocs:leading-code vocs:max-h-50 vocs:overflow-y-auto;
+    }
+
+    & [data-overflows] {
+      mask-image: linear-gradient(to bottom, black calc(100% - 2rem), transparent 100%);
+    }
+
+    & [data-overflow-sentinel] {
+      @apply vocs:h-8 vocs:-mt-8 vocs:pointer-events-none;
     }
 
     & pre code {
-      @apply vocs:grid;
+      @apply vocs:grid vocs:whitespace-pre-wrap;
     }
 
     & .line {
@@ -43,7 +55,7 @@
     }
 
     & [data-content] > * {
-      @apply vocs:p-1 vocs:px-2;
+      @apply vocs:px-2 vocs:py-1;
     }
 
     & [data-content] > *:not(:last-child) {
@@ -52,6 +64,8 @@
   }
 
   .twoslash-popup-docs {
+    @apply vocs:max-h-40 vocs:overflow-y-scroll;
+
     & > *:not(:last-child) {
       @apply vocs:mb-1;
     }

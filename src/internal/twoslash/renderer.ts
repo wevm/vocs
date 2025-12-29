@@ -29,7 +29,7 @@ export function rich(): TwoslashRenderer {
 
     popupContents.push({
       type: 'element',
-      tagName: 'code',
+      tagName: 'pre',
       properties: {
         class: 'twoslash-popup-code',
         'data-code': content,
@@ -53,7 +53,7 @@ export function rich(): TwoslashRenderer {
             if (lang) {
               return {
                 type: 'element',
-                tagName: 'code',
+                tagName: 'pre',
                 properties: {
                   'data-code': node.value,
                   'data-lang': lang,
@@ -69,8 +69,16 @@ export function rich(): TwoslashRenderer {
       popupContents.push({
         type: 'element',
         tagName: 'div',
-        properties: { class: 'twoslash-popup-docs' },
-        children: hast.children,
+        properties: { class: 'twoslash-popup-docs', 'data-overflow-fade': true },
+        children: [
+          ...hast.children,
+          {
+            type: 'element',
+            tagName: 'div',
+            properties: { 'data-overflow-sentinel': true },
+            children: [],
+          },
+        ],
       })
     }
 

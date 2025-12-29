@@ -2,22 +2,34 @@
 
 import { Popover } from '@base-ui/react/popover'
 import type * as React from 'react'
+import { useCallback } from 'react'
 
 export function TwoslashHover(props: TwoslashHover.Props) {
   const { className = '', children, trigger } = props
+
+  const { ref } = TwoslashHover.useOverflowFade()
+
   const open = className?.includes('twoslash-query-persisted')
+
   return (
     <Popover.Root {...(open ? { open } : {})}>
       <Popover.Trigger data-twoslash-trigger openOnHover delay={0}>
-        {trigger}
+        <span>{trigger}</span>
       </Popover.Trigger>
       <Popover.Portal>
-        <Popover.Positioner align="start" side="bottom" sideOffset={8}>
+        <Popover.Positioner
+          align="start"
+          side="bottom"
+          sideOffset={8}
+          collisionAvoidance={{ side: 'none' }}
+        >
           <Popover.Popup className={className} initialFocus={false}>
             <Popover.Arrow className="vocs:data-[side=bottom]:top-[-8px] vocs:data-[side=left]:right-[-13px] vocs:data-[side=left]:rotate-90 vocs:data-[side=right]:left-[-13px] vocs:data-[side=right]:rotate-[-90deg] vocs:data-[side=top]:bottom-[-8px] vocs:data-[side=top]:rotate-180">
               <ArrowSvg />
             </Popover.Arrow>
-            <div data-content>{children}</div>
+            <div data-content ref={ref}>
+              {children}
+            </div>
           </Popover.Popup>
         </Popover.Positioner>
       </Popover.Portal>
@@ -25,12 +37,42 @@ export function TwoslashHover(props: TwoslashHover.Props) {
   )
 }
 
-export declare namespace TwoslashHover {
+export namespace TwoslashHover {
   export type Props = {
     className?: string | undefined
     children: React.ReactNode
     open?: boolean | undefined
     trigger: React.ReactNode
+  }
+
+  export function useOverflowFade() {
+    const ref = useCallback((content: HTMLDivElement | null) => {
+      if (!content) return
+      const elements = content.querySelectorAll('[data-overflow-fade]')
+      for (const el of elements) {
+        if (!(el instanceof HTMLElement)) continue
+        if (el.scrollHeight <= el.clientHeight) continue
+
+        const sentinel = el.querySelector('[data-overflow-sentinel]')
+        if (!sentinel) continue
+
+        // biome-ignore lint/complexity/useLiteralKeys: _
+        el.dataset['overflows'] = 'true'
+
+        const observer = new IntersectionObserver(
+          ([entry]) => {
+            // biome-ignore lint/complexity/useLiteralKeys: _
+            if (entry?.isIntersecting) delete el.dataset['overflows']
+            // biome-ignore lint/complexity/useLiteralKeys: _
+            else el.dataset['overflows'] = 'true'
+          },
+          { root: el, threshold: 0.5 },
+        )
+        observer.observe(sentinel)
+      }
+    }, [])
+
+    return { ref }
   }
 }
 

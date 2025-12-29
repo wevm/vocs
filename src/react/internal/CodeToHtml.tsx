@@ -2,6 +2,7 @@ import { config } from 'virtual:vocs/config'
 import {
   bundledLanguages,
   createHighlighter,
+  hastToHtml,
   makeSingletonHighlighter,
   type ShikiTransformer,
 } from 'shiki/bundle/web'
@@ -19,13 +20,28 @@ export async function CodeToHtml(props: CodeToHtml.Props) {
     langAlias,
   })
 
-  const html = highlighter.codeToHtml(code, {
+  const hast = highlighter.codeToHast(code, {
     defaultColor: 'light-dark()',
     lang,
     rootStyle: false,
+    meta: {
+      'data-overflow-fade': true,
+    },
     themes,
     transformers: [transformerShrinkIndent()],
   })
+
+  // Add overflow sentinel
+  const pre = hast.children[0]
+  if (pre && pre.type === 'element' && pre.tagName === 'pre')
+    pre.children.push({
+      type: 'element',
+      tagName: 'div',
+      properties: { 'data-overflow-sentinel': true },
+      children: [],
+    })
+
+  const html = hastToHtml(hast)
 
   // biome-ignore lint/security/noDangerouslySetInnerHtml: _
   return <div dangerouslySetInnerHTML={{ __html: html }} />

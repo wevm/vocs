@@ -20,11 +20,16 @@ export const components: MDXComponents = {
     return <aside data-md {...props} />
   },
   code(props: React.PropsWithChildren<React.ComponentProps<'code'>>) {
-    if ('data-code' in props && 'data-lang' in props)
-      return <CodeToHtml code={props['data-code'] as string} lang={props['data-lang'] as string} />
     return <code {...props} data-md />
   },
-  pre(props: React.PropsWithChildren<React.ComponentProps<'pre'>>) {
+  pre(
+    props: React.PropsWithChildren<React.ComponentProps<'pre'>> & {
+      'data-code'?: string | undefined
+      'data-lang'?: string | undefined
+    },
+  ) {
+    const { 'data-code': code, 'data-lang': lang } = props
+    if (code && lang) return <CodeToHtml code={code} lang={lang} />
     return <pre {...props} data-md />
   },
   span(props: React.PropsWithChildren<React.ComponentProps<'span'>>) {
