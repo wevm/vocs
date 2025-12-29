@@ -22,6 +22,6 @@
   }
 
   body {
-    @apply vocs:relative;
+    @apply vocs:relative vocs:max-md:overflow-x-hidden;
   }
 }

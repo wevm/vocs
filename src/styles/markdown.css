@@ -106,10 +106,10 @@
   /* #region Anchors */
 
   a[data-md] {
-    @apply vocs:text-link vocs:font-[450] vocs:underline vocs:underline-offset-3 vocs:decoration-blue vocs:decoration-1 vocs:transition-colors vocs:duration-200;
+    @apply vocs:text-link vocs:font-[450] vocs:underline vocs:underline-offset-2 vocs:decoration-1 vocs:transition-colors vocs:duration-100;
 
     &:hover {
-      @apply vocs:text-link-hover;
+      @apply vocs:decoration-dotted vocs:text-link/80;
     }
   }
 

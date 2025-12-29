@@ -20,6 +20,12 @@
   .twoslash-popup-container {
     @apply vocs:bg-primary vocs:border vocs:border-primary vocs:rounded-sm vocs:max-w-140;
 
+    @media (width <= 560px) {
+      & {
+        @apply vocs:max-w-screen vocs:-mx-1;
+      }
+    }
+
     & pre {
       @apply vocs:text-code-block vocs:leading-code vocs:max-h-60 vocs:overflow-y-scroll;
     }
