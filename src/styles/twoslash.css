@@ -1,0 +1,109 @@
+@layer vocs.components {
+  .twoslash {
+    & [data-twoslash-trigger] {
+      @apply vocs:border-transparent vocs:border-b vocs:border-dotted vocs:leading-[1em] vocs:transition-colors vocs:duration-200;
+    }
+
+    &:hover [data-twoslash-trigger] {
+      @apply vocs:border-inherit;
+    }
+
+    & .twoslash-error-line {
+      @apply vocs:relative vocs:bg-destructive-tint vocs:border-destructive-tint vocs:text-destructive vocs:leading-code vocs:px-code-block-px vocs:py-0.5 vocs:my-1 vocs:min-w-full vocs:w-max;
+    }
+
+    & .twoslash-completion-cursor {
+      position: relative;
+    }
+  }
+
+  .twoslash-popup-container {
+    @apply vocs:bg-primary vocs:border vocs:border-primary vocs:rounded-sm vocs:max-w-140;
+
+    & pre {
+      @apply vocs:text-code-block vocs:leading-code vocs:max-h-60 vocs:overflow-y-scroll;
+    }
+
+    & pre code {
+      @apply vocs:grid;
+    }
+
+    & .line {
+      @apply vocs:min-h-[0.5lh];
+    }
+
+    & .twoslash-popup-docs {
+      @apply vocs:text-[13px];
+    }
+
+    & [data-content] > * {
+      @apply vocs:p-1 vocs:px-2;
+    }
+
+    & [data-content] > *:not(:last-child) {
+      @apply vocs:border-b vocs:border-primary;
+    }
+  }
+
+  .twoslash-popup-docs {
+    & > *:not(:last-child) {
+      @apply vocs:mb-1;
+    }
+
+    li {
+      @apply vocs:mb-0!;
+    }
+
+    pre {
+      @apply vocs:bg-secondary vocs:-mx-2 vocs:px-2 vocs:py-1;
+    }
+  }
+
+  .twoslash-completion-list {
+    @apply vocs:min-w-30 vocs:font-mono vocs:text-xs vocs:flex vocs:flex-col vocs:gap-1 vocs:bg-primary vocs:border vocs:border-primary vocs:rounded-sm vocs:p-2 vocs:select-none;
+
+    &:hover {
+      @apply vocs:select-auto;
+    }
+
+    li {
+      @apply vocs:overflow-hidden vocs:flex vocs:items-center vocs:gap-1 vocs:leading-[1em];
+    }
+
+    li span.twoslash-completions-matched {
+      @apply vocs:text-primary;
+    }
+
+    li span.twoslash-completions-unmatched {
+      @apply vocs:text-muted;
+    }
+
+    .deprecated {
+      @apply vocs:text-muted vocs:opacity-50 vocs:line-through;
+    }
+  }
+
+  .twoslash-highlighted {
+    @apply vocs:bg-code-highlighted/70 vocs:border-code-highlighted vocs:border vocs:py-0.5 vocs:px-1.5 vocs:rounded-sm;
+  }
+
+  .twoslash-tag-line {
+    @apply vocs:py-0.5 vocs:my-0.5;
+  }
+
+  .twoslash-tag-log-line {
+    @apply vocs:bg-info-tint vocs:border-info! vocs:border-l-2 vocs:text-info;
+  }
+
+  .twoslash-tag-error-line {
+    @apply vocs:bg-destructive-tint vocs:border-destructive! vocs:border-l-2 vocs:text-destructive;
+  }
+
+  .twoslash-tag-warn-line {
+    @apply vocs:bg-warning-tint vocs:border-warning! vocs:border-l-2 vocs:text-warning;
+  }
+
+  .twoslash-tag-annotate-line {
+    @apply vocs:bg-success-tint vocs:border-success! vocs:border-l-2 vocs:text-success;
+  }
+}

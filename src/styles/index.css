@@ -1,0 +1,27 @@
+@layer vocs.theme, vocs.base, vocs.components, vocs.utilities, theme, base, components, utilities;
+
+@import "tailwindcss/theme.css" layer(vocs.theme) prefix(vocs);
+@import "tailwindcss/preflight.css" layer(vocs.base);
+@import "tailwindcss/utilities.css" layer(vocs.utilities) prefix(vocs);
+
+@import "./theme.css";
+@import "./markdown.css";
+@import "./twoslash.css";
+
+@source "../";
+
+@layer vocs.base {
+  :root {
+    @apply vocs:bg-primary vocs:scheme-light-dark vocs:text-primary vocs:tracking-[0.005em];
+    font-feature-settings:
+      "rlig" 1,
+      "calt" 1;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply vocs:relative;
+  }
+}

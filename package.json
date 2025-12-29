@@ -69,7 +69,10 @@
     "esast-util-from-js": "^2.0.1",
     "estree-util-value-to-estree": "^3.5.0",
     "estree-util-visit": "^2.0.0",
+    "mdast-util-from-markdown": "^2.0.2",
+    "mdast-util-gfm": "^3.1.0",
     "mdast-util-mdx": "^3.0.0",
+    "mdast-util-to-hast": "^13.2.1",
     "mdast-util-to-markdown": "^2.1.2",
     "rehype-autolink-headings": "^7.1.0",
     "rehype-slug": "^6.0.0",
@@ -151,9 +154,10 @@
       "src": "./src/vite.ts",
       "default": "./dist/vite.js"
     },
-    "./styles.tw.css": {
-      "src": "./src/styles.tw.css",
-      "default": "./dist/styles.tw.css"
+    "./styles/*": {
+      "types": "./dist/styles/*.d.ts",
+      "src": "./src/styles/*.css",
+      "default": "./dist/styles/*.js"
     }
   }
 }

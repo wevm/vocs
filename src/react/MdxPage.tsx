@@ -1,4 +1,4 @@
-import type { Frontmatter } from '../types.js'
+import type { Frontmatter } from '../internal/types.js'
 import { Head } from './Head.js'
 import { Layout } from './Layout.js'
 

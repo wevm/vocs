@@ -1,6 +1,6 @@
 'use client'
 
-import type { Frontmatter } from '../types.js'
+import type { Frontmatter } from '../internal/types.js'
 import { useConfig } from './useConfig.js'
 
 export function Head(props: Head.Props) {

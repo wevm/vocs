@@ -8,7 +8,7 @@ export function Link(props: Link.Props) {
   const { path } = useRouter()
 
   const isExternal = href?.match(/^(https?:\/\/|mailto:|tel:)/)
-  if (isExternal) return <a {...props} data-external target="_blank" rel="noopener noreferrer" />
+  if (isExternal) return <a {...props} target="_blank" rel="noopener noreferrer" />
 
   const [before, after] = (href || '').split('#')
   const to = `${before ? before : path}${after ? `#${after}` : ''}`

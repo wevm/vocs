@@ -1,184 +1,189 @@
 import * as fs from 'node:fs'
 import type { Options as mdx_Options } from '@mdx-js/rollup'
 import { loadConfigFromFile } from 'vite'
-import type { ExactPartial } from '../types.js'
 import type { rehypeShiki } from './mdx.js'
-import type { twoslash } from './shiki-transformers.js'
+import type { ExactPartial, UnionOmit } from './types.js'
 
-export type Config = {
-  // /**
-  //  * Whether or not to show the AI call-to-action dropdown on docs pages (ie. "Open in ChatGPT"),
-  //  * as well as any configuration.
-  //  */
-  // aiCta?:
-  //   | boolean
-  //   | {
-  //       /**
-  //        * Query for the LLM.
-  //        */
-  //       query: (p: { location: string }) => string
-  //     }
-  // /**
-  //  * Configuration for the banner fixed to the top of the page.
-  //  *
-  //  * Can be a Markdown string, a React Element, or an object with the following properties:
-  //  * - `dismissable`: Whether or not the banner can be dismissed.
-  //  * - `backgroundColor`: The background color of the banner.
-  //  * - `content`: The content of the banner.
-  //  * - `height`: The height of the banner.
-  //  * - `textColor`: The text color of the banner.
-  //  */
-  // banner?: Banner<parsed>
-  /**
-   * The base path the documentation will be deployed at. All assets and pages
-   * will be prefixed with this path. This is useful for deploying to GitHub Pages.
-   * For example, if you are deploying to `https://example.github.io/foo`, then the
-   * basePath should be set to `/foo`.
-   *
-   * @example
-   * /docs
-   */
-  basePath: string
-  /**
-   * The base URL for your documentation. This is used to populate the `<base>` tag in the
-   * `<head>` of the page, and is used to form the `%logo` variable for dynamic OG images.
-   *
-   * @example
-   * https://vocs.dev
-   */
-  baseUrl?: string | undefined
-  // /**
-  //  * Path to blog pages relative to project root.
-  //  * Used to extract posts from the filesystem.
-  //  *
-  //  * @default "./pages/blog"
-  //  */
-  // blogDir?: string
-  // /**
-  //  * Directory to store cache files.
-  //  *
-  //  * @default "node_modules/vocs/.cache"
-  //  */
-  // cacheDir?: string
-  // /**
-  //  * Whether or not to check for dead links in the documentation.
-  //  *
-  //  * - `true`: Enable dead link checking and throw errors on dead links.
-  //  * - `false`: Disable dead link checking.
-  //  * - `"warn"`: Enable dead link checking but only warn instead of throwing errors.
-  //  *
-  //  * @default true
-  //  */
-  // checkDeadlinks?: boolean | 'warn'
-  /**
-   * General description for the documentation.
-   */
-  description?: string | undefined
-  // /**
-  //  * Edit location for the documentation.
-  //  */
-  // editLink?: Normalize<EditLink>
-  // /**
-  //  * Base font face.
-  //  *
-  //  * @default { google: "Inter" }
-  //  */
-  // font?: Normalize<Font<parsed>>
-  // /**
-  //  * Additional tags to include in the `<head>` tag of the page HTML.
-  //  */
-  // head?:
-  //   | ReactElement
-  //   | { [path: string]: ReactElement }
-  //   | ((params: { path: string }) => ReactElement | Promise<ReactElement>)
-  /**
-   * Icon URL.
-   */
-  iconUrl?: string | { light: string; dark: string } | undefined
-  /**
-   * Logo URL.
-   */
-  logoUrl?: string | { light: string; dark: string } | undefined
-  /**
-   * OG Image URL. `null` to disable.
-   *
-   * Template variables: `%logo`, `%title`, `%description`
-   *
-   * @default "https://vocs.dev/api/og?logo=%logo&title=%title&description=%description"
-   */
-  ogImageUrl?: string | { [path: string]: string } | undefined
-  // /**
-  //  * Outline footer.
-  //  */
-  // outlineFooter?: ReactElement
-  /**
-   * Markdown configuration.
-   */
-  markdown?:
-    | (mdx_Options & {
-        codeHighlight?: Omit<rehypeShiki.Options, 'twoslash'> | undefined
-      })
-    | undefined
-  /**
-   * The output directory relative to root.
-   * @default "dist"
-   */
-  outDir: string
-  /**
-   * The directory to store pages relative to `srcDir`.
-   * @default "pages"
-   */
-  pagesDir: string
-  // /**
-  //  * Configuration for docs search.
-  //  */
-  // search?: Normalize<Search>
-  // /**
-  //  * Navigation displayed on the sidebar.
-  //  */
-  // sidebar?: Normalize<Sidebar>
-  // /**
-  //  * Social links displayed in the top navigation.
-  //  */
-  // socials?: Normalize<Socials<parsed>>
-  // /**
-  //  * Set of sponsors to display on MDX directives and (optionally) the sidebar.
-  //  */
-  // sponsors?: SponsorSet[]
-  /**
-   * The source directory relative to root.
-   * @default "src"
-   */
-  srcDir: string
-  // /**
-  //  * Theme configuration.
-  //  */
-  // theme?: Normalize<Theme<parsed, colorScheme>>
-  /**
-   * Documentation title.
-   *
-   * @default "Docs"
-   */
-  title: string
-  /**
-   * Template for the page title.
-   *
-   * @default `%s – ${title}`
-   */
-  titleTemplate: string
-  // /**
-  //  * Navigation displayed on the top.
-  //  */
-  // topNav?: Normalize<TopNav<parsed>>
-  /**
-   * TwoSlash configuration. Set to `false` to disable.
-   */
-  twoslash?: twoslash.Options | false | undefined
-}
+type MaybePartial<value extends boolean, type> = value extends true ? ExactPartial<type> : type
+
+export type Config<partial extends boolean = false> = MaybePartial<
+  partial,
+  {
+    // /**
+    //  * Whether or not to show the AI call-to-action dropdown on docs pages (ie. "Open in ChatGPT"),
+    //  * as well as any configuration.
+    //  */
+    // aiCta?:
+    //   | boolean
+    //   | {
+    //       /**
+    //        * Query for the LLM.
+    //        */
+    //       query: (p: { location: string }) => string
+    //     }
+    // /**
+    //  * Configuration for the banner fixed to the top of the page.
+    //  *
+    //  * Can be a Markdown string, a React Element, or an object with the following properties:
+    //  * - `dismissable`: Whether or not the banner can be dismissed.
+    //  * - `backgroundColor`: The background color of the banner.
+    //  * - `content`: The content of the banner.
+    //  * - `height`: The height of the banner.
+    //  * - `textColor`: The text color of the banner.
+    //  */
+    // banner?: Banner<parsed>
+    /**
+     * The base path the documentation will be deployed at. All assets and pages
+     * will be prefixed with this path. This is useful for deploying to GitHub Pages.
+     * For example, if you are deploying to `https://example.github.io/foo`, then the
+     * basePath should be set to `/foo`.
+     *
+     * @example
+     * /docs
+     */
+    basePath: string
+    /**
+     * The base URL for your documentation. This is used to populate the `<base>` tag in the
+     * `<head>` of the page, and is used to form the `%logo` variable for dynamic OG images.
+     *
+     * @example
+     * https://vocs.dev
+     */
+    baseUrl?: string | undefined
+    /**
+     * Code highlight configuration.
+     */
+    codeHighlight: UnionOmit<rehypeShiki.Options, 'twoslash'>
+    // /**
+    //  * Path to blog pages relative to project root.
+    //  * Used to extract posts from the filesystem.
+    //  *
+    //  * @default "./pages/blog"
+    //  */
+    // blogDir?: string
+    // /**
+    //  * Directory to store cache files.
+    //  *
+    //  * @default "node_modules/vocs/.cache"
+    //  */
+    // cacheDir?: string
+    // /**
+    //  * Whether or not to check for dead links in the documentation.
+    //  *
+    //  * - `true`: Enable dead link checking and throw errors on dead links.
+    //  * - `false`: Disable dead link checking.
+    //  * - `"warn"`: Enable dead link checking but only warn instead of throwing errors.
+    //  *
+    //  * @default true
+    //  */
+    // checkDeadlinks?: boolean | 'warn'
+    /**
+     * General description for the documentation.
+     */
+    description?: string | undefined
+    // /**
+    //  * Edit location for the documentation.
+    //  */
+    // editLink?: Normalize<EditLink>
+    // /**
+    //  * Base font face.
+    //  *
+    //  * @default { google: "Inter" }
+    //  */
+    // font?: Normalize<Font<parsed>>
+    // /**
+    //  * Additional tags to include in the `<head>` tag of the page HTML.
+    //  */
+    // head?:
+    //   | ReactElement
+    //   | { [path: string]: ReactElement }
+    //   | ((params: { path: string }) => ReactElement | Promise<ReactElement>)
+    /**
+     * Icon URL.
+     */
+    iconUrl?: string | { light: string; dark: string } | undefined
+    /**
+     * Logo URL.
+     */
+    logoUrl?: string | { light: string; dark: string } | undefined
+    /**
+     * OG Image URL. `null` to disable.
+     *
+     * Template variables: `%logo`, `%title`, `%description`
+     *
+     * @default "https://vocs.dev/api/og?logo=%logo&title=%title&description=%description"
+     */
+    ogImageUrl?: string | { [path: string]: string } | undefined
+    // /**
+    //  * Outline footer.
+    //  */
+    // outlineFooter?: ReactElement
+    /**
+     * Markdown configuration.
+     */
+    markdown?: mdx_Options | undefined
+    /**
+     * The output directory relative to root.
+     * @default "dist"
+     */
+    outDir: string
+    /**
+     * The directory to store pages relative to `srcDir`.
+     * @default "pages"
+     */
+    pagesDir: string
+    // /**
+    //  * Configuration for docs search.
+    //  */
+    // search?: Normalize<Search>
+    // /**
+    //  * Navigation displayed on the sidebar.
+    //  */
+    // sidebar?: Normalize<Sidebar>
+    // /**
+    //  * Social links displayed in the top navigation.
+    //  */
+    // socials?: Normalize<Socials<parsed>>
+    // /**
+    //  * Set of sponsors to display on MDX directives and (optionally) the sidebar.
+    //  */
+    // sponsors?: SponsorSet[]
+    /**
+     * The source directory relative to root.
+     * @default "src"
+     */
+    srcDir: string
+    // /**
+    //  * Theme configuration.
+    //  */
+    // theme?: Normalize<Theme<parsed, colorScheme>>
+    /**
+     * Documentation title.
+     *
+     * @default "Docs"
+     */
+    title: string
+    /**
+     * Template for the page title.
+     *
+     * @default `%s – ${title}`
+     */
+    titleTemplate: string
+    // /**
+    //  * Navigation displayed on the top.
+    //  */
+    // topNav?: Normalize<TopNav<parsed>>
+    /**
+     * TwoSlash configuration. Set to `false` to disable.
+     */
+    twoslash?: rehypeShiki.Options['twoslash'] | undefined
+  }
+>
 
 export function define(config: define.Options = {}): Config {
   const {
     basePath = '/',
+    codeHighlight,
     description,
     markdown,
     outDir = 'dist',
@@ -189,6 +194,14 @@ export function define(config: define.Options = {}): Config {
   } = config
   return {
     basePath,
+    codeHighlight: {
+      ...codeHighlight,
+      themes: {
+        light: 'github-light',
+        dark: 'github-dark-dimmed',
+        ...(codeHighlight?.themes ?? {}),
+      },
+    },
     description,
     markdown,
     outDir,
@@ -201,7 +214,7 @@ export function define(config: define.Options = {}): Config {
 }
 
 export declare namespace define {
-  export type Options = ExactPartial<Omit<Config, 'pagesDir'>>
+  export type Options = UnionOmit<Config<true>, 'pagesDir'>
 }
 
 export async function resolve(options: resolve.Options = {}): Promise<Config> {

@@ -1,19 +1,16 @@
-'use client'
-
-import { Popover } from '@base-ui/react/popover'
 import * as React from 'react'
 
+import { TwoslashHover as TwoslashHover_client } from './TwoslashHover.client.js'
+
 export function TwoslashHover(props: TwoslashHover.Props) {
-  const [content, trigger] = React.Children.toArray(props.children)
+  const { className = '', children } = props
+  const [trigger, ...content] = React.Children.toArray(children)
+  const open = className?.includes('twoslash-query-persisted')
+  if (!content) return null
   return (
-    <Popover.Root>
-      <Popover.Trigger>{trigger}</Popover.Trigger>
-      <Popover.Portal>
-        <Popover.Positioner align="start" side="bottom">
-          <Popover.Popup initialFocus={false}>{content}</Popover.Popup>
-        </Popover.Positioner>
-      </Popover.Portal>
-    </Popover.Root>
+    <TwoslashHover_client className={className} open={open} trigger={trigger}>
+      {content}
+    </TwoslashHover_client>
   )
 }
 

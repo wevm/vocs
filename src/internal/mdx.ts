@@ -9,13 +9,14 @@ import remarkDirective from 'remark-directive'
 import remarkFrontmatter from 'remark-frontmatter'
 import remarkGfm from 'remark-gfm'
 import remarkMdxFrontmatter from 'remark-mdx-frontmatter'
+import type { BuiltinTheme, CodeOptionsMultipleThemes } from 'shiki'
 import type { PluggableList } from 'unified'
 import * as UnistUtil from 'unist-util-visit'
 import type { VFile } from 'vfile'
 import * as yaml from 'yaml'
-import type { ExactPartial } from '../types.js'
 import type * as Config from './config.js'
 import * as ShikiTransformers from './shiki-transformers.js'
+import type { ExactPartial, UnionOmit } from './types.js'
 
 export { default as remarkFrontmatter } from 'remark-frontmatter'
 export { default as remarkMdxFrontmatter } from 'remark-mdx-frontmatter'
@@ -28,7 +29,7 @@ export function getCompileOptions(
   rehypePlugins: PluggableList
   recmaPlugins: PluggableList
 } {
-  const { markdown, twoslash } = config
+  const { codeHighlight, markdown, twoslash } = config
   const { jsxImportSource = 'react' } = markdown ?? {}
 
   const { recmaPlugins, rehypePlugins, remarkPlugins } = (() => {
@@ -47,7 +48,7 @@ export function getCompileOptions(
     if (type === 'react')
       return {
         rehypePlugins: [
-          rehypeShiki({ ...markdown?.codeHighlight, twoslash }),
+          rehypeShiki({ ...codeHighlight, twoslash }),
           ...(markdown?.rehypePlugins ?? []),
           rehypeCodeInLink,
         ],
@@ -168,7 +169,7 @@ export function remarkMdScope() {
 export function rehypeShiki(
   options: ExactPartial<rehypeShiki.Options> = {},
 ): [typeof shiki, RehypeShikiOptions] {
-  const { twoslash = true } = options
+  const { themes, twoslash = true } = options
   return [
     shiki,
     {
@@ -176,11 +177,8 @@ export function rehypeShiki(
       defaultColor: 'light-dark()',
       inline: 'tailing-curly-colon',
       rootStyle: false,
+      themes,
       // TODO: infer `langs` for faster cold start.
-      themes: (options as { themes?: unknown }).themes ?? {
-        light: 'github-light',
-        dark: 'github-dark-dimmed',
-      },
       transformers: [
         twoslash
           ? ShikiTransformers.twoslash(typeof twoslash === 'object' ? twoslash : {})
@@ -200,9 +198,10 @@ export function rehypeShiki(
 }
 
 export declare namespace rehypeShiki {
-  export type Options = ExactPartial<RehypeShikiOptions> & {
-    twoslash?: ShikiTransformers.twoslash.Options | false | undefined
-  }
+  export type Options = ExactPartial<UnionOmit<RehypeShikiOptions, 'inline' | 'rootStyle'>> &
+    UnionOmit<CodeOptionsMultipleThemes<BuiltinTheme>, 'defaultColor'> & {
+      twoslash?: ShikiTransformers.twoslash.Options | false | undefined
+    }
 }
 
 export function remarkCallout() {

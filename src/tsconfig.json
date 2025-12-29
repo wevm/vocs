@@ -7,9 +7,6 @@
     "module": "nodenext",
     "moduleResolution": "nodenext",
     "target": "esnext",
-    "paths": {
-      "vocs": ["./index.ts"]
-    },
     "types": ["node", "vitest/globals", "unplugin-icons/types/react"],
     "jsx": "react-jsx",
 

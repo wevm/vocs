@@ -13,11 +13,9 @@ declare module '*.md' {
 }
 
 declare module 'virtual:vocs/config' {
-  import type { Config } from './config.js'
-  export const config: Config
+  export const config: import('./config.js').Config
 }
 
 declare module 'virtual:vocs/mdx-components' {
-  import type { MDXComponents } from 'mdx/types.js'
-  export const components: MDXComponents
+  export const components: import('mdx/types.js').MDXComponents
 }

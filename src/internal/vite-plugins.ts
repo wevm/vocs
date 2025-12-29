@@ -8,9 +8,9 @@ import remarkStringify from 'remark-stringify'
 import { unified } from 'unified'
 import type { PluginOption, ResolvedConfig } from 'vite'
 import { createLogger } from 'vite'
-import type { Frontmatter } from '../types.js'
 import * as Config from './config.js'
 import * as Mdx from './mdx.js'
+import type { Frontmatter } from './types.js'
 
 export { default as icons } from 'unplugin-icons/vite'
 
@@ -139,7 +139,10 @@ export function llms(config: Config.Config): PluginOption {
 export function mdx(config: Config.Config): PluginOption {
   const plugin = mdxPlugin(Mdx.getCompileOptions('react', config))
 
-  const cache = new Map<string, Awaited<ReturnType<typeof plugin.transform>>>()
+  const cache = new Map<
+    string,
+    { code: string; result: Awaited<ReturnType<typeof plugin.transform>> }
+  >()
 
   return {
     ...plugin,
@@ -147,19 +150,21 @@ export function mdx(config: Config.Config): PluginOption {
       if (!id.endsWith('.mdx') && !id.endsWith('.md')) return null
       if (!plugin.transform) return null
 
+      const cached = cache.get(id)
+      if (cached && cached.code === code) return cached.result
+
       try {
         const result = await plugin.transform(code, id)
-        if (result) cache.set(id, result)
+        if (result) cache.set(id, { code, result })
         return result
       } catch (error) {
-        const cached = cache.get(id)
         if (cached) {
           // TODO: display UI error overlay
           logger.error(`MDX compilation error in ${id}: ${error}`, {
             error: error as Error,
             timestamp: true,
           })
-          return cached
+          return cached.result
         }
         throw error
       }
