@@ -20,7 +20,7 @@ export function TwoslashHover(props: TwoslashHover.Props) {
         <Popover.Positioner
           align="start"
           side="bottom"
-          sideOffset={8}
+          sideOffset={4}
           collisionAvoidance={{ side: 'none' }}
         >
           <Popover.Popup className={className} initialFocus={false}>
