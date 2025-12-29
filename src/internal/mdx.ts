@@ -5,6 +5,8 @@ import * as EstreeUtil from 'esast-util-from-js'
 import type * as Estree from 'estree'
 import type * as HAst from 'hast'
 import type * as MdAst from 'mdast'
+import rehypeAutolinkHeadings from 'rehype-autolink-headings'
+import rehypeSlug from 'rehype-slug'
 import remarkDirective from 'remark-directive'
 import remarkFrontmatter from 'remark-frontmatter'
 import remarkGfm from 'remark-gfm'
@@ -48,7 +50,9 @@ export function getCompileOptions(
     if (type === 'react')
       return {
         rehypePlugins: [
+          rehypeAutolinkHeadings,
           rehypeShiki({ ...codeHighlight, twoslash }),
+          rehypeSlug,
           ...(markdown?.rehypePlugins ?? []),
           rehypeCodeInLink,
         ],

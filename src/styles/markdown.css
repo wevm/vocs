@@ -32,7 +32,8 @@
     @apply vocs:text-heading vocs:text-h1 vocs:font-medium vocs:tracking-[-0.04em] vocs:leading-h1;
   }
 
-  h2[data-md] {
+  h2[data-md],
+  section[data-footnotes] h2 {
     @apply vocs:text-heading vocs:text-h2 vocs:font-medium vocs:tracking-tight vocs:leading-h2;
   }
 
@@ -138,7 +139,7 @@
   /* #region Blockquotes */
 
   blockquote[data-md] {
-    @apply vocs:border-l-3 vocs:border-primary vocs:bg-secondary vocs:px-4 vocs:py-4 vocs:text-quote;
+    @apply vocs:text-[15px] vocs:border-l-3 vocs:border-primary vocs:bg-secondary vocs:px-4 vocs:py-3 vocs:text-quote;
   }
 
   /* #endregion */
@@ -294,8 +295,12 @@
     }
   }
 
-  section[data-footnotes] > h2 {
-    @apply vocs:pt-0! vocs:pb-4!;
+  section[data-footnotes] {
+    @apply vocs:space-y-6;
+  }
+
+  section[data-footnotes] ol {
+    @apply vocs:space-y-2;
   }
 
   /* #endregion */
@@ -330,14 +335,8 @@
     }
   }
 
-  aside[data-md] {
-    & details {
-      @apply vocs:space-y-2;
-    }
-
-    & summary {
-      @apply vocs:mb-1;
-    }
+  aside[data-md] details {
+    @apply vocs:space-y-2;
   }
 
   :not(aside[data-md]) > details {

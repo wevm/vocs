@@ -10,6 +10,7 @@ export function ScrollRestoration() {
   const { path, unstable_events: events } = router
 
   const savedPositions = useRef<Record<string, number>>({})
+  const prevHash = useRef<string | null>(null)
   const prevPath = useRef<string | null>(null)
   const isPopstate = useRef(false)
 
@@ -48,20 +49,21 @@ export function ScrollRestoration() {
     }
   }, [events])
 
-  // Handle scroll on path change
+  // Handle hash changes (same-page anchor navigation)
   useEffect(() => {
     if (typeof window === 'undefined') return
 
-    // Handle hash scrolling
-    const hash = window.location.hash.slice(1)
+    const hash = router.hash.slice(1)
     if (hash) {
       const element = document.getElementById(hash)
-      if (element) {
-        element.scrollIntoView()
-        prevPath.current = path
-        return
-      }
+      if (element) element.scrollIntoView({ behavior: prevHash.current ? 'smooth' : 'instant' })
+      prevHash.current = hash
     }
+  }, [router.hash])
+
+  // Handle scroll on path change
+  useEffect(() => {
+    if (typeof window === 'undefined') return
 
     // Restore saved position only on back/forward, otherwise scroll to top
     if (isPopstate.current) {
