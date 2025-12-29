@@ -1,7 +1,9 @@
 import { createCommentNotationTransformer } from '@shikijs/transformers'
-import { createTransformerFactory, type TransformerTwoslashIndexOptions } from '@shikijs/twoslash'
+import { createTransformerFactory, type TransformerTwoslashOptions } from '@shikijs/twoslash/core'
 import type { ShikiTransformer } from '@shikijs/types'
-import { createTwoslasher } from 'twoslash'
+import { createTwoslasher, type TwoslashInstance } from 'twoslash'
+
+type TransformerTwoslashIndexOptions = TransformerTwoslashOptions
 
 import * as Renderer from './twoslash/renderer.js'
 import * as TypesCache from './twoslash/types-cache.js'
@@ -14,6 +16,8 @@ export {
   transformerRemoveNotationEscape as removeNotationEscape,
 } from '@shikijs/transformers'
 
+let twoslasher: TwoslashInstance
+
 export function twoslash(options: twoslash.Options = {}): ShikiTransformer {
   const {
     explicitTrigger = true,
@@ -23,31 +27,27 @@ export function twoslash(options: twoslash.Options = {}): ShikiTransformer {
     langAlias,
     langs,
     renderer = Renderer.rich(),
-    // TODO: default true
-    throws = false,
+    throws = true,
     twoslashOptions,
     typesCache = TypesCache.fs(),
   } = options
 
+  // singleton twoslasher saves ~1.5s cold start time
+  twoslasher ??= createTwoslasher({
+    ...twoslashOptions,
+    compilerOptions: {
+      ...(twoslashOptions?.compilerOptions ?? {}),
+      moduleResolution: 100, // bundler,
+    },
+  })
+
   return createTransformerFactory(
-    createTwoslasher({
-      ...twoslashOptions,
-      compilerOptions: {
-        ...(twoslashOptions?.compilerOptions ?? {}),
-        moduleResolution: 100, // bundler,
-      },
-    }),
+    twoslasher,
     renderer,
   )({
     explicitTrigger,
-    onShikiError() {
-      // TODO: handling
-      // console.error(error)
-    },
-    onTwoslashError() {
-      // TODO: handling
-      // console.error(error)
-    },
+    onShikiError() {},
+    onTwoslashError() {},
     throws,
     typesCache,
     ...(disableTriggers ? { disableTriggers } : {}),

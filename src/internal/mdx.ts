@@ -196,7 +196,7 @@ export function rehypeShiki(
         ShikiTransformers.transformerTagLine(),
         ShikiTransformers.transformerEmptyLine(),
         ...(options.transformers ?? []),
-      ],
+      ].filter(Boolean),
     } as RehypeShikiOptions,
   ]
 }

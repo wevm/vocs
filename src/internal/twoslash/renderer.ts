@@ -1,5 +1,4 @@
-import type { TwoslashRenderer } from '@shikijs/twoslash'
-import { ShikiTwoslashError } from '@shikijs/twoslash'
+import { ShikiTwoslashError, type TwoslashRenderer } from '@shikijs/twoslash/core'
 import type { ShikiTransformerContextCommon } from '@shikijs/types'
 import type { Element, ElementContent } from 'hast'
 import { fromMarkdown } from 'mdast-util-from-markdown'
