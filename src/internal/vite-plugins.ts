@@ -46,6 +46,51 @@ export function deps(): PluginOption {
   }
 }
 
+/**
+ * Watches for new languages in markdown files.
+ * When a new language is detected, triggers a server restart so Shiki can load the
+ * new language highlighter.
+ */
+export function langWatcher(config: Config.Config): PluginOption {
+  const defaultLangs = new Set(Langs.defaultLangs)
+  const codeBlockRegex = /```(\w+)/g
+
+  return {
+    name: 'vocs:lang-watcher',
+    async configureServer(server) {
+      const userConfig = Config.getConfigFile()
+      if (userConfig) {
+        const configString = await fs.readFile(userConfig, 'utf-8')
+        if (configString.includes('langs:')) return
+      }
+
+      const pagesDir = path.resolve(config.rootDir, config.srcDir, config.pagesDir)
+
+      server.watcher.on('change', async (changedPath) => {
+        if (!changedPath.startsWith(pagesDir)) return
+        if (!changedPath.endsWith('.md') && !changedPath.endsWith('.mdx')) return
+
+        try {
+          const content = await fs.readFile(changedPath, 'utf-8')
+          let match: RegExpExecArray | null
+          // biome-ignore lint/suspicious/noAssignInExpressions: _
+          while ((match = codeBlockRegex.exec(content)) !== null) {
+            const lang = match[1]?.toLowerCase()
+            if (lang && !defaultLangs.has(lang)) {
+              defaultLangs.add(lang)
+              logger.info(`New language "${lang}" detected, restarting server...`, {
+                timestamp: true,
+              })
+              server.restart()
+              return
+            }
+          }
+        } catch {}
+      })
+    },
+  }
+}
+
 export function llms(config: Config.Config): PluginOption {
   const { description, title } = config
   let viteConfig: ResolvedConfig
@@ -243,51 +288,6 @@ export function virtualMdxComponents(): PluginOption {
     load(id) {
       if (id === resolvedVirtualModuleId) return `export { components } from 'vocs/mdx'`
       return
-    },
-  }
-}
-
-/**
- * Vite plugin that watches markdown files for new code block languages.
- * When a new language is detected beyond the default set, triggers a server restart
- * so Shiki can load the new language highlighter.
- */
-export function langWatcher(config: Config.Config): PluginOption {
-  const defaultLangs = new Set(Langs.defaultLangs)
-  const codeBlockRegex = /```(\w+)/g
-
-  return {
-    name: 'vocs:lang-watcher',
-    async configureServer(server) {
-      const userConfig = Config.getConfigFile()
-      if (userConfig) {
-        const configString = await fs.readFile(userConfig, 'utf-8')
-        if (configString.includes('langs:')) return
-      }
-
-      const pagesDir = path.resolve(config.rootDir, config.srcDir, config.pagesDir)
-
-      server.watcher.on('change', async (changedPath) => {
-        if (!changedPath.startsWith(pagesDir)) return
-        if (!changedPath.endsWith('.md') && !changedPath.endsWith('.mdx')) return
-
-        try {
-          const content = await fs.readFile(changedPath, 'utf-8')
-          let match: RegExpExecArray | null
-          // biome-ignore lint/suspicious/noAssignInExpressions: _
-          while ((match = codeBlockRegex.exec(content)) !== null) {
-            const lang = match[1]?.toLowerCase()
-            if (lang && !defaultLangs.has(lang)) {
-              defaultLangs.add(lang)
-              logger.info(`New language "${lang}" detected, restarting server...`, {
-                timestamp: true,
-              })
-              server.restart()
-              return
-            }
-          }
-        } catch {}
-      })
     },
   }
 }
