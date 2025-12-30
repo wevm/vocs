@@ -66,6 +66,7 @@ export function getCompileOptions(
           remarkGfm,
           remarkMetaFrontmatter,
           remarkMdxFrontmatter,
+          remarkSteps,
           remarkSubheading,
           remarkMdScope,
           ...(markdown?.remarkPlugins ?? []),
@@ -392,6 +393,53 @@ function remarkMetaFrontmatter() {
 
     if (yamlNode) yamlNode.value = yaml.stringify(data).trim()
     else tree.children.unshift({ type: 'yaml', value: yaml.stringify(data).trim() })
+  }
+}
+
+export function remarkSteps() {
+  return (tree: MdAst.Root) => {
+    UnistUtil.visit(tree, (node) => {
+      if (node.type !== 'containerDirective') return
+      if (node.name !== 'steps') return
+
+      // biome-ignore lint/suspicious/noAssignInExpressions: _
+      const data = node.data || (node.data = {})
+      const tagName = 'div'
+
+      node.attributes = {
+        ...node.attributes,
+        'data-steps': 'true',
+      }
+
+      data.hName = tagName
+      data.hProperties = node.attributes || {}
+
+      const depth =
+        (node.children.find((child) => child.type === 'heading') as MdAst.Heading)?.depth ?? 2
+
+      // biome-ignore lint/suspicious/noExplicitAny: _
+      let currentChild: any
+      const children = []
+      for (const child of node.children) {
+        if (child.type === 'heading' && child.depth === depth) {
+          if (currentChild && currentChild.children.length > 0) children.push(currentChild)
+          currentChild = {
+            type: 'paragraph',
+            children: [],
+            data: {
+              hName: 'div',
+              hProperties: {
+                'data-depth': depth,
+              },
+            },
+          } satisfies MdAst.Paragraph
+        }
+        currentChild?.children.push(child)
+      }
+      children.push(currentChild)
+
+      node.children = children
+    })
   }
 }
 

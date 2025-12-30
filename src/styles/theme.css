@@ -46,27 +46,39 @@
 
     --color-info: var(--vocs-color-blue);
     --color-info-hover: oklch(from var(--vocs-color-blue) calc(l - 0.1) c h);
-    --background-color-info-tint: oklch(from var(--vocs-color-blue) l c h / 8%);
+    --background-color-info-tint: color-mix(in srgb, var(--vocs-color-blue) 8%, var(--vocs-background-color-primary));
     --border-color-info-tint: oklch(from var(--vocs-color-blue) l c h / 16%);
 
     --color-note: light-dark(var(--vocs-color-gray7), var(--vocs-color-gray10));
     --color-note-hover: oklch(from var(--vocs-color-gray8) calc(l - 0.1) c h);
-    --background-color-note-tint: oklch(from var(--vocs-color-gray10) l c h / 8%);
+    --background-color-note-tint: color-mix(in srgb, var(--vocs-color-gray10) 8%, var(--vocs-background-color-primary));
     --border-color-note-tint: oklch(from var(--vocs-color-gray10) l c h / 16%);
 
     --color-success: oklch(from var(--vocs-color-green) l c h);
     --color-success-hover: oklch(from var(--vocs-color-green) calc(l - 0.1) c h);
-    --background-color-success-tint: oklch(from var(--vocs-color-green) l c h / 8%);
+    --background-color-success-tint: color-mix(
+      in srgb,
+      var(--vocs-color-green) 8%,
+      var(--vocs-background-color-primary)
+    );
     --border-color-success-tint: oklch(from var(--vocs-color-green) l c h / 16%);
 
     --color-tip: var(--vocs-color-iris);
     --color-tip-hover: oklch(from var(--vocs-color-iris) calc(l - 0.1) c h);
-    --background-color-tip-tint: oklch(from var(--vocs-color-iris) l calc(c + 0.3) h / 4%);
+    --background-color-tip-tint: color-mix(
+      in srgb,
+      oklch(from var(--vocs-color-iris) l calc(c + 0.2) h) 4%,
+      var(--vocs-background-color-primary)
+    );
     --border-color-tip-tint: oklch(from var(--vocs-color-iris) l c h / 16%);
 
     --color-warning: var(--vocs-color-yellow);
     --color-warning-hover: oklch(from var(--vocs-color-yellow) calc(l - 0.1) c h);
-    --background-color-warning-tint: oklch(from var(--vocs-color-yellow) l c h / 8%);
+    --background-color-warning-tint: color-mix(
+      in srgb,
+      var(--vocs-color-yellow) 8%,
+      var(--vocs-background-color-primary)
+    );
     --border-color-warning-tint: oklch(from var(--vocs-color-yellow) l c h / 16%);
 
     --border-color-primary: light-dark(var(--vocs-color-gray12), var(--vocs-color-gray6));

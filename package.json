@@ -64,7 +64,6 @@
     "@svgr/core": "^8.1.0",
     "@svgr/plugin-jsx": "^8.1.0",
     "@tailwindcss/vite": "^4.1.8",
-    "@vitejs/plugin-react": "^5.1.2",
     "@vitejs/plugin-rsc": "^0.5.9",
     "esast-util-from-js": "^2.0.1",
     "estree-util-value-to-estree": "^3.5.0",

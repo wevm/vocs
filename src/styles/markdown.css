@@ -70,7 +70,7 @@
   }
 
   hgroup[data-md],
-  :not(hgroup) > h1[data-md] {
+  article[data-content] > h1[data-md] {
     @apply vocs:border-b vocs:border-primary;
   }
 
@@ -79,7 +79,7 @@
   }
 
   hgroup[data-md]:not(:last-child),
-  :not(hgroup) > h1[data-md]:not(:last-child) {
+  article[data-content] > h1[data-md]:not(:last-child) {
     @apply vocs:pb-[0.75em];
     margin-block-end: calc(calc(var(--vocs-spacing) * 8) * calc(1 - var(--tw-space-y-reverse))) !important;
   }
@@ -88,17 +88,17 @@
 
   /* #region Secondary Headings (h2, h3, h4, h5, h6) */
 
-  :not(:is(hgroup[data-md], h1[data-md])) > h2:not(:only-child) {
+  article[data-content] > h2:not(:only-child) {
     @apply vocs:pt-8 vocs:mt-10! vocs:border-t vocs:border-primary;
   }
 
-  :not(:is(hgroup[data-md], h1[data-md])) > h3:not(:only-child) {
+  article[data-content] > h3:not(:only-child) {
     @apply vocs:pt-6;
   }
 
-  :not(:is(hgroup[data-md], h1[data-md])) > h4,
-  h5,
-  h6[data-md]:not(:only-child) {
+  article[data-content] > h4:not(:only-child),
+  article[data-content] > h5:not(:only-child),
+  article[data-content] > h6:not(:only-child) {
     @apply vocs:pt-4;
   }
 
@@ -439,6 +439,24 @@
 
   :not(.shiki) > code {
     @apply vocs:px-code-block-px;
+  }
+
+  @media (width <= theme(--breakpoint-md)) {
+    [data-steps] pre {
+      @apply vocs:-ml-12;
+    }
+
+    [data-steps] [data-code-group-list] {
+      @apply vocs:-ml-12!;
+    }
+
+    [data-steps] [data-callout] {
+      @apply vocs:-ml-12!;
+
+      & pre {
+        @apply vocs:-ml-3!;
+      }
+    }
   }
 
   /* #endregion */

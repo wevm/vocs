@@ -23,7 +23,7 @@ export function CodeGroup(props: CodeGroup.Props) {
   return (
     <Tabs.Root data-code-group defaultValue={items[0]?.title}>
       <Tabs.List
-        className="vocs:h-10 vocs:rounded-t-lg vocs:max-md:rounded-none vocs:text-sm vocs:bg-gray14 vocs:px-2 vocs:max-md:px-1 vocs:flex vocs:items-center vocs:border vocs:border-primary vocs:max-md:-mx-4"
+        className="vocs:h-10 vocs:bg-primary vocs:rounded-t-lg vocs:max-md:rounded-none vocs:text-sm vocs:bg-gray14 vocs:px-2 vocs:max-md:px-1 vocs:flex vocs:items-center vocs:border vocs:border-primary vocs:max-md:-mx-4"
         data-code-group-list
         aria-label="Code group"
       >
@@ -50,7 +50,7 @@ export function CodeGroup(props: CodeGroup.Props) {
             {isCodeBlock ? (
               content
             ) : (
-              <div className="vocs:bg-code-block vocs:border vocs:border-primary vocs:rounded-lg vocs:p-5">
+              <div className="vocs:bg-code-block vocs:border vocs:border-primary vocs:rounded-lg vocs:p-5 vocs:max-md:-mx-4 vocs:max-md:rounded-none">
                 {content}
               </div>
             )}

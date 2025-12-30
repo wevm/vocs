@@ -30,7 +30,11 @@ export function deps(): PluginOption {
     config(config) {
       return {
         optimizeDeps: {
-          include: [...(config?.optimizeDeps?.include ?? []), '@base-ui/react/popover'],
+          include: [
+            ...(config?.optimizeDeps?.include ?? []),
+            '@base-ui/react/popover',
+            '@base-ui/react/tabs',
+          ],
         },
         resolve: {
           ...config?.resolve,
@@ -52,7 +56,7 @@ export function deps(): PluginOption {
  * new language highlighter.
  */
 export function langWatcher(config: Config.Config): PluginOption {
-  const defaultLangs = new Set(Langs.defaultLangs)
+  const defaultLangs = new Set((config.codeHighlight?.langs as string[]) ?? Langs.defaultLangs)
   const codeBlockRegex = /```(\w+)/g
 
   return {

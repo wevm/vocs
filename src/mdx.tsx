@@ -1,8 +1,9 @@
 import type { MDXComponents } from 'mdx/types.js'
 
 import { Callout } from './react/Callout.js'
-import { CodeGroup } from './react/internal/CodeGroup.js'
+import { CodeGroup } from './react/internal/CodeGroup.mdx.js'
 import { CodeToHtml } from './react/internal/CodeToHtml.js'
+import { Steps } from './react/internal/Steps.mdx.js'
 import { TwoslashCompletionList } from './react/internal/TwoslashCompletionList.js'
 import { TwoslashHover } from './react/internal/TwoslashHover.js'
 import { Link } from './react/Link.js'
@@ -23,6 +24,7 @@ export const components: MDXComponents = {
   },
   div(props: React.PropsWithChildren<React.ComponentProps<'div'>>) {
     if ('data-code-group' in props) return <CodeGroup {...props} />
+    if ('data-steps' in props) return <Steps {...props} />
     return <div {...props} />
   },
   code(props: React.PropsWithChildren<React.ComponentProps<'code'>>) {
@@ -41,9 +43,7 @@ export const components: MDXComponents = {
   span(props: React.PropsWithChildren<React.ComponentProps<'span'>>) {
     if (props.className?.includes('twoslash-completion-cursor'))
       return <TwoslashCompletionList {...props} />
-    if (props.className?.includes('twoslash-hover')) {
-      return <TwoslashHover {...props} />
-    }
+    if (props.className?.includes('twoslash-hover')) return <TwoslashHover {...props} />
     return <span {...props} />
   },
 }
