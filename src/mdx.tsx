@@ -1,6 +1,7 @@
 import type { MDXComponents } from 'mdx/types.js'
 
 import { Callout } from './react/Callout.js'
+import { CodeBlock } from './react/internal/CodeBlock.mdx.js'
 import { CodeGroup } from './react/internal/CodeGroup.mdx.js'
 import { CodeToHtml } from './react/internal/CodeToHtml.js'
 import { Steps } from './react/internal/Steps.mdx.js'
@@ -32,13 +33,14 @@ export const components: MDXComponents = {
   },
   pre(
     props: React.PropsWithChildren<React.ComponentProps<'pre'>> & {
+      'data-codeToHtml'?: string | undefined
       'data-code'?: string | undefined
       'data-lang'?: string | undefined
     },
   ) {
-    const { 'data-code': code, 'data-lang': lang } = props
-    if (code && lang) return <CodeToHtml code={code} lang={lang} />
-    return <pre {...props} data-md />
+    const { 'data-codeToHtml': codeToHtml, 'data-code': code, 'data-lang': lang } = props
+    if (codeToHtml && code && lang) return <CodeToHtml code={code} lang={lang} />
+    return <CodeBlock {...props} />
   },
   span(props: React.PropsWithChildren<React.ComponentProps<'span'>>) {
     if (props.className?.includes('twoslash-completion-cursor'))

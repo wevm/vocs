@@ -11,6 +11,7 @@ export const defaultLangs = [
   'json',
   'md',
   'mdx',
+  'plaintext',
   'rust',
   'solidity',
   'bash',

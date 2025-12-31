@@ -32,6 +32,7 @@ export function rich(): TwoslashRenderer {
       properties: {
         class: 'twoslash-popup-code',
         'data-code': content,
+        'data-codeToHtml': true,
         'data-lang': lang,
       },
       children: [],
@@ -55,6 +56,7 @@ export function rich(): TwoslashRenderer {
                 tagName: 'pre',
                 properties: {
                   'data-code': node.value,
+                  'data-codeToHtml': true,
                   'data-lang': lang,
                 },
                 children: [],

@@ -13,6 +13,7 @@ import remarkFrontmatter from 'remark-frontmatter'
 import remarkGfm from 'remark-gfm'
 import remarkMdxFrontmatter from 'remark-mdx-frontmatter'
 import type { BuiltinTheme, CodeOptionsMultipleThemes } from 'shiki'
+import { bundledLanguages } from 'shiki/bundle/web'
 import type { PluggableList } from 'unified'
 import * as UnistUtil from 'unist-util-visit'
 import type { VFile } from 'vfile'
@@ -61,6 +62,7 @@ export function getCompileOptions(
           remarkFrontmatter,
           remarkCallout,
           remarkCodeGroup,
+          remarkCodeTitle,
           remarkDefaultFrontmatter,
           remarkDetails,
           remarkDirective,
@@ -204,6 +206,7 @@ export function rehypeShiki(
     {
       ...(options ?? {}),
       defaultColor: 'light-dark()',
+      fallbackLanguage: 'plaintext',
       inline: 'tailing-curly-colon',
       rootStyle: false,
       themes,
@@ -212,14 +215,15 @@ export function rehypeShiki(
         twoslash
           ? ShikiTransformers.twoslash(typeof twoslash === 'object' ? twoslash : {})
           : undefined,
+        ShikiTransformers.emptyLine(),
         ShikiTransformers.lineNumbers(),
         ShikiTransformers.notationDiff(),
         ShikiTransformers.notationFocus(),
         ShikiTransformers.notationHighlight(),
         ShikiTransformers.notationWordHighlight(),
         ShikiTransformers.removeNotationEscape(),
-        ShikiTransformers.transformerTagLine(),
-        ShikiTransformers.transformerEmptyLine(),
+        ShikiTransformers.tagLine(),
+        ShikiTransformers.title(),
         ...(options.transformers ?? []),
       ].filter(Boolean),
     } as RehypeShikiOptions,
@@ -276,6 +280,23 @@ export function remarkCallout() {
         'data-callout': true,
         'data-context': node.name !== 'callout' ? node.name : 'info',
       }
+    })
+  }
+}
+
+/**
+ * Remark plugin that normalizes code block titles.
+ * When no lang is specified (e.g., ``` [Title]), the bracket syntax
+ * may be parsed as the lang. This moves it to meta instead.
+ */
+export function remarkCodeTitle() {
+  return (tree: MdAst.Root) => {
+    UnistUtil.visit(tree, 'code', (node) => {
+      if (!node.lang) return
+      const match = Object.keys(bundledLanguages).includes(node.lang)
+      if (match) return
+      node.meta = node.lang
+      node.lang = 'plaintext'
     })
   }
 }

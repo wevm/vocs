@@ -62,7 +62,7 @@ export declare namespace twoslash {
   export type Options = TransformerTwoslashIndexOptions
 }
 
-export function transformerEmptyLine(): ShikiTransformer {
+export function emptyLine(): ShikiTransformer {
   return {
     name: 'empty-line',
     root(hast) {
@@ -81,7 +81,19 @@ export function transformerEmptyLine(): ShikiTransformer {
   }
 }
 
-export function transformerTagLine(): ShikiTransformer {
+export function lineNumbers(): ShikiTransformer {
+  return createCommentNotationTransformer(
+    'vocs:line-numbers',
+    /\s*\[!code line-numbers\]/,
+    function () {
+      this.addClassToHast(this.code, 'line-numbers')
+      return true
+    },
+    'v3',
+  )
+}
+
+export function tagLine(): ShikiTransformer {
   return {
     name: 'tag-line',
     root(hast) {
@@ -102,14 +114,29 @@ export function transformerTagLine(): ShikiTransformer {
   }
 }
 
-export function lineNumbers(): ShikiTransformer {
-  return createCommentNotationTransformer(
-    'vocs:line-numbers',
-    /\s*\[!code line-numbers\]/,
-    function () {
-      this.addClassToHast(this.code, 'line-numbers')
-      return true
+/**
+ * Shiki transformer that adds a title to code blocks.
+ */
+export function title(): ShikiTransformer {
+  return {
+    name: 'title',
+    root(hast) {
+      const titleRegex = /title="(.*)"|\[(.*)\]/
+      const titleMatch = this.options.meta?.__raw?.match(titleRegex)
+      if (!titleMatch) return
+
+      const title = titleMatch[1] || titleMatch[2]
+      const child = hast.children[0] as any
+      hast.children = [
+        {
+          ...child,
+          properties: {
+            ...child.properties,
+            'data-title': title,
+            ...(this.options.lang && { 'data-lang': this.options.lang }),
+          },
+        },
+      ]
     },
-    'v3',
-  )
+  }
 }

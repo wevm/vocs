@@ -21,25 +21,20 @@ export function CodeGroup(props: CodeGroup.Props) {
   if (!items) return null
 
   return (
-    <Tabs.Root data-code-group defaultValue={items[0]?.title}>
-      <Tabs.List
-        className="vocs:h-10 vocs:bg-primary vocs:rounded-t-lg vocs:max-md:rounded-none vocs:text-sm vocs:bg-gray14 vocs:px-2 vocs:max-md:px-1 vocs:flex vocs:items-center vocs:border vocs:border-primary vocs:max-md:-mx-4"
-        data-code-group-list
-        aria-label="Code group"
-      >
+    <Tabs.Root data-code-container data-code-group defaultValue={items[0]?.title}>
+      <Tabs.List aria-label="Code group" data-code-header data-code-group-list>
         {items.map(({ title }, i) => (
-          <Tabs.Tab
-            className="vocs:h-full vocs:text-secondary vocs:data-active:text-heading vocs:hover:text-heading vocs:font-medium vocs:tracking-tight vocs:px-3 vocs:-mb-[1.5px] vocs:border-b-[1.5px] vocs:border-b-transparent vocs:data-active:border-b-tab-active vocs:transition-colors vocs:duration-200"
-            key={title || i.toString()}
-            value={title || i.toString()}
-          >
+          <Tabs.Tab data-code-group-tab key={title || i.toString()} value={title || i.toString()}>
             {title}
           </Tabs.Tab>
         ))}
       </Tabs.List>
       {items.map(({ title, content }, i) => {
         const isCodeBlock =
-          content && typeof content === 'object' && 'type' in content && content.type === 'pre'
+          content &&
+          typeof content === 'object' &&
+          'props' in content &&
+          'data-code-container' in (content.props as React.ComponentProps<'div'>)
         return (
           <Tabs.Panel
             className="vocs:*:rounded-t-none vocs:*:border-t-0"
@@ -48,7 +43,7 @@ export function CodeGroup(props: CodeGroup.Props) {
             value={title || i.toString()}
           >
             {isCodeBlock ? (
-              content
+              <CodeBlock node={content} />
             ) : (
               <div className="vocs:bg-code-block vocs:border vocs:border-primary vocs:rounded-lg vocs:p-5 vocs:max-md:-mx-4 vocs:max-md:rounded-none">
                 {content}
@@ -63,4 +58,15 @@ export function CodeGroup(props: CodeGroup.Props) {
 
 export declare namespace CodeGroup {
   export type Props = React.PropsWithChildren<React.ComponentProps<'div'>>
+}
+
+function CodeBlock({ node }: { node: React.ReactNode }): React.ReactElement | null {
+  if (!React.isValidElement(node)) return null
+  if (node.type === 'pre') return node
+  const children = React.Children.toArray((node.props as { children?: React.ReactNode })?.children)
+  for (const child of children) {
+    const found = CodeBlock({ node: child })
+    if (found) return found
+  }
+  return null
 }
