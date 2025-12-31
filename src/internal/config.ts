@@ -66,16 +66,16 @@ export type Config<partial extends boolean = false> = MaybePartial<
     //  * @default "node_modules/vocs/.cache"
     //  */
     // cacheDir?: string
-    // /**
-    //  * Whether or not to check for dead links in the documentation.
-    //  *
-    //  * - `true`: Enable dead link checking and throw errors on dead links.
-    //  * - `false`: Disable dead link checking.
-    //  * - `"warn"`: Enable dead link checking but only warn instead of throwing errors.
-    //  *
-    //  * @default true
-    //  */
-    // checkDeadlinks?: boolean | 'warn'
+    /**
+     * Whether or not to check for dead links in the documentation.
+     *
+     * - `true`: Enable dead link checking and throw errors on dead links.
+     * - `false`: Disable dead link checking.
+     * - `"warn"`: Enable dead link checking but only warn instead of throwing errors.
+     *
+     * @default true
+     */
+    checkDeadlinks: boolean | 'warn'
     /**
      * General description for the documentation.
      */
@@ -201,6 +201,7 @@ export function define(config: define.Options = {}): Config {
   const {
     basePath = '/',
     codeHighlight,
+    checkDeadlinks = true,
     description,
     markdown,
     outDir = 'dist',
@@ -215,6 +216,7 @@ export function define(config: define.Options = {}): Config {
 
   return {
     basePath,
+    checkDeadlinks,
     codeHighlight: {
       ...codeHighlight,
       langs: codeHighlight?.langs ?? (Langs.infer({ rootDir, srcDir, pagesDir }) as never),

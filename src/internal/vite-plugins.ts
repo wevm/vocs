@@ -194,7 +194,10 @@ export function llms(config: Config.Config): PluginOption {
  * @returns Plugin.
  */
 export function mdx(config: Config.Config): PluginOption {
+  const { checkDeadlinks } = config
   const plugin = mdxPlugin(Mdx.getCompileOptions('react', config))
+
+  let mode: 'development' | 'production' = 'development'
 
   // TODO: fs cache
   const cache = new Map<
@@ -204,6 +207,10 @@ export function mdx(config: Config.Config): PluginOption {
 
   return {
     ...plugin,
+    name: 'vocs:mdx',
+    configResolved(resolvedConfig) {
+      mode = resolvedConfig.command === 'build' ? 'production' : 'development'
+    },
     async transform(code, id) {
       if (!id.endsWith('.mdx') && !id.endsWith('.md')) return null
       if (!plugin.transform) return null
@@ -216,8 +223,11 @@ export function mdx(config: Config.Config): PluginOption {
         if (result) cache.set(id, { code, result })
         return result
       } catch (error) {
+        // In production, always throw errors
+        if (mode === 'production') throw error
+
+        // In dev, use cached result if available
         if (cached) {
-          // TODO: display UI error overlay
           logger.error(`MDX compilation error in ${id}: ${error}`, {
             error: error as Error,
             timestamp: true,
@@ -226,6 +236,17 @@ export function mdx(config: Config.Config): PluginOption {
         }
         throw error
       }
+    },
+    buildEnd() {
+      if (mode !== 'production') return
+      if (Mdx.deadLinks.size === 0) return
+      if (checkDeadlinks === 'warn' || checkDeadlinks === false) return
+
+      const errors: string[] = []
+      for (const [file, links] of Mdx.deadLinks)
+        errors.push(`${file}:\n${links.map((link) => `  - ${link}`).join('\n')}`)
+
+      throw new Error(`Found dead links:\n\n${errors.join('\n\n')}`)
     },
   }
 }

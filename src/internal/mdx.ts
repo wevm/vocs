@@ -17,6 +17,7 @@ import { bundledLanguages } from 'shiki/bundle/web'
 import type { PluggableList } from 'unified'
 import * as UnistUtil from 'unist-util-visit'
 import type { VFile } from 'vfile'
+import { createLogger } from 'vite'
 import * as yaml from 'yaml'
 import type * as Config from './config.js'
 import * as ShikiTransformers from './shiki-transformers.js'
@@ -24,6 +25,12 @@ import type { ExactPartial, UnionOmit } from './types.js'
 
 export { default as remarkFrontmatter } from 'remark-frontmatter'
 export { default as remarkMdxFrontmatter } from 'remark-mdx-frontmatter'
+
+const extensions = ['.js', '.ts', '.tsx', '.jsx', '.mjs', '.cjs', '.md', '.mdx']
+const logger = createLogger(undefined, { allowClearScreen: false, prefix: '[vocs]' })
+
+/** Collection of dead links across files. */
+export const deadLinks = new Map<string, string[]>()
 
 export function getCompileOptions(
   type: 'txt' | 'react',
@@ -57,6 +64,7 @@ export function getCompileOptions(
           rehypeSlug,
           ...(markdown?.rehypePlugins ?? []),
           rehypeCodeInLink,
+          rehypeLinks(config),
         ],
         remarkPlugins: [
           remarkFrontmatter,
@@ -176,6 +184,74 @@ export function rehypeCodeInLink() {
         },
       ]
     })
+  }
+}
+
+/**
+ * Rehype plugin that processes links:
+ * - Strips .mdx and .md extensions from hrefs
+ * - Strips trailing /index from hrefs
+ * - Marks dead internal links with data-v-dead-link attribute
+ * - Collects dead links for reporting at build end
+ */
+export function rehypeLinks(config: Config.Config) {
+  const { checkDeadlinks, rootDir, srcDir, pagesDir } = config
+  const pagesDirPath = path.join(rootDir, srcDir, pagesDir)
+
+  return () => (tree: HAst.Root, vfile: VFile) => {
+    const links: string[] = []
+
+    UnistUtil.visit(tree, 'element', (node) => {
+      const element = node as HAst.Element
+      if (element.tagName !== 'a') return
+
+      // biome-ignore lint/complexity/useLiteralKeys: _
+      const href = element.properties?.['href']
+      if (typeof href !== 'string') return
+
+      // Skip external links and hash-only links
+      if (href.match(/^(https?:\/\/|mailto:|tel:|#)/)) return
+
+      // Check if link has .md/.mdx extension to process
+      const hasExtension = extensions.some((ext) => href.endsWith(ext))
+
+      // Strip extension and /index
+      if (hasExtension) {
+        const extPattern = extensions.map((ext) => ext.slice(1)).join('|')
+        const cleanHref = href
+          .replace(new RegExp(`\\.(${extPattern})$`), '') // remove extension
+          .replace(/\/index$/, '') // remove /index
+        // biome-ignore lint/complexity/useLiteralKeys: _
+        element.properties['href'] = cleanHref
+      }
+
+      // Check if internal link exists in filesystem
+      const currentDir = vfile.dirname ?? pagesDirPath
+      const [linkPath] = href.split('#')
+      const resolvedPath = path.resolve(currentDir, linkPath ?? '')
+
+      // Check for file existence (try with extensions if not present)
+      const exists =
+        fs.existsSync(resolvedPath) ||
+        extensions.some((ext) => fs.existsSync(`${resolvedPath}${ext}`)) ||
+        extensions.some((ext) => fs.existsSync(`${resolvedPath}/index${ext}`))
+
+      if (!exists && checkDeadlinks !== false) {
+        element.properties['data-v-dead-link'] = ''
+        logger.error(
+          `detected dead link in "/${path.relative(pagesDirPath, vfile.path)}": "${href}"`,
+          {
+            timestamp: true,
+          },
+        )
+        links.push(href)
+      }
+    })
+
+    if (links.length > 0) {
+      const file = vfile.path ?? 'unknown'
+      deadLinks.set(file, links)
+    }
   }
 }
 
