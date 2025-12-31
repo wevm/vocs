@@ -1,6 +1,6 @@
 @layer vocs.components {
   /* #region Layout */
-  article[data-content] {
+  article[data-v-content] {
     @apply vocs:px-content-px vocs:py-content-py vocs:relative vocs:w-full vocs:space-y-6;
 
     /* biome-ignore lint/correctness/noUnknownFunction: _ */
@@ -18,7 +18,7 @@
     }
   }
 
-  [data-content]
+  [data-v-content]
     > :is(p, h3, h4, h5, h6, hgroup, strong, a, blockquote, ol, ul)
     + :is(p, h3, h4, h5, h6, hgroup, strong, a, blockquote, ol, ul) {
     @apply vocs:-mt-2!;
@@ -28,36 +28,36 @@
 
   /* #region Primitives */
 
-  h1[data-md] {
+  h1[data-v-md] {
     @apply vocs:text-heading vocs:text-h1 vocs:font-medium vocs:tracking-[-0.04em] vocs:leading-h1;
   }
 
-  h2[data-md],
+  h2[data-v-md],
   section[data-footnotes] h2 {
     @apply vocs:text-heading vocs:text-h2 vocs:font-medium vocs:tracking-tight vocs:leading-h2;
   }
 
-  h3[data-md] {
+  h3[data-v-md] {
     @apply vocs:text-heading vocs:text-h3 vocs:font-medium vocs:tracking-tight vocs:leading-h3;
   }
 
-  h4[data-md] {
+  h4[data-v-md] {
     @apply vocs:text-heading vocs:text-h4 vocs:font-semibold vocs:tracking-tight;
   }
 
-  h5[data-md] {
+  h5[data-v-md] {
     @apply vocs:text-heading vocs:text-h5 vocs:font-semibold vocs:tracking-tight;
   }
 
-  h6[data-md] {
+  h6[data-v-md] {
     @apply vocs:text-heading vocs:text-h6 vocs:font-semibold vocs:tracking-tight;
   }
 
-  strong[data-md] {
+  strong[data-v-md] {
     @apply vocs:font-semibold;
   }
 
-  p[data-md] {
+  p[data-v-md] {
     @apply vocs:leading-p vocs:tracking-normal;
   }
 
@@ -65,21 +65,21 @@
 
   /* #region Main Heading (hgroup/h1) */
 
-  hgroup[data-md] {
+  hgroup[data-v-md] {
     @apply vocs:text-h1;
   }
 
-  hgroup[data-md],
-  article[data-content] > h1[data-md] {
+  hgroup[data-v-md],
+  article[data-v-content] > h1[data-v-md] {
     @apply vocs:border-b vocs:border-primary;
   }
 
-  hgroup[data-md] p {
+  hgroup[data-v-md] p {
     @apply vocs:text-secondary vocs:text-subtitle vocs:font-[450] vocs:leading-base vocs:mt-[0.25em];
   }
 
-  hgroup[data-md]:not(:last-child),
-  article[data-content] > h1[data-md]:not(:last-child) {
+  hgroup[data-v-md]:not(:last-child),
+  article[data-v-content] > h1[data-v-md]:not(:last-child) {
     @apply vocs:pb-[0.75em];
     margin-block-end: calc(calc(var(--vocs-spacing) * 8) * calc(1 - var(--tw-space-y-reverse))) !important;
   }
@@ -88,17 +88,17 @@
 
   /* #region Secondary Headings (h2, h3, h4, h5, h6) */
 
-  article[data-content] > h2:not(:only-child) {
+  article[data-v-content] > h2:not(:only-child) {
     @apply vocs:pt-8 vocs:mt-10! vocs:border-t vocs:border-primary;
   }
 
-  article[data-content] > h3:not(:only-child) {
+  article[data-v-content] > h3:not(:only-child) {
     @apply vocs:pt-6;
   }
 
-  article[data-content] > h4:not(:only-child),
-  article[data-content] > h5:not(:only-child),
-  article[data-content] > h6:not(:only-child) {
+  article[data-v-content] > h4:not(:only-child),
+  article[data-v-content] > h5:not(:only-child),
+  article[data-v-content] > h6:not(:only-child) {
     @apply vocs:pt-4;
   }
 
@@ -106,7 +106,7 @@
 
   /* #region Anchors */
 
-  a[data-md] {
+  a[data-v-md] {
     @apply vocs:text-link vocs:font-[450] vocs:underline vocs:underline-offset-2 vocs:decoration-1 vocs:transition-colors vocs:duration-100;
 
     &:hover {
@@ -114,23 +114,23 @@
     }
   }
 
-  [data-context="info"] a[data-md] {
+  [data-v-context="info"] a[data-v-md] {
     @apply vocs:decoration-info;
   }
 
-  [data-context="warning"] a[data-md] {
+  [data-v-context="warning"] a[data-v-md] {
     @apply vocs:decoration-warning;
   }
 
-  [data-context="danger"] a[data-md] {
+  [data-v-context="danger"] a[data-v-md] {
     @apply vocs:decoration-destructive;
   }
 
-  [data-context="tip"] a[data-md] {
+  [data-v-context="tip"] a[data-v-md] {
     @apply vocs:decoration-tip;
   }
 
-  [data-context="success"] a[data-md] {
+  [data-v-context="success"] a[data-v-md] {
     @apply vocs:decoration-success;
   }
 
@@ -138,7 +138,7 @@
 
   /* #region Blockquotes */
 
-  blockquote[data-md] {
+  blockquote[data-v-md] {
     @apply vocs:text-[15px] vocs:border-l-3 vocs:border-primary vocs:bg-secondary vocs:px-4 vocs:py-3 vocs:text-quote;
   }
 
@@ -146,11 +146,11 @@
 
   /* #region Callouts */
 
-  aside[data-md][data-callout] {
+  aside[data-v-md][data-v-callout] {
     @apply vocs:rounded-lg vocs:text-callout vocs:p-3 vocs:relative vocs:border;
 
     &,
-    & [data-content] {
+    & [data-v-content] {
       @apply vocs:space-y-4;
     }
 
@@ -161,19 +161,19 @@
       }
     }
 
-    & > [data-callout-icon] {
+    & > [data-v-callout-icon] {
       @apply vocs:h-4 vocs:w-4 vocs:mt-[0.15rem] vocs:absolute;
     }
 
-    &[data-content] > :not(:is([data-callout-icon], [data-code-container])) {
+    &[data-v-content] > :not(:is([data-v-callout-icon], [data-v-code-container])) {
       @apply vocs:ps-6;
     }
 
-    & [data-code-header] {
+    & [data-v-code-header] {
       @apply vocs:h-8;
     }
 
-    & [data-code-title] {
+    & [data-v-code-title] {
       @apply vocs:text-xs vocs:px-3;
     }
 
@@ -185,27 +185,27 @@
       @apply vocs:px-4;
     }
 
-    &[data-context="note"] {
+    &[data-v-context="note"] {
       @apply vocs:bg-note-tint vocs:border-note-tint vocs:text-note;
     }
 
-    &[data-context="info"] {
+    &[data-v-context="info"] {
       @apply vocs:bg-info-tint vocs:border-info-tint vocs:text-info;
     }
 
-    &[data-context="warning"] {
+    &[data-v-context="warning"] {
       @apply vocs:bg-warning-tint vocs:border-warning-tint vocs:text-warning;
     }
 
-    &[data-context="danger"] {
+    &[data-v-context="danger"] {
       @apply vocs:bg-destructive-tint vocs:border-destructive-tint vocs:text-destructive;
     }
 
-    &[data-context="tip"] {
+    &[data-v-context="tip"] {
       @apply vocs:bg-tip-tint vocs:border-tip-tint vocs:text-tip;
     }
 
-    &[data-context="success"] {
+    &[data-v-context="success"] {
       @apply vocs:bg-success-tint vocs:border-success-tint vocs:text-success;
     }
   }
@@ -214,7 +214,7 @@
 
   /* #region Lists */
 
-  ol[data-md] {
+  ol[data-v-md] {
     @apply vocs:list-decimal vocs:ps-5 vocs:mb-4;
 
     & & {
@@ -226,7 +226,7 @@
     }
   }
 
-  li[data-md] {
+  li[data-v-md] {
     @apply vocs:leading-li;
 
     &:not(:last-child) {
@@ -234,7 +234,7 @@
     }
   }
 
-  ul[data-md] {
+  ul[data-v-md] {
     @apply vocs:list-disc vocs:ps-6;
 
     & & {
@@ -246,7 +246,7 @@
     }
   }
 
-  :is(ol, ul)[data-md] :is(ol, ul)[data-md] {
+  :is(ol, ul)[data-v-md] :is(ol, ul)[data-v-md] {
     @apply vocs:mb-0 vocs:pt-2 vocs:ps-4 vocs:pb-0;
   }
 
@@ -254,7 +254,7 @@
 
   /* #region Tables */
 
-  table[data-md] {
+  table[data-v-md] {
     @apply vocs:border vocs:border-primary vocs:border-separate vocs:border-spacing-0 vocs:leading-table vocs:overflow-hidden vocs:mb-6 vocs:w-[calc(100%+calc(var(--vocs-spacing)*6))] vocs:table vocs:-mx-3 vocs:rounded-lg;
 
     & td {
@@ -286,7 +286,7 @@
 
   /* #region Superscript */
 
-  sup[data-md] > a {
+  sup[data-v-md] > a {
     @apply vocs:ms-0.5 vocs:text-primary! vocs:underline-offset-2;
   }
 
@@ -294,7 +294,7 @@
 
   /* #region Horizontal Rule */
 
-  hr[data-md] {
+  hr[data-v-md] {
     @apply vocs:border-primary;
   }
 
@@ -323,7 +323,7 @@
 
   /* #region Details */
 
-  details[data-md] {
+  details[data-v-md] {
     @apply vocs:space-y-4;
 
     & > summary {
@@ -351,11 +351,11 @@
     }
   }
 
-  aside[data-md] details {
+  aside[data-v-md] details {
     @apply vocs:space-y-2;
   }
 
-  :not(aside[data-md]) > details {
+  :not(aside[data-v-md]) > details {
     @apply vocs:text-secondary;
   }
 
@@ -363,7 +363,7 @@
 
   /* #region Code blocks */
 
-  pre[data-md] {
+  pre[data-v-md] {
     @apply vocs:bg-code-block vocs:py-5 vocs:overflow-x-auto vocs:rounded-lg vocs:border vocs:border-primary;
 
     & > code {
@@ -457,11 +457,11 @@
     @apply vocs:px-code-block-px;
   }
 
-  [data-code-header] {
+  [data-v-code-header] {
     @apply vocs:h-10 vocs:bg-primary vocs:rounded-t-lg vocs:max-md:rounded-none vocs:text-sm vocs:flex vocs:items-center vocs:border vocs:border-primary vocs:max-md:-mx-4;
   }
 
-  [data-code-title] {
+  [data-v-code-title] {
     @apply vocs:text-[13px] vocs:text-secondary vocs:font-medium vocs:tracking-tight vocs:px-4;
   }
 
@@ -469,11 +469,11 @@
 
   /* #region Code group */
 
-  [data-code-group-list] {
+  [data-v-code-group-list] {
     @apply vocs:px-2 vocs:max-md:px-1 vocs:flex vocs:items-center vocs:border vocs:border-primary;
   }
 
-  [data-code-group-tab] {
+  [data-v-code-group-tab] {
     @apply vocs:h-full vocs:text-secondary vocs:data-active:text-heading vocs:hover:text-heading vocs:font-medium vocs:tracking-tight vocs:px-3 vocs:-mb-[1.5px] vocs:border-b-[1.5px] vocs:border-b-transparent vocs:data-active:border-b-tab-active vocs:transition-colors vocs:duration-200;
   }
 
@@ -481,41 +481,41 @@
 
   /* #region Inline code */
 
-  :not(pre) > code[data-md]:not(.twoslash-popup-code) {
+  :not(pre) > code[data-v-md]:not(.twoslash-popup-code) {
     @apply vocs:bg-inline-code vocs:font-medium vocs:border vocs:border-primary vocs:text-inline-code vocs:rounded-sm vocs:px-1.5 vocs:py-0.5;
   }
 
-  [data-context="note"] code[data-md] {
+  [data-v-context="note"] code[data-v-md] {
     && {
       @apply vocs:bg-inline-code/60! vocs:border-note-tint;
     }
   }
 
-  [data-context="info"] code[data-md] {
+  [data-v-context="info"] code[data-v-md] {
     && {
       @apply vocs:bg-inline-code/60! vocs:border-info-tint;
     }
   }
 
-  [data-context="warning"] code[data-md] {
+  [data-v-context="warning"] code[data-v-md] {
     && {
       @apply vocs:bg-inline-code/60! vocs:border-warning-tint;
     }
   }
 
-  [data-context="danger"] code[data-md] {
+  [data-v-context="danger"] code[data-v-md] {
     && {
       @apply vocs:bg-inline-code/60! vocs:border-destructive-tint;
     }
   }
 
-  [data-context="tip"] :is(code[data-md], span.shiki) {
+  [data-v-context="tip"] :is(code[data-v-md], span.shiki) {
     && {
       @apply vocs:bg-inline-code/60! vocs:border-tip-tint;
     }
   }
 
-  [data-context="success"] :is(code[data-md], span.shiki) {
+  [data-v-context="success"] :is(code[data-v-md], span.shiki) {
     && {
       @apply vocs:bg-inline-code/60! vocs:border-success-tint;
     }
@@ -525,30 +525,30 @@
 
   /* #region Steps */
 
-  [data-steps] {
+  [data-v-steps] {
     @apply vocs:space-y-6 vocs:border-l-[1.5px] vocs:border-l-primary vocs:pl-6 vocs:ml-3 vocs:max-md:ml-1;
     counter-reset: step;
   }
 
-  [data-step-title] {
+  [data-v-step-title] {
     @apply vocs:p-0 vocs:relative vocs:flex vocs:items-center vocs:before:items-center vocs:before:bg-secondary vocs:before:rounded-full vocs:before:border-[0.5em] vocs:before:border-(--vocs-background-color-primary) vocs:before:box-content vocs:before:text-secondary vocs:before:[content:counter(step)]! vocs:before:[counter-increment:step] vocs:before:flex vocs:before:text-[0.625em] vocs:before:h-[2em] vocs:before:justify-center vocs:before:left-[calc(-25.125px-1.45em)] vocs:before:w-[2em] vocs:before:absolute vocs:before:font-normal;
   }
 
-  [data-step-content] {
+  [data-v-step-content] {
     @apply vocs:-mt-2 vocs:space-y-6;
   }
 
   /* biome-ignore lint/correctness/noUnknownFunction: _ */
   @media (width <= theme(--breakpoint-md)) {
-    [data-steps] [data-code-container] {
+    [data-v-steps] [data-v-code-container] {
       @apply vocs:-ml-8!;
     }
 
-    [data-steps] [data-callout] {
+    [data-v-steps] [data-v-callout] {
       @apply vocs:-ml-12!;
     }
 
-    [data-steps] [data-callout] [data-code-container] {
+    [data-v-steps] [data-v-callout] [data-v-code-container] {
       @apply vocs:-ml-0!;
     }
   }

@@ -1,14 +1,14 @@
 @layer vocs.components {
   .twoslash {
-    & [data-twoslash-trigger] span {
+    & [data-v-twoslash-trigger] span {
       @apply vocs:border-transparent vocs:border-b vocs:border-dotted vocs:transition-colors vocs:duration-200;
     }
 
-    &:hover [data-twoslash-trigger] span {
+    &:hover [data-v-twoslash-trigger] span {
       @apply vocs:border-inherit;
     }
 
-    &:hover [data-twoslash-trigger] {
+    &:hover [data-v-twoslash-trigger] {
       @apply vocs:select-text vocs:cursor-text!;
     }
 
@@ -34,11 +34,11 @@
       @apply vocs:text-[0.75em] vocs:leading-code vocs:max-h-50 vocs:overflow-y-auto;
     }
 
-    & [data-overflows] {
+    & [data-v-overflows] {
       mask-image: linear-gradient(to bottom, black calc(100% - 2rem), transparent 100%);
     }
 
-    & [data-overflow-sentinel] {
+    & [data-v-overflow-sentinel] {
       @apply vocs:h-8 vocs:-mt-8 vocs:pointer-events-none;
     }
 
@@ -54,11 +54,11 @@
       @apply vocs:text-[13px];
     }
 
-    & [data-content] > * {
+    & [data-v-content] > * {
       @apply vocs:px-2 vocs:py-1;
     }
 
-    & [data-content] > *:not(:last-child) {
+    & [data-v-content] > *:not(:last-child) {
       @apply vocs:border-b vocs:border-primary;
     }
   }

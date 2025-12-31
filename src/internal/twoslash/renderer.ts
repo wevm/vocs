@@ -31,9 +31,9 @@ export function rich(): TwoslashRenderer {
       tagName: 'pre',
       properties: {
         class: 'twoslash-popup-code',
-        'data-code': content,
-        'data-codeToHtml': true,
-        'data-lang': lang,
+        'data-v-code': content,
+        'data-v-codeToHtml': true,
+        'data-v-lang': lang,
       },
       children: [],
     })
@@ -55,9 +55,9 @@ export function rich(): TwoslashRenderer {
                 type: 'element',
                 tagName: 'pre',
                 properties: {
-                  'data-code': node.value,
-                  'data-codeToHtml': true,
-                  'data-lang': lang,
+                  'data-v-code': node.value,
+                  'data-v-codeToHtml': true,
+                  'data-v-lang': lang,
                 },
                 children: [],
               }
@@ -70,13 +70,13 @@ export function rich(): TwoslashRenderer {
       popupContents.push({
         type: 'element',
         tagName: 'div',
-        properties: { class: 'twoslash-popup-docs', 'data-overflow-fade': true },
+        properties: { class: 'twoslash-popup-docs', 'data-v-overflow-fade': true },
         children: [
           ...hast.children,
           {
             type: 'element',
             tagName: 'div',
-            properties: { 'data-overflow-sentinel': true },
+            properties: { 'data-v-overflow-sentinel': true },
             children: [],
           },
         ],

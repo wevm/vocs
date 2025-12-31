@@ -126,14 +126,15 @@ export function title(): ShikiTransformer {
       if (!titleMatch) return
 
       const title = titleMatch[1] || titleMatch[2]
+      // biome-ignore lint/suspicious/noExplicitAny: _
       const child = hast.children[0] as any
       hast.children = [
         {
           ...child,
           properties: {
             ...child.properties,
-            'data-title': title,
-            ...(this.options.lang && { 'data-lang': this.options.lang }),
+            'data-v-title': title,
+            ...(this.options.lang && { 'data-v-lang': this.options.lang }),
           },
         },
       ]

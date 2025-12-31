@@ -6,7 +6,7 @@ export function Layout(props: Layout.Props) {
     <>
       <Head />
       <main className="vocs:isolate">
-        <article data-content>{children}</article>
+        <article data-v-content>{children}</article>
       </main>
     </>
   )

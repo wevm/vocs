@@ -11,20 +11,20 @@ export function CodeGroup(props: CodeGroup.Props) {
       const item =
         typeof child === 'object' &&
         'props' in child &&
-        'data-title' in (child.props as React.ComponentProps<'div'>)
-          ? (child.props as React.ComponentProps<'div'> & { 'data-title': string })
+        'data-v-title' in (child.props as React.ComponentProps<'div'>)
+          ? (child.props as React.ComponentProps<'div'> & { 'data-v-title': string })
           : null
       if (!item) return null
-      return { title: item['data-title'], content: item.children }
+      return { title: item['data-v-title'], content: item.children }
     })
     .filter(Boolean) as { title: string; content: React.ReactNode }[]
   if (!items) return null
 
   return (
-    <Tabs.Root data-code-container data-code-group defaultValue={items[0]?.title}>
-      <Tabs.List aria-label="Code group" data-code-header data-code-group-list>
+    <Tabs.Root data-v-code-container data-v-code-group defaultValue={items[0]?.title}>
+      <Tabs.List aria-label="Code group" data-v-code-header data-v-code-group-list>
         {items.map(({ title }, i) => (
-          <Tabs.Tab data-code-group-tab key={title || i.toString()} value={title || i.toString()}>
+          <Tabs.Tab data-v-code-group-tab key={title || i.toString()} value={title || i.toString()}>
             {title}
           </Tabs.Tab>
         ))}
@@ -34,11 +34,11 @@ export function CodeGroup(props: CodeGroup.Props) {
           content &&
           typeof content === 'object' &&
           'props' in content &&
-          'data-code-container' in (content.props as React.ComponentProps<'div'>)
+          'data-v-code-container' in (content.props as React.ComponentProps<'div'>)
         return (
           <Tabs.Panel
             className="vocs:*:rounded-t-none vocs:*:border-t-0"
-            data-code-group-panel
+            data-v-code-group-panel
             key={title || i.toString()}
             value={title || i.toString()}
           >

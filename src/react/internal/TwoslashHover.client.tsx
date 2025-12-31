@@ -13,7 +13,7 @@ export function TwoslashHover(props: TwoslashHover.Props) {
 
   return (
     <Popover.Root {...(open ? { open } : {})}>
-      <Popover.Trigger data-twoslash-trigger openOnHover delay={0}>
+      <Popover.Trigger data-v-twoslash-trigger openOnHover delay={0}>
         <span>{trigger}</span>
       </Popover.Trigger>
       <Popover.Portal>
@@ -27,7 +27,7 @@ export function TwoslashHover(props: TwoslashHover.Props) {
             <Popover.Arrow className="vocs:data-[side=bottom]:top-[-8px] vocs:data-[side=left]:right-[-13px] vocs:data-[side=left]:rotate-90 vocs:data-[side=right]:left-[-13px] vocs:data-[side=right]:rotate-[-90deg] vocs:data-[side=top]:bottom-[-8px] vocs:data-[side=top]:rotate-180">
               <ArrowSvg />
             </Popover.Arrow>
-            <div data-content ref={ref}>
+            <div data-v-content ref={ref}>
               {children}
             </div>
           </Popover.Popup>
@@ -48,23 +48,20 @@ export namespace TwoslashHover {
   export function useOverflowFade() {
     const ref = useCallback((content: HTMLDivElement | null) => {
       if (!content) return
-      const elements = content.querySelectorAll('[data-overflow-fade]')
+      const elements = content.querySelectorAll('[data-v-overflow-fade]')
       for (const el of elements) {
         if (!(el instanceof HTMLElement)) continue
         if (el.scrollHeight <= el.clientHeight) continue
 
-        const sentinel = el.querySelector('[data-overflow-sentinel]')
+        const sentinel = el.querySelector('[data-v-overflow-sentinel]')
         if (!sentinel) continue
 
-        // biome-ignore lint/complexity/useLiteralKeys: _
-        el.dataset['overflows'] = 'true'
+        el.dataset['v-overflows'] = 'true'
 
         const observer = new IntersectionObserver(
           ([entry]) => {
-            // biome-ignore lint/complexity/useLiteralKeys: _
-            if (entry?.isIntersecting) delete el.dataset['overflows']
-            // biome-ignore lint/complexity/useLiteralKeys: _
-            else el.dataset['overflows'] = 'true'
+            if (entry?.isIntersecting) delete el.dataset['v-overflows']
+            else el.dataset['v-overflows'] = 'true'
           },
           { root: el, threshold: 0.5 },
         )

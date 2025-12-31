@@ -180,7 +180,7 @@ export function rehypeCodeInLink() {
 }
 
 /**
- * Remark plugin that adds `data-md` attribute to MDX component elements.
+ * Remark plugin that adds `data-v-md` attribute to MDX component elements.
  * This enables scoped styling for markdown-rendered content, without conflicting with user styles.
  */
 export function remarkMdScope() {
@@ -189,7 +189,7 @@ export function remarkMdScope() {
       const n = node as MdAst.Node & { data?: { hProperties?: Record<string, unknown> } }
       n.data ??= {}
       n.data.hProperties ??= {}
-      n.data.hProperties['data-md'] = ''
+      n.data.hProperties['data-v-md'] = ''
     })
   }
 }
@@ -264,7 +264,7 @@ export function remarkCallout() {
         node.children = node.children.filter((child: any) => !child.data?.directiveLabel)
         node.children.unshift({
           type: 'paragraph',
-          data: { hProperties: { 'data-callout-title': true } },
+          data: { hProperties: { 'data-v-callout-title': true } },
           children: [
             {
               type: 'strong',
@@ -277,8 +277,8 @@ export function remarkCallout() {
       data.hName = tagName
       data.hProperties = {
         ...(node.attributes ?? {}),
-        'data-callout': true,
-        'data-context': node.name !== 'callout' ? node.name : 'info',
+        'data-v-callout': true,
+        'data-v-context': node.name !== 'callout' ? node.name : 'info',
       }
     })
   }
@@ -313,7 +313,7 @@ export function remarkCodeGroup() {
 
       node.attributes = {
         ...node.attributes,
-        'data-code-group': '',
+        'data-v-code-group': '',
       }
 
       data.hName = tagName
@@ -330,8 +330,8 @@ export function remarkCodeGroup() {
               hName: 'div',
               hProperties: match
                 ? {
-                    'data-code-group-item': '',
-                    'data-title': match[1],
+                    'data-v-code-group-item': '',
+                    'data-v-title': match[1],
                   }
                 : undefined,
             },
@@ -452,7 +452,7 @@ export function remarkSteps() {
 
       node.attributes = {
         ...node.attributes,
-        'data-steps': 'true',
+        'data-v-steps': 'true',
       }
 
       data.hName = tagName
@@ -473,7 +473,7 @@ export function remarkSteps() {
             data: {
               hName: 'div',
               hProperties: {
-                'data-depth': depth,
+                'data-v-depth': depth,
               },
             },
           } satisfies MdAst.Paragraph

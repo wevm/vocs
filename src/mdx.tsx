@@ -17,28 +17,28 @@ export const components: MDXComponents = {
   },
   aside(
     props: React.PropsWithChildren<
-      React.ComponentProps<'aside'> & { 'data-context': Callout.Props['variant'] }
+      React.ComponentProps<'aside'> & { 'data-v-context': Callout.Props['variant'] }
     >,
   ) {
-    if ('data-callout' in props) return <Callout {...props} variant={props['data-context']} />
-    return <aside data-md {...props} />
+    if ('data-v-callout' in props) return <Callout {...props} variant={props['data-v-context']} />
+    return <aside data-v-md {...props} />
   },
   div(props: React.PropsWithChildren<React.ComponentProps<'div'>>) {
-    if ('data-code-group' in props) return <CodeGroup {...props} />
-    if ('data-steps' in props) return <Steps {...props} />
+    if ('data-v-code-group' in props) return <CodeGroup {...props} />
+    if ('data-v-steps' in props) return <Steps {...props} />
     return <div {...props} />
   },
   code(props: React.PropsWithChildren<React.ComponentProps<'code'>>) {
-    return <code {...props} data-md />
+    return <code {...props} data-v-md />
   },
   pre(
     props: React.PropsWithChildren<React.ComponentProps<'pre'>> & {
-      'data-codeToHtml'?: string | undefined
-      'data-code'?: string | undefined
-      'data-lang'?: string | undefined
+      'data-v-codeToHtml'?: string | undefined
+      'data-v-code'?: string | undefined
+      'data-v-lang'?: string | undefined
     },
   ) {
-    const { 'data-codeToHtml': codeToHtml, 'data-code': code, 'data-lang': lang } = props
+    const { 'data-v-codeToHtml': codeToHtml, 'data-v-code': code, 'data-v-lang': lang } = props
     if (codeToHtml && code && lang) return <CodeToHtml code={code} lang={lang} />
     return <CodeBlock {...props} />
   },

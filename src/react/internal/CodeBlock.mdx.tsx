@@ -1,17 +1,17 @@
 export function CodeBlock(props: CodeBlock.Props) {
-  const { className, container = true, 'data-lang': lang, 'data-title': title } = props
-  if (!container) return <pre {...props} data-md />
+  const { className, container = true, 'data-v-lang': _lang, 'data-v-title': title } = props
+  if (!container) return <pre {...props} data-v-md />
   return (
-    <div data-code-container>
+    <div data-v-code-container>
       {title && (
-        <div data-code-header>
-          <span data-code-title>{title}</span>
+        <div data-v-code-header>
+          <span data-v-code-title>{title}</span>
         </div>
       )}
       <pre
         {...props}
         className={`${className}${title ? ' vocs:rounded-t-none vocs:border-t-0' : ''}`}
-        data-md
+        data-v-md
       />
     </div>
   )
@@ -20,7 +20,7 @@ export function CodeBlock(props: CodeBlock.Props) {
 export namespace CodeBlock {
   export type Props = React.PropsWithChildren<React.ComponentProps<'pre'>> & {
     container?: boolean | undefined
-    'data-lang'?: string | undefined
-    'data-title'?: string | undefined
+    'data-v-lang'?: string | undefined
+    'data-v-title'?: string | undefined
   }
 }

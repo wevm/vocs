@@ -25,7 +25,7 @@ export async function CodeToHtml(props: CodeToHtml.Props) {
     lang: import.meta.env.DEV ? 'txt' : lang,
     rootStyle: false,
     meta: {
-      'data-overflow-fade': true,
+      'data-v-overflow-fade': true,
     },
     ...(import.meta.env.DEV ? { theme: 'none' } : { themes }),
     transformers: [transformerShrinkIndent()],
@@ -37,7 +37,7 @@ export async function CodeToHtml(props: CodeToHtml.Props) {
     pre.children.push({
       type: 'element',
       tagName: 'div',
-      properties: { 'data-overflow-sentinel': true },
+      properties: { 'data-v-overflow-sentinel': true },
       children: [],
     })
 
