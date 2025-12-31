@@ -1,5 +1,6 @@
 'use client'
 
+// TODO: Migrate to an agnostic `useRouter`/`Link` (to support frameworks beyond Waku).
 import { useRouter, Link as WakuLink } from 'waku'
 
 export function Link(props: Link.Props) {

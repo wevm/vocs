@@ -1,8 +1,14 @@
-export function Layout({ children }: Layout.Props) {
+import { Head } from './Head.js'
+
+export function Layout(props: Layout.Props) {
+  const { children } = props
   return (
-    <main className="vocs:isolate">
-      <article data-content>{children}</article>
-    </main>
+    <>
+      <Head />
+      <main className="vocs:isolate">
+        <article data-content>{children}</article>
+      </main>
+    </>
   )
 }
 

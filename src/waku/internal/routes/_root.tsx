@@ -2,10 +2,10 @@
 // @ts-ignore
 import '../../../styles/index.css'
 
+import { Head } from '../../../react/Head.js'
 import { ScrollRestoration } from '../../../react/ScrollRestoration.js'
-import { Head } from '../../react/Head.js'
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default function Root({ children }: { children: React.ReactNode }) {
   return (
     <>
       <Head />

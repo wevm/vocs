@@ -441,6 +441,7 @@
     @apply vocs:px-code-block-px;
   }
 
+  /* biome-ignore lint/correctness/noUnknownFunction: _ */
   @media (width <= theme(--breakpoint-md)) {
     [data-steps] pre {
       @apply vocs:-ml-12;

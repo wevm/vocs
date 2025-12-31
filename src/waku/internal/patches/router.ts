@@ -41,6 +41,7 @@ export function router(
 
     for (const file in allPages) {
       if (!allPages[file]) continue
+      if (file.endsWith('_layout.mdx.tsx')) continue
 
       const importFn = allPages[file]
       if (!importFn) continue
@@ -70,8 +71,8 @@ export function router(
         if (exists) continue
 
         const component = lazy(() =>
-          (importFn() as Promise<{ WithPageLayout: FunctionComponent }>).then((mod) => ({
-            default: mod.WithPageLayout,
+          (importFn() as Promise<{ Page: FunctionComponent }>).then((mod) => ({
+            default: mod.Page,
           })),
         )
         if (pathItems.at(-1) === '[path]') {

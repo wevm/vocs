@@ -1,19 +1,3 @@
-export type Frontmatter = {
-  /** Author of the page. */
-  author?: string | undefined
-  /** Title of the page. */
-  title?: string | undefined
-  /** Description of the page. */
-  description?: string | undefined
-  /** Robots directive (e.g., "noindex", "nofollow"). */
-  robots?: string | undefined
-  /** Additional metadata for the page. */
-  [key: string]: unknown
-}
-
-//////////////////////////////////////////////////////
-// Utils
-
 /** Combines members of an intersection into a readable type. */
 // https://twitter.com/mattpocockuk/status/1622730173446557697?s=20&t=NdpAcmEFXY01xkqU3KO0Mg
 export type Compute<type> = { [key in keyof type]: type[key] } & unknown

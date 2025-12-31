@@ -1,4 +1,5 @@
 import * as fs from 'node:fs'
+import * as path from 'node:path'
 import type { CompileOptions } from '@mdx-js/mdx'
 import shiki, { type RehypeShikiOptions } from '@shikijs/rehype'
 import * as EstreeUtil from 'esast-util-from-js'
@@ -71,7 +72,7 @@ export function getCompileOptions(
           remarkMdScope,
           ...(markdown?.remarkPlugins ?? []),
         ],
-        recmaPlugins: [recmaMdxLayout, ...(markdown?.recmaPlugins ?? [])],
+        recmaPlugins: [recmaMdxLayout(config), ...(markdown?.recmaPlugins ?? [])],
       }
     throw new Error(`Invalid type: ${type}`)
   })()
@@ -89,30 +90,52 @@ export function getCompileOptions(
  * Recma plugin that wraps the MDX default export with MdxLayout.
  * This gives the layout access to frontmatter and path props.
  */
-export function recmaMdxLayout() {
-  return (tree: Estree.Program, vfile: VFile) => {
-    // Skip layouts, roots, and slices - they shouldn't be wrapped
+export function recmaMdxLayout(config: Config.Config) {
+  const { rootDir, srcDir, pagesDir } = config
+  const pagesDirPath = path.join(rootDir, srcDir, pagesDir)
+
+  const layoutPaths = new Map<string, string>()
+
+  return () => (tree: Estree.Program, vfile: VFile) => {
     const fileName = vfile.basename ?? ''
     if (!fileName.endsWith('.mdx') && !fileName.endsWith('.md')) return
 
-    // Find the default export declaration
     const defaultExportIndex = tree.body.findIndex(
       (node) => node.type === 'ExportDefaultDeclaration',
     )
     if (defaultExportIndex === -1) return
 
-    // Add imports for MdxLayout and createElement at the top
+    function getMdxLayoutImport(dir: string) {
+      if (dir === path.dirname(pagesDirPath))
+        return `import { Layout as _Layout } from 'vocs/react';`
+      if (layoutPaths.has(dir)) return `import _Layout from '${layoutPaths.get(dir)}';`
+      const layoutPath = path.join(dir, '_layout.mdx.tsx')
+      const layoutFile = fs.existsSync(layoutPath)
+      if (!layoutFile) return getMdxLayoutImport(path.dirname(dir))
+      layoutPaths.set(dir, layoutPath)
+      return `import _Layout from '${layoutPath}';`
+    }
+
     const importAst = EstreeUtil.fromJs(
-      `import { MdxPage as _MdxPage } from 'vocs/react';
-       import { components as _components } from 'virtual:vocs/mdx-components';
-       import { createElement as _createElement } from 'react';`,
+      `import { components as _components } from 'vocs/mdx';
+       import { MdxPageContext as _MdxPageContext } from 'vocs/react';
+       import { createElement as _createElement } from 'react';
+       ${getMdxLayoutImport(vfile.dirname ?? pagesDirPath)}`,
       { module: true },
     )
     tree.body.unshift(...importAst.body)
 
     const wrapperAst = EstreeUtil.fromJs(
-      `export function WithPageLayout(props = {}) {
-        return _createElement(_MdxPage, { ...props, frontmatter: typeof frontmatter !== 'undefined' ? frontmatter : undefined, pathname: props.path }, _createElement(MDXContent, { ...props, components: _components }));
+      `export function Page(props = {}) {
+        return _createElement(
+          _MdxPageContext.Provider, 
+          { frontmatter }, 
+          _createElement(
+            _Layout,
+            null,
+            _createElement(MDXContent, { ...props, components: _components })
+          )
+        );
       }`,
       { module: true },
     )

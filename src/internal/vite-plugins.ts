@@ -11,7 +11,6 @@ import { createLogger } from 'vite'
 import * as Config from './config.js'
 import * as Langs from './langs.js'
 import * as Mdx from './mdx.js'
-import type { Frontmatter } from './types.js'
 
 export { default as icons } from 'unplugin-icons/vite'
 
@@ -117,7 +116,7 @@ export function llms(config: Config.Config): PluginOption {
           .process(content)
 
         // biome-ignore lint/complexity/useLiteralKeys: _
-        const { title, description } = file.data['frontmatter'] as Frontmatter
+        const { title, description } = file.data['frontmatter'] as Config.Frontmatter
         if (!title) return
 
         const path = page
@@ -232,6 +231,29 @@ export function mdx(config: Config.Config): PluginOption {
 }
 
 /**
+ * Watches for route files being added or removed.
+ * When detected, triggers a server restart so routes are updated.
+ */
+export function routeWatcher(config: Config.Config): PluginOption {
+  const pagesDir = path.resolve(config.rootDir, config.srcDir, config.pagesDir)
+  const fileNames = ['_layout.mdx.tsx']
+
+  return {
+    name: 'vocs:route-watcher',
+    configureServer(server) {
+      const restart = (filePath: string) => {
+        if (!filePath.startsWith(pagesDir)) return
+        if (!fileNames.some((fileName) => filePath.endsWith(fileName))) return
+        server.restart()
+      }
+
+      server.watcher.on('add', restart)
+      server.watcher.on('unlink', restart)
+    },
+  }
+}
+
+/**
  * Vite plugin that provides the Vocs configuration.
  *
  * @param config - Vocs configuration.
@@ -271,26 +293,6 @@ export function virtualConfig(config: Config.Config): PluginOption {
 
         return content
       }
-      return
-    },
-  }
-}
-
-/**
- * Vite plugin that provides MDX components as a virtual module.
- */
-export function virtualMdxComponents(): PluginOption {
-  const virtualModuleId = 'virtual:vocs/mdx-components'
-  const resolvedVirtualModuleId = `\0${virtualModuleId}`
-  return {
-    name: 'vocs:virtual-mdx-components',
-    enforce: 'pre',
-    resolveId(id) {
-      if (id === virtualModuleId) return resolvedVirtualModuleId
-      return
-    },
-    load(id) {
-      if (id === resolvedVirtualModuleId) return `export { components } from 'vocs/mdx'`
       return
     },
   }

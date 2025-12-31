@@ -1,13 +1,12 @@
-import type { Frontmatter } from '../internal/types.js'
-import { Head } from './Head.js'
+import type { Frontmatter } from '../internal/config.js'
 import { Layout } from './Layout.js'
+import { Provider } from './MdxPageContext.js'
 
-export function MdxPage({ children, frontmatter, pathname }: MdxPage.Props) {
+export function MdxPage({ children, frontmatter }: MdxPage.Props) {
   return (
-    <>
-      <Head frontmatter={frontmatter} pathname={pathname} />
+    <Provider frontmatter={frontmatter}>
       <Layout>{children}</Layout>
-    </>
+    </Provider>
   )
 }
 

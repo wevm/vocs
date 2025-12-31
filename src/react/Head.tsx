@@ -1,10 +1,13 @@
 'use client'
 
-import type { Frontmatter } from '../internal/types.js'
+// TODO: Migrate to an agnostic `useRouter` (to support frameworks beyond Waku).
+import { useRouter } from 'waku'
+import * as MdxPageContext from './MdxPageContext.js'
 import { useConfig } from './useConfig.js'
 
-export function Head(props: Head.Props) {
-  const { pathname, frontmatter } = props
+export function Head() {
+  const { path: pathname } = useRouter()
+  const { frontmatter } = MdxPageContext.use()
 
   const config = useConfig()
 
@@ -92,13 +95,6 @@ export function Head(props: Head.Props) {
       {twitterImage && <meta property="twitter:image" content={twitterImage} />}
     </>
   )
-}
-
-export declare namespace Head {
-  export type Props = {
-    frontmatter?: Frontmatter | undefined
-    pathname?: string | undefined
-  }
 }
 
 function getIconType(iconUrl: string) {

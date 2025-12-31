@@ -18,10 +18,10 @@ export async function vocs(): Promise<PluginOption[]> {
       jsx: 'react',
     }),
     Plugins.langWatcher(config),
+    Plugins.routeWatcher(config),
     Plugins.llms(config),
     Plugins.mdx(config),
     Plugins.tailwind(),
     Plugins.virtualConfig(config),
-    Plugins.virtualMdxComponents(),
   ]
 }
