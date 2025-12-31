@@ -255,7 +255,7 @@
   /* #region Tables */
 
   table[data-md] {
-    @apply vocs:border vocs:border-primary vocs:border-collapse vocs:overflow-x-auto vocs:mb-6 vocs:w-[calc(100%+calc(var(--vocs-spacing)*6))] vocs:table vocs:-mx-3;
+    @apply vocs:border vocs:border-primary vocs:border-separate vocs:border-spacing-0 vocs:leading-table vocs:overflow-hidden vocs:mb-6 vocs:w-[calc(100%+calc(var(--vocs-spacing)*6))] vocs:table vocs:-mx-3 vocs:rounded-lg;
 
     & td {
       @apply vocs:text-td vocs:py-2 vocs:border-b vocs:border-primary;
@@ -270,7 +270,7 @@
     }
 
     & th {
-      @apply vocs:text-primary/80 vocs:bg-secondary vocs:text-th vocs:font-medium vocs:py-2 vocs:text-left vocs:whitespace-nowrap;
+      @apply vocs:text-primary/80 vocs:bg-secondary vocs:text-th vocs:font-medium vocs:py-2 vocs:text-left vocs:whitespace-nowrap vocs:border-b vocs:border-primary;
 
       &[align="center"] {
         @apply vocs:text-center;

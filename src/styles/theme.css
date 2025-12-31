@@ -19,7 +19,7 @@
     --color-gray11: oklch(0.863 0 0);
     --color-gray12: oklch(0.933 0 0);
     --color-gray13: oklch(0.985 0 0);
-    --color-red: light-dark(oklch(0.7 0.25 23), oklch(0.75 0.23 23));
+    --color-red: light-dark(oklch(0.65 0.25 23), oklch(0.75 0.23 23));
     --color-blue: light-dark(oklch(0.68 0.25 251.8), oklch(0.8 0.23 251.8));
     --color-green: light-dark(oklch(0.6 0.23 170.7), oklch(0.8 0.195 170.7));
     --color-iris: light-dark(oklch(0.54 0.184 278.3), oklch(0.85 0.35 270.3));
@@ -32,7 +32,7 @@
     --background-color-primary: light-dark(white, var(--vocs-color-gray4));
     --background-color-secondary: light-dark(var(--vocs-color-gray13), var(--vocs-color-gray5));
     --text-color-primary: light-dark(var(--vocs-color-gray6), var(--vocs-color-gray12));
-    --text-color-secondary: light-dark(var(--vocs-color-gray3), var(--vocs-color-gray10));
+    --text-color-secondary: light-dark(var(--vocs-color-gray8), var(--vocs-color-gray10));
     --text-color-muted: light-dark(var(--vocs-color-gray9), var(--vocs-color-gray8));
 
     /* #endregion */
@@ -96,7 +96,7 @@
     --text-color-heading: light-dark(black, white);
     --text-color-link: light-dark(black, white);
     --text-color-link-hover: light-dark(var(--vocs-color-gray7), var(--vocs-color-gray11));
-    --text-color-quote: light-dark(var(--vocs-color-gray9), var(--vocs-color-gray11));
+    --text-color-quote: light-dark(var(--vocs-color-gray7), var(--vocs-color-gray11));
 
     /* #endregion */
 
@@ -127,6 +127,7 @@
     --leading-h2: 1em;
     --leading-h3: 1em;
     --leading-li: 1.625em;
+    --leading-table: 1.325em;
 
     /* #endregion */
 

@@ -1,6 +1,5 @@
 export function CodeBlock(props: CodeBlock.Props) {
   const { className, container = true, 'data-lang': lang, 'data-title': title } = props
-  console.log(props)
   if (!container) return <pre {...props} data-md />
   return (
     <div data-code-container>
