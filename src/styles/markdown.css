@@ -106,7 +106,8 @@
 
   /* #region Anchors */
 
-  a[data-v-md] {
+  a[data-v-md],
+  [data-v-link] {
     @apply vocs:text-link vocs:font-[450] vocs:underline vocs:underline-offset-2 vocs:decoration-1 vocs:transition-colors vocs:duration-100;
 
     &:hover {

@@ -7,11 +7,11 @@ export function Link(props: Link.Props) {
   const { path } = useRouter()
 
   const isExternal = props.to?.match(/^(https?:\/\/|mailto:|tel:)/)
-  if (isExternal) return <a {...props} target="_blank" rel="noopener noreferrer" />
+  if (isExternal) return <a {...props} data-v-link target="_blank" rel="noopener noreferrer" />
 
   const [before, after] = (props.to || '').split('#')
   const to = `${before ? before : path}${after ? `#${after}` : ''}`
-  return <WakuLink {...props} to={to} />
+  return <WakuLink {...props} data-v-link to={to} />
 }
 
 export namespace Link {
