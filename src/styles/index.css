@@ -1,12 +1,10 @@
-@layer vocs.theme, theme, vocs.base, base, vocs.components, components, vocs.utilities, utilities;
-
 @import "tailwindcss/theme.css" layer(vocs.theme) prefix(vocs);
 @import "tailwindcss/preflight.css" layer(vocs.base);
 @import "tailwindcss/utilities.css" layer(vocs.utilities) prefix(vocs);
 
-@import "./theme.css";
-@import "./markdown.css";
-@import "./twoslash.css";
+@import "./theme.css" layer(vocs.theme);
+@import "./markdown.css" layer(vocs.components);
+@import "./twoslash.css" layer(vocs.components);
 
 @source "../";
 
