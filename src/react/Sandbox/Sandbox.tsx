@@ -1,3 +1,4 @@
+import { bundleDeps } from './bundleDeps.js'
 import { SandboxProvider } from './Provider.js'
 
 export async function Sandbox(props: Sandbox.Props) {
@@ -15,11 +16,14 @@ export async function Sandbox(props: Sandbox.Props) {
 
   if (!code) return null
 
+  const codeStr = (typeof code === 'function' ? code() : code).trim()
+  const bundledFiles = await bundleDeps(deps, codeStr)
+
   return (
     <article>
       <SandboxProvider
-        code={(typeof code === 'function' ? code() : code).trim()}
-        deps={deps}
+        code={codeStr}
+        bundledFiles={bundledFiles}
         showConsole={showConsole}
         showPreview={showPreview}
         autoRun={autoRun}
@@ -33,5 +37,7 @@ export async function Sandbox(props: Sandbox.Props) {
 }
 
 export declare namespace Sandbox {
-  type Props = Partial<SandboxProvider.Props>
+  type Props = SandboxProvider.Props & {
+    deps?: Record<string, string>
+  }
 }

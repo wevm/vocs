@@ -14,7 +14,7 @@ import { RunButton } from './Run.js'
 export function SandboxProvider(props: SandboxProvider.Props) {
   const {
     code: _code,
-    deps,
+    bundledFiles,
     editorProps,
     previewProps,
     consoleProps,
@@ -52,24 +52,10 @@ export function SandboxProvider(props: SandboxProvider.Props) {
       files={{
         '/code.ts': { active: true, code },
         '/index.js': { hidden: true, code: transpiledCode },
+        ...bundledFiles,
       }}
       customSetup={{
         entry: '/index.js',
-        dependencies: deps,
-        npmRegistries: [
-          {
-            limitToScopes: false,
-            enabledScopes: ['*'],
-            proxyEnabled: true,
-            registryUrl: 'https://registry.npmjs.org',
-          },
-          {
-            limitToScopes: false,
-            enabledScopes: ['*'],
-            proxyEnabled: true,
-            registryUrl: 'https://esm.sh',
-          },
-        ],
       }}
       theme={'auto'}
       className="shiki shiki-themes github-light github-dark-dimmed text-white font-mono tabular-nums text-lg mt-0.5"
@@ -110,7 +96,7 @@ export function SandboxProvider(props: SandboxProvider.Props) {
 export declare namespace SandboxProvider {
   export type Props = {
     code: (() => string) | string
-    deps: Record<string, string>
+    bundledFiles: Record<string, { code: string; hidden: true }>
     showPreview: boolean
     showConsole: boolean
     autoRun?: boolean

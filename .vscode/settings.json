@@ -13,16 +13,16 @@
   "[mdx]": {
     "editor.defaultFormatter": "unifiedjs.vscode-mdx"
   },
-  "files.exclude": {
-    "tsconfig.tmp.*": true,
-    "tsconfig.tsbuildinfo": true
-  },
   "typescript.tsdk": "node_modules/typescript/lib",
   "tailwindCSS.experimental.classRegex": [
     "vocs:(.*)",
     // support modern-monaco extraEditorClassName
     "extraEditorClassName\\(([^)]+)\\)"
   ],
+  "files.exclude": {
+    "**/tsconfig.tmp.*": true,
+    "**/tsconfig.tsbuildinfo": true
+  },
   "files.watcherExclude": {
     "**/pages.gen.ts": true
   },
