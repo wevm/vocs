@@ -4,14 +4,37 @@
   "editor.codeActionsOnSave": {
     "source.organizeImports.biome": "explicit"
   },
+  "[javascript]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
   "[typescript]": {
     "editor.defaultFormatter": "biomejs.biome"
   },
   "[typescriptreact]": {
     "editor.defaultFormatter": "biomejs.biome"
   },
+  "[html]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[css]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
   "[mdx]": {
     "editor.defaultFormatter": "unifiedjs.vscode-mdx"
+  },
+  "markdownlint.config": {
+    "MD012": false,
+    "MD033": false,
+    "MD041": false
   },
   "typescript.tsdk": "node_modules/typescript/lib",
   "tailwindCSS.experimental.classRegex": [
@@ -19,6 +42,11 @@
     // support modern-monaco extraEditorClassName
     "extraEditorClassName\\(([^)]+)\\)"
   ],
+  "files.associations": {
+    "biome.json": "jsonc",
+    ".vscode/*": "jsonc",
+    "**/*.css": "tailwindcss"
+  },
   "files.exclude": {
     "**/tsconfig.tmp.*": true,
     "**/tsconfig.tsbuildinfo": true

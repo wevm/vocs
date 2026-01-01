@@ -39,6 +39,25 @@
       "quoteStyle": "single",
       "lineWidth": 100,
       "semicolons": "asNeeded"
+    },
+    "linter": {
+      "enabled": true
+    }
+  },
+  "html": {
+    "formatter": {
+      "enabled": true
+    },
+    "linter": {
+      "enabled": true
+    }
+  },
+  "json": {
+    "formatter": {
+      "enabled": true
+    },
+    "linter": {
+      "enabled": true
     }
   },
   "assist": {
@@ -48,5 +67,29 @@
         "organizeImports": "on"
       }
     }
-  }
+  },
+  "overrides": [
+    {
+      "includes": [
+        "biome.json",
+        "**/*.jsonc",
+        ".vscode/*.json"
+      ],
+      "formatter": {
+        "enabled": true
+      },
+      "json": {
+        "linter": {
+          "enabled": true
+        },
+        "formatter": {
+          "lineWidth": 1
+        },
+        "parser": {
+          "allowComments": true,
+          "allowTrailingCommas": true
+        }
+      }
+    }
+  ]
 }
