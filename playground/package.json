@@ -14,7 +14,6 @@
   },
   "dependencies": {
     "@codesandbox/sandpack-react": "^2.20.0",
-    "modern-monaco": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
     "sucrase": "^3.35.1",
