@@ -52,6 +52,7 @@
   ],
   "dependencies": {
     "@base-ui/react": "^1.0.0",
+    "@codesandbox/sandpack-react": "^2.20.0",
     "@iconify/utils": "^3.1.0",
     "@mdx-js/mdx": "^3.1.1",
     "@mdx-js/react": "^3.1.1",
@@ -82,8 +83,10 @@
     "remark-parse": "^11.0.0",
     "remark-stringify": "^11.0.0",
     "shiki": "^3.20.0",
+    "sucrase": "^3.35.1",
     "tailwindcss": "^4.1.8",
     "tailwindcss-logical": "^4.1.0",
+    "tsx": "^4.21.0",
     "twoslash": "^0.3.6",
     "unified": "^11.0.5",
     "unist-util-visit": "^5.0.0",
