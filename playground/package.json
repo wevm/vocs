@@ -16,6 +16,7 @@
     "waku": "catalog:"
   },
   "devDependencies": {
+    "@iconify-json/lucide": "^1.2.82",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",

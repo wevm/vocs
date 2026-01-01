@@ -28,6 +28,16 @@ export function deps(): PluginOption {
     name: 'vocs:deps',
     config(config) {
       return {
+        build: {
+          ...config?.build,
+          rollupOptions: {
+            ...config?.build?.rollupOptions,
+            onwarn(warning, warn) {
+              if (warning.code === 'MODULE_LEVEL_DIRECTIVE') return
+              warn(warning)
+            },
+          },
+        },
         resolve: {
           ...config?.resolve,
           dedupe: [

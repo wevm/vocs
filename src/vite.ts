@@ -14,6 +14,7 @@ export async function vocs(): Promise<PluginOption[]> {
   return [
     Plugins.deps(),
     Plugins.icons({
+      autoInstall: true,
       compiler: 'jsx',
       jsx: 'react',
     }),
