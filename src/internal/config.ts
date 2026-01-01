@@ -2,6 +2,7 @@ import * as fs from 'node:fs'
 import * as path from 'node:path'
 import type { Options as mdx_Options } from '@mdx-js/rollup'
 import { loadConfigFromFile } from 'vite'
+import { vocs } from '../waku/vite.js'
 import * as Langs from './langs.js'
 import type { rehypeShiki } from './mdx.js'
 import type { MaybePartial, UnionOmit } from './types.js'
@@ -144,6 +145,10 @@ export type Config<partial extends boolean = false> = MaybePartial<
      */
     pagesDir: string
     /**
+     * Vite plugin for Vocs.
+     */
+    plugin: typeof vocs
+    /**
      * Root directory.
      * @default process.cwd()
      */
@@ -254,6 +259,7 @@ export function define(config: define.Options = {}): Config {
     ogImageUrl,
     outDir,
     pagesDir,
+    plugin: vocs,
     rootDir,
     srcDir,
     title,
@@ -263,7 +269,7 @@ export function define(config: define.Options = {}): Config {
 }
 
 export declare namespace define {
-  export type Options = UnionOmit<Config<true>, 'pagesDir'>
+  export type Options = UnionOmit<Config<true>, 'pagesDir' | 'plugin'>
 }
 
 export function getConfigFile(options: getConfigFile.Options = {}): string | undefined {
