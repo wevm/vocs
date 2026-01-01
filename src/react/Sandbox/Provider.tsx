@@ -9,7 +9,7 @@ import {
 } from '@codesandbox/sandpack-react'
 import * as React from 'react'
 import { transform } from 'sucrase'
-import { RunButton } from './Run.tsx'
+import { RunButton } from './Run.js'
 
 export function SandboxProvider(props: SandboxProvider.Props) {
   const {
@@ -41,7 +41,14 @@ export function SandboxProvider(props: SandboxProvider.Props) {
   return (
     <SandpackProvider
       template={'node'}
-      options={{ autorun: autoRun, ...providerProps?.options }}
+      options={{
+        recompileDelay: 1_000,
+        recompileMode: 'delayed',
+        autorun: autoRun ?? false,
+        experimental_enableServiceWorker: true,
+        experimental_enableStableServiceWorkerId: true,
+        ...providerProps?.options,
+      }}
       files={{
         '/code.ts': { active: true, code },
         '/index.js': { hidden: true, code: transpiledCode },
@@ -64,36 +71,37 @@ export function SandboxProvider(props: SandboxProvider.Props) {
           },
         ],
       }}
-      theme="auto"
+      theme={'auto'}
+      className="shiki shiki-themes github-light github-dark-dimmed text-white font-mono tabular-nums text-lg mt-0.5"
       {...providerProps}
     >
-      <div style={{ position: 'relative' }}>
+      <div className="vocs:relative">
         <SandpackCodeEditor
           showInlineErrors={true}
           showLineNumbers={true}
           showTabs={true}
-          showRunButton={false}
           {...editorProps}
+          showRunButton={false}
         />
-        <RunButton />
+        <RunButton autoRun={autoRun ?? false} />
       </div>
       <SandpackPreview
         showOpenInCodeSandbox={false}
-        showRefreshButton={false}
-        showRestartButton={false}
         showOpenNewtab={false}
         hidden={!showPreview}
         {...previewProps}
+        showRefreshButton={true}
+        showRestartButton={false}
       />
       <SandpackConsole
         hidden={!showConsole}
-        showResetConsoleButton={false}
-        showRestartButton={false}
-        showSetupProgress={false}
-        showSyntaxError={false}
+        showSyntaxError={true}
         showHeader={false}
-        className="vocs:text-white vocs:font-mono vocs:tabular-nums vocs:text-lg vocs:mt-0.5"
+        className="text-white font-mono tabular-nums text-lg mt-0.5"
         {...consoleProps}
+        showResetConsoleButton={true}
+        showRestartButton={true}
+        showSetupProgress={false}
       />
     </SandpackProvider>
   )

@@ -1,12 +1,11 @@
-import { Sandbox } from '#components/Sandbox'
+import { Sandbox } from 'vocs'
 
 # REPL
 
 <Sandbox
-  deps={{ 'viem': 'latest' }}
 
+  deps={{ 'viem': 'latest' }}
   editorProps={{showTabs:false,showLineNumbers:false}}
-  consoleProps={{showRestartButton:true,showResetConsoleButton:true}}
   code={() => /* ts */`import { mainnet } from 'viem/chains'
 import { createPublicClient, http } from 'viem'
 

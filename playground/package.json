@@ -13,11 +13,8 @@
     "preview": "NODE_OPTIONS='--import=tsx' node dist/preview.js"
   },
   "dependencies": {
-    "@codesandbox/sandpack-react": "^2.20.0",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "sucrase": "^3.35.1",
-    "tsx": "^4.21.0",
     "viem": "^2.43.3",
     "vocs": "workspace:*",
     "waku": "catalog:"

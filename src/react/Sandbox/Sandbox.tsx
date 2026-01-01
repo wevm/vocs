@@ -1,4 +1,4 @@
-import { SandboxProvider } from './Provider.tsx'
+import { SandboxProvider } from './Provider.js'
 
 export async function Sandbox(props: Sandbox.Props) {
   const {
@@ -22,11 +22,11 @@ export async function Sandbox(props: Sandbox.Props) {
         deps={deps}
         showConsole={showConsole}
         showPreview={showPreview}
-        editorProps={editorProps}
-        previewProps={previewProps}
-        consoleProps={consoleProps}
-        providerProps={providerProps}
         autoRun={autoRun}
+        {...(editorProps && { editorProps })}
+        {...(previewProps && { previewProps })}
+        {...(consoleProps && { consoleProps })}
+        {...(providerProps && { providerProps })}
       />
     </article>
   )

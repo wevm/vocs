@@ -53,6 +53,9 @@ importers:
       '@base-ui/react':
         specifier: ^1.0.0
         version: 1.0.0(@types/react@19.2.7)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      '@codesandbox/sandpack-react':
+        specifier: ^2.20.0
+        version: 2.20.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@iconify/utils':
         specifier: ^3.1.0
         version: 3.1.0
@@ -143,12 +146,18 @@ importers:
       shiki:
         specifier: ^3.20.0
         version: 3.20.0
+      sucrase:
+        specifier: ^3.35.1
+        version: 3.35.1
       tailwindcss:
         specifier: ^4.1.8
         version: 4.1.18
       tailwindcss-logical:
         specifier: ^4.1.0
         version: 4.1.0(tailwindcss@4.1.18)
+      tsx:
+        specifier: ^4.21.0
+        version: 4.21.0
       twoslash:
         specifier: ^0.3.6
         version: 0.3.6(typescript@5.9.3)
@@ -204,9 +213,6 @@ importers:
       simple-git-hooks:
         specifier: 'catalog:'
         version: 2.13.1
-      tsx:
-        specifier: ^4.21.0
-        version: 4.21.0
       typescript:
         specifier: 'catalog:'
         version: 5.9.3
@@ -225,21 +231,12 @@ importers:
 
   playground:
     dependencies:
-      '@codesandbox/sandpack-react':
-        specifier: ^2.20.0
-        version: 2.20.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       react:
         specifier: 'catalog:'
         version: 19.2.3
       react-dom:
         specifier: 'catalog:'
         version: 19.2.3(react@19.2.3)
-      sucrase:
-        specifier: ^3.35.1
-        version: 3.35.1
-      tsx:
-        specifier: ^4.21.0
-        version: 4.21.0
       viem:
         specifier: ^2.43.3
         version: 2.43.3(typescript@5.9.3)
