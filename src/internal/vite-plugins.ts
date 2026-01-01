@@ -28,13 +28,6 @@ export function deps(): PluginOption {
     name: 'vocs:deps',
     config(config) {
       return {
-        optimizeDeps: {
-          include: [
-            ...(config?.optimizeDeps?.include ?? []),
-            '@base-ui/react/popover',
-            '@base-ui/react/tabs',
-          ],
-        },
         resolve: {
           ...config?.resolve,
           dedupe: [

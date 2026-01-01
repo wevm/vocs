@@ -1,4 +1,7 @@
 import { config } from 'virtual:vocs/config'
+// biome-ignore lint/suspicious/noTsIgnore: _
+// @ts-ignore
+import styles from '../styles/index.css?url'
 import { Head } from './Head.js'
 import { Root_client } from './Root.client.js'
 import { ScrollRestoration } from './ScrollRestoration.js'
@@ -8,6 +11,7 @@ export async function Root({ children }: { children: React.ReactNode }) {
   return (
     <html data-vocs lang="en" style={{ colorScheme, '--vocs-color-accent': accentColor } as never}>
       <head>
+        <link rel="stylesheet" href={styles} />
         <Head />
       </head>
       <body data-version="1.0">

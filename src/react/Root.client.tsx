@@ -1,7 +1,4 @@
 'use client'
-// biome-ignore lint/suspicious/noTsIgnore: _
-// @ts-ignore
-import '../styles/index.css'
 
 import { useEffect } from 'react'
 import { useConfig } from './useConfig.js'
