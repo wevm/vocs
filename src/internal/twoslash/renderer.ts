@@ -5,7 +5,7 @@ import { fromMarkdown } from 'mdast-util-from-markdown'
 import { gfmFromMarkdown } from 'mdast-util-gfm'
 import { defaultHandlers, toHast } from 'mdast-util-to-hast'
 import type { NodeError, NodeHover, NodeQuery } from 'twoslash'
-import { remarkMdScope } from '../mdx.js'
+import { remarkVocsScope } from '../mdx.js'
 
 /**
  * An alternative renderer that providers better prefixed class names,
@@ -44,7 +44,7 @@ export function rich(): TwoslashRenderer {
       const mdast = fromMarkdown(docs, {
         mdastExtensions: [gfmFromMarkdown()],
       })
-      remarkMdScope()(mdast)
+      remarkVocsScope()(mdast)
 
       const hast = toHast(mdast, {
         handlers: {

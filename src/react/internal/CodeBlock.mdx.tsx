@@ -1,6 +1,6 @@
 export function CodeBlock(props: CodeBlock.Props) {
   const { className, container = true, 'data-v-lang': _lang, 'data-v-title': title } = props
-  if (!container) return <pre {...props} data-v-md />
+  if (!container) return <pre {...props} data-v />
   return (
     <div data-v-code-container>
       {title && (
@@ -11,7 +11,7 @@ export function CodeBlock(props: CodeBlock.Props) {
       <pre
         {...props}
         className={`${className}${title ? ' vocs:rounded-t-none vocs:border-t-0' : ''}`}
-        data-v-md
+        data-v
       />
     </div>
   )

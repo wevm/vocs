@@ -21,7 +21,7 @@ export const components: MDXComponents = {
     >,
   ) {
     if ('data-v-callout' in props) return <Callout {...props} variant={props['data-v-context']} />
-    return <aside data-v-md {...props} />
+    return <aside {...props} data-v />
   },
   div(props: React.PropsWithChildren<React.ComponentProps<'div'>>) {
     if ('data-v-code-group' in props) return <CodeGroup {...props} />
@@ -29,7 +29,7 @@ export const components: MDXComponents = {
     return <div {...props} />
   },
   code(props: React.PropsWithChildren<React.ComponentProps<'code'>>) {
-    return <code {...props} data-v-md />
+    return <code {...props} data-v />
   },
   pre(
     props: React.PropsWithChildren<React.ComponentProps<'pre'>> & {

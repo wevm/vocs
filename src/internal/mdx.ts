@@ -79,7 +79,7 @@ export function getCompileOptions(
           remarkMdxFrontmatter,
           remarkSteps,
           remarkSubheading,
-          remarkMdScope,
+          remarkVocsScope,
           ...(markdown?.remarkPlugins ?? []),
         ],
         recmaPlugins: [recmaMdxLayout(config), ...(markdown?.recmaPlugins ?? [])],
@@ -256,16 +256,16 @@ export function rehypeLinks(config: Config.Config) {
 }
 
 /**
- * Remark plugin that adds `data-v-md` attribute to MDX component elements.
+ * Remark plugin that adds `data-v` attribute to elements.
  * This enables scoped styling for markdown-rendered content, without conflicting with user styles.
  */
-export function remarkMdScope() {
+export function remarkVocsScope() {
   return (tree: MdAst.Root) => {
     UnistUtil.visit(tree, (node) => {
       const n = node as MdAst.Node & { data?: { hProperties?: Record<string, unknown> } }
       n.data ??= {}
       n.data.hProperties ??= {}
-      n.data.hProperties['data-v-md'] = ''
+      n.data.hProperties['data-v'] = ''
     })
   }
 }

@@ -28,36 +28,36 @@
 
   /* #region Primitives */
 
-  h1[data-v-md] {
+  h1[data-v] {
     @apply vocs:text-heading vocs:text-h1 vocs:font-medium vocs:tracking-[-0.04em] vocs:leading-h1;
   }
 
-  h2[data-v-md],
+  h2[data-v],
   section[data-footnotes] h2 {
     @apply vocs:text-heading vocs:text-h2 vocs:font-medium vocs:tracking-tight vocs:leading-h2;
   }
 
-  h3[data-v-md] {
+  h3[data-v] {
     @apply vocs:text-heading vocs:text-h3 vocs:font-medium vocs:tracking-tight vocs:leading-h3;
   }
 
-  h4[data-v-md] {
+  h4[data-v] {
     @apply vocs:text-heading vocs:text-h4 vocs:font-semibold vocs:tracking-tight;
   }
 
-  h5[data-v-md] {
+  h5[data-v] {
     @apply vocs:text-heading vocs:text-h5 vocs:font-semibold vocs:tracking-tight;
   }
 
-  h6[data-v-md] {
+  h6[data-v] {
     @apply vocs:text-heading vocs:text-h6 vocs:font-semibold vocs:tracking-tight;
   }
 
-  strong[data-v-md] {
+  strong[data-v] {
     @apply vocs:font-semibold;
   }
 
-  p[data-v-md] {
+  p[data-v] {
     @apply vocs:leading-p vocs:tracking-normal;
   }
 
@@ -65,21 +65,21 @@
 
   /* #region Main Heading (hgroup/h1) */
 
-  hgroup[data-v-md] {
+  hgroup[data-v] {
     @apply vocs:text-h1;
   }
 
-  hgroup[data-v-md],
-  article[data-v-content] > h1[data-v-md] {
+  hgroup[data-v],
+  article[data-v-content] > h1[data-v] {
     @apply vocs:border-b vocs:border-primary;
   }
 
-  hgroup[data-v-md] p {
+  hgroup[data-v] p {
     @apply vocs:text-secondary vocs:text-subtitle vocs:font-[450] vocs:leading-base vocs:mt-[0.25em];
   }
 
-  hgroup[data-v-md]:not(:last-child),
-  article[data-v-content] > h1[data-v-md]:not(:last-child) {
+  hgroup[data-v]:not(:last-child),
+  article[data-v-content] > h1[data-v]:not(:last-child) {
     @apply vocs:pb-[0.75em];
     margin-block-end: calc(calc(var(--vocs-spacing) * 8) * calc(1 - var(--tw-space-y-reverse))) !important;
   }
@@ -106,7 +106,7 @@
 
   /* #region Anchors */
 
-  a[data-v-md],
+  a[data-v],
   [data-v-link] {
     @apply vocs:text-link vocs:inline-block vocs:font-[450] vocs:underline vocs:underline-offset-2 vocs:decoration-1 vocs:transition-colors vocs:duration-100;
 
@@ -115,23 +115,23 @@
     }
   }
 
-  [data-v-context="info"] a[data-v-md] {
+  [data-v-context="info"] a[data-v] {
     @apply vocs:decoration-info;
   }
 
-  [data-v-context="warning"] a[data-v-md] {
+  [data-v-context="warning"] a[data-v] {
     @apply vocs:decoration-warning;
   }
 
-  [data-v-context="danger"] a[data-v-md] {
+  [data-v-context="danger"] a[data-v] {
     @apply vocs:decoration-destructive;
   }
 
-  [data-v-context="tip"] a[data-v-md] {
+  [data-v-context="tip"] a[data-v] {
     @apply vocs:decoration-tip;
   }
 
-  [data-v-context="success"] a[data-v-md] {
+  [data-v-context="success"] a[data-v] {
     @apply vocs:decoration-success;
   }
 
@@ -147,7 +147,7 @@
 
   /* #region Blockquotes */
 
-  blockquote[data-v-md] {
+  blockquote[data-v] {
     @apply vocs:text-[15px] vocs:border-l-3 vocs:border-primary vocs:bg-secondary vocs:px-4 vocs:py-3 vocs:text-quote;
   }
 
@@ -155,7 +155,7 @@
 
   /* #region Callouts */
 
-  aside[data-v-md][data-v-callout] {
+  aside[data-v][data-v-callout] {
     @apply vocs:rounded-lg vocs:text-callout vocs:p-3 vocs:relative vocs:border;
 
     &,
@@ -223,7 +223,7 @@
 
   /* #region Lists */
 
-  ol[data-v-md] {
+  ol[data-v] {
     @apply vocs:list-decimal vocs:ps-5 vocs:mb-4;
 
     & & {
@@ -235,7 +235,7 @@
     }
   }
 
-  li[data-v-md] {
+  li[data-v] {
     @apply vocs:leading-li;
 
     &:not(:last-child) {
@@ -243,7 +243,7 @@
     }
   }
 
-  ul[data-v-md] {
+  ul[data-v] {
     @apply vocs:list-disc vocs:ps-6;
 
     & & {
@@ -255,7 +255,7 @@
     }
   }
 
-  :is(ol, ul)[data-v-md] :is(ol, ul)[data-v-md] {
+  :is(ol, ul)[data-v] :is(ol, ul)[data-v] {
     @apply vocs:mb-0 vocs:pt-2 vocs:ps-4 vocs:pb-0;
   }
 
@@ -263,7 +263,7 @@
 
   /* #region Tables */
 
-  table[data-v-md] {
+  table[data-v] {
     @apply vocs:border vocs:border-primary vocs:border-separate vocs:border-spacing-0 vocs:leading-table vocs:overflow-hidden vocs:mb-6 vocs:w-[calc(100%+calc(var(--vocs-spacing)*6))] vocs:table vocs:-mx-3 vocs:rounded-lg;
 
     & td {
@@ -295,7 +295,7 @@
 
   /* #region Superscript */
 
-  sup[data-v-md] > a {
+  sup[data-v] > a {
     @apply vocs:ms-0.5 vocs:text-primary! vocs:underline-offset-2;
   }
 
@@ -303,7 +303,7 @@
 
   /* #region Horizontal Rule */
 
-  hr[data-v-md] {
+  hr[data-v] {
     @apply vocs:border-primary;
   }
 
@@ -332,7 +332,7 @@
 
   /* #region Details */
 
-  details[data-v-md] {
+  details[data-v] {
     @apply vocs:space-y-4;
 
     & > summary {
@@ -360,11 +360,11 @@
     }
   }
 
-  aside[data-v-md] details {
+  aside[data-v] details {
     @apply vocs:space-y-2;
   }
 
-  :not(aside[data-v-md]) > details {
+  :not(aside[data-v]) > details {
     @apply vocs:text-secondary;
   }
 
@@ -372,7 +372,7 @@
 
   /* #region Code blocks */
 
-  pre[data-v-md] {
+  pre[data-v] {
     @apply vocs:bg-code-block vocs:py-5 vocs:overflow-x-auto vocs:rounded-lg vocs:border vocs:border-primary;
 
     & > code {
@@ -490,41 +490,41 @@
 
   /* #region Inline code */
 
-  :not(pre) > code[data-v-md]:not(.twoslash-popup-code) {
+  :not(pre) > code[data-v]:not(.twoslash-popup-code) {
     @apply vocs:bg-inline-code vocs:font-medium vocs:border vocs:border-primary vocs:text-inline-code vocs:rounded-sm vocs:px-1.5 vocs:py-0.5;
   }
 
-  [data-v-context="note"] code[data-v-md] {
+  [data-v-context="note"] code[data-v] {
     && {
       @apply vocs:bg-inline-code/60! vocs:border-note-tint;
     }
   }
 
-  [data-v-context="info"] code[data-v-md] {
+  [data-v-context="info"] code[data-v] {
     && {
       @apply vocs:bg-inline-code/60! vocs:border-info-tint;
     }
   }
 
-  [data-v-context="warning"] code[data-v-md] {
+  [data-v-context="warning"] code[data-v] {
     && {
       @apply vocs:bg-inline-code/60! vocs:border-warning-tint;
     }
   }
 
-  [data-v-context="danger"] code[data-v-md] {
+  [data-v-context="danger"] code[data-v] {
     && {
       @apply vocs:bg-inline-code/60! vocs:border-destructive-tint;
     }
   }
 
-  [data-v-context="tip"] :is(code[data-v-md], span.shiki) {
+  [data-v-context="tip"] :is(code[data-v], span.shiki) {
     && {
       @apply vocs:bg-inline-code/60! vocs:border-tip-tint;
     }
   }
 
-  [data-v-context="success"] :is(code[data-v-md], span.shiki) {
+  [data-v-context="success"] :is(code[data-v], span.shiki) {
     && {
       @apply vocs:bg-inline-code/60! vocs:border-success-tint;
     }

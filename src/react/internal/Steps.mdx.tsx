@@ -5,7 +5,7 @@ import * as React from 'react'
 export function Steps(props: React.PropsWithChildren<React.ComponentProps<'div'>>) {
   const children = React.Children.toArray(props.children)
   return (
-    <div data-v-md data-v-steps>
+    <div data-v data-v-steps>
       {/** biome-ignore lint/suspicious/noExplicitAny: _ */}
       {children.map(({ props }: any, i) => {
         const [title, ...children] = Array.isArray(props.children)
