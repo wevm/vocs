@@ -20,6 +20,7 @@ import type { VFile } from 'vfile'
 import { createLogger } from 'vite'
 import * as yaml from 'yaml'
 import type * as Config from './config.js'
+import { remarkSandbox } from './sandbox.js'
 import * as ShikiTransformers from './shiki-transformers.js'
 import type { ExactPartial, UnionOmit } from './types.js'
 
@@ -77,6 +78,7 @@ export function getCompileOptions(
           remarkGfm,
           remarkMetaFrontmatter,
           remarkMdxFrontmatter,
+          remarkSandbox,
           remarkSteps,
           remarkSubheading,
           remarkVocsScope,

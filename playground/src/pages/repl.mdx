@@ -1,12 +1,7 @@
-import { Sandbox } from 'vocs'
-
 # REPL
 
-<Sandbox
-  autoRun={true}
-  deps={{ 'viem': 'latest' }}
-  editorProps={{ showTabs:false, showLineNumbers:false }}
-  code={() => /* ts */`import { mainnet } from 'viem/chains'
+```ts sandbox autorun lineNumbers=false tabs=false
+import { mainnet } from 'viem/chains'
 import { createPublicClient, http } from 'viem'
 
 const client = createPublicClient({
@@ -16,5 +11,4 @@ const client = createPublicClient({
 
 const blockNumber = await client.getBlockNumber()
 console.log(blockNumber)
-`}
-/>
+```
