@@ -3,14 +3,22 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "imports": {
+    "#*": "./src/*",
+    "#package.json": "./package.json"
+  },
   "scripts": {
     "dev": "NODE_OPTIONS='--import=tsx' vite",
     "build": "tsc -b && NODE_OPTIONS='--import=tsx' vite build",
     "preview": "NODE_OPTIONS='--import=tsx' node dist/preview.js"
   },
   "dependencies": {
+    "@codesandbox/sandpack-react": "^2.20.0",
+    "modern-monaco": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
+    "sucrase": "^3.35.1",
+    "tsx": "^4.21.0",
     "viem": "^2.43.3",
     "vocs": "workspace:*",
     "waku": "catalog:"
