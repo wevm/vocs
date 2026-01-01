@@ -10,7 +10,7 @@ export function Link(props: Link.Props) {
 
   const [before, after] = (props.to || '').split('#')
   const to = `${before ? before : path}${after ? `#${after}` : ''}`
-  return <WakuLink {...props} data-v-link to={to} />
+  return <WakuLink {...props} data-v-link to={to} unstable_prefetchOnEnter />
 }
 
 export namespace Link {
