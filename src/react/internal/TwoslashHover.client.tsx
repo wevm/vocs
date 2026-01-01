@@ -56,12 +56,12 @@ export namespace TwoslashHover {
         const sentinel = el.querySelector('[data-v-overflow-sentinel]')
         if (!sentinel) continue
 
-        el.dataset['v-overflows'] = 'true'
+        el.dataset['overflows'] = 'true'
 
         const observer = new IntersectionObserver(
           ([entry]) => {
-            if (entry?.isIntersecting) delete el.dataset['v-overflows']
-            else el.dataset['v-overflows'] = 'true'
+            if (entry?.isIntersecting) delete el.dataset['overflows']
+            else el.dataset['overflows'] = 'true'
           },
           { root: el, threshold: 0.5 },
         )

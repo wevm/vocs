@@ -33,7 +33,7 @@
     @apply vocs:text-[0.75em] vocs:leading-code vocs:max-h-50 vocs:overflow-y-auto;
   }
 
-  & [data-v-overflows] {
+  & [data-overflows] {
     mask-image: linear-gradient(to bottom, black calc(100% - 2rem), transparent 100%);
   }
 
