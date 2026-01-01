@@ -310,11 +310,8 @@ export function virtualConfig(config: Config.Config): PluginOption {
     },
     load(id) {
       if (id === resolvedVirtualModuleId) {
-        let content = ''
-
-        content += `export const config = ${Config.serialize(config)}`
-
-        return content
+        const currentConfig = Config.getGlobal() ?? config
+        return `export const config = ${Config.serialize(currentConfig)}`
       }
       return
     },

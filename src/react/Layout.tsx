@@ -1,18 +1,17 @@
 import { Head } from './Head.js'
+import * as Layout_client from './Layout.client.js'
 
 export function Layout(props: Layout.Props) {
   const { children } = props
   return (
     <>
       <Head />
-      <main className="vocs:isolate" data-v-container>
-        <article data-v-content>{children}</article>
-      </main>
+      <Layout_client.Main>{children}</Layout_client.Main>
     </>
   )
 }
 
-export declare namespace Layout {
+export namespace Layout {
   export type Props = {
     children: React.ReactNode
   }

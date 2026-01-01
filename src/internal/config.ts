@@ -6,6 +6,8 @@ import * as Langs from './langs.js'
 import type { rehypeShiki } from './mdx.js'
 import type { MaybePartial, UnionOmit } from './types.js'
 
+export type ThemeValue<value> = { light: value; dark: value }
+
 export type Config<partial extends boolean = false> = MaybePartial<
   partial,
   {
@@ -112,11 +114,11 @@ export type Config<partial extends boolean = false> = MaybePartial<
     /**
      * Icon URL.
      */
-    iconUrl?: string | { light: string; dark: string } | undefined
+    iconUrl?: string | ThemeValue<string> | undefined
     /**
      * Logo URL.
      */
-    logoUrl?: string | { light: string; dark: string } | undefined
+    logoUrl?: string | ThemeValue<string> | undefined
     /**
      * OG Image URL. `null` to disable.
      *

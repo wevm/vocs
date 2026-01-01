@@ -1,21 +1,4 @@
 /* #region Layout */
-article[data-v-content] {
-  @apply vocs:px-content-px vocs:py-content-py vocs:relative vocs:w-full vocs:space-y-6;
-
-  /* biome-ignore lint/correctness/noUnknownFunction: _ */
-  @media (width > theme(--breakpoint-md)) {
-    & {
-      @apply vocs:mx-auto vocs:max-w-content;
-    }
-  }
-
-  /* biome-ignore lint/correctness/noUnknownFunction: _ */
-  @media (width <= theme(--breakpoint-md)) {
-    & {
-      @apply vocs:overflow-x-hidden;
-    }
-  }
-}
 
 [data-v-content]
   > :is(p, h3, h4, h5, h6, hgroup, strong, a, blockquote, ol, ul)

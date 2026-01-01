@@ -31,6 +31,7 @@
 
   --background-color-primary: light-dark(white, var(--vocs-color-gray4));
   --background-color-secondary: light-dark(var(--vocs-color-gray13), var(--vocs-color-gray5));
+  --background-color-dark: light-dark(var(--vocs-color-gray13), var(--vocs-color-gray2));
   --text-color-primary: light-dark(var(--vocs-color-gray6), var(--vocs-color-gray12));
   --text-color-secondary: light-dark(var(--vocs-color-gray8), var(--vocs-color-gray10));
   --text-color-muted: light-dark(var(--vocs-color-gray9), var(--vocs-color-gray8));
@@ -78,6 +79,7 @@
   --border-color-warning-tint: oklch(from var(--vocs-color-yellow) l c h / 16%);
 
   --border-color-primary: light-dark(var(--vocs-color-gray12), var(--vocs-color-gray6));
+  --border-color-secondary: light-dark(var(--vocs-color-gray12), var(--vocs-color-gray5));
 
   /* #endregion */
 
@@ -131,19 +133,22 @@
 
   --spacing-code-block-px: 1.5rem;
   --spacing-content-px: 3rem;
-  --spacing-content-py: 2rem;
+  --spacing-content-py: 2.5rem;
   --spacing-content: calc(70ch + (var(--vocs-spacing-content-px) * 2));
   --spacing-outline: 280px;
+  --spacing-logo: max(calc((100vw - var(--vocs-spacing-content)) / 2), var(--vocs-spacing-sidebar));
+  --spacing-gutter: max(calc((100vw - var(--vocs-spacing-content)) / 2), var(--vocs-spacing-sidebar));
   --spacing-sidebar-px: 1.5rem;
   --spacing-sidebar-py: 0rem;
   --spacing-sidebar: 300px;
   --spacing-topNav-px: var(--vocs-spacing-content-px);
-  --spacing-topNav: 60px;
+  --spacing-topNav: 56px;
 
   /* #endregion */
 
   /* #region Breakpoints */
 
+  --breakpoint-lg: 1094px;
   --breakpoint-md: 748px;
 
   /* #endregion */
@@ -166,23 +171,25 @@
 }
 
 /* biome-ignore lint/correctness/noUnknownFunction: _ */
-@media (width <= theme(--breakpoint-lg)) {
+@media (width < theme(--breakpoint-lg)) {
   :root {
+    --vocs-spacing-gutter: 0px;
     --vocs-spacing-content-px: 1.5rem;
     --vocs-spacing-content-py: 3rem;
     --vocs-spacing-sidebar-px: 1rem;
     --vocs-spacing-sidebar-py: 1rem;
-    --vocs-spacing-topNav: 48rem;
+    --vocs-spacing-topNav: 48px;
   }
 }
 
 /* biome-ignore lint/correctness/noUnknownFunction: _ */
-@media (width <= theme(--breakpoint-md)) {
+@media (width < theme(--breakpoint-md)) {
   :root {
     --vocs-text-h1: 1.75rem;
 
     --vocs-spacing-code-block-px: 1rem;
     --vocs-spacing-content-px: 1rem;
     --vocs-spacing-content-py: 2rem;
+    --vocs-spacing-sidebar-px: 1rem;
   }
 }
