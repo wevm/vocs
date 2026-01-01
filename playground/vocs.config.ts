@@ -11,6 +11,7 @@ export default defineConfig({
     light: '/icon-light.svg',
     dark: '/icon-dark.svg',
   },
+  preferPureSsg: true,
   title: 'Vocs',
   titleTemplate: '%s – Vocs',
 })

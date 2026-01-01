@@ -42,7 +42,7 @@ export async function vocs(options: vocs.Options = {}): Promise<PluginOption[]> 
       clientChunks: (meta) => meta.serverChunk,
     }),
     Plugins.main(wakuConfig),
-    Plugins.userEntries(wakuConfig),
+    Plugins.userEntries(wakuConfig, config),
     Plugins.virtualConfig(wakuConfig),
     Plugins.defaultAdapter(wakuConfig),
     Plugins.notFound(),

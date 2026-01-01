@@ -1,5 +1,6 @@
 'use client'
 
+import { Link } from 'waku'
 import { useConfig } from './useConfig.js'
 
 export function Main(props: Main.Props) {
@@ -11,7 +12,9 @@ export function Main(props: Main.Props) {
         data-v-gutter-logo
       >
         <div className="vocs:w-sidebar vocs:px-sidebar-px vocs:min-w-fit" data-v-logo>
-          <Logo />
+          <Link to="/">
+            <Logo />
+          </Link>
         </div>
       </div>
       <div

@@ -3,6 +3,7 @@ import * as fs from 'node:fs/promises'
 import * as path from 'node:path'
 import type { Plugin } from 'vite'
 import type { Config as WakuConfig } from 'waku/config'
+import type * as VocsConfig from '../../internal/config.js'
 import {
   EXTENSIONS,
   SRC_CLIENT_ENTRY,
@@ -78,7 +79,7 @@ await import('./serve-node.js');
   }
 }
 
-export function userEntries(config: Required<WakuConfig>): Plugin {
+export function userEntries(config: Required<WakuConfig>, vocsConfig: VocsConfig.Config): Plugin {
   return {
     name: 'waku:vite-plugins:user-entries',
     // resolve user entries and fallbacks to "managed mode" if not found.
@@ -151,6 +152,7 @@ export default adapter(
   },
   {
     middlewareModules: import.meta.glob(${JSON.stringify(middlewareGlob)}),
+    static: ${vocsConfig.preferPureSsg},
   },
 );
 `

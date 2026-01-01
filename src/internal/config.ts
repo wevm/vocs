@@ -146,6 +146,16 @@ export type Config<partial extends boolean = false> = MaybePartial<
      */
     pagesDir: string
     /**
+     * Whether to prefer pure SSG (ie. a pure static site) over SSR.
+     *
+     * Compatible with:
+     * - Netlify
+     * - Vercel
+     *
+     * @default false
+     */
+    preferPureSsg: boolean
+    /**
      * Root directory.
      * @default process.cwd()
      */
@@ -223,6 +233,7 @@ export function define(config: define.Options = {}): Config {
     logoUrl,
     ogImageUrl,
     markdown,
+    preferPureSsg = false,
     outDir = 'dist',
     rootDir = process.cwd(),
     srcDir = 'src',
@@ -256,6 +267,7 @@ export function define(config: define.Options = {}): Config {
     ogImageUrl,
     outDir,
     pagesDir,
+    preferPureSsg,
     rootDir,
     srcDir,
     title,
