@@ -1,32 +1,39 @@
-import { bundleDeps } from './bundleDeps.js'
+import redent from 'redent'
+
+import { bundleDependencies } from './bundleDependencies.js'
 import { SandboxProvider } from './Provider.js'
 
 export async function Sandbox(props: Sandbox.Props) {
   const {
     code,
-    deps = {},
+    packages = [],
+    imports = [],
     editorProps,
     previewProps,
     consoleProps,
     providerProps,
     autoRun = false,
+    readOnly = false,
     showConsole = true,
     showPreview = false,
   } = props
 
   if (!code) return null
 
-  const codeStr = (typeof code === 'function' ? code() : code).trim()
-  const bundledFiles = await bundleDeps(deps, codeStr)
+  const codeString = redent((typeof code === 'function' ? code() : code).trim())
+  const dependencies = Object.fromEntries(packages.map((pkg) => [pkg, 'latest']))
+  const bundledFiles = showPreview ? {} : await bundleDependencies(dependencies, codeString)
 
   return (
     <article>
       <SandboxProvider
-        code={codeStr}
-        bundledFiles={bundledFiles}
+        code={codeString}
+        autoRun={autoRun}
+        readOnly={readOnly}
         showConsole={showConsole}
         showPreview={showPreview}
-        autoRun={autoRun}
+        bundledFiles={bundledFiles}
+        {...(showPreview && imports.length > 0 && { imports })}
         {...(editorProps && { editorProps })}
         {...(previewProps && { previewProps })}
         {...(consoleProps && { consoleProps })}
@@ -37,7 +44,9 @@ export async function Sandbox(props: Sandbox.Props) {
 }
 
 export declare namespace Sandbox {
-  type Props = SandboxProvider.Props & {
-    deps?: Record<string, string>
+  type Props = Omit<SandboxProvider.Props, 'code' | 'bundledFiles'> & {
+    imports?: string[]
+    packages?: string[]
+    code?: (() => string) | string
   }
 }

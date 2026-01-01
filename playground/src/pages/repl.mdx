@@ -1,6 +1,8 @@
-# REPL
+import { DevTools } from '#components/Dev'
 
-```ts sandbox autorun lineNumbers=false tabs=false
+<DevTools />
+
+```ts sandbox autorun lineNumbers=false tabs=false readonly=false
 import { mainnet } from 'viem/chains'
 import { createPublicClient, http } from 'viem'
 
@@ -10,5 +12,32 @@ const client = createPublicClient({
 })
 
 const blockNumber = await client.getBlockNumber()
-console.log(blockNumber)
+console.log('blockNumber', blockNumber)
+```
+
+
+```tsx sandbox autorun lineNumbers=false tabs=false readonly=false preview
+import React from 'react'
+import { arbitrum } from '@wagmi/core/chains'
+import { createConfig, http, getBlockNumber } from '@wagmi/core'
+
+const config = createConfig({
+  chains: [arbitrum],
+  transports: {
+    [arbitrum.id]: http()
+  }
+})
+console.log(config.state.chainId)
+
+export default function App() {
+  const [blockNumber, setBlockNumber] = React.useState<string>('')
+
+  React.useEffect(() => getBlockNumber(config).then(setBlockNumber), [])
+
+  return (
+    <pre>
+      <strong>Block Number:</strong> {blockNumber}
+    </pre>
+  )
+}
 ```
