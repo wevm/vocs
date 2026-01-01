@@ -1,4 +1,4 @@
-@layer vocs.theme, vocs.base, vocs.components, vocs.utilities, theme, base, components, utilities;
+@layer vocs.theme, theme, vocs.base, base, vocs.components, components, vocs.utilities, utilities;
 
 @import "tailwindcss/theme.css" layer(vocs.theme) prefix(vocs);
 @import "tailwindcss/preflight.css" layer(vocs.base);
