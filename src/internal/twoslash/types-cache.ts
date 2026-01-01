@@ -1,26 +1,26 @@
-import { createHash } from 'node:crypto'
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
-import { join, resolve } from 'node:path'
+import * as crypto from 'node:crypto'
+import * as node_fs from 'node:fs'
+import * as path from 'node:path'
 import type { TwoslashTypesCache } from '@shikijs/twoslash'
 
-export function fs(options: fs.Options = {}): TwoslashTypesCache {
-  const dir = options.dir ?? resolve(import.meta.dirname, '../.cache/twoslash')
+export function fs(options: fs.Options): TwoslashTypesCache {
+  const { dir = path.resolve(import.meta.dirname, '../../.cache/twoslash') } = options
 
   return {
     init() {
-      mkdirSync(dir, { recursive: true })
+      node_fs.mkdirSync(dir, { recursive: true })
     },
     read(code) {
-      const hash = createHash('md5').update(code).digest('hex').slice(0, 12)
-      const filePath = join(dir, `${hash}.json`)
-      if (!existsSync(filePath)) return null
-      return JSON.parse(readFileSync(filePath, { encoding: 'utf-8' }))
+      const hash = crypto.createHash('md5').update(code).digest('hex').slice(0, 12)
+      const filePath = path.join(dir, `${hash}.json`)
+      if (!node_fs.existsSync(filePath)) return null
+      return JSON.parse(node_fs.readFileSync(filePath, { encoding: 'utf-8' }))
     },
     write(code, data) {
-      const hash = createHash('md5').update(code).digest('hex').slice(0, 12)
-      const filePath = join(dir, `${hash}.json`)
+      const hash = crypto.createHash('md5').update(code).digest('hex').slice(0, 12)
+      const filePath = path.join(dir, `${hash}.json`)
       const json = JSON.stringify(data)
-      writeFileSync(filePath, json, { encoding: 'utf-8' })
+      node_fs.writeFileSync(filePath, json, { encoding: 'utf-8' })
     },
   }
 }
@@ -30,6 +30,6 @@ export declare namespace fs {
     /**
      * The directory to store the cache files.
      */
-    dir?: string
+    dir?: string | undefined
   }
 }

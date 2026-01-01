@@ -19,6 +19,7 @@
     --color-gray11: oklch(0.863 0 0);
     --color-gray12: oklch(0.933 0 0);
     --color-gray13: oklch(0.985 0 0);
+    --color-accent: light-dark(var(--vocs-color-black, var(--vocs-color-white)));
     --color-red: light-dark(oklch(0.65 0.25 23), oklch(0.75 0.23 23));
     --color-blue: light-dark(oklch(0.68 0.25 251.8), oklch(0.8 0.23 251.8));
     --color-green: light-dark(oklch(0.6 0.23 170.7), oklch(0.8 0.195 170.7));
@@ -92,9 +93,9 @@
     --background-color-code-highlighted: light-dark(var(--vocs-color-gray12), var(--vocs-color-gray4));
     --background-color-inline-code: light-dark(var(--vocs-color-gray13), var(--vocs-color-gray2));
     --border-color-code-highlighted: light-dark(var(--vocs-color-gray11), var(--vocs-color-gray6));
-    --border-color-tab-active: light-dark(black, white);
+    --border-color-tab-active: var(--vocs-color-accent);
     --text-color-heading: light-dark(black, white);
-    --text-color-link: light-dark(black, white);
+    --text-color-link: var(--vocs-color-accent);
     --text-color-link-hover: light-dark(var(--vocs-color-gray7), var(--vocs-color-gray11));
     --text-color-quote: light-dark(var(--vocs-color-gray7), var(--vocs-color-gray11));
 

@@ -6,10 +6,9 @@ import * as MdxPageContext from './MdxPageContext.js'
 import { useConfig } from './useConfig.js'
 
 export function Head() {
+  const config = useConfig()
   const { path: pathname } = useRouter()
   const { frontmatter } = MdxPageContext.use()
-
-  const config = useConfig()
 
   const { baseUrl, iconUrl, logoUrl, ogImageUrl, basePath } = config
 
@@ -48,7 +47,7 @@ export function Head() {
   return (
     <>
       {/* Title & Description */}
-      {fullTitle && <title>{fullTitle}</title>}
+      {fullTitle && <title key="title">{fullTitle}</title>}
       {description && <meta name="description" content={description} />}
 
       {/* Base URL */}
@@ -87,6 +86,9 @@ export function Head() {
 
       {/* Article metadata */}
       {frontmatter?.author && <meta property="article:author" content={frontmatter.author} />}
+      {frontmatter?.lastModified && (
+        <meta property="article:modified_time" content={frontmatter.lastModified} />
+      )}
 
       {/* Twitter */}
       <meta name="twitter:card" content="summary_large_image" />

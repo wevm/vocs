@@ -41,7 +41,7 @@ export function router(
 
     for (const file in allPages) {
       if (!allPages[file]) continue
-      if (file.endsWith('_layout.mdx.tsx')) continue
+      if (file.endsWith('_mdx-wrapper.tsx')) continue
 
       const importFn = allPages[file]
       if (!importFn) continue
@@ -84,12 +84,6 @@ export function router(
             component,
             render: 'static',
             id: pathItems.slice(1).join('/'),
-          })
-        } else if (pathItems.at(-1) === '_layout') {
-          createLayout({
-            path,
-            component,
-            render: 'static',
           })
         } else if (pathItems.at(-1) === '_root') {
           createRoot({

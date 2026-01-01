@@ -29,6 +29,7 @@
         "useTemplate": "off"
       },
       "complexity": {
+        "useLiteralKeys": "off",
         "noImportantStyles": "off"
       }
     }

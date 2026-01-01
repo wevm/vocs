@@ -138,6 +138,11 @@
       "src": "./src/waku/internal/routes/*.tsx",
       "default": "./dist/waku/internal/routes/*.js"
     },
+    "./waku/internal": {
+      "types": "./dist/waku/internal/index.d.ts",
+      "src": "./src/waku/internal/index.ts",
+      "default": "./dist/waku/internal/index.js"
+    },
     "./waku/router": {
       "types": "./dist/waku/router.d.ts",
       "src": "./src/waku/router.ts",

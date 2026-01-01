@@ -1,4 +1,5 @@
 import * as fs from 'node:fs'
+import * as path from 'node:path'
 import type { Options as mdx_Options } from '@mdx-js/rollup'
 import { loadConfigFromFile } from 'vite'
 import * as Langs from './langs.js'
@@ -8,6 +9,16 @@ import type { MaybePartial, UnionOmit } from './types.js'
 export type Config<partial extends boolean = false> = MaybePartial<
   partial,
   {
+    /**
+     * Accent color.
+     *
+     * - Use `light-dark()` syntax to define colors for light + dark schemes.
+     * - Use a string to define a single color for all schemes.
+     *
+     * @default "light-dark(white, black)"
+     *
+     */
+    accentColor: `light-dark(${string}, ${string})` | (string & {})
     // /**
     //  * Whether or not to show the AI call-to-action dropdown on docs pages (ie. "Open in ChatGPT"),
     //  * as well as any configuration.
@@ -49,10 +60,6 @@ export type Config<partial extends boolean = false> = MaybePartial<
      * https://vocs.dev
      */
     baseUrl?: string | undefined
-    /**
-     * Code highlight configuration.
-     */
-    codeHighlight: MaybePartial<partial, UnionOmit<rehypeShiki.Options, 'twoslash'>>
     // /**
     //  * Path to blog pages relative to project root.
     //  * Used to extract posts from the filesystem.
@@ -60,12 +67,10 @@ export type Config<partial extends boolean = false> = MaybePartial<
     //  * @default "./pages/blog"
     //  */
     // blogDir?: string
-    // /**
-    //  * Directory to store cache files.
-    //  *
-    //  * @default "node_modules/vocs/.cache"
-    //  */
-    // cacheDir?: string
+    /**
+     * Absolute path to the directory to store cache files.
+     */
+    cacheDir: string
     /**
      * Whether or not to check for dead links in the documentation.
      *
@@ -76,6 +81,20 @@ export type Config<partial extends boolean = false> = MaybePartial<
      * @default true
      */
     checkDeadlinks: boolean | 'warn'
+    /**
+     * Code highlight configuration.
+     */
+    codeHighlight: MaybePartial<partial, UnionOmit<rehypeShiki.Options, 'twoslash'>>
+    /**
+     * Color scheme.
+     *
+     * - Use `light` to set to light color scheme.
+     * - Use `dark` to set to dark color scheme.
+     * - Use `light dark` to set to system color scheme.
+     *
+     * @default "light dark"
+     */
+    colorScheme: 'light' | 'dark' | 'light dark'
     /**
      * General description for the documentation.
      */
@@ -90,13 +109,6 @@ export type Config<partial extends boolean = false> = MaybePartial<
     //  * @default { google: "Inter" }
     //  */
     // font?: Normalize<Font<parsed>>
-    // /**
-    //  * Additional tags to include in the `<head>` tag of the page HTML.
-    //  */
-    // head?:
-    //   | ReactElement
-    //   | { [path: string]: ReactElement }
-    //   | ((params: { path: string }) => ReactElement | Promise<ReactElement>)
     /**
      * Icon URL.
      */
@@ -157,10 +169,6 @@ export type Config<partial extends boolean = false> = MaybePartial<
      * @default "src"
      */
     srcDir: string
-    // /**
-    //  * Theme configuration.
-    //  */
-    // theme?: Normalize<Theme<parsed, colorScheme>>
     /**
      * Documentation title.
      *
@@ -191,6 +199,8 @@ export type Frontmatter = {
   title?: string | undefined
   /** Description of the page. */
   description?: string | undefined
+  /** Last modified date of the page. */
+  lastModified?: string | undefined
   /** Robots directive (e.g., "noindex", "nofollow"). */
   robots?: string | undefined
   /** Additional metadata for the page. */
@@ -199,10 +209,17 @@ export type Frontmatter = {
 
 export function define(config: define.Options = {}): Config {
   const {
+    accentColor = 'light-dark(black, white)',
     basePath = '/',
+    baseUrl,
+    cacheDir = path.resolve(import.meta.dirname, '.cache'),
     codeHighlight,
+    colorScheme = 'light dark',
     checkDeadlinks = true,
     description,
+    iconUrl,
+    logoUrl,
+    ogImageUrl,
     markdown,
     outDir = 'dist',
     rootDir = process.cwd(),
@@ -215,7 +232,10 @@ export function define(config: define.Options = {}): Config {
   const pagesDir = 'pages'
 
   return {
+    accentColor,
+    baseUrl,
     basePath,
+    cacheDir,
     checkDeadlinks,
     codeHighlight: {
       ...codeHighlight,
@@ -226,8 +246,12 @@ export function define(config: define.Options = {}): Config {
         ...(codeHighlight?.themes ?? {}),
       },
     },
+    colorScheme,
     description,
+    iconUrl,
+    logoUrl,
     markdown,
+    ogImageUrl,
     outDir,
     pagesDir,
     rootDir,

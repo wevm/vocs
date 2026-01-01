@@ -18,7 +18,8 @@ export {
 
 let twoslasher: TwoslashInstance
 
-export function twoslash(options: twoslash.Options = {}): ShikiTransformer {
+export function twoslash(options: twoslash.Options): ShikiTransformer {
+  const { cacheDir } = options
   const {
     explicitTrigger = true,
     disableTriggers,
@@ -29,7 +30,7 @@ export function twoslash(options: twoslash.Options = {}): ShikiTransformer {
     renderer = Renderer.rich(),
     throws = true,
     twoslashOptions,
-    typesCache = TypesCache.fs(),
+    typesCache = TypesCache.fs({ dir: cacheDir }),
   } = options
 
   // singleton twoslasher saves ~1.5s cold start time
@@ -59,7 +60,7 @@ export function twoslash(options: twoslash.Options = {}): ShikiTransformer {
 }
 
 export declare namespace twoslash {
-  export type Options = TransformerTwoslashIndexOptions
+  export type Options = TransformerTwoslashIndexOptions & { cacheDir?: string | undefined }
 }
 
 export function emptyLine(): ShikiTransformer {

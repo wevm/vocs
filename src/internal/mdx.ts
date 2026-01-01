@@ -40,7 +40,7 @@ export function getCompileOptions(
   rehypePlugins: PluggableList
   recmaPlugins: PluggableList
 } {
-  const { codeHighlight, markdown, twoslash } = config
+  const { cacheDir, codeHighlight, markdown, twoslash } = config
   const { jsxImportSource = 'react' } = markdown ?? {}
 
   const { recmaPlugins, rehypePlugins, remarkPlugins } = (() => {
@@ -60,7 +60,7 @@ export function getCompileOptions(
       return {
         rehypePlugins: [
           rehypeAutolinkHeadings,
-          rehypeShiki({ ...codeHighlight, twoslash }),
+          rehypeShiki({ ...codeHighlight, cacheDir, twoslash }),
           rehypeSlug,
           ...(markdown?.rehypePlugins ?? []),
           rehypeCodeInLink,
@@ -119,12 +119,14 @@ export function recmaMdxLayout(config: Config.Config) {
       if (dir === path.dirname(pagesDirPath))
         return `import { Layout as _Layout } from 'vocs/react';`
       if (layoutPaths.has(dir)) return `import _Layout from '${layoutPaths.get(dir)}';`
-      const layoutPath = path.join(dir, '_layout.mdx.tsx')
+      const layoutPath = path.join(dir, '_mdx-wrapper.tsx')
       const layoutFile = fs.existsSync(layoutPath)
       if (!layoutFile) return getMdxLayoutImport(path.dirname(dir))
       layoutPaths.set(dir, layoutPath)
       return `import _Layout from '${layoutPath}';`
     }
+
+    const lastModified = vfile.path ? fs.statSync(vfile.path).mtime.toISOString() : undefined
 
     const importAst = EstreeUtil.fromJs(
       `import { components as _components } from 'vocs/mdx';
@@ -137,9 +139,10 @@ export function recmaMdxLayout(config: Config.Config) {
 
     const wrapperAst = EstreeUtil.fromJs(
       `export function Page(props = {}) {
+        const _frontmatter = { ...frontmatter, lastModified: ${lastModified ? `"${lastModified}"` : 'undefined'} };
         return _createElement(
           _MdxPageContext.Provider, 
-          { frontmatter }, 
+          { frontmatter: _frontmatter }, 
           _createElement(
             _Layout,
             null,
@@ -205,7 +208,6 @@ export function rehypeLinks(config: Config.Config) {
       const element = node as HAst.Element
       if (element.tagName !== 'a') return
 
-      // biome-ignore lint/complexity/useLiteralKeys: _
       const href = element.properties?.['href']
       if (typeof href !== 'string') return
 
@@ -221,7 +223,6 @@ export function rehypeLinks(config: Config.Config) {
         const cleanHref = href
           .replace(new RegExp(`\\.(${extPattern})$`), '') // remove extension
           .replace(/\/index$/, '') // remove /index
-        // biome-ignore lint/complexity/useLiteralKeys: _
         element.properties['href'] = cleanHref
       }
 
@@ -276,7 +277,7 @@ export function remarkMdScope() {
 export function rehypeShiki(
   options: ExactPartial<rehypeShiki.Options> = {},
 ): [typeof shiki, RehypeShikiOptions] {
-  const { themes, twoslash = true } = options
+  const { cacheDir, themes, twoslash = true } = options
   return [
     shiki,
     {
@@ -289,7 +290,9 @@ export function rehypeShiki(
       // TODO: infer `langs` for faster cold start.
       transformers: [
         twoslash
-          ? ShikiTransformers.twoslash(typeof twoslash === 'object' ? twoslash : {})
+          ? ShikiTransformers.twoslash(
+              typeof twoslash === 'object' ? { ...twoslash, cacheDir } : {},
+            )
           : undefined,
         ShikiTransformers.emptyLine(),
         ShikiTransformers.lineNumbers(),
@@ -309,6 +312,7 @@ export function rehypeShiki(
 export declare namespace rehypeShiki {
   export type Options = UnionOmit<ExactPartial<RehypeShikiOptions>, 'inline' | 'rootStyle'> &
     UnionOmit<CodeOptionsMultipleThemes<BuiltinTheme>, 'defaultColor'> & {
+      cacheDir?: string | undefined
       twoslash?: ShikiTransformers.twoslash.Options | false | undefined
     }
 }
@@ -494,7 +498,6 @@ export function remarkDetails() {
 export function remarkExtractFrontmatter() {
   return (tree: MdAst.Root, file: VFile) => {
     const yamlNode = tree.children.find((node) => node.type === 'yaml')
-    // biome-ignore lint/complexity/useLiteralKeys: _
     if (yamlNode) file.data['frontmatter'] = yaml.parse(yamlNode.value)
   }
 }

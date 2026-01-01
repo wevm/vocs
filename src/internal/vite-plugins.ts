@@ -115,7 +115,6 @@ export function llms(config: Config.Config): PluginOption {
           .use(rehypePlugins)
           .process(content)
 
-        // biome-ignore lint/complexity/useLiteralKeys: _
         const { title, description } = file.data['frontmatter'] as Config.Frontmatter
         if (!title) return
 
@@ -257,7 +256,7 @@ export function mdx(config: Config.Config): PluginOption {
  */
 export function routeWatcher(config: Config.Config): PluginOption {
   const pagesDir = path.resolve(config.rootDir, config.srcDir, config.pagesDir)
-  const fileNames = ['_layout.mdx.tsx']
+  const fileNames = ['_mdx-wrapper.tsx']
 
   return {
     name: 'vocs:route-watcher',
