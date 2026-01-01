@@ -48,4 +48,11 @@ export const components: MDXComponents = {
     if (props.className?.includes('twoslash-hover')) return <TwoslashHover {...props} />
     return <span {...props} />
   },
+  table(props: React.PropsWithChildren<React.ComponentProps<'table'>>) {
+    return (
+      <div data-v-table-wrapper>
+        <table {...props} />
+      </div>
+    )
+  },
 }

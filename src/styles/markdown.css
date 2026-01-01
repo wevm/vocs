@@ -263,7 +263,7 @@ ul[data-v] {
 /* #region Tables */
 
 table[data-v] {
-  @apply vocs:border vocs:border-primary vocs:border-separate vocs:border-spacing-0 vocs:leading-table vocs:overflow-hidden vocs:mb-6 vocs:w-[calc(100%+calc(var(--vocs-spacing)*6))] vocs:table vocs:-mx-3 vocs:rounded-lg;
+  @apply vocs:border-spacing-0 vocs:leading-table vocs:table vocs:w-full;
 
   & td {
     @apply vocs:text-td vocs:py-2 vocs:border-b vocs:border-primary;
@@ -288,6 +288,10 @@ table[data-v] {
       @apply vocs:text-right;
     }
   }
+}
+
+div[data-v-table-wrapper] {
+  @apply vocs:overflow-x-auto vocs:border vocs:border-primary vocs:mb-6 vocs:-mx-3 vocs:rounded-lg vocs:max-md:rounded-none vocs:max-md:-mx-4;
 }
 
 /* #endregion */
