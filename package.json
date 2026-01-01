@@ -128,11 +128,6 @@
       "src": "./src/mdx.tsx",
       "default": "./dist/mdx.js"
     },
-    "./react": {
-      "types": "./dist/react/index.d.ts",
-      "src": "./src/react/index.ts",
-      "default": "./dist/react/index.js"
-    },
     "./waku/internal/routes/*": {
       "types": "./dist/waku/internal/routes/*.d.ts",
       "src": "./src/waku/internal/routes/*.tsx",
@@ -148,15 +143,10 @@
       "src": "./src/waku/router.ts",
       "default": "./dist/waku/router.js"
     },
-    "./waku/vite": {
+    "./vite": {
       "types": "./dist/waku/vite.d.ts",
       "src": "./src/waku/vite.ts",
       "default": "./dist/waku/vite.js"
-    },
-    "./vite": {
-      "types": "./dist/vite.d.ts",
-      "src": "./src/vite.ts",
-      "default": "./dist/vite.js"
     },
     "./styles/*": {
       "types": "./dist/styles/*.d.ts",

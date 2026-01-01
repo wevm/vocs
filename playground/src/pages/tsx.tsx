@@ -1,4 +1,4 @@
-import * as Vocs from 'vocs/react'
+import * as Vocs from 'vocs'
 
 export default function Tsx() {
   return (

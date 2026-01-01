@@ -1,6 +1,5 @@
 'use client'
 
-// TODO: Migrate to an agnostic `useRouter` (to support frameworks beyond Waku).
 import { useRouter } from 'waku'
 import * as MdxPageContext from './MdxPageContext.js'
 import { useConfig } from './useConfig.js'

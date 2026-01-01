@@ -116,8 +116,7 @@ export function recmaMdxLayout(config: Config.Config) {
     if (defaultExportIndex === -1) return
 
     function getMdxLayoutImport(dir: string) {
-      if (dir === path.dirname(pagesDirPath))
-        return `import { Layout as _Layout } from 'vocs/react';`
+      if (dir === path.dirname(pagesDirPath)) return `import { Layout as _Layout } from 'vocs';`
       if (layoutPaths.has(dir)) return `import _Layout from '${layoutPaths.get(dir)}';`
       const layoutPath = path.join(dir, '_mdx-wrapper.tsx')
       const layoutFile = fs.existsSync(layoutPath)
@@ -130,7 +129,7 @@ export function recmaMdxLayout(config: Config.Config) {
 
     const importAst = EstreeUtil.fromJs(
       `import { components as _components } from 'vocs/mdx';
-       import { MdxPageContext as _MdxPageContext } from 'vocs/react';
+       import { MdxPageContext as _MdxPageContext } from 'vocs';
        import { createElement as _createElement } from 'react';
        ${getMdxLayoutImport(vfile.dirname ?? pagesDirPath)}`,
       { module: true },
