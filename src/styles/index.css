@@ -1,14 +1,16 @@
-@import "tailwindcss/theme.css" layer(vocs.theme) prefix(vocs);
-@import "tailwindcss/preflight.css" layer(vocs.base);
-@import "tailwindcss/utilities.css" layer(vocs.utilities) prefix(vocs);
+@layer vocs_theme, theme, vocs_base, base, vocs_components, components, vocs_utilities, utilities;
 
-@import "./theme.css" layer(vocs.theme);
-@import "./markdown.css" layer(vocs.components);
-@import "./twoslash.css" layer(vocs.components);
+@import "tailwindcss/theme.css" layer(vocs_theme) prefix(vocs);
+@import "tailwindcss/preflight.css" layer(vocs_base);
+@import "tailwindcss/utilities.css" layer(vocs_utilities) prefix(vocs);
+
+@import "./theme.css" layer(vocs_theme);
+@import "./markdown.css" layer(vocs_components);
+@import "./twoslash.css" layer(vocs_components);
 
 @source "../";
 
-@layer vocs.base {
+@layer vocs_base {
   :root {
     @apply vocs:bg-primary vocs:scheme-light-dark vocs:text-primary vocs:tracking-[0.005em];
     font-feature-settings:

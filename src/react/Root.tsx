@@ -11,10 +11,6 @@ export async function Root({ children }: { children: React.ReactNode }) {
   return (
     <html data-vocs lang="en" style={{ colorScheme, '--vocs-color-accent': accentColor } as never}>
       <head>
-        <style>
-          @layer vocs.theme, theme, vocs.base, base, vocs.components, components, vocs.utilities,
-          utilities;
-        </style>
         <link rel="stylesheet" href={styles} precedence="default" />
         <Head />
       </head>
