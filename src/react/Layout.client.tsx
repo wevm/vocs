@@ -241,6 +241,7 @@ export function SidebarItem(props: SidebarItem.Props) {
         className={SidebarItem.className({ link: true })}
         data-v-sidebar-item
         to={link}
+        unstable_prefetchOnView
         {...(active && { 'data-active': true })}
       >
         {text}
