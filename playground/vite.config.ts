@@ -1,8 +1,8 @@
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
+import devtoolsJson from 'vite-plugin-devtools-json'
 import { vocs } from 'vocs/vite'
 
-// https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), vocs()],
+  plugins: [devtoolsJson(), react(), vocs()],
 })

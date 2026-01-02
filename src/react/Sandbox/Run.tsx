@@ -9,23 +9,22 @@ export function RunButton(props: { autoRun: boolean }) {
   const { sandpack } = useSandpack()
   const [hasRun, setHasRun] = React.useState(autoRun)
 
-  const transpileAndRun = React.useCallback(() => {
-    const tsCode = sandpack.files['/code.ts']?.code
-    if (!tsCode) return
-
-    try {
-      const transpiled = transform(tsCode, { transforms: ['typescript'] }).code
-      sandpack.updateFile('/index.js', transpiled)
-      sandpack.runSandpack()
-      setHasRun(true)
-    } catch {}
+  const run = React.useCallback(() => {
+    const tsCode = sandpack.files['/index.ts']?.code ?? sandpack.files['/App.tsx']?.code
+    if (tsCode) {
+      try {
+        sandpack.updateFile('/index.js', transform(tsCode, { transforms: ['typescript'] }).code)
+      } catch {}
+    }
+    sandpack.runSandpack()
+    setHasRun(true)
   }, [sandpack])
 
   if (hasRun && autoRun) return null
 
   return (
     <div className="vocs:absolute vocs:top-2 vocs:right-2 vocs:flex vocs:gap-1">
-      <RoundedButton onClick={transpileAndRun}>
+      <RoundedButton onClick={run}>
         <RunIcon />
       </RoundedButton>
     </div>

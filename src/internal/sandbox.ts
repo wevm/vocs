@@ -1,24 +1,32 @@
 import { fromJs } from 'esast-util-from-js'
 import type { Program } from 'estree'
-import type { Code, Root } from 'mdast'
+import type { Root } from 'mdast'
 import type { MdxJsxAttribute, MdxJsxFlowElement, MdxjsEsm } from 'mdast-util-mdx'
 import type { Plugin } from 'unified'
 import { visit } from 'unist-util-visit'
 
-const SANDBOX_FLAG = 'sandbox'
-const SANDBOX_IMPORT_SOURCE = 'vocs'
+const sandboxFlag = 'sandbox'
+const importSource = 'vocs'
 
-interface SandboxOptions {
+interface Options {
   autoRun: boolean
-  showLineNumbers: boolean
   showTabs: boolean
+  readonly: boolean
+  showLineNumbers: boolean
+  showPreview: boolean
 }
 
 /**
  * Remark plugin that transforms code blocks with `sandbox` meta into <Sandbox> components.
  *
- * Example:
- * ```ts sandbox autorun lineNumbers=false tabs=false
+ * @example
+ * ```ts sandbox
+ * import { createPublicClient } from 'viem'
+ * console.log('hello')
+ * ```
+ *
+ * @example With options
+ * ```ts sandbox autorun lineNumbers tabs
  * import { createPublicClient } from 'viem'
  * console.log('hello')
  * ```
@@ -27,88 +35,63 @@ export const remarkSandbox: Plugin<[], Root> = () => {
   return (tree) => {
     let foundSandbox = false
 
-    visit(tree, 'code', (node: Code, index, parent) => {
+    visit(tree, 'code', (node, index, parent) => {
       if (!parent || typeof index !== 'number') return
 
       const meta = node.meta ?? ''
-      if (!meta.includes(SANDBOX_FLAG)) return
+      if (!meta.includes(sandboxFlag)) return
 
       foundSandbox = true
       const code = node.value
-      const deps = extractDeps(code)
+      const { packages, imports } = extractDependencies(code)
       const options = parseOptions(meta)
 
       const attributes: MdxJsxAttribute[] = [
-        createJsxAttribute('code', `\`${escapeTemplateString(code)}\``),
-        createJsxAttribute('deps', JSON.stringify(deps)),
+        createAttribute('code', escapeTemplateString(code)),
+        createAttribute('packages', JSON.stringify(packages)),
+        createAttribute('imports', JSON.stringify(imports)),
       ]
 
-      if (options.autoRun) {
-        attributes.push(createJsxAttribute('autoRun', 'true'))
-      }
+      if (options.autoRun) attributes.push(createAttribute('autoRun', 'true'))
+      if (options.showPreview) attributes.push(createAttribute('showPreview', 'true'))
 
-      // Build editorProps if any editor options are set
-      const editorProps: Record<string, boolean> = {}
-      if (!options.showLineNumbers) editorProps['showLineNumbers'] = false
-      if (!options.showTabs) editorProps['showTabs'] = false
+      const editorProps = buildEditorProps(options)
+      if (Object.keys(editorProps).length > 0)
+        attributes.push(createAttribute('editorProps', JSON.stringify(editorProps)))
 
-      if (Object.keys(editorProps).length > 0) {
-        attributes.push(createJsxAttribute('editorProps', JSON.stringify(editorProps)))
-      }
-
-      const sandboxElement: MdxJsxFlowElement = {
+      const element: MdxJsxFlowElement = {
         type: 'mdxJsxFlowElement',
         name: 'Sandbox',
         attributes,
         children: [],
       }
 
-      parent.children.splice(index, 1, sandboxElement)
+      parent.children.splice(index, 1, element)
     })
 
-    if (!foundSandbox) return
-
-    const hasImport = tree.children.some(
-      (child): child is MdxjsEsm =>
-        child.type === 'mdxjsEsm' &&
-        typeof child.value === 'string' &&
-        child.value.includes(SANDBOX_IMPORT_SOURCE) &&
-        child.value.includes('Sandbox'),
-    )
-
-    if (!hasImport) tree.children.unshift(createSandboxImportNode())
+    if (foundSandbox && !hasExistingImport(tree)) {
+      tree.children.unshift(createImportNode())
+    }
   }
 }
 
-function parseOptions(meta: string): SandboxOptions {
-  const options: SandboxOptions = {
-    autoRun: false,
-    showLineNumbers: true,
-    showTabs: true,
+function parseOptions(meta: string): Options {
+  const flags = meta.split(' ').slice(1)
+  return {
+    autoRun: meta.includes('autorun') && !flags.includes('autorun=false'),
+    showLineNumbers: meta.includes('lineNumbers') && !flags.includes('lineNumbers=false'),
+    showTabs: meta.includes('tabs') && !flags.includes('tabs=false'),
+    readonly: meta.includes('readonly') && !flags.includes('readonly=false'),
+    showPreview: meta.includes('preview') && !flags.includes('preview=false'),
   }
-
-  if (meta.includes('autorun')) {
-    options.autoRun = true
-  }
-
-  const lineNumbersMatch = meta.match(/lineNumbers=(true|false)/)
-  if (lineNumbersMatch) {
-    options.showLineNumbers = lineNumbersMatch[1] === 'true'
-  }
-
-  const tabsMatch = meta.match(/tabs=(true|false)/)
-  if (tabsMatch) {
-    options.showTabs = tabsMatch[1] === 'true'
-  }
-
-  return options
 }
 
-function extractDeps(code: string): Record<string, string> {
-  const deps: Record<string, string> = {}
-  const importRegex = /import\s+(?:[^'"]+\s+from\s+)?['"]([^'"]+)['"]/g
+function extractDependencies(code: string): { packages: string[]; imports: string[] } {
+  const packages = new Set<string>()
+  const imports = new Set<string>()
+  const regex = /import\s+(?:[^'"]+\s+from\s+)?['"]([^'"]+)['"]/g
 
-  for (const match of code.matchAll(importRegex)) {
+  for (const match of code.matchAll(regex)) {
     const importPath = match[1]
     if (!importPath || importPath.startsWith('.') || importPath.startsWith('/')) continue
 
@@ -116,20 +99,28 @@ function extractDeps(code: string): Record<string, string> {
       ? importPath.split('/').slice(0, 2).join('/')
       : importPath.split('/')[0]
 
-    if (pkgName && !deps[pkgName]) {
-      deps[pkgName] = 'latest'
+    if (pkgName) {
+      packages.add(pkgName)
+      imports.add(importPath)
     }
   }
 
-  return deps
+  return { packages: [...packages], imports: [...imports] }
 }
 
-function escapeTemplateString(str: string): string {
-  return str.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$/g, '\\$')
+function buildEditorProps(options: Options): Record<string, boolean> {
+  const props: Record<string, boolean> = {}
+  if (!options.showLineNumbers) props['showLineNumbers'] = false
+  if (!options.showTabs) props['showTabs'] = false
+  if (options.readonly) props['readOnly'] = true
+  return props
 }
 
-function createJsxAttribute(name: string, expressionCode: string): MdxJsxAttribute {
-  // Wrap in parens so objects parse as expressions, not blocks
+function escapeTemplateString(code: string): string {
+  return `\`${code.replaceAll(/\\/g, '\\\\').replaceAll(/`/g, '\\`').replaceAll(/\$/g, '\\$')}\``
+}
+
+function createAttribute(name: string, expressionCode: string): MdxJsxAttribute {
   const estree = fromJs(`(${expressionCode})`, { module: false })
   return {
     type: 'mdxJsxAttribute',
@@ -142,18 +133,24 @@ function createJsxAttribute(name: string, expressionCode: string): MdxJsxAttribu
   }
 }
 
-function createSandboxImportNode(): MdxjsEsm {
+function hasExistingImport(tree: Root): boolean {
+  return tree.children.some(
+    (child): child is MdxjsEsm =>
+      child.type === 'mdxjsEsm' &&
+      typeof child.value === 'string' &&
+      child.value.includes(importSource) &&
+      child.value.includes('Sandbox'),
+  )
+}
+
+function createImportNode(): MdxjsEsm {
   const program: Program = {
     type: 'Program',
     sourceType: 'module',
     body: [
       {
         type: 'ImportDeclaration',
-        source: {
-          type: 'Literal',
-          value: SANDBOX_IMPORT_SOURCE,
-          raw: `'${SANDBOX_IMPORT_SOURCE}'`,
-        },
+        source: { type: 'Literal', value: importSource, raw: `'${importSource}'` },
         attributes: [],
         specifiers: [
           {
@@ -168,7 +165,7 @@ function createSandboxImportNode(): MdxjsEsm {
 
   return {
     type: 'mdxjsEsm',
-    value: `import { Sandbox } from '${SANDBOX_IMPORT_SOURCE}'\n`,
+    value: `import { Sandbox } from '${importSource}'\n`,
     data: { estree: program },
   }
 }
