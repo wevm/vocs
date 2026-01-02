@@ -119,37 +119,14 @@ if (import.meta.hot) {
         return `
 import { router } from 'vocs/waku/router';
 import adapter from 'waku/adapters/default';
-import { DedupeHead } from 'vocs/waku/internal';
-
-const wrapRenderHtml = (renderHtml) => async (elementsStream, html, options) => {
-  const response = await renderHtml(elementsStream, html, options);
-  const body = response.body;
-  if (!body) return response;
-  return new Response(body.pipeThrough(DedupeHead.transformStream()), {
-    status: response.status,
-    statusText: response.statusText,
-    headers: response.headers,
-  });
-};
-
-const handlers = router(
-  import.meta.glob(
-    ${JSON.stringify(globPattern)},
-    { base: ${JSON.stringify(globBase)} }
-  )
-);
 
 export default adapter(
-  {
-    handleRequest: (input, utils) => handlers.handleRequest(input, {
-      ...utils,
-      renderHtml: wrapRenderHtml(utils.renderHtml),
-    }),
-    handleBuild: (utils) => handlers.handleBuild({
-      ...utils,
-      renderHtml: wrapRenderHtml(utils.renderHtml),
-    }),
-  },
+  router(
+    import.meta.glob(
+      ${JSON.stringify(globPattern)},
+      { base: ${JSON.stringify(globBase)} }
+    )
+  ),
   {
     middlewareModules: import.meta.glob(${JSON.stringify(middlewareGlob)}),
     static: ${vocsConfig.preferPureSsg},
