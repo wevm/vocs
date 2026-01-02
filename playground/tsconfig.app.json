@@ -20,7 +20,6 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "erasableSyntaxOnly": true,
     "resolvePackageJsonImports": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true

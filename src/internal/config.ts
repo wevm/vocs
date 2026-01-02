@@ -4,6 +4,7 @@ import type { Options as mdx_Options } from '@mdx-js/rollup'
 import { loadConfigFromFile } from 'vite'
 import * as Langs from './langs.js'
 import type { rehypeShiki } from './mdx.js'
+import type * as Sidebar from './sidebar.js'
 import type { MaybePartial, UnionOmit } from './types.js'
 
 export type ThemeValue<value> = { light: value; dark: value }
@@ -164,10 +165,17 @@ export type Config<partial extends boolean = false> = MaybePartial<
     //  * Configuration for docs search.
     //  */
     // search?: Normalize<Search>
-    // /**
-    //  * Navigation displayed on the sidebar.
-    //  */
-    // sidebar?: Normalize<Sidebar>
+    /**
+     * Navigation displayed on the sidebar.
+     */
+    sidebar?:
+      | Sidebar.SidebarItem<0>[]
+      | {
+          [path: string]:
+            | Sidebar.SidebarItem<0>[]
+            | { backLink?: boolean; items: Sidebar.SidebarItem<0>[] }
+        }
+      | undefined
     // /**
     //  * Social links displayed in the top navigation.
     //  */
@@ -236,6 +244,7 @@ export function define(config: define.Options = {}): Config {
     preferPureSsg = false,
     outDir = 'dist',
     rootDir = process.cwd(),
+    sidebar,
     srcDir = 'src',
     title = 'Docs',
     titleTemplate = `%s – ${title}`,
@@ -269,6 +278,7 @@ export function define(config: define.Options = {}): Config {
     pagesDir,
     preferPureSsg,
     rootDir,
+    sidebar,
     srcDir,
     title,
     titleTemplate,

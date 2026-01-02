@@ -6,6 +6,7 @@ export default defineConfig({
     alias: {
       vocs: path.resolve(import.meta.dirname, 'src'),
     },
+    include: ['./src/**/*.{test,spec}.?(c|m)[jt]s?(x)'],
     globals: true,
     passWithNoTests: true,
   },

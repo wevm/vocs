@@ -17,7 +17,8 @@
   --color-gray10: oklch(0.72 0 0);
   --color-gray11: oklch(0.863 0 0);
   --color-gray12: oklch(0.933 0 0);
-  --color-gray13: oklch(0.985 0 0);
+  --color-gray13: oklch(0.955 0 0);
+  --color-gray14: oklch(0.985 0 0);
   --color-accent: red;
   --color-red: light-dark(oklch(0.65 0.25 23), oklch(0.75 0.23 23));
   --color-blue: light-dark(oklch(0.68 0.25 251.8), oklch(0.8 0.23 251.8));
@@ -30,8 +31,9 @@
   /* #region Standard Colors */
 
   --background-color-primary: light-dark(white, var(--vocs-color-gray4));
-  --background-color-secondary: light-dark(var(--vocs-color-gray13), var(--vocs-color-gray5));
-  --background-color-dark: light-dark(var(--vocs-color-gray13), var(--vocs-color-gray2));
+  --background-color-secondary: light-dark(var(--vocs-color-gray14), var(--vocs-color-gray5));
+  --background-color-dark: light-dark(var(--vocs-color-gray14), var(--vocs-color-gray2));
+  --background-color-darkHover: light-dark(var(--vocs-color-gray13), var(--vocs-color-gray5));
   --text-color-primary: light-dark(var(--vocs-color-gray6), var(--vocs-color-gray12));
   --text-color-secondary: light-dark(var(--vocs-color-gray8), var(--vocs-color-gray10));
   --text-color-muted: light-dark(var(--vocs-color-gray9), var(--vocs-color-gray8));
@@ -86,9 +88,9 @@
   /* #region Semantic Colors */
 
   --background-color-blockquote: var(--vocs-color-background2);
-  --background-color-code-block: light-dark(var(--vocs-color-gray13), var(--vocs-color-gray2));
+  --background-color-code-block: light-dark(var(--vocs-color-gray14), var(--vocs-color-gray2));
   --background-color-code-highlighted: light-dark(var(--vocs-color-gray12), var(--vocs-color-gray4));
-  --background-color-inline-code: light-dark(var(--vocs-color-gray13), var(--vocs-color-gray2));
+  --background-color-inline-code: light-dark(var(--vocs-color-gray14), var(--vocs-color-gray2));
   --border-color-code-highlighted: light-dark(var(--vocs-color-gray11), var(--vocs-color-gray6));
   --border-color-tab-active: var(--vocs-color-accent);
   --text-color-heading: light-dark(black, white);
