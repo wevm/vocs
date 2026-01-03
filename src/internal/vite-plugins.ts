@@ -278,6 +278,35 @@ export function routeWatcher(config: Config.Config): PluginOption {
 }
 
 /**
+ * Vite plugin that provides user styles from `_root.css` in the pages directory.
+ */
+export function userStyles(config: Config.Config): PluginOption {
+  const virtualModuleId = 'virtual:vocs/user-styles'
+  const resolvedVirtualModuleId = `\0${virtualModuleId}`
+  const stylesPath = path.resolve(config.rootDir, config.srcDir, config.pagesDir, '_root.css')
+
+  return {
+    name: 'vocs:user-styles',
+    enforce: 'pre',
+    async resolveId(id) {
+      if (id === virtualModuleId) return resolvedVirtualModuleId
+      return
+    },
+    async load(id) {
+      if (id === resolvedVirtualModuleId) {
+        try {
+          await fs.access(stylesPath)
+          return `import styles from '${stylesPath}?url'; export default styles;`
+        } catch {
+          return 'export default undefined;'
+        }
+      }
+      return
+    },
+  }
+}
+
+/**
  * Vite plugin that provides the Vocs configuration.
  *
  * @param config - Vocs configuration.

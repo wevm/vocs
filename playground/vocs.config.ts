@@ -4,8 +4,8 @@ export default defineConfig({
   checkDeadlinks: false,
   description: 'Vocs is a library for creating documentation websites.',
   logoUrl: {
-    light: '/logo-light.svg',
-    dark: '/logo-dark.svg',
+    light: '/logo-tight-light.svg',
+    dark: '/logo-tight-dark.svg',
   },
   iconUrl: {
     light: '/icon-light.svg',
