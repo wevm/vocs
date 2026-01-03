@@ -142,7 +142,7 @@
   --border-color-code-highlighted: light-dark(var(--vocs-color-gray11), var(--vocs-color-gray6));
   --border-color-tab-active: var(--vocs-color-accent);
   --text-color-heading: light-dark(black, white);
-  --text-color-link: var(black, white);
+  --text-color-link: light-dark(black, white);
   --text-color-link-hover: light-dark(var(--vocs-color-gray7), var(--vocs-color-gray11));
   --text-color-quote: light-dark(var(--vocs-color-gray7), var(--vocs-color-gray11));
 
