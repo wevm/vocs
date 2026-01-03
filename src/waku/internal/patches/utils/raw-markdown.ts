@@ -34,16 +34,18 @@ const aiUserAgents = [
   'GoogleAgent-Mariner',
 ]
 
-export async function getMarkdownForPath(request: Request): Promise<string | null> {
+type RawContentResult = { content: string; contentType: string } | null
+
+export async function getMarkdownForPath(request: Request): Promise<RawContentResult> {
   const url = new URL(request.url)
 
   const userAgent = request.headers.get('user-agent') ?? ''
   const isAiAgent = aiUserAgents.some((agent) => userAgent.includes(agent))
 
-  const isMarkdownRequest = url.pathname.endsWith('.md')
-  if (!isMarkdownRequest && !isAiAgent) return null
+  const isTextRequest = url.pathname.endsWith('.txt')
+  if (!isTextRequest && !isAiAgent) return null
 
-  const pagePath = isMarkdownRequest ? url.pathname.slice(0, -3) : url.pathname
+  const pagePath = isTextRequest ? url.pathname.slice(0, -4) : url.pathname
   const pagesDir = path.resolve(config.rootDir, config.srcDir, config.pagesDir)
 
   const possiblePaths = [
@@ -55,26 +57,10 @@ export async function getMarkdownForPath(request: Request): Promise<string | nul
 
   for (const filePath of possiblePaths) {
     try {
-      return await fs.readFile(filePath, 'utf-8')
+      const content = await fs.readFile(filePath, 'utf-8')
+      return { content, contentType: 'text/plain; charset=utf-8' }
     } catch {}
   }
 
   return null
-}
-
-export async function emitMarkdownFiles(
-  generateFile: (fileName: string, body: string) => Promise<void>,
-): Promise<void> {
-  const pagesDir = path.resolve(config.rootDir, config.srcDir, config.pagesDir)
-  const pages = await Array.fromAsync(fs.glob(`${pagesDir}/**/*.{md,mdx}`))
-
-  for (const page of pages) {
-    const content = await fs.readFile(page, 'utf-8')
-    const relativePath = page.replace(pagesDir, '').replace(/\.mdx?$/, '.md')
-    const outputPath = relativePath.endsWith('/index.md')
-      ? relativePath.replace('/index.md', '.md')
-      : relativePath
-
-    await generateFile(outputPath, content)
-  }
 }

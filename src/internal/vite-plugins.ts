@@ -131,6 +131,7 @@ export function llms(config: Config.Config): PluginOption {
           description,
           file,
           path,
+          content: String(file),
         }
       }),
     )
@@ -154,7 +155,7 @@ export function llms(config: Config.Config): PluginOption {
     const full = [...llmsTxtContent]
     for (const { file } of results) full.push(String(file))
 
-    return { full: full.join('\n'), short: short.join('\n') }
+    return { full: full.join('\n'), short: short.join('\n'), results }
   }
 
   return {
@@ -176,12 +177,15 @@ export function llms(config: Config.Config): PluginOption {
       })
     },
     async buildEnd() {
-      const content = await buildLlmsContent()
+      const { full, short, results } = await buildLlmsContent()
       const outDir = path.resolve(viteConfig.root, config.outDir, 'public')
       await fs.mkdir(outDir, { recursive: true })
       await Promise.all([
-        fs.writeFile(path.join(outDir, 'llms-full.txt'), content.full, { encoding: 'utf-8' }),
-        fs.writeFile(path.join(outDir, 'llms.txt'), content.short, { encoding: 'utf-8' }),
+        fs.writeFile(path.join(outDir, 'llms-full.txt'), full, { encoding: 'utf-8' }),
+        fs.writeFile(path.join(outDir, 'llms.txt'), short, { encoding: 'utf-8' }),
+        ...results.map(({ path: pagePath, content }) =>
+          fs.writeFile(path.join(outDir, `${pagePath}.txt`), content, { encoding: 'utf-8' }),
+        ),
       ])
     },
   }
