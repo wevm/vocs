@@ -6,3 +6,4 @@ routeTree.gen.ts
 **/.cache
 tsconfig.tsbuildinfo
 tsconfig.tmp.*
+.vocs

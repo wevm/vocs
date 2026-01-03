@@ -3,7 +3,6 @@
 import * as React from 'react'
 import { Link } from 'waku'
 import * as Sidebar from './internal/Sidebar.js'
-import * as TopNav from './internal/TopNav.js'
 import { useConfig } from './useConfig.js'
 
 export function Main(props: Main.Props) {
