@@ -29,20 +29,44 @@
 
   /* #region Accent Color */
 
-  --color-accent1: oklch(from var(--vocs-color-accent) calc(l - 0.25) c h);
-  --color-accent2: oklch(from var(--vocs-color-accent) calc(l - 0.2) c h);
-  --color-accent3: oklch(from var(--vocs-color-accent) calc(l - 0.15) c h);
-  --color-accent4: oklch(from var(--vocs-color-accent) calc(l - 0.1) c h);
+  --color-accent1: light-dark(
+    oklch(from var(--vocs-color-accent) calc(l + 0.25) c h),
+    oklch(from var(--vocs-color-accent) calc(l - 0.25) c h)
+  );
+  --color-accent2: light-dark(
+    oklch(from var(--vocs-color-accent) calc(l + 0.2) c h),
+    oklch(from var(--vocs-color-accent) calc(l - 0.2) c h)
+  );
+  --color-accent3: light-dark(
+    oklch(from var(--vocs-color-accent) calc(l + 0.15) c h),
+    oklch(from var(--vocs-color-accent) calc(l - 0.15) c h)
+  );
+  --color-accent4: light-dark(
+    oklch(from var(--vocs-color-accent) calc(l + 0.1) c h),
+    oklch(from var(--vocs-color-accent) calc(l - 0.1) c h)
+  );
   --color-accent: var(--vocs-color-accent);
   --color-accent5: var(--vocs-color-accent);
-  --color-accent6: oklch(from var(--vocs-color-accent) max(l, 0.6) c h);
-  --color-accent7: oklch(from var(--vocs-color-accent) max(l, 0.7) c h);
-  --color-accent8: oklch(from var(--vocs-color-accent) max(l, 0.8) c h);
-  --color-accent9: oklch(from var(--vocs-color-accent) max(l, 0.9) c h);
+  --color-accent6: light-dark(
+    oklch(from var(--vocs-color-accent) min(l, 0.4) c h),
+    oklch(from var(--vocs-color-accent) max(l, 0.6) c h)
+  );
+  --color-accent7: light-dark(
+    oklch(from var(--vocs-color-accent) min(l, 0.3) c h),
+    oklch(from var(--vocs-color-accent) max(l, 0.7) c h)
+  );
+  --color-accent8: light-dark(
+    oklch(from var(--vocs-color-accent) min(l, 0.2) c h),
+    oklch(from var(--vocs-color-accent) max(l, 0.8) c h)
+  );
+  --color-accent9: light-dark(
+    oklch(from var(--vocs-color-accent) min(l, 0.1) c h),
+    oklch(from var(--vocs-color-accent) max(l, 0.9) c h)
+  );
 
   --color-accenta1: oklch(from var(--vocs-color-accent) 0.7 c h / 3%);
   --color-accenta2: oklch(from var(--vocs-color-accent) 0.68 c h / 8%);
-  --color-accenta3: oklch(from var(--vocs-color-accent) 0.64 c h / 16%);
+  --color-accenta3: oklch(from var(--vocs-color-accent) 0.64 c h / 12%);
   --color-accenta4: oklch(from var(--vocs-color-accent) 0.6 c h / 27%);
   --color-accenta5: oklch(from var(--vocs-color-accent) 0.56 c h / 40%);
   --color-accenta6: oklch(from var(--vocs-color-accent) 0.52 c h / 55%);

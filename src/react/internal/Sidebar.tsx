@@ -4,6 +4,7 @@ import { cx } from 'cva'
 import * as React from 'react'
 import { Link, useRouter } from 'waku'
 import LucideChevronRight from '~icons/lucide/chevron-right'
+import * as Path from '../../internal/path.js'
 import * as Sidebar_core from '../../internal/sidebar.js'
 import { useSidebar } from '../useSidebar.js'
 
@@ -51,7 +52,7 @@ function Item(props: Item.Props) {
   const { condensed = false, depth = 0, disabled, link, scrollRef, text } = props
 
   const { path } = useRouter()
-  const active = React.useMemo(() => matchPath(path, link), [path, link])
+  const active = React.useMemo(() => Path.matches(path, link), [path, link])
 
   const itemRef = React.useRef<HTMLElement>(null)
   const listen = React.useRef(true)
@@ -59,7 +60,7 @@ function Item(props: Item.Props) {
     if (!listen.current) return
     listen.current = false
 
-    const match = matchPath(path, link)
+    const match = Path.matches(path, link)
     if (!match) return
 
     requestAnimationFrame(() => {
@@ -107,7 +108,7 @@ namespace Item {
   }
 
   export const className =
-    'vocs:flex vocs:data-link:hover:text-heading vocs:not-data-link:cursor-default vocs:justify-between vocs:-mx-3 vocs:px-3 vocs:py-1.5 vocs:text-primary/80 vocs:-my-0.5 vocs:items-center vocs:rounded-md vocs:data-active:bg-accenta2 vocs:data-active:text-accent8! vocs:aria-disabled:opacity-60 vocs:aria-disabled:cursor-not-allowed vocs:aria-disabled:pointer-events-none vocs:data-[condensed=true]:text-[13px] vocs:data-[condensed=true]:py-[0.3rem]'
+    'vocs:flex vocs:data-link:hover:text-heading vocs:not-data-link:cursor-default vocs:justify-between vocs:-mx-3 vocs:px-3 vocs:py-1.5 vocs:text-primary/80 vocs:-my-0.5 vocs:items-center vocs:rounded-md vocs:data-active:bg-accenta3 vocs:data-active:text-accent8! vocs:aria-disabled:opacity-60 vocs:aria-disabled:cursor-not-allowed vocs:aria-disabled:pointer-events-none vocs:data-[condensed=true]:text-[13px] vocs:data-[condensed=true]:py-[0.3rem]'
 }
 
 /** @internal */
@@ -120,18 +121,18 @@ function Section(props: Section.Props) {
   const hasActiveChildItem = React.useMemo(() => {
     if (!items) return false
 
-    function getActiveChildItem(items: Sidebar_core.SidebarItem[], path: string) {
+    function hasActiveChildItem(items: Sidebar_core.SidebarItem[], path: string) {
       if (!items) return false
       for (const item of items) {
-        if (matchPath(path, item.link)) return true
+        if (Path.matches(path, item.link)) return true
         if (item.link === path) return true
         if (!item.items) continue
-        if (getActiveChildItem(item.items, path)) return true
+        if (hasActiveChildItem(item.items, path)) return true
       }
       return false
     }
 
-    return getActiveChildItem(items, path)
+    return hasActiveChildItem(items, path)
   }, [items, path])
 
   const [collapsed, setCollapsed] = React.useState(() => {
@@ -203,7 +204,7 @@ function Section(props: Section.Props) {
             )
 
           // Empty header.
-          return <div className="vocs:h-[1em]" />
+          return <div className="vocs:h-[1em]" data-empty />
         })()}
 
         {!collapsed && (
@@ -244,10 +245,4 @@ namespace Section {
 
   export const rootHeaderClassName =
     'vocs:h-[2.5em] vocs:px-3 vocs:-mx-3 vocs:rounded-md vocs:flex vocs:items-center vocs:justify-between vocs:text-heading vocs:font-medium vocs:data-[collapsable=true]:cursor-pointer'
-}
-
-/** @internal */
-function matchPath(pathname: string, path: string | undefined) {
-  if (typeof path !== 'string') return false
-  return new URLPattern({ pathname }).test(`https://example.com${path}`)
 }

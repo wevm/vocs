@@ -12,6 +12,39 @@ export default defineConfig({
     dark: '/icon-dark.svg',
   },
   preferPureSsg: true,
+  topNav: [
+    { text: 'Docs', link: '/' },
+    { text: 'Sub', link: '/sub/links', match: '/sub' },
+    {
+      text: 'Extensions',
+      items: [
+        {
+          text: 'Twoslash',
+          link: '/twoslash',
+        },
+        {
+          text: 'Account Abstraction',
+          link: '/account-abstraction',
+        },
+        {
+          text: 'OP Stack',
+          link: '/op-stack',
+        },
+        {
+          text: 'USDC (Circle)',
+          link: '/circle-usdc',
+        },
+        {
+          text: 'ZKsync',
+          link: '/zksync',
+        },
+        {
+          text: 'Experimental',
+          link: '/experimental',
+        },
+      ],
+    },
+  ],
   title: 'Vocs',
   titleTemplate: '%s – Vocs',
   sidebar: {

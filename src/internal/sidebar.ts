@@ -74,12 +74,16 @@ export function fromConfig(config: Config['sidebar'], path: string) {
 
   // Find matching key - deepest path takes precedence
   const keys = Object.keys(config)
-    .filter((key) => path.startsWith(key))
+    .filter((key) => path.startsWith(key.endsWith('/') ? key : key + '/'))
     .sort((a, b) => b.length - a.length)
   const sidebarKey = keys[0]
   if (!sidebarKey) return { items: [] }
 
-  const value = config[sidebarKey]
+  const value = (
+    config as {
+      [path: string]: Sidebar
+    }
+  )[sidebarKey]
   if (Array.isArray(value)) return { key: sidebarKey, items: group(value) }
   if (value && typeof value === 'object' && 'items' in value) {
     return {

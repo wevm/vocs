@@ -39,7 +39,7 @@ export function Main(props: Main.Props) {
           />
 
           <Sidebar.Sidebar
-            className="vocs:pb-8 vocs:[&>*:first-child>*:first-child]:h-0"
+            className="vocs:pb-8 vocs:[&>*:first-child>[data-empty]]:h-0"
             scrollRef={sidebarScrollRef}
           />
 
@@ -59,9 +59,9 @@ export function Main(props: Main.Props) {
         className="vocs:bg-primary vocs:fixed vocs:flex vocs:justify-between vocs:lg:left-gutter vocs:w-[calc(100vw-var(--vocs-spacing-gutter))] vocs:pr-[calc(var(--vocs-spacing-gutter)-var(--vocs-spacing-sidebar)-(var(--vocs-spacing)*4))] vocs:h-topNav vocs:px-4 vocs:z-10"
         data-v-gutter-top
       >
-        {/* TODO: <div data-v-search-container /> */}
+        <div data-v-search-container />
 
-        {/* TODO: <TopNav.TopNav /> */}
+        <TopNav.TopNav className="vocs:max-lg:hidden" />
       </div>
 
       <div className="vocs:fixed vocs:bg-surface vocs:lg:rounded-tl-2xl vocs:lg:border-l vocs:border-t vocs:border-primary vocs:w-[calc(100vw-var(--vocs-spacing-gutter))] vocs:h-full vocs:max-lg:w-full vocs:top-topNav vocs:lg:translate-x-gutter" />
