@@ -11,7 +11,6 @@ export default defineConfig({
     light: '/icon-light.svg',
     dark: '/icon-dark.svg',
   },
-  preferPureSsg: true,
   topNav: [
     { text: 'Docs', link: '/' },
     { text: 'Sub', link: '/sub/links', match: '/sub' },
