@@ -1,12 +1,14 @@
 'use client'
 
-import type * as React from 'react'
+import * as React from 'react'
 import { Link } from 'waku'
 import * as Sidebar from './internal/Sidebar.js'
 import { useConfig } from './useConfig.js'
 
 export function Main(props: Main.Props) {
   const { children } = props
+
+  const sidebarScrollRef = React.useRef<HTMLDivElement>(null)
 
   return (
     <div>
@@ -28,12 +30,27 @@ export function Main(props: Main.Props) {
         <aside
           className="vocs:w-sidebar vocs:px-sidebar-px vocs:py-sidebar-py vocs:h-full vocs:flex vocs:flex-col vocs:justify-between vocs:overflow-y-auto"
           data-v-sidebar-container
+          ref={sidebarScrollRef}
         >
-          <Sidebar.Sidebar />
+          <div
+            className="vocs:bg-linear-to-t vocs:from-transparent vocs:to-dark vocs:min-h-4 vocs:top-0 vocs:w-full vocs:sticky"
+            data-v-sidebar-curtain
+          />
 
-          <div className="vocs:h-[60px]" data-v-sidebar-footer>
-            {/* TODO */}
-          </div>
+          <Sidebar.Sidebar
+            className="vocs:pb-8 vocs:[&>*:first-child>*:first-child]:h-0"
+            scrollRef={sidebarScrollRef}
+          />
+
+          {/* <div className="vocs:sticky vocs:bottom-0" data-v-sidebar-footer>
+            <div
+              className="vocs:bg-linear-to-b vocs:from-transparent vocs:to-dark vocs:min-h-4 vocs:bottom-0 vocs:w-full vocs:sticky"
+              data-v-sidebar-footer-curtain
+            />
+            <div className="vocs:bg-dark" data-v-sidebar-footer>
+              TODO
+            </div>
+          </div> */}
         </aside>
       </div>
 

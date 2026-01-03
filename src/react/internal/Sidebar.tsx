@@ -1,6 +1,6 @@
 'use client'
 
-import { cva } from 'cva'
+import { cx } from 'cva'
 import * as React from 'react'
 import { Link, useRouter } from 'waku'
 import LucideChevronRight from '~icons/lucide/chevron-right'
@@ -9,10 +9,9 @@ import { useSidebar } from '../useSidebar.js'
 
 const maxDepth = 5
 
-// TODO:
-// - disabled items
-// - scroll to item
-export function Sidebar() {
+export function Sidebar(props: Sidebar.Props) {
+  const { className, scrollRef } = props
+
   const sidebar = useSidebar()
   const condenseSidebar = React.useMemo(
     () => Sidebar_core.length(sidebar.items, { startDepth: 2 }) > 25,
@@ -21,20 +20,100 @@ export function Sidebar() {
 
   return (
     <nav
-      className="vocs:flex-1 vocs:flex vocs:flex-col vocs:text-sm vocs:font-[450] vocs:[&>*:not(:last-child)[data-collapsed='false']]:mb-4"
+      className={cx(
+        "vocs:flex-1 vocs:flex vocs:flex-col vocs:text-sm vocs:font-[450] vocs:[&>*:not(:last-child)[data-collapsed='false']]:mb-4",
+        className,
+      )}
       data-v-sidebar
     >
       {sidebar.items.map((item, i) => (
-        <Section key={`${item.text}-${i}`} {...item} condensed={condenseSidebar} />
+        <Section
+          key={`${item.text}-${i}`}
+          {...item}
+          condensed={condenseSidebar}
+          scrollRef={scrollRef}
+        />
       ))}
     </nav>
   )
 }
 
+export declare namespace Sidebar {
+  export type Props = {
+    className?: string | undefined
+    scrollRef: React.RefObject<HTMLDivElement | null>
+  }
+}
+
+/** @internal */
+// biome-ignore lint/correctness/noUnusedVariables: _
+function Item(props: Item.Props) {
+  const { condensed = false, depth = 0, disabled, link, scrollRef, text } = props
+
+  const { path } = useRouter()
+  const active = React.useMemo(() => matchPath(path, link), [path, link])
+
+  const itemRef = React.useRef<HTMLElement>(null)
+  const listen = React.useRef(true)
+  React.useEffect(() => {
+    if (!listen.current) return
+    listen.current = false
+
+    const match = matchPath(path, link)
+    if (!match) return
+
+    requestAnimationFrame(() => {
+      const offsetTop = itemRef.current?.offsetTop ?? 0
+      const navHeight = (scrollRef?.current?.clientHeight ?? 0) - 120
+      if (offsetTop < navHeight) return
+      scrollRef?.current?.scrollTo({ behavior: 'smooth', top: offsetTop - 100 })
+    })
+  }, [link, path, scrollRef])
+
+  if (link && !disabled)
+    return (
+      <Link
+        className={Item.className}
+        data-condensed={condensed && depth > 1}
+        data-link={true}
+        data-v-sidebar-item
+        to={link}
+        ref={itemRef as never}
+        unstable_prefetchOnView
+        {...(active && { 'data-active': true })}
+      >
+        {text}
+      </Link>
+    )
+  return (
+    <div
+      aria-disabled={disabled}
+      className={Item.className}
+      data-condensed={condensed && depth > 1}
+      data-link={link ? true : undefined}
+      data-v-sidebar-item
+      ref={itemRef as never}
+    >
+      {text}
+    </div>
+  )
+}
+
+namespace Item {
+  export type Props = Sidebar_core.SidebarItem & {
+    condensed?: boolean | undefined
+    depth?: number | undefined
+    scrollRef?: React.RefObject<HTMLDivElement | null>
+  }
+
+  export const className =
+    'vocs:flex vocs:data-link:hover:text-heading vocs:not-data-link:cursor-default vocs:justify-between vocs:-mx-3 vocs:px-3 vocs:py-1.5 vocs:text-primary/80 vocs:-my-0.5 vocs:items-center vocs:rounded-md vocs:data-active:bg-darkHover vocs:data-active:text-heading vocs:aria-disabled:opacity-60 vocs:aria-disabled:cursor-not-allowed vocs:aria-disabled:pointer-events-none vocs:data-[condensed=true]:text-[13px] vocs:data-[condensed=true]:py-[0.3rem]'
+}
+
 /** @internal */
 // biome-ignore lint/correctness/noUnusedVariables: _
 function Section(props: Section.Props) {
-  const { condensed = false, depth = 0, link, items, text } = props
+  const { condensed = false, depth = 0, link, items, scrollRef, text } = props
 
   const { path } = useRouter()
 
@@ -90,11 +169,8 @@ function Section(props: Section.Props) {
           if (text)
             return (
               <div
-                className={
-                  depth > 0
-                    ? Section.childHeaderClassName({ condensed: condensed && depth > 1 })
-                    : Section.rootHeaderClassName
-                }
+                className={depth > 0 ? Section.childHeaderClassName : Section.rootHeaderClassName}
+                data-condensed={condensed && depth > 1}
                 data-collapsed={collapsed}
                 data-collapsable={collapsable}
                 data-v-sidebar-section-header
@@ -143,6 +219,7 @@ function Section(props: Section.Props) {
                   {...item}
                   condensed={condensed}
                   depth={depth + 1}
+                  scrollRef={scrollRef}
                 />
               ))}
           </div>
@@ -157,76 +234,16 @@ namespace Section {
   export type Props = Sidebar_core.SidebarItem & {
     condensed?: boolean | undefined
     depth?: number | undefined
+    scrollRef: React.RefObject<HTMLDivElement | null>
   }
 
-  export const childHeaderClassName = (options: Parameters<typeof Item.className>[0]) =>
-    Item.className({
-      ...options,
-      className:
-        'vocs:data-[collapsable=true]:hover:text-heading vocs:data-[collapsable=true]:hover:cursor-pointer' as never,
-    })
+  export const childHeaderClassName = cx(
+    Item.className,
+    'vocs:data-[collapsable=true]:hover:text-heading vocs:data-[collapsable=true]:hover:cursor-pointer',
+  )
 
   export const rootHeaderClassName =
     'vocs:h-[2.5em] vocs:px-3 vocs:-mx-3 vocs:rounded-md vocs:flex vocs:items-center vocs:justify-between vocs:text-heading vocs:font-medium vocs:data-[collapsable=true]:cursor-pointer'
-}
-
-/** @internal */
-// biome-ignore lint/correctness/noUnusedVariables: _
-function Item(props: Item.Props) {
-  const { condensed = false, depth = 0, disabled, link, text } = props
-
-  const { path } = useRouter()
-  const active = React.useMemo(() => matchPath(path, link), [path, link])
-
-  if (link && !disabled)
-    return (
-      <Link
-        className={Item.className({
-          link: true,
-          condensed: condensed && depth > 1,
-        })}
-        data-v-sidebar-item
-        to={link}
-        unstable_prefetchOnView
-        {...(active && { 'data-active': true })}
-      >
-        {text}
-      </Link>
-    )
-  return (
-    <div
-      className={Item.className({
-        link: link ? true : undefined,
-        condensed: condensed && depth > 1,
-      })}
-      data-v-sidebar-item
-    >
-      {text}
-    </div>
-  )
-}
-
-namespace Item {
-  export type Props = Sidebar_core.SidebarItem & {
-    condensed?: boolean | undefined
-    depth?: number | undefined
-  }
-
-  export const className = cva(
-    'vocs:flex vocs:justify-between vocs:-mx-3 vocs:px-3 vocs:py-1.5 vocs:text-primary/80 vocs:-my-0.5 vocs:items-center vocs:rounded-md vocs:data-active:bg-darkHover vocs:data-active:text-heading',
-    {
-      variants: {
-        condensed: {
-          true: 'vocs:text-[13px] vocs:py-[0.3rem]',
-          false: '',
-        },
-        link: {
-          true: 'vocs:hover:text-heading',
-          undefined: 'vocs:cursor-default',
-        },
-      },
-    },
-  )
 }
 
 /** @internal */
