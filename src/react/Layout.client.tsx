@@ -3,6 +3,7 @@
 import * as React from 'react'
 import { Link } from 'waku'
 import * as Sidebar from './internal/Sidebar.js'
+import * as TopNav from './internal/TopNav.js'
 import { useConfig } from './useConfig.js'
 
 export function Main(props: Main.Props) {
@@ -24,7 +25,7 @@ export function Main(props: Main.Props) {
       </div>
 
       <div
-        className="vocs:bg-dark vocs:flex vocs:justify-end vocs:fixed vocs:pt-topNav vocs:w-gutter vocs:h-screen vocs:z-10 vocs:max-lg:hidden"
+        className="vocs:bg-primary vocs:flex vocs:justify-end vocs:fixed vocs:pt-topNav vocs:w-gutter vocs:h-screen vocs:z-10 vocs:max-lg:hidden"
         data-v-gutter-left
       >
         <aside
@@ -47,7 +48,7 @@ export function Main(props: Main.Props) {
               className="vocs:bg-linear-to-b vocs:from-transparent vocs:to-dark vocs:min-h-4 vocs:bottom-0 vocs:w-full vocs:sticky"
               data-v-sidebar-footer-curtain
             />
-            <div className="vocs:bg-dark" data-v-sidebar-footer>
+            <div className="vocs:bg-primary" data-v-sidebar-footer>
               TODO
             </div>
           </div> */}
@@ -55,13 +56,15 @@ export function Main(props: Main.Props) {
       </div>
 
       <div
-        className="vocs:bg-dark vocs:fixed vocs:flex vocs:lg:left-gutter vocs:w-[calc(100vw-var(--vocs-spacing-gutter))] vocs:pr-[calc(var(--vocs-spacing-gutter)-var(--vocs-spacing-sidebar))] vocs:h-topNav vocs:z-10"
+        className="vocs:bg-primary vocs:fixed vocs:flex vocs:justify-between vocs:lg:left-gutter vocs:w-[calc(100vw-var(--vocs-spacing-gutter))] vocs:pr-[calc(var(--vocs-spacing-gutter)-var(--vocs-spacing-sidebar)-(var(--vocs-spacing)*4))] vocs:h-topNav vocs:px-4 vocs:z-10"
         data-v-gutter-top
       >
-        {/* TODO */}
+        {/* TODO: <div data-v-search-container /> */}
+
+        {/* TODO: <TopNav.TopNav /> */}
       </div>
 
-      <div className="vocs:fixed vocs:bg-primary vocs:lg:rounded-tl-2xl vocs:lg:border-l vocs:border-t vocs:border-primary vocs:w-[calc(100vw-var(--vocs-spacing-gutter))] vocs:h-full vocs:max-lg:w-full vocs:top-topNav vocs:lg:translate-x-gutter" />
+      <div className="vocs:fixed vocs:bg-surface vocs:lg:rounded-tl-2xl vocs:lg:border-l vocs:border-t vocs:border-primary vocs:w-[calc(100vw-var(--vocs-spacing-gutter))] vocs:h-full vocs:max-lg:w-full vocs:top-topNav vocs:lg:translate-x-gutter" />
 
       <main className="vocs:isolate vocs:pt-topNav vocs:w-full vocs:h-full" data-v-main>
         <article

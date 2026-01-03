@@ -19,7 +19,6 @@
   --color-gray12: oklch(0.933 0 0);
   --color-gray13: oklch(0.955 0 0);
   --color-gray14: oklch(0.985 0 0);
-  --color-accent: red;
   --color-red: light-dark(oklch(0.65 0.25 23), oklch(0.75 0.23 23));
   --color-blue: light-dark(oklch(0.68 0.25 251.8), oklch(0.8 0.23 251.8));
   --color-green: light-dark(oklch(0.6 0.23 170.7), oklch(0.8 0.195 170.7));
@@ -28,12 +27,37 @@
 
   /* #endregion */
 
+  /* #region Accent Color */
+
+  --color-accent1: oklch(from var(--vocs-color-accent) calc(l - 0.25) c h);
+  --color-accent2: oklch(from var(--vocs-color-accent) calc(l - 0.2) c h);
+  --color-accent3: oklch(from var(--vocs-color-accent) calc(l - 0.15) c h);
+  --color-accent4: oklch(from var(--vocs-color-accent) calc(l - 0.1) c h);
+  --color-accent: var(--vocs-color-accent);
+  --color-accent5: var(--vocs-color-accent);
+  --color-accent6: oklch(from var(--vocs-color-accent) max(l, 0.6) c h);
+  --color-accent7: oklch(from var(--vocs-color-accent) max(l, 0.7) c h);
+  --color-accent8: oklch(from var(--vocs-color-accent) max(l, 0.8) c h);
+  --color-accent9: oklch(from var(--vocs-color-accent) max(l, 0.9) c h);
+
+  --color-accenta1: oklch(from var(--vocs-color-accent) 0.7 c h / 3%);
+  --color-accenta2: oklch(from var(--vocs-color-accent) 0.68 c h / 8%);
+  --color-accenta3: oklch(from var(--vocs-color-accent) 0.64 c h / 16%);
+  --color-accenta4: oklch(from var(--vocs-color-accent) 0.6 c h / 27%);
+  --color-accenta5: oklch(from var(--vocs-color-accent) 0.56 c h / 40%);
+  --color-accenta6: oklch(from var(--vocs-color-accent) 0.52 c h / 55%);
+  --color-accenta7: oklch(from var(--vocs-color-accent) 0.48 c h / 70%);
+  --color-accenta8: oklch(from var(--vocs-color-accent) 0.44 c h / 84%);
+  --color-accenta9: oklch(from var(--vocs-color-accent) 0.4 c h / 94%);
+
+  /* #endregion */
+
   /* #region Standard Colors */
 
-  --background-color-primary: light-dark(white, var(--vocs-color-gray4));
-  --background-color-secondary: light-dark(var(--vocs-color-gray14), var(--vocs-color-gray5));
-  --background-color-dark: light-dark(var(--vocs-color-gray14), var(--vocs-color-gray2));
-  --background-color-darkHover: light-dark(var(--vocs-color-gray13), var(--vocs-color-gray5));
+  --background-color-primary: light-dark(var(--vocs-color-gray14), var(--vocs-color-gray2));
+  --background-color-surface: light-dark(white, var(--vocs-color-gray4));
+  --background-color-surfaceTint: light-dark(var(--vocs-color-gray14), var(--vocs-color-gray5));
+
   --text-color-primary: light-dark(var(--vocs-color-gray6), var(--vocs-color-gray12));
   --text-color-secondary: light-dark(var(--vocs-color-gray8), var(--vocs-color-gray10));
   --text-color-muted: light-dark(var(--vocs-color-gray9), var(--vocs-color-gray8));
@@ -49,17 +73,17 @@
 
   --color-info: var(--vocs-color-blue);
   --color-info-hover: oklch(from var(--vocs-color-blue) calc(l - 0.1) c h);
-  --background-color-info-tint: color-mix(in srgb, var(--vocs-color-blue) 8%, var(--vocs-background-color-primary));
+  --background-color-info-tint: color-mix(in srgb, var(--vocs-color-blue) 8%, var(--vocs-background-color-surface));
   --border-color-info-tint: oklch(from var(--vocs-color-blue) l c h / 16%);
 
   --color-note: light-dark(var(--vocs-color-gray7), var(--vocs-color-gray10));
   --color-note-hover: oklch(from var(--vocs-color-gray8) calc(l - 0.1) c h);
-  --background-color-note-tint: color-mix(in srgb, var(--vocs-color-gray10) 8%, var(--vocs-background-color-primary));
+  --background-color-note-tint: color-mix(in srgb, var(--vocs-color-gray10) 8%, var(--vocs-background-color-surface));
   --border-color-note-tint: oklch(from var(--vocs-color-gray10) l c h / 16%);
 
   --color-success: oklch(from var(--vocs-color-green) l c h);
   --color-success-hover: oklch(from var(--vocs-color-green) calc(l - 0.1) c h);
-  --background-color-success-tint: color-mix(in srgb, var(--vocs-color-green) 8%, var(--vocs-background-color-primary));
+  --background-color-success-tint: color-mix(in srgb, var(--vocs-color-green) 8%, var(--vocs-background-color-surface));
   --border-color-success-tint: oklch(from var(--vocs-color-green) l c h / 16%);
 
   --color-tip: var(--vocs-color-iris);
@@ -67,7 +91,7 @@
   --background-color-tip-tint: color-mix(
     in srgb,
     oklch(from var(--vocs-color-iris) l calc(c + 0.2) h) 4%,
-    var(--vocs-background-color-primary)
+    var(--vocs-background-color-surface)
   );
   --border-color-tip-tint: oklch(from var(--vocs-color-iris) l c h / 16%);
 
@@ -76,7 +100,7 @@
   --background-color-warning-tint: color-mix(
     in srgb,
     var(--vocs-color-yellow) 8%,
-    var(--vocs-background-color-primary)
+    var(--vocs-background-color-surface)
   );
   --border-color-warning-tint: oklch(from var(--vocs-color-yellow) l c h / 16%);
 
@@ -94,7 +118,7 @@
   --border-color-code-highlighted: light-dark(var(--vocs-color-gray11), var(--vocs-color-gray6));
   --border-color-tab-active: var(--vocs-color-accent);
   --text-color-heading: light-dark(black, white);
-  --text-color-link: var(--vocs-color-accent);
+  --text-color-link: var(black, white);
   --text-color-link-hover: light-dark(var(--vocs-color-gray7), var(--vocs-color-gray11));
   --text-color-quote: light-dark(var(--vocs-color-gray7), var(--vocs-color-gray11));
 

@@ -21,7 +21,7 @@
 }
 
 .twoslash-popup-container {
-  @apply vocs:bg-primary vocs:border vocs:border-primary vocs:rounded-sm vocs:max-w-140 vocs:select-none;
+  @apply vocs:bg-surface vocs:border vocs:border-primary vocs:rounded-sm vocs:max-w-140 vocs:select-none;
 
   @media (width <= 560px) {
     & {
@@ -74,12 +74,12 @@
   }
 
   pre {
-    @apply vocs:bg-secondary vocs:-mx-2 vocs:px-2 vocs:py-1;
+    @apply vocs:bg-surfaceTint vocs:-mx-2 vocs:px-2 vocs:py-1;
   }
 }
 
 .twoslash-completion-list {
-  @apply vocs:min-w-30 vocs:font-mono vocs:text-xs vocs:flex vocs:flex-col vocs:gap-1 vocs:bg-primary vocs:border vocs:border-primary vocs:rounded-sm vocs:p-2 vocs:select-none;
+  @apply vocs:min-w-30 vocs:font-mono vocs:text-xs vocs:flex vocs:flex-col vocs:gap-1 vocs:bg-surface vocs:border vocs:border-primary vocs:rounded-sm vocs:p-2 vocs:select-none;
 
   &:hover {
     @apply vocs:select-auto;

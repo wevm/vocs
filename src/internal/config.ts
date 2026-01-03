@@ -1,10 +1,11 @@
 import * as fs from 'node:fs'
 import * as path from 'node:path'
-import type { Options as mdx_Options } from '@mdx-js/rollup'
-import { loadConfigFromFile } from 'vite'
+import type * as MdxRollup from '@mdx-js/rollup'
+import * as Vite from 'vite'
 import * as Langs from './langs.js'
-import type { rehypeShiki } from './mdx.js'
+import type * as Mdx from './mdx.js'
 import type * as Sidebar from './sidebar.js'
+import type * as TopNav from './topNav.js'
 import type { MaybePartial, UnionOmit } from './types.js'
 
 export type ThemeValue<value> = { light: value; dark: value }
@@ -87,7 +88,7 @@ export type Config<partial extends boolean = false> = MaybePartial<
     /**
      * Code highlight configuration.
      */
-    codeHighlight: MaybePartial<partial, UnionOmit<rehypeShiki.Options, 'twoslash'>>
+    codeHighlight: MaybePartial<partial, UnionOmit<Mdx.rehypeShiki.Options, 'twoslash'>>
     /**
      * Color scheme.
      *
@@ -135,7 +136,7 @@ export type Config<partial extends boolean = false> = MaybePartial<
     /**
      * Markdown configuration.
      */
-    markdown?: mdx_Options | undefined
+    markdown?: MdxRollup.Options | undefined
     /**
      * The output directory relative to root.
      * @default "dist"
@@ -169,10 +170,10 @@ export type Config<partial extends boolean = false> = MaybePartial<
      * Navigation displayed on the sidebar.
      */
     sidebar?:
-      | Sidebar.SidebarItem<true>[]
+      | readonly Sidebar.SidebarItem<true>[]
       | {
           [path: string]:
-            | Sidebar.SidebarItem<true>[]
+            | readonly Sidebar.SidebarItem<true>[]
             | { backLink?: boolean; items: Sidebar.SidebarItem<true>[] }
         }
       | undefined
@@ -201,14 +202,14 @@ export type Config<partial extends boolean = false> = MaybePartial<
      * @default `%s – ${title}`
      */
     titleTemplate: string
-    // /**
-    //  * Navigation displayed on the top.
-    //  */
-    // topNav?: Normalize<TopNav<parsed>>
+    /**
+     * Navigation displayed on the top.
+     */
+    topNav?: readonly TopNav.Item[] | undefined
     /**
      * TwoSlash configuration. Set to `false` to disable.
      */
-    twoslash?: rehypeShiki.Options['twoslash'] | undefined
+    twoslash?: Mdx.rehypeShiki.Options['twoslash'] | undefined
   }
 >
 
@@ -248,6 +249,7 @@ export function define(config: define.Options = {}): Config {
     srcDir = 'src',
     title = 'Docs',
     titleTemplate = `%s – ${title}`,
+    topNav,
     twoslash,
   } = config
 
@@ -280,6 +282,7 @@ export function define(config: define.Options = {}): Config {
     rootDir,
     sidebar,
     srcDir,
+    topNav,
     title,
     titleTemplate,
     twoslash,
@@ -308,7 +311,7 @@ export async function resolve(options: resolve.Options = {}): Promise<Config> {
   const configFile = getConfigFile({ rootDir })
   if (!configFile) return define({})
 
-  const result = await loadConfigFromFile(
+  const result = await Vite.loadConfigFromFile(
     { command: 'build', mode: 'development' },
     configFile,
     rootDir,

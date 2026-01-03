@@ -12,7 +12,7 @@
 
 @layer vocs_base {
   :root {
-    @apply vocs:bg-dark vocs:scheme-light-dark vocs:text-primary vocs:tracking-[0.005em];
+    @apply vocs:bg-primary vocs:scheme-light-dark vocs:text-primary vocs:tracking-[0.005em];
     font-feature-settings:
       "rlig" 1,
       "calt" 1;

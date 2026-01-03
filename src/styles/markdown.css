@@ -130,7 +130,7 @@ a[data-v-dead-link] {
 /* #region Blockquotes */
 
 blockquote[data-v] {
-  @apply vocs:text-[15px] vocs:border-l-3 vocs:border-primary vocs:bg-secondary vocs:px-4 vocs:py-3 vocs:text-quote;
+  @apply vocs:text-[15px] vocs:border-l-3 vocs:border-primary vocs:bg-surfaceTint vocs:px-4 vocs:py-3 vocs:text-quote;
 }
 
 /* #endregion */
@@ -261,7 +261,7 @@ table[data-v] {
   }
 
   & th {
-    @apply vocs:text-primary/80 vocs:bg-secondary vocs:text-th vocs:font-medium vocs:py-2 vocs:text-left vocs:whitespace-nowrap vocs:border-b vocs:border-primary;
+    @apply vocs:text-primary/80 vocs:bg-surfaceTint vocs:text-th vocs:font-medium vocs:py-2 vocs:text-left vocs:whitespace-nowrap vocs:border-b vocs:border-primary;
 
     &[align="center"] {
       @apply vocs:text-center;
@@ -453,7 +453,7 @@ pre[data-v] {
 }
 
 [data-v-code-header] {
-  @apply vocs:h-10 vocs:bg-primary vocs:rounded-t-lg vocs:max-md:rounded-none vocs:text-sm vocs:flex vocs:items-center vocs:border vocs:border-primary vocs:max-md:-mx-4;
+  @apply vocs:h-10 vocs:bg-surface vocs:rounded-t-lg vocs:max-md:rounded-none vocs:text-sm vocs:flex vocs:items-center vocs:border vocs:border-primary vocs:max-md:-mx-4;
 }
 
 [data-v-code-title] {
@@ -526,7 +526,7 @@ pre[data-v] {
 }
 
 [data-v-step-title] {
-  @apply vocs:p-0 vocs:relative vocs:flex vocs:items-center vocs:before:items-center vocs:before:bg-secondary vocs:before:rounded-full vocs:before:border-[0.5em] vocs:before:border-(--vocs-background-color-primary) vocs:before:box-content vocs:before:text-secondary vocs:before:[content:counter(step)]! vocs:before:[counter-increment:step] vocs:before:flex vocs:before:text-[0.625em] vocs:before:h-[2em] vocs:before:justify-center vocs:before:left-[calc(-25.125px-1.45em)] vocs:before:w-[2em] vocs:before:absolute vocs:before:font-normal;
+  @apply vocs:p-0 vocs:relative vocs:flex vocs:items-center vocs:before:items-center vocs:before:bg-surfaceTint vocs:before:rounded-full vocs:before:border-[0.5em] vocs:before:border-(--vocs-background-color-surface) vocs:before:box-content vocs:before:text-secondary vocs:before:[content:counter(step)]! vocs:before:[counter-increment:step] vocs:before:flex vocs:before:text-[0.625em] vocs:before:h-[2em] vocs:before:justify-center vocs:before:left-[calc(-25.125px-1.45em)] vocs:before:w-[2em] vocs:before:absolute vocs:before:font-normal;
 }
 
 [data-v-step-content] {
