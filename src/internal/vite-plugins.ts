@@ -98,6 +98,62 @@ export function langWatcher(config: Config.Config): PluginOption {
   }
 }
 
+export function rawMarkdown(config: Config.Config): PluginOption {
+  let viteConfig: ResolvedConfig
+
+  return {
+    name: 'vocs:raw-markdown',
+    enforce: 'pre',
+    configResolved(resolvedConfig) {
+      viteConfig = resolvedConfig
+    },
+    configureServer(server) {
+      server.middlewares.use(async (request, response, next) => {
+        if (!request.url?.endsWith('.md')) return next()
+
+        const pagePath = request.url.slice(0, -3)
+        const pagesDir = path.resolve(viteConfig.root, config.srcDir, config.pagesDir)
+
+        const possiblePaths = [
+          path.join(pagesDir, `${pagePath}.md`),
+          path.join(pagesDir, `${pagePath}.mdx`),
+          path.join(pagesDir, pagePath, 'index.md'),
+          path.join(pagesDir, pagePath, 'index.mdx'),
+        ]
+
+        for (const filePath of possiblePaths) {
+          try {
+            const content = await fs.readFile(filePath, 'utf-8')
+            response.setHeader('Content-Type', 'text/markdown; charset=utf-8')
+            response.end(content)
+            return
+          } catch {}
+        }
+
+        next()
+      })
+    },
+    async generateBundle() {
+      const pagesDir = path.resolve(viteConfig.root, config.srcDir, config.pagesDir)
+      const pages = await Array.fromAsync(fs.glob(`${pagesDir}/**/*.{md,mdx}`))
+
+      for (const page of pages) {
+        const content = await fs.readFile(page, 'utf-8')
+        const relativePath = page.replace(pagesDir, '').replace(/\.mdx?$/, '.md')
+        const outputPath = relativePath.endsWith('/index.md')
+          ? relativePath.replace('/index.md', '.md')
+          : relativePath
+
+        this.emitFile({
+          type: 'asset',
+          fileName: outputPath.slice(1),
+          source: content,
+        })
+      }
+    },
+  }
+}
+
 export function llms(config: Config.Config): PluginOption {
   const { description, title } = config
   let viteConfig: ResolvedConfig
