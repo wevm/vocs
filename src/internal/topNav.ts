@@ -82,5 +82,5 @@ export function parse(topNav: readonly Item[] | undefined, path: string | undefi
       }
     }
     return { ...item, active: match?.item === i }
-  })
+  }) as ParsedItem[]
 }
