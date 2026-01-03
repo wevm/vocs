@@ -2,6 +2,7 @@ import { type FunctionComponent, lazy, type ReactNode } from 'react'
 import { createPages } from 'waku/router/server'
 import { transformStream } from '../dedupe-head.js'
 import { isIgnoredPath } from './utils/fs-router.js'
+import { getMarkdownForPath } from './utils/raw-markdown.js'
 
 type Pages = ReturnType<typeof createPages>
 
@@ -26,11 +27,17 @@ const wrapRenderHtml =
 
 const wrapPages = (pages: Pages): Pages => ({
   ...pages,
-  handleRequest: (input, utils) =>
-    pages.handleRequest(input, {
+  handleRequest: async (input, utils) => {
+    const markdown = await getMarkdownForPath(input.req)
+    if (markdown)
+      return new Response(markdown, {
+        headers: { 'Content-Type': 'text/markdown; charset=utf-8' },
+      })
+    return pages.handleRequest(input, {
       ...utils,
       renderHtml: wrapRenderHtml(utils.renderHtml),
-    }),
+    })
+  },
   handleBuild: (utils) =>
     pages.handleBuild({
       ...utils,
