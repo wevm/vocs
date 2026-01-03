@@ -1,10 +1,10 @@
 import { config } from 'virtual:vocs/config'
 // biome-ignore lint/suspicious/noTsIgnore: _
 // @ts-ignore
-import styles from '../styles/index.css?url'
+import userStyles from 'virtual:vocs/user-styles'
 // biome-ignore lint/suspicious/noTsIgnore: _
 // @ts-ignore
-import userStyles from 'virtual:vocs/user-styles'
+import styles from '../styles/index.css?url'
 import { Head } from './Head.js'
 import { Root_client } from './Root.client.js'
 import { ScrollRestoration } from './ScrollRestoration.js'
