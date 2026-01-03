@@ -24,4 +24,12 @@
   body {
     @apply vocs:relative vocs:max-md:overflow-x-hidden;
   }
+
+  *:focus {
+    @apply vocs:outline-none;
+  }
+
+  *:focus-visible {
+    @apply vocs:outline-2 vocs:outline-accent;
+  }
 }
