@@ -169,11 +169,11 @@ export type Config<partial extends boolean = false> = MaybePartial<
      * Navigation displayed on the sidebar.
      */
     sidebar?:
-      | Sidebar.SidebarItem<0>[]
+      | Sidebar.SidebarItem<true>[]
       | {
           [path: string]:
-            | Sidebar.SidebarItem<0>[]
-            | { backLink?: boolean; items: Sidebar.SidebarItem<0>[] }
+            | Sidebar.SidebarItem<true>[]
+            | { backLink?: boolean; items: Sidebar.SidebarItem<true>[] }
         }
       | undefined
     // /**

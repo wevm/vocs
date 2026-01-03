@@ -1,18 +1,18 @@
 import type { Config } from './config.js'
 import type { OneOf } from './types.js'
 
-export type SidebarItem<level extends number = number> = {
-  /** Whether or not to collapse the sidebar item by default. */
-  collapsed?: boolean | undefined
+export type SidebarItem<strict extends boolean = false> = {
   /** Whether or not to disable the sidebar item. */
   disabled?: boolean | undefined
+  /** Optional children to nest under this item. */
+  items?: SidebarItem<true>[] | undefined
   /** Text to display on the sidebar. */
   text?: string | undefined
-} & (level extends 0
+} & (strict extends true
   ? OneOf<
       | {
-          /** Optional children to nest under this item. */
-          items: SidebarItem[]
+          /** Whether or not to collapse the sidebar item by default. */
+          collapsed: boolean
         }
       | {
           /** Optional pathname to the target documentation page. */
@@ -22,10 +22,10 @@ export type SidebarItem<level extends number = number> = {
       | {}
     >
   : {
+      /** Whether or not to collapse the sidebar item by default. */
+      collapsed?: boolean | undefined
       /** Optional pathname to the target documentation page. */
       link?: string | undefined
-      /** Optional children to nest under this item. */
-      items?: SidebarItem[] | undefined
     })
 
 export type Sidebar = {
@@ -61,9 +61,9 @@ export function fromConfig(config: Config['sidebar'], path: string) {
       }
 
       if (!group) {
-        group = { items: [item] }
+        group = { items: [item as SidebarItem<true>] }
         groups.push(group)
-      } else group.items?.push(item)
+      } else group.items?.push(item as SidebarItem<true>)
     }
 
     return groups
@@ -90,4 +90,25 @@ export function fromConfig(config: Config['sidebar'], path: string) {
   }
 
   return { items: [] }
+}
+
+export function length(items: SidebarItem[], options: length.Options = {}): number {
+  const { startDepth = 0 } = options
+  let count = 0
+
+  function traverse(items: SidebarItem[], depth: number): void {
+    for (const item of items) {
+      if (depth >= startDepth) count++
+      if (item.items) traverse(item.items, depth + 1)
+    }
+  }
+
+  traverse(items, 0)
+  return count
+}
+
+export namespace length {
+  export type Options = {
+    startDepth?: number
+  }
 }

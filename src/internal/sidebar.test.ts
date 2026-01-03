@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { flatten, fromConfig } from './sidebar.js'
+import { flatten, fromConfig, length } from './sidebar.js'
 
 describe('flatten', () => {
   test('empty array', () => {
@@ -804,5 +804,154 @@ describe('fromConfig', () => {
         }
       `)
     })
+  })
+})
+
+describe('length', () => {
+  test('empty array', () => {
+    expect(length([])).toBe(0)
+  })
+
+  test('flat items with links', () => {
+    expect(
+      length([
+        { text: 'A', link: '/a' },
+        { text: 'B', link: '/b' },
+        { text: 'C', link: '/c' },
+      ]),
+    ).toBe(3)
+  })
+
+  test('includes items without links', () => {
+    expect(length([{ text: 'A', link: '/a' }, { text: 'Group' }, { text: 'B', link: '/b' }])).toBe(
+      3,
+    )
+  })
+
+  test('nested items', () => {
+    expect(
+      length([
+        { text: 'A', link: '/a' },
+        {
+          text: 'Group',
+          items: [
+            { text: 'B', link: '/b' },
+            { text: 'C', link: '/c' },
+          ],
+        },
+        { text: 'D', link: '/d' },
+      ]),
+    ).toBe(5)
+  })
+
+  test('deeply nested items', () => {
+    expect(
+      length([
+        {
+          text: 'Level 1',
+          items: [
+            {
+              text: 'Level 2',
+              link: '/level2',
+              items: [
+                {
+                  text: 'Level 3',
+                  items: [
+                    { text: 'Leaf 1', link: '/leaf1' },
+                    { text: 'Leaf 2', link: '/leaf2' },
+                  ],
+                },
+              ],
+            },
+            { text: 'Leaf 3', link: '/leaf3' },
+          ],
+        },
+        { text: 'Leaf 4', link: '/leaf4' },
+      ]),
+    ).toBe(7)
+  })
+
+  test('startDepth filters out shallow items', () => {
+    expect(
+      length(
+        [
+          { text: 'A', link: '/a' },
+          {
+            text: 'Group',
+            items: [
+              { text: 'B', link: '/b' },
+              { text: 'C', link: '/c' },
+            ],
+          },
+          { text: 'D', link: '/d' },
+        ],
+        { startDepth: 1 },
+      ),
+    ).toBe(2)
+  })
+
+  test('startDepth with nested group items', () => {
+    expect(
+      length(
+        [
+          {
+            text: 'Group 1',
+            items: [
+              { text: 'A', link: '/a' },
+              {
+                text: 'Group 2',
+                items: [{ text: 'B', link: '/b' }],
+              },
+            ],
+          },
+        ],
+        { startDepth: 1 },
+      ),
+    ).toBe(3)
+  })
+
+  test('startDepth 0 counts all items', () => {
+    expect(
+      length(
+        [
+          { text: 'A', link: '/a' },
+          { text: 'B', link: '/b' },
+        ],
+        { startDepth: 0 },
+      ),
+    ).toBe(2)
+  })
+
+  test('startDepth greater than max depth returns 0', () => {
+    expect(
+      length(
+        [
+          { text: 'A', link: '/a' },
+          { text: 'B', link: '/b' },
+        ],
+        { startDepth: 5 },
+      ),
+    ).toBe(0)
+  })
+
+  test('startDepth with deeply nested items', () => {
+    expect(
+      length(
+        [
+          {
+            text: 'Level 0',
+            link: '/level0',
+            items: [
+              {
+                text: 'Level 1',
+                link: '/level1',
+                items: [{ text: 'Level 2', link: '/level2' }],
+              },
+            ],
+          },
+        ],
+        { startDepth: 2 },
+      ),
+    ).toBe(1)
   })
 })

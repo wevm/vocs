@@ -33,7 +33,7 @@ export function deps(): PluginOption {
           rollupOptions: {
             ...config?.build?.rollupOptions,
             onLog(level, log, handler) {
-              if (log.message.includes("Error when using sourcemap for reporting an error")) return
+              if (log.message.includes('Error when using sourcemap for reporting an error')) return
               if (log.code === 'MODULE_LEVEL_DIRECTIVE') return
               handler(level, log)
             },
