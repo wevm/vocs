@@ -20,7 +20,6 @@ export async function vocs(): Promise<PluginOption[]> {
     }),
     Plugins.langWatcher(config),
     Plugins.llms(config),
-    Plugins.rawMarkdown(config),
     Plugins.mdx(config),
     Plugins.routeWatcher(config),
     Plugins.tailwind(),

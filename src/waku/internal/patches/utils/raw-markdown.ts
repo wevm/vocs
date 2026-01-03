@@ -61,3 +61,20 @@ export async function getMarkdownForPath(request: Request): Promise<string | nul
 
   return null
 }
+
+export async function emitMarkdownFiles(
+  generateFile: (fileName: string, body: string) => Promise<void>,
+): Promise<void> {
+  const pagesDir = path.resolve(config.rootDir, config.srcDir, config.pagesDir)
+  const pages = await Array.fromAsync(fs.glob(`${pagesDir}/**/*.{md,mdx}`))
+
+  for (const page of pages) {
+    const content = await fs.readFile(page, 'utf-8')
+    const relativePath = page.replace(pagesDir, '').replace(/\.mdx?$/, '.md')
+    const outputPath = relativePath.endsWith('/index.md')
+      ? relativePath.replace('/index.md', '.md')
+      : relativePath
+
+    await generateFile(outputPath, content)
+  }
+}

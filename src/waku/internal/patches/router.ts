@@ -2,7 +2,7 @@ import { type FunctionComponent, lazy, type ReactNode } from 'react'
 import { createPages } from 'waku/router/server'
 import { transformStream } from '../dedupe-head.js'
 import { isIgnoredPath } from './utils/fs-router.js'
-import { getMarkdownForPath } from './utils/raw-markdown.js'
+import { emitMarkdownFiles, getMarkdownForPath } from './utils/raw-markdown.js'
 
 type Pages = ReturnType<typeof createPages>
 
@@ -31,18 +31,20 @@ const wrapPages = (pages: Pages): Pages => ({
     const markdown = await getMarkdownForPath(input.req)
     if (markdown)
       return new Response(markdown, {
-        headers: { 'Content-Type': 'text/markdown; charset=utf-8' },
+        headers: { 'content-type': 'text/markdown; charset=utf-8' },
       })
     return pages.handleRequest(input, {
       ...utils,
       renderHtml: wrapRenderHtml(utils.renderHtml),
     })
   },
-  handleBuild: (utils) =>
-    pages.handleBuild({
+  handleBuild: async (utils) => {
+    await emitMarkdownFiles(utils.generateFile)
+    return pages.handleBuild({
       ...utils,
       renderHtml: wrapRenderHtml(utils.renderHtml),
-    }),
+    })
+  },
 })
 
 const METHODS = ['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'CONNECT', 'OPTIONS', 'TRACE', 'PATCH']
