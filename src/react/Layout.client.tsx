@@ -73,25 +73,33 @@ export function Main(props: Main.Props) {
           <div className="vocs:max-lg:w-[180px] vocs:w-[240px] vocs:max-md:hidden">
             <Search.Search />
           </div>
-
-          <div className="vocs:w-[120px] vocs:max-lg:hidden">
-            <AskAi.AskAi />
-          </div>
         </div>
 
-        <TopNav.TopNav className="vocs:max-md:hidden vocs:px-2" />
+        <TopNav.TopNav className="vocs:max-lg:hidden vocs:px-2" />
+
+        {/* <div className="vocs:lg:hidden vocs:flex vocs:items-center vocs:gap-2 vocs:px-4">TODO</div> */}
       </div>
 
-      <div className="vocs:max-md:hidden vocs:fixed vocs:bg-surface vocs:lg:rounded-tl-2xl vocs:lg:border-l vocs:border-t vocs:border-primary vocs:w-[calc(100vw-var(--vocs-spacing-gutter))] vocs:h-full vocs:max-lg:w-full vocs:top-topNav vocs:max-md:top-0 vocs:lg:translate-x-gutter" />
+      <div className="vocs:max-md:hidden vocs:fixed vocs:bg-surface vocs:lg:rounded-tl-2xl vocs:lg:border-l vocs:border-t vocs:border-primary vocs:w-full vocs:h-full vocs:max-lg:w-full vocs:top-topNav vocs:max-w-screen vocs:ml-gutter" />
 
-      <main className="vocs:isolate vocs:pt-topNav vocs:w-full vocs:h-full" data-v-main>
+      <main
+        className="vocs:isolate vocs:pt-topNav vocs:max-w-screen vocs:h-full vocs:lg:ml-gutter"
+        data-v-main
+      >
         <article
-          className="vocs:min-[1402px]:mx-auto vocs:max-[1402px]:translate-x-gutter vocs:max-lg:translate-x-0 vocs:px-content-px vocs:py-content-py vocs:relative vocs:w-full vocs:max-w-content vocs:space-y-6 vocs:max-md:overflow-x-hidden vocs:max-lg:mx-auto"
+          className="vocs:px-content-px vocs:py-content-py vocs:relative vocs:w-full vocs:max-w-content vocs:space-y-6 vocs:max-md:overflow-x-hidden vocs:max-lg:mx-auto"
           data-v-content
         >
           {children}
         </article>
       </main>
+
+      <div
+        className="vocs:fixed vocs:bottom-6 vocs:max-md:bottom-2 vocs:w-full vocs:flex vocs:justify-center"
+        data-v-ask-ai-container
+      >
+        <AskAi.AskAi className="vocs:w-[290px]! vocs:h-10! vocs:z-50! vocs:bg-gray6/20! vocs:backdrop-blur-md!" />
+      </div>
 
       <div
         className="vocs:fixed vocs:w-gutter vocs:h-full vocs:right-0 vocs:top-topNav vocs:z-10"
