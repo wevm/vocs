@@ -6,12 +6,12 @@ export const mdRouter = (): MiddlewareHandler => {
     if (import.meta.env.DEV) return next()
 
     const request = context.req.raw
-    const content = await Markdown.fromRequest(request)
+    const result = await Markdown.fromRequest(request)
 
-    if (!content) return next()
+    if (!result) return next()
 
-    context.res = new Response(content, {
-      headers: { 'Content-Type': 'text/markdown; charset=utf-8' },
+    context.res = new Response(result.content, {
+      headers: { 'Content-Type': result.contentType },
     })
     return
   }
