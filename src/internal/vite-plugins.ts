@@ -8,7 +8,7 @@ import remarkStringify from 'remark-stringify'
 import { unified } from 'unified'
 import type { PluginOption, ResolvedConfig } from 'vite'
 import { createLogger } from 'vite'
-import * as MdRouter from '../server/md-router.handler.js'
+import * as Handlers from '../server/handlers.js'
 import * as Config from './config.js'
 import * as Langs from './langs.js'
 import * as Mdx from './mdx.js'
@@ -196,7 +196,7 @@ export function llms(config: Config.Config): PluginOption {
           return
         }
 
-        if (await MdRouter.handle(req, res)) return
+        if (await Handlers.mdRouter().handle(req, res)) return
 
         next()
       })
