@@ -70,7 +70,7 @@ article[data-v-content] > h1[data-v]:not(:last-child) {
 
 /* #region Secondary Headings (h2, h3, h4, h5, h6) */
 
-article[data-v-content] > h2:not(:only-child) {
+article[data-v-content] > :not(hgroup[data-v]) + h2:not(:only-child) {
   @apply vocs:pt-8 vocs:mt-10! vocs:border-t vocs:border-primary;
 }
 
