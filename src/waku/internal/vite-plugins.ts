@@ -117,6 +117,7 @@ if (import.meta.hot) {
         const globPattern = `${globBase}/**/*.{${EXTENSIONS.map((ext) => ext.slice(1)).join(',')}}`
         const middlewareGlob = `/${config.srcDir}/${SRC_MIDDLEWARE}/*.{${EXTENSIONS.map((ext) => ext.slice(1)).join(',')}}`
         return `
+import { middlewareModules } from 'vocs/waku/middleware';
 import { router } from 'vocs/waku/router';
 import adapter from 'waku/adapters/default';
 
@@ -128,8 +129,10 @@ export default adapter(
     )
   ),
   {
-    middlewareModules: import.meta.glob(${JSON.stringify(middlewareGlob)}),
-    static: ${vocsConfig.preferPureSsg},
+    middlewareModules: middlewareModules(
+      import.meta.glob(${JSON.stringify(middlewareGlob)})
+    ),
+    static: ${vocsConfig.renderStrategy === 'full-static'},
   },
 );
 `

@@ -10,6 +10,7 @@ import type { PluginOption, ResolvedConfig } from 'vite'
 import { createLogger } from 'vite'
 import * as Config from './config.js'
 import * as Langs from './langs.js'
+import * as Markdown from './markdown.js'
 import * as Mdx from './mdx.js'
 
 export { default as icons } from 'unplugin-icons/vite'
@@ -127,9 +128,10 @@ export function llms(config: Config.Config): PluginOption {
           .replace(/\.mdx?$/, '')
           .replace(/index$/, '')
         return {
+          content: String(file),
+          file,
           title,
           description,
-          file,
           path,
         }
       }),
@@ -147,14 +149,21 @@ export function llms(config: Config.Config): PluginOption {
     const llmsTxtContent: string[] = [`# ${title}`, '']
     if (description) llmsTxtContent.push(description, '')
 
-    const short = [...llmsTxtContent]
+    const nav = []
     for (const { title, description, path } of results)
-      short.push(`- [${title}](${path})${description ? `: ${description}` : ''}`)
+      nav.push(
+        `- [${title}](${path === '/' ? '/index' : path}.md)${description ? `: ${description}` : ''}`,
+      )
+
+    const sitemap = ['<!--', 'Sitemap:', ...nav, '-->', '', ''].join('\n')
+    for (const result of results) result.content = sitemap + result.content
+
+    const short = [...llmsTxtContent, ...nav]
 
     const full = [...llmsTxtContent]
-    for (const { file } of results) full.push(String(file))
+    for (const { content } of results) full.push(content)
 
-    return { full: full.join('\n'), short: short.join('\n') }
+    return { full: full.join('\n'), results, short: short.join('\n') }
   }
 
   return {
@@ -172,6 +181,17 @@ export function llms(config: Config.Config): PluginOption {
           res.end(req.url === '/llms.txt' ? content.short : content.full)
           return
         }
+
+        {
+          const sourceDir = path.resolve(viteConfig.root, config.srcDir, config.pagesDir)
+          const content = await Markdown.fromRequestListener(req, res, sourceDir)
+          if (content) {
+            res.setHeader('Content-Type', 'text/markdown; charset=utf-8')
+            res.end(content)
+            return
+          }
+        }
+
         next()
       })
     },
@@ -182,6 +202,18 @@ export function llms(config: Config.Config): PluginOption {
       await Promise.all([
         fs.writeFile(path.join(outDir, 'llms-full.txt'), content.full, { encoding: 'utf-8' }),
         fs.writeFile(path.join(outDir, 'llms.txt'), content.short, { encoding: 'utf-8' }),
+        ...content.results.map(async ({ content, path: pagePath }) => {
+          const mdPath = path.join(
+            outDir,
+            'assets/md',
+            `${pagePath === '/' ? 'index' : pagePath}.md`,
+          )
+          const directory = path.dirname(mdPath)
+          await fs.mkdir(directory, { recursive: true })
+          return fs.writeFile(mdPath, content, {
+            encoding: 'utf-8',
+          })
+        }),
       ])
     },
   }

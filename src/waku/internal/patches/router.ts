@@ -1,8 +1,7 @@
 import { type FunctionComponent, lazy, type ReactNode } from 'react'
 import { createPages } from 'waku/router/server'
-import { transformStream } from '../dedupe-head.js'
+import * as DedupeHead from '../dedupe-head.js'
 import { isIgnoredPath } from './utils/fs-router.js'
-import { emitMarkdownFiles, getMarkdownForPath } from './utils/raw-markdown.js'
 
 type Pages = ReturnType<typeof createPages>
 
@@ -18,7 +17,7 @@ const wrapRenderHtml =
     const response = await renderHtml(...args)
     const body = response.body
     if (!body) return response
-    return new Response(body.pipeThrough(transformStream()), {
+    return new Response(body.pipeThrough(DedupeHead.transformStream()), {
       status: response.status,
       statusText: response.statusText,
       headers: response.headers,
@@ -28,18 +27,12 @@ const wrapRenderHtml =
 const wrapPages = (pages: Pages): Pages => ({
   ...pages,
   handleRequest: async (input, utils) => {
-    const markdown = await getMarkdownForPath(input.req)
-    if (markdown)
-      return new Response(markdown, {
-        headers: { 'content-type': 'text/markdown; charset=utf-8' },
-      })
     return pages.handleRequest(input, {
       ...utils,
       renderHtml: wrapRenderHtml(utils.renderHtml),
     })
   },
   handleBuild: async (utils) => {
-    await emitMarkdownFiles(utils.generateFile)
     return pages.handleBuild({
       ...utils,
       renderHtml: wrapRenderHtml(utils.renderHtml),

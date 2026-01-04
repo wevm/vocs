@@ -148,15 +148,15 @@ export type Config<partial extends boolean = false> = MaybePartial<
      */
     pagesDir: string
     /**
-     * Whether to prefer pure SSG (ie. a pure static site) over SSR.
+     * Rendering strategy.
      *
-     * Compatible with:
-     * - Netlify
-     * - Vercel
+     * - `full-static`: Full static site generation. Compatible with: Netlify, Vercel.
+     * - `partial-static`: Partial static site (static pages; other routes are dynamic).
+     * - `dynamic`: Dynamic site (all routes are dynamic).
      *
-     * @default false
+     * @default 'dynamic'
      */
-    preferPureSsg: boolean
+    renderStrategy: 'full-static' | 'partial-static' | 'dynamic'
     /**
      * Root directory.
      * @default process.cwd()
@@ -242,7 +242,7 @@ export function define(config: define.Options = {}): Config {
     logoUrl,
     ogImageUrl,
     markdown,
-    preferPureSsg = false,
+    renderStrategy = 'dynamic',
     outDir = 'dist',
     rootDir = process.cwd(),
     sidebar,
@@ -278,7 +278,7 @@ export function define(config: define.Options = {}): Config {
     ogImageUrl,
     outDir,
     pagesDir,
-    preferPureSsg,
+    renderStrategy,
     rootDir,
     sidebar,
     srcDir,
