@@ -33,25 +33,33 @@ export const aiUserAgents = [
   'GoogleAgent-Mariner',
 ]
 
-export async function fromRequest(request: Request): Promise<string | undefined> {
+export async function fromRequest(
+  request: Request,
+): Promise<{ content: string; contentType: string } | undefined> {
   const url = new URL(request.url)
 
   const userAgent = request.headers.get('user-agent') ?? ''
   const isAiAgent = aiUserAgents.some((agent) => userAgent.includes(agent))
 
-  const isMarkdownRequest = url.pathname.endsWith('.md')
+  const isTxtRequest = url.pathname.endsWith('.txt')
+  const isMarkdownRequest = url.pathname.endsWith('.md') || isTxtRequest
   if (!isMarkdownRequest && !isAiAgent) return
 
-  const assetUrl = new URL(`/assets/md${url.pathname}`, url.origin)
+  const pathname = url.pathname.replace(/\.txt$/, '.md')
+  const assetUrl = new URL(`/assets/md${pathname}`, url.origin)
   const response = await fetch(assetUrl)
   if (!response.ok) return
 
-  return await response.text().catch(() => undefined)
+  const content = await response.text().catch(() => undefined)
+  if (!content) return
+
+  const contentType = isTxtRequest ? 'text/plain; charset=utf-8' : 'text/markdown; charset=utf-8'
+  return { content, contentType }
 }
 
 export async function fromRequestListener(
   req: IncomingMessage,
   res: ServerResponse,
-): Promise<string | undefined> {
+): Promise<{ content: string; contentType: string } | undefined> {
   return fromRequest(createRequest(req, res))
 }

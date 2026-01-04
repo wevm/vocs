@@ -197,10 +197,10 @@ export function llms(config: Config.Config): PluginOption {
         }
 
         {
-          const content = await Markdown.fromRequestListener(req, res)
-          if (content) {
-            res.setHeader('Content-Type', 'text/markdown; charset=utf-8')
-            res.end(content)
+          const result = await Markdown.fromRequestListener(req, res)
+          if (result) {
+            res.setHeader('Content-Type', result.contentType)
+            res.end(result.content)
             return
           }
         }
