@@ -48,7 +48,7 @@ export function Item(props: Item.Props) {
                   key={i}
                   // @ts-expect-error
                   // biome-ignore lint/style/noNonNullAssertion: _
-                  render={<Link to={item.link!} />}
+                  render={<Link to={item.link!} unstable_prefetchOnView />}
                 >
                   {item.text}
                 </Menu.Item>
@@ -62,7 +62,7 @@ export function Item(props: Item.Props) {
   if (!link) return null
 
   return (
-    <Link className={Item.className} data-v-active={active} to={link}>
+    <Link className={Item.className} data-v-active={active} to={link} unstable_prefetchOnView>
       {text}
     </Link>
   )

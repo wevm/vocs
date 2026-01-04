@@ -21,7 +21,7 @@ export function Main(props: Main.Props) {
         data-v-gutter-logo
       >
         <div className="vocs:w-sidebar vocs:px-sidebar-px vocs:py-3 vocs:min-w-fit" data-v-logo>
-          <Link to="/">
+          <Link to="/" unstable_prefetchOnView>
             <Logo />
           </Link>
         </div>
@@ -64,7 +64,7 @@ export function Main(props: Main.Props) {
         data-v-gutter-top
       >
         <div className="vocs:flex vocs:gap-2 vocs:h-full vocs:py-2 vocs:lg:-ml-7">
-          <Link className="vocs:lg:hidden vocs:py-0.5" to="/">
+          <Link className="vocs:lg:hidden vocs:py-0.5" to="/" unstable_prefetchOnView>
             <Logo />
           </Link>
 
