@@ -68,6 +68,9 @@ importers:
       '@mdx-js/rollup':
         specifier: ^3.1.1
         version: 3.1.1(rollup@4.53.5)
+      '@remix-run/node-fetch-server':
+        specifier: ^0.13.0
+        version: 0.13.0
       '@shikijs/rehype':
         specifier: ^3.20.0
         version: 3.20.0
@@ -192,9 +195,6 @@ importers:
       '@changesets/cli':
         specifier: 'catalog:'
         version: 2.29.8(@types/node@25.0.3)
-      '@remix-run/node-fetch-server':
-        specifier: ^0.13.0
-        version: 0.13.0
       '@types/estree':
         specifier: ^1.0.8
         version: 1.0.8
