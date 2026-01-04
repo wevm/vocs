@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import { Link } from 'waku'
+import * as Search from './internal/Search.js'
 import * as Sidebar from './internal/Sidebar.js'
 import * as TopNav from './internal/TopNav.js'
 import { useConfig } from './useConfig.js'
@@ -59,7 +60,9 @@ export function Main(props: Main.Props) {
         className="vocs:bg-primary vocs:fixed vocs:flex vocs:justify-between vocs:lg:left-gutter vocs:w-[calc(100vw-var(--vocs-spacing-gutter))] vocs:pr-[calc(var(--vocs-spacing-gutter)-var(--vocs-spacing-sidebar)-(var(--vocs-spacing)*4))] vocs:h-topNav vocs:px-4 vocs:z-10"
         data-v-gutter-top
       >
-        <div data-v-search-container />
+        <div className="vocs:max-lg:hidden vocs:w-[240px] vocs:h-full vocs:py-2 vocs:-ml-4">
+          <Search.Search />
+        </div>
 
         <TopNav.TopNav className="vocs:max-lg:hidden" />
       </div>

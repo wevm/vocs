@@ -24,7 +24,7 @@ export function TwoslashHover(props: TwoslashHover.Props) {
           collisionAvoidance={{ side: 'none' }}
         >
           <Popover.Popup className={className} initialFocus={false}>
-            <Popover.Arrow className="vocs:data-[side=bottom]:top-[-8px] vocs:data-[side=left]:right-[-13px] vocs:data-[side=left]:rotate-90 vocs:data-[side=right]:left-[-13px] vocs:data-[side=right]:rotate-[-90deg] vocs:data-[side=top]:bottom-[-8px] vocs:data-[side=top]:rotate-180">
+            <Popover.Arrow className="vocs:data-[side=bottom]:top-[-8px] vocs:data-[side=left]:right-[-13px] vocs:data-[side=left]:rotate-90 vocs:data-[side=right]:left-[-13px] vocs:data-[side=right]:-rotate-90 vocs:data-[side=top]:bottom-[-8px] vocs:data-[side=top]:rotate-180">
               <ArrowSvg />
             </Popover.Arrow>
             <div data-v-content ref={ref}>
