@@ -153,7 +153,7 @@ export function llms(config: Config.Config): PluginOption {
     const nav = []
     for (const { title, description, path } of results)
       nav.push(
-        `- [${title}](${path === '/' ? '/index' : path}.md)${description ? `: ${description}` : ''}`,
+        `- [${title}](${path === '/' ? '/index' : path})${description ? `: ${description}` : ''}`,
       )
 
     const sitemap = ['<!--', 'Sitemap:', ...nav, '-->', '', ''].join('\n')
