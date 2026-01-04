@@ -1,5 +1,5 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
-import { createRequest } from '@remix-run/node-fetch-server'
+import { createRequest, sendResponse } from '@remix-run/node-fetch-server'
 
 export const aiUserAgents = [
   'GPTBot',
@@ -33,25 +33,30 @@ export const aiUserAgents = [
   'GoogleAgent-Mariner',
 ]
 
-export async function fromRequest(request: Request): Promise<string | undefined> {
+export async function fetch(request: Request): Promise<Response> {
   const url = new URL(request.url)
 
   const userAgent = request.headers.get('user-agent') ?? ''
   const isAiAgent = aiUserAgents.some((agent) => userAgent.includes(agent))
 
   const isMarkdownRequest = url.pathname.endsWith('.md')
-  if (!isMarkdownRequest && !isAiAgent) return
+  if (!isMarkdownRequest && !isAiAgent) throw new Error()
 
   const assetUrl = new URL(`/assets/md${url.pathname}`, url.origin)
-  const response = await fetch(assetUrl)
-  if (!response.ok) return
+  const response = await globalThis.fetch(assetUrl)
+  if (!response.ok) throw new Error()
 
-  return await response.text().catch(() => undefined)
+  return new Response(await response.text(), {
+    headers: { 'Content-Type': 'text/markdown; charset=utf-8' },
+  })
 }
 
-export async function fromRequestListener(
+export async function handle(
   req: IncomingMessage,
   res: ServerResponse,
-): Promise<string | undefined> {
-  return fromRequest(createRequest(req, res))
+): Promise<Response | undefined> {
+  const response = await fetch(createRequest(req, res)).catch(() => undefined)
+  if (!response) return undefined
+  await sendResponse(res, response)
+  return response
 }

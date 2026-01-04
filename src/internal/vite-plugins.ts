@@ -8,9 +8,9 @@ import remarkStringify from 'remark-stringify'
 import { unified } from 'unified'
 import type { PluginOption, ResolvedConfig } from 'vite'
 import { createLogger } from 'vite'
+import * as MdRouter from '../server/md-router.handler.js'
 import * as Config from './config.js'
 import * as Langs from './langs.js'
-import * as Markdown from './markdown.js'
 import * as Mdx from './mdx.js'
 
 export { default as icons } from 'unplugin-icons/vite'
@@ -196,14 +196,7 @@ export function llms(config: Config.Config): PluginOption {
           return
         }
 
-        {
-          const content = await Markdown.fromRequestListener(req, res)
-          if (content) {
-            res.setHeader('Content-Type', 'text/markdown; charset=utf-8')
-            res.end(content)
-            return
-          }
-        }
+        if (await MdRouter.handle(req, res)) return
 
         next()
       })
