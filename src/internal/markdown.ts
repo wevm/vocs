@@ -1,9 +1,7 @@
-import * as fs from 'node:fs/promises'
 import type { IncomingMessage, ServerResponse } from 'node:http'
-import * as path from 'node:path'
 import { createRequest } from '@remix-run/node-fetch-server'
 
-const aiUserAgents = [
+export const aiUserAgents = [
   'GPTBot',
   'OAI-SearchBot',
   'ChatGPT-User',
@@ -35,7 +33,7 @@ const aiUserAgents = [
   'GoogleAgent-Mariner',
 ]
 
-export async function fromRequest(request: Request, dir: string): Promise<string | undefined> {
+export async function fromRequest(request: Request): Promise<string | undefined> {
   const url = new URL(request.url)
 
   const userAgent = request.headers.get('user-agent') ?? ''
@@ -44,29 +42,16 @@ export async function fromRequest(request: Request, dir: string): Promise<string
   const isMarkdownRequest = url.pathname.endsWith('.md')
   if (!isMarkdownRequest && !isAiAgent) return
 
-  const pagePath = isMarkdownRequest ? url.pathname.slice(0, -3) : url.pathname
+  const assetUrl = new URL(`/assets/md${url.pathname}`, url.origin)
+  const response = await fetch(assetUrl)
+  if (!response.ok) return
 
-  const possiblePaths = [
-    path.join(dir, `${pagePath}.md`),
-    path.join(dir, `${pagePath}.mdx`),
-    path.join(dir, pagePath, 'index.md'),
-    path.join(dir, pagePath, 'index.mdx'),
-  ]
-
-  for (const filePath of possiblePaths) {
-    try {
-      const content = await fs.readFile(filePath, 'utf-8')
-      return content
-    } catch {}
-  }
-
-  return
+  return await response.text().catch(() => undefined)
 }
 
 export async function fromRequestListener(
   req: IncomingMessage,
   res: ServerResponse,
-  dir: string,
 ): Promise<string | undefined> {
-  return fromRequest(createRequest(req, res), dir)
+  return fromRequest(createRequest(req, res))
 }

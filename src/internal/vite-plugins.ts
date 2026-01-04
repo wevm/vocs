@@ -126,6 +126,7 @@ export function llms(config: Config.Config): PluginOption {
         const path = page
           .replace(pagesDir, '')
           .replace(/\.mdx?$/, '')
+          .replace(/\/$/, '')
           .replace(/index$/, '')
         return {
           content: String(file),
@@ -176,15 +177,27 @@ export function llms(config: Config.Config): PluginOption {
       let content: Awaited<ReturnType<typeof buildLlmsContent>> | undefined
       server.middlewares.use(async (req, res, next) => {
         if (req.url === '/llms.txt' || req.url === '/llms-full.txt') {
-          content ??= await buildLlmsContent()
+          content = await buildLlmsContent()
           res.setHeader('Content-Type', 'text/plain')
           res.end(req.url === '/llms.txt' ? content.short : content.full)
           return
         }
 
+        if (req.url?.startsWith('/assets/md/')) {
+          content = await buildLlmsContent()
+          const pagePath = req.url.slice('/assets/md'.length, -3) || '/'
+          const result = content.results.find(
+            (r) => r.path.replace(/\/$/, '') === pagePath.replace(/\/index$/, ''),
+          )
+          if (result) {
+            res.setHeader('Content-Type', 'text/markdown; charset=utf-8')
+            res.end(result.content)
+          }
+          return
+        }
+
         {
-          const sourceDir = path.resolve(viteConfig.root, config.srcDir, config.pagesDir)
-          const content = await Markdown.fromRequestListener(req, res, sourceDir)
+          const content = await Markdown.fromRequestListener(req, res)
           if (content) {
             res.setHeader('Content-Type', 'text/markdown; charset=utf-8')
             res.end(content)
@@ -206,7 +219,7 @@ export function llms(config: Config.Config): PluginOption {
           const mdPath = path.join(
             outDir,
             'assets/md',
-            `${pagePath === '/' ? 'index' : pagePath}.md`,
+            `${pagePath.replace(/^\/$/, 'index').replace(/\/$/, '')}.md`,
           )
           const directory = path.dirname(mdPath)
           await fs.mkdir(directory, { recursive: true })

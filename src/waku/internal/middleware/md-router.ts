@@ -1,16 +1,12 @@
-import * as path from 'node:path'
-import { config } from 'virtual:vocs/config'
 import type { MiddlewareHandler } from 'hono'
 import * as Markdown from '../../../internal/markdown.js'
 
 export const mdRouter = (): MiddlewareHandler => {
   return async (context, next) => {
-    console.log('test')
     if (import.meta.env.DEV) return next()
 
     const request = context.req.raw
-    const sourceDir = path.resolve(config.rootDir, config.outDir, 'public/assets/md')
-    const content = await Markdown.fromRequest(request, sourceDir)
+    const content = await Markdown.fromRequest(request)
 
     if (!content) return next()
 
