@@ -1,3 +1,5 @@
+import { matchPath } from 'react-router'
+
 /**
  * Determine if a path matches a pathname.
  *
@@ -7,5 +9,5 @@
  */
 export function matches(pathname: string, target: string | undefined) {
   if (typeof target !== 'string') return false
-  return new URLPattern({ pathname }).test(`https://example.com${target}`)
+  return matchPath(pathname, target)
 }

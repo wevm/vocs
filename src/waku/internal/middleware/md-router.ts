@@ -5,9 +5,11 @@ import * as Markdown from '../../../internal/markdown.js'
 
 export const mdRouter = (): MiddlewareHandler => {
   return async (context, next) => {
+    if (!import.meta.env.PROD) return next()
+
     const request = context.req.raw
     const sourceDir = path.resolve(config.rootDir, config.outDir, 'public/assets/md')
-    const content = await Markdown.fromRequest(request, sourceDir)
+    const content = Markdown.fromRequest(request, sourceDir)
 
     if (!content) return next()
 

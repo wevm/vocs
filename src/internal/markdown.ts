@@ -1,4 +1,4 @@
-import * as fs from 'node:fs/promises'
+import * as fs from 'node:fs'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import * as path from 'node:path'
 import { createRequest } from '@remix-run/node-fetch-server'
@@ -55,7 +55,7 @@ export async function fromRequest(request: Request, dir: string): Promise<string
 
   for (const filePath of possiblePaths) {
     try {
-      const content = await fs.readFile(filePath, 'utf-8')
+      const content = fs.readFileSync(filePath, 'utf-8')
       return content
     } catch {}
   }
