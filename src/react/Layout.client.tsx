@@ -8,6 +8,17 @@ import * as Sidebar from './internal/Sidebar.js'
 import * as TopNav from './internal/TopNav.js'
 import { useConfig } from './useConfig.js'
 
+// TODO:
+// - outline
+// - mobile nav menus
+// - prev/next pagination
+// - suggest changes
+// - last updated date
+// - skip to content
+// - socials
+// - light/dark toggle
+// - user "slots"
+
 export function Main(props: Main.Props) {
   const { children } = props
 
@@ -83,7 +94,7 @@ export function Main(props: Main.Props) {
       <div className="vocs:max-md:hidden vocs:fixed vocs:bg-surface vocs:lg:rounded-tl-2xl vocs:lg:border-l vocs:border-t vocs:border-primary vocs:w-full vocs:h-full vocs:max-lg:w-full vocs:top-topNav vocs:max-w-screen vocs:ml-gutter" />
 
       <main
-        className="vocs:isolate vocs:pt-topNav vocs:max-w-screen vocs:h-full vocs:lg:ml-gutter"
+        className="vocs:isolate vocs:pt-topNav vocs:pb-20 vocs:max-w-screen vocs:h-full vocs:lg:ml-gutter"
         data-v-main
       >
         <article
@@ -98,7 +109,7 @@ export function Main(props: Main.Props) {
         className="vocs:fixed vocs:bottom-6 vocs:max-md:bottom-2 vocs:w-full vocs:flex vocs:justify-center"
         data-v-ask-ai-container
       >
-        <AskAi.AskAi className="vocs:w-[290px]! vocs:h-10! vocs:z-50! vocs:bg-gray6/20! vocs:backdrop-blur-md!" />
+        <AskAi.AskAi className="vocs:w-[290px]! vocs:h-10! vocs:z-50! vocs:bg-surfaceTint/20! vocs:backdrop-blur-md!" />
       </div>
 
       <div
