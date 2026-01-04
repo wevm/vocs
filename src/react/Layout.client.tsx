@@ -1,6 +1,5 @@
 'use client'
 
-import { cx } from 'cva'
 import * as React from 'react'
 import { Link } from 'waku'
 import * as AskAi from './internal/AskAi.js'
@@ -8,13 +7,12 @@ import * as Search from './internal/Search.js'
 import * as Sidebar from './internal/Sidebar.js'
 import * as TopNav from './internal/TopNav.js'
 import { useConfig } from './useConfig.js'
-import { useScrollDirection } from './useScrollDirection.js'
 
 export function Main(props: Main.Props) {
   const { children } = props
 
   const sidebarScrollRef = React.useRef<HTMLDivElement>(null)
-  const scrollDirection = useScrollDirection({ deltaY: 200 })
+  const topGutterRef = useTopGutterVisibility(48)
 
   return (
     <div>
@@ -61,10 +59,8 @@ export function Main(props: Main.Props) {
       </div>
 
       <div
-        className={cx(
-          'vocs:bg-primary vocs:fixed vocs:flex vocs:justify-between vocs:lg:left-gutter vocs:w-[calc(100vw-var(--vocs-spacing-gutter))] vocs:pr-[calc(var(--vocs-spacing-gutter)-var(--vocs-spacing-sidebar)-(var(--vocs-spacing)*4))] vocs:h-topNav vocs:px-4 vocs:z-10 vocs:max-lg:w-full vocs:max-lg:left-0 vocs:max-lg:pr-0 vocs:max-lg:transition-transform vocs:max-lg:duration-300 vocs:max-lg:will-change-transform vocs:max-md:border-b vocs:max-md:border-primary',
-          scrollDirection === 'down' && 'vocs:max-md:-translate-y-full',
-        )}
+        ref={topGutterRef}
+        className="vocs:bg-primary vocs:fixed vocs:flex vocs:justify-between vocs:lg:left-gutter vocs:w-[calc(100vw-var(--vocs-spacing-gutter))] vocs:pr-[calc(var(--vocs-spacing-gutter)-var(--vocs-spacing-sidebar)-(var(--vocs-spacing)*4))] vocs:h-topNav vocs:px-4 vocs:z-10 vocs:max-lg:w-full vocs:max-lg:left-0 vocs:max-lg:pr-0 vocs:max-md:border-b vocs:max-md:border-primary"
         data-v-gutter-top
       >
         <div className="vocs:flex vocs:gap-2 vocs:h-full vocs:py-2 vocs:lg:-ml-7">
@@ -86,7 +82,7 @@ export function Main(props: Main.Props) {
         <TopNav.TopNav className="vocs:max-md:hidden vocs:px-2" />
       </div>
 
-      <div className="vocs:fixed vocs:bg-surface vocs:lg:rounded-tl-2xl vocs:lg:border-l vocs:border-t vocs:border-primary vocs:w-[calc(100vw-var(--vocs-spacing-gutter))] vocs:h-full vocs:max-lg:w-full vocs:top-topNav vocs:max-md:top-0 vocs:lg:translate-x-gutter" />
+      <div className="vocs:max-md:hidden vocs:fixed vocs:bg-surface vocs:lg:rounded-tl-2xl vocs:lg:border-l vocs:border-t vocs:border-primary vocs:w-[calc(100vw-var(--vocs-spacing-gutter))] vocs:h-full vocs:max-lg:w-full vocs:top-topNav vocs:max-md:top-0 vocs:lg:translate-x-gutter" />
 
       <main className="vocs:isolate vocs:pt-topNav vocs:w-full vocs:h-full" data-v-main>
         <article
@@ -154,5 +150,91 @@ export function Logo() {
 export namespace Logo {
   export type Props = {
     children: React.ReactNode
+  }
+}
+
+export function useTopGutterVisibility(maxOffset: number): React.RefCallback<HTMLElement> {
+  const state = React.useRef({
+    animating: false,
+    cleanup: null as (() => void) | null,
+    currentOffset: 0,
+    lastScrollY: 0,
+    targetOffset: 0,
+  })
+
+  return React.useCallback(
+    (element: HTMLElement | null) => {
+      // Cleanup previous listener
+      state.current.cleanup?.()
+      state.current.cleanup = null
+
+      if (!element) return
+      if (window.innerWidth > useTopGutterVisibility.maxWidth) return
+
+      element.style.willChange = 'transform, opacity'
+
+      const s = state.current
+      s.lastScrollY = window.scrollY
+      s.targetOffset = 0
+      s.currentOffset = 0
+      s.animating = false
+
+      const animate = () => {
+        s.currentOffset = useTopGutterVisibility.lerp(s.currentOffset, s.targetOffset)
+
+        if (Math.abs(s.currentOffset - s.targetOffset) < 0.5) {
+          s.currentOffset = s.targetOffset
+          s.animating = false
+        } else {
+          requestAnimationFrame(animate)
+        }
+
+        const opacity = 1 - s.currentOffset / maxOffset
+        element.style.cssText = `
+          will-change: transform, opacity;
+          transform: translate3d(0, -${s.currentOffset}px, 0);
+          opacity: ${opacity};
+          visibility: ${opacity < 0.1 ? 'hidden' : 'visible'};
+        `
+      }
+
+      const onScroll = () => {
+        const scrollY = window.scrollY
+
+        if (scrollY < 0) {
+          s.lastScrollY = 0
+          return
+        }
+
+        const diff = scrollY - s.lastScrollY
+        s.lastScrollY = scrollY
+
+        if (diff === 0) return
+
+        s.targetOffset = Math.max(0, Math.min(s.targetOffset + diff, maxOffset))
+
+        if (!s.animating) {
+          s.animating = true
+          requestAnimationFrame(animate)
+        }
+      }
+
+      window.addEventListener('scroll', onScroll, { passive: true })
+      s.cleanup = () => window.removeEventListener('scroll', onScroll)
+    },
+    [maxOffset],
+  )
+}
+
+export namespace useTopGutterVisibility {
+  export type Props = {
+    maxOffset: number
+  }
+
+  export const maxWidth = 748
+  export const lerpFactor = 0.5
+
+  export function lerp(current: number, target: number): number {
+    return current + (target - current) * lerpFactor
   }
 }
