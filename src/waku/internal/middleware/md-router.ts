@@ -9,7 +9,7 @@ export const mdRouter = (): MiddlewareHandler => {
 
     const request = context.req.raw
     const sourceDir = path.resolve(config.rootDir, config.outDir, 'public/assets/md')
-    const content = Markdown.fromRequest(request, sourceDir)
+    const content = await Markdown.fromRequest(request, sourceDir)
 
     if (!content) return next()
 
