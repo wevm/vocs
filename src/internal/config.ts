@@ -222,6 +222,12 @@ export type Frontmatter = {
   description?: string | undefined
   /** Last modified date of the page. */
   lastModified?: string | undefined
+  /**
+   * Whether to show the outline, or the depth of headings to show.
+   * Set to `false` to hide the outline, or a number to limit depth.
+   * @default true
+   */
+  outline?: boolean | number | undefined
   /** Robots directive (e.g., "noindex", "nofollow"). */
   robots?: string | undefined
   /** Additional metadata for the page. */

@@ -3,10 +3,12 @@
 import * as React from 'react'
 import { Link } from 'waku'
 import * as AskAi from './internal/AskAi.js'
+import * as Outline from './internal/Outline.js'
 import * as Search from './internal/Search.js'
 import * as Sidebar from './internal/Sidebar.js'
 import * as TopNav from './internal/TopNav.js'
 import { useConfig } from './useConfig.js'
+import { useTopGutterVisibility } from './useTopGutterVisibility.js'
 
 // TODO:
 // - outline
@@ -113,10 +115,12 @@ export function Main(props: Main.Props) {
       </div>
 
       <div
-        className="vocs:fixed vocs:w-gutter vocs:h-full vocs:right-0 vocs:top-topNav vocs:z-10"
+        className="vocs:fixed vocs:overflow-y-auto vocs:w-gutter vocs:py-content-py vocs:pb-20 vocs:h-full vocs:right-0 vocs:top-topNav vocs:z-10 vocs:max-[1376px]:hidden"
         data-v-gutter-right
       >
-        {/* TODO */}
+        <div className="vocs:flex vocs:flex-col vocs:gap-2" data-v-outline-container>
+          <Outline.Outline />
+        </div>
       </div>
     </div>
   )
@@ -169,91 +173,5 @@ export function Logo() {
 export namespace Logo {
   export type Props = {
     children: React.ReactNode
-  }
-}
-
-export function useTopGutterVisibility(maxOffset: number): React.RefCallback<HTMLElement> {
-  const state = React.useRef({
-    animating: false,
-    cleanup: null as (() => void) | null,
-    currentOffset: 0,
-    lastScrollY: 0,
-    targetOffset: 0,
-  })
-
-  return React.useCallback(
-    (element: HTMLElement | null) => {
-      // Cleanup previous listener
-      state.current.cleanup?.()
-      state.current.cleanup = null
-
-      if (!element) return
-      if (window.innerWidth > useTopGutterVisibility.maxWidth) return
-
-      element.style.willChange = 'transform, opacity'
-
-      const s = state.current
-      s.lastScrollY = window.scrollY
-      s.targetOffset = 0
-      s.currentOffset = 0
-      s.animating = false
-
-      const animate = () => {
-        s.currentOffset = useTopGutterVisibility.lerp(s.currentOffset, s.targetOffset)
-
-        if (Math.abs(s.currentOffset - s.targetOffset) < 0.5) {
-          s.currentOffset = s.targetOffset
-          s.animating = false
-        } else {
-          requestAnimationFrame(animate)
-        }
-
-        const opacity = 1 - s.currentOffset / maxOffset
-        element.style.cssText = `
-          will-change: transform, opacity;
-          transform: translate3d(0, -${s.currentOffset}px, 0);
-          opacity: ${opacity};
-          visibility: ${opacity < 0.1 ? 'hidden' : 'visible'};
-        `
-      }
-
-      const onScroll = () => {
-        const scrollY = window.scrollY
-
-        if (scrollY < 0) {
-          s.lastScrollY = 0
-          return
-        }
-
-        const diff = scrollY - s.lastScrollY
-        s.lastScrollY = scrollY
-
-        if (diff === 0) return
-
-        s.targetOffset = Math.max(0, Math.min(s.targetOffset + diff, maxOffset))
-
-        if (!s.animating) {
-          s.animating = true
-          requestAnimationFrame(animate)
-        }
-      }
-
-      window.addEventListener('scroll', onScroll, { passive: true })
-      s.cleanup = () => window.removeEventListener('scroll', onScroll)
-    },
-    [maxOffset],
-  )
-}
-
-export namespace useTopGutterVisibility {
-  export type Props = {
-    maxOffset: number
-  }
-
-  export const maxWidth = 748
-  export const lerpFactor = 0.5
-
-  export function lerp(current: number, target: number): number {
-    return current + (target - current) * lerpFactor
   }
 }
