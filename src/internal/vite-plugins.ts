@@ -196,6 +196,19 @@ export function llms(config: Config.Config): PluginOption {
           return
         }
 
+        if (req.url?.endsWith('.txt')) {
+          content = await buildLlmsContent()
+          const pagePath = req.url.slice(0, -4) || '/'
+          const result = content.results.find(
+            (r) => r.path.replace(/\/$/, '') === pagePath.replace(/\/index$/, ''),
+          )
+          if (result) {
+            res.setHeader('Content-Type', 'text/plain; charset=utf-8')
+            res.end(result.content)
+            return
+          }
+        }
+
         if (await Handlers.mdRouter().handle(req, res)) return
 
         next()
