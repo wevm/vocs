@@ -39,7 +39,7 @@ export function handler(): Handler.Handler {
     const userAgent = request.headers.get('user-agent') ?? ''
     const isAiAgent = aiUserAgents.some((agent) => userAgent.includes(agent))
 
-    const isMarkdownRequest = url.pathname.endsWith('.md')
+    const isMarkdownRequest = url.pathname.endsWith('.md') || url.pathname.endsWith('.txt')
     if (!isMarkdownRequest && !isAiAgent) throw new Error()
 
     const assetUrl = new URL(`/assets/md${url.pathname}`, url.origin)
@@ -47,7 +47,9 @@ export function handler(): Handler.Handler {
     if (!response.ok) throw new Error()
 
     return new Response(await response.text(), {
-      headers: { 'Content-Type': 'text/markdown; charset=utf-8' },
+      headers: {
+        'Content-Type': `${url.pathname.endsWith('.txt') ? 'text/plain' : 'text/markdown'}; charset=utf-8`,
+      },
     })
   })
 }
