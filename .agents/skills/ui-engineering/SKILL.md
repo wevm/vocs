@@ -153,6 +153,27 @@ className="vocs:transition-transform vocs:duration-150"
 className="vocs:transition-opacity vocs:duration-200"
 ```
 
+### Layout Concerns
+
+Place styles that affect the **outside** of a component on layout containers, not on reusable components. This includes:
+- **Borders** – avoid doubled borders when components are adjacent
+- **Margins** – let the layout control spacing between components (see [Margin considered harmful](https://mxstbr.com/thoughts/margin))
+- **Responsive visibility** – layouts decide when to show/hide components
+
+Padding is fine inside components since it affects internal spacing only.
+
+```tsx
+// ✗ Don't put external concerns in reusable components
+function Pagination() {
+  return <nav className="vocs:border-t vocs:mt-8 vocs:max-sm:hidden">...</nav>
+}
+
+// ✓ Put external concerns on the layout wrapper
+<div className="vocs:border-t vocs:border-primary vocs:mt-8 vocs:max-sm:hidden">
+  <Pagination />
+</div>
+```
+
 ### CSS Variables
 
 Reference CSS variables using parentheses:

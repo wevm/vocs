@@ -7,6 +7,7 @@ import LucideSearch from '~icons/lucide/search'
 import * as AskAi from './internal/AskAi.js'
 import * as MobileNav from './internal/MobileNav.js'
 import * as Outline from './internal/Outline.js'
+import * as Pagination from './internal/Pagination.client.js'
 import * as Search from './internal/Search.js'
 import * as Sidebar from './internal/Sidebar.js'
 import * as TopNav from './internal/TopNav.js'
@@ -16,7 +17,6 @@ import { useTopGutterVisibility } from './useTopGutterVisibility.js'
 // TODO:
 // - outline
 // - mobile nav menus
-// - prev/next pagination
 // - suggest changes
 // - last updated date
 // - skip to content
@@ -116,6 +116,13 @@ export function Main(props: Main.Props) {
           data-v-content
         >
           {children}
+
+          <div
+            className="vocs:border-t vocs:border-primary vocs:pt-8 vocs:mt-8 vocs:max-sm:hidden"
+            data-v-content-footer
+          >
+            <Pagination.Pagination />
+          </div>
         </article>
       </main>
 
