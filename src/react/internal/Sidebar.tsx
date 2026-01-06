@@ -11,7 +11,7 @@ import { useSidebar } from '../useSidebar.js'
 const maxDepth = 5
 
 export function Sidebar(props: Sidebar.Props) {
-  const { className, scrollRef } = props
+  const { className, onNavigate, scrollRef } = props
 
   const sidebar = useSidebar()
   const condenseSidebar = React.useMemo(
@@ -32,6 +32,7 @@ export function Sidebar(props: Sidebar.Props) {
           key={`${item.text}-${i}`}
           {...item}
           condensed={condenseSidebar}
+          onNavigate={onNavigate}
           scrollRef={scrollRef}
         />
       ))}
@@ -42,6 +43,7 @@ export function Sidebar(props: Sidebar.Props) {
 export declare namespace Sidebar {
   export type Props = {
     className?: string | undefined
+    onNavigate?: (() => void) | undefined
     scrollRef: React.RefObject<HTMLDivElement | null>
   }
 }
@@ -49,7 +51,7 @@ export declare namespace Sidebar {
 /** @internal */
 // biome-ignore lint/correctness/noUnusedVariables: _
 function Item(props: Item.Props) {
-  const { condensed = false, depth = 0, disabled, link, scrollRef, text } = props
+  const { condensed = false, depth = 0, disabled, link, onNavigate, scrollRef, text } = props
 
   const { path } = useRouter()
   const active = React.useMemo(() => Path.matches(path, link), [path, link])
@@ -81,6 +83,7 @@ function Item(props: Item.Props) {
         to={link}
         ref={itemRef as never}
         unstable_prefetchOnView
+        onClick={onNavigate}
         {...(active && { 'data-active': true })}
       >
         {text}
@@ -104,6 +107,7 @@ namespace Item {
   export type Props = Sidebar_core.SidebarItem & {
     condensed?: boolean | undefined
     depth?: number | undefined
+    onNavigate?: (() => void) | undefined
     scrollRef?: React.RefObject<HTMLDivElement | null>
   }
 
@@ -114,7 +118,7 @@ namespace Item {
 /** @internal */
 // biome-ignore lint/correctness/noUnusedVariables: _
 function Section(props: Section.Props) {
-  const { condensed = false, depth = 0, link, items, scrollRef, text } = props
+  const { condensed = false, depth = 0, link, items, onNavigate, scrollRef, text } = props
 
   const { path } = useRouter()
 
@@ -220,6 +224,7 @@ function Section(props: Section.Props) {
                   {...item}
                   condensed={condensed}
                   depth={depth + 1}
+                  onNavigate={onNavigate}
                   scrollRef={scrollRef}
                 />
               ))}
@@ -235,6 +240,7 @@ namespace Section {
   export type Props = Sidebar_core.SidebarItem & {
     condensed?: boolean | undefined
     depth?: number | undefined
+    onNavigate?: (() => void) | undefined
     scrollRef: React.RefObject<HTMLDivElement | null>
   }
 

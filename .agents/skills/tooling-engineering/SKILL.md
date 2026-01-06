@@ -553,6 +553,42 @@ export function getConfigFile(): string | undefined {
 }
 ```
 
+### Config Defaults
+
+All default values should be defined in the `define` function in `config.ts`, not in components. This centralizes configuration logic and makes defaults discoverable.
+
+For optional object configs with nested defaults, access `config.propName` directly rather than destructuring:
+
+```ts
+export function define(config: define.Options = {}): Config {
+  const {
+    title = 'Docs',
+    // Don't destructure optional objects with nested defaults
+  } = config
+
+  return {
+    title,
+    // Apply defaults with spread - defaults first, user config overwrites
+    editLink: config.editLink
+      ? { text: 'Suggest changes', ...config.editLink }
+      : undefined,
+  }
+}
+```
+
+### Accessing Nested Config in Components
+
+When accessing nested optional config in components, destructure in two steps for clarity:
+
+```ts
+// ✅ Good - two-step destructure
+const { editLink } = config
+const { link, text } = editLink ?? {}
+
+// ❌ Avoid - chained destructure is harder to read
+const { link, text } = config.editLink ?? {}
+```
+
 ### Type Utilities
 
 Common utility types in `types.ts`:

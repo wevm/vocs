@@ -11,14 +11,14 @@ import { useSidebar } from '../useSidebar.js'
 export function Pagination(props: Pagination.Props) {
   const { className } = props
 
-  const { path } = useRouter()
+  const router = useRouter()
   const sidebar = useSidebar()
 
   const items = React.useMemo(() => Sidebar.flatten(sidebar.items), [sidebar.items])
 
   const currentIndex = React.useMemo(
-    () => items.findIndex((item) => item.link === path),
-    [items, path],
+    () => items.findIndex((item) => item.link === router.path),
+    [items, router.path],
   )
 
   const prev = currentIndex > 0 ? items[currentIndex - 1] : null
@@ -26,15 +26,13 @@ export function Pagination(props: Pagination.Props) {
 
   React.useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
-      if (event.shiftKey && event.key === 'ArrowLeft' && prev?.link)
-        window.location.href = prev.link
-      else if (event.shiftKey && event.key === 'ArrowRight' && next?.link)
-        window.location.href = next.link
+      if (event.shiftKey && event.key === 'ArrowLeft' && prev?.link) router.push(prev.link)
+      else if (event.shiftKey && event.key === 'ArrowRight' && next?.link) router.push(next.link)
     }
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [prev, next])
+  }, [prev, next, router])
 
   if (!prev && !next) return null
 

@@ -103,10 +103,25 @@ export type Config<partial extends boolean = false> = MaybePartial<
      * General description for the documentation.
      */
     description?: string | undefined
-    // /**
-    //  * Edit location for the documentation.
-    //  */
-    // editLink?: Normalize<EditLink>
+    /**
+     * Edit link configuration for "suggest changes" functionality.
+     */
+    editLink?:
+      | {
+          /**
+           * Edit link URL. Use `:path` as placeholder for the file path.
+           * Can also be a function for custom URL generation.
+           * @example "https://github.com/org/repo/edit/main/docs/:path"
+           */
+          link: string | ((filePath: string) => string)
+          /**
+           * Link text displayed to the user.
+           * @default "Suggest changes to this page"
+           */
+          text?: string | undefined
+        }
+      | undefined
+
     // /**
     //  * Base font face.
     //  *
@@ -220,6 +235,8 @@ export type Frontmatter = {
   title?: string | undefined
   /** Description of the page. */
   description?: string | undefined
+  /** File path relative to pages directory. */
+  filePath?: string | undefined
   /** Last modified date of the page. */
   lastModified?: string | undefined
   /**
@@ -278,6 +295,9 @@ export function define(config: define.Options = {}): Config {
     },
     colorScheme,
     description,
+    editLink: config.editLink
+      ? { text: 'Suggest changes to this page', ...config.editLink }
+      : undefined,
     iconUrl,
     logoUrl,
     markdown,

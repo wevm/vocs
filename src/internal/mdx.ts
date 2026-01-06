@@ -128,6 +128,7 @@ export function recmaMdxLayout(config: Config.Config) {
     }
 
     const lastModified = vfile.path ? fs.statSync(vfile.path).mtime.toISOString() : undefined
+    const filePath = vfile.path ? path.relative(pagesDirPath, vfile.path) : undefined
 
     const importAst = EstreeUtil.fromJs(
       `import { components as _components } from 'vocs/mdx';
@@ -140,7 +141,11 @@ export function recmaMdxLayout(config: Config.Config) {
 
     const wrapperAst = EstreeUtil.fromJs(
       `export function Page(props = {}) {
-        const _frontmatter = { ...frontmatter, lastModified: ${lastModified ? `"${lastModified}"` : 'undefined'} };
+        const _frontmatter = { 
+          ...frontmatter, 
+          filePath: ${filePath ? `"${filePath}"` : 'undefined'},
+          lastModified: ${lastModified ? `"${lastModified}"` : 'undefined'},
+        };
         return _createElement(
           _MdxPageContext.Provider, 
           { frontmatter: _frontmatter }, 

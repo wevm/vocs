@@ -5,6 +5,8 @@ import { Link } from 'waku'
 import LucideSearch from '~icons/lucide/search'
 
 import * as AskAi from './internal/AskAi.js'
+import * as EditLink from './internal/EditLink.client.js'
+import * as LastUpdated from './internal/LastUpdated.client.js'
 import * as MobileNav from './internal/MobileNav.js'
 import * as Outline from './internal/Outline.js'
 import * as Pagination from './internal/Pagination.client.js'
@@ -15,10 +17,6 @@ import { useConfig } from './useConfig.js'
 import { useTopGutterVisibility } from './useTopGutterVisibility.js'
 
 // TODO:
-// - outline
-// - mobile nav menus
-// - suggest changes
-// - last updated date
 // - skip to content
 // - socials
 // - light/dark toggle
@@ -117,11 +115,15 @@ export function Main(props: Main.Props) {
         >
           {children}
 
-          <div
-            className="vocs:border-t vocs:border-primary vocs:pt-8 vocs:mt-8 vocs:max-sm:hidden"
-            data-v-content-footer
-          >
-            <Pagination.Pagination />
+          <div className="vocs:mt-8 vocs:max-sm:hidden" data-v-content-footer>
+            <div className="vocs:flex vocs:justify-between vocs:items-center vocs:mb-4">
+              <EditLink.EditLink />
+              <LastUpdated.LastUpdated />
+            </div>
+
+            <div className="vocs:border-t vocs:border-primary vocs:pt-8">
+              <Pagination.Pagination />
+            </div>
           </div>
         </article>
       </main>

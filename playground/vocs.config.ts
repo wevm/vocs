@@ -3,6 +3,9 @@ import { defineConfig } from 'vocs/config'
 export default defineConfig({
   checkDeadlinks: false,
   description: 'Vocs is a library for creating documentation websites.',
+  editLink: {
+    link: 'https://github.com/wevm/vocs/edit/next/playground/src/pages/:path',
+  },
   logoUrl: {
     light: '/logo-tight-light.svg',
     dark: '/logo-tight-dark.svg',

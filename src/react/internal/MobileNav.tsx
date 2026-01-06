@@ -49,7 +49,7 @@ export function MobileNav(props: MobileNav.Props) {
             className="vocs:overflow-y-auto vocs:h-[calc(100%-var(--vocs-spacing-topNav))] vocs:px-4 vocs:pb-4"
             ref={sidebarScrollRef}
           >
-            <Sidebar.Sidebar scrollRef={sidebarScrollRef} />
+            <Sidebar.Sidebar onNavigate={() => setDialogOpen(false)} scrollRef={sidebarScrollRef} />
           </div>
         </Dialog.Popup>
       </Dialog.Portal>
@@ -70,6 +70,8 @@ function MobileTopNav(props: MobileTopNav.Props) {
   const { topNav } = useConfig()
   const { path } = useRouter()
 
+  const [menuOpen, setMenuOpen] = React.useState(false)
+
   const items = React.useMemo(() => TopNav_core.parse(topNav, path), [topNav, path])
 
   const activeItem = React.useMemo(() => {
@@ -84,9 +86,14 @@ function MobileTopNav(props: MobileTopNav.Props) {
 
   const activeLink = activeItem?.link
 
+  const handleNavigate = React.useCallback(() => {
+    setMenuOpen(false)
+    onNavigate()
+  }, [onNavigate])
+
   if (items.length === 0) return null
   return (
-    <Menu.Root>
+    <Menu.Root open={menuOpen} onOpenChange={setMenuOpen}>
       <Menu.Trigger className="vocs:flex vocs:flex-1 vocs:items-center vocs:justify-between vocs:border vocs:border-primary vocs:bg-surface vocs:px-2 vocs:py-1.5 vocs:text-heading vocs:text-[14px] vocs:font-[450] vocs:rounded-md vocs:cursor-pointer">
         <span>{activeItem?.text}</span>
         <LucideChevronDown className="vocs:text-secondary/80 vocs:size-4" />
@@ -109,8 +116,7 @@ function MobileTopNav(props: MobileTopNav.Props) {
                           // biome-ignore lint/suspicious/noArrayIndexKey: _
                           key={j}
                           value={child.link}
-                          closeOnClick
-                          onClick={onNavigate}
+                          onClick={handleNavigate}
                           // @ts-expect-error
                           // biome-ignore lint/style/noNonNullAssertion: _
                           render={<Link to={child.link!} unstable_prefetchOnView />}
@@ -128,8 +134,7 @@ function MobileTopNav(props: MobileTopNav.Props) {
                     // biome-ignore lint/suspicious/noArrayIndexKey: _
                     key={i}
                     value={item.link}
-                    closeOnClick
-                    onClick={onNavigate}
+                    onClick={handleNavigate}
                     // @ts-expect-error
                     // biome-ignore lint/style/noNonNullAssertion: _
                     render={<Link to={item.link!} unstable_prefetchOnView />}
