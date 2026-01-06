@@ -72,7 +72,6 @@
     "esast-util-from-js": "^2.0.1",
     "estree-util-value-to-estree": "^3.5.0",
     "estree-util-visit": "^2.0.0",
-    "hast-util-to-jsx-runtime": "^2.3.6",
     "hono": "^4.11.3",
     "mdast-util-from-markdown": "^2.0.2",
     "mdast-util-gfm": "^3.1.0",

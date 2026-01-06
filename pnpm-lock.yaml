@@ -113,9 +113,6 @@ importers:
       estree-util-visit:
         specifier: ^2.0.0
         version: 2.0.0
-      hast-util-to-jsx-runtime:
-        specifier: ^2.3.6
-        version: 2.3.6
       hono:
         specifier: ^4.11.3
         version: 4.11.3
