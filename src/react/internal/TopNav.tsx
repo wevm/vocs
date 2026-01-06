@@ -1,4 +1,4 @@
-import { Menu } from '@base-ui/react/menu'
+import { NavigationMenu } from '@base-ui/react/navigation-menu'
 import { cx } from 'cva'
 import * as React from 'react'
 import { Link, useRouter } from 'waku'
@@ -15,12 +15,25 @@ export function TopNav(props: TopNav.Props) {
   const items = React.useMemo(() => TopNav_core.parse(topNav, path), [topNav, path])
 
   return (
-    <nav className={cx('vocs:flex', className)}>
-      {items.map((item, i) => (
-        // biome-ignore lint/suspicious/noArrayIndexKey: _
-        <Item key={i} {...item} />
-      ))}
-    </nav>
+    <NavigationMenu.Root className={cx('vocs:flex', className)}>
+      <NavigationMenu.List className="vocs:flex vocs:items-center vocs:h-full vocs:list-none vocs:m-0 vocs:p-0 vocs:-mb-px">
+        {items.map((item, i) => (
+          // biome-ignore lint/suspicious/noArrayIndexKey: _
+          <Item key={i} {...item} />
+        ))}
+      </NavigationMenu.List>
+
+      <NavigationMenu.Portal>
+        <NavigationMenu.Positioner side="bottom" sideOffset={-8} className="vocs:z-50">
+          <NavigationMenu.Popup className="vocs:bg-surface vocs:min-w-[200px] vocs:border vocs:border-primary vocs:p-2 vocs:rounded-lg vocs:shadow-lg/5 vocs:origin-(--transform-origin) vocs:transition-all vocs:duration-75 vocs:scale-100 vocs:opacity-100 vocs:data-starting-style:opacity-0 vocs:data-starting-style:scale-90">
+            <NavigationMenu.Arrow className="vocs:data-[side=bottom]:top-[-9px] vocs:data-[side=left]:right-[-13px] vocs:data-[side=left]:rotate-90 vocs:data-[side=right]:left-[-13px] vocs:data-[side=right]:-rotate-90 vocs:data-[side=top]:bottom-[-8px] vocs:data-[side=top]:rotate-180">
+              <ArrowSvg />
+            </NavigationMenu.Arrow>
+            <NavigationMenu.Viewport />
+          </NavigationMenu.Popup>
+        </NavigationMenu.Positioner>
+      </NavigationMenu.Portal>
+    </NavigationMenu.Root>
   )
 }
 
@@ -29,42 +42,44 @@ export function Item(props: Item.Props) {
 
   if (items)
     return (
-      <Menu.Root>
-        <Menu.Trigger className={Item.className} data-v-active={active} openOnHover delay={0}>
+      <NavigationMenu.Item className="vocs:h-full">
+        <NavigationMenu.Trigger className={Item.className} data-v-active={active}>
           {text}
-          <LucideChevronDown className="vocs:text-secondary/80 vocs:ml-1" />
-        </Menu.Trigger>
-        <Menu.Portal>
-          <Menu.Positioner side="bottom" sideOffset={-8} className="vocs:z-50">
-            <Menu.Popup className="vocs:bg-surface vocs:min-w-[200px] vocs:border vocs:border-primary vocs:p-2 vocs:rounded-lg vocs:shadow-lg/5 vocs:origin-(--transform-origin) vocs:transition-all vocs:duration-75 vocs:scale-100 vocs:opacity-100 vocs:data-starting-style:opacity-0 vocs:data-starting-style:scale-90">
-              <Menu.Arrow className="vocs:data-[side=bottom]:top-[-9px] vocs:data-[side=left]:right-[-13px] vocs:data-[side=left]:rotate-90 vocs:data-[side=right]:left-[-13px] vocs:data-[side=right]:-rotate-90 vocs:data-[side=top]:bottom-[-8px] vocs:data-[side=top]:rotate-180">
-                <ArrowSvg />
-              </Menu.Arrow>
-              {items.map((item, i) => (
-                <Menu.Item
-                  className="vocs:flex vocs:items-center vocs:hover:text-heading vocs:px-2 vocs:py-1 vocs:text-primary/80 vocs:data-[v-active=true]:text-accent7 vocs:data-[v-active=true]:bg-accenta3 vocs:rounded-md vocs:text-[14px] vocs:font-[450]"
-                  data-v-active={item.active}
-                  // biome-ignore lint/suspicious/noArrayIndexKey: _
-                  key={i}
-                  // @ts-expect-error
-                  // biome-ignore lint/style/noNonNullAssertion: _
-                  render={<Link to={item.link!} unstable_prefetchOnView />}
-                >
-                  {item.text}
-                </Menu.Item>
-              ))}
-            </Menu.Popup>
-          </Menu.Positioner>
-        </Menu.Portal>
-      </Menu.Root>
+          <NavigationMenu.Icon>
+            <LucideChevronDown className="vocs:text-secondary/80 vocs:ml-1 vocs:transition-transform vocs:duration-150 vocs:in-data-popup-open:rotate-180" />
+          </NavigationMenu.Icon>
+        </NavigationMenu.Trigger>
+        <NavigationMenu.Content className="vocs:flex vocs:flex-col">
+          {items.map((item, i) => (
+            <NavigationMenu.Link
+              className="vocs:flex vocs:items-center vocs:hover:text-heading vocs:px-2 vocs:py-1 vocs:text-primary/80 vocs:data-[v-active=true]:text-accent7 vocs:data-[v-active=true]:bg-accenta3 vocs:rounded-md vocs:text-[14px] vocs:font-[450]"
+              data-v-active={item.active}
+              // biome-ignore lint/suspicious/noArrayIndexKey: _
+              key={i}
+              // @ts-expect-error
+              // biome-ignore lint/style/noNonNullAssertion: _
+              render={<Link to={item.link!} unstable_prefetchOnView />}
+            >
+              {item.text}
+            </NavigationMenu.Link>
+          ))}
+        </NavigationMenu.Content>
+      </NavigationMenu.Item>
     )
 
   if (!link) return null
 
   return (
-    <Link className={Item.className} data-v-active={active} to={link} unstable_prefetchOnView>
-      {text}
-    </Link>
+    <NavigationMenu.Item className="vocs:h-full">
+      <NavigationMenu.Link
+        className={Item.className}
+        data-v-active={active}
+        // @ts-expect-error
+        render={<Link to={link} unstable_prefetchOnView />}
+      >
+        {text}
+      </NavigationMenu.Link>
+    </NavigationMenu.Item>
   )
 }
 
@@ -78,7 +93,7 @@ export namespace Item {
   export type Props = TopNav_core.ParsedItem
 
   export const className =
-    'vocs:flex vocs:items-center vocs:cursor-pointer vocs:hover:text-heading vocs:px-2 vocs:border-b-2 vocs:text-primary/80 vocs:data-[v-active=true]:text-accent6 vocs:text-[14px] vocs:font-[450] vocs:border-transparent vocs:data-[v-active=true]:border-accent vocs:-mb-px'
+    'vocs:flex vocs:items-center vocs:h-full vocs:cursor-pointer vocs:hover:text-heading vocs:px-2 vocs:border-b-2 vocs:text-primary/80 vocs:data-[v-active=true]:text-accent6 vocs:text-[14px] vocs:font-[450] vocs:border-transparent vocs:data-[v-active=true]:border-accent'
 }
 
 function ArrowSvg(props: React.ComponentProps<'svg'>) {

@@ -2,7 +2,10 @@
 
 import * as React from 'react'
 import { Link } from 'waku'
+import LucideSearch from '~icons/lucide/search'
+
 import * as AskAi from './internal/AskAi.js'
+import * as MobileNav from './internal/MobileNav.js'
 import * as Outline from './internal/Outline.js'
 import * as Search from './internal/Search.js'
 import * as Sidebar from './internal/Sidebar.js'
@@ -90,7 +93,16 @@ export function Main(props: Main.Props) {
 
         <TopNav.TopNav className="vocs:max-lg:hidden vocs:px-2" />
 
-        {/* <div className="vocs:lg:hidden vocs:flex vocs:items-center vocs:gap-2 vocs:px-4">TODO</div> */}
+        <div className="vocs:lg:hidden vocs:flex vocs:items-center vocs:px-3">
+          <button
+            className="vocs:flex vocs:items-center vocs:justify-center vocs:cursor-pointer vocs:size-8"
+            type="button"
+          >
+            <LucideSearch />
+          </button>
+
+          <MobileNav.MobileNav />
+        </div>
       </div>
 
       <div className="vocs:max-md:hidden vocs:fixed vocs:bg-surface vocs:lg:rounded-tl-2xl vocs:lg:border-l vocs:border-t vocs:border-primary vocs:w-full vocs:h-full vocs:max-lg:w-full vocs:top-topNav vocs:max-w-screen vocs:ml-gutter" />

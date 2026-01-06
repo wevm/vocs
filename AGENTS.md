@@ -174,6 +174,35 @@ Hooks live in `src/react/` and follow the same client suffix convention if they 
 - Suppress lint rules with `// biome-ignore lint/...: _` (underscore as reason)
 - Defer to Biome; don't hand-tune formatting
 
+### Commit Style
+
+Follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/):
+
+```
+<type>[optional scope]: <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+| Type | When to Use |
+|------|-------------|
+| `feat` | New feature (`MINOR` in SemVer) |
+| `fix` | Bug fix (`PATCH` in SemVer) |
+| `docs` | Documentation only |
+| `refactor` | Code change that neither fixes a bug nor adds a feature |
+| `test` | Adding or updating tests |
+| `chore` | Maintenance tasks, dependencies |
+| `perf` | Performance improvement |
+| `build` | Build system or external dependencies |
+| `ci` | CI configuration |
+
+- Use lowercase type and description
+- Keep the first line under 72 characters
+- Use `!` after type/scope for breaking changes: `feat!: remove deprecated API`
+- Scope is optional but encouraged for clarity: `fix(sidebar): handle empty items`
+
 ### Conventions
 
 - Shared utility types in `internal/types.ts` (`OneOf`, `MaybePartial`, `Compute`, etc.). Promote types here only when reused across multiple modules.
