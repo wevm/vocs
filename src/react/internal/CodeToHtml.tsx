@@ -1,13 +1,6 @@
 import { config } from 'virtual:vocs/config'
-import {
-  bundledLanguages,
-  createHighlighter,
-  hastToHtml,
-  makeSingletonHighlighter,
-  type ShikiTransformer,
-} from 'shiki/bundle/web'
-
-const getHighlighter = makeSingletonHighlighter(createHighlighter)
+import { bundledLanguages, hastToHtml } from 'shiki/bundle/web'
+import { getHighlighter, transformerShrinkIndent } from '../../internal/shiki.js'
 
 export async function CodeToHtml(props: CodeToHtml.Props) {
   const { code, lang } = props
@@ -20,26 +13,35 @@ export async function CodeToHtml(props: CodeToHtml.Props) {
     langAlias,
   })
 
+  await Promise.all([
+    await highlighter.loadTheme('github-dark-dimmed'),
+    await highlighter.loadTheme('github-light'),
+    await highlighter.loadLanguage(lang as never),
+  ])
+
   const hast = highlighter.codeToHast(code, {
     defaultColor: 'light-dark()',
-    lang: import.meta.env.DEV ? 'txt' : lang,
+    lang,
     rootStyle: false,
     meta: {
       'data-v-overflow-fade': true,
     },
+    themes,
     ...(import.meta.env.DEV ? { theme: 'none' } : { themes }),
     transformers: [transformerShrinkIndent()],
   })
 
-  // Add overflow sentinel
+  // Add data-v attribute and overflow sentinel to pre
   const pre = hast.children[0]
-  if (pre && pre.type === 'element' && pre.tagName === 'pre')
+  if (pre && pre.type === 'element' && pre.tagName === 'pre') {
+    pre.properties = { ...pre.properties, 'data-v': '' }
     pre.children.push({
       type: 'element',
       tagName: 'div',
       properties: { 'data-v-overflow-sentinel': true },
       children: [],
     })
+  }
 
   const html = hastToHtml(hast)
 
@@ -51,18 +53,5 @@ export namespace CodeToHtml {
   export type Props = {
     code: string
     lang: string
-  }
-}
-
-function transformerShrinkIndent(): ShikiTransformer {
-  return {
-    name: 'indent',
-    span(hast) {
-      const child = hast.children[0]
-      if (!child) return
-      if (child.type !== 'text') return
-      if (!child.value) return
-      hast.children[0] = { type: 'text', value: child.value.replace(/\s\s/g, ' ') }
-    },
   }
 }
