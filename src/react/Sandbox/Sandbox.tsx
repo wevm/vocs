@@ -21,21 +21,21 @@ export async function Sandbox(props: Sandbox.Props) {
   const bundledFiles = await bundleDeps(deps, codeStr)
 
   return (
-    <article data-v-sandbox>
-      <div data-v-code-container>
+    <section data-v-sandbox>
+      <div data-v-code-container className="vocs:gap-y-0.5">
         <CodeToHtml code={codeStr} lang={lang} />
+        <SandboxProvider
+          code={codeStr}
+          autoRun={autoRun}
+          showConsole={showConsole}
+          showPreview={showPreview}
+          bundledFiles={bundledFiles}
+          {...(previewProps && { previewProps })}
+          {...(consoleProps && { consoleProps })}
+          {...(providerProps && { providerProps })}
+        />
       </div>
-      <SandboxProvider
-        code={codeStr}
-        autoRun={autoRun}
-        showConsole={showConsole}
-        showPreview={showPreview}
-        bundledFiles={bundledFiles}
-        {...(previewProps && { previewProps })}
-        {...(consoleProps && { consoleProps })}
-        {...(providerProps && { providerProps })}
-      />
-    </article>
+    </section>
   )
 }
 
