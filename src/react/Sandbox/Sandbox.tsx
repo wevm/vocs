@@ -1,11 +1,12 @@
+import { CodeToHtml } from '../internal/CodeToHtml.js'
 import { bundleDeps } from './bundleDeps.js'
 import { SandboxProvider } from './Provider.js'
 
 export async function Sandbox(props: Sandbox.Props) {
   const {
     code,
+    lang = 'ts',
     deps = {},
-    editorProps,
     previewProps,
     consoleProps,
     providerProps,
@@ -20,14 +21,16 @@ export async function Sandbox(props: Sandbox.Props) {
   const bundledFiles = await bundleDeps(deps, codeStr)
 
   return (
-    <article>
+    <article data-v-sandbox>
+      <div data-v-code-container>
+        <CodeToHtml code={codeStr} lang={lang} />
+      </div>
       <SandboxProvider
         code={codeStr}
-        bundledFiles={bundledFiles}
+        autoRun={autoRun}
         showConsole={showConsole}
         showPreview={showPreview}
-        autoRun={autoRun}
-        {...(editorProps && { editorProps })}
+        bundledFiles={bundledFiles}
         {...(previewProps && { previewProps })}
         {...(consoleProps && { consoleProps })}
         {...(providerProps && { providerProps })}
@@ -37,7 +40,8 @@ export async function Sandbox(props: Sandbox.Props) {
 }
 
 export declare namespace Sandbox {
-  type Props = SandboxProvider.Props & {
+  type Props = Omit<SandboxProvider.Props, 'children'> & {
+    lang?: string
     deps?: Record<string, string>
   }
 }

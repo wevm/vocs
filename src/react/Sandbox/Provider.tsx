@@ -1,7 +1,6 @@
 'use client'
 
 import {
-  SandpackCodeEditor,
   SandpackConsole,
   SandpackPreview,
   SandpackProvider,
@@ -13,15 +12,14 @@ import { RunButton } from './Run.js'
 
 export function SandboxProvider(props: SandboxProvider.Props) {
   const {
+    autoRun,
     code: _code,
+    showConsole,
+    showPreview,
     bundledFiles,
-    editorProps,
     previewProps,
     consoleProps,
     providerProps,
-    showConsole,
-    showPreview,
-    autoRun,
   } = props
 
   const [mounted, setMounted] = React.useState(false)
@@ -61,16 +59,7 @@ export function SandboxProvider(props: SandboxProvider.Props) {
       className="shiki shiki-themes github-light github-dark-dimmed text-white font-mono tabular-nums text-lg mt-0.5"
       {...providerProps}
     >
-      <div className="vocs:relative">
-        <SandpackCodeEditor
-          showInlineErrors={true}
-          showLineNumbers={true}
-          showTabs={true}
-          {...editorProps}
-          showRunButton={false}
-        />
-        <RunButton autoRun={autoRun ?? false} />
-      </div>
+      <RunButton autoRun={autoRun ?? false} />
       <SandpackPreview
         showOpenInCodeSandbox={false}
         showOpenNewtab={false}
@@ -100,7 +89,6 @@ export declare namespace SandboxProvider {
     showPreview: boolean
     showConsole: boolean
     autoRun?: boolean
-    editorProps?: React.ComponentPropsWithoutRef<typeof SandpackCodeEditor>
     previewProps?: React.ComponentPropsWithoutRef<typeof SandpackPreview>
     consoleProps?: React.ComponentPropsWithoutRef<typeof SandpackConsole>
     providerProps?: Pick<

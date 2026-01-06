@@ -1,6 +1,6 @@
 import { fromJs } from 'esast-util-from-js'
 import type { Program } from 'estree'
-import type { Code, Root } from 'mdast'
+import type { Root } from 'mdast'
 import type { MdxJsxAttribute, MdxJsxFlowElement, MdxjsEsm } from 'mdast-util-mdx'
 import type { Plugin } from 'unified'
 import { visit } from 'unist-util-visit'
@@ -27,7 +27,7 @@ export const remarkSandbox: Plugin<[], Root> = () => {
   return (tree) => {
     let foundSandbox = false
 
-    visit(tree, 'code', (node: Code, index, parent) => {
+    visit(tree, 'code', (node, index, parent) => {
       if (!parent || typeof index !== 'number') return
 
       const meta = node.meta ?? ''
@@ -38,28 +38,20 @@ export const remarkSandbox: Plugin<[], Root> = () => {
       const deps = extractDeps(code)
       const options = parseOptions(meta)
 
-      const attributes: MdxJsxAttribute[] = [
-        createJsxAttribute('code', `\`${escapeTemplateString(code)}\``),
-        createJsxAttribute('deps', JSON.stringify(deps)),
-      ]
+      // Strip sandbox flag from meta so rehype-shiki processes it normally
+      node.meta = meta.replace(/\bsandbox\b/, '').trim()
 
-      if (options.autoRun) {
-        attributes.push(createJsxAttribute('autoRun', 'true'))
-      }
-
-      // Build editorProps if any editor options are set
-      const editorProps: Record<string, boolean> = {}
-      if (!options.showLineNumbers) editorProps['showLineNumbers'] = false
-      if (!options.showTabs) editorProps['showTabs'] = false
-
-      if (Object.keys(editorProps).length > 0) {
-        attributes.push(createJsxAttribute('editorProps', JSON.stringify(editorProps)))
-      }
+      node.lang = node.lang ?? 'txt'
 
       const sandboxElement: MdxJsxFlowElement = {
         type: 'mdxJsxFlowElement',
         name: 'Sandbox',
-        attributes,
+        attributes: [
+          createJsxExpressionAttribute('code', `\`${escapeTemplateString(code)}\``),
+          createJsxExpressionAttribute('deps', JSON.stringify(deps)),
+          createJsxExpressionAttribute('autoRun', options.autoRun ? 'true' : 'false'),
+          { type: 'mdxJsxAttribute', name: 'lang', value: node.lang ?? 'txt' },
+        ],
         children: [],
       }
 
@@ -128,16 +120,17 @@ function escapeTemplateString(str: string): string {
   return str.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$/g, '\\$')
 }
 
-function createJsxAttribute(name: string, expressionCode: string): MdxJsxAttribute {
-  // Wrap in parens so objects parse as expressions, not blocks
-  const estree = fromJs(`(${expressionCode})`, { module: false })
+function createJsxExpressionAttribute(name: string, value: string): MdxJsxAttribute {
+  const wrappedValue = value.startsWith('{') ? `(${value})` : value
   return {
     type: 'mdxJsxAttribute',
     name,
     value: {
       type: 'mdxJsxAttributeValueExpression',
-      value: expressionCode,
-      data: { estree },
+      value,
+      data: {
+        estree: fromJs(wrappedValue, { module: false }) as Program,
+      },
     },
   }
 }
