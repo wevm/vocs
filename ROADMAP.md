@@ -142,10 +142,7 @@ A comprehensive checklist of features for Vocs v2, based on Vocs v1 feature pari
 - [x] `twoslash`
 - [ ] `banner`
 - [ ] `blogDir`
-- [ ] `editLink`
-- [ ] `font` (Google Fonts)
-- [ ] `head` (custom meta tags per page)
-- [ ] `outlineFooter`
+- [x] `editLink`
 - [ ] `search`
 - [ ] `socials` (GitHub, Discord, X, Bluesky, etc.)
 - [ ] `sponsors`
@@ -185,8 +182,8 @@ A comprehensive checklist of features for Vocs v2, based on Vocs v1 feature pari
 - [x] Typography system (heading sizes, line heights)
 - [x] Responsive breakpoints
 - [x] User styles support (`_root.css`)
-- [ ] Dark/light theme toggle UI
-- [ ] Color scheme toggle (system/light/dark)
+- [x] Dark/light theme toggle UI
+- [x] Color scheme toggle (system/light/dark)
 
 ## CLI
 

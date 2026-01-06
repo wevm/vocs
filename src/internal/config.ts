@@ -24,18 +24,6 @@ export type Config<partial extends boolean = false> = MaybePartial<
      */
     accentColor: `light-dark(${string}, ${string})` | (string & {})
     // /**
-    //  * Whether or not to show the AI call-to-action dropdown on docs pages (ie. "Open in ChatGPT"),
-    //  * as well as any configuration.
-    //  */
-    // aiCta?:
-    //   | boolean
-    //   | {
-    //       /**
-    //        * Query for the LLM.
-    //        */
-    //       query: (p: { location: string }) => string
-    //     }
-    // /**
     //  * Configuration for the banner fixed to the top of the page.
     //  *
     //  * Can be a Markdown string, a React Element, or an object with the following properties:
@@ -121,13 +109,6 @@ export type Config<partial extends boolean = false> = MaybePartial<
           text?: string | undefined
         }
       | undefined
-
-    // /**
-    //  * Base font face.
-    //  *
-    //  * @default { google: "Inter" }
-    //  */
-    // font?: Normalize<Font<parsed>>
     /**
      * Icon URL.
      */
@@ -144,10 +125,6 @@ export type Config<partial extends boolean = false> = MaybePartial<
      * @default "https://vocs.dev/api/og?logo=%logo&title=%title&description=%description"
      */
     ogImageUrl?: string | { [path: string]: string } | undefined
-    // /**
-    //  * Outline footer.
-    //  */
-    // outlineFooter?: ReactElement
     /**
      * Markdown configuration.
      */
@@ -228,13 +205,7 @@ export type Config<partial extends boolean = false> = MaybePartial<
   }
 >
 
-export type SocialType =
-  | 'bluesky'
-  | 'discord'
-  | 'farcaster'
-  | 'github'
-  | 'telegram'
-  | 'x'
+export type SocialType = 'bluesky' | 'discord' | 'farcaster' | 'github' | 'telegram' | 'x'
 
 export type SocialItem = {
   /** Social platform icon type */
