@@ -755,6 +755,12 @@ pre[data-v-shell] {
     & pre[data-v] {
       @apply vocs:rounded-b-none vocs:border-b-0 vocs:max-md:rounded-none;
     }
+
+    & .sp-console-list {
+      code {
+        @apply vocs:px-1.5;
+      }
+    }
   }
 
   & .sp-wrapper {

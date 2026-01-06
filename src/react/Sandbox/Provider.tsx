@@ -70,7 +70,7 @@ export function SandboxProvider(props: SandboxProvider.Props) {
         hidden={!showConsole}
         showSyntaxError={true}
         showHeader={false}
-        className="text-white font-mono tabular-nums text-lg mt-0.5"
+        className="vocs:rounded-t-none vocs:border vocs:border-primary vocs:rounded-lg text-white font-mono tabular-nums text-xl mt-0.5"
         {...consoleProps}
         showResetConsoleButton={true}
         showRestartButton={true}
