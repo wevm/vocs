@@ -549,3 +549,23 @@ pre[data-v] {
 }
 
 /* #endregion */
+
+/* #region Sandbox */
+
+[data-v-sandbox] {
+  @apply vocs:flex vocs:flex-col vocs:-mx-3 vocs:max-md:-mx-4;
+
+  & > [data-v-code-container] {
+    @apply vocs:rounded-b-none vocs:max-md:rounded-none vocs:mb-0;
+
+    & pre[data-v] {
+      @apply vocs:rounded-b-none vocs:border-b-0 vocs:max-md:rounded-none;
+    }
+  }
+
+  & .sp-wrapper {
+    @apply vocs:rounded-t-none vocs:max-md:rounded-none;
+  }
+}
+
+/* #endregion */

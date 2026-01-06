@@ -8,7 +8,6 @@ import {
 } from '@codesandbox/sandpack-react'
 import * as React from 'react'
 import { transform } from 'sucrase'
-import { RunButton } from './Run.js'
 
 export function SandboxProvider(props: SandboxProvider.Props) {
   const {
@@ -59,7 +58,6 @@ export function SandboxProvider(props: SandboxProvider.Props) {
       className="shiki shiki-themes github-light github-dark-dimmed text-white font-mono tabular-nums text-lg mt-0.5"
       {...providerProps}
     >
-      <RunButton autoRun={autoRun ?? false} />
       <SandpackPreview
         showOpenInCodeSandbox={false}
         showOpenNewtab={false}
