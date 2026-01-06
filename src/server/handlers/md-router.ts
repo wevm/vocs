@@ -39,12 +39,10 @@ export function handler(): Handler.Handler {
     const userAgent = request.headers.get('user-agent') ?? ''
     const isAiAgent = aiUserAgents.some((agent) => userAgent.includes(agent))
 
-    const isTxtRequest = url.pathname.endsWith('.txt')
-    const isMarkdownRequest = url.pathname.endsWith('.md') || isTxtRequest
+    const isMarkdownRequest = url.pathname.endsWith('.md') || url.pathname.endsWith('.txt')
     if (!isMarkdownRequest && !isAiAgent) throw new Error()
 
-    const assetPath = isTxtRequest ? `${url.pathname.slice(0, -4)}.md` : url.pathname
-    const assetUrl = new URL(`/assets/md${assetPath}`, url.origin)
+    const assetUrl = new URL(`/assets/md${url.pathname}`, url.origin)
     const response = await globalThis.fetch(assetUrl)
     if (!response.ok) throw new Error()
 
