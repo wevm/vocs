@@ -19,3 +19,7 @@ export function create(fetch: Handler['fetch']): Handler {
     },
   }
 }
+
+export type ExportedHandler = {
+  fetch: (request: Request) => Promise<Response>
+}
