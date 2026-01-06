@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import { ErrorBoundary } from './internal/ErrorBoundary.client.js'
 import { useConfig } from './useConfig.js'
 
 export function Root_client({ children }: { children: React.ReactNode }) {
@@ -16,5 +17,5 @@ export function Root_client({ children }: { children: React.ReactNode }) {
     }
   }, [accentColor, colorScheme])
 
-  return children
+  return <ErrorBoundary>{children}</ErrorBoundary>
 }

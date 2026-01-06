@@ -1,3 +1,1 @@
-export default function NotFound() {
-  return <div>404</div>
-}
+export { NotFound as default } from '../../../react/internal/NotFound.js'

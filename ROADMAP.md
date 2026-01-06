@@ -25,16 +25,15 @@ A comprehensive checklist of features for Vocs v2, based on Vocs v1 feature pari
 - [x] Top navigation component
 - [x] Top navigation parsing from config
 - [x] Logo (text/image/light-dark)
-- [ ] Page outline
-- [ ] Footer
+- [x] Page outline
+- [x] Footer
 - [ ] Banner (dismissable, customizable colors)
-- [ ] Skip link for accessibility
-- [ ] Breadcrumb navigation
-- [ ] Pagination (prev/next page links)
+- [x] Skip link for accessibility
+- [x] Pagination (prev/next page links)
 - [ ] Back to top button
-- [ ] Mobile navigation menus
-- [ ] 404 page
-- [ ] Error boundaries
+- [x] Mobile navigation menus
+- [x] 404 page
+- [x] Error boundaries
 
 ## Search
 
