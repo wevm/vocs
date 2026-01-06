@@ -11,6 +11,8 @@ import LucideX from '~icons/lucide/x'
 import * as TopNav_core from '../../internal/topNav.js'
 import { useConfig } from '../useConfig.js'
 import * as Sidebar from './Sidebar.js'
+import * as Socials from './Socials.client.js'
+import * as ThemeToggle from './ThemeToggle.client.js'
 
 export function MobileNav(props: MobileNav.Props) {
   const { className } = props
@@ -32,7 +34,7 @@ export function MobileNav(props: MobileNav.Props) {
       <Dialog.Portal>
         <Dialog.Backdrop className="vocs:fixed vocs:inset-0 vocs:bg-black/50 vocs:backdrop-blur-sm vocs:z-40 vocs:transition-opacity vocs:duration-200 vocs:data-starting-style:opacity-0 vocs:data-ending-style:opacity-0" />
         <Dialog.Popup
-          className="vocs:fixed vocs:top-0 vocs:right-0 vocs:h-full vocs:w-[320px] vocs:bg-primary vocs:z-50 vocs:shadow-xl vocs:transition-transform vocs:duration-200 vocs:data-starting-style:translate-x-full vocs:data-ending-style:translate-x-full"
+          className="vocs:fixed vocs:top-0 vocs:right-0 vocs:h-full vocs:w-[320px] vocs:bg-primary vocs:border-l vocs:border-primary vocs:z-50 vocs:shadow-xl vocs:transition-transform vocs:duration-200 vocs:data-starting-style:translate-x-full vocs:data-ending-style:translate-x-full"
           data-v-mobile-nav
         >
           <div className="vocs:flex vocs:justify-between vocs:items-center vocs:gap-1 vocs:px-2 vocs:h-topNav">
@@ -46,10 +48,15 @@ export function MobileNav(props: MobileNav.Props) {
           </div>
 
           <div
-            className="vocs:overflow-y-auto vocs:h-[calc(100%-var(--vocs-spacing-topNav))] vocs:px-4 vocs:pb-4"
+            className="vocs:overflow-y-auto vocs:h-[calc(100%-var(--vocs-spacing-topNav))] vocs:px-4 vocs:pb-4 vocs:flex vocs:flex-col"
             ref={sidebarScrollRef}
           >
             <Sidebar.Sidebar onNavigate={() => setDialogOpen(false)} scrollRef={sidebarScrollRef} />
+
+            <div className="vocs:mt-auto vocs:pt-4 vocs:flex vocs:justify-between vocs:items-center" data-v-mobile-nav-footer>
+              <Socials.Socials />
+              <ThemeToggle.ThemeToggle />
+            </div>
           </div>
         </Dialog.Popup>
       </Dialog.Portal>

@@ -192,10 +192,10 @@ export type Config<partial extends boolean = false> = MaybePartial<
             | { backLink?: boolean; items: Sidebar.SidebarItem<true>[] }
         }
       | undefined
-    // /**
-    //  * Social links displayed in the top navigation.
-    //  */
-    // socials?: Normalize<Socials<parsed>>
+    /**
+     * Social links displayed in the sidebar footer.
+     */
+    socials?: readonly SocialItem[] | undefined
     // /**
     //  * Set of sponsors to display on MDX directives and (optionally) the sidebar.
     //  */
@@ -227,6 +227,21 @@ export type Config<partial extends boolean = false> = MaybePartial<
     twoslash?: Mdx.rehypeShiki.Options['twoslash'] | undefined
   }
 >
+
+export type SocialType =
+  | 'bluesky'
+  | 'discord'
+  | 'farcaster'
+  | 'github'
+  | 'telegram'
+  | 'x'
+
+export type SocialItem = {
+  /** Social platform icon type */
+  icon: SocialType
+  /** Link URL */
+  link: string
+}
 
 export type Frontmatter = {
   /** Author of the page. */
@@ -269,6 +284,7 @@ export function define(config: define.Options = {}): Config {
     outDir = 'dist',
     rootDir = process.cwd(),
     sidebar,
+    socials,
     srcDir = 'src',
     title = 'Docs',
     titleTemplate = `%s – ${title}`,
@@ -307,6 +323,7 @@ export function define(config: define.Options = {}): Config {
     renderStrategy,
     rootDir,
     sidebar,
+    socials,
     srcDir,
     topNav,
     title,

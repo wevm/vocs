@@ -1,15 +1,21 @@
 'use client'
 
 import { cx } from 'cva'
+import * as React from 'react'
 import * as MdxPageContext from '../MdxPageContext.js'
 
 export function LastUpdated(props: LastUpdated.Props) {
   const { className } = props
+  const [mounted, setMounted] = React.useState(false)
+
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const { frontmatter } = MdxPageContext.use()
   const lastModified = frontmatter?.lastModified
 
-  if (!lastModified) return null
+  if (!lastModified || !mounted) return null
 
   const date = new Date(lastModified)
   const formatted = date.toLocaleDateString(undefined, {

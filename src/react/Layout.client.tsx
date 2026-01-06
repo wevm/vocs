@@ -13,13 +13,13 @@ import * as Pagination from './internal/Pagination.client.js'
 import * as Search from './internal/Search.js'
 import * as Sidebar from './internal/Sidebar.js'
 import * as SkipToContent from './internal/SkipToContent.client.js'
+import * as Socials from './internal/Socials.client.js'
 import * as ThemeToggle from './internal/ThemeToggle.client.js'
 import * as TopNav from './internal/TopNav.js'
 import { useConfig } from './useConfig.js'
 import { useTopGutterVisibility } from './useTopGutterVisibility.js'
 
 // TODO:
-// - socials
 // - user "slots"
 
 export function Main(props: Main.Props) {
@@ -67,7 +67,11 @@ export function Main(props: Main.Props) {
               className="vocs:bg-linear-to-b vocs:from-transparent vocs:to-primary vocs:min-h-4 vocs:bottom-0 vocs:w-full vocs:sticky"
               data-v-sidebar-footer-curtain
             />
-            <div className="vocs:bg-primary vocs:pb-2 vocs:flex vocs:justify-end" data-v-sidebar-footer-content>
+            <div
+              className="vocs:bg-primary vocs:pb-2 vocs:flex vocs:justify-between vocs:items-center"
+              data-v-sidebar-footer-content
+            >
+              <Socials.Socials />
               <ThemeToggle.ThemeToggle />
             </div>
           </div>

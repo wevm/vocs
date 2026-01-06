@@ -47,6 +47,11 @@ export default defineConfig({
       ],
     },
   ],
+  socials: [
+    { icon: 'discord', link: 'https://discord.gg/JUrRkGweXV' },
+    { icon: 'github', link: 'https://github.com/wevm/vocs' },
+    { icon: 'x', link: 'https://twitter.com/wevm_dev' },
+  ],
   title: 'Vocs',
   titleTemplate: '%s – Vocs',
   sidebar: {
