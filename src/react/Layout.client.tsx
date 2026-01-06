@@ -12,12 +12,12 @@ import * as Outline from './internal/Outline.js'
 import * as Pagination from './internal/Pagination.client.js'
 import * as Search from './internal/Search.js'
 import * as Sidebar from './internal/Sidebar.js'
+import * as SkipToContent from './internal/SkipToContent.client.js'
 import * as TopNav from './internal/TopNav.js'
 import { useConfig } from './useConfig.js'
 import { useTopGutterVisibility } from './useTopGutterVisibility.js'
 
 // TODO:
-// - skip to content
 // - socials
 // - light/dark toggle
 // - user "slots"
@@ -30,12 +30,14 @@ export function Main(props: Main.Props) {
 
   return (
     <div>
+      <SkipToContent.SkipToContent />
+
       <div
         className="vocs:flex vocs:max-lg:hidden vocs:justify-end vocs:fixed vocs:h-topNav vocs:w-logo vocs:min-w-fit vocs:max-lg:w-fit vocs:z-20"
         data-v-gutter-logo
       >
         <div className="vocs:w-sidebar vocs:px-sidebar-px vocs:py-3 vocs:min-w-fit" data-v-logo>
-          <Link to="/" unstable_prefetchOnView>
+          <Link className="vocs:flex vocs:h-full vocs:w-fit" to="/" unstable_prefetchOnView>
             <Logo />
           </Link>
         </div>
@@ -78,7 +80,7 @@ export function Main(props: Main.Props) {
         data-v-gutter-top
       >
         <div className="vocs:flex vocs:gap-2 vocs:h-full vocs:py-2 vocs:lg:-ml-7">
-          <Link className="vocs:lg:hidden vocs:py-0.5" to="/" unstable_prefetchOnView>
+          <Link className="vocs:lg:hidden vocs:py-0.5 vocs:flex" to="/" unstable_prefetchOnView>
             <Logo />
           </Link>
 
@@ -108,6 +110,7 @@ export function Main(props: Main.Props) {
       <main
         className="vocs:isolate vocs:pt-topNav vocs:pb-20 vocs:max-w-screen vocs:h-full vocs:lg:ml-gutter"
         data-v-main
+        id="vocs-content"
       >
         <article
           className="vocs:px-content-px vocs:py-content-py vocs:relative vocs:w-full vocs:max-w-content vocs:space-y-6 vocs:max-md:overflow-x-hidden vocs:max-lg:mx-auto"

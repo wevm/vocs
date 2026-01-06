@@ -30,6 +30,7 @@
   }
 
   *:focus-visible {
-    @apply vocs:outline-2 vocs:outline-accent;
+    @apply vocs:outline-2 vocs:outline-accent vocs:outline-offset-2;
+    outline-style: solid;
   }
 }
