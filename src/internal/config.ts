@@ -4,6 +4,7 @@ import type * as MdxRollup from '@mdx-js/rollup'
 import * as Vite from 'vite'
 import * as Langs from './langs.js'
 import type * as Mdx from './mdx.js'
+import type * as Redirects from './redirects.js'
 import type * as Sidebar from './sidebar.js'
 import type * as TopNav from './topNav.js'
 import type { MaybePartial, UnionOmit } from './types.js'
@@ -140,6 +141,18 @@ export type Config<partial extends boolean = false> = MaybePartial<
      */
     pagesDir: string
     /**
+     * URL redirects. Maps incoming request paths to different destinations.
+     * Supports path parameters (`:slug`) and wildcards (`:path*`).
+     *
+     * @example
+     * redirects: [
+     *   { source: '/about', destination: '/' },
+     *   { source: '/docs/:path*', destination: '/documentation/:path*' },
+     *   { source: '/old-page', destination: '/new-page', status: 301 },
+     * ]
+     */
+    redirects?: Redirects.Inputs | undefined
+    /**
      * Rendering strategy.
      *
      * - `full-static`: Full static site generation. Compatible with: Netlify, Vercel.
@@ -260,6 +273,7 @@ export function define(config: define.Options = {}): Config {
     title = 'Docs',
     titleTemplate = `%s – ${title}`,
     topNav,
+    redirects,
     twoslash,
   } = config
 
@@ -291,6 +305,7 @@ export function define(config: define.Options = {}): Config {
     ogImageUrl,
     outDir,
     pagesDir,
+    redirects,
     renderStrategy,
     rootDir,
     sidebar,

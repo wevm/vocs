@@ -13,7 +13,7 @@ A comprehensive checklist of features for Vocs v2, based on Vocs v1 feature pari
 - [x] Hot module reloading for config
 - [ ] Sitemap generation
 - [ ] Blog
-- [ ] Redirects
+- [x] Redirects
 - [ ] PWA support
 - [ ] RSS generation
 
