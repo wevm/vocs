@@ -80,6 +80,7 @@
 
   --background-color-primary: light-dark(var(--vocs-color-gray14), var(--vocs-color-gray2));
   --background-color-surface: light-dark(white, var(--vocs-color-gray4));
+  --background-color-surfaceMuted: light-dark(var(--vocs-color-gray13), var(--vocs-color-gray2));
   --background-color-surfaceTint: light-dark(var(--vocs-color-gray14), var(--vocs-color-gray5));
 
   --text-color-primary: light-dark(var(--vocs-color-gray6), var(--vocs-color-gray12));

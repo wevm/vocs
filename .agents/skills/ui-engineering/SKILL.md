@@ -211,15 +211,25 @@ export declare namespace MyComponent {
 
 ### Internal Components
 
+Internal/child components should use short names without duplicating the parent module name. If theoretically exported, they would be accessed as `ParentModule.ChildName`:
+
+```tsx
+// ✗ Don't duplicate the module name
+function ThemeOption(props: ThemeOption.Props) { ... }
+
+// ✓ Use short names – would be ThemeToggle.Option if exported
+function Option(props: Option.Props) { ... }
+```
+
 Biome mistakenly thinks internal components are unused, so add biome-ignore:
 
 ```tsx
 // biome-ignore lint/correctness/noUnusedVariables: _
-function InternalComponent(props: InternalComponent.Props) {
+function Option(props: Option.Props) {
   // ...
 }
 
-declare namespace InternalComponent {
+declare namespace Option {
   type Props = { /* ... */ }
 }
 ```

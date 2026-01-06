@@ -4,6 +4,8 @@
 @import "tailwindcss/preflight.css" layer(vocs_base);
 @import "tailwindcss/utilities.css" layer(vocs_utilities) prefix(vocs);
 
+@custom-variant dark (&:where([style*="color-scheme: dark"], [style*="color-scheme: dark"] *));
+
 @import "./theme.css" layer(vocs_theme);
 @import "./markdown.css" layer(vocs_components);
 @import "./twoslash.css" layer(vocs_components);

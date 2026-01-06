@@ -45,6 +45,14 @@ export function Head() {
 
   return (
     <>
+      {/* Theme initialization (prevents FOUC) */}
+      <script
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: blocking script to prevent FOUC
+        dangerouslySetInnerHTML={{
+          __html: `(function(){try{var t=localStorage.getItem('vocs-theme');if(t==='light'||t==='dark')document.documentElement.style.colorScheme=t}catch(e){}})()`,
+        }}
+      />
+
       {/* Title & Description */}
       {fullTitle && <title key="title">{fullTitle}</title>}
       {description && <meta name="description" content={description} />}

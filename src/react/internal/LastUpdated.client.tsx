@@ -23,10 +23,7 @@ export function LastUpdated(props: LastUpdated.Props) {
   })
 
   return (
-    <div
-      className={cx('vocs:text-secondary vocs:text-sm', className)}
-      data-v-last-updated
-    >
+    <div className={cx('vocs:text-secondary vocs:text-sm', className)} data-v-last-updated>
       Last updated: {formatted}, {time}
     </div>
   )

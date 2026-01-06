@@ -13,13 +13,13 @@ import * as Pagination from './internal/Pagination.client.js'
 import * as Search from './internal/Search.js'
 import * as Sidebar from './internal/Sidebar.js'
 import * as SkipToContent from './internal/SkipToContent.client.js'
+import * as ThemeToggle from './internal/ThemeToggle.client.js'
 import * as TopNav from './internal/TopNav.js'
 import { useConfig } from './useConfig.js'
 import { useTopGutterVisibility } from './useTopGutterVisibility.js'
 
 // TODO:
 // - socials
-// - light/dark toggle
 // - user "slots"
 
 export function Main(props: Main.Props) {
@@ -62,15 +62,15 @@ export function Main(props: Main.Props) {
             scrollRef={sidebarScrollRef}
           />
 
-          {/* <div className="vocs:sticky vocs:bottom-0" data-v-sidebar-footer>
+          <div className="vocs:sticky vocs:bottom-0" data-v-sidebar-footer>
             <div
-              className="vocs:bg-linear-to-b vocs:from-transparent vocs:to-dark vocs:min-h-4 vocs:bottom-0 vocs:w-full vocs:sticky"
+              className="vocs:bg-linear-to-b vocs:from-transparent vocs:to-primary vocs:min-h-4 vocs:bottom-0 vocs:w-full vocs:sticky"
               data-v-sidebar-footer-curtain
             />
-            <div className="vocs:bg-primary" data-v-sidebar-footer>
-              TODO
+            <div className="vocs:bg-primary vocs:pb-2 vocs:flex vocs:justify-end" data-v-sidebar-footer-content>
+              <ThemeToggle.ThemeToggle />
             </div>
-          </div> */}
+          </div>
         </aside>
       </div>
 
