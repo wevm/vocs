@@ -39,7 +39,7 @@ export function handler(): Handler.Handler {
     const userAgent = request.headers.get('user-agent') ?? ''
     const isAiAgent = aiUserAgents.some((agent) => userAgent.includes(agent))
 
-    const isMarkdownRequest = url.pathname.endsWith('.md') || url.pathname.endsWith('.txt')
+    const isMarkdownRequest = url.pathname.endsWith('.md')
     if (!isMarkdownRequest && !isAiAgent) throw new Error()
 
     const assetUrl = new URL(`/assets/md${url.pathname}`, url.origin)
