@@ -194,7 +194,7 @@ export function Search(props: Search.Props) {
   return (
     <Dialog.Root open={open} onOpenChange={handleOpenChange}>
       <Dialog.Trigger
-        className={cx('vocs:w-full vocs:h-full', className)}
+        className={cx(trigger ? undefined : 'vocs:w-full vocs:h-full', className)}
         render={
           trigger ?? (
             <DialogTrigger icon={LucideSearch} triggerKey="K">
@@ -206,7 +206,7 @@ export function Search(props: Search.Props) {
       <Dialog.Portal>
         <Dialog.Backdrop className="vocs:fixed vocs:inset-0 vocs:bg-black/60 vocs:backdrop-blur-sm vocs:z-40 vocs:transition-opacity vocs:duration-150 vocs:data-starting-style:opacity-0 vocs:data-ending-style:opacity-0" />
         <Dialog.Popup
-          className="vocs:fixed vocs:top-[15%] vocs:left-1/2 vocs:-translate-x-1/2 vocs:w-[90vw] vocs:max-w-[600px] vocs:max-h-[70vh] vocs:bg-surface vocs:border vocs:border-primary vocs:rounded-2xl vocs:shadow-2xl vocs:z-50 vocs:flex vocs:flex-col vocs:overflow-hidden vocs:transition-all vocs:duration-150 vocs:origin-top vocs:data-starting-style:opacity-0 vocs:data-starting-style:scale-95 vocs:data-ending-style:opacity-0 vocs:data-ending-style:scale-95"
+          className="vocs:fixed vocs:top-[5%] vocs:sm:top-[15%] vocs:left-1/2 vocs:-translate-x-1/2 vocs:w-[90vw] vocs:max-w-[600px] vocs:max-h-[70vh] vocs:bg-surface vocs:border vocs:border-primary vocs:rounded-2xl vocs:shadow-2xl vocs:z-50 vocs:flex vocs:flex-col vocs:overflow-hidden vocs:transition-all vocs:duration-150 vocs:origin-top vocs:data-starting-style:opacity-0 vocs:data-starting-style:scale-95 vocs:data-ending-style:opacity-0 vocs:data-ending-style:scale-95"
           onKeyDown={handleKeyDown}
         >
           <Dialog.Title className="vocs:sr-only">Search documentation</Dialog.Title>
