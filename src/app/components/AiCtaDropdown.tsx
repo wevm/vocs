@@ -1,6 +1,6 @@
 import clsx from 'clsx'
 import { DropdownMenu } from 'radix-ui'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useLocation } from 'react-router'
 
 import { useConfig } from '../hooks/useConfig.js'
@@ -31,11 +31,15 @@ export function AiCtaDropdown() {
     navigator.clipboard.writeText(content ?? '')
   }, [content])
 
-  const query = useMemo(() => {
-    if (typeof window === 'undefined') return ''
+  const [query, setQuery] = useState('')
+
+  useEffect(() => {
     const href = window.location.origin + location.pathname
-    if (typeof aiCta === 'object') return aiCta.query({ location: href })
-    return `Please research and analyze this page: ${href} so I can ask you questions about it. Once you have read it, prompt me with any questions I have. Do not post content from the page in your response. Any of my follow up questions must reference the site I gave you.`
+    if (typeof aiCta === 'object') setQuery(aiCta.query({ location: href }))
+    else
+      setQuery(
+        `Please research and analyze this page: ${href} so I can ask you questions about it. Once you have read it, prompt me with any questions I have. Do not post content from the page in your response. Any of my follow up questions must reference the site I gave you.`,
+      )
   }, [aiCta, location.pathname])
 
   return (
