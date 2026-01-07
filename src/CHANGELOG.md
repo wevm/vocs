@@ -1,5 +1,11 @@
 # vocs
 
+## 1.4.1
+
+### Patch Changes
+
+- [`d720626`](https://github.com/wevm/vocs/commit/d720626e1eaa852c8d51c92eff43fb196e61eca5) Thanks [@jxom](https://github.com/jxom)! - Fixed "Ask in ChatGPT" button not prepopulating the query parameter.
+
 ## 1.4.0
 
 ### Minor Changes
