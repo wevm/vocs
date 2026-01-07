@@ -8,7 +8,6 @@ import remarkStringify from 'remark-stringify'
 import { unified } from 'unified'
 import type { PluginOption, ResolvedConfig, ViteDevServer } from 'vite'
 import { createLogger } from 'vite'
-import * as Handlers from '../server/handlers.js'
 import * as Config from './config.js'
 import * as ConfigSerializer from './config-serializer.js'
 import * as Langs from './langs.js'
@@ -197,8 +196,6 @@ export function llms(config: Config.Config): PluginOption {
           }
           return
         }
-
-        if (await Handlers.mdRouter().handle(req, res)) return
 
         next()
       })
