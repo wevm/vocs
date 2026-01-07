@@ -1,3 +1,5 @@
+import { URLPattern } from 'node:url'
+
 /**
  * A redirect input that maps an incoming request path to a destination.
  */
