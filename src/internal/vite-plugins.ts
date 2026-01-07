@@ -435,13 +435,13 @@ export function search(config: Config.Config): PluginOption {
       }
 
       // Production: return fetch-based loader
-      return `export const getSearchIndex = async () => JSON.stringify(await (await fetch("${basePath.endsWith('/') ? basePath : basePath + '/'}.vocs/search-index-${indexHash}.json")).json())`
+      return `export const getSearchIndex = async () => JSON.stringify(await (await fetch("${basePath.endsWith('/') ? basePath : basePath + '/'}assets/search-index-${indexHash}.json")).json())`
     },
     async writeBundle(options) {
       const index = await indexPromise
       if (!index) return
       const outDir = options.dir ?? path.resolve(rootDir, config.outDir)
-      indexHash = SearchIndex.saveToFile(index, outDir)
+      indexHash = SearchIndex.saveToFile(index, path.resolve(outDir, 'assets'))
     },
     async handleHotUpdate({ file }) {
       if (!file.endsWith('.md') && !file.endsWith('.mdx')) return

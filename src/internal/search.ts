@@ -162,10 +162,9 @@ export namespace SearchIndex {
    * Save a search index to a JSON file.
    * Returns the hash used in the filename for cache busting.
    */
-  export function saveToFile(index: SearchIndex, outDir: string): string {
+  export function saveToFile(index: SearchIndex, dir: string): string {
     const json = index.toJSON()
     const hash = crypto.createHash('md5').update(JSON.stringify(json)).digest('hex').slice(0, 12)
-    const dir = path.join(outDir, '.vocs')
 
     fs.mkdirSync(dir, { recursive: true })
     fs.writeFileSync(path.join(dir, `search-index-${hash}.json`), JSON.stringify(json), 'utf-8')
