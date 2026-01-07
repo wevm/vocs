@@ -97,13 +97,18 @@ export function Main(props: Main.Props) {
 
         <TopNav.TopNav className="vocs:max-lg:hidden vocs:px-2" />
 
-        <div className="vocs:lg:hidden vocs:flex vocs:items-center vocs:px-3">
-          <button
-            className="vocs:flex vocs:items-center vocs:justify-center vocs:cursor-pointer vocs:size-8"
-            type="button"
-          >
-            <LucideSearch />
-          </button>
+        <div className="vocs:lg:hidden vocs:flex vocs:items-center vocs:px-3 vocs:gap-1">
+          <Search.Search
+            disableKeyboardShortcut
+            trigger={
+              <button
+                className="vocs:flex vocs:md:hidden vocs:items-center vocs:justify-center vocs:cursor-pointer vocs:size-8"
+                type="button"
+              >
+                <LucideSearch />
+              </button>
+            }
+          />
 
           <MobileNav.MobileNav />
         </div>

@@ -2,6 +2,7 @@ import * as fs from 'node:fs'
 import * as path from 'node:path'
 import type * as MdxRollup from '@mdx-js/rollup'
 import * as Jiti from 'jiti'
+import * as ConfigSerializer from './config-serializer.js'
 import * as Langs from './langs.js'
 import type * as Mdx from './mdx.js'
 import type * as Redirects from './redirects.js'
@@ -167,10 +168,20 @@ export type Config<partial extends boolean = false> = MaybePartial<
      * @default process.cwd()
      */
     rootDir: string
-    // /**
-    //  * Configuration for docs search.
-    //  */
-    // search?: Normalize<Search>
+    /**
+     * Configuration for docs search.
+     * Accepts MiniSearch options for customizing search behavior.
+     */
+    search: MaybePartial<
+      partial,
+      {
+        boost: Record<string, number>
+        boostDocument: (id: string, term: string, storedFields?: Record<string, unknown>) => number
+        combineWith: 'AND' | 'OR'
+        fuzzy: number | boolean
+        prefix: boolean
+      }
+    >
     /**
      * Navigation displayed on the sidebar.
      */
@@ -267,6 +278,7 @@ export function define(config: define.Options = {}): Config {
     renderStrategy = 'dynamic',
     outDir = 'dist',
     rootDir = process.cwd(),
+    search,
     sidebar,
     socials,
     srcDir = 'src',
@@ -308,6 +320,26 @@ export function define(config: define.Options = {}): Config {
     redirects,
     renderStrategy,
     rootDir,
+    search: {
+      ...search,
+      boostDocument:
+        search?.boostDocument ??
+        ((_id, _term, storedFields) => {
+          const priority = (storedFields?.['searchPriority'] as number | undefined) ?? 1
+          const href = storedFields?.['href'] as string | undefined
+          const isDocsPath = href?.startsWith('/docs/')
+          // Treat /docs/ as root for depth calculation (subtract 1)
+          const segments = href ? href.split('/').filter(Boolean).length : 1
+          const depth = isDocsPath ? Math.max(segments - 1, 1) : segments
+          const depthBoost = 1 / Math.max(depth, 1)
+          const docsBoost = isDocsPath ? 1.5 : 1
+          return priority * depthBoost * docsBoost
+        }),
+      combineWith: search?.combineWith ?? 'AND',
+      fuzzy: search?.fuzzy ?? 0.2,
+      prefix: search?.prefix ?? true,
+      boost: { title: 4, subtitle: 3, text: 2, category: 1, titles: 1, ...search?.boost },
+    },
     sidebar,
     socials,
     srcDir,
@@ -343,7 +375,7 @@ export async function resolve(options: resolve.Options = {}): Promise<Config> {
         ? path.resolve(import.meta.dirname, '../.vocs/vocs.config.json')
         : path.resolve(import.meta.dirname, 'vocs.config.json')
     const configJson = fs.readFileSync(configPath, 'utf-8')
-    return deserialize(configJson)
+    return ConfigSerializer.deserialize(configJson)
   }
 
   const configFile = getConfigFile({ rootDir })
@@ -371,53 +403,4 @@ export function setGlobal(config: Config) {
 export function getGlobal(): Config {
   if (!global) throw new Error('cannot get global config before it is set')
   return global
-}
-
-export function serialize(config: Config): string {
-  return JSON.stringify(serializeFunctions(config))
-}
-
-// biome-ignore lint/suspicious/noExplicitAny: _
-export function serializeFunctions(value: any, key?: string): any {
-  if (Array.isArray(value)) {
-    return value.map((v) => serializeFunctions(v))
-  }
-  if (typeof value === 'object' && value !== null) {
-    return Object.keys(value).reduce((acc, key) => {
-      if (key[0] === '_') return acc
-      acc[key] = serializeFunctions(value[key], key)
-      return acc
-      // biome-ignore lint/suspicious/noExplicitAny: _
-    }, {} as any)
-  }
-  if (typeof value === 'function') {
-    let serialized = value.toString()
-    if (key && (serialized.startsWith(key) || serialized.startsWith(`async ${key}`))) {
-      serialized = serialized.replace(key, 'function')
-    }
-    return `_vocs-fn_${serialized}`
-  }
-  return value
-}
-
-export function deserialize(config: string): Config {
-  return deserializeFunctions(JSON.parse(config))
-}
-
-// biome-ignore lint/suspicious/noExplicitAny: _
-export function deserializeFunctions(value: any): any {
-  if (Array.isArray(value)) {
-    return value.map(deserializeFunctions)
-  }
-  if (typeof value === 'object' && value !== null) {
-    // biome-ignore lint/suspicious/noExplicitAny: _
-    return Object.keys(value).reduce((acc: any, key) => {
-      acc[key] = deserializeFunctions(value[key])
-      return acc
-    }, {})
-  }
-  if (typeof value === 'string' && value.includes('_vocs-fn_')) {
-    return new Function(`return ${value.slice(9)}`)()
-  }
-  return value
 }

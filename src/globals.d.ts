@@ -15,3 +15,7 @@ declare module '*.md' {
 declare module 'virtual:vocs/config' {
   export const config: import('./config.js').Config
 }
+
+declare module 'virtual:vocs/search-index' {
+  export function getSearchIndex(): Promise<string>
+}

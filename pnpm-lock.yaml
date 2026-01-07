@@ -107,6 +107,9 @@ importers:
       estree-util-visit:
         specifier: ^2.0.0
         version: 2.0.0
+      github-slugger:
+        specifier: ^2.0.0
+        version: 2.0.0
       hono:
         specifier: ^4.11.3
         version: 4.11.3
@@ -128,6 +131,12 @@ importers:
       mdast-util-to-markdown:
         specifier: ^2.1.2
         version: 2.1.2
+      mdast-util-to-string:
+        specifier: ^4.0.0
+        version: 4.0.0
+      minisearch:
+        specifier: ^7.2.0
+        version: 7.2.0
       react-error-boundary:
         specifier: ^6.0.2
         version: 6.0.2(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -2260,6 +2269,9 @@ packages:
   mime-types@2.1.35:
     resolution: {integrity: sha512-ZDY+bPm5zTTF+YpCrAU9nK0UgICYPT0QtT1NZWFv4s++TNkcgVaT0g6+4R2uI4MjQjzysHB1zxuWL50hzaeXiw==}
     engines: {node: '>= 0.6'}
+
+  minisearch@7.2.0:
+    resolution: {integrity: sha512-dqT2XBYUOZOiC5t2HRnwADjhNS2cecp9u+TJRiJ1Qp/f5qjkeT5APcGPjHw+bz89Ms8Jp+cG4AlE+QZ/QnDglg==}
 
   mlly@1.8.0:
     resolution: {integrity: sha512-l8D9ODSRWLe2KHJSifWGwBqpTZXIXTeo8mlKjY+E2HAakaTeNpqAyBZ8GSqLzHgw4XmHmC8whvpjJNMbFZN7/g==}
@@ -5556,6 +5568,8 @@ snapshots:
   mime-types@2.1.35:
     dependencies:
       mime-db: 1.52.0
+
+  minisearch@7.2.0: {}
 
   mlly@1.8.0:
     dependencies:
