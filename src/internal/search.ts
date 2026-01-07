@@ -17,6 +17,8 @@ import type * as Config from './config.js'
 import { searchFields, storeFields, tokenize } from './search.client.js'
 import * as TaskRunner from './task-runner.js'
 
+export * from './search.client.js'
+
 export namespace SearchDocuments {
   export type Document = {
     /** Category from topNav (e.g., "Extensions", "Docs") */

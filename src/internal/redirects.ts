@@ -1,4 +1,4 @@
-import { URLPattern } from 'node:url'
+import 'urlpattern-polyfill'
 
 /**
  * A redirect input that maps an incoming request path to a destination.

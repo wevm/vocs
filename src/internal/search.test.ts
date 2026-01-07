@@ -1450,6 +1450,6 @@ Use \`@noErrorsCutted\` to cut output.
     // "@noErr" should match "@noErrors" and "@noErrorsCutted"
     const results = index.search('@noErr', searchOptions)
     expect(results.length).toBeGreaterThan(0)
-    expect(results[0]?.text).toContain('noErrors')
+    expect(results[0]?.['text']).toContain('noErrors')
   })
 })
