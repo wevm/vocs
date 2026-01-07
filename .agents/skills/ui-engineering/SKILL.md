@@ -82,15 +82,40 @@ Use `origin-(--transform-origin)` for proper scale transform origin.
 
 ### State Styling
 
-Style component states with data attributes:
+**Prefer data attributes over conditional classnames with `cx`** for boolean states. This keeps classnames static and readable:
 
 ```tsx
-// Base UI provides these automatically
-className="vocs:data-checked:text-accent8 vocs:data-popup-open:rotate-180"
+// ✗ Avoid conditional classnames for state
+className={cx(
+  'vocs:px-4 vocs:py-2',
+  selected ? 'vocs:bg-accenta3' : 'vocs:bg-surface',
+)}
 
-// Custom state attributes use bracket syntax
-data-v-active={active}
-className="vocs:data-[v-active=true]:text-accent6"
+// ✓ Use data attributes with Tailwind data-* variants
+<li
+  data-selected={selected}
+  className="vocs:px-4 vocs:py-2 vocs:bg-surface vocs:data-[selected=true]:bg-accenta3"
+>
+```
+
+For child elements that need to respond to parent state, use `group` and `group-data-*`:
+
+```tsx
+<li data-selected={selected} className="vocs:group">
+  <Icon className="vocs:text-secondary vocs:group-data-[selected=true]:text-accent7" />
+</li>
+```
+
+Base UI components provide data attributes automatically:
+
+```tsx
+className="vocs:data-checked:text-accent8 vocs:data-popup-open:rotate-180"
+```
+
+Reserve `cx` for merging external classNames or combining unrelated class groups:
+
+```tsx
+className={cx('vocs:flex vocs:items-center', className)}
 ```
 
 ### Controlled Components

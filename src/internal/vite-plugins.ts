@@ -6,12 +6,14 @@ import remarkMdx from 'remark-mdx'
 import remarkParse from 'remark-parse'
 import remarkStringify from 'remark-stringify'
 import { unified } from 'unified'
-import type { PluginOption, ResolvedConfig } from 'vite'
+import type { PluginOption, ResolvedConfig, ViteDevServer } from 'vite'
 import { createLogger } from 'vite'
 import * as Handlers from '../server/handlers.js'
 import * as Config from './config.js'
+import * as ConfigSerializer from './config-serializer.js'
 import * as Langs from './langs.js'
 import * as Mdx from './mdx.js'
+import { SearchDocuments, SearchIndex } from './search.js'
 
 export { default as icons } from 'unplugin-icons/vite'
 
@@ -345,7 +347,129 @@ export function userStyles(config: Config.Config): PluginOption {
 }
 
 /**
- * Vite plugin that provides the Vocs configuration.
+ * Vite plugin that builds and serves the search index.
+ *
+ * - Dev: builds index on start, updates on HMR, serves via virtual module
+ * - Build: builds index, writes to `.vocs/search-index-{hash}.json`
+ */
+export function search(config: Config.Config): PluginOption {
+  const virtualModuleId = 'virtual:vocs/search-index'
+  const resolvedVirtualModuleId = `\0${virtualModuleId}`
+
+  const { rootDir, srcDir, pagesDir, basePath } = config
+  const pagesDirPath = path.resolve(rootDir, srcDir, pagesDir)
+
+  let indexPromise: Promise<SearchIndex.SearchIndex> | undefined
+  let indexHash: string | undefined
+  let server: ViteDevServer | undefined
+  let mode: 'development' | 'production' = 'development'
+  const fileIds = new Map<string, string[]>()
+
+  async function buildIndex(): Promise<SearchIndex.SearchIndex> {
+    logger.info('Building search index...', { timestamp: true })
+    const docs = await SearchDocuments.fromConfig(config)
+    const index = SearchIndex.fromSearchDocuments(docs)
+
+    // Populate fileIds map for HMR
+    for (const doc of docs) {
+      const filePath = doc.id.split('#')[0]
+      if (!filePath) continue
+      const ids = fileIds.get(filePath) ?? []
+      ids.push(doc.id)
+      fileIds.set(filePath, ids)
+    }
+
+    logger.info('Search index built.', { timestamp: true })
+    return index
+  }
+
+  function invalidateModule(): void {
+    if (!server) return
+    const mod = server.moduleGraph.getModuleById(resolvedVirtualModuleId)
+    if (!mod) return
+    server.moduleGraph.invalidateModule(mod)
+    server.ws.send({
+      type: 'update',
+      updates: [{ acceptedPath: mod.url, path: mod.url, timestamp: Date.now(), type: 'js-update' }],
+    })
+  }
+
+  return {
+    name: 'vocs:search',
+    config() {
+      return {
+        optimizeDeps: {
+          include: ['minisearch'],
+        },
+      }
+    },
+    configResolved(resolvedConfig) {
+      mode = resolvedConfig.command === 'build' ? 'production' : 'development'
+    },
+    buildStart() {
+      // Only build index in production (dev builds in configureServer to avoid dep optimization issues)
+      // Also skip if already built (multi-environment builds call this multiple times)
+      if (mode !== 'production' || indexPromise) return
+      indexPromise = buildIndex()
+    },
+    configureServer(devServer) {
+      server = devServer
+      // Build index in dev after server is ready (avoids dep optimization worker issues)
+      indexPromise = buildIndex().then((index) => {
+        invalidateModule()
+        return index
+      })
+    },
+    resolveId(id) {
+      if (id === virtualModuleId) return resolvedVirtualModuleId
+      return
+    },
+    async load(id) {
+      if (id !== resolvedVirtualModuleId) return
+
+      const index = await indexPromise
+
+      if (mode === 'development') {
+        const json = index ? JSON.stringify(index.toJSON()) : '{}'
+        return `export const getSearchIndex = async () => ${JSON.stringify(json)}`
+      }
+
+      // Production: return fetch-based loader
+      return `export const getSearchIndex = async () => JSON.stringify(await (await fetch("${basePath.endsWith('/') ? basePath : basePath + '/'}assets/search-index-${indexHash}.json")).json())`
+    },
+    async writeBundle(options) {
+      const index = await indexPromise
+      if (!index) return
+      const outDir = options.dir ?? path.resolve(rootDir, config.outDir)
+      indexHash = SearchIndex.saveToFile(index, path.resolve(outDir, 'assets'))
+    },
+    async handleHotUpdate({ file }) {
+      if (!file.endsWith('.md') && !file.endsWith('.mdx')) return
+      if (!file.startsWith(pagesDirPath)) return
+
+      const index = await indexPromise
+      if (!index) return
+
+      const previousIds = fileIds.get(file) ?? []
+      const newIds = SearchIndex.updateFile(index, file, {
+        pagesDir: pagesDirPath,
+        config,
+        previousIds,
+      })
+      fileIds.set(file, newIds)
+
+      invalidateModule()
+      logger.info(`Search index updated: ${path.relative(rootDir, file)}`, { timestamp: true })
+    },
+  }
+}
+
+/**
+ * Vite plugin that provides the Vocs configuration as a virtual module and
+ * serializes it to a JSON file at build time.
+ *
+ * The JSON file is written to `dist/server/assets/vocs.config.json` and is used by
+ * `Config.resolve` in production instead of dynamically loading the config file.
  *
  * @param config - Vocs configuration.
  * @returns Plugin.
@@ -353,13 +477,23 @@ export function userStyles(config: Config.Config): PluginOption {
 export function virtualConfig(config: Config.Config): PluginOption {
   const virtualModuleId = 'virtual:vocs/config'
   const resolvedVirtualModuleId = `\0${virtualModuleId}`
+
+  async function writeConfig(outDir: string): Promise<void> {
+    await fs.mkdir(outDir, { recursive: true })
+    await fs.writeFile(path.join(outDir, 'vocs.config.json'), ConfigSerializer.serialize(config), {
+      encoding: 'utf-8',
+    })
+  }
+
   return {
     name: 'vocs:virtual-config',
     enforce: 'pre',
     config() {
       Config.setGlobal(config)
     },
-    configureServer(server) {
+    async configureServer(server) {
+      await writeConfig(path.resolve(import.meta.dirname, '../.vocs'))
+
       server.watcher.on('change', async (changedPath) => {
         if (!changedPath.includes('vocs.config')) return
 
@@ -369,6 +503,7 @@ export function virtualConfig(config: Config.Config): PluginOption {
           if (mod) server.moduleGraph.invalidateModule(mod)
           Config.setGlobal(newConfig)
           server.ws.send({ type: 'custom', event: 'vocs:config', data: newConfig })
+          await writeConfig(path.resolve(import.meta.dirname, '../.vocs'))
         } catch {}
       })
     },
@@ -379,9 +514,12 @@ export function virtualConfig(config: Config.Config): PluginOption {
     load(id) {
       if (id === resolvedVirtualModuleId) {
         const currentConfig = Config.getGlobal() ?? config
-        return `export const config = ${Config.serialize(currentConfig)}`
+        return `export const config = ${ConfigSerializer.serialize(currentConfig)}`
       }
       return
+    },
+    async buildEnd() {
+      await writeConfig(path.resolve(config.rootDir, config.outDir, 'server/assets'))
     },
   }
 }

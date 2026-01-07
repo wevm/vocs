@@ -65,18 +65,23 @@ export function ScrollRestoration() {
   useEffect(() => {
     if (typeof window === 'undefined') return
 
-    // Restore saved position only on back/forward, otherwise scroll to top
+    const hash = router.hash.slice(1)
+
+    // Restore saved position only on back/forward, otherwise scroll to top or hash
     if (isPopstate.current) {
       const savedY = savedPositions.current[path]
       if (typeof savedY === 'number') window.scrollTo(0, savedY)
       else window.scrollTo(0, 0)
       isPopstate.current = false
+    } else if (hash) {
+      const element = document.getElementById(hash)
+      if (element) element.scrollIntoView({ behavior: 'instant' })
     } else {
       window.scrollTo(0, 0)
     }
 
     prevPath.current = path
-  }, [path])
+  }, [path, router.hash])
 
   return null
 }

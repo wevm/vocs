@@ -2,6 +2,11 @@ import { defineConfig } from 'vocs/config'
 
 export default defineConfig({
   checkDeadlinks: false,
+  redirects: [
+    { source: '/ks', destination: '/kitchen-sink' },
+    { source: '/docs/:path*', destination: '/:path*' },
+    { source: '/old-page', destination: '/kitchen-sink', status: 301 },
+  ],
   description: 'Vocs is a library for creating documentation websites.',
   editLink: {
     link: 'https://github.com/wevm/vocs/edit/next/playground/src/pages/:path',

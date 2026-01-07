@@ -623,7 +623,7 @@ export function normalize(path: string): string {
 
 ### Testing
 
-Colocate tests with modules:
+Colocate tests with modules. **Prefer inline snapshot tests only** — avoid `.toBe()`, `.toHaveLength()`, `.toBeUndefined()`, etc. Snapshots make expected values explicit and easy to update:
 
 ```ts
 // sidebar.test.ts
@@ -636,6 +636,10 @@ describe('Sidebar.flatten', () => {
     expect(Sidebar.flatten(items)).toMatchInlineSnapshot(`
       [{ "text": "B", "link": "/b" }]
     `)
+  })
+
+  it('returns empty for no items', () => {
+    expect(Sidebar.flatten([])).toMatchInlineSnapshot(`[]`)
   })
 })
 ```
