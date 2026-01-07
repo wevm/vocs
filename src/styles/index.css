@@ -23,6 +23,10 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
+  html {
+    scroll-padding-top: calc(var(--vocs-spacing-topNav) + 1rem);
+  }
+
   body {
     @apply vocs:relative vocs:max-md:overflow-x-hidden;
   }
