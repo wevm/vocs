@@ -4,7 +4,7 @@ import * as Redirects from '../../../internal/redirects.js'
 
 export const redirects = (): MiddlewareHandler => {
   return async (context, next) => {
-    const config = await Config.resolve()
+    const config = await Config.resolve({ fs: true })
     if (!config.redirects?.length) return next()
 
     const rules = Redirects.from(config.redirects)
@@ -17,7 +17,11 @@ export const redirects = (): MiddlewareHandler => {
     const destination = new URL(result.destination, url.origin)
     destination.search = url.search
 
-    return context.redirect(destination.toString(), result.status as 301 | 302 | 303 | 307 | 308)
+    context.res = context.redirect(
+      destination.toString(),
+      result.status as 301 | 302 | 303 | 307 | 308,
+    )
+    return
   }
 }
 

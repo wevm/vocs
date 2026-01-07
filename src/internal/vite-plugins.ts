@@ -345,7 +345,11 @@ export function userStyles(config: Config.Config): PluginOption {
 }
 
 /**
- * Vite plugin that provides the Vocs configuration.
+ * Vite plugin that provides the Vocs configuration as a virtual module and
+ * serializes it to a JSON file at build time.
+ *
+ * The JSON file is written to `dist/server/assets/vocs.config.json` and is used by
+ * `Config.resolve` in production instead of dynamically loading the config file.
  *
  * @param config - Vocs configuration.
  * @returns Plugin.
@@ -353,13 +357,23 @@ export function userStyles(config: Config.Config): PluginOption {
 export function virtualConfig(config: Config.Config): PluginOption {
   const virtualModuleId = 'virtual:vocs/config'
   const resolvedVirtualModuleId = `\0${virtualModuleId}`
+
+  async function writeConfig(outDir: string): Promise<void> {
+    await fs.mkdir(outDir, { recursive: true })
+    await fs.writeFile(path.join(outDir, 'vocs.config.json'), Config.serialize(config), {
+      encoding: 'utf-8',
+    })
+  }
+
   return {
     name: 'vocs:virtual-config',
     enforce: 'pre',
     config() {
       Config.setGlobal(config)
     },
-    configureServer(server) {
+    async configureServer(server) {
+      await writeConfig(path.resolve(import.meta.dirname, '../.vocs'))
+
       server.watcher.on('change', async (changedPath) => {
         if (!changedPath.includes('vocs.config')) return
 
@@ -369,6 +383,7 @@ export function virtualConfig(config: Config.Config): PluginOption {
           if (mod) server.moduleGraph.invalidateModule(mod)
           Config.setGlobal(newConfig)
           server.ws.send({ type: 'custom', event: 'vocs:config', data: newConfig })
+          await writeConfig(path.resolve(import.meta.dirname, '../.vocs'))
         } catch {}
       })
     },
@@ -382,6 +397,9 @@ export function virtualConfig(config: Config.Config): PluginOption {
         return `export const config = ${Config.serialize(currentConfig)}`
       }
       return
+    },
+    async buildEnd() {
+      await writeConfig(path.resolve(config.rootDir, config.outDir, 'server/assets'))
     },
   }
 }

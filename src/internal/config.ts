@@ -1,7 +1,7 @@
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import type * as MdxRollup from '@mdx-js/rollup'
-import * as Vite from 'vite'
+import * as Jiti from 'jiti'
 import * as Langs from './langs.js'
 import type * as Mdx from './mdx.js'
 import type * as Redirects from './redirects.js'
@@ -255,7 +255,7 @@ export function define(config: define.Options = {}): Config {
     accentColor = 'light-dark(black, white)',
     basePath = '/',
     baseUrl,
-    cacheDir = path.resolve(import.meta.dirname, '.cache'),
+    cacheDir = path.resolve(import.meta.dirname, '.vocs/cache'),
     codeHighlight,
     colorScheme = 'light dark',
     checkDeadlinks = true,
@@ -335,23 +335,29 @@ declare namespace getConfigFile {
 }
 
 export async function resolve(options: resolve.Options = {}): Promise<Config> {
-  const { rootDir = process.cwd() } = options
+  const { fs: fileSystem, rootDir = process.cwd() } = options
+
+  if (fileSystem) {
+    const configPath =
+      process.env['NODE_ENV'] === 'development'
+        ? path.resolve(import.meta.dirname, '../.vocs/vocs.config.json')
+        : path.resolve(import.meta.dirname, 'vocs.config.json')
+    const configJson = fs.readFileSync(configPath, 'utf-8')
+    return deserialize(configJson)
+  }
 
   const configFile = getConfigFile({ rootDir })
   if (!configFile) return define({})
 
-  const result = await Vite.loadConfigFromFile(
-    { command: 'build', mode: 'development' },
-    configFile,
-    rootDir,
-  )
-  if (!result) return define({ rootDir })
-
-  return define({ ...result.config, rootDir })
+  const jiti = Jiti.createJiti(rootDir, { interopDefault: true })
+  const configPath = `${rootDir}/${configFile}`
+  const config = (await jiti.import(configPath, { default: true })) as define.Options
+  return define({ ...config, rootDir })
 }
 
 declare namespace resolve {
   export type Options = {
+    fs?: boolean | undefined
     rootDir?: string | undefined
   }
 }
@@ -367,12 +373,8 @@ export function getGlobal(): Config {
   return global
 }
 
-export function serialize(config: Config) {
+export function serialize(config: Config): string {
   return JSON.stringify(serializeFunctions(config))
-}
-
-export function deserialize(config: string) {
-  return deserializeFunctions(JSON.parse(config))
 }
 
 // biome-ignore lint/suspicious/noExplicitAny: _
@@ -398,6 +400,10 @@ export function serializeFunctions(value: any, key?: string): any {
   return value
 }
 
+export function deserialize(config: string): Config {
+  return deserializeFunctions(JSON.parse(config))
+}
+
 // biome-ignore lint/suspicious/noExplicitAny: _
 export function deserializeFunctions(value: any): any {
   if (Array.isArray(value)) {
@@ -415,20 +421,3 @@ export function deserializeFunctions(value: any): any {
   }
   return value
 }
-
-export const deserializeFunctionsStringified = `
-  function deserializeFunctions(value) {
-    if (Array.isArray(value)) {
-      return value.map(deserializeFunctions)
-    } else if (typeof value === 'object' && value !== null) {
-      return Object.keys(value).reduce((acc, key) => {
-        acc[key] = deserializeFunctions(value[key])
-        return acc
-      }, {})
-    } else if (typeof value === 'string' && value.includes('_vocs-fn_')) {
-      return new Function(\`return \${value.slice(9)}\`)()
-    } else {
-      return value
-    }
-  }
-`

@@ -4,7 +4,7 @@ import * as path from 'node:path'
 import type { TwoslashTypesCache } from '@shikijs/twoslash'
 
 export function fs(options: fs.Options): TwoslashTypesCache {
-  const { dir = path.resolve(import.meta.dirname, '../../.cache/twoslash') } = options
+  const { dir = path.resolve(import.meta.dirname, '../../.vocs/cache/twoslash') } = options
 
   return {
     init() {

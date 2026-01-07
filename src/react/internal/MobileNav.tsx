@@ -53,7 +53,10 @@ export function MobileNav(props: MobileNav.Props) {
           >
             <Sidebar.Sidebar onNavigate={() => setDialogOpen(false)} scrollRef={sidebarScrollRef} />
 
-            <div className="vocs:mt-auto vocs:pt-4 vocs:flex vocs:justify-between vocs:items-center" data-v-mobile-nav-footer>
+            <div
+              className="vocs:mt-auto vocs:pt-4 vocs:flex vocs:justify-between vocs:items-center"
+              data-v-mobile-nav-footer
+            >
               <Socials.Socials />
               <ThemeToggle.ThemeToggle />
             </div>

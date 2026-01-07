@@ -12,7 +12,12 @@ import { ScrollRestoration } from './ScrollRestoration.js'
 export async function Root({ children }: { children: React.ReactNode }) {
   const { colorScheme, accentColor } = config
   return (
-    <html data-vocs lang="en" style={{ colorScheme, '--vocs-color-accent': accentColor } as never} suppressHydrationWarning>
+    <html
+      data-vocs
+      lang="en"
+      style={{ colorScheme, '--vocs-color-accent': accentColor } as never}
+      suppressHydrationWarning
+    >
       <head>
         <link rel="stylesheet" href={styles} precedence="default" />
         {userStyles && <link rel="stylesheet" href={userStyles} precedence="default" />}
