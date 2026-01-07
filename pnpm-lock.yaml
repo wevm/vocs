@@ -37,8 +37,8 @@ catalogs:
       specifier: ^4.0.16
       version: 4.0.16
     waku:
-      specifier: 1.0.0-alpha.0
-      version: 1.0.0-alpha.0
+      specifier: 1.0.0-alpha.1
+      version: 1.0.0-alpha.1
     zile:
       specifier: 0.0.15
       version: 0.0.15
@@ -251,7 +251,7 @@ importers:
         version: 4.0.16(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
       waku:
         specifier: 'catalog:'
-        version: 1.0.0-alpha.0(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(react-dom@19.2.3(react@19.2.3))(react-server-dom-webpack@19.2.3(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(webpack@5.104.1))(react@19.2.3)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
+        version: 1.0.0-alpha.1(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(react-dom@19.2.3(react@19.2.3))(react-server-dom-webpack@19.2.3(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(webpack@5.104.1))(react@19.2.3)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
       zile:
         specifier: 'catalog:'
         version: 0.0.15(typescript@5.9.3)
@@ -272,7 +272,7 @@ importers:
         version: link:..
       waku:
         specifier: 'catalog:'
-        version: 1.0.0-alpha.0(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(react-dom@19.2.3(react@19.2.3))(react-server-dom-webpack@19.2.3(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(webpack@5.104.1))(react@19.2.3)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
+        version: 1.0.0-alpha.1(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(react-dom@19.2.3(react@19.2.3))(react-server-dom-webpack@19.2.3(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(webpack@5.104.1))(react@19.2.3)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
     devDependencies:
       '@iconify-json/lucide':
         specifier: ^1.2.82
@@ -3079,8 +3079,8 @@ packages:
   w3c-keyname@2.2.8:
     resolution: {integrity: sha512-dpojBhNsCNN7T82Tm7k26A6G9ML3NkhDsnw9n/eoxSRlVBB4CEtIQ/KTCLI2Fwf3ataSXRhYFkQi3SlnFwPvPQ==}
 
-  waku@1.0.0-alpha.0:
-    resolution: {integrity: sha512-DU5rAFi7Cm+wVNPN+fYy7ljinUnxe7n77HIOx59bv5cP1hSHRVNLQRn9NofPccWzE6ktT+pOubaStY14KBPDuA==}
+  waku@1.0.0-alpha.1:
+    resolution: {integrity: sha512-IN2+Q4yeomXyDgXWrtze45RQdNsk/B+ZpINhyc5jyurVpUfdMCGT86xZ5NWZexLei6P9RGSUsMY7JIdF09ppew==}
     engines: {node: ^24.0.0 || ^22.12.0 || ^20.19.0}
     hasBin: true
     peerDependencies:
@@ -6341,7 +6341,7 @@ snapshots:
 
   w3c-keyname@2.2.8: {}
 
-  waku@1.0.0-alpha.0(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(react-dom@19.2.3(react@19.2.3))(react-server-dom-webpack@19.2.3(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(webpack@5.104.1))(react@19.2.3)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2):
+  waku@1.0.0-alpha.1(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(react-dom@19.2.3(react@19.2.3))(react-server-dom-webpack@19.2.3(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(webpack@5.104.1))(react@19.2.3)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2):
     dependencies:
       '@hono/node-server': 1.19.7(hono@4.11.3)
       '@vitejs/plugin-react': 5.1.2(vite@7.3.0(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))

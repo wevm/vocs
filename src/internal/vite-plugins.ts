@@ -408,7 +408,8 @@ export function search(config: Config.Config): PluginOption {
     },
     buildStart() {
       // Only build index in production (dev builds in configureServer to avoid dep optimization issues)
-      if (mode !== 'production') return
+      // Also skip if already built (multi-environment builds call this multiple times)
+      if (mode !== 'production' || indexPromise) return
       indexPromise = buildIndex()
     },
     configureServer(devServer) {
@@ -434,7 +435,7 @@ export function search(config: Config.Config): PluginOption {
       }
 
       // Production: return fetch-based loader
-      return `export const getSearchIndex = async () => JSON.stringify(await (await fetch("${basePath}/.vocs/search-index-${indexHash}.json")).json())`
+      return `export const getSearchIndex = async () => JSON.stringify(await (await fetch("${basePath.endsWith('/') ? basePath : basePath + '/'}.vocs/search-index-${indexHash}.json")).json())`
     },
     async writeBundle(options) {
       const index = await indexPromise

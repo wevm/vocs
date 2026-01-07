@@ -9,7 +9,7 @@ import LucideArrowRight from '~icons/lucide/arrow-right'
 import LucideFile from '~icons/lucide/file'
 import LucideHash from '~icons/lucide/hash'
 import LucideSearch from '~icons/lucide/search'
-import { searchFields, storeFields, tokenize } from '../../internal/search.js'
+import { searchFields, storeFields, tokenize } from '../../internal/search.client.js'
 import { useConfig } from '../useConfig.js'
 import { DialogTrigger } from './DialogTrigger.js'
 

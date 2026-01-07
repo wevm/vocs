@@ -15,7 +15,7 @@ catalog:
   typescript: ^5.9.3
   vite: ^7.2.7
   vitest: ^4.0.16
-  waku: 1.0.0-alpha.0
+  waku: 1.0.0-alpha.1
   zile: 0.0.15
 
 overrides:
