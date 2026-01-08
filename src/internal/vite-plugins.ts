@@ -27,9 +27,6 @@ const logger = createLogger(undefined, { allowClearScreen: false, prefix: '[vocs
  * @returns Plugin.
  */
 export function deps(): PluginOption {
-  const useSyncExternalStoreId = 'virtual:vocs/use-sync-external-store'
-  const resolvedUseSyncExternalStoreId = `\0${useSyncExternalStoreId}`
-
   return {
     name: 'vocs:deps',
     config(config) {
@@ -45,14 +42,39 @@ export function deps(): PluginOption {
             },
           },
         },
+        optimizeDeps: {
+          ...config?.optimizeDeps,
+          include: [
+            'vocs > anser',
+            'vocs > lz-string',
+            'vocs > escape-carriage',
+            'vocs > @jridgewell/resolve-uri',
+            'vocs > ts-interface-checker',
+            'vocs > lines-and-columns',
+            ...(config?.optimizeDeps?.include ?? []),
+          ],
+          exclude: ['vocs', ...(config?.optimizeDeps?.exclude ?? [])],
+        },
         resolve: {
           ...config?.resolve,
-          alias: {
-            ...config?.resolve?.alias,
-            'use-sync-external-store/shim/with-selector':
-              'use-sync-external-store/shim/with-selector.js',
-            'use-sync-external-store/shim': 'use-sync-external-store/shim/index.js',
-          },
+          alias: [
+            ...(Array.isArray(config?.resolve?.alias)
+              ? config.resolve.alias
+              : config?.resolve?.alias
+                ? Object.entries(config.resolve.alias).map(([find, replacement]) => ({
+                    find,
+                    replacement,
+                  }))
+                : []),
+            {
+              find: /^use-sync-external-store\/shim\/with-selector$/,
+              replacement: 'use-sync-external-store/shim/with-selector.js',
+            },
+            {
+              find: /^use-sync-external-store\/shim$/,
+              replacement: 'use-sync-external-store/shim/index.js',
+            },
+          ],
           dedupe: [
             ...(config?.resolve?.dedupe ?? []),
             'react',
@@ -555,7 +577,7 @@ export function search(config: Config.Config): PluginOption {
     config() {
       return {
         optimizeDeps: {
-          include: ['minisearch'],
+          include: ['vocs > minisearch'],
         },
       }
     },
@@ -641,11 +663,16 @@ export function virtualConfig(config: Config.Config): PluginOption {
     })
   }
 
+  let mode: 'development' | 'production' = 'development'
+
   return {
     name: 'vocs:virtual-config',
     enforce: 'pre',
     config() {
       Config.setGlobal(config)
+    },
+    configResolved(resolvedConfig) {
+      mode = resolvedConfig.command === 'build' ? 'production' : 'development'
     },
     async configureServer(server) {
       await writeConfig(path.resolve(import.meta.dirname, '../.vocs'))
@@ -670,7 +697,9 @@ export function virtualConfig(config: Config.Config): PluginOption {
     load(id) {
       if (id === resolvedVirtualModuleId) {
         const currentConfig = Config.getGlobal() ?? config
-        return `export const config = ${ConfigSerializer.serialize(currentConfig)}`
+        const serializedConfig =
+          mode === 'development' ? { ...currentConfig, baseUrl: undefined } : currentConfig
+        return `export const config = ${ConfigSerializer.serialize(serializedConfig)}`
       }
       return
     },
