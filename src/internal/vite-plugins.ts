@@ -27,6 +27,9 @@ const logger = createLogger(undefined, { allowClearScreen: false, prefix: '[vocs
  * @returns Plugin.
  */
 export function deps(): PluginOption {
+  const useSyncExternalStoreId = 'virtual:vocs/use-sync-external-store'
+  const resolvedUseSyncExternalStoreId = `\0${useSyncExternalStoreId}`
+
   return {
     name: 'vocs:deps',
     config(config) {
@@ -44,6 +47,12 @@ export function deps(): PluginOption {
         },
         resolve: {
           ...config?.resolve,
+          alias: {
+            ...config?.resolve?.alias,
+            'use-sync-external-store/shim/with-selector':
+              'use-sync-external-store/shim/with-selector.js',
+            'use-sync-external-store/shim': 'use-sync-external-store/shim/index.js',
+          },
           dedupe: [
             ...(config?.resolve?.dedupe ?? []),
             'react',

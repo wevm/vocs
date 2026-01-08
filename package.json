@@ -81,7 +81,6 @@
     "mdast-util-to-string": "^4.0.0",
     "minisearch": "^7.2.0",
     "react-error-boundary": "^6.0.2",
-    "react-router": "^7.11.0",
     "rehype-autolink-headings": "^7.1.0",
     "rehype-slug": "^6.0.0",
     "remark-directive": "^4.0.0",
