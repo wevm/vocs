@@ -1,3 +1,6 @@
+import { cx } from 'cva'
+import { CopyButton } from './CodeBlock.client.js'
+
 export function CodeBlock(props: CodeBlock.Props) {
   const { className, container = true, 'data-v-lang': _lang, 'data-v-title': title } = props
   if (!container) return <pre {...props} data-v />
@@ -10,9 +13,16 @@ export function CodeBlock(props: CodeBlock.Props) {
       )}
       <pre
         {...props}
-        className={`${className}${title ? ' vocs:rounded-t-none vocs:border-t-0' : ''}`}
+        className={cx(
+          className,
+          'vocs:relative vocs:group/code',
+          title ? ' vocs:rounded-t-none vocs:border-t-0' : '',
+        )}
         data-v
-      />
+      >
+        {props.children}
+        <CopyButton />
+      </pre>
     </div>
   )
 }

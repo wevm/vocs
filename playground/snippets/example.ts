@@ -1,7 +1,7 @@
 // [!region import]
+// biome-ignore assist/source/organizeImports: _
 import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
-
 // [!endregion import]
 
 // [!region setup]
