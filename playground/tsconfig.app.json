@@ -25,5 +25,5 @@
     "noUncheckedSideEffectImports": true
   },
   "include": ["."],
-  "exclude": ["src/pages.gen.ts"]
+  "exclude": ["snippets", "src/pages.gen.ts"]
 }

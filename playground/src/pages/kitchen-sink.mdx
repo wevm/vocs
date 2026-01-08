@@ -462,4 +462,92 @@ Underscores
 * [ ] to do
 * [x] done
 
+## Code Snippets
+
+### Virtual File Snippets
+
+Define a virtual file with `filename="..."`, then include it in other code blocks.
+
+```ts twoslash filename="client.ts"
+import { http, createPublicClient } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = createPublicClient({
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+Now include the virtual file in another code block:
+
+```ts twoslash [Using Virtual File]
+// [!include client.ts]
+
+const blockNumber = await client.getBlockNumber()
+```
+
+### Physical File Snippets
+
+Include code from physical files on disk using `~/path`:
+
+```ts twoslash [Full File]
+// [!include ~/snippets/example.ts]
+```
+
+### Regions
+
+Include specific named regions from files:
+
+```ts twoslash [Import Only]
+// [!include ~/snippets/example.ts:import]
+```
+
+```ts twoslash [Setup Only]
+// [!include ~/snippets/example.ts:import]
+
+// [!include ~/snippets/example.ts:setup]
+```
+
+```ts twoslash [Combined Regions]
+// [!include ~/snippets/example.ts:import]
+
+// [!include ~/snippets/example.ts:setup]
+
+// [!include ~/snippets/example.ts:usage-1]
+```
+
+### Find and Replace
+
+Modify included code on the fly with `/find/replace/` syntax:
+
+```ts twoslash [Replace Chain]
+// [!include ~/snippets/example.ts:import /mainnet/optimism/]
+
+// [!include ~/snippets/example.ts:setup /mainnet/optimism/]
+```
+
+### Virtual Files with Twoslash
+
+Virtual files work with Twoslash for type checking across files:
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './client.js'
+
+const blockNumber = await client.getBlockNumber()
+```
+
+```ts twoslash [client.ts] filename="client.ts"
+import { http, createPublicClient } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = createPublicClient({
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+:::
+
 

@@ -5,6 +5,7 @@ import { createTwoslasher, type TwoslashInstance } from 'twoslash'
 
 type TransformerTwoslashIndexOptions = TransformerTwoslashOptions
 
+import * as Snippets from './snippets.js'
 import * as Renderer from './twoslash/renderer.js'
 import * as TypesCache from './twoslash/types-cache.js'
 
@@ -141,4 +142,26 @@ export function title(): ShikiTransformer {
       ]
     },
   }
+}
+
+/**
+ * Shiki transformer that processes `// [!include ...]` markers for physical files.
+ * Physical files use `~` prefix to indicate root-relative paths.
+ */
+export function notationInclude(options: notationInclude.Options): ShikiTransformer {
+  const { rootDir } = options
+  const getSource = Snippets.createPhysicalSourceGetter({ rootDir })
+
+  return {
+    name: 'vocs:notation-include',
+    enforce: 'pre',
+    preprocess(code) {
+      if (!code) return code
+      return Snippets.processIncludes({ code, getSource })
+    },
+  }
+}
+
+export declare namespace notationInclude {
+  type Options = { rootDir: string }
 }

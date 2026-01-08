@@ -22,6 +22,7 @@ import * as yaml from 'yaml'
 import type * as Config from './config.js'
 import { remarkSandbox } from './sandbox.js'
 import * as ShikiTransformers from './shiki-transformers.js'
+import * as Snippets from './snippets.js'
 import type { ExactPartial, UnionOmit } from './types.js'
 
 export { default as remarkFrontmatter } from 'remark-frontmatter'
@@ -41,7 +42,7 @@ export function getCompileOptions(
   rehypePlugins: PluggableList
   recmaPlugins: PluggableList
 } {
-  const { cacheDir, codeHighlight, markdown, twoslash } = config
+  const { cacheDir, codeHighlight, markdown, rootDir, twoslash } = config
   const { jsxImportSource = 'react' } = markdown ?? {}
 
   const { recmaPlugins, rehypePlugins, remarkPlugins } = (() => {
@@ -61,7 +62,7 @@ export function getCompileOptions(
       return {
         rehypePlugins: [
           rehypeAutolinkHeadings,
-          rehypeShiki({ ...codeHighlight, cacheDir, twoslash }),
+          rehypeShiki({ ...codeHighlight, cacheDir, rootDir, twoslash }),
           rehypeSlug,
           ...(markdown?.rehypePlugins ?? []),
           rehypeCodeInLink,
@@ -75,6 +76,7 @@ export function getCompileOptions(
           remarkDefaultFrontmatter,
           remarkDetails,
           remarkDirective,
+          remarkFilename,
           remarkGfm,
           remarkMetaFrontmatter,
           remarkMdxFrontmatter,
@@ -283,7 +285,7 @@ export function remarkVocsScope() {
 export function rehypeShiki(
   options: ExactPartial<rehypeShiki.Options> = {},
 ): [typeof shiki, RehypeShikiOptions] {
-  const { cacheDir, themes, twoslash = true } = options
+  const { cacheDir, rootDir, themes, twoslash = true } = options
   return [
     shiki,
     {
@@ -295,6 +297,7 @@ export function rehypeShiki(
       themes,
       // TODO: infer `langs` for faster cold start.
       transformers: [
+        rootDir ? ShikiTransformers.notationInclude({ rootDir }) : undefined,
         twoslash
           ? ShikiTransformers.twoslash(
               typeof twoslash === 'object' ? { ...twoslash, cacheDir } : {},
@@ -319,6 +322,7 @@ export declare namespace rehypeShiki {
   export type Options = UnionOmit<ExactPartial<RehypeShikiOptions>, 'inline' | 'rootStyle'> &
     UnionOmit<CodeOptionsMultipleThemes<BuiltinTheme>, 'defaultColor'> & {
       cacheDir?: string | undefined
+      rootDir?: string | undefined
       twoslash?: ShikiTransformers.twoslash.Options | false | undefined
     }
 }
@@ -644,4 +648,45 @@ export function remarkSubheading() {
       return UnistUtil.SKIP
     })
   }
+}
+
+const filenameRegex = /filename="([^"]+)"/
+
+/**
+ * Remark plugin that processes virtual file snippets defined with `filename="..."` meta.
+ *
+ * This enables:
+ * 1. Code blocks with `filename="example.ts"` to be referenced by other code blocks
+ * 2. `// [!include example.ts]` markers to pull in virtual file content
+ * 3. Twoslash integration: imports from virtual files inject `@filename` directives
+ */
+export function remarkFilename(): remarkFilename.ReturnType {
+  return (tree: MdAst.Root) => {
+    const virtualFiles = new Map<string, string>()
+    const codeNodes: MdAst.Code[] = []
+
+    UnistUtil.visit(tree, 'code', (node) => {
+      codeNodes.push(node)
+      if (!node.meta?.includes('filename')) return
+      const match = node.meta.match(filenameRegex)
+      const fileName = match?.[1]
+      if (!fileName) return
+      virtualFiles.set(fileName, node.value)
+    })
+
+    if (virtualFiles.size === 0) return
+
+    const getVirtualSource = Snippets.createVirtualSourceGetter({ virtualFiles })
+
+    for (const node of codeNodes) {
+      if (node.meta?.includes('twoslash')) {
+        node.value = Snippets.processImports({ code: node.value, virtualFiles })
+      }
+      node.value = Snippets.processIncludes({ code: node.value, getSource: getVirtualSource })
+    }
+  }
+}
+
+export declare namespace remarkFilename {
+  type ReturnType = (tree: MdAst.Root) => void
 }
