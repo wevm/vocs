@@ -52,6 +52,7 @@ export async function vocs(options: vocs.Options = {}): Promise<PluginOption[]> 
     Plugins.fallbackHtml(),
     Plugins.fsRouterTypegen(wakuConfig),
     Plugins.preview(),
+    Plugins.vocsConfig(config),
   ]
 }
 

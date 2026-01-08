@@ -45,12 +45,21 @@ export function deps(): PluginOption {
         optimizeDeps: {
           ...config?.optimizeDeps,
           include: [
-            'vocs > anser',
-            'vocs > lz-string',
-            'vocs > escape-carriage',
-            'vocs > @jridgewell/resolve-uri',
-            'vocs > ts-interface-checker',
-            'vocs > lines-and-columns',
+            '@base-ui/react/dialog',
+            '@base-ui/react/menu',
+            '@base-ui/react/navigation-menu',
+            '@base-ui/react/popover',
+            '@base-ui/react/radio',
+            '@base-ui/react/radio-group',
+            '@base-ui/react/tabs',
+            '@jridgewell/resolve-uri',
+            'anser',
+            'cva',
+            'escape-carriage',
+            'lines-and-columns',
+            'lz-string',
+            'react-error-boundary',
+            'ts-interface-checker',
             ...(config?.optimizeDeps?.include ?? []),
           ],
           exclude: ['vocs', ...(config?.optimizeDeps?.exclude ?? [])],
@@ -656,13 +665,6 @@ export function virtualConfig(config: Config.Config): PluginOption {
   const virtualModuleId = 'virtual:vocs/config'
   const resolvedVirtualModuleId = `\0${virtualModuleId}`
 
-  async function writeConfig(outDir: string): Promise<void> {
-    await fs.mkdir(outDir, { recursive: true })
-    await fs.writeFile(path.join(outDir, 'vocs.config.json'), ConfigSerializer.serialize(config), {
-      encoding: 'utf-8',
-    })
-  }
-
   let mode: 'development' | 'production' = 'development'
 
   return {
@@ -675,8 +677,6 @@ export function virtualConfig(config: Config.Config): PluginOption {
       mode = resolvedConfig.command === 'build' ? 'production' : 'development'
     },
     async configureServer(server) {
-      await writeConfig(path.resolve(import.meta.dirname, '../.vocs'))
-
       server.watcher.on('change', async (changedPath) => {
         if (!changedPath.includes('vocs.config')) return
 
@@ -686,7 +686,8 @@ export function virtualConfig(config: Config.Config): PluginOption {
           if (mod) server.moduleGraph.invalidateModule(mod)
           Config.setGlobal(newConfig)
           server.ws.send({ type: 'custom', event: 'vocs:config', data: newConfig })
-          await writeConfig(path.resolve(import.meta.dirname, '../.vocs'))
+          // Force full reload to ensure CSS is properly reprocessed
+          server.ws.send({ type: 'full-reload' })
         } catch {}
       })
     },
@@ -702,9 +703,6 @@ export function virtualConfig(config: Config.Config): PluginOption {
         return `export const config = ${ConfigSerializer.serialize(serializedConfig)}`
       }
       return
-    },
-    async buildEnd() {
-      await writeConfig(path.resolve(config.rootDir, config.outDir, 'server/assets'))
     },
   }
 }

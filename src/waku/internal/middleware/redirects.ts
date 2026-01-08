@@ -4,7 +4,7 @@ import * as Redirects from '../../../internal/redirects.js'
 
 export const redirects = (): MiddlewareHandler => {
   return async (context, next) => {
-    const config = await Config.resolve({ fs: true })
+    const config = await Config.resolve({ server: true })
     if (!config.redirects?.length) return next()
 
     const rules = Redirects.from(config.redirects)

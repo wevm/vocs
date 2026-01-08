@@ -1,8 +1,6 @@
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import type * as MdxRollup from '@mdx-js/rollup'
-import * as Jiti from 'jiti'
-import * as ConfigSerializer from './config-serializer.js'
 import * as Langs from './langs.js'
 import type * as Mdx from './mdx.js'
 import type * as Redirects from './redirects.js'
@@ -367,29 +365,31 @@ declare namespace getConfigFile {
 }
 
 export async function resolve(options: resolve.Options = {}): Promise<Config> {
-  const { fs: fileSystem, rootDir = process.cwd() } = options
+  const { server, rootDir = process.cwd() } = options
 
-  if (fileSystem) {
-    const configPath =
-      process.env['NODE_ENV'] === 'development'
-        ? path.resolve(import.meta.dirname, '../.vocs/vocs.config.json')
-        : path.resolve(import.meta.dirname, 'vocs.config.json')
-    const configJson = fs.readFileSync(configPath, 'utf-8')
-    return ConfigSerializer.deserialize(configJson)
+  if (server && process.env['NODE_ENV'] === 'production') {
+    const configPath = path.resolve(import.meta.dirname, '../vocs.config.js')
+    const resolved = (await import(/* @vite-ignore */ configPath)).default as Config
+    return resolved
   }
 
   const configFile = getConfigFile({ rootDir })
   if (!configFile) return define({})
 
-  const jiti = Jiti.createJiti(rootDir, { interopDefault: true })
-  const configPath = `${rootDir}/${configFile}`
-  const config = (await jiti.import(configPath, { default: true })) as define.Options
-  return define({ ...config, rootDir })
+  const vite = await import('vite')
+  const result = await vite.loadConfigFromFile(
+    { command: 'build', mode: 'development' },
+    configFile,
+    rootDir,
+  )
+  if (!result) return define({ rootDir })
+
+  return define({ ...result.config, rootDir })
 }
 
 declare namespace resolve {
   export type Options = {
-    fs?: boolean | undefined
+    server?: boolean | undefined
     rootDir?: string | undefined
   }
 }

@@ -3,7 +3,7 @@ import * as fs from 'node:fs/promises'
 import * as path from 'node:path'
 import type { Plugin } from 'vite'
 import type { Config as WakuConfig } from 'waku/config'
-import type * as VocsConfig from '../../internal/config.js'
+import * as VocsConfig from '../../internal/config.js'
 import {
   EXTENSIONS,
   SRC_CLIENT_ENTRY,
@@ -158,6 +158,48 @@ if (import.meta.hot)
 `
       }
       return
+    },
+  }
+}
+
+/**
+ * Bundles vocs.config.ts into the server build output.
+ * Only runs during RSC environment build.
+ */
+export function vocsConfig(config: VocsConfig.Config): Plugin {
+  const configFile = VocsConfig.getConfigFile({ rootDir: config.rootDir })
+  const configPath = configFile ? path.resolve(config.rootDir, configFile) : undefined
+
+  let isBuild = false
+
+  return {
+    name: 'vocs:config-bundle',
+    config() {
+      return {
+        environments: {
+          rsc: {
+            build: {
+              rollupOptions: {
+                external: ['fsevents', 'vite'],
+              },
+            },
+          },
+        },
+      }
+    },
+    configResolved(resolvedConfig) {
+      isBuild = resolvedConfig.command === 'build'
+    },
+    buildStart() {
+      if (!isBuild || !configPath) return
+      const envName = (this as unknown as { environment?: { name: string } }).environment?.name
+      if (envName !== 'rsc') return
+
+      this.emitFile({
+        type: 'chunk',
+        id: configPath,
+        fileName: 'vocs.config.js',
+      })
     },
   }
 }
