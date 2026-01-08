@@ -11,7 +11,7 @@ A comprehensive checklist of features for Vocs v2, based on Vocs v1 feature pari
 - [x] MDX processing
 - [x] Virtual modules (`virtual:vocs/config`, `virtual:vocs/user-styles`)
 - [x] Hot module reloading for config
-- [ ] Sitemap generation
+- [x] Sitemap generation
 - [ ] Blog
 - [x] Redirects
 - [ ] PWA support
@@ -38,14 +38,14 @@ A comprehensive checklist of features for Vocs v2, based on Vocs v1 feature pari
 ## Search
 
 - [x] Search trigger component
-- [ ] Search dialog implementation
-- [ ] "Jump to" suggestions
+- [x] Search dialog implementation
+- [x] "Jump to" suggestions
 - [ ] Hybrid local/AI search
-  - [ ] Minisearch (Local)
+  - [x] Minisearch (Local)
   - [ ] RAG (AI)
   - [ ] Optimistic keyword search (local), then hydrate with semantic suggestions (AI)
-- [ ] Keyboard navigation
-- [ ] Recently viewed pages
+- [x] Keyboard navigation
+- [x] Recently viewed pages
 
 ## Code Blocks
 

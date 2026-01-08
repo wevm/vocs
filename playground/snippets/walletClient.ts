@@ -8,5 +8,6 @@ import { mainnet } from 'viem/chains'
 
 export const walletClient = createWalletClient({
   chain: mainnet,
+  // biome-ignore lint/style/noNonNullAssertion: _
   transport: custom(window.ethereum!),
 })

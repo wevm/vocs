@@ -23,6 +23,7 @@ export async function vocs(): Promise<PluginOption[]> {
     Plugins.mdx(config),
     Plugins.routeWatcher(config),
     Plugins.search(config),
+    Plugins.sitemap(config),
     Plugins.tailwind(),
     Plugins.userStyles(config),
     Plugins.virtualConfig(config),

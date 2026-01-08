@@ -13,6 +13,7 @@ import * as ConfigSerializer from './config-serializer.js'
 import * as Langs from './langs.js'
 import * as Mdx from './mdx.js'
 import { SearchDocuments, SearchIndex } from './search.js'
+import * as TaskRunner from './task-runner.js'
 
 export { default as icons } from 'unplugin-icons/vite'
 
@@ -287,6 +288,155 @@ export function mdx(config: Config.Config): PluginOption {
         errors.push(`${file}:\n${links.map((link) => `  - ${link}`).join('\n')}`)
 
       throw new Error(`Found dead links:\n\n${errors.join('\n\n')}`)
+    },
+  }
+}
+
+/**
+ * Generates sitemap.xml and robots.txt for the documentation site.
+ *
+ * Scans all pages and generates a sitemap.xml with URLs for each page.
+ * Also generates a robots.txt that allows all crawlers and references the sitemap.
+ * Requires `baseUrl` to be configured for absolute URLs in production.
+ *
+ * @param config - Vocs configuration.
+ * @returns Plugin.
+ */
+export function sitemap(config: Config.Config): PluginOption {
+  const { baseUrl } = config
+
+  let built = false
+  let viteConfig: ResolvedConfig
+
+  function getSiteUrl(): string | null {
+    return baseUrl ?? (viteConfig.command === 'serve' ? 'http://localhost:5173' : null)
+  }
+
+  function buildRobotsTxt(siteUrl: string): string {
+    return [
+      'User-agent: *',
+      'Allow: /',
+      '',
+      `Sitemap: ${siteUrl.replace(/\/$/, '')}/sitemap.xml`,
+      '',
+    ].join('\n')
+  }
+
+  async function buildSitemapContent(): Promise<string | null> {
+    const siteUrl = getSiteUrl()
+    if (!siteUrl) {
+      logger.warn('Sitemap generation skipped: baseUrl is not configured', { timestamp: true })
+      return null
+    }
+
+    const pagesDir = path.resolve(viteConfig.root, config.srcDir, config.pagesDir)
+    const pages = await Array.fromAsync(fs.glob(`${pagesDir}/**/*.{md,mdx,tsx}`))
+
+    const runner = TaskRunner.create(20)
+
+    const urls: { loc: string; lastmod: string }[] = []
+    for (const page of pages) {
+      // Skip files/directories starting with _
+      if (
+        page
+          .replace(pagesDir, '')
+          .split('/')
+          .some((part) => part.startsWith('_'))
+      )
+        continue
+
+      runner.run(async () => {
+        const stat = await fs.stat(page)
+        const pagePath =
+          page
+            .replace(pagesDir, '')
+            .replace(/\.(mdx?|tsx?)$/, '')
+            .replace(/\/index$/, '/')
+            .replace(/\/$/, '') || '/'
+
+        const loc = `${siteUrl.replace(/\/$/, '')}${pagePath}`
+        const lastmod = stat.mtime.toISOString().split('T')[0] as string
+
+        urls.push({ loc, lastmod })
+      })
+    }
+
+    await runner.wait()
+
+    urls.sort((a, b) => a.loc.localeCompare(b.loc))
+
+    const indent = '  '
+    const entries = urls
+      .map(({ loc, lastmod }) =>
+        [
+          `${indent}<url>`,
+          `${indent}${indent}<loc>${loc}</loc>`,
+          `${indent}${indent}<lastmod>${lastmod}</lastmod>`,
+          `${indent}</url>`,
+        ].join('\n'),
+      )
+      .join('\n')
+
+    return [
+      '<?xml version="1.0" encoding="UTF-8"?>',
+      '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+      entries,
+      '</urlset>',
+      '',
+    ].join('\n')
+  }
+
+  return {
+    name: 'vocs:sitemap',
+    enforce: 'post',
+    configResolved(resolvedConfig) {
+      viteConfig = resolvedConfig
+    },
+    configureServer(server) {
+      server.middlewares.use(async (req, res, next) => {
+        const siteUrl = getSiteUrl()
+
+        if (req.url === '/robots.txt') {
+          if (!siteUrl) {
+            res.statusCode = 404
+            res.end('robots.txt not available: baseUrl is not configured')
+            return
+          }
+          res.setHeader('Content-Type', 'text/plain')
+          res.end(buildRobotsTxt(siteUrl))
+          return
+        }
+
+        if (req.url === '/sitemap.xml') {
+          const content = await buildSitemapContent()
+          if (!content) {
+            res.statusCode = 404
+            res.end('Sitemap not available: baseUrl is not configured')
+            return
+          }
+          res.setHeader('Content-Type', 'application/xml')
+          res.end(content)
+          return
+        }
+
+        next()
+      })
+    },
+    async writeBundle(options) {
+      if (!options.dir?.endsWith('/public')) return
+      if (built) return
+      built = true
+
+      const siteUrl = getSiteUrl()
+      const sitemapContent = await buildSitemapContent()
+      if (!sitemapContent || !siteUrl) return
+
+      await Promise.all([
+        fs.writeFile(path.join(options.dir, 'sitemap.xml'), sitemapContent, { encoding: 'utf-8' }),
+        fs.writeFile(path.join(options.dir, 'robots.txt'), buildRobotsTxt(siteUrl), {
+          encoding: 'utf-8',
+        }),
+      ])
     },
   }
 }
