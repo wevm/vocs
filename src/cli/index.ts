@@ -21,7 +21,7 @@ cli
 cli
   .command('build')
   .option('-c, --clean', 'clean the cache and re-bundle')
-  .option('-l, --logLevel [level]', 'info | warn | error | silent')
+  .option('-l, --logLevel [level]', 'debug' | 'info | warn | error | silent')
   .option('-o, --outDir [dir]', 'output directory (default: dist)')
   .option('-p, --publicDir [dir]', 'public (asset) directory (default: public)')
   .option('--clearScreen', 'clear the terminal screen (default: true)')
