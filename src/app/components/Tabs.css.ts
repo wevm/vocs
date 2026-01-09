@@ -23,6 +23,7 @@ export const list = style(
     borderTopRightRadius: borderRadiusVars['4'],
     display: 'flex',
     padding: `${spaceVars['0']} ${spaceVars['14']}`,
+    overflowX: 'auto',
     '@media': {
       [viewportVars['max-720px']]: {
         borderRadius: 0,
