@@ -45,14 +45,15 @@ export async function resolveVocsConfig(parameters: ResolveVocsConfigParameters 
         return
       })()
 
-      const config = await resolveConfig(rawConfig, env)
-      return config ? { config } : undefined
+      return rawConfig ? { config: rawConfig } : undefined
     }
 
     return
   })()
 
-  const config = (result ? result.config : await getDefaultConfig(env)) as ParsedConfig
+  const config = (
+    result ? await resolveConfig(result.config, env) : await getDefaultConfig(env)
+  ) as ParsedConfig
 
   return {
     config,
