@@ -288,9 +288,13 @@ async function parseBanner(banner: Banner): Promise<Banner<true> | undefined> {
     if (typeof banner === 'string') return undefined
     if (typeof banner === 'object') {
       if ('textColor' in banner) return banner.textColor
-      if ('backgroundColor' in banner && banner.backgroundColor) {
-        const chroma = (await import('chroma-js')).default
-        return chroma.contrast(banner.backgroundColor, 'white') < 4.5 ? 'black' : 'white'
+      if ('backgroundColor' in banner && typeof banner.backgroundColor === 'string') {
+        try {
+          const chroma = (await import('chroma-js')).default
+          return chroma.contrast(banner.backgroundColor, 'white') < 4.5 ? 'black' : 'white'
+        } catch {
+          return undefined
+        }
       }
     }
     return undefined
