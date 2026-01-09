@@ -11,11 +11,11 @@ export function CodeGroup(props: CodeGroup.Props) {
       const item =
         typeof child === 'object' &&
         'props' in child &&
-        'data-v-title' in (child.props as React.ComponentProps<'div'>)
-          ? (child.props as React.ComponentProps<'div'> & { 'data-v-title': string })
+        'data-title' in (child.props as React.ComponentProps<'div'>)
+          ? (child.props as React.ComponentProps<'div'> & { 'data-title': string })
           : null
       if (!item) return null
-      return { title: item['data-v-title'], content: item.children }
+      return { title: item['data-title'], content: item.children }
     })
     .filter(Boolean) as { title: string; content: React.ReactNode }[]
   if (!items) return null

@@ -162,8 +162,8 @@ export function llms(config: Config.Config): PluginOption {
           .use(rehypePlugins)
           .process(content)
 
-        const { title, description } = file.data['frontmatter'] as Config.Frontmatter
-        if (!title) return
+        const { title, description } = (file?.data?.['frontmatter'] ?? {}) as Config.Frontmatter
+        if (!title) return null
 
         const path = page
           .replace(pagesDir, '')

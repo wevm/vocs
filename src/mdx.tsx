@@ -56,3 +56,7 @@ export const components: MDXComponents = {
     )
   },
 }
+
+export function useMDXComponents(existing?: MDXComponents): MDXComponents {
+  return { ...components, ...existing }
+}

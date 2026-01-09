@@ -2,7 +2,7 @@ import { cx } from 'cva'
 import { CopyButton } from './CodeBlock.client.js'
 
 export function CodeBlock(props: CodeBlock.Props) {
-  const { className, container = true, 'data-v-lang': _lang, 'data-v-title': title } = props
+  const { className, container = true, 'data-v-lang': _lang, 'data-title': title } = props
   if (!container) return <pre {...props} data-v />
   return (
     <div data-v-code-container>
@@ -31,6 +31,6 @@ export namespace CodeBlock {
   export type Props = React.PropsWithChildren<React.ComponentProps<'pre'>> & {
     container?: boolean | undefined
     'data-v-lang'?: string | undefined
-    'data-v-title'?: string | undefined
+    'data-title'?: string | undefined
   }
 }

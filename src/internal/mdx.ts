@@ -94,6 +94,7 @@ export function getCompileOptions(
   return {
     ...markdown,
     jsxImportSource,
+    providerImportSource: 'vocs/mdx',
     recmaPlugins,
     rehypePlugins,
     remarkPlugins,
@@ -133,8 +134,7 @@ export function recmaMdxLayout(config: Config.Config) {
     const filePath = vfile.path ? path.relative(pagesDirPath, vfile.path) : undefined
 
     const importAst = EstreeUtil.fromJs(
-      `import { components as _components } from 'vocs/mdx';
-       import { MdxPageContext as _MdxPageContext } from 'vocs';
+      `import { MdxPageContext as _MdxPageContext } from 'vocs';
        import { createElement as _createElement } from 'react';
        ${getMdxLayoutImport(vfile.dirname ?? pagesDirPath)}`,
       { module: true },
@@ -154,7 +154,7 @@ export function recmaMdxLayout(config: Config.Config) {
           _createElement(
             _Layout,
             null,
-            _createElement(MDXContent, { ...props, components: _components })
+            _createElement(MDXContent, props)
           )
         );
       }`,
@@ -421,7 +421,7 @@ export function remarkCodeGroup() {
               hProperties: match
                 ? {
                     'data-v-code-group-item': '',
-                    'data-v-title': match[1],
+                    'data-title': match[1],
                   }
                 : undefined,
             },

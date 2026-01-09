@@ -135,7 +135,7 @@ export function title(): ShikiTransformer {
           ...child,
           properties: {
             ...child.properties,
-            'data-v-title': title,
+            'data-title': title,
             ...(this.options.lang && { 'data-v-lang': this.options.lang }),
           },
         },

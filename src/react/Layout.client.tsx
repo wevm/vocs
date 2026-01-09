@@ -140,12 +140,12 @@ export function Main(props: Main.Props) {
         </article>
       </main>
 
-      <div
+      {/* <div
         className="vocs:fixed vocs:bottom-6 vocs:max-md:bottom-2 vocs:w-full vocs:flex vocs:justify-center"
         data-v-ask-ai-container
       >
         <AskAi.AskAi className="vocs:w-[290px]! vocs:h-10! vocs:z-50! vocs:bg-surfaceTint/20! vocs:backdrop-blur-md!" />
-      </div>
+      </div> */}
 
       <div
         className="vocs:fixed vocs:overflow-y-auto vocs:w-gutter vocs:py-content-py vocs:pb-20 vocs:h-full vocs:right-0 vocs:top-topNav vocs:z-10 vocs:max-[1376px]:hidden"
