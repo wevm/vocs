@@ -2,10 +2,11 @@
 
 import { cx } from 'cva'
 import * as React from 'react'
-import { Link, useRouter } from 'waku'
+import { useRouter } from 'waku'
 import LucideArrowLeft from '~icons/lucide/arrow-left'
 import LucideArrowRight from '~icons/lucide/arrow-right'
 import * as Sidebar from '../../internal/sidebar.js'
+import { Link } from '../Link.js'
 import { useSidebar } from '../useSidebar.js'
 
 export function Pagination(props: Pagination.Props) {
@@ -43,11 +44,7 @@ export function Pagination(props: Pagination.Props) {
       data-v-pagination
     >
       {prev?.link ? (
-        <Link
-          className="vocs:flex vocs:flex-col vocs:gap-1.5 vocs:group"
-          to={prev.link}
-          unstable_prefetchOnView
-        >
+        <Link className="vocs:flex vocs:flex-col vocs:gap-1.5 vocs:group" to={prev.link}>
           <span className="vocs:flex vocs:items-center vocs:gap-2 vocs:text-heading vocs:text-lg vocs:font-medium vocs:group-hover:text-accent8 vocs:transition-colors">
             <LucideArrowLeft className="vocs:size-4" />
             {prev.text}
@@ -68,7 +65,6 @@ export function Pagination(props: Pagination.Props) {
         <Link
           className="vocs:flex vocs:flex-col vocs:items-end vocs:gap-1.5 vocs:group"
           to={next.link}
-          unstable_prefetchOnView
         >
           <span className="vocs:flex vocs:items-center vocs:gap-2 vocs:text-heading vocs:text-lg vocs:font-medium vocs:group-hover:text-accent8 vocs:transition-colors">
             {next.text}

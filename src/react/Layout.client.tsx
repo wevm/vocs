@@ -1,9 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { Link } from 'waku'
 import LucideSearch from '~icons/lucide/search'
-
 // import * as AskAi from './internal/AskAi.js'
 import * as EditLink from './internal/EditLink.client.js'
 import * as LastUpdated from './internal/LastUpdated.client.js'
@@ -16,6 +14,7 @@ import * as SkipToContent from './internal/SkipToContent.client.js'
 import * as Socials from './internal/Socials.client.js'
 import * as ThemeToggle from './internal/ThemeToggle.client.js'
 import * as TopNav from './internal/TopNav.js'
+import { Link } from './Link.js'
 import { useConfig } from './useConfig.js'
 import { useTopGutterVisibility } from './useTopGutterVisibility.js'
 
@@ -37,7 +36,7 @@ export function Main(props: Main.Props) {
         data-v-gutter-logo
       >
         <div className="vocs:w-sidebar vocs:px-sidebar-px vocs:py-3 vocs:min-w-fit" data-v-logo>
-          <Link className="vocs:flex vocs:h-full vocs:w-fit" to="/" unstable_prefetchOnView>
+          <Link className="vocs:flex vocs:h-full vocs:w-fit" to="/">
             <Logo />
           </Link>
         </div>
@@ -84,7 +83,7 @@ export function Main(props: Main.Props) {
         data-v-gutter-top
       >
         <div className="vocs:flex vocs:gap-2 vocs:h-full vocs:py-2 vocs:lg:-ml-7">
-          <Link className="vocs:lg:hidden vocs:py-0.5 vocs:flex" to="/" unstable_prefetchOnView>
+          <Link className="vocs:lg:hidden vocs:py-0.5 vocs:flex" to="/">
             <Logo />
           </Link>
 

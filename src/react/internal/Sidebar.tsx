@@ -2,11 +2,12 @@
 
 import { cx } from 'cva'
 import * as React from 'react'
-import { Link, useRouter } from 'waku'
+import { useRouter } from 'waku'
 import LucideArrowUpRight from '~icons/lucide/arrow-up-right'
 import LucideChevronRight from '~icons/lucide/chevron-right'
 import * as Path from '../../internal/path.js'
 import * as Sidebar_core from '../../internal/sidebar.js'
+import { Link } from '../Link.js'
 import { useSidebar } from '../useSidebar.js'
 
 const maxDepth = 5
@@ -106,7 +107,6 @@ function Item(props: Item.Props) {
         data-v-sidebar-item
         to={link}
         ref={itemRef as never}
-        unstable_prefetchOnView
         onClick={onNavigate}
         {...(active && { 'data-active': true })}
       >

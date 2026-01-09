@@ -12,14 +12,9 @@ export function Link(props: Link.Props) {
 
   const [before, after] = (props.to || '').split('#')
   const resolvedTo = `${before ? before : path}${after ? `#${after}` : ''}`
-  return <WakuLink {...props} to={resolvedTo} unstable_prefetchOnView />
+  return <WakuLink {...rest} to={resolvedTo} unstable_prefetchOnView={!import.meta.env.DEV} />
 }
 
 export namespace Link {
-  export type Props = {
-    children: React.ReactNode
-    className?: string | undefined
-    onClick?: React.MouseEventHandler | undefined
-    to: string
-  }
+  export type Props = React.ComponentProps<typeof WakuLink>
 }

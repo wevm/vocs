@@ -4,13 +4,14 @@ import { Dialog } from '@base-ui/react/dialog'
 import { Menu } from '@base-ui/react/menu'
 import { cx } from 'cva'
 import * as React from 'react'
-import { Link, useRouter } from 'waku'
+import { useRouter } from 'waku'
 import LucideArrowUpRight from '~icons/lucide/arrow-up-right'
 import LucideChevronDown from '~icons/lucide/chevron-down'
 import LucideTextAlignJustify from '~icons/lucide/text-align-justify'
 import LucideX from '~icons/lucide/x'
 import * as Path from '../../internal/path.js'
 import * as TopNav_core from '../../internal/topNav.js'
+import { Link } from '../Link.js'
 import { useConfig } from '../useConfig.js'
 import * as Sidebar from './Sidebar.js'
 import * as Socials from './Socials.client.js'
@@ -131,17 +132,9 @@ function MobileTopNav(props: MobileTopNav.Props) {
                             key={j}
                             value={child.link}
                             onClick={handleNavigate}
-                            render={
-                              isExternal ? (
-                                // biome-ignore lint/style/noNonNullAssertion: _
-                                // biome-ignore lint/a11y/useAnchorContent: content provided by Menu.RadioItem
-                                <a href={child.link!} target="_blank" rel="noopener noreferrer" />
-                              ) : (
-                                // @ts-expect-error
-                                // biome-ignore lint/style/noNonNullAssertion: _
-                                <Link to={child.link!} unstable_prefetchOnView />
-                              )
-                            }
+                            // @ts-expect-error
+                            // biome-ignore lint/style/noNonNullAssertion: _
+                            render={<Link to={child.link!} />}
                           >
                             {child.text}
                             {isExternal && (
@@ -162,17 +155,9 @@ function MobileTopNav(props: MobileTopNav.Props) {
                     key={i}
                     value={item.link}
                     onClick={handleNavigate}
-                    render={
-                      isExternal ? (
-                        // biome-ignore lint/style/noNonNullAssertion: _
-                        // biome-ignore lint/a11y/useAnchorContent: content provided by Menu.RadioItem
-                        <a href={item.link!} target="_blank" rel="noopener noreferrer" />
-                      ) : (
-                        // @ts-expect-error
-                        // biome-ignore lint/style/noNonNullAssertion: _
-                        <Link to={item.link!} unstable_prefetchOnView />
-                      )
-                    }
+                    // @ts-expect-error
+                    // biome-ignore lint/style/noNonNullAssertion: _
+                    render={<Link to={item.link!} />}
                   >
                     {item.text}
                     {isExternal && (
