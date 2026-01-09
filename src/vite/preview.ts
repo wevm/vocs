@@ -11,7 +11,7 @@ type PreviewParameters = {
 }
 
 export async function preview({ outDir = 'dist' }: PreviewParameters = {}) {
-  const { config } = await resolveVocsConfig()
+  const { config } = await resolveVocsConfig({ mode: 'production', isPreview: true })
   const { basePath, rootDir } = config
 
   const app = new Hono()

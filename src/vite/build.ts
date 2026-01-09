@@ -36,7 +36,7 @@ export async function build({
   publicDir = 'public',
   searchIndex = true,
 }: BuildParameters = {}) {
-  const { config } = await resolveVocsConfig()
+  const { config } = await resolveVocsConfig({ command: 'build', mode: 'production' })
   const { rootDir, cacheDir } = config
 
   const outDir_resolved = resolveOutDir(rootDir, outDir)

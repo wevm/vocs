@@ -3,7 +3,10 @@ import type { SearchOptions } from 'minisearch'
 import type { ReactElement } from 'react'
 import type { TwoslashOptions } from 'twoslash'
 import type { PluggableList } from 'unified'
-import type { UserConfig } from 'vite'
+import type { ConfigEnv, UserConfig } from 'vite'
+
+export type VocsConfigEnv = Pick<ConfigEnv, 'mode' | 'command' | 'isPreview'>
+
 import type { PageData } from './app/hooks/usePageData.js'
 import type {
   borderRadiusVars,
@@ -203,19 +206,53 @@ export type Config<
 >
 
 export type ParsedConfig = Config<true>
+export type VocsConfig = Config<false>
 
-export async function defineConfig<colorScheme extends ColorScheme = undefined>({
-  aiCta = true,
-  blogDir = './pages/blog',
-  cacheDir,
-  checkDeadlinks = true,
-  head,
-  ogImageUrl,
-  rootDir = 'docs',
-  title = 'Docs',
-  titleTemplate = `%s – ${title}`,
-  ...config
-}: Config<false, colorScheme>): Promise<ParsedConfig> {
+export type VocsConfigFnObject = (env: VocsConfigEnv) => VocsConfig
+export type VocsConfigFnPromise = (env: VocsConfigEnv) => Promise<VocsConfig>
+export type VocsConfigFn = (env: VocsConfigEnv) => VocsConfig | Promise<VocsConfig>
+
+export type VocsConfigExport<colorScheme extends ColorScheme = ColorScheme> =
+  | Config<false, colorScheme>
+  | Promise<Config<false, colorScheme>>
+  | VocsConfigFn
+
+// Callback overloads first (no generic, better env inference)
+export function defineConfig(config: VocsConfigFnObject): VocsConfigFnObject
+export function defineConfig(config: VocsConfigFnPromise): VocsConfigFnPromise
+// Object overloads (with generic for colorScheme type safety)
+export function defineConfig<colorScheme extends ColorScheme = undefined>(
+  config: Config<false, colorScheme>,
+): Config<false, colorScheme>
+export function defineConfig<colorScheme extends ColorScheme = undefined>(
+  config: Promise<Config<false, colorScheme>>,
+): Promise<Config<false, colorScheme>>
+// Catch-all
+export function defineConfig(config: VocsConfigExport): VocsConfigExport
+export function defineConfig(config: VocsConfigExport): VocsConfigExport {
+  return config
+}
+
+export async function resolveConfig(
+  configExport: VocsConfigExport,
+  env: VocsConfigEnv = { command: 'serve', mode: 'development' },
+): Promise<ParsedConfig> {
+  const rawConfig =
+    typeof configExport === 'function' ? await configExport(env) : await configExport
+
+  const {
+    aiCta = true,
+    blogDir = './pages/blog',
+    cacheDir,
+    checkDeadlinks = true,
+    head,
+    ogImageUrl,
+    rootDir = 'docs',
+    title = 'Docs',
+    titleTemplate = `%s – ${title}`,
+    ...config
+  } = rawConfig
+
   const basePath = parseBasePath(config.basePath)
   return {
     aiCta,
@@ -241,13 +278,11 @@ export async function defineConfig<colorScheme extends ColorScheme = undefined>(
     socials: parseSocials(config.socials ?? []),
     topNav: parseTopNav(config.topNav ?? []),
     theme: await parseTheme(config.theme ?? ({} as Theme)),
-    vite: parseViteConfig(config.vite, {
-      basePath,
-    }),
+    vite: parseViteConfig(config.vite, { basePath }),
   }
 }
 
-export const getDefaultConfig = async () => await defineConfig({})
+export const getDefaultConfig = async (env?: VocsConfigEnv) => await resolveConfig({}, env)
 
 //////////////////////////////////////////////////////
 // Parsers
