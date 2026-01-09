@@ -5,9 +5,11 @@ import { Menu } from '@base-ui/react/menu'
 import { cx } from 'cva'
 import * as React from 'react'
 import { Link, useRouter } from 'waku'
+import LucideArrowUpRight from '~icons/lucide/arrow-up-right'
 import LucideChevronDown from '~icons/lucide/chevron-down'
 import LucideTextAlignJustify from '~icons/lucide/text-align-justify'
 import LucideX from '~icons/lucide/x'
+import * as Path from '../../internal/path.js'
 import * as TopNav_core from '../../internal/topNav.js'
 import { useConfig } from '../useConfig.js'
 import * as Sidebar from './Sidebar.js'
@@ -120,36 +122,62 @@ function MobileTopNav(props: MobileTopNav.Props) {
                       <Menu.GroupLabel className="vocs:flex vocs:items-center vocs:justify-between vocs:px-2 vocs:py-1.5 vocs:text-primary/80 vocs:text-[14px] vocs:font-[450]">
                         {item.text}
                       </Menu.GroupLabel>
-                      {item.items.map((child, j) => (
-                        <Menu.RadioItem
-                          className="vocs:flex vocs:items-center vocs:justify-between vocs:hover:text-heading vocs:ml-2 vocs:pl-2 vocs:pr-2 vocs:py-1 vocs:text-primary/80 vocs:data-checked:bg-accenta3 vocs:data-checked:text-accent8! vocs:rounded-md vocs:text-[13px] vocs:font-[450] vocs:cursor-pointer"
-                          // biome-ignore lint/suspicious/noArrayIndexKey: _
-                          key={j}
-                          value={child.link}
-                          onClick={handleNavigate}
-                          // @ts-expect-error
-                          // biome-ignore lint/style/noNonNullAssertion: _
-                          render={<Link to={child.link!} unstable_prefetchOnView />}
-                        >
-                          {child.text}
-                        </Menu.RadioItem>
-                      ))}
+                      {item.items.map((child, j) => {
+                        const isExternal = Path.isExternal(child.link)
+                        return (
+                          <Menu.RadioItem
+                            className="vocs:flex vocs:items-center vocs:gap-1 vocs:hover:text-heading vocs:ml-2 vocs:pl-2 vocs:pr-2 vocs:py-1 vocs:text-primary/80 vocs:data-checked:bg-accenta3 vocs:data-checked:text-accent8! vocs:rounded-md vocs:text-[13px] vocs:font-[450] vocs:cursor-pointer"
+                            // biome-ignore lint/suspicious/noArrayIndexKey: _
+                            key={j}
+                            value={child.link}
+                            onClick={handleNavigate}
+                            render={
+                              isExternal ? (
+                                // biome-ignore lint/style/noNonNullAssertion: _
+                                // biome-ignore lint/a11y/useAnchorContent: content provided by Menu.RadioItem
+                                <a href={child.link!} target="_blank" rel="noopener noreferrer" />
+                              ) : (
+                                // @ts-expect-error
+                                // biome-ignore lint/style/noNonNullAssertion: _
+                                <Link to={child.link!} unstable_prefetchOnView />
+                              )
+                            }
+                          >
+                            {child.text}
+                            {isExternal && (
+                              <LucideArrowUpRight className="vocs:size-3 vocs:text-secondary/60" />
+                            )}
+                          </Menu.RadioItem>
+                        )
+                      })}
                     </Menu.Group>
                   )
                 }
 
+                const isExternal = Path.isExternal(item.link)
                 return (
                   <Menu.RadioItem
-                    className="vocs:flex vocs:items-center vocs:justify-between vocs:hover:text-heading vocs:px-2 vocs:py-1.5 vocs:text-primary/80 vocs:data-checked:bg-accenta3 vocs:data-checked:text-accent8! vocs:rounded-md vocs:text-[14px] vocs:font-[450] vocs:cursor-pointer"
+                    className="vocs:flex vocs:items-center vocs:gap-1 vocs:hover:text-heading vocs:px-2 vocs:py-1.5 vocs:text-primary/80 vocs:data-checked:bg-accenta3 vocs:data-checked:text-accent8! vocs:rounded-md vocs:text-[14px] vocs:font-[450] vocs:cursor-pointer"
                     // biome-ignore lint/suspicious/noArrayIndexKey: _
                     key={i}
                     value={item.link}
                     onClick={handleNavigate}
-                    // @ts-expect-error
-                    // biome-ignore lint/style/noNonNullAssertion: _
-                    render={<Link to={item.link!} unstable_prefetchOnView />}
+                    render={
+                      isExternal ? (
+                        // biome-ignore lint/style/noNonNullAssertion: _
+                        // biome-ignore lint/a11y/useAnchorContent: content provided by Menu.RadioItem
+                        <a href={item.link!} target="_blank" rel="noopener noreferrer" />
+                      ) : (
+                        // @ts-expect-error
+                        // biome-ignore lint/style/noNonNullAssertion: _
+                        <Link to={item.link!} unstable_prefetchOnView />
+                      )
+                    }
                   >
                     {item.text}
+                    {isExternal && (
+                      <LucideArrowUpRight className="vocs:size-3 vocs:text-secondary/60" />
+                    )}
                   </Menu.RadioItem>
                 )
               })}

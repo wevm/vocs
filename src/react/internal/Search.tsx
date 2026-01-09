@@ -5,12 +5,14 @@ import { cx } from 'cva'
 import MiniSearch from 'minisearch'
 import { useQueryState } from 'nuqs'
 import * as React from 'react'
-import { Link, useRouter } from 'waku'
+import { useRouter } from 'waku'
 import LucideArrowRight from '~icons/lucide/arrow-right'
 import LucideFile from '~icons/lucide/file'
 import LucideHash from '~icons/lucide/hash'
 import LucideSearch from '~icons/lucide/search'
+import * as Path from '../../internal/path.js'
 import { searchFields, storeFields, tokenize } from '../../internal/search.client.js'
+import { Link } from '../Link.js'
 import { useConfig } from '../useConfig.js'
 import { DialogTrigger } from './DialogTrigger.js'
 
@@ -21,7 +23,6 @@ type SearchResult = {
   category: string
   href: string
   id: string
-  isPage: boolean
   match: Record<string, string[]>
   queryTerms: string[]
   score: number
@@ -29,6 +30,7 @@ type SearchResult = {
   text: string
   title: string
   titles: string[]
+  type: 'page' | 'section' | 'nav'
 }
 
 type SearchState = {
@@ -62,7 +64,7 @@ export function Search(props: Search.Props) {
     const q = query.toLowerCase().trim()
     const result = search.results.find((r) => r.title.toLowerCase().startsWith(q))
 
-    if (result?.isPage) return result
+    if (result?.type === 'page') return result
     return null
   }, [query, search.results])
 
@@ -181,7 +183,8 @@ export function Search(props: Search.Props) {
           const item = items[search.selectedIndex]
           if (item) {
             handleResultClick(item)
-            router.push(item.href)
+            if (Path.isExternal(item.href)) window.open(item.href, '_blank', 'noopener,noreferrer')
+            else router.push(item.href)
           }
           break
         }
@@ -266,6 +269,16 @@ export function Search(props: Search.Props) {
                   )}
                   {displayedResults.map((result, i) => {
                     const index = jumpToResult ? i + 1 : i
+                    if (result.type === 'nav')
+                      return (
+                        <JumpTo
+                          key={result.id}
+                          onClick={() => handleResultClick(result)}
+                          queryTerms={query.trim() ? query.trim().split(/\s+/) : []}
+                          result={result}
+                          selected={index === search.selectedIndex}
+                        />
+                      )
                     return (
                       <Result
                         key={result.id}
@@ -328,7 +341,7 @@ export declare namespace Search {
 function Result(props: Result.Props) {
   const { queryTerms, onClick, result, selected } = props
 
-  const Icon = result.isPage ? LucideFile : LucideHash
+  const Icon = result.type === 'page' ? LucideFile : LucideHash
   const breadcrumb = [result.category, ...result.titles].filter(Boolean).join(' › ') || null
 
   return (
@@ -340,12 +353,7 @@ function Result(props: Result.Props) {
       // biome-ignore lint/a11y/noNoninteractiveElementToInteractiveRole: _
       role="option"
     >
-      <Link
-        className="vocs:flex vocs:items-start vocs:gap-3"
-        onClick={onClick}
-        to={result.href}
-        unstable_prefetchOnView
-      >
+      <Link className="vocs:flex vocs:items-start vocs:gap-3" onClick={onClick} to={result.href}>
         <Icon className="vocs:size-4 vocs:mt-0.5 vocs:shrink-0 vocs:text-secondary vocs:group-data-[selected=true]:text-accent7" />
         <div className="vocs:flex vocs:flex-col vocs:gap-0.5 vocs:min-w-0">
           {breadcrumb && (
@@ -395,12 +403,7 @@ function JumpTo(props: JumpTo.Props) {
       // biome-ignore lint/a11y/noNoninteractiveElementToInteractiveRole: _
       role="option"
     >
-      <Link
-        className="vocs:flex vocs:items-center vocs:gap-2"
-        onClick={onClick}
-        to={result.href}
-        unstable_prefetchOnView
-      >
+      <Link className="vocs:flex vocs:items-center vocs:gap-2" onClick={onClick} to={result.href}>
         <LucideArrowRight className="vocs:size-4 vocs:shrink-0 vocs:mr-1 vocs:text-secondary vocs:group-data-[selected=true]:text-accent7" />
         <span className="vocs:text-secondary">Jump to</span>
         <span className="vocs:text-heading vocs:font-medium">

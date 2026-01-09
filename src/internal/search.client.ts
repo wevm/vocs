@@ -2,12 +2,12 @@ export const searchFields = ['category', 'subtitle', 'text', 'title', 'titles'] 
 export const storeFields = [
   'category',
   'href',
-  'isPage',
   'searchPriority',
   'subtitle',
   'text',
   'title',
   'titles',
+  'type',
 ] as const
 
 /**

@@ -837,12 +837,12 @@ describe('Search fields and storeFields', () => {
       [
         "category",
         "href",
-        "isPage",
         "searchPriority",
         "subtitle",
         "text",
         "title",
         "titles",
+        "type",
       ]
     `)
   })
@@ -919,13 +919,13 @@ describe('SearchIndex.fromSearchDocuments', () => {
       category: '',
       href: section.anchor ? `${href}#${section.anchor}` : href,
       id: `${id}#${section.anchor}`,
-      isPage: section.isPage,
       searchPriority,
       subtitle: section.subtitle,
       text: section.text,
       title: section.title,
       titles: section.titles,
-    }))
+      type: section.isPage ? 'page' : 'section',
+    })) satisfies SearchDocuments.Document[]
   }
 
   it('boosts documents with higher searchPriority', () => {
@@ -933,24 +933,24 @@ describe('SearchIndex.fromSearchDocuments', () => {
       category: '',
       href: '/config#configuration',
       id: '/docs/config.mdx#configuration',
-      isPage: true,
       searchPriority: 1,
       subtitle: '',
       text: ' Config setup guide.',
       title: 'Configuration',
       titles: [],
+      type: 'page',
     }
 
     const highPriorityDoc: SearchDocuments.Document = {
       category: '',
       href: '/advanced#configuration',
       id: '/docs/advanced.mdx#configuration',
-      isPage: true,
       searchPriority: 10,
       subtitle: '',
       text: ' Advanced configuration options.',
       title: 'Configuration',
       titles: [],
+      type: 'page',
     }
 
     // Add low priority first, high priority second
@@ -971,24 +971,24 @@ describe('SearchIndex.fromSearchDocuments', () => {
       category: '',
       href: '/getting-started',
       id: '/docs/getting-started.mdx#getting-started',
-      isPage: true,
       searchPriority: undefined,
       subtitle: '',
       text: ' Quick start guide.',
       title: 'Getting Started',
       titles: [],
+      type: 'page',
     }
 
     const deepDoc: SearchDocuments.Document = {
       category: '',
       href: '/tempo/guides/getting-started',
       id: '/docs/tempo/guides/getting-started.mdx#getting-started',
-      isPage: true,
       searchPriority: undefined,
       subtitle: '',
       text: ' Tempo quick start guide.',
       title: 'Getting Started',
       titles: [],
+      type: 'page',
     }
 
     const index = SearchIndex.fromSearchDocuments([deepDoc, shallowDoc])
@@ -1006,24 +1006,24 @@ describe('SearchIndex.fromSearchDocuments', () => {
       category: '',
       href: '/config',
       id: '/docs/config.mdx#config',
-      isPage: true,
       searchPriority: 1,
       subtitle: '',
       text: ' Configuration guide.',
       title: 'Config',
       titles: [],
+      type: 'page',
     }
 
     const deepHighPriority: SearchDocuments.Document = {
       category: '',
       href: '/api/v2/config',
       id: '/docs/api/v2/config.mdx#config',
-      isPage: true,
       searchPriority: 5,
       subtitle: '',
       text: ' API v2 configuration.',
       title: 'Config',
       titles: [],
+      type: 'page',
     }
 
     const index = SearchIndex.fromSearchDocuments([shallowLowPriority, deepHighPriority])
@@ -1068,7 +1068,6 @@ Authentication is mentioned here too.
           "category": "",
           "href": "/auth#authentication",
           "id": "/docs/auth.mdx#authentication",
-          "isPage": true,
           "match": {
             "authentication": [
               "text",
@@ -1086,12 +1085,12 @@ Authentication is mentioned here too.
           "text": " This page covers authentication.",
           "title": "Authentication",
           "titles": [],
+          "type": "page",
         },
         {
           "category": "",
           "href": "/other#other-topic",
           "id": "/docs/other.mdx#other-topic",
-          "isPage": true,
           "match": {
             "authentication": [
               "text",
@@ -1108,6 +1107,7 @@ Authentication is mentioned here too.
           "text": " Authentication is mentioned here too.",
           "title": "Other Topic",
           "titles": [],
+          "type": "page",
         },
       ]
     `)
@@ -1146,7 +1146,6 @@ Creates a new user.
           "category": "",
           "href": "/api#authentication",
           "id": "/docs/api.mdx#authentication",
-          "isPage": false,
           "match": {
             "authentication": [
               "text",
@@ -1166,6 +1165,7 @@ Creates a new user.
           "titles": [
             "API Reference",
           ],
+          "type": "section",
         },
       ]
     `)
@@ -1176,7 +1176,6 @@ Creates a new user.
           "category": "",
           "href": "/api#get-users",
           "id": "/docs/api.mdx#get-users",
-          "isPage": false,
           "match": {
             "users": [
               "text",
@@ -1197,12 +1196,12 @@ Creates a new user.
             "API Reference",
             "Endpoints",
           ],
+          "type": "section",
         },
         {
           "category": "",
           "href": "/api#post-users",
           "id": "/docs/api.mdx#post-users",
-          "isPage": false,
           "match": {
             "user": [
               "text",
@@ -1226,6 +1225,7 @@ Creates a new user.
             "API Reference",
             "Endpoints",
           ],
+          "type": "section",
         },
       ]
     `)
@@ -1236,7 +1236,6 @@ Creates a new user.
           "category": "",
           "href": "/api#authentication",
           "id": "/docs/api.mdx#authentication",
-          "isPage": false,
           "match": {
             "jwt": [
               "text",
@@ -1255,6 +1254,7 @@ Creates a new user.
           "titles": [
             "API Reference",
           ],
+          "type": "section",
         },
       ]
     `)
@@ -1281,7 +1281,6 @@ Use \`getUserById\` to fetch a user.
           "category": "",
           "href": "/api#api",
           "id": "/docs/api.mdx#api",
-          "isPage": true,
           "match": {
             "use": [
               "text",
@@ -1307,6 +1306,7 @@ Use \`getUserById\` to fetch a user.
       Use getUserById to fetch a user.",
           "title": "API",
           "titles": [],
+          "type": "page",
         },
       ]
     `)
@@ -1318,7 +1318,6 @@ Use \`getUserById\` to fetch a user.
           "category": "",
           "href": "/api#api",
           "id": "/docs/api.mdx#api",
-          "isPage": true,
           "match": {
             "create": [
               "text",
@@ -1340,6 +1339,7 @@ Use \`getUserById\` to fetch a user.
       Use getUserById to fetch a user.",
           "title": "API",
           "titles": [],
+          "type": "page",
         },
       ]
     `)
@@ -1365,7 +1365,6 @@ Configure the application settings.
           "category": "",
           "href": "/test#configuration",
           "id": "/docs/test.mdx#configuration",
-          "isPage": true,
           "match": {
             "configuration": [
               "title",
@@ -1382,6 +1381,7 @@ Configure the application settings.
           "text": " Configure the application settings.",
           "title": "Configuration",
           "titles": [],
+          "type": "page",
         },
       ]
     `)
@@ -1407,7 +1407,6 @@ Install the package.
           "category": "",
           "href": "/test#installation",
           "id": "/docs/test.mdx#installation",
-          "isPage": true,
           "match": {
             "install": [
               "text",
@@ -1428,6 +1427,7 @@ Install the package.
           "text": " Install the package.",
           "title": "Installation",
           "titles": [],
+          "type": "page",
         },
       ]
     `)
@@ -1451,5 +1451,50 @@ Use \`@noErrorsCutted\` to cut output.
     const results = index.search('@noErr', searchOptions)
     expect(results.length).toBeGreaterThan(0)
     expect(results[0]?.['text']).toContain('noErrors')
+  })
+})
+
+describe('SearchDocuments.extractExternalLinks', () => {
+  it('extracts external links from sidebar', () => {
+    const testConfig = Config.define({
+      sidebar: {
+        '/': [
+          { text: 'Home', link: '/' },
+          {
+            text: 'Concepts',
+            collapsed: true,
+            items: [
+              { text: 'External Site', link: 'https://example.com' },
+              { text: 'Internal Page', link: '/internal' },
+            ],
+          },
+        ],
+      },
+    })
+
+    const docs = Search.SearchDocuments.extractExternalLinks(testConfig)
+    expect(docs).toHaveLength(1)
+    expect(docs[0]).toMatchObject({
+      title: 'External Site',
+      href: 'https://example.com',
+      type: 'nav',
+    })
+  })
+
+  it('extracts external links from topNav', () => {
+    const testConfig = Config.define({
+      topNav: [
+        { text: 'Docs', link: '/' },
+        { text: 'GitHub', link: 'https://github.com/example' },
+      ],
+    })
+
+    const docs = Search.SearchDocuments.extractExternalLinks(testConfig)
+    expect(docs).toHaveLength(1)
+    expect(docs[0]).toMatchObject({
+      title: 'GitHub',
+      href: 'https://github.com/example',
+      type: 'nav',
+    })
   })
 })

@@ -32,6 +32,25 @@ export type ParsedItem = Omit<Item, 'items'> & {
   items?: readonly Omit<ParsedItem, 'items'>[] | undefined
 }
 
+export type FlatItem = {
+  link: string
+  text: string
+  /** Parent text for items inside a dropdown */
+  parent?: string | undefined
+}
+
+export function flatten(topNav: readonly Item[] | undefined): FlatItem[] {
+  if (!topNav) return []
+  const result: FlatItem[] = []
+  for (const item of topNav) {
+    if ('items' in item && item.items) {
+      for (const child of item.items)
+        if (child.link) result.push({ link: child.link, text: child.text, parent: item.text })
+    } else if ('link' in item && item.link) result.push({ link: item.link, text: item.text })
+  }
+  return result
+}
+
 export function parse(topNav: readonly Item[] | undefined, path: string | undefined): ParsedItem[] {
   if (!topNav) return []
 

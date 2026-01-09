@@ -1,9 +1,12 @@
 import { NavigationMenu } from '@base-ui/react/navigation-menu'
 import { cx } from 'cva'
 import * as React from 'react'
-import { Link, useRouter } from 'waku'
+import { useRouter } from 'waku'
+import LucideArrowUpRight from '~icons/lucide/arrow-up-right'
 import LucideChevronDown from '~icons/lucide/chevron-down'
+import * as Path from '../../internal/path.js'
 import * as TopNav_core from '../../internal/topNav.js'
+import { Link } from '../Link.js'
 import { useConfig } from '../useConfig.js'
 
 export function TopNav(props: TopNav.Props) {
@@ -40,6 +43,8 @@ export function TopNav(props: TopNav.Props) {
 export function Item(props: Item.Props) {
   const { active, items, link, text } = props
 
+  const isExternal = Path.isExternal(link)
+
   if (items)
     return (
       <NavigationMenu.Item className="vocs:h-full">
@@ -50,19 +55,25 @@ export function Item(props: Item.Props) {
           </NavigationMenu.Icon>
         </NavigationMenu.Trigger>
         <NavigationMenu.Content className="vocs:flex vocs:flex-col">
-          {items.map((item, i) => (
-            <NavigationMenu.Link
-              className="vocs:flex vocs:items-center vocs:hover:text-heading vocs:px-2 vocs:py-1 vocs:text-primary/80 vocs:data-[v-active=true]:text-accent7 vocs:data-[v-active=true]:bg-accenta3 vocs:rounded-md vocs:text-[14px] vocs:font-[450]"
-              data-v-active={item.active}
-              // biome-ignore lint/suspicious/noArrayIndexKey: _
-              key={i}
-              // @ts-expect-error
-              // biome-ignore lint/style/noNonNullAssertion: _
-              render={<Link to={item.link!} unstable_prefetchOnView />}
-            >
-              {item.text}
-            </NavigationMenu.Link>
-          ))}
+          {items.map((item, i) => {
+            const itemIsExternal = Path.isExternal(item.link)
+            return (
+              <NavigationMenu.Link
+                className="vocs:flex vocs:items-center vocs:gap-1 vocs:hover:text-heading vocs:px-2 vocs:py-1 vocs:text-primary/80 vocs:data-[v-active=true]:text-accent7 vocs:data-[v-active=true]:bg-accenta3 vocs:rounded-md vocs:text-[14px] vocs:font-[450]"
+                data-v-active={item.active}
+                // biome-ignore lint/suspicious/noArrayIndexKey: _
+                key={i}
+                // @ts-expect-error
+                // biome-ignore lint/style/noNonNullAssertion: _
+                render={<Link to={item.link!} />}
+              >
+                {item.text}
+                {itemIsExternal && (
+                  <LucideArrowUpRight className="vocs:size-3 vocs:text-secondary/60" />
+                )}
+              </NavigationMenu.Link>
+            )
+          })}
         </NavigationMenu.Content>
       </NavigationMenu.Item>
     )
@@ -74,10 +85,12 @@ export function Item(props: Item.Props) {
       <NavigationMenu.Link
         className={Item.className}
         data-v-active={active}
-        // @ts-expect-error
-        render={<Link to={link} unstable_prefetchOnView />}
+        render={<Link to={link}>{null}</Link>}
       >
         {text}
+        {isExternal && (
+          <LucideArrowUpRight className="vocs:ml-1 vocs:size-3.5 vocs:text-secondary/60" />
+        )}
       </NavigationMenu.Link>
     </NavigationMenu.Item>
   )

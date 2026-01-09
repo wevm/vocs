@@ -14,8 +14,11 @@ import { unified } from 'unified'
 import * as UnistUtil from 'unist-util-visit'
 import * as yaml from 'yaml'
 import type * as Config from './config.js'
+import * as Path from './path.js'
 import { searchFields, storeFields, tokenize } from './search.client.js'
+import * as Sidebar from './sidebar.js'
 import * as TaskRunner from './task-runner.js'
+import * as TopNav from './topNav.js'
 
 export * from './search.client.js'
 
@@ -27,8 +30,6 @@ export namespace SearchDocuments {
     href: string
     /** Unique document ID (file path + anchor) */
     id: string
-    /** Whether this is the page root section (first heading) */
-    isPage: boolean
     /** Search priority (higher = more important, undefined = default) */
     searchPriority: number | undefined
     /** Subtitle from heading (e.g., "# Title [Subtitle]") */
@@ -39,6 +40,8 @@ export namespace SearchDocuments {
     title: string
     /** Parent titles for breadcrumb context */
     titles: string[]
+    /** Document type: 'page' | 'section' | 'nav' */
+    type: 'page' | 'section' | 'nav'
   }
 
   /**
@@ -72,19 +75,70 @@ export namespace SearchDocuments {
           category,
           href: section.anchor ? `${href}#${section.anchor}` : href,
           id: `${filePath}#${section.anchor}`,
-          isPage: section.isPage,
           searchPriority,
           subtitle: section.subtitle,
           text: section.text,
           title: section.title,
           titles: section.titles,
-        }))
+          type: section.isPage ? 'page' : 'section',
+        })) satisfies Document[]
 
         allDocuments.push(...documents)
       })
 
     await taskRunner.wait()
+
+    const externalLinks = extractExternalLinks(config)
+    allDocuments.push(...externalLinks)
+
     return allDocuments
+  }
+
+  export function extractExternalLinks(config: Config.Config): Document[] {
+    const documents: Document[] = []
+    const seenHrefs = new Set<string>()
+
+    for (const item of TopNav.flatten(config.topNav)) {
+      if (!Path.isExternal(item.link) || seenHrefs.has(item.link)) continue
+      seenHrefs.add(item.link)
+      documents.push({
+        category: item.parent ?? '',
+        href: item.link,
+        id: `nav:topnav:${item.link}`,
+        searchPriority: 2,
+        subtitle: '',
+        text: '',
+        title: item.text,
+        titles: item.parent ? [item.parent] : [],
+        type: 'nav',
+      })
+    }
+
+    if (config.sidebar) {
+      const sidebarItems = Array.isArray(config.sidebar)
+        ? config.sidebar
+        : Object.values(config.sidebar).flatMap((value) =>
+            Array.isArray(value) ? value : value.items,
+          )
+
+      for (const item of Sidebar.flatten(sidebarItems)) {
+        if (!item.link || !Path.isExternal(item.link) || seenHrefs.has(item.link)) continue
+        seenHrefs.add(item.link)
+        documents.push({
+          category: '',
+          href: item.link,
+          id: `nav:sidebar:${item.link}`,
+          searchPriority: 2,
+          subtitle: '',
+          text: '',
+          title: item.text ?? '',
+          titles: [],
+          type: 'nav',
+        })
+      }
+    }
+
+    return documents
   }
 
   /**
@@ -211,12 +265,12 @@ export namespace SearchIndex {
         category,
         href: section.anchor ? `${href}#${section.anchor}` : href,
         id,
-        isPage: section.isPage,
         searchPriority,
         subtitle: section.subtitle,
         text: section.text,
         title: section.title,
         titles: section.titles,
+        type: section.isPage ? 'page' : 'section',
       })
     }
 

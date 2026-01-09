@@ -3,6 +3,7 @@
 import { cx } from 'cva'
 import * as React from 'react'
 import { Link, useRouter } from 'waku'
+import LucideArrowUpRight from '~icons/lucide/arrow-up-right'
 import LucideChevronRight from '~icons/lucide/chevron-right'
 import * as Path from '../../internal/path.js'
 import * as Sidebar_core from '../../internal/sidebar.js'
@@ -54,7 +55,11 @@ function Item(props: Item.Props) {
   const { condensed = false, depth = 0, disabled, link, onNavigate, scrollRef, text } = props
 
   const { path } = useRouter()
-  const active = React.useMemo(() => Path.matches(path, link), [path, link])
+  const isExternal = Path.isExternal(link)
+  const active = React.useMemo(
+    () => (isExternal ? false : Path.matches(path, link)),
+    [path, link, isExternal],
+  )
 
   const itemRef = React.useRef<HTMLElement>(null)
   const listen = React.useRef(true)
@@ -73,7 +78,26 @@ function Item(props: Item.Props) {
     })
   }, [link, path, scrollRef])
 
-  if (link && !disabled)
+  if (link && !disabled) {
+    if (isExternal)
+      return (
+        <a
+          className={Item.className}
+          data-condensed={condensed && depth > 1}
+          data-link={true}
+          data-v-sidebar-item
+          href={link}
+          ref={itemRef as never}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={onNavigate}
+        >
+          <span className="vocs:inline-flex vocs:items-center vocs:gap-1">
+            {text}
+            <LucideArrowUpRight className="vocs:size-3" />
+          </span>
+        </a>
+      )
     return (
       <Link
         className={Item.className}
@@ -89,6 +113,7 @@ function Item(props: Item.Props) {
         {text}
       </Link>
     )
+  }
   return (
     <div
       aria-disabled={disabled}

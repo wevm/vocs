@@ -52,3 +52,8 @@ export function matches(pathname: string, target: string | undefined) {
   const [matcher] = compile(target, false, true)
   return pathname.match(matcher)
 }
+
+export function isExternal(url: string | undefined) {
+  if (!url) return false
+  return url.startsWith('http://') || url.startsWith('https://') || url.startsWith('//')
+}

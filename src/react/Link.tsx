@@ -1,12 +1,13 @@
 'use client'
 
 import { useRouter, Link as WakuLink } from 'waku'
+import * as Path from '../internal/path.js'
 
 export function Link(props: Link.Props) {
   const { path } = useRouter()
 
-  const isExternal = props.to?.match(/^(https?:\/\/|mailto:|tel:)/)
-  if (isExternal) return <a {...props} data-v-link target="_blank" rel="noopener noreferrer" />
+  if (Path.isExternal(props.to))
+    return <a {...props} data-v-link href={props.to} rel="noopener noreferrer" target="_blank" />
 
   const [before, after] = (props.to || '').split('#')
   const to = `${before ? before : path}${after ? `#${after}` : ''}`
@@ -17,6 +18,7 @@ export namespace Link {
   export type Props = {
     children: React.ReactNode
     className?: string | undefined
+    onClick?: React.MouseEventHandler | undefined
     to: string
   }
 }

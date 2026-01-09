@@ -23,6 +23,7 @@ export default defineConfig({
   topNav: [
     { text: 'Docs', link: '/' },
     { text: 'Sub', link: '/sub/links', match: '/sub' },
+    { text: 'External Link', link: 'https://viem.sh' },
     {
       text: 'Extensions',
       items: [
@@ -71,6 +72,7 @@ export default defineConfig({
         collapsed: false,
         items: [
           { text: 'Wallet Client', link: '/wallet-client' },
+          { text: 'External Link', link: 'https://viem.sh' },
           { text: 'Tempo Actions', link: '/tempo-actions' },
         ],
       },
