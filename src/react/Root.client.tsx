@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react'
 import { ErrorBoundary } from './internal/ErrorBoundary.client.js'
+import { NuqsAdapter } from './internal/NuqsAdapter.js'
 import { useConfig } from './useConfig.js'
 
 export function Root_client({ children }: { children: React.ReactNode }) {
@@ -17,5 +18,9 @@ export function Root_client({ children }: { children: React.ReactNode }) {
     }
   }, [accentColor, colorScheme])
 
-  return <ErrorBoundary>{children}</ErrorBoundary>
+  return (
+    <NuqsAdapter>
+      <ErrorBoundary>{children}</ErrorBoundary>
+    </NuqsAdapter>
+  )
 }

@@ -1,5 +1,5 @@
 import { Example } from '../components/Example'
-import { Cards } from 'vocs'
+import { Cards, Card, Tab, Tabs } from 'vocs'
 
 # Kitchen Sink [An MDX Playground for Vocs]
 
@@ -48,41 +48,91 @@ Strikethrough uses two tildes. ~~Scratch this.~~
 ## Cards
 
 <Cards>
-  <Cards.Card 
+  <Card 
     title="Configurable Fee Tokens" 
     description="Pay transaction fees with any USD-denominated TIP-20 token via automatic Fee AMM conversion."
     icon="lucide:link"
     to="/kitchen-sink"
   />
-  <Cards.Card 
+  <Card 
     title="Fee Sponsorship" 
     description="Sponsor gas fees for users, enabling feeless transaction experiences in your application."
     icon="lucide:shield-check"
     to="/kitchen-sink"
   />
-  <Cards.Card 
+  <Card 
     title="Batch Calls" 
     description="Batch multiple transactions together for higher throughput and simpler wallet management."
     icon="lucide:layers"
     to="/kitchen-sink"
   />
-  <Cards.Card 
+  <Card 
     title="Access Keys" 
     description="Delegate transaction signing capabilities to specific keys with customizable permissions."
     icon="lucide:key"
     to="/kitchen-sink"
   />
-  <Cards.Card 
+  <Card 
     title="Configurable Fee Tokens" 
     description="Pay transaction fees with any USD-denominated TIP-20 token via automatic Fee AMM conversion."
     to="/kitchen-sink"
   />
-  <Cards.Card 
+  <Card 
     title="Configurable Fee Tokens" 
     description="Pay transaction fees with any USD-denominated TIP-20 token via automatic Fee AMM conversion."
     to="/kitchen-sink"
   />
 </Cards>
+
+## Tabs
+
+<Tabs stateKey="library">
+  <Tab title="Viem">
+    Viem is a TypeScript interface for Ethereum.
+  </Tab>
+  <Tab title="Wagmi">
+    Wagmi is a collection of React hooks for Ethereum.
+  </Tab>
+  <Tab title="RLP">
+    RLP is a serialization format used in Ethereum.
+  </Tab>
+</Tabs>
+
+### Without State Key
+
+<Tabs>
+  <Tab title="npm">
+    ```bash
+    npm i vocs
+    ```
+  </Tab>
+  <Tab title="pnpm">
+    ```bash
+    pnpm i vocs
+    ```
+  </Tab>
+  <Tab title="bun">
+    ```bash
+    bun i vocs
+    ```
+  </Tab>
+</Tabs>
+
+### Synced Tabs
+
+These tabs share the same `stateKey="library"` and stay in sync:
+
+<Tabs stateKey="library">
+  <Tab title="Viem">
+    More Viem content here...
+  </Tab>
+  <Tab title="Wagmi">
+    More Wagmi content here...
+  </Tab>
+  <Tab title="RLP">
+    More RLP content here...
+  </Tab>
+</Tabs>
 
 ## Callouts
 

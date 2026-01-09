@@ -1,7 +1,7 @@
 import { defineConfig } from 'vocs/config'
 
 export default defineConfig({
-  baseUrl: 'https://vocs-next.vercel.app',
+  baseUrl: process.env.BASE_URL,
   checkDeadlinks: false,
   redirects: [
     { source: '/ks', destination: '/kitchen-sink' },

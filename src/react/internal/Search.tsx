@@ -3,6 +3,7 @@
 import { Dialog } from '@base-ui/react/dialog'
 import { cx } from 'cva'
 import MiniSearch from 'minisearch'
+import { useQueryState } from 'nuqs'
 import * as React from 'react'
 import { Link, useRouter } from 'waku'
 import LucideArrowRight from '~icons/lucide/arrow-right'
@@ -31,13 +32,11 @@ type SearchResult = {
 }
 
 type SearchState = {
-  query: string
   results: SearchResult[]
   selectedIndex: number
 }
 
 const initialSearchState: SearchState = {
-  query: '',
   results: [],
   selectedIndex: 0,
 }
@@ -47,6 +46,7 @@ export function Search(props: Search.Props) {
 
   const config = useConfig()
   const [open, setOpen] = React.useState(false)
+  const [query, setQuery] = useQueryState('q', { defaultValue: '' })
   const [search, setSearch] = React.useState<SearchState>(initialSearchState)
   const [recentSearches, setRecentSearches] = React.useState<SearchResult[]>([])
   const [index, setIndex] = React.useState<MiniSearch<SearchResult> | null>(null)
@@ -54,17 +54,17 @@ export function Search(props: Search.Props) {
   const listRef = React.useRef<HTMLUListElement>(null)
   const router = useRouter()
 
-  const displayedResults = search.query.trim() ? search.results : recentSearches
+  const displayedResults = query.trim() ? search.results : recentSearches
 
   const jumpToResult = React.useMemo(() => {
-    if (!search.query.trim() || search.results.length === 0) return null
+    if (!query.trim() || search.results.length === 0) return null
 
-    const query = search.query.toLowerCase().trim()
-    const result = search.results.find((r) => r.title.toLowerCase().startsWith(query))
+    const q = query.toLowerCase().trim()
+    const result = search.results.find((r) => r.title.toLowerCase().startsWith(q))
 
     if (result?.isPage) return result
     return null
-  }, [search.query, search.results])
+  }, [query, search.results])
 
   React.useEffect(() => {
     if (!open || index) return
@@ -91,16 +91,17 @@ export function Search(props: Search.Props) {
   }, [])
 
   React.useEffect(() => {
-    if (!index || !search.query.trim()) {
+    if (!index || !query.trim()) {
       setSearch((s) => (s.results.length ? { ...s, results: [], selectedIndex: 0 } : s))
       return
     }
 
-    const results = (
-      index.search(search.query, { ...config.search, tokenize }) as SearchResult[]
-    ).slice(0, 20)
+    const results = (index.search(query, { ...config.search, tokenize }) as SearchResult[]).slice(
+      0,
+      20,
+    )
     setSearch((s) => ({ ...s, results, selectedIndex: 0 }))
-  }, [search.query, index, config.search])
+  }, [query, index, config.search])
 
   React.useEffect(() => {
     if (disableKeyboardShortcut) return
@@ -116,10 +117,16 @@ export function Search(props: Search.Props) {
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [disableKeyboardShortcut])
 
-  const handleOpenChange = React.useCallback((nextOpen: boolean) => {
-    setOpen(nextOpen)
-    if (!nextOpen) setSearch(initialSearchState)
-  }, [])
+  const handleOpenChange = React.useCallback(
+    (nextOpen: boolean) => {
+      setOpen(nextOpen)
+      if (!nextOpen) {
+        setQuery(null)
+        setSearch(initialSearchState)
+      }
+    },
+    [setQuery],
+  )
 
   const saveRecentSearch = React.useCallback((result: SearchResult) => {
     setRecentSearches((prev) => {
@@ -138,9 +145,10 @@ export function Search(props: Search.Props) {
     (result: SearchResult) => {
       saveRecentSearch(result)
       setOpen(false)
+      setQuery(null)
       setSearch(initialSearchState)
     },
-    [saveRecentSearch],
+    [saveRecentSearch, setQuery],
   )
 
   const allItems = React.useMemo(() => {
@@ -224,26 +232,26 @@ export function Search(props: Search.Props) {
               // biome-ignore lint/a11y/noAutofocus: _
               autoFocus
               className="vocs:flex-1 vocs:bg-transparent vocs:text-heading vocs:placeholder:text-secondary vocs:outline-none vocs:text-base"
-              onChange={(e) => setSearch((s) => ({ ...s, query: e.target.value }))}
+              onChange={(e) => setQuery(e.target.value || null)}
               placeholder="Search..."
               role="combobox"
               spellCheck={false}
               type="text"
-              value={search.query}
+              value={query}
             />
           </div>
 
           <div className="vocs:flex-1 vocs:overflow-y-auto vocs:py-2">
             {allItems.length > 0 ? (
               <>
-                {!search.query.trim() && (
+                {!query.trim() && (
                   <div className="vocs:px-4 vocs:py-2 vocs:text-xs vocs:text-secondary vocs:font-medium">
                     Recent searches
                   </div>
                 )}
                 <ul
                   ref={listRef}
-                  aria-label={search.query.trim() ? 'Search results' : 'Recent searches'}
+                  aria-label={query.trim() ? 'Search results' : 'Recent searches'}
                   id="search-results"
                   // biome-ignore lint/a11y/noNoninteractiveElementToInteractiveRole: _
                   role="listbox"
@@ -251,7 +259,7 @@ export function Search(props: Search.Props) {
                   {jumpToResult && (
                     <JumpTo
                       onClick={() => handleResultClick(jumpToResult)}
-                      queryTerms={search.query.trim().split(/\s+/)}
+                      queryTerms={query.trim().split(/\s+/)}
                       result={jumpToResult}
                       selected={search.selectedIndex === 0}
                     />
@@ -261,7 +269,7 @@ export function Search(props: Search.Props) {
                     return (
                       <Result
                         key={result.id}
-                        queryTerms={search.query.trim() ? search.query.trim().split(/\s+/) : []}
+                        queryTerms={query.trim() ? query.trim().split(/\s+/) : []}
                         onClick={() => handleResultClick(result)}
                         result={result}
                         selected={index === search.selectedIndex}
@@ -272,7 +280,7 @@ export function Search(props: Search.Props) {
               </>
             ) : (
               <div className="vocs:px-4 vocs:py-8 vocs:text-center vocs:text-secondary">
-                {search.query.trim() ? 'No results found' : 'Start typing to search...'}
+                {query.trim() ? 'No results found' : 'Start typing to search...'}
               </div>
             )}
           </div>
