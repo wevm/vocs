@@ -56,6 +56,15 @@ importers:
       '@codesandbox/sandpack-react':
         specifier: ^2.20.0
         version: 2.20.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      '@iconify-json/lucide':
+        specifier: ^1.2.82
+        version: 1.2.82
+      '@iconify-json/simple-icons':
+        specifier: ^1.2.65
+        version: 1.2.65
+      '@iconify/types':
+        specifier: ^2.0.0
+        version: 2.0.0
       '@iconify/utils':
         specifier: ^3.1.0
         version: 3.1.0
@@ -271,12 +280,6 @@ importers:
         specifier: 'catalog:'
         version: 1.0.0-alpha.1(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(react-dom@19.2.3(react@19.2.3))(react-server-dom-webpack@19.2.3(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(webpack@5.104.1))(react@19.2.3)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
     devDependencies:
-      '@iconify-json/lucide':
-        specifier: ^1.2.82
-        version: 1.2.82
-      '@iconify-json/simple-icons':
-        specifier: ^1.2.65
-        version: 1.2.65
       '@types/node':
         specifier: 'catalog:'
         version: 25.0.3

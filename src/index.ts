@@ -1,5 +1,6 @@
 export { useRouter } from 'waku'
 export { Callout } from './react/Callout.js'
+export { Cards } from './react/Cards.js'
 export { Head } from './react/Head.js'
 export { Layout } from './react/Layout.js'
 export { Link } from './react/Link.js'

@@ -16,6 +16,7 @@ export function Link(props: Link.Props) {
 export namespace Link {
   export type Props = {
     children: React.ReactNode
+    className?: string | undefined
     to: string
   }
 }
