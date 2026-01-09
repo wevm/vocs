@@ -35,8 +35,7 @@ export async function resolveVocsConfig(parameters: ResolveVocsConfigParameters 
   const result = await (async () => {
     if (!ext) return
 
-    if (moduleExtensions.includes(ext)) 
-      return await loadConfigFromFile(env, configPath)
+    if (moduleExtensions.includes(ext)) return await loadConfigFromFile(env, configPath)
 
     if (staticExtensions.includes(ext)) {
       const file = readFileSync(configPath, 'utf8')

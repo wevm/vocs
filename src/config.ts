@@ -6,6 +6,7 @@ import type { PluggableList } from 'unified'
 import type { ConfigEnv, UserConfig } from 'vite'
 
 export type VocsConfigEnv = Pick<ConfigEnv, 'mode' | 'command' | 'isPreview'>
+
 import type { PageData } from './app/hooks/usePageData.js'
 import type {
   borderRadiusVars,
