@@ -49,7 +49,7 @@ export function Head() {
       <script
         // biome-ignore lint/security/noDangerouslySetInnerHtml: blocking script to prevent FOUC
         dangerouslySetInnerHTML={{
-          __html: `(function(){try{var t=localStorage.getItem('vocs-theme');if(t==='light'||t==='dark')document.documentElement.style.colorScheme=t}catch(e){}})()`,
+          __html: `(function(){try{var t=localStorage.getItem('vocs-theme');if(t==='light'||t==='dark'){document.documentElement.style.colorScheme=t}else if(window.matchMedia('(prefers-color-scheme:dark)').matches){document.documentElement.style.colorScheme='dark'}else if(window.matchMedia('(prefers-color-scheme:light)').matches){document.documentElement.style.colorScheme='light'}}catch(e){}})()`,
         }}
       />
 
