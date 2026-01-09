@@ -1,4 +1,4 @@
-import './globals.d.ts'
+/// <reference types="./globals.d.ts" />
 
 export {
   type Config,
