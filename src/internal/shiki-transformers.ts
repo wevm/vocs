@@ -149,8 +149,8 @@ export function title(): ShikiTransformer {
  * Physical files use `~` prefix to indicate root-relative paths.
  */
 export function notationInclude(options: notationInclude.Options): ShikiTransformer {
-  const { rootDir } = options
-  const getSource = Snippets.createPhysicalSourceGetter({ rootDir })
+  const { srcDir, rootDir } = options
+  const getSource = Snippets.createPhysicalSourceGetter({ srcDir, rootDir })
 
   return {
     name: 'vocs:notation-include',
@@ -163,5 +163,5 @@ export function notationInclude(options: notationInclude.Options): ShikiTransfor
 }
 
 export declare namespace notationInclude {
-  type Options = { rootDir: string }
+  type Options = { srcDir: string; rootDir: string }
 }

@@ -85,7 +85,8 @@ export function Item(props: Item.Props) {
       <NavigationMenu.Link
         className={Item.className}
         data-v-active={active}
-        render={<Link to={link}>{null}</Link>}
+        // @ts-expect-error
+        render={<Link to={link} />}
       >
         {text}
         {isExternal && (

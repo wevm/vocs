@@ -42,7 +42,7 @@ export function getCompileOptions(
   rehypePlugins: PluggableList
   recmaPlugins: PluggableList
 } {
-  const { cacheDir, codeHighlight, markdown, rootDir, twoslash } = config
+  const { cacheDir, codeHighlight, markdown, rootDir, srcDir, twoslash } = config
   const { jsxImportSource = 'react' } = markdown ?? {}
 
   const { recmaPlugins, rehypePlugins, remarkPlugins } = (() => {
@@ -62,7 +62,7 @@ export function getCompileOptions(
       return {
         rehypePlugins: [
           rehypeAutolinkHeadings,
-          rehypeShiki({ ...codeHighlight, cacheDir, rootDir, twoslash }),
+          rehypeShiki({ ...codeHighlight, cacheDir, rootDir, srcDir, twoslash }),
           rehypeSlug,
           ...(markdown?.rehypePlugins ?? []),
           rehypeCodeInLink,
@@ -285,7 +285,7 @@ export function remarkVocsScope() {
 export function rehypeShiki(
   options: ExactPartial<rehypeShiki.Options> = {},
 ): [typeof shiki, RehypeShikiOptions] {
-  const { cacheDir, rootDir, themes, twoslash = true } = options
+  const { cacheDir, srcDir, rootDir, themes, twoslash = true } = options
   return [
     shiki,
     {
@@ -297,7 +297,7 @@ export function rehypeShiki(
       themes,
       // TODO: infer `langs` for faster cold start.
       transformers: [
-        rootDir ? ShikiTransformers.notationInclude({ rootDir }) : undefined,
+        rootDir && srcDir ? ShikiTransformers.notationInclude({ srcDir, rootDir }) : undefined,
         twoslash
           ? ShikiTransformers.twoslash(
               typeof twoslash === 'object' ? { ...twoslash, cacheDir } : {},
@@ -323,6 +323,7 @@ export declare namespace rehypeShiki {
     UnionOmit<CodeOptionsMultipleThemes<BuiltinTheme>, 'defaultColor'> & {
       cacheDir?: string | undefined
       rootDir?: string | undefined
+      srcDir?: string | undefined
       twoslash?: ShikiTransformers.twoslash.Options | false | undefined
     }
 }

@@ -141,7 +141,7 @@ function stripRegionMarkers(code: string): string {
 export function createPhysicalSourceGetter(
   options: createPhysicalSourceGetter.Options,
 ): createPhysicalSourceGetter.ReturnType {
-  const { rootDir } = options
+  const { srcDir, rootDir } = options
   const cache = new Map<string, string>()
 
   return (fileName: string) => {
@@ -150,7 +150,7 @@ export function createPhysicalSourceGetter(
     const cached = cache.get(fileName)
     if (cached !== undefined) return cached
 
-    const filePath = path.resolve(rootDir, fileName.replace('~', '.'))
+    const filePath = path.resolve(rootDir, srcDir, fileName.replace('~', '.'))
     try {
       const content = fs.readFileSync(filePath, 'utf-8').replace(/\n$/, '')
       cache.set(fileName, content)
@@ -162,7 +162,7 @@ export function createPhysicalSourceGetter(
 }
 
 export declare namespace createPhysicalSourceGetter {
-  type Options = { rootDir: string }
+  type Options = { srcDir: string; rootDir: string }
   type ReturnType = (fileName: string) => string | undefined
 }
 

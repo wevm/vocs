@@ -13,7 +13,7 @@ export const components: MDXComponents = {
   a(props: React.ComponentProps<'a'> & { children: React.ReactNode }) {
     // TODO: slugs (autolink), ids (#)
     // biome-ignore lint/style/noNonNullAssertion: _
-    return <Link {...props} to={props.href!} />
+    return <Link {...props} data-v-link data-v to={props.href!} />
   },
   aside(
     props: React.PropsWithChildren<

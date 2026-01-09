@@ -148,7 +148,7 @@ export function Main(props: Main.Props) {
       </div> */}
 
       <div
-        className="vocs:fixed vocs:overflow-y-auto vocs:w-gutter vocs:py-content-py vocs:pb-20 vocs:h-full vocs:right-0 vocs:top-topNav vocs:z-10 vocs:max-[1376px]:hidden"
+        className="vocs:fixed vocs:overflow-y-auto vocs:w-gutter vocs:py-content-py vocs:pb-20 vocs:h-full vocs:right-0 vocs:top-topNav vocs:max-[1376px]:hidden"
         data-v-gutter-right
       >
         <div className="vocs:flex vocs:flex-col vocs:gap-2" data-v-outline-container>
