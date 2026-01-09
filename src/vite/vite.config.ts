@@ -18,8 +18,8 @@ import { virtualRoutes } from './plugins/virtual-routes.js'
 import { virtualStyles } from './plugins/virtual-styles.js'
 import { resolveVocsConfig } from './utils/resolveVocsConfig.js'
 
-export default defineConfig(async () => {
-  const { config } = await resolveVocsConfig()
+export default defineConfig(async (env) => {
+  const { config } = await resolveVocsConfig(env)
   const viteConfig = config.vite ?? {}
   const hasReact = await hasReactPlugin(viteConfig.plugins ?? [])
 
