@@ -4,7 +4,7 @@ import * as React from 'react'
 import { Link } from 'waku'
 import LucideSearch from '~icons/lucide/search'
 
-import * as AskAi from './internal/AskAi.js'
+// import * as AskAi from './internal/AskAi.js'
 import * as EditLink from './internal/EditLink.client.js'
 import * as LastUpdated from './internal/LastUpdated.client.js'
 import * as MobileNav from './internal/MobileNav.js'
