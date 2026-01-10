@@ -55,18 +55,18 @@ export function router(
    */
   pages: { [file: string]: () => Promise<unknown> },
   options: {
-    /** e.g. `"api"` will detect pages in `src/pages/api`. */
+    /** e.g. `"_api"` will detect pages in `src/pages/_api`. */
     apiDir: string
     /** e.g. `"_slices"` will detect slices in `src/pages/_slices`. */
     slicesDir: string
   } = {
-    apiDir: 'api',
+    apiDir: '_api',
     slicesDir: '_slices',
   },
 ): Pages {
   return wrapPages(
     createPages(async ({ createPage, createLayout, createRoot, createApi, createSlice }) => {
-      const defaultFiles = import.meta.glob(`../routes/**/*.{tsx,js}`)
+      const defaultFiles = import.meta.glob(`../routes/**/*.{tsx,ts,js}`)
       const defaultPages = Object.fromEntries(
         Object.entries(defaultFiles).map(([file, module]) => [
           file.replace('../routes', '.'),
@@ -148,39 +148,10 @@ export function router(
           GET?: (req: Request) => Promise<Response>
         }
         const config = await mod.getConfig?.()
-        if (typeof mod.default === 'object' && 'fetch' in mod.default) {
-          createApi({
-            path: pathItems.join('/'),
-            render: 'dynamic',
-            handlers: {
-              all: mod.default.fetch,
-            },
-          })
-        } else if (pathItems.at(-1) === '[path]') {
-          throw new Error(
-            'Page file cannot be named [path]. This will conflict with the path prop of the page component.',
-          )
-        } else if (pathItems.at(0) === options.slicesDir) {
-          createSlice({
-            component: mod.default,
-            render: 'static',
-            id: pathItems.slice(1).join('/'),
-            ...config,
-          })
-        } else if (pathItems.at(-1) === '_layout') {
-          createLayout({
-            path,
-            component: mod.default,
-            render: 'static',
-            ...config,
-          })
-        } else if (pathItems.at(-1) === '_root') {
-          createRoot({
-            component: mod.default,
-            render: 'static',
-            ...config,
-          })
-        } else if (METHODS.some((method) => mod[method as keyof typeof mod])) {
+
+        if (pathItems.at(0) === options.apiDir) {
+          // Strip the apiDir prefix from the path (e.g., _api/chat -> chat)
+          const apiPath = pathItems.slice(1).join('/')
           if (config?.render === 'static') {
             if (Object.keys(mod).length !== 2 || !mod.GET) {
               console.warn(
@@ -189,11 +160,19 @@ export function router(
             }
             createApi({
               ...config,
-              path: pathItems.join('/'),
+              path: apiPath,
               render: 'static',
               method: 'GET',
               // biome-ignore lint/style/noNonNullAssertion: _
               handler: mod.GET!,
+            })
+          } else if (typeof mod.default === 'object' && 'fetch' in mod.default) {
+            createApi({
+              path: apiPath,
+              render: 'dynamic',
+              handlers: {
+                all: mod.default.fetch,
+              },
             })
           } else {
             const validMethods = new Set(METHODS)
@@ -218,11 +197,37 @@ export function router(
               }),
             )
             createApi({
-              path: pathItems.join('/'),
+              path: apiPath,
               render: 'dynamic',
               handlers,
             })
           }
+        } else if (pathItems.at(-1) === '[path]') {
+          throw new Error(
+            'Page file cannot be named [path]. This will conflict with the path prop of the page component.',
+          )
+        } else if (typeof mod.default === 'object' && 'fetch' in mod.default) {
+          throw new Error('API routes must be defined in the _api directory.')
+        } else if (pathItems.at(0) === options.slicesDir) {
+          createSlice({
+            component: mod.default,
+            render: 'static',
+            id: pathItems.slice(1).join('/'),
+            ...config,
+          })
+        } else if (pathItems.at(-1) === '_layout') {
+          createLayout({
+            path,
+            component: mod.default,
+            render: 'static',
+            ...config,
+          })
+        } else if (pathItems.at(-1) === '_root') {
+          createRoot({
+            component: mod.default,
+            render: 'static',
+            ...config,
+          })
         } else {
           createPage({
             path,

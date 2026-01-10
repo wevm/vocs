@@ -118,13 +118,19 @@ export type Config<partial extends boolean = false> = MaybePartial<
      */
     logoUrl?: string | ThemeValue<string> | undefined
     /**
-     * OG Image URL. `null` to disable.
+     * OG Image URL template. Can be a string or a function that returns a URL based on the path.
      *
      * Template variables: `%logo`, `%title`, `%description`
      *
-     * @default "https://vocs.dev/api/og?logo=%logo&title=%title&description=%description"
+     * @example
+     * // Static URL for all pages
+     * ogImageUrl: '/api/og?title=%title&description=%description'
+     *
+     * @example
+     * // Dynamic URL based on path
+     * ogImageUrl: (path) => `/api/og?title=%title&path=${path}`
      */
-    ogImageUrl?: string | { [path: string]: string } | undefined
+    ogImageUrl?: string | ((path: string) => string) | undefined
     /**
      * Markdown configuration.
      */

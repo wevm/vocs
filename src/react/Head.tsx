@@ -9,7 +9,7 @@ export function Head() {
   const { path: pathname } = useRouter()
   const { frontmatter } = MdxPageContext.use()
 
-  const { baseUrl, iconUrl, logoUrl, ogImageUrl, basePath } = config
+  const { basePath, baseUrl, iconUrl, logoUrl, ogImageUrl, renderStrategy } = config
 
   const title = frontmatter?.title ?? config.title
   const titleTemplate = title.includes(config.title) ? undefined : config.titleTemplate
@@ -20,28 +20,22 @@ export function Head() {
   const fullPathname = basePath && basePath !== '/' ? `${basePath}${pathname}` : pathname
   const canonicalUrl = baseUrl ? `${baseUrl}${fullPathname}` : undefined
 
-  const resolvedOgImageUrl = (() => {
-    if (!ogImageUrl) return undefined
+  const ogImageTemplate = (() => {
+    if (typeof ogImageUrl === 'function') return ogImageUrl(pathname)
     if (typeof ogImageUrl === 'string') return ogImageUrl
-    if (pathname && ogImageUrl[pathname]) return ogImageUrl[pathname]
-    return ogImageUrl['/'] ?? Object.values(ogImageUrl)[0]
+    if (renderStrategy === 'full-static') return undefined
+    return `${baseUrl ?? ''}/api/og?title=%title&description=%description`
   })()
 
-  const ogImage = resolvedOgImageUrl
-    ?.replace(
-      '%logo',
-      `${baseUrl ?? ''}${typeof logoUrl === 'string' ? logoUrl : (logoUrl?.dark ?? '')}`,
-    )
-    .replace('%title', title ?? '')
-    .replace('%description', description ?? '')
-
-  const twitterImage = resolvedOgImageUrl
-    ?.replace(
-      '%logo',
-      `${baseUrl ?? ''}${typeof logoUrl === 'string' ? logoUrl : (logoUrl?.dark ?? '')}`,
-    )
-    .replace('%title', title ? encodeURIComponent(title) : '')
-    .replace('%description', description ? encodeURIComponent(description) : '')
+  const ogImage = ogImageTemplate
+    ? ogImageTemplate
+        .replace(
+          '%logo',
+          `${baseUrl ?? ''}${typeof logoUrl === 'string' ? logoUrl : (logoUrl?.dark ?? '')}`,
+        )
+        .replace('%title', encodeURIComponent(title ?? ''))
+        .replace('%description', encodeURIComponent(description ?? ''))
+    : undefined
 
   return (
     <>
@@ -101,7 +95,7 @@ export function Head() {
       <meta name="twitter:card" content="summary_large_image" />
       {title && <meta name="twitter:title" content={title} />}
       {description && <meta name="twitter:description" content={description} />}
-      {twitterImage && <meta property="twitter:image" content={twitterImage} />}
+      {ogImage && <meta property="twitter:image" content={ogImage} />}
     </>
   )
 }

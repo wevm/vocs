@@ -68,6 +68,7 @@
     "@svgr/core": "^8.1.0",
     "@svgr/plugin-jsx": "^8.1.0",
     "@tailwindcss/vite": "^4.1.8",
+    "@takumi-rs/image-response": "^0.62.6",
     "@vitejs/plugin-rsc": "^0.5.9",
     "cva": "npm:class-variance-authority@^0.7.1",
     "esast-util-from-js": "^2.0.1",
