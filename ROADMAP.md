@@ -142,8 +142,8 @@ A comprehensive checklist of features for Vocs v2, based on Vocs v1 feature pari
 - [ ] `banner`
 - [ ] `blogDir`
 - [x] `editLink`
-- [ ] `search`
-- [ ] `socials` (GitHub, Discord, X, Bluesky, etc.)
+- [x] `search`
+- [x] `socials` (GitHub, Discord, X, Bluesky, etc.)
 - [ ] `sponsors`
 
 ## SEO & Meta
@@ -157,10 +157,8 @@ A comprehensive checklist of features for Vocs v2, based on Vocs v1 feature pari
 - [x] Article metadata (author, modified_time)
 - [x] Dynamic OG image URL with template variables (%logo, %title, %description)
 - [x] Icon/favicon support (with light/dark variants)
-- [ ] Dynamic OG image API
-- [ ] OG image templates
-- [ ] Per-page OG image customization
-- [ ] Custom fonts/colors in OG images
+- [x] Dynamic OG image API
+- [x] Per-page OG image customization
 
 ## AI & LLM Features
 
