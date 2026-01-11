@@ -70,6 +70,7 @@ export function getCompileOptions(
         ],
         remarkPlugins: [
           remarkFrontmatter,
+          remarkFileTree,
           remarkCallout,
           remarkCodeGroup,
           remarkCodeTitle,
@@ -689,5 +690,120 @@ export function remarkFilename(): remarkFilename.ReturnType {
 }
 
 export declare namespace remarkFilename {
+  type ReturnType = (tree: MdAst.Root) => void
+}
+
+/**
+ * Remark plugin that transforms `:::file-tree` directives into file tree components.
+ *
+ * Syntax:
+ * ```md
+ * :::file-tree
+ * - file.ts
+ * - another.ts
+ * - +folder
+ *   - nested.ts
+ * :::
+ * ```
+ *
+ * The content is parsed as a nested list where folders can be represented with
+ * a preceding `+` prefix.
+ */
+export function remarkFileTree(): remarkFileTree.ReturnType {
+  return (tree: MdAst.Root) => {
+    UnistUtil.visit(tree, (node) => {
+      if (node.type !== 'containerDirective') return
+      if (node.name !== 'file-tree') return
+
+      // biome-ignore lint/suspicious/noAssignInExpressions: _
+      const data = node.data || (node.data = {})
+
+      type FileTreeItem = {
+        name: string
+        type: 'file' | 'folder'
+        highlighted?: boolean | undefined
+        items?: FileTreeItem[] | undefined
+      }
+
+      function extractFileTree(children: MdAst.RootContent[]): FileTreeItem[] {
+        const result: FileTreeItem[] = []
+
+        for (const child of children) {
+          if (child.type !== 'list') continue
+
+          for (const listItem of child.children) {
+            if (listItem.type !== 'listItem') continue
+
+            // Get the text content from the first paragraph
+            const paragraph = listItem.children.find(
+              (c): c is MdAst.Paragraph => c.type === 'paragraph',
+            )
+            if (!paragraph) continue
+
+            let name = ''
+            let folder = false
+            let highlighted = false
+
+            for (const pChild of paragraph.children) {
+              if (pChild.type === 'text' || pChild.type === 'strong') {
+                if (pChild.type === 'strong') highlighted = true
+                const texts = (() => {
+                  if (pChild.type === 'text') return [pChild.value]
+                  return pChild.children
+                    .filter((c): c is { type: 'text'; value: string } => c.type === 'text')
+                    .map((c) => c.value)
+                })()
+                for (const text of texts) {
+                  if (text.startsWith('+')) {
+                    folder = true
+                    name += text.slice(1).trim()
+                  } else {
+                    name += text
+                  }
+                }
+              }
+            }
+
+            name = name.trim()
+            if (!name) continue
+
+            const item: FileTreeItem = {
+              name: name.trim(),
+              type: folder ? 'folder' : 'file',
+              ...(highlighted && { highlighted }),
+            }
+
+            // Check for nested lists (children of this list item)
+            const nestedList = listItem.children.filter((c): c is MdAst.List => c.type === 'list')
+            if (nestedList.length > 0) {
+              item.items = extractFileTree(nestedList)
+              if (item.type === 'file') item.type = 'folder'
+            } else if (folder) {
+              item.items = []
+            }
+
+            result.push(item)
+          }
+        }
+
+        return result
+      }
+
+      const fileTreeData = extractFileTree(node.children)
+
+      data.hName = 'div'
+      data.hProperties = {
+        ...(node.attributes ?? {}),
+        'data-v-file-tree': 'true',
+        'data-v-file-tree-items': JSON.stringify(fileTreeData),
+      }
+
+      // Clear children since we're passing data via attributes
+      node.children = []
+    })
+  }
+}
+
+export declare namespace remarkFileTree {
   type ReturnType = (tree: MdAst.Root) => void
 }
