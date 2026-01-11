@@ -1,7 +1,6 @@
 'use client'
 
 import {
-  SandpackCodeEditor,
   SandpackConsole,
   SandpackPreview,
   SandpackProvider,
@@ -9,19 +8,17 @@ import {
 } from '@codesandbox/sandpack-react'
 import * as React from 'react'
 import { transform } from 'sucrase'
-import { RunButton } from './Run.js'
 
 export function SandboxProvider(props: SandboxProvider.Props) {
   const {
+    autoRun,
     code: _code,
+    showConsole,
+    showPreview,
     bundledFiles,
-    editorProps,
     previewProps,
     consoleProps,
     providerProps,
-    showConsole,
-    showPreview,
-    autoRun,
   } = props
 
   const [mounted, setMounted] = React.useState(false)
@@ -61,16 +58,6 @@ export function SandboxProvider(props: SandboxProvider.Props) {
       className="shiki shiki-themes github-light github-dark-dimmed text-white font-mono tabular-nums text-lg mt-0.5"
       {...providerProps}
     >
-      <div className="vocs:relative">
-        <SandpackCodeEditor
-          showInlineErrors={true}
-          showLineNumbers={true}
-          showTabs={true}
-          {...editorProps}
-          showRunButton={false}
-        />
-        <RunButton autoRun={autoRun ?? false} />
-      </div>
       <SandpackPreview
         showOpenInCodeSandbox={false}
         showOpenNewtab={false}
@@ -83,7 +70,7 @@ export function SandboxProvider(props: SandboxProvider.Props) {
         hidden={!showConsole}
         showSyntaxError={true}
         showHeader={false}
-        className="text-white font-mono tabular-nums text-lg mt-0.5"
+        className="vocs:rounded-t-none vocs:border vocs:border-primary vocs:rounded-lg text-white font-mono tabular-nums text-xl mt-0.5"
         {...consoleProps}
         showResetConsoleButton={true}
         showRestartButton={true}
@@ -100,7 +87,6 @@ export declare namespace SandboxProvider {
     showPreview: boolean
     showConsole: boolean
     autoRun?: boolean
-    editorProps?: React.ComponentPropsWithoutRef<typeof SandpackCodeEditor>
     previewProps?: React.ComponentPropsWithoutRef<typeof SandpackPreview>
     consoleProps?: React.ComponentPropsWithoutRef<typeof SandpackConsole>
     providerProps?: Pick<

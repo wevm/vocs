@@ -1,5 +1,3 @@
-@layer vocs_theme, theme, vocs_base, base, vocs_components, components, vocs_utilities, utilities;
-
 @import "tailwindcss/theme.css" layer(vocs_theme) prefix(vocs);
 @import "tailwindcss/preflight.css" layer(vocs_base);
 @import "tailwindcss/utilities.css" layer(vocs_utilities) prefix(vocs);
@@ -8,6 +6,7 @@
 @import "./markdown.css" layer(vocs_components);
 @import "./twoslash.css" layer(vocs_components);
 
+@layer vocs_theme, theme, vocs_base, base, vocs_components, components, vocs_utilities, utilities;
 @custom-variant dark (&:where([style*="color-scheme: dark"], [style*="color-scheme: dark"] *));
 
 @source "../";

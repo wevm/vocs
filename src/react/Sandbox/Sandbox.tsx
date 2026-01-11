@@ -1,11 +1,12 @@
+import { CodeToHtml } from '../internal/CodeToHtml.js'
 import { bundleDeps } from './bundleDeps.js'
 import { SandboxProvider } from './Provider.js'
 
 export async function Sandbox(props: Sandbox.Props) {
   const {
     code,
+    lang = 'ts',
     deps = {},
-    editorProps,
     previewProps,
     consoleProps,
     providerProps,
@@ -20,24 +21,27 @@ export async function Sandbox(props: Sandbox.Props) {
   const bundledFiles = await bundleDeps(deps, codeStr)
 
   return (
-    <article>
-      <SandboxProvider
-        code={codeStr}
-        bundledFiles={bundledFiles}
-        showConsole={showConsole}
-        showPreview={showPreview}
-        autoRun={autoRun}
-        {...(editorProps && { editorProps })}
-        {...(previewProps && { previewProps })}
-        {...(consoleProps && { consoleProps })}
-        {...(providerProps && { providerProps })}
-      />
-    </article>
+    <section data-v-sandbox>
+      <div data-v-code-container className="vocs:gap-y-0.5">
+        <CodeToHtml code={codeStr} lang={lang} />
+        <SandboxProvider
+          code={codeStr}
+          autoRun={autoRun}
+          showConsole={showConsole}
+          showPreview={showPreview}
+          bundledFiles={bundledFiles}
+          {...(previewProps && { previewProps })}
+          {...(consoleProps && { consoleProps })}
+          {...(providerProps && { providerProps })}
+        />
+      </div>
+    </section>
   )
 }
 
 export declare namespace Sandbox {
-  type Props = SandboxProvider.Props & {
+  type Props = Omit<SandboxProvider.Props, 'children'> & {
+    lang?: string
     deps?: Record<string, string>
   }
 }
