@@ -166,14 +166,6 @@ export function router(
               // biome-ignore lint/style/noNonNullAssertion: _
               handler: mod.GET!,
             })
-          } else if (typeof mod.default === 'object' && 'fetch' in mod.default) {
-            createApi({
-              path: apiPath,
-              render: 'dynamic',
-              handlers: {
-                all: mod.default.fetch,
-              },
-            })
           } else {
             const validMethods = new Set(METHODS)
             const handlers = Object.fromEntries(

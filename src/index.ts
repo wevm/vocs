@@ -10,7 +10,3 @@ export { Sandbox } from './react/Sandbox/index.js'
 export { ScrollRestoration } from './react/ScrollRestoration.js'
 export { Tab, Tabs } from './react/Tabs.js'
 export { useConfig } from './react/useConfig.js'
-
-export type ExportedHandler = {
-  fetch: (request: Request) => Promise<Response>
-}
