@@ -1,4 +1,7 @@
-import { ImageResponse } from '@takumi-rs/image-response'
+import { ImageResponse } from '@takumi-rs/image-response/wasm'
+// @ts-expect-error
+import wasm from '@takumi-rs/wasm/takumi_wasm_bg.wasm?url'
+
 import * as Config from '../internal/config.js'
 
 type Handler = {
@@ -39,10 +42,22 @@ export function og(render: (props: og.Props) => React.JSX.Element): Handler {
 
       const element = render({ config, title, description, logo })
 
-      return new ImageResponse(element, {
-        width: 1200,
-        height: 630,
-      })
+      const wasmUrl = new URL(wasm, url.origin)
+      const module = await fetch(wasmUrl).then((r) => r.arrayBuffer())
+
+      try {
+        console.log(module)
+        const res = new ImageResponse(element, {
+          module,
+          width: 1200,
+          height: 630,
+        })
+        console.log('test', res)
+        return res
+      } catch (error) {
+        console.error(error)
+        return new Response('Failed to generate OG image', { status: 500 })
+      }
     },
   }
 }
