@@ -69,6 +69,7 @@
     "@svgr/plugin-jsx": "^8.1.0",
     "@tailwindcss/vite": "^4.1.8",
     "@takumi-rs/image-response": "^0.62.6",
+    "@takumi-rs/wasm": "^0.62.7",
     "@vitejs/plugin-rsc": "^0.5.9",
     "cva": "npm:class-variance-authority@^0.7.1",
     "esast-util-from-js": "^2.0.1",
@@ -105,6 +106,7 @@
     "unplugin-icons": "^22.5.0",
     "urlpattern-polyfill": "^10.1.0",
     "vfile": "^6.0.3",
+    "vite-plugin-wasm": "^3.5.0",
     "yaml": "^2.8.2"
   },
   "peerDependencies": {

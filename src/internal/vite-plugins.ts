@@ -62,7 +62,12 @@ export function deps(): PluginOption {
             'vocs > ts-interface-checker',
             ...(config?.optimizeDeps?.include ?? []),
           ],
-          exclude: ['vocs', ...(config?.optimizeDeps?.exclude ?? [])],
+          exclude: [
+            'vocs',
+            '@takumi-rs/core',
+            '@takumi-rs/image-response',
+            ...(config?.optimizeDeps?.exclude ?? []),
+          ],
         },
         resolve: {
           ...config?.resolve,
@@ -90,6 +95,9 @@ export function deps(): PluginOption {
             'react-dom',
             'react-server-dom-webpack',
           ],
+        },
+        ssr: {
+          noExternal: ['@takumi-rs/core', '@takumi-rs/image-response'],
         },
       }
     },

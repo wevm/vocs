@@ -104,6 +104,9 @@ importers:
       '@takumi-rs/image-response':
         specifier: ^0.62.6
         version: 0.62.6
+      '@takumi-rs/wasm':
+        specifier: ^0.62.7
+        version: 0.62.7
       '@vitejs/plugin-rsc':
         specifier: ^0.5.9
         version: 0.5.9(react-dom@19.2.3(react@19.2.3))(react-server-dom-webpack@19.2.3(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(webpack@5.104.1))(react@19.2.3)(vite@7.3.0(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))
@@ -212,6 +215,9 @@ importers:
       vfile:
         specifier: ^6.0.3
         version: 6.0.3
+      vite-plugin-wasm:
+        specifier: ^3.5.0
+        version: 3.5.0(vite@7.3.0(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))
       yaml:
         specifier: ^2.8.2
         version: 2.8.2
@@ -1259,6 +1265,9 @@ packages:
 
   '@takumi-rs/wasm@0.62.6':
     resolution: {integrity: sha512-txQkgHMT1jLvbqbH+xlztKeL8jyIe09BEyh+rZcaXhjtym0wl0OqgKO7v0m4JxBV4a2gkWxOmthzLLODRE7C9g==}
+
+  '@takumi-rs/wasm@0.62.7':
+    resolution: {integrity: sha512-+WiO1JZ6D0ylqC2IDheI2NfiZM0dN0K9grebotwOt0ensncl8WlylBvX8IWsjKspYvm0SThVRj+03VelOqp0Zg==}
 
   '@types/babel__core@7.20.5':
     resolution: {integrity: sha512-qoQprZvz5wQFJwMDqeseRXWv3rqMvhgpbXFfVyWhbx9X47POIA6i/+dXefEmZKoAgOaTdaIgNSMqMIU61yRyzA==}
@@ -3071,6 +3080,11 @@ packages:
       typescript:
         optional: true
 
+  vite-plugin-wasm@3.5.0:
+    resolution: {integrity: sha512-X5VWgCnqiQEGb+omhlBVsvTfxikKtoOgAzQ95+BZ8gQ+VfMHIjSHr0wyvXFQCa0eKQ0fKyaL0kWcEnYqBac4lQ==}
+    peerDependencies:
+      vite: ^7.2.7
+
   vite@7.3.0:
     resolution: {integrity: sha512-dZwN5L1VlUBewiP6H9s2+B3e3Jg96D0vzN+Ry73sOefebhYr9f94wwkMNN/9ouoU8pV1BqA1d1zGk8928cx0rg==}
     engines: {node: ^20.19.0 || >=22.12.0}
@@ -4285,6 +4299,8 @@ snapshots:
       '@takumi-rs/wasm': 0.62.6
 
   '@takumi-rs/wasm@0.62.6': {}
+
+  '@takumi-rs/wasm@0.62.7': {}
 
   '@types/babel__core@7.20.5':
     dependencies:
@@ -6399,6 +6415,10 @@ snapshots:
       - bufferutil
       - utf-8-validate
       - zod
+
+  vite-plugin-wasm@3.5.0(vite@7.3.0(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)):
+    dependencies:
+      vite: 7.3.0(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
 
   vite@7.3.0(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2):
     dependencies:
