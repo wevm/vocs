@@ -40,8 +40,8 @@ catalogs:
       specifier: 1.0.0-alpha.1
       version: 1.0.0-alpha.1
     zile:
-      specifier: 0.0.15
-      version: 0.0.15
+      specifier: 0.0.16
+      version: 0.0.16
 
 overrides:
   vite: ^7.2.7
@@ -266,7 +266,7 @@ importers:
         version: 1.0.0-alpha.1(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(react-dom@19.2.3(react@19.2.3))(react-server-dom-webpack@19.2.3(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(webpack@5.104.1))(react@19.2.3)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
       zile:
         specifier: 'catalog:'
-        version: 0.0.15(typescript@5.9.3)
+        version: 0.0.16(typescript@5.9.3)
 
   playground:
     dependencies:
@@ -529,8 +529,8 @@ packages:
   '@clack/core@1.0.0-alpha.7':
     resolution: {integrity: sha512-3vdh6Ar09D14rVxJZIm3VQJkU+ZOKKT5I5cC0cOVazy70CNyYYjiwRj9unwalhESndgxx6bGc/m6Hhs4EKF5XQ==}
 
-  '@clack/prompts@1.0.0-alpha.8':
-    resolution: {integrity: sha512-YZGC4BmTKSF5OturNKEz/y4xNjYGmGk6NI785CQucJ7OEdX0qbMmL/zok+9bL6c7qE3WSYffyK5grh2RnkGNtQ==}
+  '@clack/prompts@1.0.0-alpha.9':
+    resolution: {integrity: sha512-sKs0UjiHFWvry4SiRfBi5Qnj0C/6AYx8aKkFPZQSuUZXgAram25ZDmhQmP7vj1aFyLpfHWtLQjWvOvcat0TOLg==}
 
   '@codemirror/autocomplete@6.20.0':
     resolution: {integrity: sha512-bOwvTOIJcG5FVo5gUUupiwYh8MioPLQ4UcqbcRf7UQ98X90tCa9E1kZ3Z7tqwpZxYyOvh1YTYbmZE9RTfTp5hg==}
@@ -3216,8 +3216,8 @@ packages:
     engines: {node: '>= 14.6'}
     hasBin: true
 
-  zile@0.0.15:
-    resolution: {integrity: sha512-2YECNiU5D7UM7AAvp2u+/Y8mdn0V4WiTZi8WrwMjDWFsDQ6WDvW0OxHB9JOgRg1N9hcYIyjfdTBGeU8vuf0v7A==}
+  zile@0.0.16:
+    resolution: {integrity: sha512-ag1/jSc4VAywUhny1fw89tDFQf3iZBqisRZ3s87tl+8Nxt7eEKXe7BnhksGyYIKeNvygqAnK/bclDEYg4TDfXw==}
     hasBin: true
     peerDependencies:
       '@typescript/native-preview': '>=7.0.0'
@@ -3566,7 +3566,7 @@ snapshots:
       picocolors: 1.1.1
       sisteransi: 1.0.5
 
-  '@clack/prompts@1.0.0-alpha.8':
+  '@clack/prompts@1.0.0-alpha.9':
     dependencies:
       '@clack/core': 1.0.0-alpha.7
       picocolors: 1.1.1
@@ -6544,9 +6544,9 @@ snapshots:
 
   yaml@2.8.2: {}
 
-  zile@0.0.15(typescript@5.9.3):
+  zile@0.0.16(typescript@5.9.3):
     dependencies:
-      '@clack/prompts': 1.0.0-alpha.8
+      '@clack/prompts': 1.0.0-alpha.9
       cac: 6.7.14
       tsconfck: 3.1.6(typescript@5.9.3)
     optionalDependencies:

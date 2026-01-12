@@ -16,7 +16,7 @@ catalog:
   vite: ^7.2.7
   vitest: ^4.0.16
   waku: 1.0.0-alpha.1
-  zile: 0.0.15
+  zile: 0.0.16
 
 overrides:
   vite: 'catalog:'
