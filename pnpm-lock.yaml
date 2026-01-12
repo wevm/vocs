@@ -40,8 +40,8 @@ catalogs:
       specifier: 1.0.0-alpha.1
       version: 1.0.0-alpha.1
     zile:
-      specifier: 0.0.16
-      version: 0.0.16
+      specifier: 0.0.17
+      version: 0.0.17
 
 overrides:
   vite: ^7.2.7
@@ -266,7 +266,7 @@ importers:
         version: 1.0.0-alpha.1(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(react-dom@19.2.3(react@19.2.3))(react-server-dom-webpack@19.2.3(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(webpack@5.104.1))(react@19.2.3)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
       zile:
         specifier: 'catalog:'
-        version: 0.0.16(typescript@5.9.3)
+        version: 0.0.17(typescript@5.9.3)
 
   playground:
     dependencies:
@@ -3216,8 +3216,8 @@ packages:
     engines: {node: '>= 14.6'}
     hasBin: true
 
-  zile@0.0.16:
-    resolution: {integrity: sha512-ag1/jSc4VAywUhny1fw89tDFQf3iZBqisRZ3s87tl+8Nxt7eEKXe7BnhksGyYIKeNvygqAnK/bclDEYg4TDfXw==}
+  zile@0.0.17:
+    resolution: {integrity: sha512-gci4JwpdvN6d5/WEJSD4U+BUuevv71cDOup9gEDkoHtZMW5z+eUxm3RxdhgsCN/Mym18ISkmn34FNVhupsGtkA==}
     hasBin: true
     peerDependencies:
       '@typescript/native-preview': '>=7.0.0'
@@ -6544,7 +6544,7 @@ snapshots:
 
   yaml@2.8.2: {}
 
-  zile@0.0.16(typescript@5.9.3):
+  zile@0.0.17(typescript@5.9.3):
     dependencies:
       '@clack/prompts': 1.0.0-alpha.9
       cac: 6.7.14
