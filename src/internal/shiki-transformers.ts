@@ -582,3 +582,73 @@ export function customTag(): ShikiTransformer {
     },
   }
 }
+
+export function sandbox(): ShikiTransformer {
+  return {
+    name: 'vocs:sandbox',
+    root(hast) {
+      const meta = this.options.meta?.__raw ?? ''
+      if (!meta.includes('sandbox')) return
+
+      const code = this.source
+      const deps = extractDeps(code)
+      const options = parseSandboxOptions(meta)
+
+      const pre = hast.children[0]
+      if (pre && pre.type === 'element' && pre.tagName === 'pre') {
+        pre.properties = {
+          ...pre.properties,
+          'data-sandbox': '',
+          'data-sandbox-code': code,
+          'data-sandbox-deps': JSON.stringify(deps),
+          'data-sandbox-auto-run': options.autoRun ? 'true' : 'false',
+          'data-sandbox-lang': this.options.lang ?? 'ts',
+        }
+      }
+    },
+  }
+}
+
+function parseSandboxOptions(meta: string): sandbox.Options {
+  const options: sandbox.Options = {
+    autoRun: false,
+    showLineNumbers: true,
+    showTabs: true,
+  }
+
+  if (meta.includes('autorun')) options.autoRun = true
+
+  const lineNumbersMatch = meta.match(/lineNumbers=(true|false)/)
+  if (lineNumbersMatch) options.showLineNumbers = lineNumbersMatch[1] === 'true'
+
+  const tabsMatch = meta.match(/tabs=(true|false)/)
+  if (tabsMatch) options.showTabs = tabsMatch[1] === 'true'
+
+  return options
+}
+
+function extractDeps(code: string): Record<string, string> {
+  const deps: Record<string, string> = {}
+  const importRegex = /import\s+(?:[^'"]+\s+from\s+)?['"]([^'"]+)['"]/g
+
+  for (const match of code.matchAll(importRegex)) {
+    const importPath = match[1]
+    if (!importPath || importPath.startsWith('.') || importPath.startsWith('/')) continue
+
+    const pkgName = importPath.startsWith('@')
+      ? importPath.split('/').slice(0, 2).join('/')
+      : importPath.split('/')[0]
+
+    if (pkgName && !deps[pkgName]) deps[pkgName] = 'latest'
+  }
+
+  return deps
+}
+
+export declare namespace sandbox {
+  type Options = {
+    autoRun: boolean
+    showLineNumbers: boolean
+    showTabs: boolean
+  }
+}

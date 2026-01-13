@@ -33,22 +33,19 @@ export async function CodeToHtml(props: CodeToHtml.Props) {
     meta: {
       'data-v-overflow-fade': true,
     },
-    themes,
     ...(import.meta.env.DEV ? { theme: 'none' } : { themes }),
     transformers: [transformerShrinkIndent()],
   })
 
-  // Add data-v attribute and overflow sentinel to pre
+  // Add overflow sentinel
   const pre = hast.children[0]
-  if (pre && pre.type === 'element' && pre.tagName === 'pre') {
-    pre.properties = { ...pre.properties, 'data-v': '' }
+  if (pre && pre.type === 'element' && pre.tagName === 'pre')
     pre.children.push({
       type: 'element',
       tagName: 'div',
       properties: { 'data-v-overflow-sentinel': true },
       children: [],
     })
-  }
 
   const html = hastToHtml(hast)
 
@@ -60,5 +57,18 @@ export namespace CodeToHtml {
   export type Props = {
     code: string
     lang: string
+  }
+}
+
+function transformerShrinkIndent(): ShikiTransformer {
+  return {
+    name: 'indent',
+    span(hast) {
+      const child = hast.children[0]
+      if (!child) return
+      if (child.type !== 'text') return
+      if (!child.value) return
+      hast.children[0] = { type: 'text', value: child.value.replace(/\s\s/g, ' ') }
+    },
   }
 }

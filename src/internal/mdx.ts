@@ -31,7 +31,6 @@ import * as yaml from 'yaml'
 import type * as Config from './config.js'
 import * as Icons from './icons.js'
 import { remarkVocsScope } from './remark-vocs-scope.js'
-import { remarkSandbox } from './sandbox.js'
 import * as ShikiTransformers from './shiki-transformers.js'
 import * as Snippets from './snippets.js'
 import type { ExactPartial, UnionOmit } from './types.js'
@@ -195,7 +194,6 @@ export function getCompileOptions(
           remarkGfm,
           remarkMetaFrontmatter,
           remarkMdxFrontmatter,
-          remarkSandbox,
           remarkSteps,
           remarkSubheading,
           remarkVocsScope,
@@ -435,6 +433,7 @@ export function rehypeShiki(
         ...ShikiTransformers.notationFold(),
         ShikiTransformers.removeNotationEscape(),
         ShikiTransformers.shellPrompt(options.shellPrompt),
+        ShikiTransformers.sandbox(),
         ShikiTransformers.tagLine(),
         ShikiTransformers.title(),
         ...(options.transformers ?? []),
