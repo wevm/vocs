@@ -91,13 +91,7 @@ importers:
       '@remix-run/node-fetch-server':
         specifier: ^0.13.0
         version: 0.13.0
-      '@shikijs/langs':
-        specifier: ^3.20.0
-        version: 3.20.0
       '@shikijs/rehype':
-        specifier: ^3.20.0
-        version: 3.20.0
-      '@shikijs/themes':
         specifier: ^3.20.0
         version: 3.20.0
       '@shikijs/transformers':
@@ -151,9 +145,6 @@ importers:
       github-slugger:
         specifier: ^2.0.0
         version: 2.0.0
-      hast-util-to-jsx-runtime:
-        specifier: ^2.3.6
-        version: 2.3.6
       hono:
         specifier: ^4.11.3
         version: 4.11.3
