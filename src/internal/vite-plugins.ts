@@ -12,10 +12,13 @@ import * as Config from './config.js'
 import * as ConfigSerializer from './config-serializer.js'
 import * as Langs from './langs.js'
 import * as Mdx from './mdx.js'
+import * as Robots from './robots.js'
 import { SearchDocuments, SearchIndex } from './search.js'
 import * as TaskRunner from './task-runner.js'
 
 export { default as icons } from 'unplugin-icons/vite'
+
+export const robots = Robots.plugin
 
 export const tailwind = tailwindcss as unknown as (opts?: TailwindOptions) => PluginOption
 

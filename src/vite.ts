@@ -28,6 +28,7 @@ export async function vocs(): Promise<PluginOption[]> {
     Plugins.langWatcher(config),
     Plugins.llms(config),
     Plugins.mdx(config),
+    Plugins.robots(config),
     Plugins.routeWatcher(config),
     Plugins.search(config),
     Plugins.sitemap(config),
