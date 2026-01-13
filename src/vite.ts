@@ -1,4 +1,8 @@
+import { getIconData, iconToHTML, iconToSVG } from '@iconify/utils'
+import { type IconifyJSON, icons as lucide } from '@iconify-json/lucide'
+import { icons as simple } from '@iconify-json/simple-icons'
 import type { PluginOption } from 'vite'
+
 import * as Config from './internal/config.js'
 import * as Plugins from './internal/vite-plugins.js'
 
@@ -15,6 +19,10 @@ export async function vocs(): Promise<PluginOption[]> {
     Plugins.deps(),
     Plugins.icons({
       compiler: 'jsx',
+      customCollections: {
+        lucide: getIcon(lucide),
+        'simple-icons': getIcon(simple),
+      },
       jsx: 'react',
     }),
     Plugins.langWatcher(config),
@@ -27,4 +35,14 @@ export async function vocs(): Promise<PluginOption[]> {
     Plugins.userStyles(config),
     Plugins.virtualConfig(config),
   ]
+}
+
+/** @internal */
+function getIcon(set: IconifyJSON) {
+  return async (name: string) => {
+    const data = getIconData(set, name)
+    if (!data) return undefined
+    const { attributes, body } = iconToSVG(data)
+    return iconToHTML(body, attributes)
+  }
 }

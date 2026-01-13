@@ -62,7 +62,7 @@ export function deps(): PluginOption {
             'vocs > ts-interface-checker',
             ...(config?.optimizeDeps?.include ?? []),
           ],
-          exclude: ['vocs', '@takumi-rs/core', ...(config?.optimizeDeps?.exclude ?? [])],
+          exclude: ['vocs', '@takumi-rs/core', '@takumi-rs/wasm', ...(config?.optimizeDeps?.exclude ?? [])],
         },
         resolve: {
           ...config?.resolve,
@@ -93,7 +93,7 @@ export function deps(): PluginOption {
         },
         ssr: {
           external: ['@takumi-rs/core'],
-          noExternal: ['@takumi-rs/image-response'],
+          noExternal: ['@takumi-rs/image-response', '@takumi-rs/wasm'],
         },
       }
     },

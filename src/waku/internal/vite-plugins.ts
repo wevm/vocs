@@ -183,6 +183,9 @@ export function vocsConfig(config: VocsConfig.Config): Plugin {
                 external: ['fsevents', 'vite'],
               },
             },
+            resolve: {
+              noExternal: ['@takumi-rs/wasm', '@takumi-rs/image-response'],
+            },
           },
         },
       }

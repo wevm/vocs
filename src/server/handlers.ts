@@ -46,14 +46,11 @@ export function og(render: (props: og.Props) => React.JSX.Element): Handler {
       const module = await fetch(wasmUrl).then((r) => r.arrayBuffer())
 
       try {
-        console.log(module)
-        const res = new ImageResponse(element, {
+        return new ImageResponse(element, {
           module,
           width: 1200,
           height: 630,
         })
-        console.log('test', res)
-        return res
       } catch (error) {
         console.error(error)
         return new Response('Failed to generate OG image', { status: 500 })
