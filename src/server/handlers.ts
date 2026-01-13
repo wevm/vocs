@@ -4,7 +4,7 @@ import wasm from '@takumi-rs/wasm/takumi_wasm_bg.wasm?url'
 
 import * as Config from '../internal/config.js'
 // @ts-expect-error
-import font from './og/geist.woff2?arraybuffer'
+import font from './fonts/geist.woff2?arraybuffer'
 
 type Handler = {
   fetch: (request: Request) => Promise<Response>

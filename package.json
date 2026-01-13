@@ -146,6 +146,11 @@
       "src": "./src/mdx.tsx",
       "default": "./dist/mdx.js"
     },
+    "./server/*": {
+      "types": "./dist/server/*.d.ts",
+      "src": "./src/server/*",
+      "default": "./dist/server/*.js"
+    },
     "./waku/internal/routes/*": {
       "types": "./dist/waku/internal/routes/*.d.ts",
       "src": "./src/waku/internal/routes/*.tsx",
