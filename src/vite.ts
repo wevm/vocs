@@ -16,6 +16,7 @@ export async function vocs(): Promise<PluginOption[]> {
   const config = await Config.resolve()
 
   return [
+    Plugins.arraybuffer(),
     Plugins.deps(),
     Plugins.icons({
       compiler: 'jsx',

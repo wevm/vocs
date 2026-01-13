@@ -215,6 +215,9 @@ importers:
       vfile:
         specifier: ^6.0.3
         version: 6.0.3
+      vite-plugin-arraybuffer:
+        specifier: ^0.1.1
+        version: 0.1.1
       vite-plugin-wasm:
         specifier: ^3.5.0
         version: 3.5.0(vite@7.3.0(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))
@@ -3076,6 +3079,9 @@ packages:
     peerDependenciesMeta:
       typescript:
         optional: true
+
+  vite-plugin-arraybuffer@0.1.1:
+    resolution: {integrity: sha512-j66GVZ695+k5aB/+exTXujYGiW7EfAFchV1Bp27c9JL3Dg+611T8oL9yuCX5zFcgQPCjTy/APijOjaizR/vyGw==}
 
   vite-plugin-wasm@3.5.0:
     resolution: {integrity: sha512-X5VWgCnqiQEGb+omhlBVsvTfxikKtoOgAzQ95+BZ8gQ+VfMHIjSHr0wyvXFQCa0eKQ0fKyaL0kWcEnYqBac4lQ==}
@@ -6410,6 +6416,8 @@ snapshots:
       - bufferutil
       - utf-8-validate
       - zod
+
+  vite-plugin-arraybuffer@0.1.1: {}
 
   vite-plugin-wasm@3.5.0(vite@7.3.0(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)):
     dependencies:

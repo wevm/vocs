@@ -16,6 +16,7 @@ import { SearchDocuments, SearchIndex } from './search.js'
 import * as TaskRunner from './task-runner.js'
 
 export { default as icons } from 'unplugin-icons/vite'
+export { default as arraybuffer } from 'vite-plugin-arraybuffer'
 
 export const tailwind = tailwindcss as unknown as (opts?: TailwindOptions) => PluginOption
 
@@ -62,7 +63,12 @@ export function deps(): PluginOption {
             'vocs > ts-interface-checker',
             ...(config?.optimizeDeps?.include ?? []),
           ],
-          exclude: ['vocs', '@takumi-rs/core', '@takumi-rs/wasm', ...(config?.optimizeDeps?.exclude ?? [])],
+          exclude: [
+            'vocs',
+            '@takumi-rs/core',
+            '@takumi-rs/wasm',
+            ...(config?.optimizeDeps?.exclude ?? []),
+          ],
         },
         resolve: {
           ...config?.resolve,

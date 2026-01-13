@@ -3,6 +3,8 @@ import { ImageResponse } from '@takumi-rs/image-response/wasm'
 import wasm from '@takumi-rs/wasm/takumi_wasm_bg.wasm?url'
 
 import * as Config from '../internal/config.js'
+// @ts-expect-error
+import inter from './geist.woff2?arraybuffer'
 
 type Handler = {
   fetch: (request: Request) => Promise<Response>
@@ -47,6 +49,7 @@ export function og(render: (props: og.Props) => React.JSX.Element): Handler {
 
       try {
         return new ImageResponse(element, {
+          fonts: [{ name: 'Inter', data: inter }],
           module,
           width: 1200,
           height: 630,
