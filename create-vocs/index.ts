@@ -35,7 +35,9 @@ export async function init() {
     const spinner = clack.spinner()
     spinner.start('Creating project')
 
-    const templatePath = path.join(import.meta.dirname, './template')
+    const templatePath = ['.', '..']
+      .map((dir) => path.join(import.meta.dirname, dir, 'template'))
+      .find((p) => fs.existsSync(p))!
 
     copyDir(templatePath, targetPath)
 
