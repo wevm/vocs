@@ -372,6 +372,31 @@ const blockNumber = await client.getBlockNumber()
 ```
 :::
 
+:::code-group
+```ts [Annotations]
+const a = 1
+// @log: Custom log message
+const b = 1
+// @error: Custom error message
+const c = 1
+// @warn: Custom warning message
+const d = 1
+// @annotate: Custom annotation message
+```
+````md [Syntax]
+```ts
+const a = 1
+// @\log: Custom log message
+const b = 1
+// @\error: Custom error message
+const c = 1
+// @\warn: Custom warning message
+const d = 1
+// @\annotate: Custom annotation message
+```
+````
+:::
+
 ## Code group
 
 ```bash [Bun]

@@ -305,6 +305,7 @@ export function rehypeShiki(
             )
           : undefined,
         ShikiTransformers.emptyLine(),
+        ShikiTransformers.customTag(),
         ShikiTransformers.lineNumbers(),
         ShikiTransformers.notationDiff(),
         ShikiTransformers.notationFocus(),

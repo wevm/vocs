@@ -63,7 +63,7 @@ A comprehensive checklist of features for Vocs v2, based on Vocs v1 feature pari
 - [ ] Expandable code blocks/code wrapping
 - [x] Inline code highlighting
 - [x] `// @includes` support (virtual + physical files)
-- [ ] `// @log` support outside Twoslash
+- [x] `// @log` support outside Twoslash
 - [ ] Terminal/bash decorations (non-copyable `$` prefix)
 - [ ] REPL
 

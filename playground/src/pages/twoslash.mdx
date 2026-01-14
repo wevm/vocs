@@ -430,6 +430,8 @@ writeFileSync("myfile.txt", "// TODO")
 
 ## Callouts 
 
+`@log`, `@error`, `@warn`, `@annotate`
+
 :::code-group
 
 ```ts [Output] twoslash
@@ -446,13 +448,13 @@ const d = 1
 ````md [Markdown]
 ```ts twoslash
 const a = 1
-// @log: Custom log message
+// @\log: Custom log message
 const b = 1
-// @error: Custom error message
+// @\error: Custom error message
 const c = 1
-// @warn: Custom warning message
+// @\warn: Custom warning message
 const d = 1
-// @annotate: Custom annotation message
+// @\annotate: Custom annotation message
 ```
 ````
 
