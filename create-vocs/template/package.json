@@ -12,7 +12,7 @@
     "react": "^19",
     "react-dom": "^19",
     "vocs": "latest",
-    "waku": "^1"
+    "waku": "^1.0.0-alpha.2"
   },
   "devDependencies": {
     "@types/node": "^22",
