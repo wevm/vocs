@@ -21,6 +21,9 @@ catalogs:
     '@types/react-dom':
       specifier: ^19.2.3
       version: 19.2.3
+    '@vitejs/plugin-react':
+      specifier: 5.1.2
+      version: 5.1.2
     react:
       specifier: ^19.2.3
       version: 19.2.3
@@ -37,11 +40,11 @@ catalogs:
       specifier: ^4.0.16
       version: 4.0.16
     waku:
-      specifier: 1.0.0-alpha.1
-      version: 1.0.0-alpha.1
+      specifier: 1.0.0-alpha.2
+      version: 1.0.0-alpha.2
     zile:
-      specifier: 0.0.17
-      version: 0.0.17
+      specifier: 0.0.19
+      version: 0.0.19
 
 overrides:
   vite: ^7.2.7
@@ -107,9 +110,15 @@ importers:
       '@takumi-rs/wasm':
         specifier: ^0.62.7
         version: 0.62.7
+      '@vitejs/plugin-react':
+        specifier: 'catalog:'
+        version: 5.1.2(vite@7.3.0(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))
       '@vitejs/plugin-rsc':
         specifier: ^0.5.9
         version: 0.5.9(react-dom@19.2.3(react@19.2.3))(react-server-dom-webpack@19.2.3(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(webpack@5.104.1))(react@19.2.3)(vite@7.3.0(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))
+      cac:
+        specifier: ^6.7.14
+        version: 6.7.14
       cva:
         specifier: npm:class-variance-authority@^0.7.1
         version: class-variance-authority@0.7.1
@@ -275,10 +284,10 @@ importers:
         version: 4.0.16(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
       waku:
         specifier: 'catalog:'
-        version: 1.0.0-alpha.1(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(react-dom@19.2.3(react@19.2.3))(react-server-dom-webpack@19.2.3(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(webpack@5.104.1))(react@19.2.3)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
+        version: 1.0.0-alpha.2(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(react-dom@19.2.3(react@19.2.3))(react-server-dom-webpack@19.2.3(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(webpack@5.104.1))(react@19.2.3)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
       zile:
         specifier: 'catalog:'
-        version: 0.0.17(typescript@5.9.3)
+        version: 0.0.19(typescript@5.9.3)
 
   playground:
     dependencies:
@@ -296,7 +305,7 @@ importers:
         version: link:..
       waku:
         specifier: 'catalog:'
-        version: 1.0.0-alpha.1(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(react-dom@19.2.3(react@19.2.3))(react-server-dom-webpack@19.2.3(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(webpack@5.104.1))(react@19.2.3)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
+        version: 1.0.0-alpha.2(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(react-dom@19.2.3(react@19.2.3))(react-server-dom-webpack@19.2.3(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(webpack@5.104.1))(react@19.2.3)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -3179,8 +3188,8 @@ packages:
   w3c-keyname@2.2.8:
     resolution: {integrity: sha512-dpojBhNsCNN7T82Tm7k26A6G9ML3NkhDsnw9n/eoxSRlVBB4CEtIQ/KTCLI2Fwf3ataSXRhYFkQi3SlnFwPvPQ==}
 
-  waku@1.0.0-alpha.1:
-    resolution: {integrity: sha512-IN2+Q4yeomXyDgXWrtze45RQdNsk/B+ZpINhyc5jyurVpUfdMCGT86xZ5NWZexLei6P9RGSUsMY7JIdF09ppew==}
+  waku@1.0.0-alpha.2:
+    resolution: {integrity: sha512-AqS1+jEH+gBeqbxt+Tg8cbDp9Kxqgilr/awifeaWyZsKfsMDfzi0thw/OZlW9KT2W8xJNV1lG4OwSNxgvigJpA==}
     engines: {node: ^24.0.0 || ^22.12.0 || ^20.19.0}
     hasBin: true
     peerDependencies:
@@ -3239,8 +3248,8 @@ packages:
     engines: {node: '>= 14.6'}
     hasBin: true
 
-  zile@0.0.17:
-    resolution: {integrity: sha512-gci4JwpdvN6d5/WEJSD4U+BUuevv71cDOup9gEDkoHtZMW5z+eUxm3RxdhgsCN/Mym18ISkmn34FNVhupsGtkA==}
+  zile@0.0.19:
+    resolution: {integrity: sha512-+bVNQ2hBnZcKauHo8pCP7uaK1Uid7D3bzGfEVdQl20Sn40ywh16o4tnyMc1HxhnSyNxqIg/K+oinclA4lUN2uw==}
     hasBin: true
     peerDependencies:
       '@typescript/native-preview': '>=7.0.0'
@@ -6493,7 +6502,7 @@ snapshots:
 
   w3c-keyname@2.2.8: {}
 
-  waku@1.0.0-alpha.1(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(react-dom@19.2.3(react@19.2.3))(react-server-dom-webpack@19.2.3(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(webpack@5.104.1))(react@19.2.3)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2):
+  waku@1.0.0-alpha.2(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(react-dom@19.2.3(react@19.2.3))(react-server-dom-webpack@19.2.3(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(webpack@5.104.1))(react@19.2.3)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2):
     dependencies:
       '@hono/node-server': 1.19.7(hono@4.11.3)
       '@vitejs/plugin-react': 5.1.2(vite@7.3.0(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))
@@ -6577,7 +6586,7 @@ snapshots:
 
   yaml@2.8.2: {}
 
-  zile@0.0.17(typescript@5.9.3):
+  zile@0.0.19(typescript@5.9.3):
     dependencies:
       '@clack/prompts': 1.0.0-alpha.9
       cac: 6.7.14
