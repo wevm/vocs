@@ -8,6 +8,7 @@ import {
 } from '@codesandbox/sandpack-react'
 import * as React from 'react'
 import { transform } from 'sucrase'
+import { RunButton } from './Run.js'
 
 export function SandboxProvider(props: SandboxProvider.Props) {
   const {
@@ -75,6 +76,7 @@ export function SandboxProvider(props: SandboxProvider.Props) {
         showResetConsoleButton={true}
         showRestartButton={true}
         showSetupProgress={false}
+        actionsChildren={<RunButton autoRun={autoRun ?? false} />}
       />
     </SandpackProvider>
   )

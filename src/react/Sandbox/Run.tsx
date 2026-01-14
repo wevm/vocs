@@ -4,7 +4,7 @@ import { RoundedButton, RunIcon, useSandpack } from '@codesandbox/sandpack-react
 import * as React from 'react'
 import { transform } from 'sucrase'
 
-export function RunButton(props: { autoRun: boolean }) {
+export function RunButton(props: RunButton.Props) {
   const { autoRun } = props
   const { sandpack } = useSandpack()
   const [hasRun, setHasRun] = React.useState(autoRun)
@@ -24,10 +24,14 @@ export function RunButton(props: { autoRun: boolean }) {
   if (hasRun && autoRun) return null
 
   return (
-    <div className="vocs:absolute vocs:top-2 vocs:right-2 vocs:flex vocs:gap-1">
-      <RoundedButton onClick={transpileAndRun}>
-        <RunIcon />
-      </RoundedButton>
-    </div>
+    <RoundedButton onClick={transpileAndRun}>
+      <RunIcon />
+    </RoundedButton>
   )
+}
+
+export declare namespace RunButton {
+  type Props = {
+    autoRun: boolean
+  }
 }
