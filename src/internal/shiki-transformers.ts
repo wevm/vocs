@@ -167,6 +167,85 @@ export declare namespace notationInclude {
 }
 
 /**
+ * Shiki transformer that handles shell prompt prefixes.
+ * - Wraps prompt symbols ($, #, %, >) in uncopiable decorations
+ * - Adds data attributes for per-line copy functionality
+ */
+export function shellPrompt(options: shellPrompt.Options = {}): ShikiTransformer {
+  type Element = import('hast').Element
+  type Text = import('hast').Text
+
+  const promptChars = new Set(options.promptChars ?? ['$', '#', '%', '>'])
+  const shellLanguages = new Set(
+    options.languages ?? [
+      'bash',
+      'console',
+      'fish',
+      'nu',
+      'nushell',
+      'powershell',
+      'ps',
+      'ps1',
+      'sh',
+      'shell',
+      'terminal',
+      'zsh',
+    ],
+  )
+
+  return {
+    name: 'vocs:shell-prompt',
+    pre(node) {
+      const lang = this.options.lang
+      if (!lang || !shellLanguages.has(lang)) return
+      node.properties['data-v-shell'] = ''
+    },
+    code(node) {
+      const lang = this.options.lang
+      if (!lang || !shellLanguages.has(lang)) return
+
+      const lines = node.children.filter((x) => x.type === 'element') as Element[]
+
+      for (const line of lines) {
+        if (line.children.length === 0) continue
+
+        const firstChild = line.children[0]
+        if (!firstChild || firstChild.type !== 'element') continue
+
+        const span = firstChild as Element
+        const textNode = span.children[0] as Text | undefined
+        if (!textNode || textNode.type !== 'text') continue
+
+        const text = textNode.value.trim()
+
+        if (promptChars.has(text)) {
+          const secondChild = line.children[1]
+          if (secondChild?.type === 'element') {
+            const secondSpan = secondChild as Element
+            const secondTextNode = secondSpan.children[0] as Text | undefined
+            if (secondTextNode?.type === 'text' && secondTextNode.value.startsWith(' ')) {
+              textNode.value = `${text} `
+              secondTextNode.value = secondTextNode.value.slice(1)
+            }
+          }
+          span.properties = { ...span.properties, 'data-v-shell-prompt': '' }
+          line.properties = { ...line.properties, 'data-v-shell-line': '' }
+        }
+      }
+    },
+  }
+}
+
+export declare namespace shellPrompt {
+  type Options = {
+    /** Prompt characters to detect (e.g., '$', '#'). @default ['$', '#', '%', '>'] */
+    promptChars?: string[] | undefined
+    /** Shell languages to process. @default ['bash', 'console', 'fish', 'powershell', 'ps', 'ps1', 'sh', 'shell', 'terminal', 'zsh'] */
+    languages?: string[] | undefined
+  }
+}
+
+/**
  * Transformer that detects and renders custom comment tags in code blocks.
  *
  * Detects tag patterns in comments and replaces them with styled tag divs.

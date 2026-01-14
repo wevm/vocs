@@ -1,8 +1,14 @@
 import { cx } from 'cva'
-import { CopyButton } from './CodeBlock.client.js'
+import { CopyButton, ShellLineCopyButtons } from './CodeBlock.client.js'
 
 export function CodeBlock(props: CodeBlock.Props) {
-  const { className, container = true, 'data-v-lang': _lang, 'data-title': title } = props
+  const {
+    className,
+    container = true,
+    'data-v-lang': _lang,
+    'data-v-shell': isShell,
+    'data-title': title,
+  } = props
   if (!container) return <pre {...props} data-v />
   return (
     <div data-v-code-container>
@@ -22,6 +28,7 @@ export function CodeBlock(props: CodeBlock.Props) {
       >
         {props.children}
         <CopyButton />
+        {isShell !== undefined && <ShellLineCopyButtons />}
       </pre>
     </div>
   )
@@ -31,6 +38,7 @@ export namespace CodeBlock {
   export type Props = React.PropsWithChildren<React.ComponentProps<'pre'>> & {
     container?: boolean | undefined
     'data-v-lang'?: string | undefined
+    'data-v-shell'?: '' | undefined
     'data-title'?: string | undefined
   }
 }

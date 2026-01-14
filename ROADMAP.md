@@ -64,7 +64,7 @@ A comprehensive checklist of features for Vocs v2, based on Vocs v1 feature pari
 - [x] Inline code highlighting
 - [x] `// @includes` support (virtual + physical files)
 - [x] `// @log` support outside Twoslash
-- [ ] Terminal/bash decorations (non-copyable `$` prefix)
+- [x] Terminal/bash decorations (non-copyable `$` prefix)
 - [ ] REPL
 
 ## MDX Components & Directives

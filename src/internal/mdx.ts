@@ -312,6 +312,7 @@ export function rehypeShiki(
         ShikiTransformers.notationHighlight(),
         ShikiTransformers.notationWordHighlight(),
         ShikiTransformers.removeNotationEscape(),
+        ShikiTransformers.shellPrompt(options.shellPrompt),
         ShikiTransformers.tagLine(),
         ShikiTransformers.title(),
         ...(options.transformers ?? []),
@@ -325,6 +326,7 @@ export declare namespace rehypeShiki {
     UnionOmit<CodeOptionsMultipleThemes<BuiltinTheme>, 'defaultColor'> & {
       cacheDir?: string | undefined
       rootDir?: string | undefined
+      shellPrompt?: ShikiTransformers.shellPrompt.Options | undefined
       srcDir?: string | undefined
       twoslash?: ShikiTransformers.twoslash.Options | false | undefined
     }

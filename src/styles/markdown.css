@@ -484,6 +484,34 @@ pre[data-v] {
 
 /* #endregion */
 
+/* #region Shell prompts */
+
+pre[data-v-shell] {
+  & .line[data-v-shell-line] {
+    @apply vocs:relative;
+  }
+
+  & [data-v-shell-prompt] {
+    @apply vocs:select-none vocs:opacity-50;
+  }
+
+  & [data-v-shell-copy] {
+    @apply vocs:absolute vocs:right-2.5 vocs:top-1/2 vocs:-translate-y-1/2 vocs:p-1 vocs:rounded-md vocs:opacity-0 vocs:transition-opacity vocs:duration-150 vocs:text-secondary vocs:hover:text-heading vocs:cursor-pointer;
+  }
+
+  & .line[data-v-shell-line]:hover [data-v-shell-copy],
+  & [data-v-shell-copy]:focus,
+  & [data-v-shell-copy][data-copied="true"] {
+    @apply vocs:opacity-100;
+  }
+
+  & [data-v-shell-copy][data-copied="true"] {
+    @apply vocs:text-success;
+  }
+}
+
+/* #endregion */
+
 /* #region Inline code */
 
 :not(pre) > code[data-v]:not(.twoslash-popup-code) {
