@@ -385,6 +385,28 @@ declare namespace getConfigFile {
   }
 }
 
+
+function ensure(options: ensure.Options) {
+  const { rootDir = process.cwd() } = options
+  const configFile = getConfigFile({ rootDir })
+  if (configFile) return
+  
+  const defaultConfigContent = `import { defineConfig } from 'vocs/config'
+  
+  export default defineConfig({
+    title: 'Docs',
+  })
+  `
+  const configPath = path.resolve(rootDir, 'vocs.config.ts')
+  fs.writeFileSync(configPath, defaultConfigContent)
+}
+
+declare namespace ensure {
+  export type Options = {
+    rootDir?: string | undefined
+  }
+}
+
 export async function resolve(options: resolve.Options = {}): Promise<Config> {
   const { server, rootDir = process.cwd() } = options
 
@@ -393,6 +415,8 @@ export async function resolve(options: resolve.Options = {}): Promise<Config> {
     const resolved = (await import(/* @vite-ignore */ configPath)).default as Config
     return resolved
   }
+
+  ensure({ rootDir })
 
   const configFile = getConfigFile({ rootDir })
   if (!configFile) return define({})

@@ -36,11 +36,13 @@ export function deps(): PluginOption {
       return {
         build: {
           ...config?.build,
+          chunkSizeWarningLimit: 1000,
           rollupOptions: {
             ...config?.build?.rollupOptions,
             onLog(level, log, handler) {
               if (log.message.includes('Error when using sourcemap for reporting an error')) return
               if (log.code === 'MODULE_LEVEL_DIRECTIVE') return
+              if (log.code === 'EMPTY_BUNDLE') return
               handler(level, log)
             },
           },
