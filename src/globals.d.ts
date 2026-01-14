@@ -19,3 +19,15 @@ declare module 'virtual:vocs/config' {
 declare module 'virtual:vocs/search-index' {
   export function getSearchIndex(): Promise<string>
 }
+
+declare module 'virtual:vocs/group-icons.css' {}
+
+declare module 'virtual:vocs/group-icons.css?inline' {
+  const css: string
+  export default css
+}
+
+declare module 'virtual:vocs/user-styles' {
+  const url: string | undefined
+  export default url
+}

@@ -24,8 +24,13 @@ export function CodeGroup(props: CodeGroup.Props) {
     <Tabs.Root data-v-code-container data-v-code-group defaultValue={items[0]?.title}>
       <Tabs.List aria-label="Code group" data-v-code-header data-v-code-group-list>
         {items.map(({ title }, i) => (
-          <Tabs.Tab data-v-code-group-tab key={title || i.toString()} value={title || i.toString()}>
-            {title}
+          <Tabs.Tab
+            data-title={title}
+            data-v-code-group-tab
+            key={title || i.toString()}
+            value={title || i.toString()}
+          >
+            {title.replace(/\s*~[^~]+~\s*$/, '')}
           </Tabs.Tab>
         ))}
       </Tabs.List>

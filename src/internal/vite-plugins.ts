@@ -1,5 +1,7 @@
 import * as fs from 'node:fs/promises'
 import * as path from 'node:path'
+import type { IconifyJSON } from '@iconify/types'
+import { getIconData, iconToHTML, iconToSVG } from '@iconify/utils'
 import mdxPlugin from '@mdx-js/rollup'
 import tailwindcss, { type PluginOptions as TailwindOptions } from '@tailwindcss/vite'
 import remarkMdx from 'remark-mdx'
@@ -713,6 +715,337 @@ export function virtualConfig(config: Config.Config): PluginOption {
         return `export const config = ${ConfigSerializer.serialize(serializedConfig)}`
       }
       return
+    },
+  }
+}
+
+/**
+ * Vite plugin that generates CSS for code block icons.
+ *
+ * Scans markdown files for `[label]` syntax and generates CSS
+ * with icon backgrounds based on builtin and custom icon mappings.
+ *
+ * Based on vitepress-plugin-group-icons by @yuyinws
+ * @see https://github.com/yuyinws/vitepress-plugin-group-icons
+ */
+export function groupIcons(config: Config.Config): PluginOption {
+  const virtualModuleId = 'virtual:vocs/group-icons.css'
+  const resolvedVirtualModuleId = `\0${virtualModuleId}`
+
+  const { rootDir, srcDir, pagesDir } = config
+  const pagesDirPath = path.resolve(rootDir, srcDir, pagesDir)
+
+  const builtinIcons: Record<string, string> = {
+    // Package managers
+    npm: 'vscode-icons:file-type-npm',
+    yarn: 'vscode-icons:file-type-yarn',
+    pnpm: 'vscode-icons:file-type-light-pnpm',
+    bun: 'vscode-icons:file-type-bun',
+    deno: 'vscode-icons:file-type-deno',
+
+    // File extensions
+    '.js': 'vscode-icons:file-type-js',
+    '.cjs': 'vscode-icons:file-type-js',
+    '.mjs': 'vscode-icons:file-type-js',
+    '.ts': 'vscode-icons:file-type-typescript',
+    '.cts': 'vscode-icons:file-type-typescript',
+    '.mts': 'vscode-icons:file-type-typescript',
+    '.jsx': 'vscode-icons:file-type-reactjs',
+    '.tsx': 'vscode-icons:file-type-reactts',
+    '.vue': 'vscode-icons:file-type-vue',
+    '.svelte': 'vscode-icons:file-type-svelte',
+    '.astro': 'vscode-icons:file-type-astro',
+    '.json': 'vscode-icons:file-type-json',
+    '.yaml': 'vscode-icons:file-type-yaml',
+    '.yml': 'vscode-icons:file-type-yaml',
+    '.toml': 'vscode-icons:file-type-toml',
+    '.md': 'vscode-icons:file-type-markdown',
+    '.mdx': 'vscode-icons:file-type-mdx',
+    '.html': 'vscode-icons:file-type-html',
+    '.css': 'vscode-icons:file-type-css',
+    '.scss': 'vscode-icons:file-type-scss',
+    '.sass': 'vscode-icons:file-type-sass',
+    '.less': 'vscode-icons:file-type-less',
+    '.py': 'vscode-icons:file-type-python',
+    '.rb': 'vscode-icons:file-type-ruby',
+    '.rs': 'vscode-icons:file-type-rust',
+    '.go': 'vscode-icons:file-type-go',
+    '.java': 'vscode-icons:file-type-java',
+    '.kt': 'vscode-icons:file-type-kotlin',
+    '.swift': 'vscode-icons:file-type-swift',
+    '.c': 'vscode-icons:file-type-c',
+    '.cpp': 'vscode-icons:file-type-cpp',
+    '.h': 'vscode-icons:file-type-cheader',
+    '.hpp': 'vscode-icons:file-type-cppheader',
+    '.cs': 'vscode-icons:file-type-csharp',
+    '.php': 'vscode-icons:file-type-php',
+    '.sh': 'vscode-icons:file-type-shell',
+    '.bash': 'vscode-icons:file-type-shell',
+    '.zsh': 'vscode-icons:file-type-shell',
+    '.fish': 'vscode-icons:file-type-shell',
+    '.sql': 'vscode-icons:file-type-sql',
+    '.graphql': 'vscode-icons:file-type-graphql',
+    '.gql': 'vscode-icons:file-type-graphql',
+    '.xml': 'vscode-icons:file-type-xml',
+    '.svg': 'vscode-icons:file-type-svg',
+    '.wasm': 'vscode-icons:file-type-wasm',
+    '.zig': 'vscode-icons:file-type-zig',
+    '.lua': 'vscode-icons:file-type-lua',
+    '.ex': 'vscode-icons:file-type-elixir',
+    '.exs': 'vscode-icons:file-type-elixir',
+    '.erl': 'vscode-icons:file-type-erlang',
+    '.hrl': 'vscode-icons:file-type-erlang',
+    '.clj': 'vscode-icons:file-type-clojure',
+    '.cljs': 'vscode-icons:file-type-clojure',
+    '.cljc': 'vscode-icons:file-type-clojure',
+    '.edn': 'vscode-icons:file-type-clojure',
+    '.scala': 'vscode-icons:file-type-scala',
+    '.hs': 'vscode-icons:file-type-haskell',
+    '.lhs': 'vscode-icons:file-type-haskell',
+    '.nim': 'vscode-icons:file-type-nim',
+    '.d': 'vscode-icons:file-type-dlang',
+    '.r': 'vscode-icons:file-type-r',
+    '.jl': 'vscode-icons:file-type-julia',
+    '.f90': 'vscode-icons:file-type-fortran',
+    '.f95': 'vscode-icons:file-type-fortran',
+    '.f03': 'vscode-icons:file-type-fortran',
+
+    // Config files
+    'vite.config': 'vscode-icons:file-type-vite',
+    'vitest.config': 'vscode-icons:file-type-vitest',
+    'nuxt.config': 'vscode-icons:file-type-nuxt',
+    'next.config': 'vscode-icons:file-type-next',
+    tsconfig: 'vscode-icons:file-type-tsconfig',
+    jsconfig: 'vscode-icons:file-type-jsconfig',
+    'package.json': 'vscode-icons:file-type-npm',
+    'tailwind.config': 'vscode-icons:file-type-tailwind',
+    'postcss.config': 'vscode-icons:file-type-postcss',
+    '.eslintrc': 'vscode-icons:file-type-eslint',
+    'eslint.config': 'vscode-icons:file-type-eslint',
+    '.prettierrc': 'vscode-icons:file-type-prettier',
+    'prettier.config': 'vscode-icons:file-type-prettier',
+    'biome.json': 'vscode-icons:file-type-biome',
+    '.gitignore': 'vscode-icons:file-type-git',
+    dockerfile: 'vscode-icons:file-type-docker',
+    'docker-compose': 'vscode-icons:file-type-docker',
+    '.env': 'vscode-icons:file-type-dotenv',
+    'vercel.json': 'vscode-icons:file-type-vercel',
+    'netlify.toml': 'vscode-icons:file-type-netlify',
+
+    // Frameworks/tools
+    vue: 'vscode-icons:file-type-vue',
+    react: 'vscode-icons:file-type-reactjs',
+    angular: 'vscode-icons:file-type-angular',
+    svelte: 'vscode-icons:file-type-svelte',
+    astro: 'vscode-icons:file-type-astro',
+    nuxt: 'vscode-icons:file-type-nuxt',
+    next: 'vscode-icons:file-type-next',
+    vite: 'vscode-icons:file-type-vite',
+    webpack: 'vscode-icons:file-type-webpack',
+    rollup: 'vscode-icons:file-type-rollup',
+    esbuild: 'vscode-icons:file-type-esbuild',
+    turbopack: 'vscode-icons:file-type-turbo',
+    solid: 'vscode-icons:file-type-solid',
+    qwik: 'vscode-icons:file-type-qwik',
+    remix: 'simple-icons:remix',
+    sveltekit: 'vscode-icons:file-type-svelte',
+    gatsby: 'vscode-icons:file-type-gatsby',
+    docker: 'vscode-icons:file-type-docker',
+    kubernetes: 'vscode-icons:file-type-kubernetes',
+    terraform: 'vscode-icons:file-type-terraform',
+    prisma: 'vscode-icons:file-type-prisma',
+    drizzle: 'simple-icons:drizzle',
+  }
+
+  const sortedBuiltins = Object.entries(builtinIcons).sort(([a], [b]) => b.length - a.length)
+  const iconSets = new Map<string, IconifyJSON>()
+  const labelRegex = /\[(.*?)\]/g
+  const labels = new Set<string>()
+  let cachedCss = ''
+  let server: ViteDevServer | undefined
+
+  function invalidateModule(): void {
+    if (!server) return
+    const mod = server.moduleGraph.getModuleById(resolvedVirtualModuleId)
+    if (!mod) return
+    server.moduleGraph.invalidateModule(mod)
+    server.reloadModule(mod)
+  }
+
+  function matchIcon(label: string): string | undefined {
+    const namedMatch = label.match(/\s~([^~]+)~/)
+    if (namedMatch?.[1]) return namedMatch[1]
+
+    const normalizedLabel = label.toLowerCase()
+    const customIcons = config.groupIcons?.customIcons
+
+    if (customIcons) {
+      for (const [key, icon] of Object.entries(customIcons)) {
+        if (normalizedLabel.includes(key.toLowerCase())) return icon
+      }
+    }
+
+    for (const [key, icon] of sortedBuiltins) {
+      if (normalizedLabel.includes(key.toLowerCase())) return icon
+    }
+
+    return undefined
+  }
+
+  async function resolveIcon(icon: string): Promise<string | undefined> {
+    if (icon.startsWith('<svg')) return icon
+
+    if (/^https?:\/\//.test(icon)) {
+      try {
+        const response = await fetch(icon)
+        if (response.ok) return await response.text()
+      } catch {}
+      return undefined
+    }
+
+    const [collection, iconName] = icon.split(':')
+    if (!collection || !iconName) return undefined
+
+    let iconSet = iconSets.get(collection)
+    if (!iconSet) {
+      try {
+        const mod = await import(`@iconify-json/${collection}`)
+        iconSet = mod.icons as IconifyJSON
+        iconSets.set(collection, iconSet)
+      } catch {
+        return undefined
+      }
+    }
+
+    const data = getIconData(iconSet, iconName)
+    if (!data) return undefined
+
+    const { attributes, body } = iconToSVG(data)
+    return iconToHTML(body, attributes)
+  }
+
+  function svgToDataUri(svg: string): string {
+    const encoded = svg
+      .replace(/currentColor/g, '#888888')
+      .replace(/"/g, "'")
+      .replace(/%/g, '%25')
+      .replace(/#/g, '%23')
+      .replace(/{/g, '%7B')
+      .replace(/}/g, '%7D')
+      .replace(/</g, '%3C')
+      .replace(/>/g, '%3E')
+    return `url("data:image/svg+xml,${encoded}")`
+  }
+
+  async function scanLabels(): Promise<void> {
+    const files = await Array.fromAsync(fs.glob(`${pagesDirPath}/**/*.{md,mdx}`))
+    labels.clear()
+
+    await Promise.all(
+      files.map(async (file) => {
+        try {
+          const content = await fs.readFile(file, 'utf-8')
+          let match: RegExpExecArray | null
+          // biome-ignore lint/suspicious/noAssignInExpressions: _
+          while ((match = labelRegex.exec(content)) !== null) {
+            const label = match[1]
+            if (label) labels.add(label)
+          }
+        } catch {}
+      }),
+    )
+  }
+
+  async function buildCss(): Promise<string> {
+    const iconGroups = new Map<string, string[]>()
+
+    for (const label of labels) {
+      const icon = matchIcon(label)
+      if (!icon) continue
+
+      const existing = iconGroups.get(icon) ?? []
+      existing.push(label)
+      iconGroups.set(icon, existing)
+    }
+
+    const cssRules: string[] = []
+
+    for (const [icon, iconLabels] of iconGroups) {
+      const svg = await resolveIcon(icon)
+      if (!svg) continue
+
+      const selectors = iconLabels
+        .flatMap((label) => {
+          const escaped = label.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
+          return [
+            `[data-v-code-group-tab][data-title="${escaped}"]::before`,
+            `[data-v-code-title][data-title="${escaped}"]::before`,
+          ]
+        })
+        .join(',\n')
+
+      cssRules.push(`${selectors} {
+  content: '';
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  margin-right: 0.5em;
+  vertical-align: text-bottom;
+  background: ${svgToDataUri(svg)} no-repeat center;
+  background-size: contain;
+}`)
+    }
+
+    return cssRules.join('\n\n')
+  }
+
+  return {
+    name: 'vocs:group-icons',
+    enforce: 'pre',
+
+    async configureServer(devServer) {
+      server = devServer
+      await scanLabels()
+      cachedCss = await buildCss()
+
+      devServer.watcher.on('change', async (changedPath) => {
+        if (!changedPath.startsWith(pagesDirPath)) return
+        if (!changedPath.endsWith('.md') && !changedPath.endsWith('.mdx')) return
+
+        const previousSize = labels.size
+        await scanLabels()
+
+        if (labels.size !== previousSize) {
+          cachedCss = await buildCss()
+          invalidateModule()
+          logger.info('Group icons CSS updated', { timestamp: true })
+        }
+      })
+    },
+
+    resolveId(id) {
+      if (id === virtualModuleId || id === `${virtualModuleId}?inline`)
+        return id === virtualModuleId
+          ? resolvedVirtualModuleId
+          : `${resolvedVirtualModuleId}?inline`
+      return
+    },
+
+    async load(id) {
+      if (id !== resolvedVirtualModuleId && id !== `${resolvedVirtualModuleId}?inline`) return
+
+      if (!cachedCss && labels.size === 0) {
+        await scanLabels()
+        cachedCss = await buildCss()
+      }
+
+      return cachedCss
+    },
+
+    async buildStart() {
+      if (server) return
+      await scanLabels()
+      cachedCss = await buildCss()
     },
   }
 }

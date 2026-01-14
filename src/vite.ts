@@ -18,6 +18,7 @@ export async function vocs(): Promise<PluginOption[]> {
   return [
     Plugins.arraybuffer(),
     Plugins.deps(),
+    Plugins.groupIcons(config),
     Plugins.icons({
       compiler: 'jsx',
       customCollections: {

@@ -1,6 +1,9 @@
 import { config } from 'virtual:vocs/config'
 // biome-ignore lint/suspicious/noTsIgnore: _
 // @ts-ignore
+import groupIconsCss from 'virtual:vocs/group-icons.css?inline'
+// biome-ignore lint/suspicious/noTsIgnore: _
+// @ts-ignore
 import userStyles from 'virtual:vocs/user-styles'
 // biome-ignore lint/suspicious/noTsIgnore: _
 // @ts-ignore
@@ -21,6 +24,8 @@ export async function Root({ children }: { children: React.ReactNode }) {
       <head>
         <link rel="stylesheet" href={styles} precedence="default" />
         {userStyles && <link rel="stylesheet" href={userStyles} precedence="default" />}
+        {/** biome-ignore lint/security/noDangerouslySetInnerHtml: TODO: switch to non-setHTML loading */}
+        {groupIconsCss && <style dangerouslySetInnerHTML={{ __html: groupIconsCss }} />}
         <Head />
       </head>
       <body data-version="1.0">

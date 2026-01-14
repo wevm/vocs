@@ -475,7 +475,22 @@ pre[data-v] {
 /* #region Code group */
 
 [data-v-code-group-list] {
-  @apply vocs:px-2 vocs:max-md:px-1 vocs:flex vocs:items-center vocs:border vocs:border-primary;
+  @apply vocs:px-2 vocs:max-md:px-1 vocs:flex vocs:items-center vocs:border vocs:border-primary vocs:overflow-x-auto vocs:overflow-y-hidden vocs:whitespace-nowrap;
+  scrollbar-width: thin;
+  scrollbar-gutter: stable;
+}
+
+[data-v-code-group-list]::-webkit-scrollbar {
+  height: 4px;
+}
+
+[data-v-code-group-list]::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+[data-v-code-group-list]::-webkit-scrollbar-thumb {
+  @apply vocs:rounded-full;
+  background: var(--vocs-border-color-primary);
 }
 
 [data-v-code-group-tab] {

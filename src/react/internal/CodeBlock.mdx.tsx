@@ -14,7 +14,9 @@ export function CodeBlock(props: CodeBlock.Props) {
     <div data-v-code-container>
       {title && (
         <div data-v-code-header>
-          <span data-v-code-title>{title}</span>
+          <span data-v-code-title data-title={title}>
+            {title}
+          </span>
         </div>
       )}
       <pre

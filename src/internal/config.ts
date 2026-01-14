@@ -110,6 +110,20 @@ export type Config<partial extends boolean = false> = MaybePartial<
         }
       | undefined
     /**
+     * Group icons configuration for code block labels.
+     * Displays icons next to code block titles based on file extensions and tools.
+     */
+    groupIcons?:
+      | {
+          /**
+           * Custom icon mappings. Keys are matched as substrings in labels.
+           * Values are Iconify identifiers (e.g., `vscode-icons:file-type-mdx`).
+           * @example { '.mdx': 'vscode-icons:file-type-mdx' }
+           */
+          customIcons?: Record<string, string> | undefined
+        }
+      | undefined
+    /**
      * Icon URL.
      */
     iconUrl?: string | ThemeValue<string> | undefined
@@ -315,6 +329,7 @@ export function define(config: define.Options = {}): Config {
     editLink: config.editLink
       ? { text: 'Suggest changes to this page', ...config.editLink }
       : undefined,
+    groupIcons: config.groupIcons,
     iconUrl,
     logoUrl,
     markdown,

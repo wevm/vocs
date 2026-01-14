@@ -137,27 +137,27 @@ These tabs share the same `stateKey="library"` and stay in sync:
 ## Callouts
 
 :::note
-This is a note callout. [`code`](https://google.com) `console.log('hello world'){:js}` [Link](https://google.com)
+This is a note callout. [`code`](https://example.com) `console.log('hello world'){:js}` [Link](https://example.com)
 :::
 
 :::info
-This is an info callout. [`code`](https://google.com) `console.log('hello world'){:js}` [Link](https://google.com)
+This is an info callout. [`code`](https://example.com) `console.log('hello world'){:js}` [Link](https://example.com)
 :::
 
 :::warning
-This is a warning callout. [`code`](https://google.com) `console.log('hello world'){:js}` [Link](https://google.com)
+This is a warning callout. [`code`](https://example.com) `console.log('hello world'){:js}` [Link](https://example.com)
 :::
 
 :::danger
-This is a danger callout. [`code`](https://google.com) `console.log('hello world'){:js}` [Link](https://google.com)
+This is a danger callout. [`code`](https://example.com) `console.log('hello world'){:js}` [Link](https://example.com)
 :::
 
 :::tip
-This is a tip callout. [`code`](https://google.com) `console.log('hello world'){:js}` [Link](https://google.com)
+This is a tip callout. [`code`](https://example.com) `console.log('hello world'){:js}` [Link](https://example.com)
 :::
 
 :::success
-This is a success callout. [`code`](https://google.com) `console.log('hello world'){:js}` [Link](https://google.com)
+This is a success callout. [`code`](https://example.com) `console.log('hello world'){:js}` [Link](https://example.com)
 :::
 
 :::note
@@ -242,9 +242,9 @@ www.example.com, https://example.com, and contact@example.com.
 
 [Homepage](/)
 
-[I'm an inline-style link](https://www.google.com)
+[I'm an inline-style link](https://www.example.com)
 
-[I'm an inline-style link with title](https://www.google.com "Google's Homepage")
+[I'm an inline-style link with title](https://www.example.com "Example Site")
 
 [I'm a reference-style link][Arbitrary case-insensitive reference text]
 
@@ -429,28 +429,82 @@ $ pnpm vocs preview
 
 ## Code group
 
-```bash [Bun]
-bun i viem
+Code groups automatically display icons based on the label text:
+
+:::code-group
+```bash [npm]
+npm install vocs
 ```
+```bash [pnpm]
+pnpm add vocs
+```
+```bash [yarn]
+yarn add vocs
+```
+```bash [bun]
+bun add vocs
+```
+:::
+
+Labels with file extensions get matching icons:
 
 :::code-group
 
-```bash [npm]
-npm i viem
+```ts [index.ts]
+export const foo = 'bar'
 ```
 
-```bash [pnpm]
-pnpm i viem
+```tsx [App.tsx]
+export function App() {
+  return <div>Hello</div>
+}
 ```
 
-```bash [bun]
-bun i viem
+```json [package.json]
+{ "name": "my-app" }
+```
+
+```css [styles.css]
+body { margin: 0; }
 ```
 
 :::
 
+Config file names are recognized:
+
 :::code-group
 
+```ts [vite.config.ts]
+import { defineConfig } from 'vite'
+export default defineConfig({})
+```
+
+```ts [tsconfig.json]
+{ "compilerOptions": { "strict": true } }
+```
+
+```ts [tailwind.config.ts]
+export default { content: ['./src/**/*.tsx'] }
+```
+
+:::
+
+Use `~icon~` syntax for custom icons:
+
+:::code-group
+```dockerfile [Dockerfile ~vscode-icons:file-type-docker~]
+FROM node:20-alpine
+```
+```yaml [docker-compose.yml ~vscode-icons:file-type-docker~]
+services:
+  app:
+    build: .
+```
+:::
+
+Code groups can contain preview components.
+
+:::code-group
 <div data-title="Preview">
   <Example />
 </div>
@@ -458,7 +512,6 @@ bun i viem
 ```tsx [example.tsx]
 <div>test</div>
 ```
-
 :::
 
 ## File Tree
