@@ -11,7 +11,7 @@
   "dependencies": {
     "react": "^19",
     "react-dom": "^19",
-    "vocs": "latest",
+    "vocs": "https://pkg.pr.new/wevm/vocs-v2@next",
     "waku": "^1.0.0-alpha.2"
   },
   "devDependencies": {
