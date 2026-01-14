@@ -10,6 +10,25 @@ import type { MaybePartial, UnionOmit } from './types.js'
 
 export type ThemeValue<value> = { light: value; dark: value }
 
+export type Banner =
+  | string
+  | {
+      /** Markdown content displayed in the banner. */
+      content: string
+      /** Background color of the banner (CSS color value). Overrides variant. */
+      backgroundColor?: string | undefined
+      /** Whether the banner can be dismissed. Persists in localStorage. @default true */
+      dismissable?: boolean | undefined
+      /** Height of the banner (CSS value, e.g., '28px'). */
+      height?: string | undefined
+      /** Optional link (internal or external) the banner navigates to when clicked. */
+      href?: string | undefined
+      /** Text color of the banner (CSS color value). Overrides variant. */
+      textColor?: string | undefined
+      /** Visual variant/color scheme of the banner. */
+      variant?: 'note' | 'info' | 'warning' | 'danger' | 'tip' | 'success' | undefined
+    }
+
 export type Config<partial extends boolean = false> = MaybePartial<
   partial,
   {
@@ -23,17 +42,10 @@ export type Config<partial extends boolean = false> = MaybePartial<
      *
      */
     accentColor: `light-dark(${string}, ${string})` | (string & {})
-    // /**
-    //  * Configuration for the banner fixed to the top of the page.
-    //  *
-    //  * Can be a Markdown string, a React Element, or an object with the following properties:
-    //  * - `dismissable`: Whether or not the banner can be dismissed.
-    //  * - `backgroundColor`: The background color of the banner.
-    //  * - `content`: The content of the banner.
-    //  * - `height`: The height of the banner.
-    //  * - `textColor`: The text color of the banner.
-    //  */
-    // banner?: Banner<parsed>
+    /**
+     * Configuration for the banner fixed to the top of the page.
+     */
+    banner?: Banner | undefined
     /**
      * The base path the documentation will be deployed at. All assets and pages
      * will be prefixed with this path. This is useful for deploying to GitHub Pages.
@@ -282,6 +294,7 @@ export type Frontmatter = {
 export function define(config: define.Options = {}): Config {
   const {
     accentColor = 'light-dark(black, white)',
+    banner,
     basePath = '/',
     baseUrl,
     cacheDir = path.resolve(import.meta.dirname, '.vocs/cache'),
@@ -311,6 +324,13 @@ export function define(config: define.Options = {}): Config {
 
   return {
     accentColor,
+    banner: banner
+      ? {
+          dismissable: true,
+          variant: 'info',
+          ...(typeof banner === 'string' ? { content: banner } : banner),
+        }
+      : undefined,
     baseUrl,
     basePath,
     cacheDir,
@@ -385,27 +405,6 @@ declare namespace getConfigFile {
   }
 }
 
-export function ensure(options: ensure.Options) {
-  const { rootDir = process.cwd() } = options
-  const configFile = getConfigFile({ rootDir })
-  if (configFile) return
-
-  const defaultConfigContent = `import { defineConfig } from 'vocs/config'
-  
-  export default defineConfig({
-    title: 'Docs',
-  })
-  `
-  const configPath = path.resolve(rootDir, 'vocs.config.ts')
-  fs.writeFileSync(configPath, defaultConfigContent)
-}
-
-declare namespace ensure {
-  export type Options = {
-    rootDir?: string | undefined
-  }
-}
-
 export async function resolve(options: resolve.Options = {}): Promise<Config> {
   const { server, rootDir = process.cwd() } = options
 
@@ -414,8 +413,6 @@ export async function resolve(options: resolve.Options = {}): Promise<Config> {
     const resolved = (await import(/* @vite-ignore */ configPath)).default as Config
     return resolved
   }
-
-  ensure({ rootDir })
 
   const configFile = getConfigFile({ rootDir })
   if (!configFile) return define({})

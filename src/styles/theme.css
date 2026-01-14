@@ -182,6 +182,7 @@
 
   /* #region Spacing */
 
+  --spacing-banner: 0px;
   --spacing-code-block-px: 1.5rem;
   --spacing-content-px: 3rem;
   --spacing-content-py: 2.5rem;

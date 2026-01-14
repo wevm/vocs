@@ -3,6 +3,7 @@
 import * as React from 'react'
 import LucideSearch from '~icons/lucide/search'
 // import * as AskAi from './internal/AskAi.js'
+import * as Banner from './internal/Banner.client.js'
 import * as EditLink from './internal/EditLink.client.js'
 import * as LastUpdated from './internal/LastUpdated.client.js'
 import * as MobileNav from './internal/MobileNav.js'
@@ -29,6 +30,7 @@ export function Main(props: Main.Props) {
 
   return (
     <div>
+      <Banner.Banner />
       <SkipToContent.SkipToContent />
 
       <div
@@ -43,7 +45,7 @@ export function Main(props: Main.Props) {
       </div>
 
       <div
-        className="vocs:bg-primary vocs:flex vocs:justify-end vocs:fixed vocs:pt-topNav vocs:w-gutter vocs:h-screen vocs:z-10 vocs:max-lg:hidden"
+        className="vocs:bg-primary vocs:flex vocs:justify-end vocs:fixed vocs:w-gutter vocs:h-screen vocs:z-10 vocs:max-lg:hidden"
         data-v-gutter-left
       >
         <aside
@@ -113,10 +115,13 @@ export function Main(props: Main.Props) {
         </div>
       </div>
 
-      <div className="vocs:max-md:hidden vocs:fixed vocs:bg-surface vocs:lg:rounded-tl-2xl vocs:lg:border-l vocs:border-t vocs:border-primary vocs:w-full vocs:h-full vocs:max-lg:w-full vocs:top-topNav vocs:max-w-screen vocs:ml-gutter" />
+      <div
+        className="vocs:max-md:hidden vocs:fixed vocs:bg-surface vocs:lg:rounded-tl-2xl vocs:lg:border-l vocs:border-t vocs:border-primary vocs:w-full vocs:h-full vocs:max-lg:w-full vocs:max-w-screen vocs:ml-gutter"
+        data-v-surface-bg
+      />
 
       <main
-        className="vocs:isolate vocs:pt-topNav vocs:pb-20 vocs:max-w-screen vocs:h-full vocs:lg:ml-gutter"
+        className="vocs:isolate vocs:pb-20 vocs:max-w-screen vocs:h-full vocs:lg:ml-gutter"
         data-v-main
         id="vocs-content"
       >
@@ -147,7 +152,7 @@ export function Main(props: Main.Props) {
       </div> */}
 
       <div
-        className="vocs:fixed vocs:overflow-y-auto vocs:w-gutter vocs:py-content-py vocs:pb-20 vocs:h-full vocs:right-0 vocs:top-topNav vocs:max-[1376px]:hidden"
+        className="vocs:fixed vocs:overflow-y-auto vocs:w-gutter vocs:py-content-py vocs:pb-20 vocs:h-full vocs:right-0 vocs:max-[1376px]:hidden"
         data-v-gutter-right
       >
         <div className="vocs:flex vocs:flex-col vocs:gap-2" data-v-outline-container>

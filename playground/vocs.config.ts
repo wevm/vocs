@@ -1,6 +1,7 @@
 import { defineConfig } from 'vocs/config'
 
 export default defineConfig({
+  banner: 'Vocs v2 is now available!',
   baseUrl: process.env.BASE_URL,
   checkDeadlinks: false,
   redirects: [

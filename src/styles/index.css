@@ -24,7 +24,31 @@
   }
 
   html {
-    scroll-padding-top: calc(var(--vocs-spacing-topNav) + 1rem);
+    scroll-padding-top: calc(var(--vocs-spacing-topNav) + var(--vocs-spacing-banner) + 1rem);
+  }
+
+  [data-v-gutter-logo] {
+    top: var(--vocs-spacing-banner);
+  }
+
+  [data-v-gutter-left] {
+    padding-top: calc(var(--vocs-spacing-topNav) + var(--vocs-spacing-banner));
+  }
+
+  [data-v-gutter-top] {
+    top: var(--vocs-spacing-banner);
+  }
+
+  [data-v-gutter-right] {
+    top: calc(var(--vocs-spacing-topNav) + var(--vocs-spacing-banner));
+  }
+
+  [data-v-main] {
+    padding-top: calc(var(--vocs-spacing-topNav) + var(--vocs-spacing-banner));
+  }
+
+  [data-v-surface-bg] {
+    top: calc(var(--vocs-spacing-topNav) + var(--vocs-spacing-banner));
   }
 
   body {

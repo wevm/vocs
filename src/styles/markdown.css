@@ -251,6 +251,58 @@ aside[data-v][data-v-callout] {
 
 /* #endregion */
 
+/* #region Banners */
+
+[data-v-banner] {
+  @apply vocs:fixed vocs:top-0 vocs:left-0 vocs:right-0 vocs:z-50 vocs:flex vocs:items-center vocs:justify-center vocs:gap-4 vocs:px-4 vocs:py-2 vocs:text-sm vocs:font-medium;
+
+  &[data-v-context="note"] {
+    @apply vocs:bg-note-tint vocs:text-note;
+  }
+
+  &[data-v-context="info"] {
+    @apply vocs:bg-info-tint vocs:text-info;
+  }
+
+  &[data-v-context="tip"] {
+    @apply vocs:bg-tip-tint vocs:text-tip;
+  }
+
+  &[data-v-context="warning"] {
+    @apply vocs:bg-warning-tint vocs:text-warning;
+  }
+
+  &[data-v-context="danger"] {
+    @apply vocs:bg-destructive-tint vocs:text-destructive;
+  }
+
+  &[data-v-context="success"] {
+    @apply vocs:bg-success-tint vocs:text-success;
+  }
+}
+
+[data-v-banner-content] {
+  @apply vocs:flex vocs:items-center vocs:gap-1.5;
+}
+
+[data-v-banner-arrow] {
+  @apply vocs:h-3.5 vocs:w-3.5;
+}
+
+[data-v-banner-link] {
+  @apply vocs:underline vocs:underline-offset-2;
+}
+
+[data-v-banner-dismiss] {
+  @apply vocs:absolute vocs:right-4 vocs:flex vocs:items-center vocs:justify-center vocs:rounded vocs:p-1 vocs:opacity-70 vocs:transition-opacity vocs:hover:opacity-100;
+
+  & svg {
+    @apply vocs:h-4 vocs:w-4;
+  }
+}
+
+/* #endregion */
+
 /* #region Lists */
 
 ol[data-v] {
