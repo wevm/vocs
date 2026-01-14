@@ -186,7 +186,7 @@ A comprehensive checklist of features for Vocs v2, based on Vocs v1 feature pari
 
 ## CLI
 
-- [ ] `create-vocs` *
+- [x] `create-vocs` *
 
 ## Miscellaneous
 

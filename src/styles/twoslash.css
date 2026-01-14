@@ -17,11 +17,12 @@
 
   & .twoslash-completion-cursor {
     position: relative;
+    z-index: 50;
   }
 }
 
 .twoslash-popup-container {
-  @apply vocs:bg-surface vocs:border vocs:border-primary vocs:rounded-sm vocs:max-w-140 vocs:select-none;
+  @apply vocs:bg-surface vocs:border vocs:border-primary vocs:rounded-sm vocs:max-w-140 vocs:select-none vocs:z-50;
 
   @media (width <= 560px) {
     & {
@@ -79,7 +80,7 @@
 }
 
 .twoslash-completion-list {
-  @apply vocs:min-w-30 vocs:font-mono vocs:text-xs vocs:flex vocs:flex-col vocs:gap-1 vocs:bg-surface vocs:border vocs:border-primary vocs:rounded-sm vocs:p-2 vocs:select-none;
+  @apply vocs:min-w-30 vocs:font-mono vocs:text-xs vocs:flex vocs:flex-col vocs:gap-1 vocs:bg-surface vocs:border vocs:border-primary vocs:rounded-sm vocs:p-2 vocs:select-none vocs:z-10;
 
   &:hover {
     @apply vocs:select-auto;
