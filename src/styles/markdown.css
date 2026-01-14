@@ -35,6 +35,22 @@ h6[data-v] {
   @apply vocs:text-heading vocs:text-h6 vocs:font-semibold vocs:tracking-tight;
 }
 
+.heading-anchor {
+  @apply vocs:ml-2 vocs:opacity-0 vocs:transition-opacity vocs:duration-100 vocs:no-underline vocs:inline-flex vocs:items-center;
+}
+
+.heading-anchor-icon {
+  @apply vocs:text-secondary vocs:translate-y-[0.05em];
+}
+
+:is(h1, h2, h3, h4, h5, h6)[data-v]:hover .heading-anchor {
+  @apply vocs:opacity-100;
+}
+
+.heading-anchor:hover .heading-anchor-icon {
+  @apply vocs:text-accent7;
+}
+
 strong[data-v] {
   @apply vocs:font-semibold;
 }
@@ -153,7 +169,7 @@ aside[data-v][data-v-callout] {
   }
 
   & > [data-v-callout-icon] {
-    @apply vocs:h-4 vocs:w-4 vocs:mt-[0.15rem] vocs:absolute;
+    @apply vocs:h-4 vocs:w-4 vocs:mt-[0.3rem] vocs:absolute;
   }
 
   &[data-v-content] > :not(:is([data-v-callout-icon], [data-v-code-container])) {

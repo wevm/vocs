@@ -37,7 +37,9 @@ export async function init() {
 
     const templatePath = ['.', '..']
       .map((dir) => path.join(import.meta.dirname, dir, 'template'))
-      .find((p) => fs.existsSync(p))!
+      .find((p) => fs.existsSync(p))
+
+    if (!templatePath) throw new Error('Template directory not found')
 
     copyDir(templatePath, targetPath)
 
