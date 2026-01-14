@@ -3,6 +3,7 @@ import * as fs from 'node:fs'
 import react from '@vitejs/plugin-react'
 import { cac } from 'cac'
 import * as vite from 'vite'
+import * as createVocs from 'create-vocs'
 
 import * as Config from './internal/config.js'
 import { vocs } from './waku/vite.js'
@@ -51,6 +52,10 @@ cli
     const previewPath = new URL(`${config.outDir}/preview.js`, `file://${process.cwd()}/`).href
     await import(previewPath)
   })
+
+cli.command('new', 'Create a new Vocs project').action(async () => {
+  await createVocs.init()
+})
 
 cli.help()
 cli.version(pkg.version)

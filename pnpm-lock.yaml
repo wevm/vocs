@@ -18,7 +18,13 @@ catalogs:
     '@types/react':
       specifier: ^19.2.7
       version: 19.2.7
+    '@types/react-dom':
+      specifier: ^19.2.3
+      version: 19.2.3
     react:
+      specifier: ^19.2.3
+      version: 19.2.3
+    react-dom:
       specifier: ^19.2.3
       version: 19.2.3
     simple-git-hooks:
@@ -110,6 +116,9 @@ importers:
       cac:
         specifier: ^6.7.14
         version: 6.7.14
+      create-vocs:
+        specifier: workspace:*
+        version: link:create-vocs
       cva:
         specifier: npm:class-variance-authority@^0.7.1
         version: class-variance-authority@0.7.1

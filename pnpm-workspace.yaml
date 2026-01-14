@@ -21,4 +21,5 @@ catalog:
   zile: 0.0.19
 
 overrides:
+  create-vocs: 'workspace:*'
   vite: 'catalog:'

@@ -74,6 +74,7 @@
     "@vitejs/plugin-react": "^5.1.2",
     "@vitejs/plugin-rsc": "^0.5.9",
     "cac": "^6.7.14",
+    "create-vocs": "^2.0.0-alpha.0",
     "cva": "npm:class-variance-authority@^0.7.1",
     "esast-util-from-js": "^2.0.1",
     "estree-util-value-to-estree": "^3.5.0",
