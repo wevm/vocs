@@ -160,6 +160,7 @@ export function getCompileOptions(
           remarkDefaultFrontmatter,
           remarkDetails,
           remarkDirective,
+          remarkBadge,
           remarkFilename,
           remarkGfm,
           remarkMetaFrontmatter,
@@ -460,6 +461,38 @@ export function remarkCallout() {
       }
     })
   }
+}
+
+/**
+ * Remark plugin that transforms `:badge[content]{variant}` text directives into Badge elements.
+ *
+ * Syntax:
+ * - `:badge[Beta]` – renders a Badge with default "info" variant
+ * - `:badge[New]{success}` – renders a Badge with "success" variant
+ * - `:badge[Deprecated]{warning}` – renders a Badge with "warning" variant
+ */
+export function remarkBadge(): remarkBadge.ReturnType {
+  return (tree: MdAst.Root) => {
+    UnistUtil.visit(tree, 'textDirective', (node) => {
+      if (node.name !== 'badge') return
+
+      // biome-ignore lint/suspicious/noAssignInExpressions: _
+      const data = node.data || (node.data = {})
+
+      // Extract variant from attributes (e.g., {warning} becomes { warning: '' })
+      const variant = node.attributes ? Object.keys(node.attributes)[0] : undefined
+
+      data.hName = 'span'
+      data.hProperties = {
+        'data-v-badge': '',
+        'data-v-context': variant ?? 'info',
+      }
+    })
+  }
+}
+
+export declare namespace remarkBadge {
+  type ReturnType = (tree: MdAst.Root) => void
 }
 
 /**
