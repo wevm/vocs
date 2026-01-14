@@ -120,7 +120,7 @@ Strikethrough uses two tildes. ~~Scratch this.~~
 
 ### Synced Tabs
 
-These tabs share the same `stateKey="library"` and stay in sync:
+These tabs share the same `stateKey="library"` and stay in sync.
 
 <Tabs stateKey="library">
   <Tab title="Viem">
@@ -133,6 +133,37 @@ These tabs share the same `stateKey="library"` and stay in sync:
     More RLP content here...
   </Tab>
 </Tabs>
+
+Code groups with package manager tabs (npm/pnpm/yarn/bun) automatically sync across the page.
+
+:::code-group
+```bash [npm]
+npm i vocs
+```
+```bash [pnpm]
+pnpm add vocs
+```
+```bash [yarn]
+yarn add vocs
+```
+```bash [bun]
+bun add vocs
+```
+:::
+:::code-group
+```bash [npm]
+npm create vocs
+```
+```bash [pnpm]
+pnpm create vocs
+```
+```bash [yarn]
+yarn create vocs
+```
+```bash [bun]
+bun create vocs
+```
+:::
 
 ## Callouts
 
@@ -418,7 +449,7 @@ const d = 1
 
 ### Shell Commands
 
-Shell code blocks with prompt symbols have per-line copy buttons and the prompt is not copied:
+Shell code blocks with prompt symbols have per-line copy buttons and the prompt is not copied.
 
 ```bash
 $ pnpm create vocs
