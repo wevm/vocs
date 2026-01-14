@@ -13,11 +13,13 @@
   "version": "2.0.0-alpha.0",
   "type": "module",
   "bin": {
-    "create-vocs": "./dist/bin.js"
+    "create-vocs": "./dist/bin.js",
+    "create-vocs.src": "./bin.ts"
   },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
+      "src": "./index.ts",
       "default": "./dist/index.js"
     }
   },
@@ -30,5 +32,8 @@
     "picocolors": "^1.1.1"
   },
   "repository": "wevm/vocs",
-  "sideEffects": false
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts"
 }

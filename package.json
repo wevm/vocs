@@ -1,13 +1,14 @@
 {
   "scripts": {
-    "build": "zile",
+    "build": "pnpm --filter create-vocs build && zile",
     "clean": "tsc -b --clean && rm -rf dist",
     "changeset:publish": "zile publish:prepare && changeset publish && zile publish:post",
     "changeset:version": "changeset version",
     "check": "biome check --fix --unsafe",
     "check:types": "tsc -b",
-    "dev": "zile dev",
+    "dev": "pnpm --filter create-vocs dev && zile dev",
     "dev:playground": "pnpm --filter playground dev",
+    "postinstall": "pnpm dev",
     "test": "vitest ./src"
   },
   "devDependencies": {
