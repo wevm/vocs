@@ -385,7 +385,7 @@ declare namespace getConfigFile {
   }
 }
 
-function _ensure(options: _ensure.Options) {
+export function ensure(options: ensure.Options) {
   const { rootDir = process.cwd() } = options
   const configFile = getConfigFile({ rootDir })
   if (configFile) return

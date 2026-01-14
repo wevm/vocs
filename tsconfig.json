@@ -1,6 +1,11 @@
 {
   "files": [],
-  "references": [{ "path": "./src" }, { "path": "./playground" }],
+  "references": [
+    { "path": "./create-vocs" },
+    { "path": "./site" },
+    { "path": "./src" },
+    { "path": "./playground" }
+  ],
   "compilerOptions": {
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "module": "nodenext",

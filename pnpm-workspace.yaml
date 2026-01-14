@@ -1,5 +1,7 @@
 packages:
   - .
+  - create-vocs
+  - site
   - playground
 
 catalog:

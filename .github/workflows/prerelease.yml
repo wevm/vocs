@@ -18,4 +18,5 @@ jobs:
       - name: Prerelease
         run: | 
           pnpm run build
-          pnpx pkg-pr-new publish --pnpm
+          pnpm run --filter create-vocs build
+          pnpx pkg-pr-new publish --pnpm . ./create-vocs

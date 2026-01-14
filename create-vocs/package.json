@@ -1,0 +1,31 @@
+{
+  "scripts": {
+    "build": "zile",
+    "dev": "zile dev"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "zile": "catalog:"
+  },
+  "[!start-pkg]": "",
+  "name": "create-vocs",
+  "version": "2.0.0-alpha.0",
+  "type": "module",
+  "bin": {
+    "create-vocs": "./dist/bin.js"
+  },
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "template"
+  ],
+  "dependencies": {
+    "@clack/prompts": "^0.11.0",
+    "picocolors": "^1.1.1"
+  },
+  "repository": "wevm/vocs",
+  "sideEffects": false
+}
