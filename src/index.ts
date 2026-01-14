@@ -1,4 +1,5 @@
 export { useRouter } from 'waku'
+export { Badge } from './react/Badge.js'
 export { Callout } from './react/Callout.js'
 export { Card, Cards } from './react/Cards.js'
 export { Head } from './react/Head.js'

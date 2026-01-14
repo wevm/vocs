@@ -35,7 +35,7 @@ A comprehensive checklist of features for Vocs v2, based on Vocs v1 feature pari
 - [x] Mobile navigation menus
 - [x] 404 page
 - [x] Error boundaries
-- [ ] Title anchors *
+- [x] Title anchors *
 
 ## Search
 
@@ -86,7 +86,7 @@ A comprehensive checklist of features for Vocs v2, based on Vocs v1 feature pari
 - [ ] Tiles (grid of links)
 - [x] Files/FileTree
 - [ ] TypeTable
-- [ ] Badge *
+- [x] Badge *
 - [ ] Image zoom *
 - [ ] Mermaid diagram *
 

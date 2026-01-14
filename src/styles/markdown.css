@@ -151,6 +151,38 @@ blockquote[data-v] {
 
 /* #endregion */
 
+/* #region Badge */
+
+[data-v-badge] {
+  @apply vocs:inline-flex vocs:items-center vocs:rounded-md vocs:px-2 vocs:py-0.5 vocs:text-xs vocs:font-medium;
+
+  &[data-v-context="note"] {
+    @apply vocs:bg-note-tint vocs:text-note;
+  }
+
+  &[data-v-context="info"] {
+    @apply vocs:bg-info-tint vocs:text-info;
+  }
+
+  &[data-v-context="tip"] {
+    @apply vocs:bg-tip-tint vocs:text-tip;
+  }
+
+  &[data-v-context="warning"] {
+    @apply vocs:bg-warning-tint vocs:text-warning;
+  }
+
+  &[data-v-context="danger"] {
+    @apply vocs:bg-destructive-tint vocs:text-destructive;
+  }
+
+  &[data-v-context="success"] {
+    @apply vocs:bg-success-tint vocs:text-success;
+  }
+}
+
+/* #endregion */
+
 /* #region Callouts */
 
 aside[data-v][data-v-callout] {
