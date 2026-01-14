@@ -28,7 +28,7 @@ A comprehensive checklist of features for Vocs v2, based on Vocs v1 feature pari
 - [x] Logo (text/image/light-dark)
 - [x] Page outline
 - [x] Footer
-- [ ] Banner (dismissable, customizable colors) *
+- [x] Banner (dismissable, customizable colors) *
 - [x] Skip link for accessibility
 - [x] Pagination (prev/next page links)
 - [ ] Back to top button *
@@ -141,7 +141,7 @@ A comprehensive checklist of features for Vocs v2, based on Vocs v1 feature pari
 - [x] `titleTemplate`
 - [x] `topNav`
 - [x] `twoslash`
-- [ ] `banner` *
+- [x] `banner` *
 - [ ] `blogDir`
 - [x] `editLink`
 - [x] `search`
