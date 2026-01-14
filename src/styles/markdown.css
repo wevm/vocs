@@ -702,3 +702,31 @@ pre[data-v-shell] {
 }
 
 /* #endregion */
+
+/* #region Mermaid */
+
+[data-v-mermaid-container] {
+  @apply vocs:my-6;
+}
+
+[data-v-mermaid] {
+  @apply vocs:flex vocs:justify-center vocs:overflow-x-auto;
+}
+
+[data-v-mermaid] svg {
+  @apply vocs:max-w-full vocs:h-auto;
+}
+
+[data-v-mermaid-loading] {
+  @apply vocs:text-secondary vocs:text-center vocs:py-8;
+}
+
+[data-v-mermaid-error] {
+  @apply vocs:bg-destructive-tint vocs:border vocs:border-destructive-tint vocs:rounded-lg vocs:p-4 vocs:text-destructive;
+}
+
+[data-v-mermaid-error] pre {
+  @apply vocs:whitespace-pre-wrap vocs:text-sm vocs:m-0;
+}
+
+/* #endregion */

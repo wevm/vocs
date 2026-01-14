@@ -615,6 +615,54 @@ alert('hello world')
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce vestibulum ante non neque convallis tempor. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Nam a iaculis libero.
 ::::
 
+## Mermaid Diagrams
+
+Mermaid diagrams are rendered client-side.
+
+### Flowchart
+
+```mermaid
+flowchart TD
+    A[Start] --> B{Is it working?}
+    B -->|Yes| C[Great!]
+    B -->|No| D[Debug]
+    D --> B
+    C --> E[End]
+```
+
+### Sequence Diagram
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Server
+    participant Database
+    
+    Client->>Server: Request data
+    Server->>Database: Query
+    Database-->>Server: Results
+    Server-->>Client: Response
+```
+
+### Class Diagram
+
+```mermaid
+classDiagram
+    class Animal {
+        +String name
+        +int age
+        +makeSound()
+    }
+    class Dog {
+        +fetch()
+    }
+    class Cat {
+        +scratch()
+    }
+    Animal <|-- Dog
+    Animal <|-- Cat
+```
+
 ## Blockquote
 
 > Blockquotes are very handy in email to emulate reply text.

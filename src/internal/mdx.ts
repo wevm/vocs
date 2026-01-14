@@ -30,6 +30,41 @@ import type { ExactPartial, UnionOmit } from './types.js'
 export { default as remarkFrontmatter } from 'remark-frontmatter'
 export { default as remarkMdxFrontmatter } from 'remark-mdx-frontmatter'
 
+/**
+ * Remark plugin that transforms mermaid code blocks into Mermaid components.
+ * Replaces ```mermaid code blocks with a paragraph that has hName/hProperties
+ * to become a div with data-v-mermaid-chart attribute.
+ */
+export function remarkMermaid(): remarkMermaid.ReturnType {
+  return (tree: MdAst.Root) => {
+    UnistUtil.visit(tree, 'code', (node, index, parent) => {
+      if (index === undefined || !parent) return
+      if (node.lang !== 'mermaid') return
+
+      const chart = node.value.trim()
+
+      // Replace the code node with a paragraph that transforms to a div
+      const replacement = {
+        type: 'paragraph',
+        children: [],
+        data: {
+          hName: 'div',
+          hProperties: {
+            'data-v-mermaid-chart': chart,
+          },
+        },
+      } satisfies MdAst.Paragraph
+
+      parent.children.splice(index, 1, replacement)
+      return UnistUtil.SKIP
+    })
+  }
+}
+
+export declare namespace remarkMermaid {
+  type ReturnType = (tree: MdAst.Root) => void
+}
+
 const extensions = ['.js', '.ts', '.tsx', '.jsx', '.mjs', '.cjs', '.md', '.mdx']
 const logger = createLogger(undefined, { allowClearScreen: false, prefix: '[vocs]' })
 
@@ -116,6 +151,7 @@ export function getCompileOptions(
           rehypeLinks(config),
         ],
         remarkPlugins: [
+          remarkMermaid,
           remarkFrontmatter,
           remarkFileTree,
           remarkCallout,

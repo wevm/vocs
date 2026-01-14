@@ -5,6 +5,7 @@ import { CodeBlock } from './react/internal/CodeBlock.mdx.js'
 import { CodeGroup } from './react/internal/CodeGroup.mdx.js'
 import { CodeToHtml } from './react/internal/CodeToHtml.js'
 import { FileTree } from './react/internal/FileTree.mdx.js'
+import { Mermaid } from './react/internal/Mermaid.mdx.js'
 import { Steps } from './react/internal/Steps.mdx.js'
 import { TwoslashCompletionList } from './react/internal/TwoslashCompletionList.js'
 import { TwoslashHover } from './react/internal/TwoslashHover.js'
@@ -24,9 +25,15 @@ export const components: MDXComponents = {
     if ('data-v-callout' in props) return <Callout {...props} variant={props['data-v-context']} />
     return <aside {...props} data-v />
   },
-  div(props: React.PropsWithChildren<React.ComponentProps<'div'>>) {
+  div(
+    props: React.PropsWithChildren<
+      React.ComponentProps<'div'> & { 'data-v-mermaid-chart'?: string }
+    >,
+  ) {
     if ('data-v-code-group' in props) return <CodeGroup {...props} />
     if ('data-v-file-tree' in props) return <FileTree {...props} />
+    if ('data-v-mermaid-chart' in props)
+      return <Mermaid chart={props['data-v-mermaid-chart'] ?? ''} />
     if ('data-v-steps' in props) return <Steps {...props} />
     return <div {...props} />
   },

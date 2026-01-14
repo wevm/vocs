@@ -88,7 +88,7 @@ A comprehensive checklist of features for Vocs v2, based on Vocs v1 feature pari
 - [ ] TypeTable
 - [x] Badge *
 - [ ] Image zoom *
-- [ ] Mermaid diagram *
+- [x] Mermaid diagram *
 
 ## Remark/Rehype Plugins
 

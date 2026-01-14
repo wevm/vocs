@@ -1,14 +1,13 @@
 {
   "scripts": {
-    "build": "pnpm --filter create-vocs build && zile",
+    "build": "zile",
     "clean": "tsc -b --clean && rm -rf dist",
     "changeset:publish": "zile publish:prepare && changeset publish && zile publish:post",
     "changeset:version": "changeset version",
     "check": "biome check --fix --unsafe",
     "check:types": "tsc -b",
-    "dev": "pnpm --filter create-vocs dev && zile dev",
+    "dev": "zile dev",
     "dev:playground": "pnpm --filter playground dev",
-    "postinstall": "pnpm dev",
     "test": "vitest ./src"
   },
   "devDependencies": {
@@ -22,6 +21,7 @@
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "astring": "^1.9.0",
+    "mermaid": "^11.12.2",
     "react": "catalog:",
     "simple-git-hooks": "catalog:",
     "tsx": "^4.21.0",
@@ -72,10 +72,7 @@
     "@tailwindcss/vite": "^4.1.8",
     "@takumi-rs/image-response": "^0.62.7",
     "@takumi-rs/wasm": "^0.62.7",
-    "@vitejs/plugin-react": "^5.1.2",
     "@vitejs/plugin-rsc": "^0.5.9",
-    "cac": "^6.7.14",
-    "create-vocs": "^2.0.0-alpha.0",
     "cva": "npm:class-variance-authority@^0.7.1",
     "esast-util-from-js": "^2.0.1",
     "estree-util-value-to-estree": "^3.5.0",
@@ -116,11 +113,15 @@
     "yaml": "^2.8.2"
   },
   "peerDependencies": {
+    "mermaid": "^11",
     "react": "^19",
     "vite": "^7",
     "waku": "^1"
   },
   "peerDependenciesMeta": {
+    "mermaid": {
+      "optional": true
+    },
     "waku": {
       "optional": true
     },
@@ -129,10 +130,6 @@
     }
   },
   "sideEffects": false,
-  "bin": {
-    "vocs": "./dist/cli.js",
-    "vocs.src": "./src/cli.ts"
-  },
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
