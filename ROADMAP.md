@@ -14,12 +14,13 @@ A comprehensive checklist of features for Vocs v2, based on Vocs v1 feature pari
 - [x] Sitemap generation
 - [ ] Blog
 - [x] Redirects
-- [ ] PWA support
 - [ ] RSS generation
 
 ## Layout & Navigation
 
 - [x] Layout component (base)
+  - [ ] Blank *
+  - [ ] Minimal *
 - [x] Sidebar component
 - [x] Sidebar parsing from config
 - [x] Top navigation component
@@ -27,19 +28,21 @@ A comprehensive checklist of features for Vocs v2, based on Vocs v1 feature pari
 - [x] Logo (text/image/light-dark)
 - [x] Page outline
 - [x] Footer
-- [ ] Banner (dismissable, customizable colors)
+- [ ] Banner (dismissable, customizable colors) *
 - [x] Skip link for accessibility
 - [x] Pagination (prev/next page links)
-- [ ] Back to top button
+- [ ] Back to top button *
 - [x] Mobile navigation menus
 - [x] 404 page
 - [x] Error boundaries
+- [ ] Title anchors *
 
 ## Search
 
 - [x] Search trigger component
 - [x] Search dialog implementation
 - [x] "Jump to" suggestions
+- [ ] "Ask AI" → Open in X *
 - [ ] Hybrid local/AI search
   - [x] Minisearch (Local)
   - [ ] RAG (AI)
@@ -61,6 +64,7 @@ A comprehensive checklist of features for Vocs v2, based on Vocs v1 feature pari
 - [x] Empty line handling
 - [x] Copy button for code blocks
 - [ ] Expandable code blocks/code wrapping
+  - [ ] Ideas from CodeHike
 - [x] Inline code highlighting
 - [x] `// @includes` support (virtual + physical files)
 - [x] `// @log` support outside Twoslash
@@ -73,20 +77,18 @@ A comprehensive checklist of features for Vocs v2, based on Vocs v1 feature pari
 - [x] Steps
 - [x] CodeGroup
 - [x] Details/Accordion
-- [ ] Tabs
+- [x] Tabs
 - [ ] Authors
 - [ ] BlogPosts
-- [ ] Button
 - [ ] Raw (escape MDX processing)
-- [ ] Cards
-- [ ] Sponsors
+- [x] Cards
+- [ ] Sponsors *
 - [ ] Tiles (grid of links)
-- [ ] Files/FileTree
+- [x] Files/FileTree
 - [ ] TypeTable
-- [ ] Badge
-- [ ] Tooltip
-- [ ] Image zoom
-- [ ] Mermaid diagram
+- [ ] Badge *
+- [ ] Image zoom *
+- [ ] Mermaid diagram *
 
 ## Remark/Rehype Plugins
 
@@ -139,12 +141,12 @@ A comprehensive checklist of features for Vocs v2, based on Vocs v1 feature pari
 - [x] `titleTemplate`
 - [x] `topNav`
 - [x] `twoslash`
-- [ ] `banner`
+- [ ] `banner` *
 - [ ] `blogDir`
 - [x] `editLink`
 - [x] `search`
 - [x] `socials` (GitHub, Discord, X, Bluesky, etc.)
-- [ ] `sponsors`
+- [ ] `sponsors` *
 
 ## SEO & Meta
 
@@ -184,7 +186,7 @@ A comprehensive checklist of features for Vocs v2, based on Vocs v1 feature pari
 
 ## CLI
 
-- [ ] `create-vocs`
+- [ ] `create-vocs` *
 
 ## Miscellaneous
 
