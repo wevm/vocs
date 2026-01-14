@@ -364,6 +364,16 @@ pre[data-v] {
   & > code {
     @apply vocs:grid vocs:text-code-block;
 
+    & span {
+      text-decoration: var(--shiki-dark-text-decoration, inherit);
+      font-weight: var(--shiki-dark-font-weight, inherit);
+
+      @media (prefers-color-scheme: light) {
+        text-decoration: var(--shiki-light-text-decoration, inherit);
+        font-weight: var(--shiki-light-font-weight, inherit);
+      }
+    }
+
     & > :is(.line, .twoslash-tag-line) {
       @apply vocs:border-l-2 vocs:border-l-transparent vocs:leading-code vocs:px-code-block-px;
 

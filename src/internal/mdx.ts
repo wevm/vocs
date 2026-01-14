@@ -383,10 +383,12 @@ export function remarkCallout() {
  * may be parsed as the lang. This moves it to meta instead.
  */
 export function remarkCodeTitle() {
+  const specialLanguages = ['ansi', 'text', 'txt', 'plain', 'plaintext']
   return (tree: MdAst.Root) => {
     UnistUtil.visit(tree, 'code', (node) => {
       if (!node.lang) return
-      const match = Object.keys(bundledLanguages).includes(node.lang)
+      const match =
+        Object.keys(bundledLanguages).includes(node.lang) || specialLanguages.includes(node.lang)
       if (match) return
       node.meta = node.lang
       node.lang = 'plaintext'

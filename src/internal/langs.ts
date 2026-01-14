@@ -2,19 +2,20 @@ import * as fs from 'node:fs'
 import * as path from 'node:path'
 
 export const defaultLangs = [
+  'ansi',
+  'bash',
   'html',
-  'markdown',
-  'ts',
-  'tsx',
   'js',
-  'jsx',
   'json',
+  'jsx',
+  'markdown',
   'md',
   'mdx',
   'plaintext',
   'rust',
   'solidity',
-  'bash',
+  'ts',
+  'tsx',
   'zsh',
 ]
 

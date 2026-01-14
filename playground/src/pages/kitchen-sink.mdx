@@ -372,8 +372,12 @@ const blockNumber = await client.getBlockNumber()
 ```
 :::
 
+### Annotations
+
+Not to be confused with [Twoslash Callouts](/twoslash#callouts), annotations work without Twoslash.
+
 :::code-group
-```ts [Annotations]
+```ts [Output]
 const a = 1
 // @log: Custom log message
 const b = 1
@@ -383,7 +387,7 @@ const c = 1
 const d = 1
 // @annotate: Custom annotation message
 ```
-````md [Syntax]
+````md [Markdown]
 ```ts
 const a = 1
 // @\log: Custom log message
@@ -396,6 +400,21 @@ const d = 1
 ```
 ````
 :::
+
+
+### ANSI
+
+```ansi
+[0;32mcolored foreground[0m
+[0;42mcolored background[0m
+
+[0;1mbold text[0m
+[0;2mdimmed text[0m
+[0;4munderlined text[0m
+[0;7mreversed text[0m
+[0;9mstrikethrough text[0m
+[0;4;9munderlined + strikethrough text[0m
+```
 
 ## Code group
 
