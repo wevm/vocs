@@ -5,6 +5,7 @@ import shiki, { type RehypeShikiOptions } from '@shikijs/rehype'
 import * as EstreeUtil from 'esast-util-from-js'
 import type * as Estree from 'estree'
 import type * as HAst from 'hast'
+
 import type * as MdAst from 'mdast'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import rehypeSlug from 'rehype-slug'
@@ -20,6 +21,7 @@ import type { VFile } from 'vfile'
 import { createLogger } from 'vite'
 import * as yaml from 'yaml'
 import type * as Config from './config.js'
+
 import { remarkSandbox } from './sandbox.js'
 import * as ShikiTransformers from './shiki-transformers.js'
 import * as Snippets from './snippets.js'
@@ -726,6 +728,7 @@ export function remarkFileTree(): remarkFileTree.ReturnType {
       type FileTreeItem = {
         name: string
         type: 'file' | 'folder'
+        comment?: string | undefined
         highlighted?: boolean | undefined
         items?: FileTreeItem[] | undefined
       }
@@ -746,35 +749,58 @@ export function remarkFileTree(): remarkFileTree.ReturnType {
             if (!paragraph) continue
 
             let name = ''
+            let comment = ''
             let folder = false
             let highlighted = false
+            let foundName = false
 
             for (const pChild of paragraph.children) {
               if (pChild.type === 'text' || pChild.type === 'strong') {
-                if (pChild.type === 'strong') highlighted = true
-                const texts = (() => {
-                  if (pChild.type === 'text') return [pChild.value]
-                  return pChild.children
-                    .filter((c): c is { type: 'text'; value: string } => c.type === 'text')
-                    .map((c) => c.value)
-                })()
-                for (const text of texts) {
-                  if (text.startsWith('+')) {
-                    folder = true
-                    name += text.slice(1).trim()
+                // Only highlight if strong is in filename, not comment
+                if (pChild.type === 'strong' && !foundName) highlighted = true
+
+                const textValue =
+                  pChild.type === 'text'
+                    ? pChild.value
+                    : pChild.children
+                        .filter((c): c is MdAst.Text => c.type === 'text')
+                        .map((c) => c.value)
+                        .join('')
+
+                if (foundName) {
+                  comment += textValue
+                } else if (textValue.startsWith('+')) {
+                  folder = true
+                  const folderText = textValue.slice(1)
+                  const spaceIndex = folderText.indexOf(' ')
+                  if (spaceIndex !== -1) {
+                    name += folderText.slice(0, spaceIndex)
+                    comment += folderText.slice(spaceIndex + 1)
+                    foundName = true
                   } else {
-                    name += text
+                    name += folderText.trim()
+                  }
+                } else {
+                  const spaceIndex = textValue.indexOf(' ')
+                  if (spaceIndex !== -1) {
+                    name += textValue.slice(0, spaceIndex)
+                    comment += textValue.slice(spaceIndex + 1)
+                    foundName = true
+                  } else {
+                    name += textValue
                   }
                 }
               }
             }
 
             name = name.trim()
+            comment = comment.trim()
             if (!name) continue
 
             const item: FileTreeItem = {
-              name: name.trim(),
+              name,
               type: folder ? 'folder' : 'file',
+              ...(comment && { comment }),
               ...(highlighted && { highlighted }),
             }
 

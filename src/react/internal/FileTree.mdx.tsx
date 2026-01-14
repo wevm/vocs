@@ -1,20 +1,46 @@
-'use client'
-
-import * as React from 'react'
+import { config } from 'virtual:vocs/config'
 import LucideFile from '~icons/lucide/file'
 import LucideFolder from '~icons/lucide/folder'
 import LucideFolderOpen from '~icons/lucide/folder-open'
+import * as Icons from '../../internal/icons.js'
+import { FolderToggle } from './FileTree.client.js'
 
-export function FileTree(props: FileTree.Props) {
+export async function FileTree(props: FileTree.Props) {
   const items: FileTree.Item[] = JSON.parse(props['data-v-file-tree-items'] ?? '[]')
+  const customIcons = config.groupIcons?.customIcons
+
+  const iconCache = new Map<string, string | undefined>()
+  await resolveAllIcons(items, customIcons, iconCache)
+
   return (
     <div
       data-v
       data-v-file-tree
       className="vocs:bg-code-block vocs:py-4 vocs:px-5 vocs:rounded-lg vocs:border vocs:border-primary vocs:text-sm vocs:font-mono"
     >
-      <FileTree.List items={items} depth={0} activeLines={[]} />
+      <FileTree.List items={items} depth={0} activeLines={[]} iconCache={iconCache} />
     </div>
+  )
+}
+
+async function resolveAllIcons(
+  items: FileTree.Item[],
+  customIcons: Record<string, string> | undefined,
+  cache: Map<string, string | undefined>,
+): Promise<void> {
+  await Promise.all(
+    items.map(async (item) => {
+      if (item.type === 'file' && !cache.has(item.name)) {
+        const iconId = Icons.matchIcon(item.name, customIcons)
+        if (iconId) {
+          const svg = await Icons.resolveIcon(iconId)
+          cache.set(item.name, svg)
+        } else {
+          cache.set(item.name, undefined)
+        }
+      }
+      if (item.items) await resolveAllIcons(item.items, customIcons, cache)
+    }),
   )
 }
 
@@ -26,6 +52,7 @@ export namespace FileTree {
   export type Item = {
     name: string
     type: 'file' | 'folder'
+    comment?: string
     highlighted?: boolean
     items?: Item[]
   }
@@ -34,7 +61,7 @@ export namespace FileTree {
   const iconSize = 14
 
   export function List(props: List.Props) {
-    const { items, depth, activeLines } = props
+    const { items, depth, activeLines, iconCache } = props
     return (
       <ul className="vocs:list-none vocs:p-0 vocs:m-0">
         {items.map((item, i) => {
@@ -47,6 +74,7 @@ export namespace FileTree {
               depth={depth}
               activeLines={activeLines}
               isLast={isLast}
+              iconCache={iconCache}
             />
           )
         })}
@@ -59,18 +87,16 @@ export namespace FileTree {
       items: Item[]
       depth: number
       activeLines: number[]
+      iconCache: Map<string, string | undefined>
     }
   }
 
   export function Item(props: Item.Props) {
-    const { item, depth, activeLines, isLast } = props
-
-    const [isOpen, setIsOpen] = React.useState(true)
+    const { item, depth, activeLines, isLast, iconCache } = props
 
     const childActiveLines = isLast ? activeLines : [...activeLines, depth]
     const isFolder = item.type === 'folder'
     const hasChildren = isFolder && item.items && item.items.length > 0
-    const showChildren = hasChildren && isOpen
 
     return (
       <li className="vocs:relative">
@@ -85,38 +111,42 @@ export namespace FileTree {
         <div className="vocs:flex vocs:items-center vocs:py-1">
           <div style={{ width: depth * indentSize }} />
           {isFolder ? (
-            <button
-              className="vocs:flex vocs:items-center vocs:gap-2 vocs:not-disabled:cursor-pointer vocs:bg-transparent vocs:border-none vocs:p-0 vocs:m-0 vocs:text-secondary vocs:not-disabled:hover:text-heading  vocs:data-[highlighted=true]:text-heading vocs:data-[highlighted=true]:bg-surfaceTint vocs:data-[highlighted=true]:border vocs:data-[highlighted=true]:border-primary vocs:rounded-md vocs:px-2 vocs:py-0.5 vocs:-mx-2 vocs:-my-0.5"
-              data-highlighted={item.highlighted}
-              disabled={!hasChildren}
-              onClick={() => setIsOpen(!isOpen)}
-              type="button"
-            >
-              <span className="vocs:shrink-0">
-                {isOpen && hasChildren ? (
-                  <LucideFolderOpen className="vocs:size-4" />
-                ) : (
-                  <LucideFolder className="vocs:size-4" />
-                )}
-              </span>
-              <span>{item.name}</span>
-            </button>
+            <FolderToggle
+              name={item.name}
+              comment={item.comment}
+              hasChildren={!!hasChildren}
+              highlighted={item.highlighted}
+              folderIcon={<FolderIcon open={false} />}
+              folderOpenIcon={<FolderIcon open={true} />}
+              folderContent={
+                hasChildren &&
+                item.items && (
+                  <List
+                    items={item.items}
+                    depth={depth + 1}
+                    activeLines={childActiveLines}
+                    iconCache={iconCache}
+                  />
+                )
+              }
+            />
           ) : (
             <div
-              className="vocs:flex vocs:items-center vocs:gap-2 vocs:text-secondary vocs:data-[highlighted=true]:text-heading vocs:data-[highlighted=true]:bg-surfaceTint vocs:data-[highlighted=true]:border vocs:data-[highlighted=true]:border-primary vocs:rounded-md vocs:px-2 vocs:py-0.5 vocs:-mx-2 vocs:-my-0.5"
+              className="vocs:flex vocs:items-center vocs:gap-2 vocs:text-primary vocs:data-[highlighted=true]:bg-surfaceTint vocs:data-[highlighted=true]:border vocs:data-[highlighted=true]:border-primary vocs:rounded-md vocs:px-2 vocs:py-0.5 vocs:-mx-2 vocs:-my-0.5"
               data-highlighted={item.highlighted}
             >
-              <span className="vocs:shrink-0">
-                <LucideFile className="vocs:size-4" />
+              {item.name !== '...' && (
+                <span className="vocs:shrink-0">
+                  <FileIcon name={item.name} iconCache={iconCache} />
+                </span>
+              )}
+              <span className={item.name === '...' ? 'vocs:text-muted' : undefined}>
+                {item.name}
               </span>
-              <span>{item.name}</span>
+              {item.comment && <span className="vocs:text-muted vocs:ml-4">{item.comment}</span>}
             </div>
           )}
         </div>
-
-        {showChildren && item.items && (
-          <List items={item.items} depth={depth + 1} activeLines={childActiveLines} />
-        )}
       </li>
     )
   }
@@ -127,6 +157,32 @@ export namespace FileTree {
       depth: number
       activeLines: number[]
       isLast: boolean
+      iconCache: Map<string, string | undefined>
     }
+  }
+
+  function FolderIcon({ open }: { open: boolean }) {
+    if (open) return <LucideFolderOpen className="vocs:size-4 vocs:text-secondary" />
+    return <LucideFolder className="vocs:size-4 vocs:text-secondary" />
+  }
+
+  function FileIcon({
+    name,
+    iconCache,
+  }: {
+    name: string
+    iconCache: Map<string, string | undefined>
+  }) {
+    const svg = iconCache.get(name)
+    if (svg) {
+      return (
+        <span
+          className="vocs:size-4 vocs:flex vocs:items-center vocs:justify-center [&>svg]:vocs:size-4"
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: resolved SVG from iconify
+          dangerouslySetInnerHTML={{ __html: svg }}
+        />
+      )
+    }
+    return <LucideFile className="vocs:size-4 vocs:text-secondary" />
   }
 }

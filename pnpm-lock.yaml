@@ -18,13 +18,7 @@ catalogs:
     '@types/react':
       specifier: ^19.2.7
       version: 19.2.7
-    '@types/react-dom':
-      specifier: ^19.2.3
-      version: 19.2.3
     react:
-      specifier: ^19.2.3
-      version: 19.2.3
-    react-dom:
       specifier: ^19.2.3
       version: 19.2.3
     simple-git-hooks:

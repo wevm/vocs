@@ -385,12 +385,11 @@ declare namespace getConfigFile {
   }
 }
 
-
-function ensure(options: ensure.Options) {
+function _ensure(options: _ensure.Options) {
   const { rootDir = process.cwd() } = options
   const configFile = getConfigFile({ rootDir })
   if (configFile) return
-  
+
   const defaultConfigContent = `import { defineConfig } from 'vocs/config'
   
   export default defineConfig({
