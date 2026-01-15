@@ -191,7 +191,7 @@ A comprehensive checklist of features for Vocs v2, based on Vocs v1 feature pari
 ## Miscellaneous
 
 - [ ] Versioning
-- [ ] Automated changelogs
+- [x] Automated changelogs
 - [ ] Internationalization/i18n
 - [ ] OpenAPI
 - [ ] OpenRPC
