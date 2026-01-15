@@ -1,6 +1,7 @@
 import type { MDXComponents } from 'mdx/types.js'
 
 import { Callout } from './react/Callout.js'
+import { Changelog } from './react/internal/Changelog.mdx.js'
 import { CodeBlock } from './react/internal/CodeBlock.mdx.js'
 import { CodeGroup } from './react/internal/CodeGroup.mdx.js'
 import { CodeToHtml } from './react/internal/CodeToHtml.js'
@@ -27,9 +28,13 @@ export const components: MDXComponents = {
   },
   div(
     props: React.PropsWithChildren<
-      React.ComponentProps<'div'> & { 'data-v-mermaid-chart'?: string }
+      React.ComponentProps<'div'> & {
+        'data-v-mermaid-chart'?: string
+        'data-v-changelog-limit'?: string
+      }
     >,
   ) {
+    if ('data-v-changelog' in props) return <Changelog {...props} />
     if ('data-v-code-group' in props) return <CodeGroup {...props} />
     if ('data-v-file-tree' in props) return <FileTree {...props} />
     if ('data-v-mermaid-chart' in props)

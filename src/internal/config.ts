@@ -1,6 +1,7 @@
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import type * as MdxRollup from '@mdx-js/rollup'
+import type * as Changelog from './changelog.js'
 import * as Langs from './langs.js'
 import type * as Mdx from './mdx.js'
 import type * as Redirects from './redirects.js'
@@ -46,6 +47,20 @@ export type Config<partial extends boolean = false> = MaybePartial<
      * Configuration for the banner fixed to the top of the page.
      */
     banner?: Banner | undefined
+    /**
+     * Changelog adapter for fetching release notes.
+     * Use `github()` from `vocs/changelog` to fetch from GitHub releases.
+     *
+     * @example
+     * ```ts
+     * import { github } from 'vocs/changelog'
+     *
+     * export default defineConfig({
+     *   changelog: github({ repo: 'wevm/viem' }),
+     * })
+     * ```
+     */
+    changelog?: Changelog.Adapter | undefined
     /**
      * The base path the documentation will be deployed at. All assets and pages
      * will be prefixed with this path. This is useful for deploying to GitHub Pages.
@@ -268,6 +283,8 @@ export type SocialItem = {
   link: string
 }
 
+export type Layout = 'full' | 'minimal' | 'blank'
+
 export type Frontmatter = {
   /** Author of the page. */
   author?: string | undefined
@@ -280,6 +297,14 @@ export type Frontmatter = {
   /** Last modified date of the page. */
   lastModified?: string | undefined
   /**
+   * Page layout.
+   * - `full`: Sidebar + top nav + content + outline (default)
+   * - `minimal`: Top nav + centered content + outline (no sidebar)
+   * - `blank`: Just content (no top nav, sidebar, or outline)
+   * @default "full"
+   */
+  layout?: Layout | undefined
+  /**
    * Whether to show the outline, or the depth of headings to show.
    * Set to `false` to hide the outline, or a number to limit depth.
    * @default true
@@ -287,6 +312,16 @@ export type Frontmatter = {
   outline?: boolean | number | undefined
   /** Robots directive (e.g., "noindex", "nofollow"). */
   robots?: string | undefined
+  /**
+   * Whether to show the sidebar.
+   * Overrides the default behavior based on layout.
+   */
+  showSidebar?: boolean | undefined
+  /**
+   * Whether to show the top navigation.
+   * Overrides the default behavior based on layout.
+   */
+  showTopNav?: boolean | undefined
   /** Additional metadata for the page. */
   [key: string]: unknown
 }
@@ -295,6 +330,7 @@ export function define(config: define.Options = {}): Config {
   const {
     accentColor = 'light-dark(black, white)',
     banner,
+    changelog,
     basePath = '/',
     baseUrl,
     cacheDir = path.resolve(import.meta.dirname, '.vocs/cache'),
@@ -334,6 +370,7 @@ export function define(config: define.Options = {}): Config {
     baseUrl,
     basePath,
     cacheDir,
+    changelog,
     checkDeadlinks,
     codeHighlight: {
       ...codeHighlight,

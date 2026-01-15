@@ -118,15 +118,17 @@ export function Outline(props: Outline.Props) {
 
   return (
     <nav
-      className={cx('vocs:flex vocs:flex-col vocs:text-[13px] vocs:gap-3', className)}
+      className={cx('vocs:flex vocs:flex-col vocs:text-[13px] vocs:gap-3 vocs:min-h-0', className)}
       data-v-outline
     >
-      <div className="vocs:flex vocs:items-center vocs:gap-1 vocs:text-[13px] vocs:font-medium">
+      <div className="vocs:flex vocs:items-center vocs:gap-1 vocs:text-[13px] vocs:font-medium vocs:shrink-0">
         <LucideTextAlignStart className="vocs:size-3.5" />
         On this page
       </div>
 
-      <Items items={items} activeId={activeId} minLevel={minLevel} />
+      <div className="vocs:overflow-y-auto vocs:min-h-0 vocs:overscroll-contain">
+        <Items items={items} activeId={activeId} minLevel={minLevel} />
+      </div>
     </nav>
   )
 }
@@ -249,6 +251,16 @@ function Items(props: Items.Props) {
     }
   }, [activeIds, positions, items])
 
+  // Scroll the active item into view in the outline
+  React.useEffect(() => {
+    if (!activeId || !containerRef.current) return
+
+    const activeItem = containerRef.current.querySelector(`[data-item-id="${activeId}"]`)
+    if (activeItem) {
+      activeItem.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+    }
+  }, [activeId])
+
   return (
     <ul
       ref={containerRef}
@@ -287,7 +299,12 @@ const OutlineItem = React.memo(function OutlineItem(props: {
 
   return (
     <>
-      <li data-v-outline-item data-item-id={item.id} data-active={isActive}>
+      <li
+        data-v-outline-item
+        data-item-id={item.id}
+        data-active={isActive}
+        className="vocs:scroll-my-4"
+      >
         <Link
           to={`#${item.id}`}
           className="vocs:block vocs:leading-snug vocs:py-0.75 vocs:pl-3 vocs:cursor-pointer vocs:font-[450] vocs:transition-colors vocs:duration-100 vocs:text-secondary vocs:data-[active=true]:text-accent vocs:hover:text-link"

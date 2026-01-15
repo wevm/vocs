@@ -154,7 +154,7 @@ blockquote[data-v] {
 /* #region Badge */
 
 [data-v-badge] {
-  @apply vocs:inline-flex vocs:items-center vocs:rounded-md vocs:px-2 vocs:py-0.5 vocs:text-xs vocs:font-medium;
+  @apply vocs:inline-flex vocs:items-center vocs:align-middle vocs:rounded-md vocs:px-2 vocs:py-0.5 vocs:text-xs vocs:font-medium;
 
   &[data-v-context="note"] {
     @apply vocs:bg-note-tint vocs:text-note;
@@ -727,6 +727,19 @@ pre[data-v-shell] {
 
 [data-v-mermaid-error] pre {
   @apply vocs:whitespace-pre-wrap vocs:text-sm vocs:m-0;
+}
+
+/* #endregion */
+
+/* #region Changelog */
+
+[data-v-changelog] div[data-v-table-wrapper] {
+  @apply vocs:mx-0! vocs:max-md:mx-0!;
+}
+
+[data-v-changelog-release] {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 400px;
 }
 
 /* #endregion */

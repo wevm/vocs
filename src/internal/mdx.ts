@@ -155,6 +155,7 @@ export function getCompileOptions(
           remarkFrontmatter,
           remarkFileTree,
           remarkCallout,
+          remarkChangelog,
           remarkCodeGroup,
           remarkCodeTitle,
           remarkDefaultFrontmatter,
@@ -950,5 +951,35 @@ export function remarkFileTree(): remarkFileTree.ReturnType {
 }
 
 export declare namespace remarkFileTree {
+  type ReturnType = (tree: MdAst.Root) => void
+}
+
+/**
+ * Remark plugin that transforms `::changelog{limit=10}` leaf directives into Changelog components.
+ *
+ * Syntax:
+ * - `::changelog` – renders a Changelog with default limit (999)
+ * - `::changelog{limit=10}` – renders a Changelog with limit of 10
+ */
+export function remarkChangelog(): remarkChangelog.ReturnType {
+  return (tree: MdAst.Root) => {
+    UnistUtil.visit(tree, 'leafDirective', (node) => {
+      if (node.name !== 'changelog') return
+
+      // biome-ignore lint/suspicious/noAssignInExpressions: _
+      const data = node.data || (node.data = {})
+
+      const limit = node.attributes?.['limit'] ? Number.parseInt(node.attributes['limit'], 10) : 999
+
+      data.hName = 'div'
+      data.hProperties = {
+        'data-v-changelog': 'true',
+        'data-v-changelog-limit': String(limit),
+      }
+    })
+  }
+}
+
+export declare namespace remarkChangelog {
   type ReturnType = (tree: MdAst.Root) => void
 }

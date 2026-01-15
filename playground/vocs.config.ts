@@ -1,6 +1,7 @@
-import { defineConfig } from 'vocs/config'
+import { Changelog, defineConfig } from 'vocs/config'
 
 export default defineConfig({
+  changelog: Changelog.github({ repo: 'paradigmxyz/reth' }),
   banner: 'Vocs v2 is now available!',
   baseUrl: process.env.BASE_URL,
   checkDeadlinks: false,
@@ -65,6 +66,7 @@ export default defineConfig({
   sidebar: {
     '/': [
       { text: 'Home', link: '/' },
+      { text: 'Changelog', link: '/changelog' },
       { text: 'Kitchen Sink', link: '/kitchen-sink' },
       { text: 'REPL', link: '/repl' },
       { text: 'None' },

@@ -19,7 +19,7 @@ type Handler = {
  * @example
  * ```tsx
  * // src/pages/api/og.tsx
- * import * as Handler from 'vocs/server/handlers'
+ * import { Handler } from 'vocs/server'
  *
  * export default Handler.og(({ title, description, logo }) => (
  *   <div style={{ display: 'flex', width: '100%', height: '100%' }}>
