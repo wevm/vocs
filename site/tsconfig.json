@@ -14,7 +14,11 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": true,
+    "paths": {
+      "vocs/server": ["../src/server/index.ts"],
+      "vocs/server/*": ["../src/server/*"]
+    }
   },
   "include": ["src", "vocs.config.ts"],
   "exclude": ["src/pages.gen.ts"]

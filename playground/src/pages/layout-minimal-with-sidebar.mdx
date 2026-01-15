@@ -1,0 +1,29 @@
+---
+layout: minimal
+title: Minimal + Sidebar
+showSidebar: true
+---
+
+# Minimal Layout with Sidebar
+
+This page uses `layout: minimal` but overrides with `showSidebar: true`.
+
+- ✅ Top navigation
+- ✅ Sidebar (forced via frontmatter)
+- ✅ Outline
+- ✅ Content
+
+## How it works
+
+The `showSidebar` frontmatter property overrides the default behavior of the `minimal` layout.
+
+```yaml
+---
+layout: minimal
+showSidebar: true
+---
+```
+
+## Use cases
+
+This is useful when you want a minimal layout but still need navigation context.
