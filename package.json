@@ -8,6 +8,7 @@
     "check:types": "tsc -b",
     "dev": "pnpm --filter create-vocs dev && zile dev",
     "dev:playground": "pnpm --filter playground dev",
+    "dev:playground:precache": "cd playground && node ../dist/cli.js precache",
     "postinstall": "pnpm dev",
     "test": "vitest ./src"
   },
@@ -139,6 +140,9 @@
     }
   },
   "sideEffects": false,
+  "bin": {
+    "vocs": "./dist/cli.js"
+  },
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -200,6 +204,11 @@
       "types": "./dist/styles/*.d.ts",
       "src": "./src/styles/*.css",
       "default": "./dist/styles/*.js"
+    },
+    "./cli": {
+      "types": "./dist/cli.d.ts",
+      "src": "./src/cli.ts",
+      "default": "./dist/cli.js"
     }
   }
 }

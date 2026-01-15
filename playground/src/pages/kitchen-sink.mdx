@@ -852,3 +852,41 @@ export const client = createPublicClient({
 ```
 
 :::
+
+### Rust Twoslash
+
+Rust code blocks can also use Twoslash for inline type hints. Requires `rust-twoslash` binary:
+
+```bash
+cargo install rust-twoslash --git https://github.com/wevm/twoslash-rust --locked
+```
+
+```rust twoslash
+fn main() {
+    let x = 42;
+    //  ^?
+    let message = "Hello, Rust!";
+    //  ^?
+}
+```
+
+More complex example with external dependencies:
+
+```rust twoslash
+use alloy::providers::{Provider, ProviderBuilder};
+use tempo_alloy::TempoNetwork;
+
+async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    let provider = ProviderBuilder::new_with_network::<TempoNetwork>()
+        .connect(&std::env::var("RPC_URL").expect("No RPC URL set"))
+        //             ^?
+        .await?;
+
+    println!("{}", provider.get_block_number().await?);
+    Ok(())
+}
+
+fn main() {
+    tokio::runtime::Runtime::new().unwrap().block_on(example()).unwrap();
+}
+```

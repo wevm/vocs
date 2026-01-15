@@ -270,6 +270,11 @@ export type Config<partial extends boolean = false> = MaybePartial<
      * TwoSlash configuration. Set to `false` to disable.
      */
     twoslash?: Mdx.rehypeShiki.Options['twoslash'] | undefined
+    /**
+     * Rust TwoSlash configuration. Set to `false` to disable.
+     * Requires rust-twoslash binary: `cargo install rust-twoslash --git https://github.com/ayazhafiz/twoslash-rust`
+     */
+    twoslashRust?: Mdx.rehypeShiki.Options['twoslashRust'] | undefined
   }
 >
 
@@ -332,7 +337,7 @@ export function define(config: define.Options = {}): Config {
     changelog,
     basePath = '/',
     baseUrl,
-    cacheDir = path.resolve(import.meta.dirname, '.vocs/cache'),
+    cacheDir,
     codeHighlight,
     colorScheme = 'light dark',
     checkDeadlinks = true,
@@ -353,6 +358,7 @@ export function define(config: define.Options = {}): Config {
     topNav,
     redirects,
     twoslash,
+    twoslashRust,
   } = config
 
   const pagesDir = 'pages'
@@ -368,7 +374,7 @@ export function define(config: define.Options = {}): Config {
       : undefined,
     baseUrl,
     basePath,
-    cacheDir,
+    cacheDir: cacheDir ?? path.resolve(rootDir, '.vocs/cache'),
     changelog,
     checkDeadlinks,
     codeHighlight: {
@@ -422,6 +428,7 @@ export function define(config: define.Options = {}): Config {
     title,
     titleTemplate,
     twoslash,
+    twoslashRust,
   }
 }
 

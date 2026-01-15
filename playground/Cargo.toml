@@ -1,0 +1,9 @@
+[package]
+edition = "2021"
+name = "docs"
+version = "0.0.0"
+
+[dependencies]
+alloy = { version = "*", features = ["full"] }
+tokio = { version = "*", features = ["full"] }
+tempo-alloy = { git = "https://github.com/tempoxyz/tempo" }

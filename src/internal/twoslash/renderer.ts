@@ -298,6 +298,10 @@ function processHoverDocs(docs: string): string {
     docs
       // Remove inline JSDoc tags like {@link}
       .replace(/\{@\w+\s+[^}]*\}/g, '')
+      // Convert Rust-style reference links [`Foo`] to inline links if URL follows
+      // e.g., [`Provider`](url) is already valid markdown
+      // but [`Provider`] alone should become `Provider` (code only, no broken link)
+      .replace(/\[`([^`]+)`\](?!\()/g, '`$1`')
       .trim()
   )
 }

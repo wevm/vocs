@@ -13,8 +13,9 @@ import remarkDirective from 'remark-directive'
 import remarkFrontmatter from 'remark-frontmatter'
 import remarkGfm from 'remark-gfm'
 import remarkMdxFrontmatter from 'remark-mdx-frontmatter'
-import type { BuiltinTheme, CodeOptionsMultipleThemes } from 'shiki'
+import type { BuiltinTheme, CodeOptionsMultipleThemes, LanguageRegistration } from 'shiki'
 import { bundledLanguages } from 'shiki/bundle/web'
+import rust from 'shiki/langs/rust.mjs'
 import type { Pluggable, PluggableList } from 'unified'
 import * as UnistUtil from 'unist-util-visit'
 import type { VFile } from 'vfile'
@@ -79,7 +80,7 @@ export function getCompileOptions(
   rehypePlugins: PluggableList
   recmaPlugins: PluggableList
 } {
-  const { cacheDir, codeHighlight, markdown, rootDir, srcDir, twoslash } = config
+  const { cacheDir, codeHighlight, markdown, rootDir, srcDir, twoslash, twoslashRust } = config
   const { jsxImportSource = 'react' } = markdown ?? {}
 
   const { recmaPlugins, rehypePlugins, remarkPlugins } = (() => {
@@ -145,7 +146,7 @@ export function getCompileOptions(
               },
             },
           ] as Pluggable,
-          rehypeShiki({ ...codeHighlight, cacheDir, rootDir, srcDir, twoslash }),
+          rehypeShiki({ ...codeHighlight, cacheDir, rootDir, srcDir, twoslash, twoslashRust }),
           ...(markdown?.rehypePlugins ?? []),
           rehypeCodeInLink,
           rehypeLinks(config),
@@ -371,7 +372,7 @@ export function remarkVocsScope() {
 export function rehypeShiki(
   options: ExactPartial<rehypeShiki.Options> = {},
 ): [typeof shiki, RehypeShikiOptions] {
-  const { cacheDir, srcDir, rootDir, themes, twoslash = true } = options
+  const { cacheDir, srcDir, rootDir, themes, twoslash = true, twoslashRust = true } = options
   return [
     shiki,
     {
@@ -381,12 +382,18 @@ export function rehypeShiki(
       inline: 'tailing-curly-colon',
       rootStyle: false,
       themes,
+      langs: [...Object.values(bundledLanguages), rust as LanguageRegistration[]],
       // TODO: infer `langs` for faster cold start.
       transformers: [
         rootDir && srcDir ? ShikiTransformers.notationInclude({ srcDir, rootDir }) : undefined,
         twoslash
           ? ShikiTransformers.twoslash(
               typeof twoslash === 'object' ? { ...twoslash, cacheDir } : {},
+            )
+          : undefined,
+        twoslashRust
+          ? ShikiTransformers.twoslashRust(
+              typeof twoslashRust === 'object' ? { ...twoslashRust, cacheDir } : { cacheDir },
             )
           : undefined,
         ShikiTransformers.emptyLine(),
@@ -414,6 +421,7 @@ export declare namespace rehypeShiki {
       shellPrompt?: ShikiTransformers.shellPrompt.Options | undefined
       srcDir?: string | undefined
       twoslash?: ShikiTransformers.twoslash.Options | false | undefined
+      twoslashRust?: ShikiTransformers.twoslashRust.Options | false | undefined
     }
 }
 
@@ -503,11 +511,14 @@ export declare namespace remarkBadge {
  */
 export function remarkCodeTitle() {
   const specialLanguages = ['ansi', 'text', 'txt', 'plain', 'plaintext']
+  const additionalLanguages = ['rust', 'rs']
   return (tree: MdAst.Root) => {
     UnistUtil.visit(tree, 'code', (node) => {
       if (!node.lang) return
       const match =
-        Object.keys(bundledLanguages).includes(node.lang) || specialLanguages.includes(node.lang)
+        Object.keys(bundledLanguages).includes(node.lang) ||
+        specialLanguages.includes(node.lang) ||
+        additionalLanguages.includes(node.lang)
       if (match) return
       node.meta = node.lang
       node.lang = 'plaintext'
