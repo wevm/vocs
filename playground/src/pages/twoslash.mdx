@@ -761,3 +761,85 @@ Emit ECMAScript-standard-compliant class fields..
 Type catch clause variables as 'unknown' instead of 'any'..
 ```
 
+## Rust Twoslash
+
+Rust code blocks can use Twoslash for inline type hints, powered by `rust-analyzer`.
+
+### Setup
+
+1. **Install the `rust-twoslash` CLI:**
+
+```bash
+cargo install rust-twoslash --git https://github.com/wevm/twoslash-rust --locked
+```
+
+2. **Enable Rust Twoslash in your Vocs config:**
+
+```ts twoslash [vocs.config.ts]
+import { defineConfig, Twoslash } from 'vocs/config'
+
+export default defineConfig({
+  twoslash: {
+    transformers: [Twoslash.experimental_rust({ cargoToml: './Cargo.toml' })],
+  },
+})
+```
+
+The `cargoToml` option points to a Cargo.toml file that defines dependencies available to all Rust code blocks.
+
+### Basic Example
+
+Use `^?` comments to display inferred types inline:
+
+```rust twoslash
+fn main() {
+    let x = 42;
+    let message = "Hello, Rust!";
+    //  ^?
+}
+```
+
+### With External Dependencies
+
+For code blocks using external crates, add a `Cargo.toml` virtual file to the code group. The `rust-twoslash` CLI will use these dependencies when analyzing the code.
+
+:::code-group
+```rust twoslash [example.rs]
+use alloy::providers::{Provider, ProviderBuilder};
+use tempo_alloy::TempoNetwork;
+
+async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    let provider = ProviderBuilder::new_with_network::<TempoNetwork>()
+        .connect(&std::env::var("RPC_URL").expect("No RPC URL set"))
+        .await?;
+
+    println!("{}", provider.get_block_number().await?);
+    Ok(())
+}
+
+fn main() {
+    tokio::runtime::Runtime::new().unwrap().block_on(example()).unwrap();
+}
+```
+```ts twoslash [vocs.config.ts]
+import { defineConfig, Twoslash } from 'vocs/config'
+
+export default defineConfig({
+  twoslash: {
+    transformers: [Twoslash.experimental_rust({ cargoToml: './Cargo.toml' })],
+  },
+})
+```
+```toml [Cargo.toml]
+[package]
+name = "example"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+alloy = { version = "0.18", features = ["provider-http"] }
+tempo-alloy = "0.1"
+tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
+```
+:::
+

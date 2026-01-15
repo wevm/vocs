@@ -121,11 +121,14 @@ function convertLegacyToNodes(result: TwoslashRustResult): TwoslashNode[] {
       }
       nodes.push(node)
     } else {
+      // The rust-twoslash binary returns query.line as the line of the ^? comment,
+      // but the shiki-twoslash transformer expects the line of the token being queried
+      // (which is the previous line, since ^? always refers to the line above it).
       const node: NodeQuery = {
         type: 'query',
         start: query.start,
         length: query.length,
-        line: query.line,
+        line: query.line - 1,
         character: query.offset,
         target: query.text ?? '',
         text: query.text ?? '',
