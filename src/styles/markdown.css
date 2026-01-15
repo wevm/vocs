@@ -16,23 +16,23 @@ h1[data-v] {
 
 h2[data-v],
 section[data-footnotes] h2 {
-  @apply vocs:text-heading vocs:text-h2 vocs:font-medium vocs:tracking-tight vocs:leading-h2;
+  @apply vocs:text-heading vocs:text-h2 vocs:font-medium vocs:tracking-tight vocs:leading-h2 vocs:-scroll-mt-4;
 }
 
 h3[data-v] {
-  @apply vocs:text-heading vocs:text-h3 vocs:font-medium vocs:tracking-tight vocs:leading-h3;
+  @apply vocs:text-heading vocs:text-h3 vocs:font-medium vocs:tracking-tight vocs:leading-h3 vocs:-scroll-mt-4;
 }
 
 h4[data-v] {
-  @apply vocs:text-heading vocs:text-h4 vocs:font-semibold vocs:tracking-tight;
+  @apply vocs:text-heading vocs:text-h4 vocs:font-semibold vocs:tracking-tight vocs:-scroll-mt-4;
 }
 
 h5[data-v] {
-  @apply vocs:text-heading vocs:text-h5 vocs:font-semibold vocs:tracking-tight;
+  @apply vocs:text-heading vocs:text-h5 vocs:font-semibold vocs:tracking-tight vocs:-scroll-mt-4;
 }
 
 h6[data-v] {
-  @apply vocs:text-heading vocs:text-h6 vocs:font-semibold vocs:tracking-tight;
+  @apply vocs:text-heading vocs:text-h6 vocs:font-semibold vocs:tracking-tight vocs:-scroll-mt-4;
 }
 
 .heading-anchor {

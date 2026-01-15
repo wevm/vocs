@@ -66,6 +66,9 @@ importers:
       '@iconify-json/simple-icons':
         specifier: ^1.2.65
         version: 1.2.65
+      '@iconify-json/vscode-icons':
+        specifier: ^1.2.39
+        version: 1.2.39
       '@iconify/types':
         specifier: ^2.0.0
         version: 2.0.0
@@ -250,9 +253,6 @@ importers:
       '@changesets/cli':
         specifier: 'catalog:'
         version: 2.29.8(@types/node@25.0.3)
-      '@iconify-json/vscode-icons':
-        specifier: ^1.2.39
-        version: 1.2.39
       '@types/estree':
         specifier: ^1.0.8
         version: 1.0.8

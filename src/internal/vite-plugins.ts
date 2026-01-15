@@ -56,6 +56,7 @@ export function deps(): PluginOption {
             'vocs > @base-ui/react/radio',
             'vocs > @base-ui/react/radio-group',
             'vocs > @base-ui/react/tabs',
+            'vocs > @iconify/utils',
             'vocs > @jridgewell/resolve-uri',
             'vocs > anser',
             'vocs > cva',

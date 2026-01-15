@@ -174,7 +174,7 @@ export function Main(props: Main.Props) {
       {showOutline && (
         <div
           className="vocs:fixed vocs:flex vocs:flex-col vocs:w-gutter vocs:py-content-py vocs:right-0 vocs:max-[1376px]:hidden"
-          style={{ maxHeight: 'calc(100vh - 5rem)' }}
+          style={{ maxHeight: 'calc(100vh)' }}
           data-v-gutter-right
         >
           <Outline.Outline />
