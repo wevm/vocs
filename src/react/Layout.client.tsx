@@ -26,7 +26,7 @@ import { useTopGutterVisibility } from './useTopGutterVisibility.js'
 export function Main(props: Main.Props) {
   const { children } = props
 
-  const { layout, showSidebar, showTopNav, showOutline } = useLayout()
+  const { layout, showAskAi, showSidebar, showTopNav, showLogo, showOutline } = useLayout()
 
   const sidebarScrollRef = React.useRef<HTMLDivElement>(null)
   const topGutterRef = useTopGutterVisibility(48)
@@ -98,9 +98,11 @@ export function Main(props: Main.Props) {
           data-v-gutter-top
         >
           <div className="vocs:flex vocs:gap-2 vocs:h-full vocs:py-2" data-v-gutter-top-left>
-            <Link className="vocs:py-0.5 vocs:flex" data-v-logo-link to="/">
-              <Logo />
-            </Link>
+            {showLogo && (
+              <Link className="vocs:py-0.5 vocs:flex" data-v-logo-link to="/">
+                <Logo />
+              </Link>
+            )}
 
             <div className="vocs:w-1" />
 
@@ -162,7 +164,7 @@ export function Main(props: Main.Props) {
         </article>
       </main>
 
-      {showTopNav && (
+      {showAskAi && (
         <div
           className="vocs:fixed vocs:bottom-6 vocs:max-md:bottom-2 vocs:w-full vocs:flex vocs:justify-center"
           data-v-ask-ai-container

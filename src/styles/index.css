@@ -127,6 +127,12 @@
     z-index: 10;
   }
 
+  /* TopNav must be above main on minimal layouts */
+  [data-layout="minimal"] > [data-v-gutter-top],
+  [data-layout="blank"] > [data-v-gutter-top] {
+    z-index: 20;
+  }
+
   [data-layout="minimal"] [data-v-content],
   [data-layout="blank"] [data-v-content] {
     background: var(--vocs-color-background-primary);

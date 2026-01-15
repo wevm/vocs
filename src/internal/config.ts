@@ -312,6 +312,16 @@ export type Frontmatter = {
   /** Robots directive (e.g., "noindex", "nofollow"). */
   robots?: string | undefined
   /**
+   * Whether to show the Ask AI button.
+   * @default true
+   */
+  showAskAi?: boolean | undefined
+  /**
+   * Whether to show the logo in the top navigation.
+   * @default true
+   */
+  showLogo?: boolean | undefined
+  /**
    * Whether to show the sidebar.
    * Overrides the default behavior based on layout.
    */

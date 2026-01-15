@@ -1,24 +1,19 @@
 ---
-title: Vocs – React Documentation Framework
+title: HomePage Example
+layout: minimal
+showAskAi: false
+showLogo: false
 ---
 
-import { Link } from 'vocs'
+import { HomePage } from 'vocs'
 
-# Hello world! [This is my page]
-
-Welcome to my page.
-
-Welcome.
-
-Welcome!
-
-**Hello world!**
-
-<Link data-v to="/kitchen-sink">Kitchen Sink</Link>
-
-<br />
-<br />
-
-<Link data-v to="/repl">The REPL RedPill 💊</Link>
-
-<Link data-v to="/wallet-client">Wallet Client</Link>
+<HomePage.Root>
+  <HomePage.Logo />
+  <HomePage.Tagline>Portable Documentation Framework, powered by Vite.</HomePage.Tagline>
+  <HomePage.InstallPackage name="vocs" type="init" />
+  <HomePage.Description>Vocs is a minimal static documentation generator designed to supercharge your documentation workflow, built with modern web technologies.</HomePage.Description>
+  <HomePage.Buttons>
+    <HomePage.Button href="/kitchen-sink" variant="accent">Kitchen Sink</HomePage.Button>
+    <HomePage.Button href="https://github.com/wevm/vocs">GitHub</HomePage.Button>
+  </HomePage.Buttons>
+</HomePage.Root>
