@@ -264,7 +264,7 @@ function Items(props: Items.Props) {
   return (
     <ul
       ref={containerRef}
-      className="vocs:relative vocs:flex vocs:flex-col vocs:border-l-2 vocs:border-primary vocs:mb-8"
+      className="vocs:relative vocs:flex vocs:flex-col vocs:border-l-2 vocs:border-primary vocs:mb-16"
       data-v-outline-items
     >
       <div
