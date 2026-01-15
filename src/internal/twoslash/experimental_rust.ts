@@ -81,6 +81,88 @@ function checkBinaryAvailable(binaryPath: string): boolean {
 }
 
 /**
+ * Parse twoslash directives from code.
+ * Returns an object with directive values.
+ */
+function parseDirectives(code: string): { noErrors: boolean } {
+  const noErrors = /^\s*\/\/\s*@noErrors\b/m.test(code)
+  return { noErrors }
+}
+
+const DIRECTIVE_PATTERN = /^\s*\/\/\s*@noErrors\b/
+
+interface RemovedLine {
+  line: number
+  startOffset: number
+  length: number
+}
+
+/**
+ * Find directive lines that will be removed, with their character offsets.
+ */
+function findDirectiveLines(code: string): RemovedLine[] {
+  const result: RemovedLine[] = []
+  const lines = code.split('\n')
+  let offset = 0
+  for (const [i, line] of lines.entries()) {
+    if (DIRECTIVE_PATTERN.test(line)) {
+      result.push({ line: i, startOffset: offset, length: line.length + 1 })
+    }
+    offset += line.length + 1
+  }
+  return result
+}
+
+/**
+ * Remove twoslash directive lines from code output.
+ */
+function stripDirectives(code: string): string {
+  return code
+    .split('\n')
+    .filter((line) => !DIRECTIVE_PATTERN.test(line))
+    .join('\n')
+}
+
+/**
+ * Adjust a line number based on removed directive lines.
+ */
+function adjustLine(line: number, removed: RemovedLine[]): number {
+  let offset = 0
+  for (const r of removed) {
+    if (r.line < line) offset++
+    else break
+  }
+  return line - offset
+}
+
+/**
+ * Adjust a character offset based on removed directive lines.
+ */
+function adjustStart(start: number, removed: RemovedLine[]): number {
+  let offset = 0
+  for (const r of removed) {
+    if (r.startOffset < start) offset += r.length
+    else break
+  }
+  return start - offset
+}
+
+/**
+ * Compute line and character from a start offset in the code.
+ */
+function getLineAndCharacter(code: string, start: number): { line: number; character: number } {
+  let line = 0
+  let lineStart = 0
+  for (let i = 0; i < start && i < code.length; i++) {
+    if (code[i] === '\n') {
+      line++
+      lineStart = i + 1
+    }
+  }
+  return { line, character: start - lineStart }
+}
+
+/**
  * Convert twoslash-rust legacy format to twoslash-protocol nodes.
  *
  * twoslash-rust returns data in the @typescript/twoslash legacy format:
@@ -88,15 +170,19 @@ function checkBinaryAvailable(binaryPath: string): boolean {
  * - queries → NodeQuery[] | NodeCompletion[]
  * - errors → NodeError[]
  */
-function convertLegacyToNodes(result: TwoslashRustResult): TwoslashNode[] {
+function convertLegacyToNodes(
+  result: TwoslashRustResult,
+  options: { noErrors?: boolean; removedLines?: RemovedLine[] } = {},
+): TwoslashNode[] {
   const nodes: TwoslashNode[] = []
+  const removed = options.removedLines ?? []
 
   for (const info of result.staticQuickInfos ?? []) {
     const node: NodeHover = {
       type: 'hover',
-      start: info.start,
+      start: adjustStart(info.start, removed),
       length: info.length,
-      line: info.line,
+      line: adjustLine(info.line, removed),
       character: info.character,
       target: info.targetString,
       text: info.text,
@@ -105,14 +191,25 @@ function convertLegacyToNodes(result: TwoslashRustResult): TwoslashNode[] {
     nodes.push(node)
   }
 
+  // Compute positions in the stripped code (after removing directive lines)
+  const strippedCode = stripDirectives(result.code)
+
   for (const query of result.queries ?? []) {
+    // The rust-twoslash binary returns query.line pointing to the ^? comment line,
+    // not the target token line. We need to compute the correct line from the start offset.
+    const adjustedStart = adjustStart(query.start, removed)
+    const { line: computedLine, character: computedCharacter } = getLineAndCharacter(
+      strippedCode,
+      adjustedStart,
+    )
+
     if (query.kind === 'completions' && query.completions) {
       const node: NodeCompletion = {
         type: 'completion',
-        start: query.start,
+        start: adjustedStart,
         length: query.length,
-        line: query.line,
-        character: query.offset,
+        line: computedLine,
+        character: computedCharacter,
         completions: query.completions.map((c) => ({
           name: c.name,
           kind: c.kind !== undefined ? String(c.kind) : undefined,
@@ -121,15 +218,12 @@ function convertLegacyToNodes(result: TwoslashRustResult): TwoslashNode[] {
       }
       nodes.push(node)
     } else {
-      // The rust-twoslash binary returns query.line as the line of the ^? comment,
-      // but the shiki-twoslash transformer expects the line of the token being queried
-      // (which is the previous line, since ^? always refers to the line above it).
       const node: NodeQuery = {
         type: 'query',
-        start: query.start,
+        start: adjustedStart,
         length: query.length,
-        line: query.line - 1,
-        character: query.offset,
+        line: computedLine,
+        character: computedCharacter,
         target: query.text ?? '',
         text: query.text ?? '',
         docs: query.docs,
@@ -138,18 +232,20 @@ function convertLegacyToNodes(result: TwoslashRustResult): TwoslashNode[] {
     }
   }
 
-  for (const error of result.errors ?? []) {
-    const node: NodeError = {
-      type: 'error',
-      start: error.start ?? 0,
-      length: error.length ?? 0,
-      line: error.line ?? 0,
-      character: error.character ?? 0,
-      text: error.renderedMessage,
-      code: error.code,
-      level: categoryToLevel(error.category),
+  if (!options.noErrors) {
+    for (const error of result.errors ?? []) {
+      const node: NodeError = {
+        type: 'error',
+        start: error.start ?? 0,
+        length: error.length ?? 0,
+        line: error.line ?? 0,
+        character: error.character ?? 0,
+        text: error.renderedMessage,
+        code: error.code,
+        level: categoryToLevel(error.category),
+      }
+      nodes.push(node)
     }
-    nodes.push(node)
   }
 
   return nodes
@@ -228,6 +324,10 @@ export function createRustTwoslasher(options: experimental_rust.Options) {
       return { code, nodes: [] }
     }
 
+    // Parse twoslash directives and find lines to remove
+    const directives = parseDirectives(code)
+    const removedLines = findDirectiveLines(code)
+
     // Include cargoToml path in cache key if provided
     const cacheInput = cargoTomlPath ? `${cargoTomlPath}:${code}` : code
     const cacheKey = cacheDir
@@ -244,8 +344,8 @@ export function createRustTwoslasher(options: experimental_rust.Options) {
         const cached = JSON.parse(node_fs.readFileSync(cachePath, 'utf-8')) as TwoslashRustResult
         const ext = cached.extension?.replace(/^\./, '') ?? lang
         const cachedResult = {
-          code: cached.code,
-          nodes: convertLegacyToNodes(cached),
+          code: stripDirectives(cached.code),
+          nodes: convertLegacyToNodes(cached, { ...directives, removedLines }),
           meta: ext ? { extension: ext } : undefined,
         }
         const codePreview = code.length > 60 ? `${code.slice(0, 60)}...` : code
@@ -306,8 +406,8 @@ export function createRustTwoslasher(options: experimental_rust.Options) {
 
     const ext = parsed.extension?.replace(/^\./, '') ?? lang
     const twoslashResult = {
-      code: parsed.code,
-      nodes: convertLegacyToNodes(parsed),
+      code: stripDirectives(parsed.code),
+      nodes: convertLegacyToNodes(parsed, { ...directives, removedLines }),
       meta: ext ? { extension: ext } : undefined,
     }
     return twoslashResult as TwoslashShikiReturn

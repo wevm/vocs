@@ -6,7 +6,7 @@ import react from '@vitejs/plugin-react'
 import { cac } from 'cac'
 import * as vite from 'vite'
 
-import { resolveConfig } from './config.js'
+import * as Config from './internal/config.js'
 import { vocs } from './waku/vite.js'
 
 const pkg = JSON.parse(fs.readFileSync(new URL('../package.json', import.meta.url), 'utf8'))
@@ -31,7 +31,7 @@ cli
   })
 
 cli.command('build', 'Build for production').action(async () => {
-  const config = await resolveConfig()
+  const config = await Config.resolve()
   const builder = await vite.createBuilder({
     configFile: false,
     plugins: [react(), vocs()],
@@ -47,7 +47,7 @@ cli
   .option('--port <port>', 'Port to listen on', { default: 4173 })
   .option('--host [host]', 'Host to listen on')
   .action(async (options: { port: number; host?: string | boolean }) => {
-    const config = await resolveConfig()
+    const config = await Config.resolve()
     process.env['PORT'] ??= String(options.port)
     if (options.host) process.env['HOST'] = String(options.host)
     const previewPath = new URL(`${config.outDir}/preview.js`, `file://${process.cwd()}/`).href
@@ -58,11 +58,11 @@ cli
   .command('twoslash-rust', 'Pre-build Rust twoslash cache')
   .option('--concurrency <n>', 'Number of parallel compilations', { default: 1 })
   .action(async (options: { concurrency: number }) => {
-    const config = await resolveConfig()
+    const config = await Config.resolve()
     const cacheDir = path.resolve(config.rootDir, '.vocs/cache')
 
     // Import twoslash dynamically to avoid circular deps
-    const { Twoslash } = await import('./config.js')
+    const Twoslash = await import('./internal/twoslash/index.js')
     const twoslasher = Twoslash.createRustTwoslasher({ cacheDir })
 
     // Find all MDX files

@@ -791,13 +791,26 @@ The `cargoToml` option points to a Cargo.toml file that defines dependencies ava
 
 Use `^?` comments to display inferred types inline:
 
-```rust twoslash
+:::code-group
+```rust twoslash [Output]
+// @noErrors
 fn main() {
     let x = 42;
     let message = "Hello, Rust!";
     //  ^?
 }
 ```
+````md [Markdown]
+```rust twoslash
+// @noErrors
+fn main() {
+    let x = 42;
+    let message = "Hello, Rust!";
+    //  ^?
+}
+```
+````
+:::
 
 ### With External Dependencies
 
@@ -808,13 +821,13 @@ For code blocks using external crates, add a `Cargo.toml` virtual file to the co
 use alloy::providers::{Provider, ProviderBuilder};
 use tempo_alloy::TempoNetwork;
 
-async fn example() -> Result<(), Box<dyn std::error::Error>> {
+async fn example() -> Result<u64, Box<dyn std::error::Error>> {
     let provider = ProviderBuilder::new_with_network::<TempoNetwork>()
         .connect(&std::env::var("RPC_URL").expect("No RPC URL set"))
         .await?;
-
-    println!("{}", provider.get_block_number().await?);
-    Ok(())
+    let res = provider.get_block_number().await?;
+    println!("{}", res);
+    Ok(res)
 }
 
 fn main() {
@@ -842,4 +855,3 @@ tempo-alloy = "0.1"
 tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
 ```
 :::
-
