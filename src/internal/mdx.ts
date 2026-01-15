@@ -13,7 +13,12 @@ import remarkDirective from 'remark-directive'
 import remarkFrontmatter from 'remark-frontmatter'
 import remarkGfm from 'remark-gfm'
 import remarkMdxFrontmatter from 'remark-mdx-frontmatter'
-import type { BuiltinTheme, CodeOptionsMultipleThemes, LanguageRegistration } from 'shiki'
+import type {
+  BuiltinTheme,
+  CodeOptionsMultipleThemes,
+  LanguageRegistration,
+  ShikiTransformer,
+} from 'shiki'
 import { bundledLanguages } from 'shiki/bundle/web'
 import rust from 'shiki/langs/rust.mjs'
 import type { Pluggable, PluggableList } from 'unified'
@@ -80,7 +85,7 @@ export function getCompileOptions(
   rehypePlugins: PluggableList
   recmaPlugins: PluggableList
 } {
-  const { cacheDir, codeHighlight, markdown, rootDir, srcDir, twoslash, twoslashRust } = config
+  const { cacheDir, codeHighlight, markdown, rootDir, srcDir, twoslash } = config
   const { jsxImportSource = 'react' } = markdown ?? {}
 
   const { recmaPlugins, rehypePlugins, remarkPlugins } = (() => {
@@ -146,7 +151,7 @@ export function getCompileOptions(
               },
             },
           ] as Pluggable,
-          rehypeShiki({ ...codeHighlight, cacheDir, rootDir, srcDir, twoslash, twoslashRust }),
+          rehypeShiki({ ...codeHighlight, cacheDir, rootDir, srcDir, twoslash }),
           ...(markdown?.rehypePlugins ?? []),
           rehypeCodeInLink,
           rehypeLinks(config),
@@ -372,7 +377,13 @@ export function remarkVocsScope() {
 export function rehypeShiki(
   options: ExactPartial<rehypeShiki.Options> = {},
 ): [typeof shiki, RehypeShikiOptions] {
-  const { cacheDir, srcDir, rootDir, themes, twoslash = true, twoslashRust = true } = options
+  const { cacheDir, srcDir, rootDir, themes, twoslash = true } = options
+
+  // Process twoslash transformers - inject cacheDir if they're factory functions
+  const twoslashTransformers = (
+    twoslash && typeof twoslash === 'object' ? twoslash.transformers : undefined
+  )?.map((t) => (typeof t === 'function' ? t({ cacheDir }) : t))
+
   return [
     shiki,
     {
@@ -391,11 +402,7 @@ export function rehypeShiki(
               typeof twoslash === 'object' ? { ...twoslash, cacheDir } : {},
             )
           : undefined,
-        twoslashRust
-          ? ShikiTransformers.twoslashRust(
-              typeof twoslashRust === 'object' ? { ...twoslashRust, cacheDir } : { cacheDir },
-            )
-          : undefined,
+        ...(twoslashTransformers ?? []),
         ShikiTransformers.emptyLine(),
         ShikiTransformers.customTag(),
         ShikiTransformers.lineNumbers(),
@@ -420,8 +427,18 @@ export declare namespace rehypeShiki {
       rootDir?: string | undefined
       shellPrompt?: ShikiTransformers.shellPrompt.Options | undefined
       srcDir?: string | undefined
-      twoslash?: ShikiTransformers.twoslash.Options | false | undefined
-      twoslashRust?: ShikiTransformers.twoslashRust.Options | false | undefined
+      twoslash?:
+        | (ShikiTransformers.twoslash.Options & {
+            /** Additional twoslash transformers (e.g., `Twoslash.experimental_rust()`). */
+            transformers?:
+              | (
+                  | ShikiTransformer
+                  | ((options: { cacheDir?: string | undefined }) => ShikiTransformer)
+                )[]
+              | undefined
+          })
+        | false
+        | undefined
     }
 }
 

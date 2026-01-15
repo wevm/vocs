@@ -55,21 +55,15 @@ cli
   })
 
 cli
-  .command('precache', 'Pre-build Rust twoslash cache')
+  .command('twoslash-rust', 'Pre-build Rust twoslash cache')
   .option('--concurrency <n>', 'Number of parallel compilations', { default: 1 })
   .action(async (options: { concurrency: number }) => {
     const config = await Config.resolve()
     const cacheDir = path.resolve(config.rootDir, '.vocs/cache')
 
     // Import twoslash-rust dynamically to avoid circular deps
-    const { createRustTwoslasher } = await import('./internal/twoslash-rust.js')
-    const twoslasher = createRustTwoslasher({
-      cacheDir,
-      cargoToml:
-        config.twoslashRust && typeof config.twoslashRust === 'object'
-          ? config.twoslashRust.cargoToml
-          : undefined,
-    })
+    const { createRustTwoslasher } = await import('./internal/twoslash/experimental_rust.js')
+    const twoslasher = createRustTwoslasher({ cacheDir })
 
     // Find all MDX files
     const srcDir = path.resolve(config.rootDir, config.srcDir)
@@ -95,7 +89,7 @@ cli
       return
     }
 
-    console.log(`[vocs] Found ${blocks.length} Rust twoslash block(s) to precache`)
+    console.log(`[vocs] Found ${blocks.length} Rust twoslash block(s) to process`)
 
     // Process blocks with concurrency limit
     const concurrency = Math.max(1, options.concurrency)
@@ -120,7 +114,7 @@ cli
     })
 
     await Promise.all(workers)
-    console.log(`[vocs] Precache complete: ${blocks.length} block(s) processed`)
+    console.log(`[vocs] Twoslash Rust complete: ${blocks.length} block(s) processed`)
   })
 
 cli.help()

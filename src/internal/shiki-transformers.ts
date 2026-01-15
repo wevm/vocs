@@ -16,7 +16,6 @@ export {
   transformerNotationWordHighlight as notationWordHighlight,
   transformerRemoveNotationEscape as removeNotationEscape,
 } from '@shikijs/transformers'
-export { twoslashRust } from './twoslash-rust.js'
 
 let twoslasher: TwoslashInstance
 

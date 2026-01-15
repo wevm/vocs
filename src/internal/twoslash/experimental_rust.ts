@@ -9,7 +9,7 @@ import {
 } from '@shikijs/twoslash/core'
 import type { ShikiTransformer } from '@shikijs/types'
 
-import * as Renderer from './twoslash/renderer.js'
+import * as Renderer from './renderer.js'
 
 interface Position {
   line: number
@@ -202,7 +202,7 @@ interface TwoslashRustResult {
   }>
 }
 
-export function createRustTwoslasher(options: twoslashRust.Options) {
+export function createRustTwoslasher(options: experimental_rust.Options) {
   const binaryPath = options.binaryPath ?? DEFAULT_BINARY
   const cacheDir = options.cacheDir ? path.resolve(options.cacheDir, 'twoslash-rust') : undefined
   const cargoTomlPath = options.cargoToml ? path.resolve(options.cargoToml) : undefined
@@ -318,25 +318,43 @@ export function createRustTwoslasher(options: twoslashRust.Options) {
  * and type hints for Rust code blocks.
  *
  * Requires: `cargo install rust-twoslash --git https://github.com/wevm/twoslash-rust --locked`
+ *
+ * @example
+ * ```ts
+ * import { Twoslash, defineConfig } from 'vocs/config'
+ *
+ * export default defineConfig({
+ *   twoslash: {
+ *     transformers: [
+ *       Twoslash.experimental_rust({ cargoToml: './Cargo.toml' }),
+ *     ],
+ *   },
+ * })
+ * ```
  */
-export function twoslashRust(options: twoslashRust.Options = {}): ShikiTransformer {
-  const { explicitTrigger = true, renderer = Renderer.rich(), throws = false } = options
+export function experimental_rust(
+  options: experimental_rust.Options = {},
+): experimental_rust.ReturnType {
+  return (injected) => {
+    const { explicitTrigger = true, renderer = Renderer.rich(), throws = false } = options
+    const cacheDir = options.cacheDir ?? injected?.cacheDir
 
-  const twoslasher = createRustTwoslasher(options)
+    const twoslasher = createRustTwoslasher({ ...options, cacheDir })
 
-  return createTransformerFactory(
-    twoslasher,
-    renderer,
-  )({
-    explicitTrigger,
-    langs: ['rust', 'rs'],
-    onShikiError() {},
-    onTwoslashError() {},
-    throws,
-  })
+    return createTransformerFactory(
+      twoslasher,
+      renderer,
+    )({
+      explicitTrigger,
+      langs: ['rust', 'rs'],
+      onShikiError() {},
+      onTwoslashError() {},
+      throws,
+    })
+  }
 }
 
-export declare namespace twoslashRust {
+export declare namespace experimental_rust {
   export type Options = {
     /**
      * Path to the rust-twoslash binary.
@@ -370,4 +388,6 @@ export declare namespace twoslashRust {
      */
     throws?: boolean | undefined
   }
+
+  export type ReturnType = (options?: { cacheDir?: string | undefined }) => ShikiTransformer
 }
