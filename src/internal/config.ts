@@ -11,25 +11,6 @@ import type { MaybePartial, UnionOmit } from './types.js'
 
 export type ThemeValue<value> = { light: value; dark: value }
 
-export type Banner =
-  | string
-  | {
-      /** Markdown content displayed in the banner. */
-      content: string
-      /** Background color of the banner (CSS color value). Overrides variant. */
-      backgroundColor?: string | undefined
-      /** Whether the banner can be dismissed. Persists in localStorage. @default true */
-      dismissable?: boolean | undefined
-      /** Height of the banner (CSS value, e.g., '28px'). */
-      height?: string | undefined
-      /** Optional link (internal or external) the banner navigates to when clicked. */
-      href?: string | undefined
-      /** Text color of the banner (CSS color value). Overrides variant. */
-      textColor?: string | undefined
-      /** Visual variant/color scheme of the banner. */
-      variant?: 'note' | 'info' | 'warning' | 'danger' | 'tip' | 'success' | undefined
-    }
-
 export type Config<partial extends boolean = false> = MaybePartial<
   partial,
   {
@@ -46,7 +27,25 @@ export type Config<partial extends boolean = false> = MaybePartial<
     /**
      * Configuration for the banner fixed to the top of the page.
      */
-    banner?: Banner | undefined
+    banner?:
+      | string
+      | {
+          /** Markdown content displayed in the banner. */
+          content: string
+          /** Background color of the banner (CSS color value). Overrides variant. */
+          backgroundColor?: string | undefined
+          /** Whether the banner can be dismissed. Persists in localStorage. @default true */
+          dismissable?: boolean | undefined
+          /** Height of the banner (CSS value, e.g., '28px'). */
+          height?: string | undefined
+          /** Optional link (internal or external) the banner navigates to when clicked. */
+          href?: string | undefined
+          /** Text color of the banner (CSS color value). Overrides variant. */
+          textColor?: string | undefined
+          /** Visual variant/color scheme of the banner. */
+          variant?: 'note' | 'info' | 'warning' | 'danger' | 'tip' | 'success' | undefined
+        }
+      | undefined
     /**
      * Changelog adapter for fetching release notes.
      * Use `github()` from `vocs/changelog` to fetch from GitHub releases.

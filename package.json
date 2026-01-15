@@ -1,13 +1,14 @@
 {
   "scripts": {
-    "build": "zile",
+    "build": "pnpm --filter create-vocs build && zile",
     "clean": "tsc -b --clean && rm -rf dist",
     "changeset:publish": "zile publish:prepare && changeset publish && zile publish:post",
     "changeset:version": "changeset version",
     "check": "biome check --fix --unsafe",
     "check:types": "tsc -b",
-    "dev": "zile dev",
+    "dev": "pnpm --filter create-vocs dev && zile dev",
     "dev:playground": "pnpm --filter playground dev",
+    "postinstall": "pnpm dev",
     "test": "vitest ./src"
   },
   "devDependencies": {
@@ -74,7 +75,9 @@
     "@tailwindcss/vite": "^4.1.8",
     "@takumi-rs/image-response": "^0.62.7",
     "@takumi-rs/wasm": "^0.62.7",
+    "@vitejs/plugin-react": "catalog:",
     "@vitejs/plugin-rsc": "^0.5.9",
+    "cac": "^6.7.14",
     "cva": "npm:class-variance-authority@^0.7.1",
     "esast-util-from-js": "^2.0.1",
     "estree-util-value-to-estree": "^3.5.0",

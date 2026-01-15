@@ -110,11 +110,11 @@ function MarkdownContent(props: { content: string }) {
     }
 
     const [full, text, href] = match
-    const isExternal = href.startsWith('http')
+    const isExternal = href?.startsWith('http')
     parts.push(
       <Link
         key={match.index}
-        to={href}
+        to={href ?? ''}
         data-v-banner-link
         {...(isExternal ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
       >
