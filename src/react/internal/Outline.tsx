@@ -251,14 +251,32 @@ function Items(props: Items.Props) {
     }
   }, [activeIds, positions, items])
 
-  // Scroll the active item into view in the outline
+  // Scroll the active item into view in the outline with margin
   React.useEffect(() => {
     if (!activeId || !containerRef.current) return
 
-    const activeItem = containerRef.current.querySelector(`[data-item-id="${activeId}"]`)
-    if (activeItem) {
-      activeItem.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
-    }
+    const activeItem = containerRef.current.querySelector<HTMLElement>(
+      `[data-item-id="${activeId}"]`,
+    )
+    if (!activeItem) return
+
+    const container = containerRef.current.parentElement
+    if (!container) return
+
+    const margin = 64
+    const itemRect = activeItem.getBoundingClientRect()
+    const containerRect = container.getBoundingClientRect()
+
+    if (itemRect.bottom > containerRect.bottom - margin)
+      container.scrollBy({
+        top: itemRect.bottom - containerRect.bottom + margin,
+        behavior: 'smooth',
+      })
+    else if (itemRect.top < containerRect.top + margin)
+      container.scrollBy({
+        top: itemRect.top - containerRect.top - margin,
+        behavior: 'smooth',
+      })
   }, [activeId])
 
   return (
