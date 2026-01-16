@@ -4,7 +4,7 @@
 import type { PathsForPages } from 'waku/router';
 
 // prettier-ignore
-type Page = { path: '/'; render: 'static' }
+type Page = { path: '/changelog'; render: 'static' } | { path: '/'; render: 'static' }
 
 // prettier-ignore
 declare module 'waku/router' {

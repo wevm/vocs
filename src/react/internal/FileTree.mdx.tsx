@@ -57,13 +57,13 @@ export namespace FileTree {
     items?: Item[]
   }
 
-  const indentSize = 20
-  const iconSize = 14
+  const indentSize = 24
+  const iconSize = 16
 
   export function List(props: List.Props) {
     const { items, depth, activeLines, iconCache } = props
     return (
-      <ul className="vocs:list-none vocs:p-0 vocs:m-0">
+      <ul className="vocs:list-none vocs:p-0 vocs:m-0 vocs:overflow-visible">
         {items.map((item, i) => {
           const isLast = i === items.length - 1
           return (
@@ -92,24 +92,28 @@ export namespace FileTree {
   }
 
   export function Item(props: Item.Props) {
-    const { item, depth, activeLines, isLast, iconCache } = props
+    const { item, depth, activeLines, iconCache } = props
 
-    const childActiveLines = isLast ? activeLines : [...activeLines, depth]
     const isFolder = item.type === 'folder'
     const hasChildren = isFolder && item.items && item.items.length > 0
 
+    const linesToRender = activeLines
+    const childActiveLines = hasChildren ? [...activeLines, depth] : activeLines
+
     return (
-      <li className="vocs:relative">
-        {activeLines.map((lineDepth) => (
+      <li className="vocs:relative vocs:overflow-visible">
+        {linesToRender.map((lineDepth) => (
           <div
             key={lineDepth}
             className="vocs:absolute vocs:top-0 vocs:bottom-0 vocs:border-l vocs:border-primary"
-            style={{ left: lineDepth * indentSize + iconSize / 2 }}
+            style={{
+              left: (lineDepth - (depth > 1 ? depth - 1 : 0)) * indentSize + iconSize / 2 - 1,
+            }}
           />
         ))}
 
         <div className="vocs:flex vocs:items-center vocs:py-1">
-          <div style={{ width: depth * indentSize }} />
+          <div style={{ width: depth > 0 ? indentSize : 0 }} />
           {isFolder ? (
             <FolderToggle
               name={item.name}

@@ -329,7 +329,11 @@ export function rehypeLinks(config: Config.Config) {
       // Check if internal link exists in filesystem
       const currentDir = vfile.dirname ?? pagesDirPath
       const [linkPath] = href.split('#')
-      const resolvedPath = path.resolve(currentDir, linkPath ?? '')
+      // For absolute paths (starting with /), resolve from pagesDirPath
+      // For relative paths, resolve from current file's directory
+      const resolvedPath = linkPath?.startsWith('/')
+        ? path.join(pagesDirPath, linkPath)
+        : path.resolve(currentDir, linkPath ?? '')
 
       // Check for file existence (try with extensions if not present)
       const exists =

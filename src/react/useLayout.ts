@@ -5,9 +5,11 @@ import { useSidebar } from './useSidebar.js'
 
 export type LayoutState = {
   layout: 'full' | 'minimal' | 'blank'
+  showAskAi: boolean
+  showLogo: boolean
+  showOutline: boolean
   showSidebar: boolean
   showTopNav: boolean
-  showOutline: boolean
   /** Outline depth (number of heading levels to show). `undefined` means show all. */
   outlineDepth: number | undefined
 }
@@ -31,6 +33,15 @@ export function useLayout(): LayoutState {
     get showTopNav() {
       if (frontmatter?.showTopNav !== undefined) return frontmatter.showTopNav
       if (layout === 'blank') return false
+      return true
+    },
+    get showAskAi() {
+      if (frontmatter?.showAskAi !== undefined) return frontmatter.showAskAi
+      if (layout === 'blank') return false
+      return true
+    },
+    get showLogo() {
+      if (frontmatter?.showLogo !== undefined) return frontmatter.showLogo
       return true
     },
     get showOutline() {

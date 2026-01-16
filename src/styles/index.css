@@ -1,4 +1,4 @@
-@layer vocs_theme, theme, vocs_base, base, vocs_components, components, vocs_utilities, utilities;
+@layer vocs_theme, theme, base, vocs_base, vocs_components, components, vocs_utilities, utilities;
 
 @import "tailwindcss/theme.css" layer(vocs_theme) prefix(vocs);
 @import "tailwindcss/preflight.css" layer(vocs_base);
@@ -125,6 +125,12 @@
   [data-layout="blank"] > [data-v-main] {
     position: relative;
     z-index: 10;
+  }
+
+  /* TopNav must be above main on minimal layouts */
+  [data-layout="minimal"] > [data-v-gutter-top],
+  [data-layout="blank"] > [data-v-gutter-top] {
+    z-index: 20;
   }
 
   [data-layout="minimal"] [data-v-content],

@@ -6,6 +6,10 @@
   @apply vocs:-mt-2!;
 }
 
+[data-v-content] > h2[data-v] + h3[data-v] {
+  @apply vocs:-mt-2!;
+}
+
 /* #endregion */
 
 /* #region Primitives */
@@ -86,12 +90,12 @@ article[data-v-content] > h1[data-v]:not(:last-child) {
 
 /* #region Secondary Headings (h2, h3, h4, h5, h6) */
 
-article[data-v-content] > :not(hgroup[data-v]) + h2:not(:only-child) {
+article[data-v-content] > :not(:is(hgroup[data-v], h1[data-v])) + h2:not(:only-child) {
   @apply vocs:pt-8 vocs:mt-10! vocs:border-t vocs:border-primary;
 }
 
 article[data-v-content] > h3:not(:only-child) {
-  @apply vocs:pt-6;
+  @apply vocs:pt-4;
 }
 
 article[data-v-content] > h4:not(:only-child),
