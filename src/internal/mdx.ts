@@ -27,7 +27,7 @@ import type { VFile } from 'vfile'
 import { createLogger } from 'vite'
 import * as yaml from 'yaml'
 import type * as Config from './config.js'
-
+import { remarkVocsScope } from './remark-vocs-scope.js'
 import { remarkSandbox } from './sandbox.js'
 import * as ShikiTransformers from './shiki-transformers.js'
 import * as Snippets from './snippets.js'
@@ -360,20 +360,8 @@ export function rehypeLinks(config: Config.Config) {
   }
 }
 
-/**
- * Remark plugin that adds `data-v` attribute to elements.
- * This enables scoped styling for markdown-rendered content, without conflicting with user styles.
- */
-export function remarkVocsScope() {
-  return (tree: MdAst.Root) => {
-    UnistUtil.visit(tree, (node) => {
-      const n = node as MdAst.Node & { data?: { hProperties?: Record<string, unknown> } }
-      n.data ??= {}
-      n.data.hProperties ??= {}
-      n.data.hProperties['data-v'] = ''
-    })
-  }
-}
+// Re-export from separate module to avoid importing vite in runtime contexts
+export { remarkVocsScope } from './remark-vocs-scope.js'
 
 /**
  * Rehype plugin that processes code blocks with Shiki.

@@ -5,7 +5,7 @@ import { fromMarkdown } from 'mdast-util-from-markdown'
 import { gfmFromMarkdown } from 'mdast-util-gfm'
 import { defaultHandlers, toHast } from 'mdast-util-to-hast'
 import type { NodeError, NodeHover, NodeQuery } from 'twoslash'
-import { remarkVocsScope } from '../mdx.js'
+import { remarkVocsScope } from '../remark-vocs-scope.js'
 
 /**
  * Default patterns for detecting markdown content inside code blocks.
