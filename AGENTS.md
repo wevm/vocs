@@ -207,6 +207,7 @@ Follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/):
 
 - Shared utility types in `internal/types.ts` (`OneOf`, `MaybePartial`, `Compute`, etc.). Promote types here only when reused across multiple modules.
 - JSDoc comments on config options and public APIs
+- Use `node` (not `tsx`) for running scripts — the project setup supports this directly
 
 ## Imports & Module Boundaries
 

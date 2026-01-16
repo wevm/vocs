@@ -1,6 +1,7 @@
 _
 dist
 node_modules
+twoslash-rust/npm
 routeTree.gen.ts
 *.tsbuildinfo
 **/.cache

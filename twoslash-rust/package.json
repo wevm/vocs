@@ -21,7 +21,8 @@
   "scripts": {
     "build": "tsc",
     "build:rust": "cargo build --release",
-    "build:npm": "tsx scripts/build-npm.ts"
+    "build:npm": "tsx scripts/build-npm.ts",
+    "setup:local": "tsx scripts/setup-local.ts"
   },
   "dependencies": {
     "detect-libc": "^2.0.3"
