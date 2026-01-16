@@ -4,7 +4,13 @@ export default defineConfig({
   changelog: Changelog.github({ prereleases: true, repo: 'tempoxyz/tempo' }),
   mcp: {
     enabled: true,
-    source: McpSource.github({ repo: 'tempoxyz/tempo' }),
+    sources: [
+      McpSource.github({ repo: 'tempoxyz/tempo' }),
+      McpSource.github({ repo: 'paradigmxyz/reth' }),
+      McpSource.github({ repo: 'foundry-rs/foundry' }),
+      McpSource.github({ repo: 'wevm/viem' }),
+      McpSource.github({ repo: 'wevm/wagmi' }),
+    ],
   },
   twoslash: {
     transformers: [Twoslash.experimental_rust({ cargoToml: './Cargo.toml', cacheOnly: true })],

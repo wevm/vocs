@@ -17,7 +17,7 @@ export type McpConfig = {
    */
   enabled?: boolean | undefined
   /**
-   * Source code adapter for navigating the codebase.
+   * Source code adapters for navigating codebases.
    * Use `McpSource.github()` to fetch from GitHub.
    *
    * @example
@@ -27,12 +27,15 @@ export type McpConfig = {
    * export default defineConfig({
    *   mcp: {
    *     enabled: true,
-   *     source: McpSource.github({ repo: 'wevm/viem' }),
+   *     sources: [
+   *       McpSource.github({ name: 'viem', repo: 'wevm/viem' }),
+   *       McpSource.github({ name: 'wagmi', repo: 'wevm/wagmi' }),
+   *     ],
    *   },
    * })
    * ```
    */
-  source?: McpSource.Adapter | undefined
+  sources?: readonly McpSource.Adapter[] | undefined
 }
 
 /**
@@ -141,19 +144,46 @@ export function createServer(config: Config): McpServer {
     },
   )
 
-  const source = config.mcp?.source
-  if (source) {
+  const sources = (config.mcp?.sources ?? []).map((s, i) => ({
+    ...s,
+    name: s.name ?? `source-${i}`,
+  }))
+  const sourceNames = sources.map((s) => s.name)
+
+  if (sources.length > 0) {
+    server.registerTool(
+      'list_sources',
+      {
+        description: 'List available source code repositories.',
+        inputSchema: {},
+      },
+      async () => {
+        const list = sources.map((s) => ({ name: s.name, type: s.type }))
+        return {
+          content: [{ type: 'text', text: JSON.stringify(list, null, 2) }],
+        }
+      },
+    )
+
     server.registerTool(
       'list_source_files',
       {
         description: 'List source code files in a directory.',
         inputSchema: {
+          source: z.enum(sourceNames as [string, ...string[]]).describe('Source name'),
           dirPath: z.string().optional().describe('Directory path (e.g., "src" or "src/utils")'),
         },
       },
-      async ({ dirPath }) => {
+      async ({ source: sourceName, dirPath }) => {
+        const src = sources.find((s) => s.name === sourceName)
+        if (!src) {
+          return {
+            content: [{ type: 'text', text: `Source not found: ${sourceName}` }],
+            isError: true,
+          }
+        }
         try {
-          const files = await source.listFiles(dirPath || '')
+          const files = await src.listFiles(dirPath || '')
           return {
             content: [{ type: 'text', text: JSON.stringify(files, null, 2) }],
           }
@@ -171,17 +201,22 @@ export function createServer(config: Config): McpServer {
       {
         description: 'Read a source code file.',
         inputSchema: {
+          source: z.enum(sourceNames as [string, ...string[]]).describe('Source name'),
           filePath: z.string().describe('File path (e.g., "src/index.ts")'),
         },
       },
-      async ({ filePath }) => {
-        console.log('[MCP:Tool] read_source_file called with:', filePath)
+      async ({ source: sourceName, filePath }) => {
+        const src = sources.find((s) => s.name === sourceName)
+        if (!src) {
+          return {
+            content: [{ type: 'text', text: `Source not found: ${sourceName}` }],
+            isError: true,
+          }
+        }
         try {
-          const content = await source.readFile(filePath)
-          console.log('[MCP:Tool] read_source_file success, content length:', content.length)
+          const content = await src.readFile(filePath)
           return { content: [{ type: 'text', text: content }] }
         } catch (error) {
-          console.error('[MCP:Tool] read_source_file error:', error)
           return {
             content: [{ type: 'text', text: String(error) }],
             isError: true,
@@ -200,11 +235,19 @@ export function createServer(config: Config): McpServer {
             .optional()
             .describe('Directory path (defaults to configured source path)'),
           depth: z.number().optional().describe('Maximum depth to traverse (default: 3)'),
+          source: z.enum(sourceNames as [string, ...string[]]).describe('Source name'),
         },
       },
-      async ({ basePath, depth }) => {
+      async ({ source: sourceName, basePath, depth }) => {
+        const src = sources.find((s) => s.name === sourceName)
+        if (!src) {
+          return {
+            content: [{ type: 'text', text: `Source not found: ${sourceName}` }],
+            isError: true,
+          }
+        }
         try {
-          const result = await source.getTree({ path: basePath, depth })
+          const result = await src.getTree({ path: basePath, depth })
           return {
             content: [
               {
@@ -226,19 +269,31 @@ export function createServer(config: Config): McpServer {
       },
     )
 
-    if (source.searchCode) {
+    const searchableSources = sources.filter((s) => s.searchCode)
+    if (searchableSources.length > 0) {
+      const searchableNames = searchableSources.map((s) => s.name)
       server.registerTool(
         'search_source',
         {
           description: 'Search source code for a pattern.',
           inputSchema: {
+            source: z.enum(searchableNames as [string, ...string[]]).describe('Source name'),
             query: z.string().describe('The search query'),
             pathFilter: z.string().optional().describe('Optional path filter (e.g., "src/")'),
           },
         },
-        async ({ query, pathFilter }) => {
+        async ({ source: sourceName, query, pathFilter }) => {
+          const src = sources.find((s) => s.name === sourceName)
+          if (!src?.searchCode) {
+            return {
+              content: [
+                { type: 'text', text: `Source not found or search not supported: ${sourceName}` },
+              ],
+              isError: true,
+            }
+          }
           try {
-            const result = await source.searchCode?.(query, pathFilter)
+            const result = await src.searchCode(query, pathFilter)
             return {
               content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
             }

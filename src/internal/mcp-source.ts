@@ -3,6 +3,8 @@
  */
 
 export type Adapter = {
+  /** Unique name/identifier for this source */
+  name?: string | undefined
   /** Adapter type identifier */
   type: string
   /** List files in a directory */
@@ -44,12 +46,15 @@ export type SearchResult = {
  * export default defineConfig({
  *   mcp: {
  *     enabled: true,
- *     source: McpSource.from({
- *       type: 'custom',
- *       async listFiles(path) { ... },
- *       async readFile(path) { ... },
- *       async getTree() { ... },
- *     }),
+ *     sources: [
+ *       McpSource.from({
+ *         name: 'my-source',
+ *         type: 'custom',
+ *         async listFiles(path) { ... },
+ *         async readFile(path) { ... },
+ *         async getTree() { ... },
+ *       }),
+ *     ],
  *   },
  * })
  * ```
@@ -68,13 +73,15 @@ export function from(adapter: Adapter): Adapter {
  * export default defineConfig({
  *   mcp: {
  *     enabled: true,
- *     source: McpSource.github({ repo: 'wevm/viem' }),
+ *     sources: [
+ *       McpSource.github({ name: 'viem', repo: 'wevm/viem' }),
+ *     ],
  *   },
  * })
  * ```
  */
 export function github(options: github.Options): Adapter {
-  const { repo, branch = 'main', token, paths = ['src'] } = options
+  const { name, repo, branch = 'main', token, paths = ['src'] } = options
 
   async function fetchGitHub(url: string): Promise<Response> {
     const headers: Record<string, string> = {
@@ -88,6 +95,7 @@ export function github(options: github.Options): Adapter {
   }
 
   return {
+    name: name ?? repo,
     type: 'github',
 
     async listFiles(dirPath: string) {
@@ -185,6 +193,12 @@ export function github(options: github.Options): Adapter {
 
 export declare namespace github {
   type Options = {
+    /**
+     * Unique name/identifier for this source.
+     * Defaults to repo name if not provided.
+     * @example "viem"
+     */
+    name?: string | undefined
     /**
      * GitHub repository in "owner/repo" format.
      * @example "wevm/viem"

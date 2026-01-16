@@ -187,7 +187,9 @@ export type Config<partial extends boolean = false> = MaybePartial<
      * export default defineConfig({
      *   mcp: {
      *     enabled: true,
-     *     source: McpSource.github({ repo: 'wevm/viem' }),
+     *     sources: [
+     *       McpSource.github({ name: 'viem', repo: 'wevm/viem' }),
+     *     ],
      *   },
      * })
      * ```
@@ -196,8 +198,8 @@ export type Config<partial extends boolean = false> = MaybePartial<
       | {
           /** Enable MCP server endpoint at `/api/mcp`. */
           enabled?: boolean | undefined
-          /** Source code adapter for navigating the codebase. */
-          source?: McpSource.Adapter | undefined
+          /** Source code adapters for navigating codebases. */
+          sources?: readonly McpSource.Adapter[] | undefined
         }
       | undefined
     /**
