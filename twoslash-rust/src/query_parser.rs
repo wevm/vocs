@@ -18,47 +18,35 @@ lazy_static! {
             |n| { n - 1 }
         ),
     ];
-    static ref NO_ERRORS_REGEX: Regex = Regex::new(r#"^\s*//\s*@noErrors\s*$"#).unwrap();
 }
 
 pub struct ParseResult {
     pub code: String,
     pub queries: Vec<(QueryKind, TextSize)>,
-    pub no_errors: bool,
 }
 
 pub fn find_queries(src: &str) -> ParseResult {
     let mut queries = vec![];
     let mut removed_lines = 0;
     let mut lines = vec![];
-    let mut no_errors = false;
 
     for (i, line) in src.lines().enumerate() {
         let mut skip_line = false;
 
-        // Check for @noErrors directive
-        if NO_ERRORS_REGEX.is_match(line) {
-            no_errors = true;
-            skip_line = true;
-            removed_lines += 1;
-        }
-
         // Check for query markers (^? and ^|)
-        if !skip_line {
-            for (kind, parser, transform_col) in PARSERS.iter() {
-                if let Some(capture) = parser.captures(line) {
-                    let col = capture.name("caret").unwrap().start() as u32;
-                    let col = transform_col(col);
-                    queries.push((
-                        *kind,
-                        LineCol {
-                            line: (i - removed_lines - 1) as u32,
-                            col,
-                        },
-                    ));
-                    skip_line = true;
-                    removed_lines += 1;
-                }
+        for (kind, parser, transform_col) in PARSERS.iter() {
+            if let Some(capture) = parser.captures(line) {
+                let col = capture.name("caret").unwrap().start() as u32;
+                let col = transform_col(col);
+                queries.push((
+                    *kind,
+                    LineCol {
+                        line: (i - removed_lines - 1) as u32,
+                        col,
+                    },
+                ));
+                skip_line = true;
+                removed_lines += 1;
             }
         }
 
@@ -77,7 +65,6 @@ pub fn find_queries(src: &str) -> ParseResult {
     ParseResult {
         code: new_text,
         queries,
-        no_errors,
     }
 }
 

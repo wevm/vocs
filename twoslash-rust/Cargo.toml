@@ -1,7 +1,12 @@
 [package]
-edition = "2021"
 name = "rust-twoslash"
-version = "0.1.0"
+version = "0.0.1"
+edition = "2021"
+license = "MIT"
+description = "Twoslash for Rust - extract type information from Rust code using rust-analyzer"
+repository = "https://github.com/wevm/twoslash-rust"
+keywords = ["twoslash", "rust-analyzer", "documentation", "ide"]
+categories = ["development-tools"]
 
 [dependencies]
 anyhow = "1.0.56"
@@ -12,33 +17,29 @@ serde_derive = "1.0.136"
 serde_json = "1.0.79"
 tempfile = "3.3.0"
 
-[dependencies.ra]
-package = "rust-analyzer"
-path = "vendor/rust-analyzer/crates/rust-analyzer"
+[dependencies.ra_ide]
+package = "ra_ap_ide"
+version = "0.0.315"
 
-[dependencies.ra-ide]
-package = "ide"
-path = "vendor/rust-analyzer/crates/ide"
+[dependencies.ra_ide_db]
+package = "ra_ap_ide_db"
+version = "0.0.315"
 
-[dependencies.ra-ide_db]
-package = "ide-db"
-path = "vendor/rust-analyzer/crates/ide-db"
+[dependencies.ra_project_model]
+package = "ra_ap_project_model"
+version = "0.0.315"
 
-[dependencies.ra-project_model]
-package = "project-model"
-path = "vendor/rust-analyzer/crates/project-model"
+[dependencies.ra_syntax]
+package = "ra_ap_syntax"
+version = "0.0.315"
 
-[dependencies.ra-syntax]
-package = "syntax"
-path = "vendor/rust-analyzer/crates/syntax"
-
-[dependencies.ra-vfs]
-package = "vfs"
-path = "vendor/rust-analyzer/crates/vfs"
+[dependencies.ra_vfs]
+package = "ra_ap_vfs"
+version = "0.0.315"
 
 [dependencies.load_cargo]
-package = "load-cargo"
-path = "vendor/rust-analyzer/crates/load-cargo"
+package = "ra_ap_load-cargo"
+version = "0.0.315"
 
 [dependencies.camino]
 version = "1.0"

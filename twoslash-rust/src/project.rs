@@ -13,7 +13,7 @@ use ra_ide::{
     StaticIndex, TextRange, TextSize, TokenId, TokenStaticData, VendoredLibrariesConfig,
 };
 use ra_ide_db::imports::insert_use::{ImportGranularity, InsertUseConfig, PrefixKind};
-use ra_ide_db::{ChangeWithProcMacros, SnippetCap};
+use ra_ide_db::{ChangeWithProcMacros, MiniCore, SnippetCap};
 use ra_project_model::{CargoConfig, ProjectManifest, ProjectWorkspace, RustLibSource};
 use ra_vfs::{AbsPathBuf, VfsPath};
 use tempfile::TempDir;
@@ -44,7 +44,6 @@ pub struct Project {
     host: Option<AnalysisHost>,
     analysis: Analysis,
     queries: Vec<(QueryKind, TextSize)>,
-    no_errors: bool,
 
     line_index: LineIndex,
     token_to_ranges: HashMap<TokenId, Vec<TextRange>>,
@@ -161,7 +160,6 @@ impl Project {
         let parse_result = find_queries(source);
         let source = parse_result.code;
         let queries = parse_result.queries;
-        let no_errors = parse_result.no_errors;
 
         // Always use cargo mode - it's needed for std resolution and external deps
         let bootstrap = bootstrap_project_in(
@@ -209,7 +207,6 @@ impl Project {
             host: Some(host),
             analysis,
             queries,
-            no_errors,
 
             line_index,
             token_to_ranges,
@@ -226,7 +223,6 @@ impl Project {
         let parse_result = find_queries(&new_code);
         let new_code = parse_result.code;
         let queries = parse_result.queries;
-        let no_errors = parse_result.no_errors;
 
         let (host, analysis, fid) = match self.host {
             Some(mut host) => {
@@ -249,7 +245,6 @@ impl Project {
             host,
             analysis,
             queries,
-            no_errors,
             fid,
             token_to_ranges,
             token_data,
@@ -450,6 +445,7 @@ impl Project {
             fields_to_resolve: CompletionFieldsToResolve::empty(),
             exclude_flyimport: Vec::new(),
             exclude_traits: &[],
+            minicore: MiniCore::default(),
         };
         let file_pos = FilePosition {
             file_id: self.fid,
@@ -512,11 +508,7 @@ impl Project {
     }
 
     pub fn twoslasher(&self) -> Result<TwoSlash> {
-        let errors = if self.no_errors {
-            vec![]
-        } else {
-            self.diagnostics()?
-        };
+        let errors = self.diagnostics()?;
         let static_quick_infos = self.ident_hovers()?;
         let queries = self.queries();
 

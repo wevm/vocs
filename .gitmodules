@@ -1,3 +1,0 @@
-[submodule "twoslash-rust/vendor/rust-analyzer"]
-	path = twoslash-rust/vendor/rust-analyzer
-	url = https://github.com/rust-analyzer/rust-analyzer

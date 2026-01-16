@@ -374,7 +374,7 @@ export function createRustTwoslasher(options: experimental_rust.Options) {
     const cachePath = cacheKey && cacheDir ? path.join(cacheDir, `${cacheKey}.json`) : null
 
     console.log(
-      `[vocs] rust-twoslash: cacheDir=${cacheDir}, cachePath=${cachePath}, exists=${cachePath ? node_fs.existsSync(cachePath) : false}`,
+      `[vocs] rust-twoslash: binaryPath=${binaryPath}, cacheDir=${cacheDir}, cachePath=${cachePath}, exists=${cachePath ? node_fs.existsSync(cachePath) : false}`,
     )
 
     if (cachePath && node_fs.existsSync(cachePath)) {
