@@ -24,3 +24,6 @@ dist-ssr
 *.sw?
 
 pages.gen.ts
+
+# Rust twoslash build cache (keep JSON files, ignore compiled deps)
+.vocs/cache/twoslash-rust/target

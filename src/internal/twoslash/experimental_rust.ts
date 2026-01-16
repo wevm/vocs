@@ -362,8 +362,8 @@ export function createRustTwoslasher(options: experimental_rust.Options) {
     const directives = parseDirectives(code)
     const removedLines = findDirectiveLines(code)
 
-    // Include cargoToml path in cache key if provided
-    const cacheInput = cargoTomlPath ? `${cargoTomlPath}:${code}` : code
+    // Use only code for cache key (cargoToml affects runtime but shouldn't change cache key)
+    const cacheInput = code
     const cacheKey = cacheDir
       ? crypto.createHash('md5').update(cacheInput).digest('hex').slice(0, 12)
       : null
@@ -386,7 +386,7 @@ export function createRustTwoslasher(options: experimental_rust.Options) {
         console.log(`[vocs] rust-twoslash: cache hit for "${codePreview.replace(/\n/g, '\\n')}"`)
         return cachedResult as TwoslashShikiReturn
       } catch {
-        // Cache read failed, continue with fresh analysis
+        console.log('[vocs] rust-twoslash: cache miss')
       }
     }
 
