@@ -1,0 +1,118 @@
+name: twoslash-rust release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., 0.1.0)'
+        required: true
+        type: string
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            name: darwin-arm64
+          - os: macos-13
+            target: x86_64-apple-darwin
+            name: darwin-x64
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            name: linux-x64-gnu
+
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: twoslash-rust
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Rust
+        uses: dtolnay/rust-action@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Build
+        run: cargo build --release --target ${{ matrix.target }}
+
+      - name: Strip binary (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: strip target/${{ matrix.target }}/release/rust-twoslash
+
+      - name: Strip binary (macOS)
+        if: startsWith(matrix.os, 'macos')
+        run: strip target/${{ matrix.target }}/release/rust-twoslash
+
+      - name: Smoke test binary
+        run: |
+          echo 'fn main() { let x = 1; }' | ./target/${{ matrix.target }}/release/rust-twoslash
+        shell: bash
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bindings-${{ matrix.target }}
+          path: twoslash-rust/target/${{ matrix.target }}/release/rust-twoslash
+          if-no-files-found: error
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: twoslash-rust
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: twoslash-rust/artifacts
+
+      - name: List artifacts
+        run: find artifacts -type f
+
+      - name: Update version
+        run: |
+          jq '.version = "${{ inputs.version }}"' package.json > tmp.json && mv tmp.json package.json
+          jq '.optionalDependencies = (.optionalDependencies | to_entries | map(.value = "${{ inputs.version }}") | from_entries)' package.json > tmp.json && mv tmp.json package.json
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build TypeScript
+        run: pnpm build
+
+      - name: Generate platform packages
+        run: pnpm build:npm
+        env:
+          ARTIFACTS_DIR: artifacts
+
+      - name: Publish platform packages
+        run: |
+          for dir in npm/*/; do
+            echo "Publishing $dir"
+            npm publish "$dir" --access public
+          done
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish main package
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

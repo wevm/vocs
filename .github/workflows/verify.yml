@@ -35,3 +35,64 @@ jobs:
         run: pnpm run test --bail=1
         env:
           CI: true
+
+  test-twoslash-rust:
+    name: Test twoslash-rust
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: twoslash-rust
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+
+      - name: Cache Rust
+        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2
+        with:
+          workspaces: twoslash-rust
+
+      - name: Format
+        run: cargo fmt --all -- --check
+
+      - name: Build
+        run: cargo build --verbose
+
+      - name: Run tests
+        run: cargo test --verbose
+        env:
+          INSTA_FORCE_PASS: 1
+
+  test-twoslash-rust-integration:
+    name: Test twoslash-rust Integration
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust
+        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2
+        with:
+          workspaces: twoslash-rust
+
+      - name: Build twoslash-rust binary
+        run: cargo build --release
+        working-directory: twoslash-rust
+
+      - name: Build twoslash-rust package
+        run: pnpm --filter @vocs/twoslash-rust build
+
+      - name: Run integration tests
+        run: pnpm vitest src/internal/twoslash/experimental_rust.test.ts --run

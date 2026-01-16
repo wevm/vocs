@@ -342,7 +342,7 @@ export function define(config: define.Options = {}): Config {
     changelog,
     basePath = '/',
     baseUrl,
-    cacheDir = path.resolve(import.meta.dirname, '.vocs/cache'),
+    cacheDir,
     codeHighlight,
     colorScheme = 'light dark',
     checkDeadlinks = true,
@@ -378,7 +378,7 @@ export function define(config: define.Options = {}): Config {
       : undefined,
     baseUrl,
     basePath,
-    cacheDir,
+    cacheDir: cacheDir ?? path.resolve(rootDir, '.vocs/cache'),
     changelog,
     checkDeadlinks,
     codeHighlight: {

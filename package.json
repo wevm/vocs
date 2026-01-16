@@ -8,8 +8,10 @@
     "check:types": "tsc -b",
     "dev": "pnpm --filter create-vocs dev && zile dev",
     "dev:playground": "pnpm --filter playground dev",
+    "dev:playground:twoslash-rust": "cd playground && node ../dist/cli.js twoslash-rust",
     "postinstall": "pnpm dev",
-    "test": "vitest ./src"
+    "test": "vitest ./src",
+    "test:twoslash-rust": "cargo test --manifest-path twoslash-rust/Cargo.toml"
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:",
@@ -37,7 +39,7 @@
   "devEngines": {
     "runtime": {
       "name": "node",
-      "version": "24.12.0",
+      "version": "24.5.0",
       "onFail": "download"
     }
   },
@@ -121,6 +123,7 @@
     "yaml": "^2.8.2"
   },
   "peerDependencies": {
+    "@vocs/twoslash-rust": "^0.1.0",
     "mermaid": "^11",
     "react": "^19",
     "react-dom": "^19",
@@ -128,6 +131,9 @@
     "waku": "^1"
   },
   "peerDependenciesMeta": {
+    "@vocs/twoslash-rust": {
+      "optional": true
+    },
     "mermaid": {
       "optional": true
     },
@@ -139,6 +145,9 @@
     }
   },
   "sideEffects": false,
+  "bin": {
+    "vocs": "./dist/cli.js"
+  },
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -200,6 +209,11 @@
       "types": "./dist/styles/*.d.ts",
       "src": "./src/styles/*.css",
       "default": "./dist/styles/*.js"
+    },
+    "./cli": {
+      "types": "./dist/cli.d.ts",
+      "src": "./src/cli.ts",
+      "default": "./dist/cli.js"
     }
   }
 }

@@ -1,0 +1,3 @@
+{
+  "installCommand": "corepack enable && pnpm install"
+}

@@ -1,7 +1,10 @@
-import { Changelog, defineConfig } from 'vocs/config'
+import { Changelog, defineConfig, Twoslash } from 'vocs/config'
 
 export default defineConfig({
   changelog: Changelog.github({ repo: 'paradigmxyz/reth' }),
+  twoslash: {
+    transformers: [Twoslash.experimental_rust({ cargoToml: './Cargo.toml' })],
+  },
   banner: 'Vocs v2 is now available!',
   baseUrl: process.env.BASE_URL,
   checkDeadlinks: false,

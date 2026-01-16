@@ -1,0 +1,18 @@
+{
+  "name": "@vocs/twoslash-rust-linux-x64-gnu",
+  "version": "0.1.0",
+  "os": [
+    "linux"
+  ],
+  "cpu": [
+    "x64"
+  ],
+  "main": "./bin/rust-twoslash",
+  "files": [
+    "bin"
+  ],
+  "license": "MIT",
+  "libc": [
+    "glibc"
+  ]
+}

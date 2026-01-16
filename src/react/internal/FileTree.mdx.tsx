@@ -92,7 +92,7 @@ export namespace FileTree {
   }
 
   export function Item(props: Item.Props) {
-    const { item, depth, activeLines, isLast, iconCache } = props
+    const { item, depth, activeLines, iconCache } = props
 
     const isFolder = item.type === 'folder'
     const hasChildren = isFolder && item.items && item.items.length > 0

@@ -13,9 +13,7 @@
     "clientKind": "git",
     "useIgnoreFile": true
   },
-  "files": {
-    "ignoreUnknown": false
-  },
+
   "formatter": {
     "enabled": true,
     "indentStyle": "space"

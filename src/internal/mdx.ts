@@ -13,15 +13,21 @@ import remarkDirective from 'remark-directive'
 import remarkFrontmatter from 'remark-frontmatter'
 import remarkGfm from 'remark-gfm'
 import remarkMdxFrontmatter from 'remark-mdx-frontmatter'
-import type { BuiltinTheme, CodeOptionsMultipleThemes } from 'shiki'
+import type {
+  BuiltinTheme,
+  CodeOptionsMultipleThemes,
+  LanguageRegistration,
+  ShikiTransformer,
+} from 'shiki'
 import { bundledLanguages } from 'shiki/bundle/web'
+
 import type { Pluggable, PluggableList } from 'unified'
 import * as UnistUtil from 'unist-util-visit'
 import type { VFile } from 'vfile'
 import { createLogger } from 'vite'
 import * as yaml from 'yaml'
 import type * as Config from './config.js'
-
+import { remarkVocsScope } from './remark-vocs-scope.js'
 import { remarkSandbox } from './sandbox.js'
 import * as ShikiTransformers from './shiki-transformers.js'
 import * as Snippets from './snippets.js'
@@ -81,6 +87,19 @@ export function getCompileOptions(
 } {
   const { cacheDir, codeHighlight, markdown, rootDir, srcDir, twoslash } = config
   const { jsxImportSource = 'react' } = markdown ?? {}
+
+  // Extract language names from twoslash transformers (e.g., rust, toml from experimental_rust)
+  const twoslashTransformerLangs =
+    twoslash && typeof twoslash === 'object' && twoslash.transformers
+      ? twoslash.transformers.flatMap((t) =>
+          'langs' in t
+            ? (t.langs as { name?: string; id?: string }[]).flatMap((l) => {
+                const names = [l.name, l.id].filter(Boolean) as string[]
+                return names
+              })
+            : [],
+        )
+      : []
 
   const { recmaPlugins, rehypePlugins, remarkPlugins } = (() => {
     if (type === 'txt')
@@ -157,7 +176,7 @@ export function getCompileOptions(
           remarkCallout,
           remarkChangelog,
           remarkCodeGroup,
-          remarkCodeTitle,
+          [remarkCodeTitle, { additionalLanguages: twoslashTransformerLangs }] as Pluggable,
           remarkDefaultFrontmatter,
           remarkDetails,
           remarkDirective,
@@ -354,20 +373,8 @@ export function rehypeLinks(config: Config.Config) {
   }
 }
 
-/**
- * Remark plugin that adds `data-v` attribute to elements.
- * This enables scoped styling for markdown-rendered content, without conflicting with user styles.
- */
-export function remarkVocsScope() {
-  return (tree: MdAst.Root) => {
-    UnistUtil.visit(tree, (node) => {
-      const n = node as MdAst.Node & { data?: { hProperties?: Record<string, unknown> } }
-      n.data ??= {}
-      n.data.hProperties ??= {}
-      n.data.hProperties['data-v'] = ''
-    })
-  }
-}
+// Re-export from separate module to avoid importing vite in runtime contexts
+export { remarkVocsScope } from './remark-vocs-scope.js'
 
 /**
  * Rehype plugin that processes code blocks with Shiki.
@@ -376,6 +383,18 @@ export function rehypeShiki(
   options: ExactPartial<rehypeShiki.Options> = {},
 ): [typeof shiki, RehypeShikiOptions] {
   const { cacheDir, srcDir, rootDir, themes, twoslash = true } = options
+
+  // Process twoslash transformers - inject cacheDir if they're factory functions
+  const rawTransformers =
+    twoslash && typeof twoslash === 'object' ? twoslash.transformers : undefined
+  const twoslashTransformers = rawTransformers?.map((t) =>
+    typeof t === 'function' ? t({ cacheDir }) : t,
+  )
+
+  // Extract langs from transformers that provide them (e.g., experimental_rust)
+  const transformerLangs =
+    rawTransformers?.flatMap((t) => ('langs' in t ? (t.langs as LanguageRegistration[]) : [])) ?? []
+
   return [
     shiki,
     {
@@ -385,6 +404,7 @@ export function rehypeShiki(
       inline: 'tailing-curly-colon',
       rootStyle: false,
       themes,
+      langs: [...Object.values(bundledLanguages), ...transformerLangs],
       // TODO: infer `langs` for faster cold start.
       transformers: [
         rootDir && srcDir ? ShikiTransformers.notationInclude({ srcDir, rootDir }) : undefined,
@@ -393,6 +413,7 @@ export function rehypeShiki(
               typeof twoslash === 'object' ? { ...twoslash, cacheDir } : {},
             )
           : undefined,
+        ...(twoslashTransformers ?? []),
         ShikiTransformers.emptyLine(),
         ShikiTransformers.customTag(),
         ShikiTransformers.lineNumbers(),
@@ -417,7 +438,18 @@ export declare namespace rehypeShiki {
       rootDir?: string | undefined
       shellPrompt?: ShikiTransformers.shellPrompt.Options | undefined
       srcDir?: string | undefined
-      twoslash?: ShikiTransformers.twoslash.Options | false | undefined
+      twoslash?:
+        | (ShikiTransformers.twoslash.Options & {
+            /** Additional twoslash transformers (e.g., `Twoslash.experimental_rust()`). */
+            transformers?:
+              | (
+                  | ShikiTransformer
+                  | ((options: { cacheDir?: string | undefined }) => ShikiTransformer)
+                )[]
+              | undefined
+          })
+        | false
+        | undefined
     }
 }
 
@@ -505,17 +537,26 @@ export declare namespace remarkBadge {
  * When no lang is specified (e.g., ``` [Title]), the bracket syntax
  * may be parsed as the lang. This moves it to meta instead.
  */
-export function remarkCodeTitle() {
+export function remarkCodeTitle(options: remarkCodeTitle.Options = {}) {
   const specialLanguages = ['ansi', 'text', 'txt', 'plain', 'plaintext']
+  const additionalLanguages = options.additionalLanguages ?? []
   return (tree: MdAst.Root) => {
     UnistUtil.visit(tree, 'code', (node) => {
       if (!node.lang) return
       const match =
-        Object.keys(bundledLanguages).includes(node.lang) || specialLanguages.includes(node.lang)
+        Object.keys(bundledLanguages).includes(node.lang) ||
+        specialLanguages.includes(node.lang) ||
+        additionalLanguages.includes(node.lang)
       if (match) return
       node.meta = node.lang
       node.lang = 'plaintext'
     })
+  }
+}
+
+export declare namespace remarkCodeTitle {
+  type Options = {
+    additionalLanguages?: string[] | undefined
   }
 }
 
