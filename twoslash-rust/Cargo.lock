@@ -1777,27 +1777,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "rust-twoslash"
-version = "0.0.1"
-dependencies = [
- "anyhow",
- "camino",
- "insta",
- "lazy_static",
- "ra_ap_ide",
- "ra_ap_ide_db",
- "ra_ap_load-cargo",
- "ra_ap_project_model",
- "ra_ap_syntax",
- "ra_ap_vfs",
- "regex",
- "serde",
- "serde_derive",
- "serde_json",
- "tempfile",
-]
-
-[[package]]
 name = "rustc-hash"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2256,6 +2235,27 @@ name = "triomphe"
 version = "0.1.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dd69c5aa8f924c7519d6372789a74eac5b94fb0f8fcf0d4a97eb0bfc3e785f39"
+
+[[package]]
+name = "twoslash-rust"
+version = "0.0.1"
+dependencies = [
+ "anyhow",
+ "camino",
+ "insta",
+ "lazy_static",
+ "ra_ap_ide",
+ "ra_ap_ide_db",
+ "ra_ap_load-cargo",
+ "ra_ap_project_model",
+ "ra_ap_syntax",
+ "ra_ap_vfs",
+ "regex",
+ "serde",
+ "serde_derive",
+ "serde_json",
+ "tempfile",
+]
 
 [[package]]
 name = "typed-arena"
