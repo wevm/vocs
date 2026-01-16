@@ -4,22 +4,22 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "NODE_OPTIONS='--import=tsx' vocs dev",
-    "build": "NODE_OPTIONS='--import=tsx' vocs build",
-    "preview": "NODE_OPTIONS='--import=tsx' vocs preview"
+    "dev": "NODE_OPTIONS='--import=tsx' vite dev",
+    "build": "NODE_OPTIONS='--import=tsx' vite build",
+    "preview": "NODE_OPTIONS='--import=tsx' vite preview"
   },
   "dependencies": {
-    "react": "^19",
-    "react-dom": "^19",
+    "react": "catalog:",
+    "react-dom": "catalog:",
     "vocs": "workspace:*",
-    "waku": "^1.0.0-alpha.2"
+    "waku": "catalog:"
   },
   "devDependencies": {
-    "@types/node": "^22",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "@vitejs/plugin-react": "^5",
-    "typescript": "^5",
-    "vite": "^7"
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:"
   }
 }
