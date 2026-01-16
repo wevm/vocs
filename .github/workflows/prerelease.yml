@@ -10,9 +10,6 @@ jobs:
           - os: macos-latest
             target: aarch64-apple-darwin
             name: darwin-arm64
-          - os: macos-15
-            target: x86_64-apple-darwin
-            name: darwin-x64
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
             name: linux-x64-gnu
@@ -73,4 +70,4 @@ jobs:
         run: | 
           pnpm run build
           pnpm run --filter create-vocs build
-          pnpx pkg-pr-new publish --pnpm . ./create-vocs ./twoslash-rust ./twoslash-rust/npm/darwin-arm64 ./twoslash-rust/npm/darwin-x64 ./twoslash-rust/npm/linux-x64-gnu
+          pnpx pkg-pr-new publish --pnpm . ./create-vocs ./twoslash-rust ./twoslash-rust/npm/darwin-arm64 ./twoslash-rust/npm/linux-x64-gnu

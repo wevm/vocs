@@ -40,9 +40,6 @@ function getPlatformPackage(): string {
   if (platform === 'darwin' && arch === 'arm64') {
     return '@vocs/twoslash-rust-darwin-arm64'
   }
-  if (platform === 'darwin' && arch === 'x64') {
-    return '@vocs/twoslash-rust-darwin-x64'
-  }
   if (platform === 'linux' && arch === 'x64') {
     const { familySync, MUSL } = require('detect-libc') as typeof import('detect-libc')
     if (familySync() === MUSL) {

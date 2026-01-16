@@ -20,12 +20,6 @@ const platforms: Platform[] = [
     rustTarget: 'aarch64-apple-darwin',
   },
   {
-    name: 'darwin-x64',
-    os: 'darwin',
-    cpu: 'x64',
-    rustTarget: 'x86_64-apple-darwin',
-  },
-  {
     name: 'linux-x64-gnu',
     os: 'linux',
     cpu: 'x64',
