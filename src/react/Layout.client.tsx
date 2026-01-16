@@ -209,14 +209,14 @@ export function Logo() {
           )
         if (typeof logoUrl === 'string')
           return (
-            <img alt="Logo" className="vocs:h-full vocs:max-h-7" data-v-logo-image src={logoUrl} />
+            <img alt="Logo" className="vocs:h-full vocs:max-h-5" data-v-logo-image src={logoUrl} />
           )
         return (
           <picture>
             <source media="(prefers-color-scheme: dark)" srcSet={logoUrl.dark} />
             <img
               alt="Logo"
-              className="vocs:h-full vocs:max-h-7"
+              className="vocs:h-full vocs:max-h-5"
               data-v-logo-image
               src={logoUrl.light}
             />

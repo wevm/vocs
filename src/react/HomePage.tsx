@@ -44,9 +44,7 @@ export function Logo(props: Logo.Props) {
     )
 
   if (typeof logoUrl === 'string')
-    return (
-      <img alt={title} className={cx('vocs:h-12 vocs:md:h-14', className)} src={logoUrl} />
-    )
+    return <img alt={title} className={cx('vocs:h-12 vocs:md:h-14', className)} src={logoUrl} />
 
   return (
     <picture>
@@ -107,9 +105,7 @@ export declare namespace Description {
 export function Buttons(props: Buttons.Props) {
   const { children, className } = props
   return (
-    <div
-      className={cx('vocs:flex vocs:flex-wrap vocs:justify-center vocs:gap-3', className)}
-    >
+    <div className={cx('vocs:flex vocs:flex-wrap vocs:justify-center vocs:gap-3', className)}>
       {children}
     </div>
   )
@@ -142,11 +138,7 @@ export function Button(props: Button.Props) {
       : undefined
 
   return (
-    <Link
-      to={href}
-      className={cx(baseClasses, variantClasses, className)}
-      style={accentStyle}
-    >
+    <Link to={href} className={cx(baseClasses, variantClasses, className)} style={accentStyle}>
       {children}
     </Link>
   )
