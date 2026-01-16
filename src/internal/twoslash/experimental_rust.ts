@@ -5,10 +5,14 @@ import { createRequire } from 'node:module'
 import * as path from 'node:path'
 import {
   createTransformerFactory,
+  type TwoslashRenderer,
   type TwoslashShikiFunction,
   type TwoslashShikiReturn,
 } from '@shikijs/twoslash/core'
 import type { ShikiTransformer } from '@shikijs/types'
+import type { LanguageRegistration } from 'shiki'
+import rustLang from 'shiki/langs/rust.mjs'
+import tomlLang from 'shiki/langs/toml.mjs'
 
 import * as Renderer from './renderer.js'
 import { rustMarkdownPatterns } from './renderer.js'
@@ -340,10 +344,7 @@ export function createRustTwoslasher(options: experimental_rust.Options) {
   const cargoTomlPath = options.cargoToml ? path.resolve(options.cargoToml) : undefined
   // Use a shared target directory to cache compiled deps across runs
   const targetDir = cacheDir ? path.join(cacheDir, 'target') : undefined
-
-  if (cacheDir) {
-    node_fs.mkdirSync(cacheDir, { recursive: true })
-  }
+  const cacheOnly = options.cacheOnly ?? false
 
   // Validate cargoToml exists if provided
   if (cargoTomlPath && !node_fs.existsSync(cargoTomlPath)) {
@@ -391,6 +392,11 @@ export function createRustTwoslasher(options: experimental_rust.Options) {
       } catch {
         // Cache read failed, continue with fresh analysis
       }
+    }
+
+    // In cache-only mode, skip twoslash analysis and return stripped code
+    if (cacheOnly) {
+      return { code: stripDirectives(code), nodes: [] }
     }
 
     // Build args for the binary
@@ -475,7 +481,7 @@ export function createRustTwoslasher(options: experimental_rust.Options) {
 export function experimental_rust(
   options: experimental_rust.Options = {},
 ): experimental_rust.ReturnType {
-  return (injected) => {
+  const factory = (injected?: { cacheDir?: string | undefined }) => {
     const {
       explicitTrigger = true,
       renderer = Renderer.rich({ markdownPatterns: rustMarkdownPatterns }),
@@ -496,6 +502,10 @@ export function experimental_rust(
       throws,
     })
   }
+
+  factory.langs = [...(rustLang as LanguageRegistration[]), ...(tomlLang as LanguageRegistration[])]
+
+  return factory
 }
 
 export declare namespace experimental_rust {
@@ -513,6 +523,12 @@ export declare namespace experimental_rust {
      */
     cacheDir?: string | undefined
     /**
+     * When true, only return cached results and skip twoslash analysis.
+     * Useful for faster builds when cache is pre-populated.
+     * @default false
+     */
+    cacheOnly?: boolean | undefined
+    /**
      * Whether to require explicit `twoslash` trigger in code block meta.
      * @default true
      */
@@ -520,7 +536,7 @@ export declare namespace experimental_rust {
     /**
      * Custom renderer for twoslash nodes.
      */
-    renderer?: import('@shikijs/twoslash/core').TwoslashRenderer | undefined
+    renderer?: TwoslashRenderer | undefined
     /**
      * Whether to throw on twoslash errors.
      * @default false
@@ -528,5 +544,7 @@ export declare namespace experimental_rust {
     throws?: boolean | undefined
   }
 
-  export type ReturnType = (options?: { cacheDir?: string | undefined }) => ShikiTransformer
+  export type ReturnType = ((options?: { cacheDir?: string | undefined }) => ShikiTransformer) & {
+    langs: LanguageRegistration[]
+  }
 }

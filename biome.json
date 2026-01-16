@@ -13,13 +13,7 @@
     "clientKind": "git",
     "useIgnoreFile": true
   },
-  "files": {
-    "ignoreUnknown": false,
-    "includes": [
-      "**",
-      "!twoslash-rust/vendor"
-    ]
-  },
+
   "formatter": {
     "enabled": true,
     "indentStyle": "space"

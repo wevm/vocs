@@ -20,7 +20,7 @@ import type {
   ShikiTransformer,
 } from 'shiki'
 import { bundledLanguages } from 'shiki/bundle/web'
-import rust from 'shiki/langs/rust.mjs'
+
 import type { Pluggable, PluggableList } from 'unified'
 import * as UnistUtil from 'unist-util-visit'
 import type { VFile } from 'vfile'
@@ -87,6 +87,19 @@ export function getCompileOptions(
 } {
   const { cacheDir, codeHighlight, markdown, rootDir, srcDir, twoslash } = config
   const { jsxImportSource = 'react' } = markdown ?? {}
+
+  // Extract language names from twoslash transformers (e.g., rust, toml from experimental_rust)
+  const twoslashTransformerLangs =
+    twoslash && typeof twoslash === 'object' && twoslash.transformers
+      ? twoslash.transformers.flatMap((t) =>
+          'langs' in t
+            ? (t.langs as { name?: string; id?: string }[]).flatMap((l) => {
+                const names = [l.name, l.id].filter(Boolean) as string[]
+                return names
+              })
+            : [],
+        )
+      : []
 
   const { recmaPlugins, rehypePlugins, remarkPlugins } = (() => {
     if (type === 'txt')
@@ -163,7 +176,7 @@ export function getCompileOptions(
           remarkCallout,
           remarkChangelog,
           remarkCodeGroup,
-          remarkCodeTitle,
+          [remarkCodeTitle, { additionalLanguages: twoslashTransformerLangs }] as Pluggable,
           remarkDefaultFrontmatter,
           remarkDetails,
           remarkDirective,
@@ -372,9 +385,15 @@ export function rehypeShiki(
   const { cacheDir, srcDir, rootDir, themes, twoslash = true } = options
 
   // Process twoslash transformers - inject cacheDir if they're factory functions
-  const twoslashTransformers = (
+  const rawTransformers =
     twoslash && typeof twoslash === 'object' ? twoslash.transformers : undefined
-  )?.map((t) => (typeof t === 'function' ? t({ cacheDir }) : t))
+  const twoslashTransformers = rawTransformers?.map((t) =>
+    typeof t === 'function' ? t({ cacheDir }) : t,
+  )
+
+  // Extract langs from transformers that provide them (e.g., experimental_rust)
+  const transformerLangs =
+    rawTransformers?.flatMap((t) => ('langs' in t ? (t.langs as LanguageRegistration[]) : [])) ?? []
 
   return [
     shiki,
@@ -385,7 +404,7 @@ export function rehypeShiki(
       inline: 'tailing-curly-colon',
       rootStyle: false,
       themes,
-      langs: [...Object.values(bundledLanguages), rust as LanguageRegistration[]],
+      langs: [...Object.values(bundledLanguages), ...transformerLangs],
       // TODO: infer `langs` for faster cold start.
       transformers: [
         rootDir && srcDir ? ShikiTransformers.notationInclude({ srcDir, rootDir }) : undefined,
@@ -518,9 +537,9 @@ export declare namespace remarkBadge {
  * When no lang is specified (e.g., ``` [Title]), the bracket syntax
  * may be parsed as the lang. This moves it to meta instead.
  */
-export function remarkCodeTitle() {
+export function remarkCodeTitle(options: remarkCodeTitle.Options = {}) {
   const specialLanguages = ['ansi', 'text', 'txt', 'plain', 'plaintext']
-  const additionalLanguages = ['rust', 'rs']
+  const additionalLanguages = options.additionalLanguages ?? []
   return (tree: MdAst.Root) => {
     UnistUtil.visit(tree, 'code', (node) => {
       if (!node.lang) return
@@ -532,6 +551,12 @@ export function remarkCodeTitle() {
       node.meta = node.lang
       node.lang = 'plaintext'
     })
+  }
+}
+
+export declare namespace remarkCodeTitle {
+  type Options = {
+    additionalLanguages?: string[] | undefined
   }
 }
 
