@@ -7,12 +7,15 @@ import { useRouter } from 'waku'
 import LucideClipboard from '~icons/lucide/clipboard'
 import LucideFileText from '~icons/lucide/file-text'
 import SimpleIconsClaude from '~icons/simple-icons/claude'
+import SimpleIconsModelcontextprotocol from '~icons/simple-icons/modelcontextprotocol'
 import SimpleIconsOpenai from '~icons/simple-icons/openai'
+import { useConfig } from '../useConfig.js'
 
 export function AskAi(props: AskAi.Props) {
   const { className } = props
 
   const { path } = useRouter()
+  const { mcp } = useConfig()
 
   const [menuOpen, setMenuOpen] = React.useState(false)
   const [copied, setCopied] = React.useState(false)
@@ -88,6 +91,11 @@ export function AskAi(props: AskAi.Props) {
     window.open(markdownUrl, '_blank')
   }, [markdownUrl])
 
+  const mcpUrl = React.useMemo(() => {
+    if (typeof window === 'undefined') return ''
+    return `${window.location.origin}/api/mcp`
+  }, [])
+
   return (
     <Menu.Root open={menuOpen} onOpenChange={setMenuOpen}>
       <Menu.Trigger
@@ -107,7 +115,7 @@ export function AskAi(props: AskAi.Props) {
         </div>
       </Menu.Trigger>
       <Menu.Portal>
-        <Menu.Positioner side="top" align="start" sideOffset={4} className="vocs:z-60">
+        <Menu.Positioner side="top" align="start" sideOffset={4} className="vocs:z-100">
           <Menu.Popup className="vocs:bg-surface vocs:w-(--anchor-width) vocs:border vocs:border-primary vocs:p-2 vocs:rounded-lg vocs:shadow-lg/5 vocs:origin-(--transform-origin) vocs:transition-all vocs:duration-75 vocs:scale-100 vocs:opacity-100 vocs:data-starting-style:opacity-0 vocs:data-starting-style:scale-90">
             <Menu.Group>
               <Menu.GroupLabel className="vocs:flex vocs:items-center vocs:gap-1.5 vocs:px-2 vocs:py-1.5 vocs:text-secondary vocs:text-xs vocs:font-medium">
@@ -142,6 +150,21 @@ export function AskAi(props: AskAi.Props) {
               <LucideFileText className="vocs:size-4" />
               View as Markdown
             </Menu.Item>
+
+            {mcp?.enabled && (
+              <>
+                <Menu.Separator className="vocs:my-2 vocs:border-t vocs:border-primary" />
+                <Menu.Item
+                  className="vocs:flex vocs:items-center vocs:gap-2 vocs:px-2 vocs:py-1.5 vocs:text-primary/80 vocs:hover:text-heading vocs:hover:bg-accenta3 vocs:rounded-md vocs:text-sm vocs:cursor-pointer vocs:transition-colors"
+                  onClick={() => {
+                    navigator.clipboard.writeText(mcpUrl)
+                  }}
+                >
+                  <SimpleIconsModelcontextprotocol className="vocs:size-4" />
+                  Install MCP
+                </Menu.Item>
+              </>
+            )}
           </Menu.Popup>
         </Menu.Positioner>
       </Menu.Portal>

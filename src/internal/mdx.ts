@@ -27,6 +27,7 @@ import type { VFile } from 'vfile'
 import { createLogger } from 'vite'
 import * as yaml from 'yaml'
 import type * as Config from './config.js'
+import * as Icons from './icons.js'
 import { remarkVocsScope } from './remark-vocs-scope.js'
 import { remarkSandbox } from './sandbox.js'
 import * as ShikiTransformers from './shiki-transformers.js'
@@ -172,7 +173,7 @@ export function getCompileOptions(
         remarkPlugins: [
           remarkMermaid,
           remarkFrontmatter,
-          remarkFileTree,
+          [remarkFileTree, config] as Pluggable,
           remarkCallout,
           remarkChangelog,
           remarkCodeGroup,
@@ -895,22 +896,42 @@ export declare namespace remarkFilename {
  * The content is parsed as a nested list where folders can be represented with
  * a preceding `+` prefix.
  */
-export function remarkFileTree(): remarkFileTree.ReturnType {
-  return (tree: MdAst.Root) => {
+export function remarkFileTree(config: Config.Config): remarkFileTree.ReturnType {
+  const customIcons = config.groupIcons?.customIcons
+
+  type FileTreeItem = {
+    name: string
+    type: 'file' | 'folder'
+    comment?: string | undefined
+    highlighted?: boolean | undefined
+    icon?: string | undefined
+    items?: FileTreeItem[] | undefined
+  }
+
+  async function resolveAllIcons(items: FileTreeItem[]): Promise<void> {
+    await Promise.all(
+      items.map(async (item) => {
+        if (item.type === 'file' && item.name !== '...') {
+          const iconId = Icons.matchIcon(item.name, customIcons)
+          if (iconId) {
+            const svg = await Icons.resolveIcon(iconId)
+            if (svg) item.icon = svg
+          }
+        }
+        if (item.items) await resolveAllIcons(item.items)
+      }),
+    )
+  }
+
+  return async (tree: MdAst.Root) => {
+    const fileTreeNodes: Array<{ node: MdAst.Parent; data: FileTreeItem[] }> = []
+
     UnistUtil.visit(tree, (node) => {
       if (node.type !== 'containerDirective') return
-      if (node.name !== 'file-tree') return
+      if ((node as { name?: string }).name !== 'file-tree') return
 
       // biome-ignore lint/suspicious/noAssignInExpressions: _
-      const data = node.data || (node.data = {})
-
-      type FileTreeItem = {
-        name: string
-        type: 'file' | 'folder'
-        comment?: string | undefined
-        highlighted?: boolean | undefined
-        items?: FileTreeItem[] | undefined
-      }
+      const nodeData = node.data || (node.data = {})
 
       function extractFileTree(children: MdAst.RootContent[]): FileTreeItem[] {
         const result: FileTreeItem[] = []
@@ -1000,22 +1021,34 @@ export function remarkFileTree(): remarkFileTree.ReturnType {
       }
 
       const fileTreeData = extractFileTree(node.children)
+      fileTreeNodes.push({ node: node as MdAst.Parent, data: fileTreeData })
 
-      data.hName = 'div'
-      data.hProperties = {
+      nodeData.hName = 'div'
+      nodeData.hProperties = {
         ...(node.attributes ?? {}),
         'data-v-file-tree': 'true',
-        'data-v-file-tree-items': JSON.stringify(fileTreeData),
+        'data-v-file-tree-items': '', // Will be set after icon resolution
       }
 
       // Clear children since we're passing data via attributes
       node.children = []
     })
+
+    // Resolve all icons in parallel across all file trees
+    await Promise.all(fileTreeNodes.map(({ data }) => resolveAllIcons(data)))
+
+    // Now set the serialized data with resolved icons
+    for (const { node, data } of fileTreeNodes) {
+      const props = node.data?.hProperties as Record<string, unknown> | undefined
+      if (props) {
+        props['data-v-file-tree-items'] = JSON.stringify(data)
+      }
+    }
   }
 }
 
 export declare namespace remarkFileTree {
-  type ReturnType = (tree: MdAst.Root) => void
+  type ReturnType = (tree: MdAst.Root) => Promise<void>
 }
 
 /**

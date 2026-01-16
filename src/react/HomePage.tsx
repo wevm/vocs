@@ -168,6 +168,7 @@ export function InstallPackage(props: InstallPackage.Props) {
   const { name, type = 'install' } = props
   const [selected, setSelected] = React.useState<PackageManager>('npm')
   const [hasMounted, setHasMounted] = React.useState(false)
+  const [copied, setCopied] = React.useState(false)
 
   React.useEffect(() => {
     setHasMounted(true)
@@ -185,6 +186,13 @@ export function InstallPackage(props: InstallPackage.Props) {
     if (pm === 'yarn') return `yarn add ${name}`
     if (pm === 'bun') return `bun add ${name}`
     return ''
+  }
+
+  const handleCopy = async () => {
+    const command = getCommand(selected)
+    await navigator.clipboard.writeText(command)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
   }
 
   if (!hasMounted) return null
@@ -208,11 +216,18 @@ export function InstallPackage(props: InstallPackage.Props) {
       </BaseTabs.List>
       {packageManagers.map((pm) => (
         <BaseTabs.Panel
-          className="vocs:bg-surface vocs:border vocs:border-primary vocs:rounded-lg vocs:py-3 vocs:px-4 vocs:font-mono vocs:text-sm vocs:text-secondary"
+          className="vocs:bg-surface vocs:border vocs:border-primary vocs:rounded-lg vocs:py-3 vocs:px-4 vocs:font-mono vocs:text-sm vocs:text-secondary vocs:cursor-pointer vocs:transition-colors vocs:hover:border-accent7/50"
           key={pm}
+          onClick={handleCopy}
           value={pm}
         >
-          <span className="vocs:text-accent7">{pm}</span> {getCommand(pm).replace(`${pm} `, '')}
+          {copied ? (
+            <span className="vocs:text-accent7">Copied!</span>
+          ) : (
+            <>
+              <span className="vocs:text-accent7">{pm}</span> {getCommand(pm).replace(`${pm} `, '')}
+            </>
+          )}
         </BaseTabs.Panel>
       ))}
     </BaseTabs.Root>

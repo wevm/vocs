@@ -15,7 +15,7 @@
 /* #region Primitives */
 
 h1[data-v] {
-  @apply vocs:text-heading vocs:text-h1 vocs:font-medium vocs:tracking-[-0.04em] vocs:leading-h1;
+  @apply vocs:text-heading vocs:text-h1 vocs:font-medium vocs:tracking-[-0.04em] vocs:leading-h1 vocs:scroll-mt-24;
 }
 
 h2[data-v],

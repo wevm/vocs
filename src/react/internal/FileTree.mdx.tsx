@@ -1,16 +1,10 @@
-import { config } from 'virtual:vocs/config'
 import LucideFile from '~icons/lucide/file'
 import LucideFolder from '~icons/lucide/folder'
 import LucideFolderOpen from '~icons/lucide/folder-open'
-import * as Icons from '../../internal/icons.js'
 import { FolderToggle } from './FileTree.client.js'
 
-export async function FileTree(props: FileTree.Props) {
+export function FileTree(props: FileTree.Props) {
   const items: FileTree.Item[] = JSON.parse(props['data-v-file-tree-items'] ?? '[]')
-  const customIcons = config.groupIcons?.customIcons
-
-  const iconCache = new Map<string, string | undefined>()
-  await resolveAllIcons(items, customIcons, iconCache)
 
   return (
     <div
@@ -18,29 +12,8 @@ export async function FileTree(props: FileTree.Props) {
       data-v-file-tree
       className="vocs:bg-code-block vocs:py-4 vocs:px-5 vocs:rounded-lg vocs:border vocs:border-primary vocs:text-sm vocs:font-mono"
     >
-      <FileTree.List items={items} depth={0} activeLines={[]} iconCache={iconCache} />
+      <FileTree.List items={items} depth={0} activeLines={[]} />
     </div>
-  )
-}
-
-async function resolveAllIcons(
-  items: FileTree.Item[],
-  customIcons: Record<string, string> | undefined,
-  cache: Map<string, string | undefined>,
-): Promise<void> {
-  await Promise.all(
-    items.map(async (item) => {
-      if (item.type === 'file' && !cache.has(item.name)) {
-        const iconId = Icons.matchIcon(item.name, customIcons)
-        if (iconId) {
-          const svg = await Icons.resolveIcon(iconId)
-          cache.set(item.name, svg)
-        } else {
-          cache.set(item.name, undefined)
-        }
-      }
-      if (item.items) await resolveAllIcons(item.items, customIcons, cache)
-    }),
   )
 }
 
@@ -54,6 +27,7 @@ export namespace FileTree {
     type: 'file' | 'folder'
     comment?: string
     highlighted?: boolean
+    icon?: string
     items?: Item[]
   }
 
@@ -61,7 +35,7 @@ export namespace FileTree {
   const iconSize = 16
 
   export function List(props: List.Props) {
-    const { items, depth, activeLines, iconCache } = props
+    const { items, depth, activeLines } = props
     return (
       <ul className="vocs:list-none vocs:p-0 vocs:m-0 vocs:overflow-visible">
         {items.map((item, i) => {
@@ -74,7 +48,6 @@ export namespace FileTree {
               depth={depth}
               activeLines={activeLines}
               isLast={isLast}
-              iconCache={iconCache}
             />
           )
         })}
@@ -87,12 +60,11 @@ export namespace FileTree {
       items: Item[]
       depth: number
       activeLines: number[]
-      iconCache: Map<string, string | undefined>
     }
   }
 
   export function Item(props: Item.Props) {
-    const { item, depth, activeLines, iconCache } = props
+    const { item, depth, activeLines } = props
 
     const isFolder = item.type === 'folder'
     const hasChildren = isFolder && item.items && item.items.length > 0
@@ -125,12 +97,7 @@ export namespace FileTree {
               folderContent={
                 hasChildren &&
                 item.items && (
-                  <List
-                    items={item.items}
-                    depth={depth + 1}
-                    activeLines={childActiveLines}
-                    iconCache={iconCache}
-                  />
+                  <List items={item.items} depth={depth + 1} activeLines={childActiveLines} />
                 )
               }
             />
@@ -141,7 +108,7 @@ export namespace FileTree {
             >
               {item.name !== '...' && (
                 <span className="vocs:shrink-0">
-                  <FileIcon name={item.name} iconCache={iconCache} />
+                  <FileIcon icon={item.icon} />
                 </span>
               )}
               <span className={item.name === '...' ? 'vocs:text-muted' : undefined}>
@@ -161,7 +128,6 @@ export namespace FileTree {
       depth: number
       activeLines: number[]
       isLast: boolean
-      iconCache: Map<string, string | undefined>
     }
   }
 
@@ -170,20 +136,13 @@ export namespace FileTree {
     return <LucideFolder className="vocs:size-4 vocs:text-secondary" />
   }
 
-  function FileIcon({
-    name,
-    iconCache,
-  }: {
-    name: string
-    iconCache: Map<string, string | undefined>
-  }) {
-    const svg = iconCache.get(name)
-    if (svg) {
+  function FileIcon({ icon }: { icon: string | undefined }) {
+    if (icon) {
       return (
         <span
           className="vocs:size-4 vocs:flex vocs:items-center vocs:justify-center [&>svg]:vocs:size-4"
-          // biome-ignore lint/security/noDangerouslySetInnerHtml: resolved SVG from iconify
-          dangerouslySetInnerHTML={{ __html: svg }}
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: resolved SVG from iconify at build time
+          dangerouslySetInnerHTML={{ __html: icon }}
         />
       )
     }

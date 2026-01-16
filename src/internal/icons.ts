@@ -97,6 +97,7 @@ export const builtinIcons: Record<string, string> = {
   '.prettierrc': 'vscode-icons:file-type-prettier',
   'prettier.config': 'vscode-icons:file-type-prettier',
   'biome.json': 'vscode-icons:file-type-biome',
+  'Cargo.toml': 'vscode-icons:file-type-cargo',
   '.gitignore': 'vscode-icons:file-type-git',
   dockerfile: 'vscode-icons:file-type-docker',
   'docker-compose': 'vscode-icons:file-type-docker',
