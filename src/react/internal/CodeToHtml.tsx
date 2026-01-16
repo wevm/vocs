@@ -23,9 +23,12 @@ export async function CodeToHtml(props: CodeToHtml.Props) {
     langAlias,
   })
 
+  const loadedLangs = highlighter.getLoadedLanguages()
+  const resolvedLang = loadedLangs.includes(lang) ? lang : 'txt'
+
   const hast = highlighter.codeToHast(code, {
     defaultColor: 'light-dark()',
-    lang: import.meta.env.DEV ? 'txt' : lang,
+    lang: import.meta.env.DEV ? 'txt' : resolvedLang,
     rootStyle: false,
     meta: {
       'data-v-overflow-fade': true,
