@@ -297,7 +297,11 @@ function Release(props: Release.Props): React.JSX.Element {
           </time>
 
           {/* Prerelease badge */}
-          {release.prerelease && <Badge variant="warning">Pre-release</Badge>}
+          {release.prerelease && (
+            <Badge variant="warning" className="vocs:w-fit">
+              Pre-release
+            </Badge>
+          )}
         </div>
       </div>
 
