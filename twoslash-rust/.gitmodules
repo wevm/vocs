@@ -1,3 +1,0 @@
-[submodule "vendor/rust-analyzer"]
-	path = vendor/rust-analyzer
-	url = https://github.com/rust-analyzer/rust-analyzer

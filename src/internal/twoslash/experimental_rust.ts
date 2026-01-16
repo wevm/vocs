@@ -1,6 +1,7 @@
 import { spawnSync } from 'node:child_process'
 import * as crypto from 'node:crypto'
 import * as node_fs from 'node:fs'
+import { createRequire } from 'node:module'
 import * as path from 'node:path'
 import {
   createTransformerFactory,
@@ -51,13 +52,49 @@ interface NodeError extends NodeBase {
 
 type TwoslashNode = NodeHover | NodeQuery | NodeCompletion | NodeError
 
-const DEFAULT_BINARY = 'rust-twoslash'
+let resolvedBinaryPath: string | null | undefined
+let binaryAvailable: boolean | undefined
 
-let binaryChecked = false
-let binaryAvailable = false
+function getBinaryPath(): string | null {
+  if (resolvedBinaryPath !== undefined) return resolvedBinaryPath
 
-function checkBinaryAvailable(binaryPath: string): boolean {
-  if (binaryChecked) return binaryAvailable
+  try {
+    // Use createRequire for ESM compatibility
+    const esmRequire = createRequire(import.meta.url)
+    const pkg = esmRequire('@vocs/twoslash-rust') as { getBinaryPath(): string }
+    resolvedBinaryPath = pkg.getBinaryPath()
+    return resolvedBinaryPath
+  } catch {}
+
+  resolvedBinaryPath = findInPath('rust-twoslash')
+  return resolvedBinaryPath
+}
+
+function findInPath(binaryName: string): string | null {
+  try {
+    const command = process.platform === 'win32' ? 'where' : 'which'
+    const result = spawnSync(command, [binaryName], {
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'ignore'],
+    })
+    const binaryPath = result.stdout?.trim().split('\n')[0]
+    if (binaryPath) return binaryPath
+  } catch {}
+  return null
+}
+
+function checkBinaryAvailable(binaryPath: string | null): boolean {
+  if (binaryAvailable !== undefined) return binaryAvailable
+
+  if (!binaryPath) {
+    binaryAvailable = false
+    console.warn(
+      `[vocs] rust-twoslash binary not found. Rust twoslash code blocks will be skipped.\n` +
+        `Install with: pnpm add @vocs/twoslash-rust\n` +
+        `Or via cargo: cargo install rust-twoslash --git https://github.com/wevm/twoslash-rust --locked\n`,
+    )
+    return false
+  }
 
   try {
     const result = spawnSync(binaryPath, ['--help'], {
@@ -69,12 +106,9 @@ function checkBinaryAvailable(binaryPath: string): boolean {
     binaryAvailable = false
   }
 
-  binaryChecked = true
-
   if (!binaryAvailable) {
     console.warn(
-      `[vocs] rust-twoslash binary not found. Rust twoslash code blocks will be skipped.\n` +
-        `Install with: cargo install rust-twoslash --git https://github.com/wevm/twoslash-rust --locked\n`,
+      `[vocs] rust-twoslash binary found but not working. Rust twoslash code blocks will be skipped.\n`,
     )
   }
 
@@ -303,7 +337,6 @@ interface TwoslashRustResult {
 }
 
 export function createRustTwoslasher(options: experimental_rust.Options) {
-  const binaryPath = options.binaryPath ?? DEFAULT_BINARY
   const cacheDir = options.cacheDir ? path.resolve(options.cacheDir, 'twoslash-rust') : undefined
   const cargoTomlPath = options.cargoToml ? path.resolve(options.cargoToml) : undefined
   // Use a shared target directory to cache compiled deps across runs
@@ -320,8 +353,12 @@ export function createRustTwoslasher(options: experimental_rust.Options) {
     )
   }
 
+  // Resolve binary path once at initialization
+  const binaryPath = getBinaryPath()
+  const isAvailable = checkBinaryAvailable(binaryPath)
+
   return ((code: string, lang?: string): TwoslashShikiReturn => {
-    if (!checkBinaryAvailable(binaryPath)) {
+    if (!isAvailable || !binaryPath) {
       return { code, nodes: [] }
     }
 
@@ -464,11 +501,6 @@ export function experimental_rust(
 
 export declare namespace experimental_rust {
   export type Options = {
-    /**
-     * Path to the rust-twoslash binary.
-     * @default 'rust-twoslash'
-     */
-    binaryPath?: string | undefined
     /**
      * Path to a Cargo.toml file to use as template for all Rust twoslash blocks.
      * This allows you to specify dependencies, features, and other Cargo settings

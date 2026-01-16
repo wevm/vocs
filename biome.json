@@ -14,7 +14,11 @@
     "useIgnoreFile": true
   },
   "files": {
-    "ignoreUnknown": false
+    "ignoreUnknown": false,
+    "includes": [
+      "**",
+      "!twoslash-rust/vendor"
+    ]
   },
   "formatter": {
     "enabled": true,

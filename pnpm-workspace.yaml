@@ -3,6 +3,7 @@ packages:
   - create-vocs
   - site
   - playground
+  - twoslash-rust
 
 catalog:
   '@biomejs/biome': ^2.3.10
@@ -21,5 +22,6 @@ catalog:
   zile: 0.0.19
 
 overrides:
+  '@vocs/twoslash-rust': workspace:*
   create-vocs: workspace:*
   vite: 'catalog:'

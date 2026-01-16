@@ -35,3 +35,35 @@ jobs:
         run: pnpm run test --bail=1
         env:
           CI: true
+
+  test-twoslash-rust:
+    name: Test twoslash-rust
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: twoslash-rust
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+
+      - name: Cache Rust
+        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2
+        with:
+          workspaces: twoslash-rust
+
+      - name: Format
+        run: cargo fmt --all -- --check
+
+      - name: Build
+        run: cargo build --verbose
+
+      - name: Run tests
+        run: cargo test --verbose

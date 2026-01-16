@@ -13,6 +13,7 @@
     "preview": "NODE_OPTIONS='--import=tsx' vite preview"
   },
   "dependencies": {
+    "@vocs/twoslash-rust": "workspace:*",
     "react": "catalog:",
     "react-dom": "catalog:",
     "viem": "^2.43.3",

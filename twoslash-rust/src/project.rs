@@ -44,6 +44,7 @@ pub struct Project {
     host: Option<AnalysisHost>,
     analysis: Analysis,
     queries: Vec<(QueryKind, TextSize)>,
+    no_errors: bool,
 
     line_index: LineIndex,
     token_to_ranges: HashMap<TokenId, Vec<TextRange>>,
@@ -160,6 +161,7 @@ impl Project {
         let parse_result = find_queries(source);
         let source = parse_result.code;
         let queries = parse_result.queries;
+        let no_errors = parse_result.no_errors;
 
         // Always use cargo mode - it's needed for std resolution and external deps
         let bootstrap = bootstrap_project_in(
@@ -207,6 +209,7 @@ impl Project {
             host: Some(host),
             analysis,
             queries,
+            no_errors,
 
             line_index,
             token_to_ranges,
@@ -223,6 +226,7 @@ impl Project {
         let parse_result = find_queries(&new_code);
         let new_code = parse_result.code;
         let queries = parse_result.queries;
+        let no_errors = parse_result.no_errors;
 
         let (host, analysis, fid) = match self.host {
             Some(mut host) => {
@@ -245,6 +249,7 @@ impl Project {
             host,
             analysis,
             queries,
+            no_errors,
             fid,
             token_to_ranges,
             token_data,
@@ -507,7 +512,11 @@ impl Project {
     }
 
     pub fn twoslasher(&self) -> Result<TwoSlash> {
-        let errors = self.diagnostics()?;
+        let errors = if self.no_errors {
+            vec![]
+        } else {
+            self.diagnostics()?
+        };
         let static_quick_infos = self.ident_hovers()?;
         let queries = self.queries();
 
