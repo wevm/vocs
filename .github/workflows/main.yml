@@ -13,15 +13,60 @@ jobs:
     uses: ./.github/workflows/verify.yml
     secrets: inherit
 
+  build-twoslash-rust:
+    name: Build twoslash-rust
+    needs: verify
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            name: darwin-arm64
+          - os: macos-13
+            target: x86_64-apple-darwin
+            name: darwin-x64
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            name: linux-x64-gnu
+
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: twoslash-rust
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Rust
+        uses: dtolnay/rust-action@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Build
+        run: cargo build --release --target ${{ matrix.target }}
+
+      - name: Strip binary
+        run: strip target/${{ matrix.target }}/release/rust-twoslash
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bindings-${{ matrix.target }}
+          path: twoslash-rust/target/${{ matrix.target }}/release/rust-twoslash
+          if-no-files-found: error
+
   changesets:
     name: Changesets
-    needs: verify
+    needs: build-twoslash-rust
     permissions:
       contents: write
       id-token: write
       pull-requests: write
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
 
     steps:
       - name: Clone repository
@@ -29,6 +74,11 @@ jobs:
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: twoslash-rust/artifacts
 
       - name: PR or publish
         id: changesets
@@ -40,3 +90,5 @@ jobs:
           version: pnpm run changeset:version
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          ARTIFACTS_DIR: artifacts
