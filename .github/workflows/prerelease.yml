@@ -2,6 +2,24 @@ name: Prerelease
 on: [push, pull_request]
 
 jobs:
+  # Fast path: publish vocs and create-vocs immediately (no Rust build needed)
+  publish-core:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
+
+      - name: Build and publish
+        run: |
+          pnpm run build
+          pnpm run --filter create-vocs build
+          pnpx pkg-pr-new publish --pnpm . ./create-vocs
+
+  # Slow path: build Rust binaries then publish twoslash-rust packages
   build-twoslash-rust:
     strategy:
       fail-fast: false
@@ -42,7 +60,7 @@ jobs:
           path: twoslash-rust/target/${{ matrix.target }}/release/twoslash-rust
           if-no-files-found: error
 
-  publish:
+  publish-twoslash-rust:
     needs: build-twoslash-rust
     runs-on: ubuntu-latest
 
@@ -66,8 +84,5 @@ jobs:
         env:
           ARTIFACTS_DIR: artifacts
 
-      - name: Prerelease
-        run: | 
-          pnpm run build
-          pnpm run --filter create-vocs build
-          pnpx pkg-pr-new publish --pnpm . ./create-vocs ./twoslash-rust ./twoslash-rust/npm/darwin-arm64 ./twoslash-rust/npm/linux-x64-gnu
+      - name: Publish twoslash-rust packages
+        run: pnpx pkg-pr-new publish --pnpm ./twoslash-rust ./twoslash-rust/npm/darwin-arm64 ./twoslash-rust/npm/linux-x64-gnu

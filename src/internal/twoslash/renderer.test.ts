@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { defaultMarkdownPatterns, rustMarkdownPatterns } from './renderer.js'
+import { defaultMarkdownPatterns, reconstructDocs, rustMarkdownPatterns } from './renderer.js'
 
 // Re-implement fixUnclosedCodeBlocks for testing (since it's not exported)
 function fixUnclosedCodeBlocks(markdown: string, patterns: RegExp[]): string {
@@ -364,4 +364,73 @@ let x = 1;
     let x = 1;
     \`\`\`"
   `)
+})
+
+// Tests for reconstructDocs
+test('reconstructDocs: returns undefined for undefined docs', () => {
+  expect(reconstructDocs(undefined, [])).toBeUndefined()
+})
+
+test('reconstructDocs: returns docs unchanged when no tags', () => {
+  const docs = 'Some documentation'
+  expect(reconstructDocs(docs, undefined)).toBe(docs)
+  expect(reconstructDocs(docs, [])).toBe(docs)
+})
+
+test('reconstructDocs: merges spurious scoped package tag and appends example', () => {
+  // TypeScript incorrectly parses `@vocs/twoslash-rust` as tag @vocs with text /twoslash-rust
+  const docs = 'Requires: `pnpm add '
+  const tags: [string, string | undefined][] = [
+    ['vocs', '/twoslash-rust`'],
+    ['example', '```ts\ncode\n```'],
+  ]
+
+  expect(reconstructDocs(docs, tags)).toBe(
+    'Requires: `pnpm add @vocs/twoslash-rust`\n\n**Example**\n\n```ts\ncode\n```',
+  )
+})
+
+test('reconstructDocs: appends example tag content', () => {
+  const docs = 'Some docs'
+  const tags: [string, string | undefined][] = [
+    ['example', '```ts\ncode\n```'],
+    ['param', 'name - description'],
+  ]
+
+  expect(reconstructDocs(docs, tags)).toBe('Some docs\n\n**Example**\n\n```ts\ncode\n```')
+})
+
+test('reconstructDocs: does not merge tags without leading slash', () => {
+  const docs = 'Some docs'
+  const tags: [string, string | undefined][] = [['customtag', 'some value without leading slash']]
+
+  expect(reconstructDocs(docs, tags)).toBe('Some docs')
+})
+
+test('reconstructDocs: handles multiple spurious tags', () => {
+  const docs = 'Install: `npm i '
+  const tags: [string, string | undefined][] = [
+    ['scope1', '/pkg1` and `npm i '],
+    ['scope2', '/pkg2`'],
+  ]
+
+  expect(reconstructDocs(docs, tags)).toBe('Install: `npm i @scope1/pkg1` and `npm i @scope2/pkg2`')
+})
+
+test('reconstructDocs: handles example tag with undefined docs', () => {
+  const tags: [string, string | undefined][] = [['example', '```ts\nconst x = 1\n```']]
+
+  expect(reconstructDocs(undefined, tags)).toBe('\n\n**Example**\n\n```ts\nconst x = 1\n```')
+})
+
+test('reconstructDocs: handles multiple example tags', () => {
+  const docs = 'Description'
+  const tags: [string, string | undefined][] = [
+    ['example', '```ts\nexample1\n```'],
+    ['example', '```ts\nexample2\n```'],
+  ]
+
+  expect(reconstructDocs(docs, tags)).toBe(
+    'Description\n\n**Example**\n\n```ts\nexample1\n```\n\n**Example**\n\n```ts\nexample2\n```',
+  )
 })

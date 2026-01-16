@@ -176,6 +176,7 @@ export function getCompileOptions(
           remarkCallout,
           remarkChangelog,
           remarkCodeGroup,
+          remarkLangCommaAttrs,
           [remarkCodeTitle, { additionalLanguages: twoslashTransformerLangs }] as Pluggable,
           remarkDefaultFrontmatter,
           remarkDetails,
@@ -530,6 +531,24 @@ export function remarkBadge(): remarkBadge.ReturnType {
 
 export declare namespace remarkBadge {
   type ReturnType = (tree: MdAst.Root) => void
+}
+
+/**
+ * Remark plugin that normalizes comma-separated language attributes.
+ * Some doc systems use syntax like `rust,no_run` or `python,ignore` where
+ * attributes after the comma are directives, not separate languages.
+ * This plugin splits on comma, uses the first part as lang, and moves the rest to meta.
+ */
+export function remarkLangCommaAttrs() {
+  return (tree: MdAst.Root) => {
+    UnistUtil.visit(tree, 'code', (node) => {
+      if (!node.lang?.includes(',')) return
+      const [lang, ...attrs] = node.lang.split(',')
+      const existingMeta = node.meta ? `${node.meta} ` : ''
+      node.meta = `${existingMeta}${attrs.join(' ')}`
+      node.lang = lang
+    })
+  }
 }
 
 /**

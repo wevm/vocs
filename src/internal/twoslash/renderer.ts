@@ -67,7 +67,9 @@ export function rich(options: rich.Options = {}): TwoslashRenderer {
     })
 
     // Use extracted docs from text (Rust) or explicit docs field (TypeScript)
-    const rawDocs = extractedDocs || info.docs
+    // Also reconstruct docs from spurious tags that were incorrectly parsed
+    // (e.g., `@vocs/package` in inline code gets split as tag @vocs with text /package)
+    const rawDocs = reconstructDocs(extractedDocs || info.docs, info.tags)
     if (rawDocs) {
       const docs = processHoverDocs(rawDocs, markdownPatterns)
 
@@ -326,6 +328,73 @@ function processHoverInfo(type: string): string {
   else if (content.match(regexFunction)) content = `function ${content}`
 
   return content
+}
+
+/**
+ * Reconstruct docs by:
+ * 1. Merging back spurious tags that were incorrectly parsed (e.g., scoped npm packages)
+ * 2. Appending @example tag content to the docs
+ *
+ * TypeScript's JSDoc parser incorrectly splits scoped npm package names like
+ * `@vocs/twoslash-rust` into a tag `@vocs` with text `/twoslash-rust`.
+ * This function detects such spurious tags and merges them back into the docs.
+ *
+ * A tag is considered spurious if:
+ * 1. Its text starts with `/` (indicating scoped package continuation)
+ * 2. It's not a known JSDoc tag name (example, param, returns, etc.)
+ */
+export function reconstructDocs(
+  docs: string | undefined,
+  tags: [name: string, text: string | undefined][] | undefined,
+): string | undefined {
+  if (!tags?.length) return docs
+
+  // Known JSDoc tags that should not be merged back as spurious
+  const knownTags = new Set([
+    'example',
+    'param',
+    'returns',
+    'return',
+    'throws',
+    'see',
+    'since',
+    'deprecated',
+    'default',
+    'type',
+    'typedef',
+    'property',
+    'template',
+    'link',
+    'internal',
+    'public',
+    'private',
+    'protected',
+    'readonly',
+    'override',
+    'virtual',
+    'abstract',
+    'experimental',
+    'beta',
+    'alpha',
+  ])
+
+  let result = docs ?? ''
+
+  for (const [name, text] of tags) {
+    // Spurious tag: not a known tag AND text starts with /
+    if (!knownTags.has(name) && text?.startsWith('/')) {
+      result += `@${name}${text}`
+    }
+    // Append @example content
+    // FIXME: TypeScript's JSDoc parser strips indentation from @example content.
+    // A future improvement could restore indentation, but this is complex for
+    // multiple languages with different syntax (braces, indentation-based, etc.)
+    else if (name === 'example' && text) {
+      result += `\n\n**Example**\n\n${text}`
+    }
+  }
+
+  return result || undefined
 }
 
 function processHoverDocs(docs: string, markdownPatterns: RegExp[]): string {

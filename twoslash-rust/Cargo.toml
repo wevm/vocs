@@ -1,6 +1,6 @@
 [package]
 name = "twoslash-rust"
-version = "0.0.1"
+version = "0.0.3"
 edition = "2021"
 license = "MIT"
 description = "Twoslash for Rust - extract type information from Rust code using rust-analyzer"
