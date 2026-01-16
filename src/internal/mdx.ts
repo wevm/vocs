@@ -423,6 +423,8 @@ export function rehypeShiki(
         ShikiTransformers.notationFocus(),
         ShikiTransformers.notationHighlight(),
         ShikiTransformers.notationWordHighlight(),
+        ...ShikiTransformers.notationCollapse(),
+        ...ShikiTransformers.notationFold(),
         ShikiTransformers.removeNotationEscape(),
         ShikiTransformers.shellPrompt(options.shellPrompt),
         ShikiTransformers.tagLine(),

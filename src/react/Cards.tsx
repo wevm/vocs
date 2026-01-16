@@ -1,5 +1,4 @@
-import type { IconifyJSON } from '@iconify/types'
-import { getIconData, iconToHTML, iconToSVG } from '@iconify/utils'
+import * as Icons from '../internal/icons.js'
 import { Link } from './Link.js'
 
 export function Cards(props: Cards.Props) {
@@ -19,25 +18,7 @@ export declare namespace Cards {
 export async function Card(props: Card.Props) {
   const { title, description, icon, to } = props
 
-  const html = await (async () => {
-    if (!icon) return null
-
-    const [prefix, name] = icon.split(':')
-    if (!prefix || !name) return null
-
-    try {
-      const module = (await import(/* @vite-ignore */ `@iconify-json/${prefix}`)) as {
-        icons: IconifyJSON
-      }
-      const data = getIconData(module.icons, name)
-      if (!data) return null
-
-      const svg = iconToSVG(data)
-      return iconToHTML(svg.body, svg.attributes)
-    } catch {
-      return null
-    }
-  })()
+  const html = icon ? ((await Icons.resolveIcon(icon)) ?? null) : null
 
   return (
     <Link

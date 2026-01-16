@@ -81,6 +81,7 @@ jobs:
         run: |
           pnpm build
           pnpm build:npm
+          pnpm dlx zile publish:prepare
         env:
           ARTIFACTS_DIR: artifacts
 

@@ -61,10 +61,10 @@ A comprehensive checklist of features for Vocs v2, based on Vocs v1 feature pari
 - [x] Line highlighting (`// [!code highlight]`)
 - [x] Line focusing (`// [!code focus]`)
 - [x] Line numbers toggle (`// [!code line-numbers]`)
+- [x] Collapsible code regions (`// [!code collapse]`, `// [!code collapse:N]`)
 - [x] Empty line handling
 - [x] Copy button for code blocks
 - [ ] Expandable code blocks/code wrapping
-  - [ ] Ideas from CodeHike
 - [x] Inline code highlighting
 - [x] `// @includes` support (virtual + physical files)
 - [x] `// @log` support outside Twoslash

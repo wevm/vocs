@@ -1,5 +1,7 @@
 import { cx } from 'cva'
 import { CopyButton, ShellLineCopyButtons } from './CodeBlock.client.js'
+import { CollapseHandler } from './Collapse.client.js'
+import { FoldHandler } from './Fold.client.js'
 
 export function CodeBlock(props: CodeBlock.Props) {
   const {
@@ -31,6 +33,8 @@ export function CodeBlock(props: CodeBlock.Props) {
         {props.children}
         <CopyButton />
         {isShell !== undefined && <ShellLineCopyButtons />}
+        <CollapseHandler />
+        <FoldHandler />
       </pre>
     </div>
   )

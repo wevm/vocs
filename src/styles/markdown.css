@@ -603,6 +603,30 @@ pre[data-v] {
 
 /* #endregion */
 
+/* #region Code collapse */
+
+pre[data-v] .line[data-v-collapse-trigger] {
+  @apply vocs:relative vocs:cursor-pointer vocs:select-none;
+}
+
+pre[data-v] .line[data-v-collapse-trigger]:hover {
+  @apply vocs:bg-surface;
+}
+
+pre[data-v] [data-v-collapse-icon] {
+  @apply vocs:absolute vocs:left-1 vocs:top-0 vocs:inline-flex vocs:items-center vocs:justify-center vocs:w-4 vocs:h-4 vocs:text-secondary vocs:transition-transform vocs:duration-200 vocs:translate-y-[0.35em];
+}
+
+pre[data-v] .line[data-v-collapse-trigger][data-v-collapsed=""] [data-v-collapse-icon] {
+  @apply vocs:-rotate-90;
+}
+
+pre[data-v] .line[data-v-collapse-trigger][data-v-collapsed="false"] [data-v-collapse-icon] {
+  @apply vocs:rotate-0;
+}
+
+/* #endregion */
+
 /* #region Shell prompts */
 
 pre[data-v-shell] {

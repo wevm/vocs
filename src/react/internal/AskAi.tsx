@@ -161,7 +161,7 @@ export function AskAi(props: AskAi.Props) {
                   }}
                 >
                   <SimpleIconsModelcontextprotocol className="vocs:size-4" />
-                  Install MCP
+                  Copy MCP URL
                 </Menu.Item>
               </>
             )}

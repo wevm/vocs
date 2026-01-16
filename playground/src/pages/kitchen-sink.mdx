@@ -392,6 +392,41 @@ const client = createPublicClient({
 const blockNumber = await client.getBlockNumber()
 ```
 
+```ts [Collapse (expanded)]
+function lorem(ipsum, dolor = 1) { // [!code collapse:3]
+  const sit = ipsum == null ? 0 : 1
+  dolor = sit - amet(dolor)
+  return sit ? consectetur(ipsum) : []
+}
+
+function ipsum(ipsum, dolor = 1) {
+  const sit = ipsum == null ? 0 : 1
+}
+```
+
+```ts [Collapse (collapsed)]
+function lorem(ipsum, dolor = 1) { // [!code collapse:3 collapsed]
+  const sit = ipsum == null ? 0 : 1
+  dolor = sit - amet(dolor)
+  return sit ? consectetur(ipsum) : []
+}
+
+function ipsum(ipsum, dolor = 1) {
+  const sit = ipsum == null ? 0 : 1
+}
+```
+
+```jsx [Fold]
+// !fold[/(?<=")[^"]{10,}(?=")/g]
+function Foo() {
+  return (
+    <div className="bg-red-200 opacity-50">
+      <span className="block text-lg">hey</span>
+    </div>
+  )
+}
+```
+
 :::tip[Tip]
 Make sure to do the thing that does stuff.
 

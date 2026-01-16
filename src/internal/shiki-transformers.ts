@@ -17,6 +17,72 @@ export {
   transformerRemoveNotationEscape as removeNotationEscape,
 } from '@shikijs/transformers'
 
+/**
+ * Shiki transformer that enables collapsible code regions.
+ *
+ * Detects `// [!code collapse]` or `// [!code collapse:N]` annotations and marks
+ * lines for client-side collapse behavior.
+ *
+ * - `// [!code collapse]` - Collapses all lines from this point to the end
+ * - `// [!code collapse:5]` - Collapses 5 lines starting from the next line
+ * - `// [!code collapse collapsed]` - Starts collapsed (default is expanded)
+ */
+export function notationCollapse(): ShikiTransformer[] {
+  type Element = import('hast').Element
+
+  const collapseRegions = new Map<number, { count: number; collapsed: boolean }>()
+
+  const detector = createCommentNotationTransformer(
+    'vocs:notation-collapse-detect',
+    /\[!code collapse(?::(\d+))?(?:\s+(collapsed))?\]/,
+    (match, _line, _commentNode, lines, index) => {
+      const count = match[1] ? Number.parseInt(match[1], 10) : lines.length - index - 1
+      const collapsed = match[2] === 'collapsed'
+      collapseRegions.set(index, { count, collapsed })
+      return true
+    },
+    'v3',
+  )
+
+  const applier: ShikiTransformer = {
+    name: 'vocs:notation-collapse-apply',
+    code(code) {
+      if (collapseRegions.size === 0) return
+
+      const lines = code.children.filter((x) => x.type === 'element') as Element[]
+      let regionId = 0
+
+      for (const [triggerIndex, { count, collapsed }] of collapseRegions) {
+        const id = `collapse-${regionId++}`
+        const triggerLine = lines[triggerIndex]
+        if (!triggerLine) continue
+
+        triggerLine.properties = {
+          ...triggerLine.properties,
+          'data-v-collapse-trigger': id,
+          'data-v-collapsed': collapsed ? '' : undefined,
+        }
+
+        const endIndex = Math.min(triggerIndex + count, lines.length - 1)
+        for (let j = triggerIndex + 1; j <= endIndex; j++) {
+          const contentLine = lines[j]
+          if (!contentLine) continue
+          contentLine.properties = {
+            ...contentLine.properties,
+            'data-v-collapse-content': id,
+          }
+        }
+
+        this.addClassToHast(code, 'has-collapse')
+      }
+
+      collapseRegions.clear()
+    },
+  }
+
+  return [detector, applier]
+}
+
 let twoslasher: TwoslashInstance
 
 export function twoslash(options: twoslash.Options): ShikiTransformer {
@@ -257,6 +323,168 @@ export declare namespace shellPrompt {
  * - # @log: Custom log message
  * - -- @warn: Custom warning message
  */
+/**
+ * Shiki transformer that enables inline code folding.
+ *
+ * Detects `// !fold[/regex/flags]` annotations and wraps matched content
+ * in foldable spans that display "..." and expand on click.
+ *
+ * Example:
+ * ```jsx
+ * // !fold[/className="(.*?)"/gm]
+ * function Foo() {
+ *   return <div className="bg-red-200 opacity-50">hey</div>
+ * }
+ * ```
+ *
+ * The className values will be folded to "..." and expand when clicked.
+ */
+export function notationFold(): ShikiTransformer[] {
+  type Element = import('hast').Element
+  type Text = import('hast').Text
+
+  const FOLD_START = '\u200B\u200CFOLD_S\u200B\u200C'
+  const FOLD_END = '\u200B\u200CFOLD_E\u200B\u200C'
+  const FOLD_MARKER_RE = new RegExp(`${FOLD_START}|${FOLD_END}`)
+
+  const foldPatterns: Array<{ pattern: RegExp }> = []
+
+  const detector = createCommentNotationTransformer(
+    'vocs:notation-fold-detect',
+    /!fold\[\/(.+?)\/([gimsuvy]*)\]/,
+    (match) => {
+      const [, patternStr, flags] = match as [string, string, string]
+      try {
+        foldPatterns.push({ pattern: new RegExp(patternStr, flags || 'g') })
+      } catch {}
+      return true
+    },
+    'v3',
+  )
+
+  const applier: ShikiTransformer = {
+    name: 'vocs:notation-fold-apply',
+    code(code) {
+      if (foldPatterns.length === 0) return
+
+      const lines = code.children.filter((x) => x.type === 'element') as Element[]
+      for (const { pattern } of foldPatterns) {
+        for (const line of lines) {
+          processLineForFold(line, pattern)
+        }
+      }
+
+      this.addClassToHast(code, 'has-fold')
+      foldPatterns.length = 0
+    },
+  }
+
+  return [detector, applier]
+
+  function collectTextSegments(
+    element: Element,
+    segments: Array<{ text: string; node: Text; offset: number }>,
+    offset = 0,
+  ): number {
+    for (const child of element.children) {
+      if (child.type === 'text') {
+        const textNode = child as Text
+        segments.push({ text: textNode.value, node: textNode, offset })
+        offset += textNode.value.length
+      } else if (child.type === 'element') {
+        offset = collectTextSegments(child as Element, segments, offset)
+      }
+    }
+    return offset
+  }
+
+  function processLineForFold(line: Element, pattern: RegExp): void {
+    const segments: Array<{ text: string; node: Text; offset: number }> = []
+    collectTextSegments(line, segments)
+
+    const fullText = segments.map((s) => s.text).join('')
+    const regex = new RegExp(
+      pattern.source,
+      pattern.flags.includes('g') ? pattern.flags : `${pattern.flags}g`,
+    )
+
+    const matches: Array<{ start: number; end: number }> = []
+    let match: RegExpExecArray | null
+    // biome-ignore lint/suspicious/noAssignInExpressions: _
+    while ((match = regex.exec(fullText)) !== null) {
+      matches.push({ start: match.index, end: match.index + match[0].length })
+      if (!pattern.flags.includes('g')) break
+    }
+
+    if (matches.length === 0) return
+
+    for (const seg of segments) {
+      const segStart = seg.offset
+      const segEnd = seg.offset + seg.text.length
+
+      for (const m of matches) {
+        if (m.start < segEnd && m.end > segStart) {
+          const overlapStart = Math.max(m.start, segStart) - segStart
+          const overlapEnd = Math.min(m.end, segEnd) - segStart
+          seg.node.value = markFoldRange(seg.node.value, overlapStart, overlapEnd)
+        }
+      }
+    }
+
+    applyFoldMarkers(line)
+  }
+
+  function markFoldRange(text: string, start: number, end: number): string {
+    return text.slice(0, start) + FOLD_START + text.slice(start, end) + FOLD_END + text.slice(end)
+  }
+
+  function applyFoldMarkers(element: Element): void {
+    const newChildren: (Element | Text)[] = []
+
+    for (const child of element.children) {
+      if (child.type === 'text') {
+        const textNode = child as Text
+        newChildren.push(...splitByMarkers(textNode.value))
+      } else if (child.type === 'element') {
+        const elem = child as Element
+        applyFoldMarkers(elem)
+        newChildren.push(elem)
+      }
+    }
+
+    element.children = newChildren
+  }
+
+  function splitByMarkers(text: string): (Element | Text)[] {
+    const results: (Element | Text)[] = []
+    const parts = text.split(FOLD_MARKER_RE)
+    let inFold = false
+    let idx = 0
+
+    for (const part of parts) {
+      if (part.length > 0) {
+        if (inFold) {
+          results.push({
+            type: 'element',
+            tagName: 'span',
+            properties: { 'data-v-fold': '' },
+            children: [{ type: 'text', value: part }],
+          })
+        } else {
+          results.push({ type: 'text', value: part })
+        }
+      }
+      if (idx < parts.length - 1) {
+        const markerPos = text.indexOf(inFold ? FOLD_END : FOLD_START)
+        if (markerPos !== -1) inFold = !inFold
+      }
+      idx++
+    }
+
+    return results
+  }
+}
+
 export function customTag(): ShikiTransformer {
   const customTags = ['error', 'log', 'warn', 'annotate'] as const
   const tagPattern = new RegExp(`@(${customTags.join('|')}):\\s*(.+)`)
