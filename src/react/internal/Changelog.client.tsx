@@ -7,6 +7,7 @@ import LucideChevronDown from '~icons/lucide/chevron-down'
 import LucideExternalLink from '~icons/lucide/external-link'
 import LucideHistory from '~icons/lucide/history'
 import type * as ChangelogTypes from '../../internal/changelog.js'
+import { Badge } from '../Badge.js'
 
 const collapsedHeight = 600
 
@@ -296,11 +297,7 @@ function Release(props: Release.Props): React.JSX.Element {
           </time>
 
           {/* Prerelease badge */}
-          {release.prerelease && (
-            <span className="vocs:text-xs vocs:text-warning vocs:bg-warninga3 vocs:px-2 vocs:py-0.5 vocs:rounded vocs:w-fit">
-              Pre-release
-            </span>
-          )}
+          {release.prerelease && <Badge variant="warning">Pre-release</Badge>}
         </div>
       </div>
 
@@ -325,11 +322,7 @@ function Release(props: Release.Props): React.JSX.Element {
           <time dateTime={release.date} className="vocs:text-sm vocs:text-secondary">
             {formattedDate}
           </time>
-          {release.prerelease && (
-            <span className="vocs:text-xs vocs:text-warning vocs:bg-warninga3 vocs:px-2 vocs:py-0.5 vocs:rounded">
-              Pre-release
-            </span>
-          )}
+          {release.prerelease && <Badge variant="warning">Pre-release</Badge>}
         </div>
 
         {/* Release title */}

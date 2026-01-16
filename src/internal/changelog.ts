@@ -5,8 +5,6 @@ export type Adapter = {
   fetch: (options?: {
     /** Maximum number of releases to fetch */
     limit?: number | undefined
-    /** Include prereleases */
-    prereleases?: boolean | undefined
   }) => Promise<Release[]>
 }
 
@@ -61,12 +59,12 @@ export function from(adapter: Adapter): Adapter {
  * ```
  */
 export function github(options: github.Options): Adapter {
-  const { repo, token } = options
+  const { repo, token, prereleases = false } = options
 
   return {
     type: 'github',
     async fetch(fetchOptions = {}) {
-      const { limit = 50, prereleases = false } = fetchOptions
+      const { limit = 50 } = fetchOptions
 
       const apiToken = token || process.env['GITHUB_TOKEN']
       const headers: Record<string, string> = {
@@ -114,6 +112,11 @@ export declare namespace github {
      * @example "wevm/viem"
      */
     repo: string
+    /**
+     * Include prereleases in the changelog.
+     * @default false
+     */
+    prereleases?: boolean | undefined
     /**
      * GitHub API token for authenticated requests (higher rate limits).
      * Falls back to GITHUB_TOKEN environment variable.
