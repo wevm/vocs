@@ -29,8 +29,7 @@ export function getBinaryPath(): string {
 
   throw new Error(
     `@vocs/twoslash-rust: Could not find binary for platform ${process.platform}-${process.arch}.\n` +
-      `Try installing the platform-specific package: npm install ${platformPackage}\n` +
-      `Or install via cargo: cargo install rust-twoslash --git https://github.com/wevm/twoslash-rust --locked`,
+      `Try installing the platform-specific package: npm install ${platformPackage}\n`,
   )
 }
 
@@ -54,7 +53,7 @@ function getPlatformPackage(): string {
 
   throw new Error(
     `@vocs/twoslash-rust: Unsupported platform ${platform}-${arch}.\n` +
-      `Install via cargo instead: cargo install rust-twoslash --git https://github.com/wevm/twoslash-rust --locked`,
+      `Install via cargo instead: cargo install rust-twoslash`,
   )
 }
 

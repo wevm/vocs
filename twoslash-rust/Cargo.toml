@@ -4,7 +4,7 @@ version = "0.0.1"
 edition = "2021"
 license = "MIT"
 description = "Twoslash for Rust - extract type information from Rust code using rust-analyzer"
-repository = "https://github.com/wevm/twoslash-rust"
+repository = "https://github.com/wevm/vocs"
 keywords = ["twoslash", "rust-analyzer", "documentation", "ide"]
 categories = ["development-tools"]
 

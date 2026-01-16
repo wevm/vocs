@@ -370,6 +370,9 @@ importers:
 
   site:
     dependencies:
+      '@vocs/twoslash-rust':
+        specifier: workspace:*
+        version: link:../twoslash-rust
       react:
         specifier: ^19
         version: 19.2.3

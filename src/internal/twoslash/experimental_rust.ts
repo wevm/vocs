@@ -90,8 +90,7 @@ function checkBinaryAvailable(binaryPath: string | null): boolean {
     binaryAvailable = false
     console.warn(
       `[vocs] rust-twoslash binary not found. Rust twoslash code blocks will be skipped.\n` +
-        `Install with: pnpm add @vocs/twoslash-rust\n` +
-        `Or via cargo: cargo install rust-twoslash --git https://github.com/wevm/twoslash-rust --locked\n`,
+        `Install with: pnpm add @vocs/twoslash-rust\n`,
     )
     return false
   }
@@ -458,7 +457,7 @@ export function createRustTwoslasher(options: experimental_rust.Options) {
  * Uses the rust-twoslash binary to provide TypeScript-like hover information
  * and type hints for Rust code blocks.
  *
- * Requires: `cargo install rust-twoslash --git https://github.com/wevm/twoslash-rust --locked`
+ * Requires: `pnpm add @vocs/twoslash-rust`
  *
  * @example
  * ```ts
