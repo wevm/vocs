@@ -36,6 +36,7 @@ export async function vocs(): Promise<PluginOption[]> {
     Plugins.tailwind(),
     Plugins.userStyles(config),
     Plugins.virtualConfig(config),
+    Plugins.virtualLangs(config),
   ]
 }
 

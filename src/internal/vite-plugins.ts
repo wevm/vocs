@@ -722,6 +722,62 @@ export function virtualConfig(config: Config.Config): PluginOption {
 }
 
 /**
+ * Vite plugin that provides extra language registrations from twoslash transformers.
+ *
+ * Creates a virtual module `virtual:vocs/langs` that exports language registrations
+ * from twoslash transformers (e.g., rust/toml from experimental_rust).
+ *
+ * @param config - Vocs configuration.
+ * @returns Plugin.
+ */
+export function virtualLangs(config: Config.Config): PluginOption {
+  const virtualModuleId = 'virtual:vocs/langs'
+  const resolvedVirtualModuleId = `\0${virtualModuleId}`
+
+  return {
+    name: 'vocs:virtual-langs',
+    resolveId(id) {
+      if (id === virtualModuleId) return resolvedVirtualModuleId
+      return
+    },
+    load(id) {
+      if (id === resolvedVirtualModuleId) {
+        const twoslash = config.twoslash
+        const transformers =
+          twoslash && typeof twoslash === 'object' ? twoslash.transformers : undefined
+
+        if (!transformers?.length) {
+          return 'export const langs = []'
+        }
+
+        const imports: string[] = []
+        const langExports: string[] = []
+
+        for (let i = 0; i < transformers.length; i++) {
+          const t = transformers[i]
+          if (t && 'langs' in t && Array.isArray(t.langs) && t.langs.length > 0) {
+            const langIds = t.langs
+              .map((l: { name?: string }) => l.name)
+              .filter(Boolean) as string[]
+            for (const langId of langIds) {
+              imports.push(`import ${langId}Lang from 'shiki/langs/${langId}.mjs'`)
+              langExports.push(`...${langId}Lang`)
+            }
+          }
+        }
+
+        if (!imports.length) {
+          return 'export const langs = []'
+        }
+
+        return `${imports.join('\n')}\nexport const langs = [${langExports.join(', ')}]`
+      }
+      return
+    },
+  }
+}
+
+/**
  * Vite plugin that generates CSS for code block icons.
  *
  * Scans markdown files for `[label]` syntax and generates CSS

@@ -1,4 +1,5 @@
 import { config } from 'virtual:vocs/config'
+import { langs as virtualLangs } from 'virtual:vocs/langs'
 import {
   bundledLanguages,
   createHighlighter,
@@ -16,7 +17,9 @@ export async function CodeToHtml(props: CodeToHtml.Props) {
 
   const highlighter = await getHighlighter({
     themes: import.meta.env.DEV ? ['none'] : (Object.values(themes) as never),
-    langs: import.meta.env.DEV ? ['txt'] : (Object.keys(bundledLanguages) as never),
+    langs: import.meta.env.DEV
+      ? ['txt']
+      : ([...Object.keys(bundledLanguages), ...virtualLangs] as never),
     langAlias,
   })
 

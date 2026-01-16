@@ -1,3 +1,4 @@
+mod doc;
 mod project;
 #[cfg(test)]
 mod project_test;
