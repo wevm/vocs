@@ -5,6 +5,8 @@ export type Adapter = {
   fetch: (options?: {
     /** Maximum number of releases to fetch */
     limit?: number | undefined
+    /** Include prereleases */
+    prereleases?: boolean | undefined
   }) => Promise<Release[]>
 }
 
