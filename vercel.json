@@ -1,3 +1,4 @@
 {
-  "installCommand": "corepack enable && pnpm install"
+  "installCommand": "cd ../ && corepack enable && pnpm install && pnpm build && cd playground",
+  "cache": [".vocs/cache/**"]
 }
