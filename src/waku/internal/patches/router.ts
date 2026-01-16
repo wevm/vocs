@@ -74,6 +74,13 @@ export function router(
         ]),
       )
 
+      // Build set of normalized consumer paths to skip built-in duplicates
+      const consumerPaths = new Set<string>()
+      for (const file in pages) {
+        const normalized = file.replace(/^\.\//, '').replace(/\.\w+$/, '')
+        consumerPaths.add(normalized)
+      }
+
       const allPages = { ...defaultPages, ...pages }
 
       for (const file in allPages) {
@@ -92,6 +99,12 @@ export function router(
         if (isIgnoredPath(pathItems)) {
           continue
         }
+
+        // Skip built-in routes if consumer has an override
+        const isBuiltIn = file in defaultPages && !(file in pages)
+        const normalizedPath = pathItems.join('/')
+        if (isBuiltIn && consumerPaths.has(normalizedPath)) continue
+
         const path =
           '/' +
           // biome-ignore lint/style/noNonNullAssertion: _
