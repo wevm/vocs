@@ -21,14 +21,12 @@
   "scripts": {
     "build": "tsc",
     "build:rust": "cargo build --release",
-    "build:npm": "tsx scripts/build-npm.ts",
-    "setup:local": "tsx scripts/setup-local.ts"
+    "build:npm": "node --experimental-strip-types scripts/build-npm.ts"
   },
   "dependencies": {
     "detect-libc": "^2.0.3"
   },
   "devDependencies": {
-    "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   },
   "optionalDependencies": {

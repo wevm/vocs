@@ -12,11 +12,6 @@ runs:
       with:
         node-version: '24.5'
 
-    - name: Setup twoslash-rust stubs
-      shell: bash
-      run: npx tsx twoslash-rust/scripts/setup-local.ts
-      working-directory: ${{ github.workspace }}
-
     - name: Install dependencies
       shell: bash
       run: pnpm install
