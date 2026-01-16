@@ -521,6 +521,28 @@ describe('fromConfig', () => {
       `)
     })
 
+    test('matches exact path without trailing slash', () => {
+      const config = {
+        '/': [{ text: 'Home', link: '/' }],
+        '/learn': [{ text: 'Learn Home', link: '/learn' }],
+      }
+      expect(fromConfig(config, '/learn')).toMatchInlineSnapshot(`
+        {
+          "items": [
+            {
+              "items": [
+                {
+                  "link": "/learn",
+                  "text": "Learn Home",
+                },
+              ],
+            },
+          ],
+          "key": "/learn",
+        }
+      `)
+    })
+
     test('deepest matching path takes precedence', () => {
       const config = {
         '/docs': [{ text: 'Docs', link: '/docs' }],
