@@ -16,7 +16,7 @@ h1[data-v] {
 
 h2[data-v],
 section[data-footnotes] h2 {
-  @apply vocs:text-heading vocs:text-h2 vocs:font-medium vocs:tracking-tight vocs:leading-h2 vocs:-scroll-mt-4;
+  @apply vocs:text-heading vocs:text-h2 vocs:font-medium vocs:tracking-tight vocs:leading-h2 vocs:-scroll-mt-5;
 }
 
 h3[data-v] {

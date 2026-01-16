@@ -10,6 +10,7 @@ import {
 import type { ShikiTransformer } from '@shikijs/types'
 
 import * as Renderer from './renderer.js'
+import { rustMarkdownPatterns } from './renderer.js'
 
 interface Position {
   line: number
@@ -439,7 +440,11 @@ export function experimental_rust(
   options: experimental_rust.Options = {},
 ): experimental_rust.ReturnType {
   return (injected) => {
-    const { explicitTrigger = true, renderer = Renderer.rich(), throws = false } = options
+    const {
+      explicitTrigger = true,
+      renderer = Renderer.rich({ markdownPatterns: rustMarkdownPatterns }),
+      throws = false,
+    } = options
     const cacheDir = options.cacheDir ?? injected?.cacheDir
 
     const twoslasher = createRustTwoslasher({ ...options, cacheDir })

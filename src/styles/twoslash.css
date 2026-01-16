@@ -70,6 +70,15 @@
     @apply vocs:mb-1;
   }
 
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply vocs:text-sm vocs:font-semibold vocs:mt-2 vocs:mb-1;
+  }
+
   li {
     @apply vocs:mb-0!;
   }

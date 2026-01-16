@@ -8,16 +8,44 @@ import type { NodeError, NodeHover, NodeQuery } from 'twoslash'
 import { remarkVocsScope } from '../mdx.js'
 
 /**
+ * Default patterns for detecting markdown content inside code blocks.
+ * Used to fix unclosed fenced code blocks in doc comments.
+ */
+export const defaultMarkdownPatterns: RegExp[] = [
+  /^#{1,6}\s+\S/, // Headings
+  /^\*\*\w/, // Bold at start
+  /^>\s/, // Blockquote
+]
+
+/**
+ * Patterns for Rust doc comments.
+ * Rust uses `# ` to hide code lines (e.g., `# use std::io;`), so we must
+ * only match headings that start with uppercase letters to avoid false positives.
+ */
+export const rustMarkdownPatterns: RegExp[] = [
+  /^#{1,6}\s+[A-Z]/, // Headings (must start with uppercase letter)
+  /^\*\*[A-Z]/, // Bold at start (must start with uppercase letter)
+  /^>\s/, // Blockquote
+]
+
+/**
  * An alternative renderer that providers better prefixed class names,
  * with syntax highlight for the info text.
  */
-export function rich(): TwoslashRenderer {
+export function rich(options: rich.Options = {}): TwoslashRenderer {
+  const { markdownPatterns = defaultMarkdownPatterns } = options
+
   function getPopupContent(
     this: ShikiTransformerContextCommon,
     info: NodeHover | NodeQuery,
   ): ElementContent[] {
     if (!info.text) return []
-    const content = processHoverInfo(info.text)
+
+    // Rust twoslash combines code and docs in `text` separated by `---`
+    // Split them so docs can be rendered as markdown
+    const { code: extractedCode, docs: extractedDocs } = splitCodeAndDocs(info.text)
+
+    const content = processHoverInfo(extractedCode)
     if (!content || content === 'any') return []
 
     const popupContents: ElementContent[] = []
@@ -38,8 +66,10 @@ export function rich(): TwoslashRenderer {
       children: [],
     })
 
-    if (info.docs) {
-      const docs = processHoverDocs(info.docs)
+    // Use extracted docs from text (Rust) or explicit docs field (TypeScript)
+    const rawDocs = extractedDocs || info.docs
+    if (rawDocs) {
+      const docs = processHoverDocs(rawDocs, markdownPatterns)
 
       const mdast = fromMarkdown(docs, {
         mdastExtensions: [gfmFromMarkdown()],
@@ -63,6 +93,11 @@ export function rich(): TwoslashRenderer {
               }
             }
             return defaultHandlers.code(state, node)
+          },
+          inlineCode: (state, node) => {
+            const result = defaultHandlers.inlineCode(state, node)
+            result.properties['data-v'] = true
+            return result
           },
         },
       }) as Element
@@ -293,15 +328,97 @@ function processHoverInfo(type: string): string {
   return content
 }
 
-function processHoverDocs(docs: string): string {
-  return (
-    docs
-      // Remove inline JSDoc tags like {@link}
-      .replace(/\{@\w+\s+[^}]*\}/g, '')
-      // Convert Rust-style reference links [`Foo`] to inline links if URL follows
-      // e.g., [`Provider`](url) is already valid markdown
-      // but [`Provider`] alone should become `Provider` (code only, no broken link)
-      .replace(/\[`([^`]+)`\](?!\()/g, '`$1`')
-      .trim()
-  )
+function processHoverDocs(docs: string, markdownPatterns: RegExp[]): string {
+  let processed = docs
+    // Remove inline JSDoc tags like {@link}
+    .replace(/\{@\w+\s+[^}]*\}/g, '')
+    // Convert Rust-style reference links [`Foo`] to inline links if URL follows
+    // e.g., [`Provider`](url) is already valid markdown
+    // but [`Provider`] alone should become `Provider` (code only, no broken link)
+    .replace(/\[`([^`]+)`\](?!\()/g, '`$1`')
+    .trim()
+
+  // Fix malformed fenced code blocks that may have unclosed blocks
+  processed = fixUnclosedCodeBlocks(processed, markdownPatterns)
+
+  return processed
+}
+
+/**
+ * Fix unclosed fenced code blocks in markdown.
+ * Some doc comments have malformed code blocks where:
+ * 1. A code block opens with ```lang but never closes
+ * 2. Markdown content (headings, bold text) appears inside what should be closed blocks
+ * 3. A new code block starts without closing the previous one
+ *
+ * This function detects markdown syntax inside code blocks and closes them appropriately.
+ */
+function fixUnclosedCodeBlocks(markdown: string, markdownPatterns: RegExp[]): string {
+  const lines = markdown.split('\n')
+  const result: string[] = []
+  let inCodeBlock = false
+
+  for (const line of lines) {
+    const fenceMatch = line.match(/^```(\w*)/)
+
+    if (fenceMatch) {
+      if (inCodeBlock) {
+        if (fenceMatch[1]) {
+          // New code block starting while already in one - close the previous first
+          result.push('```')
+        }
+        // Either way, we're toggling the code block state
+        inCodeBlock = !!fenceMatch[1]
+      } else {
+        // Starting a new code block
+        inCodeBlock = !!fenceMatch[1]
+      }
+      result.push(line)
+      continue
+    }
+
+    // If we're in a code block, check if this line looks like markdown
+    if (inCodeBlock && markdownPatterns.some((pattern) => pattern.test(line))) {
+      // This looks like markdown content, close the code block first
+      result.push('```')
+      inCodeBlock = false
+    }
+
+    result.push(line)
+  }
+
+  // If still in a code block at the end, close it
+  if (inCodeBlock) {
+    result.push('```')
+  }
+
+  return result.join('\n')
+}
+
+/**
+ * Split Rust twoslash text that combines code and docs with `---` separator.
+ * Returns the code part and optional docs part.
+ */
+function splitCodeAndDocs(text: string): { code: string; docs: string | undefined } {
+  // Look for `---` on its own line (Rust twoslash format)
+  const separatorMatch = text.match(/\n---\n/)
+  if (separatorMatch && separatorMatch.index !== undefined) {
+    const code = text.slice(0, separatorMatch.index).trim()
+    const docs = text.slice(separatorMatch.index + separatorMatch[0].length).trim()
+    return { code, docs: docs || undefined }
+  }
+  return { code: text, docs: undefined }
+}
+
+export declare namespace rich {
+  export type Options = {
+    /**
+     * Patterns to detect markdown content inside unclosed code blocks.
+     * When a line inside a fenced code block matches one of these patterns,
+     * the code block will be closed before that line.
+     *
+     * @default defaultMarkdownPatterns
+     */
+    markdownPatterns?: RegExp[] | undefined
+  }
 }
