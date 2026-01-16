@@ -417,6 +417,22 @@ importers:
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
+    optionalDependencies:
+      '@vocs/twoslash-rust-darwin-arm64':
+        specifier: workspace:*
+        version: link:npm/darwin-arm64
+      '@vocs/twoslash-rust-darwin-x64':
+        specifier: workspace:*
+        version: link:npm/darwin-x64
+      '@vocs/twoslash-rust-linux-x64-gnu':
+        specifier: workspace:*
+        version: link:npm/linux-x64-gnu
+
+  twoslash-rust/npm/darwin-arm64: {}
+
+  twoslash-rust/npm/darwin-x64: {}
+
+  twoslash-rust/npm/linux-x64-gnu: {}
 
 packages:
 

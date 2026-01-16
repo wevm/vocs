@@ -4,6 +4,7 @@ packages:
   - site
   - playground
   - twoslash-rust
+  - twoslash-rust/npm/*
 
 catalog:
   '@biomejs/biome': ^2.3.10

@@ -32,8 +32,8 @@
     "typescript": "^5.9.3"
   },
   "optionalDependencies": {
-    "@vocs/twoslash-rust-darwin-arm64": "0.1.0",
-    "@vocs/twoslash-rust-darwin-x64": "0.1.0",
-    "@vocs/twoslash-rust-linux-x64-gnu": "0.1.0"
+    "@vocs/twoslash-rust-darwin-arm64": "workspace:*",
+    "@vocs/twoslash-rust-darwin-x64": "workspace:*",
+    "@vocs/twoslash-rust-linux-x64-gnu": "workspace:*"
   }
 }

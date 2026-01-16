@@ -1,0 +1,15 @@
+{
+  "name": "@vocs/twoslash-rust-darwin-x64",
+  "version": "0.1.0",
+  "os": [
+    "darwin"
+  ],
+  "cpu": [
+    "x64"
+  ],
+  "main": "./bin/rust-twoslash",
+  "files": [
+    "bin"
+  ],
+  "license": "MIT"
+}
