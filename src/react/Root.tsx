@@ -22,7 +22,9 @@ export async function Root({ children }: { children: React.ReactNode }) {
       suppressHydrationWarning
     >
       <head>
+        <link rel="preload" href={styles} as="style" />
         <link rel="stylesheet" href={styles} precedence="default" />
+        {userStyles && <link rel="preload" href={userStyles} as="style" />}
         {userStyles && <link rel="stylesheet" href={userStyles} precedence="default" />}
         {/** biome-ignore lint/security/noDangerouslySetInnerHtml: TODO: switch to non-setHTML loading */}
         {groupIconsCss && <style dangerouslySetInnerHTML={{ __html: groupIconsCss }} />}
