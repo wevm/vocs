@@ -3,6 +3,7 @@ import * as path from 'node:path'
 import type * as MdxRollup from '@mdx-js/rollup'
 import type * as Changelog from './changelog.js'
 import * as Langs from './langs.js'
+import type * as McpSource from './mcp-source.js'
 import type * as Mdx from './mdx.js'
 import type * as Redirects from './redirects.js'
 import type * as Sidebar from './sidebar.js'
@@ -175,6 +176,30 @@ export type Config<partial extends boolean = false> = MaybePartial<
      * Markdown configuration.
      */
     markdown?: MdxRollup.Options | undefined
+    /**
+     * MCP (Model Context Protocol) server configuration.
+     * Enables LLMs to navigate documentation and source code.
+     *
+     * @example
+     * ```ts
+     * import { McpSource } from 'vocs'
+     *
+     * export default defineConfig({
+     *   mcp: {
+     *     enabled: true,
+     *     source: McpSource.github({ repo: 'wevm/viem' }),
+     *   },
+     * })
+     * ```
+     */
+    mcp?:
+      | {
+          /** Enable MCP server endpoint at `/api/mcp`. */
+          enabled?: boolean | undefined
+          /** Source code adapter for navigating the codebase. */
+          source?: McpSource.Adapter | undefined
+        }
+      | undefined
     /**
      * The output directory relative to root.
      * @default "dist"
@@ -363,6 +388,7 @@ export function define(config: define.Options = {}): Config {
     topNav,
     redirects,
     twoslash,
+    mcp,
   } = config
 
   const pagesDir = 'pages'
@@ -432,6 +458,7 @@ export function define(config: define.Options = {}): Config {
     title,
     titleTemplate,
     twoslash,
+    mcp,
   }
 }
 

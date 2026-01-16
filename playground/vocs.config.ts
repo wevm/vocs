@@ -1,7 +1,11 @@
-import { Changelog, defineConfig, Twoslash } from 'vocs/config'
+import { Changelog, defineConfig, McpSource, Twoslash } from 'vocs/config'
 
 export default defineConfig({
-  changelog: Changelog.github({ repo: 'paradigmxyz/reth' }),
+  changelog: Changelog.github({ prereleases: true, repo: 'tempoxyz/tempo' }),
+  mcp: {
+    enabled: true,
+    source: McpSource.github({ repo: 'tempoxyz/tempo' }),
+  },
   twoslash: {
     transformers: [Twoslash.experimental_rust({ cargoToml: './Cargo.toml', cacheOnly: true })],
   },
