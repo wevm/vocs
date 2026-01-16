@@ -30,7 +30,7 @@ function runTwoslash(code: string) {
 
 describeFn('experimental_rust', () => {
   test('getBinaryPath resolves to vendored binary', () => {
-    expect(binaryPath).toMatch(/twoslash-rust\/target\/release\/rust-twoslash$/)
+    expect(binaryPath).toMatch(/twoslash-rust\/target\/release\/twoslash-rust$/)
   })
 
   test('processes simple Rust code and returns type info', () => {

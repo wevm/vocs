@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 export function getBinaryPath(): string {
-  const binaryName = process.platform === 'win32' ? 'rust-twoslash.exe' : 'rust-twoslash'
+  const binaryName = process.platform === 'win32' ? 'twoslash-rust.exe' : 'twoslash-rust'
 
   // Check for local dev build first (monorepo development)
   const devBinaryPath = path.resolve(__dirname, '../target/release', binaryName)
@@ -50,7 +50,7 @@ function getPlatformPackage(): string {
 
   throw new Error(
     `@vocs/twoslash-rust: Unsupported platform ${platform}-${arch}.\n` +
-      `Install via cargo instead: cargo install rust-twoslash`,
+      `Install via cargo instead: cargo install twoslash-rust`,
   )
 }
 

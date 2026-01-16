@@ -45,7 +45,7 @@ for (const platform of platforms) {
     version,
     os: [platform.os],
     cpu: [platform.cpu],
-    main: './bin/rust-twoslash',
+    main: './bin/twoslash-rust',
     files: ['bin'],
     license: 'MIT',
   }
@@ -56,7 +56,7 @@ for (const platform of platforms) {
 
   fs.writeFileSync(path.join(packageDir, 'package.json'), JSON.stringify(platformPkg, null, 2))
 
-  const binaryName = platform.os === 'win32' ? 'rust-twoslash.exe' : 'rust-twoslash'
+  const binaryName = platform.os === 'win32' ? 'twoslash-rust.exe' : 'twoslash-rust'
   const artifactPath = path.join(artifactsDir, `bindings-${platform.rustTarget}`, binaryName)
 
   if (fs.existsSync(artifactPath)) {

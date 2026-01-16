@@ -70,7 +70,7 @@ function getBinaryPath(): string | null {
     return resolvedBinaryPath
   } catch {}
 
-  resolvedBinaryPath = findInPath('rust-twoslash')
+  resolvedBinaryPath = findInPath('twoslash-rust')
   return resolvedBinaryPath
 }
 
