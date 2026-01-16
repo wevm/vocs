@@ -212,15 +212,20 @@ export function Logo() {
             <img alt="Logo" className="vocs:h-full vocs:max-h-7" data-v-logo-image src={logoUrl} />
           )
         return (
-          <picture>
-            <source media="(prefers-color-scheme: dark)" srcSet={logoUrl.dark} />
+          <>
             <img
               alt="Logo"
-              className="vocs:h-full vocs:max-h-7"
+              className="vocs:h-full vocs:max-h-7 vocs:dark:hidden"
               data-v-logo-image
               src={logoUrl.light}
             />
-          </picture>
+            <img
+              alt="Logo"
+              className="vocs:h-full vocs:max-h-7 vocs:hidden vocs:dark:block"
+              data-v-logo-image
+              src={logoUrl.dark}
+            />
+          </>
         )
       })()}
     </div>

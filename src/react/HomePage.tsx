@@ -47,10 +47,18 @@ export function Logo(props: Logo.Props) {
     return <img alt={title} className={cx('vocs:h-12 vocs:md:h-14', className)} src={logoUrl} />
 
   return (
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcSet={logoUrl.dark} />
-      <img alt={title} className={cx('vocs:h-12 vocs:md:h-14', className)} src={logoUrl.light} />
-    </picture>
+    <>
+      <img
+        alt={title}
+        className={cx('vocs:h-12 vocs:md:h-14 vocs:dark:hidden', className)}
+        src={logoUrl.light}
+      />
+      <img
+        alt={title}
+        className={cx('vocs:h-12 vocs:md:h-14 vocs:hidden vocs:dark:block', className)}
+        src={logoUrl.dark}
+      />
+    </>
   )
 }
 
