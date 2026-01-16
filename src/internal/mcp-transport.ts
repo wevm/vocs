@@ -151,7 +151,10 @@ export class WebStreamableHTTPServerTransport {
       this._responseWriter = writable.getWriter()
 
       this._pendingResponse = async (response) => {
-        console.log('[MCP:HTTP] SSE pending response received', JSON.stringify(response).slice(0, 200))
+        console.log(
+          '[MCP:HTTP] SSE pending response received',
+          JSON.stringify(response).slice(0, 200),
+        )
         await this._write(`event: message\ndata: ${JSON.stringify(response)}\n\n`)
         try {
           await this._responseWriter?.close()
@@ -173,7 +176,10 @@ export class WebStreamableHTTPServerTransport {
     console.log('[MCP:HTTP] Using JSON response mode')
     return new Promise((resolve) => {
       this._pendingResponse = (response) => {
-        console.log('[MCP:HTTP] JSON pending response received', JSON.stringify(response).slice(0, 200))
+        console.log(
+          '[MCP:HTTP] JSON pending response received',
+          JSON.stringify(response).slice(0, 200),
+        )
         resolve(
           Response.json(response, {
             headers: this.sessionId ? { 'mcp-session-id': this.sessionId } : {},

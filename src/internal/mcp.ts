@@ -195,7 +195,10 @@ export function createServer(config: Config): McpServer {
       {
         description: 'Get a recursive file tree of the source code.',
         inputSchema: {
-          basePath: z.string().optional().describe('Directory path (defaults to configured source path)'),
+          basePath: z
+            .string()
+            .optional()
+            .describe('Directory path (defaults to configured source path)'),
           depth: z.number().optional().describe('Maximum depth to traverse (default: 3)'),
         },
       },
