@@ -358,10 +358,6 @@ export function createRustTwoslasher(options: experimental_rust.Options) {
   const isAvailable = checkBinaryAvailable(binaryPath)
 
   return ((code: string, lang?: string): TwoslashShikiReturn => {
-    if (!isAvailable || !binaryPath) {
-      return { code, nodes: [] }
-    }
-
     // Parse twoslash directives and find lines to remove
     const directives = parseDirectives(code)
     const removedLines = findDirectiveLines(code)
@@ -394,8 +390,8 @@ export function createRustTwoslasher(options: experimental_rust.Options) {
       }
     }
 
-    // In cache-only mode, skip twoslash analysis and return stripped code
-    if (cacheOnly) {
+    // In cache-only mode or binary unavailable, skip twoslash analysis and return stripped code
+    if (cacheOnly || !isAvailable || !binaryPath) {
       return { code: stripDirectives(code), nodes: [] }
     }
 
