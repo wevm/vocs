@@ -50,6 +50,11 @@ jobs:
         if: startsWith(matrix.os, 'macos')
         run: strip target/${{ matrix.target }}/release/rust-twoslash
 
+      - name: Smoke test binary
+        run: |
+          echo 'fn main() { let x = 1; }' | ./target/${{ matrix.target }}/release/rust-twoslash
+        shell: bash
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:

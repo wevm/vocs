@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { spawn } from 'node:child_process'
-import { getBinaryPath } from './dist/index.js'
+import { getBinaryPath } from './index.js'
 
 const binary = getBinaryPath()
 const child = spawn(binary, process.argv.slice(2), {

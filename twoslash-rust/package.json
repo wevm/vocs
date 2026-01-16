@@ -4,22 +4,21 @@
   "type": "module",
   "license": "MIT",
   "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
   "bin": {
-    "twoslash-rust": "./bin.js"
+    "twoslash-rust.src": "./src/bin.ts"
   },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
+      "src": "./src/index.ts",
       "default": "./dist/index.js"
     }
   },
   "files": [
-    "dist",
-    "bin.js"
+    "dist"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "zile",
     "build:rust": "cargo build --release",
     "build:npm": "node --experimental-strip-types scripts/build-npm.ts"
   },
@@ -27,11 +26,15 @@
     "detect-libc": "^2.0.3"
   },
   "devDependencies": {
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "zile": "^0.0.19"
   },
   "optionalDependencies": {
     "@vocs/twoslash-rust-darwin-arm64": "workspace:*",
     "@vocs/twoslash-rust-darwin-x64": "workspace:*",
     "@vocs/twoslash-rust-linux-x64-gnu": "workspace:*"
-  }
+  },
+  "sideEffects": false,
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts"
 }

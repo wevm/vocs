@@ -414,6 +414,9 @@ importers:
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
+      zile:
+        specifier: ^0.0.19
+        version: 0.0.19(typescript@5.9.3)
     optionalDependencies:
       '@vocs/twoslash-rust-darwin-arm64':
         specifier: workspace:*
