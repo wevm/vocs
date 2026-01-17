@@ -368,7 +368,6 @@ export function define(config: define.Options = {}): Config {
     banner,
     changelog,
     basePath = '/',
-    baseUrl,
     cacheDir,
     codeHighlight,
     colorScheme = 'light dark',
@@ -394,6 +393,15 @@ export function define(config: define.Options = {}): Config {
   } = config
 
   const pagesDir = 'pages'
+
+  const baseUrl = (() => {
+    if (!config.baseUrl) return undefined
+    let url = config.baseUrl.replace(/\/$/, '')
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      url = `https://${url}`
+    }
+    return url
+  })()
 
   return {
     accentColor,

@@ -27,6 +27,7 @@ export function MobileNav(props: MobileNav.Props) {
   return (
     <Dialog.Root open={dialogOpen} onOpenChange={setDialogOpen}>
       <Dialog.Trigger
+        aria-label="Open menu"
         className={cx(
           'vocs:flex vocs:items-center vocs:justify-center vocs:cursor-pointer vocs:size-8',
           className,
@@ -45,7 +46,10 @@ export function MobileNav(props: MobileNav.Props) {
 
             <MobileTopNav onNavigate={() => setDialogOpen(false)} />
 
-            <Dialog.Close className="vocs:flex vocs:items-center vocs:justify-center vocs:cursor-pointer vocs:size-8">
+            <Dialog.Close
+              aria-label="Close menu"
+              className="vocs:flex vocs:items-center vocs:justify-center vocs:cursor-pointer vocs:size-8"
+            >
               <LucideX />
             </Dialog.Close>
           </div>

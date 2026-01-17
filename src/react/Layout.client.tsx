@@ -118,6 +118,7 @@ export function Main(props: Main.Props) {
               disableKeyboardShortcut
               trigger={
                 <button
+                  aria-label="Search"
                   className="vocs:flex vocs:md:hidden vocs:items-center vocs:justify-center vocs:cursor-pointer vocs:size-8"
                   type="button"
                 >
