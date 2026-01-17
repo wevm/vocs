@@ -35,3 +35,8 @@ declare module 'virtual:vocs/user-styles' {
   const url: string | undefined
   export default url
 }
+
+declare module 'virtual:vocs/user-styles?inline' {
+  const css: string | undefined
+  export default css
+}

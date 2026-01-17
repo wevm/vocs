@@ -4,10 +4,10 @@ import { config } from 'virtual:vocs/config'
 import groupIconsCss from 'virtual:vocs/group-icons.css?inline'
 // biome-ignore lint/suspicious/noTsIgnore: _
 // @ts-ignore
-import userStyles from 'virtual:vocs/user-styles'
+import userStyles from 'virtual:vocs/user-styles?inline'
 // biome-ignore lint/suspicious/noTsIgnore: _
 // @ts-ignore
-import styles from '../styles/index.css?url'
+import styles from '../styles/index.css?inline'
 import { Head } from './Head.js'
 import { Root_client } from './Root.client.js'
 import { ScrollRestoration } from './ScrollRestoration.js'
@@ -22,11 +22,12 @@ export async function Root({ children }: { children: React.ReactNode }) {
       suppressHydrationWarning
     >
       <head>
-        <link rel="preload" href={styles} as="style" />
-        <link rel="stylesheet" href={styles} precedence="default" />
-        {userStyles && <link rel="preload" href={userStyles} as="style" />}
-        {userStyles && <link rel="stylesheet" href={userStyles} precedence="default" />}
-        {/** biome-ignore lint/security/noDangerouslySetInnerHtml: TODO: switch to non-setHTML loading */}
+        {/* Critical CSS inlined for faster FCP/LCP - eliminates render-blocking requests */}
+        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: inlined CSS for performance */}
+        <style dangerouslySetInnerHTML={{ __html: styles }} />
+        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: inlined user CSS for performance */}
+        {userStyles && <style dangerouslySetInnerHTML={{ __html: userStyles }} />}
+        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: group icons CSS */}
         {groupIconsCss && <style dangerouslySetInnerHTML={{ __html: groupIconsCss }} />}
         <Head />
       </head>

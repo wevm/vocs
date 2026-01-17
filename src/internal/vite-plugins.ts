@@ -520,10 +520,13 @@ export function routeWatcher(config: Config.Config): PluginOption {
 
 /**
  * Vite plugin that provides user styles from `_root.css` in the pages directory.
+ * Supports both `?url` (external file) and `?inline` (inlined CSS string) modes.
  */
 export function userStyles(config: Config.Config): PluginOption {
   const virtualModuleId = 'virtual:vocs/user-styles'
+  const virtualModuleIdInline = 'virtual:vocs/user-styles?inline'
   const resolvedVirtualModuleId = `\0${virtualModuleId}`
+  const resolvedVirtualModuleIdInline = `\0${virtualModuleIdInline}`
   const stylesPath = path.resolve(config.rootDir, config.srcDir, config.pagesDir, '_root.css')
 
   return {
@@ -531,6 +534,7 @@ export function userStyles(config: Config.Config): PluginOption {
     enforce: 'pre',
     async resolveId(id) {
       if (id === virtualModuleId) return resolvedVirtualModuleId
+      if (id === virtualModuleIdInline) return resolvedVirtualModuleIdInline
       return
     },
     async load(id) {
@@ -538,6 +542,14 @@ export function userStyles(config: Config.Config): PluginOption {
         try {
           await fs.access(stylesPath)
           return `import styles from '${stylesPath}?url'; export default styles;`
+        } catch {
+          return 'export default undefined;'
+        }
+      }
+      if (id === resolvedVirtualModuleIdInline) {
+        try {
+          await fs.access(stylesPath)
+          return `import styles from '${stylesPath}?inline'; export default styles;`
         } catch {
           return 'export default undefined;'
         }

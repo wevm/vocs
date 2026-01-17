@@ -47,6 +47,14 @@ export function Head() {
         }}
       />
 
+      {/* Robots  */}
+      <meta
+        name="robots"
+        content={
+          frontmatter?.robots ?? (import.meta.env.PROD ? 'index, follow' : 'noindex, nofollow')
+        }
+      />
+
       {/* Title & Description */}
       {fullTitle && <title key="title">{fullTitle}</title>}
       {description && <meta name="description" content={description} />}
@@ -75,7 +83,6 @@ export function Head() {
 
       {/* Standard SEO */}
       {frontmatter?.author && <meta name="author" content={frontmatter.author} />}
-      {frontmatter?.robots && <meta name="robots" content={frontmatter.robots} />}
 
       {/* Open Graph */}
       <meta property="og:type" content="website" />
