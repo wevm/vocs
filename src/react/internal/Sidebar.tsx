@@ -179,14 +179,6 @@ function Section(props: Section.Props) {
     },
     [],
   )
-  const onCollapseTriggerInteraction = React.useCallback(
-    (event: React.KeyboardEvent | React.MouseEvent) => {
-      if ('key' in event && event.key !== 'Enter') return
-      event.stopPropagation()
-      setCollapsed((x) => !x)
-    },
-    [],
-  )
 
   if (items)
     return (
@@ -216,18 +208,12 @@ function Section(props: Section.Props) {
                 {text}
 
                 {collapsable && (
-                  <button
-                    aria-label="toggle section"
-                    className="vocs:text-secondary/80"
-                    onClick={onCollapseTriggerInteraction}
-                    onKeyDown={onCollapseTriggerInteraction}
-                    type="button"
-                  >
+                  <div className="vocs:text-secondary/80">
                     <LucideChevronRight
                       className="vocs:data-collapsed:rotate-90 vocs:transition-transform vocs:duration-200 vocs:ease-in-out"
                       {...(!collapsed ? { 'data-collapsed': false } : {})}
                     />
-                  </button>
+                  </div>
                 )}
               </div>
             )

@@ -16,6 +16,14 @@ export async function vocs(): Promise<PluginOption[]> {
   const config = await Config.resolve()
 
   return [
+    {
+      name: 'vocs:build',
+      config: () => ({
+        build: {
+          sourcemap: true,
+        },
+      }),
+    },
     Plugins.arraybuffer(),
     Plugins.deps(),
     Plugins.groupIcons(config),

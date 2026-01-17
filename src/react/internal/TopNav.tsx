@@ -19,7 +19,10 @@ export function TopNav(props: TopNav.Props) {
 
   return (
     <NavigationMenu.Root className={cx('vocs:flex', className)}>
-      <NavigationMenu.List className="vocs:flex vocs:items-center vocs:h-full vocs:list-none vocs:m-0 vocs:p-0 vocs:-mb-px">
+      <NavigationMenu.List
+        aria-orientation={undefined}
+        className="vocs:flex vocs:items-center vocs:h-full vocs:list-none vocs:m-0 vocs:p-0 vocs:-mb-px"
+      >
         {items.map((item, i) => (
           // biome-ignore lint/suspicious/noArrayIndexKey: _
           <Item key={i} {...item} />

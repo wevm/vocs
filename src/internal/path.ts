@@ -55,5 +55,11 @@ export function matches(pathname: string, target: string | undefined) {
 
 export function isExternal(url: string | undefined) {
   if (!url) return false
-  return url.startsWith('http://') || url.startsWith('https://') || url.startsWith('//')
+  return (
+    url.startsWith('http://') ||
+    url.startsWith('https://') ||
+    url.startsWith('//') ||
+    url.startsWith('mailto:') ||
+    url.startsWith('tel:')
+  )
 }
