@@ -240,5 +240,3 @@ export declare namespace InstallPackage {
     type?: 'install' | 'init' | undefined
   }
 }
-
-
