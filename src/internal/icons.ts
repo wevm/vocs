@@ -1,5 +1,8 @@
 import type { IconifyJSON } from '@iconify/types'
 import { getIconData, iconToHTML, iconToSVG } from '@iconify/utils'
+import { icons as lucideIcons } from '@iconify-json/lucide'
+import { icons as simpleIcons } from '@iconify-json/simple-icons'
+import { icons as vscodeIcons } from '@iconify-json/vscode-icons'
 
 export const builtinIcons: Record<string, string> = {
   // Package managers
@@ -132,7 +135,11 @@ export const builtinIcons: Record<string, string> = {
 
 export const sortedBuiltins = Object.entries(builtinIcons).sort(([a], [b]) => b.length - a.length)
 
-const iconSets = new Map<string, IconifyJSON>()
+const iconSets: Record<string, IconifyJSON> = {
+  lucide: lucideIcons,
+  'simple-icons': simpleIcons,
+  'vscode-icons': vscodeIcons,
+}
 
 export function matchIcon(
   filename: string,
@@ -167,16 +174,8 @@ export async function resolveIcon(icon: string): Promise<string | undefined> {
   const [collection, iconName] = icon.split(':')
   if (!collection || !iconName) return undefined
 
-  let iconSet = iconSets.get(collection)
-  if (!iconSet) {
-    try {
-      const mod = await import(/* @vite-ignore */ `@iconify-json/${collection}`)
-      iconSet = mod.icons as IconifyJSON
-      iconSets.set(collection, iconSet)
-    } catch {
-      return undefined
-    }
-  }
+  const iconSet = iconSets[collection]
+  if (!iconSet) return undefined
 
   const data = getIconData(iconSet, iconName)
   if (!data) return undefined
