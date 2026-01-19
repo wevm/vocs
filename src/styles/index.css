@@ -8,7 +8,7 @@
 @import "./markdown.css" layer(vocs_components);
 @import "./twoslash.css" layer(vocs_components);
 
-@custom-variant dark (&:where([style*="color-scheme: dark"], [style*="color-scheme: dark"] *));
+@custom-variant dark (&:where([style*=":dark"], [style*=":dark"] *, [style*=": dark"], [style*=": dark"] *));
 
 @source "../";
 

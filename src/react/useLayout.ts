@@ -48,6 +48,7 @@ export function useLayout(): LayoutState {
       if (outline === false) return false
       if (outline !== undefined) return true
       if (layout === 'blank') return false
+      if (layout === 'minimal') return false
       return true
     },
     get outlineDepth() {

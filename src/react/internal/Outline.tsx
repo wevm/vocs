@@ -146,9 +146,10 @@ export function Outline(props: Outline.Props) {
       {/* Mobile: popover in flow */}
       <div
         className={cx(
-          'vocs:min-[1376px]:hidden vocs:sticky vocs:top-topNav vocs:z-10 vocs:bg-surface vocs:px-content-px vocs:py-4 vocs:border-b vocs:border-primary',
+          'vocs:min-[1376px]:hidden vocs:sticky vocs:z-10 vocs:bg-surface vocs:px-content-px vocs:py-3 vocs:border-b vocs:border-t-0 vocs:border-primary vocs:lg:border-t vocs:lg:border-l vocs:lg:rounded-tl-2xl vocs:max-h-12',
           className,
         )}
+        style={{ top: 'calc(var(--vocs-spacing-topNav) + var(--vocs-spacing-banner))' }}
         data-v-outline
         data-v-outline-mobile
       >
@@ -160,7 +161,7 @@ export function Outline(props: Outline.Props) {
               <LucideChevronRight className="vocs:size-3.5 vocs:text-secondary/80 vocs:transition-transform vocs:duration-200 vocs:data-[popup-open]:rotate-90 vocs:translate-y-px" />
             </Popover.Trigger>
             <Popover.Portal>
-              <Popover.Positioner side="bottom" align="start" sideOffset={8}>
+              <Popover.Positioner side="top" align="start" sideOffset={8}>
                 <Popover.Popup
                   className="vocs:bg-primary vocs:border vocs:border-primary vocs:rounded-lg vocs:shadow-lg vocs:p-3 vocs:max-h-[60vh] vocs:overflow-y-auto vocs:w-[calc(100vw-var(--vocs-spacing-gutter)-2*var(--vocs-spacing-content-px))] vocs:max-w-[70ch] vocs:origin-(--transform-origin) vocs:transition-all vocs:duration-150 vocs:scale-100 vocs:opacity-100 vocs:data-starting-style:opacity-0 vocs:data-starting-style:scale-95 vocs:data-ending-style:opacity-0 vocs:data-ending-style:scale-95 vocs:min-[1376px]:hidden"
                   data-v-outline-popup
@@ -192,15 +193,18 @@ export function Outline(props: Outline.Props) {
       {/* Desktop: fixed sidebar */}
       <div
         className={cx(
-          'vocs:max-[1376px]:hidden vocs:fixed vocs:top-topNav vocs:flex vocs:flex-col vocs:w-gutter vocs:pt-content-py vocs:pr-8 vocs:right-0',
+          'vocs:max-[1376px]:hidden vocs:fixed vocs:flex vocs:flex-col vocs:w-gutter vocs:py-content-py vocs:pr-8 vocs:right-0 vocs:overflow-y-auto vocs:scrollbar-none',
           className,
         )}
-        style={{ maxHeight: 'calc(100vh - var(--vocs-spacing-topNav))' }}
+        style={{
+          top: 'calc(var(--vocs-spacing-topNav) + var(--vocs-spacing-banner))',
+          maxHeight: 'calc(100vh - var(--vocs-spacing-topNav) - var(--vocs-spacing-banner))',
+        }}
         data-v-outline
         data-v-gutter-right
       >
         <nav
-          className="vocs:flex vocs:flex-col vocs:text-[13px] vocs:gap-3 vocs:min-h-0"
+          className="vocs:flex vocs:flex-col vocs:text-[13px] vocs:gap-3 vocs:shrink-0"
           data-v-outline-nav
         >
           <div className="vocs:flex vocs:items-center vocs:gap-1 vocs:text-[13px] vocs:font-medium vocs:shrink-0">
@@ -208,9 +212,7 @@ export function Outline(props: Outline.Props) {
             On this page
           </div>
 
-          <div className="vocs:overflow-y-auto vocs:min-h-0 vocs:overscroll-contain vocs:scrollbar-none vocs:pb-4">
-            <Items items={items} activeId={activeId} minLevel={minLevel} />
-          </div>
+          <Items items={items} activeId={activeId} minLevel={minLevel} />
         </nav>
       </div>
     </>
@@ -344,7 +346,11 @@ function Items(props: Items.Props) {
     )
     if (!activeItem) return
 
-    const container = containerRef.current.parentElement
+    // Find the scrollable ancestor (the one with overflow-y: auto)
+    let container: HTMLElement | null = containerRef.current.parentElement
+    while (container && getComputedStyle(container).overflowY !== 'auto') {
+      container = container.parentElement
+    }
     if (!container) return
 
     const margin = 64

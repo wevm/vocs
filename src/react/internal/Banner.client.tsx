@@ -10,16 +10,22 @@ const storageKey = 'vocs-banner-dismissed'
 const cssVar = '--vocs-spacing-banner'
 
 export function Banner() {
-  const { banner } = useConfig()
+  const { banner: bannerConfig } = useConfig()
   const [dismissed, setDismissed] = React.useState<boolean | null>(null)
   const bannerRef = React.useRef<HTMLDivElement>(null)
+
+  const banner = React.useMemo(() => {
+    if (!bannerConfig) return null
+    if (typeof bannerConfig === 'string') return { content: bannerConfig }
+    return bannerConfig
+  }, [bannerConfig])
 
   React.useEffect(() => {
     setDismissed(localStorage.getItem(storageKey) === 'true')
   }, [])
 
   React.useEffect(() => {
-    if (dismissed || !banner || typeof banner === 'string') {
+    if (dismissed || !banner) {
       document.documentElement.style.removeProperty(cssVar)
       return
     }
@@ -39,7 +45,6 @@ export function Banner() {
   }, [dismissed, banner])
 
   if (!banner) return null
-  if (typeof banner === 'string') return null
   if (dismissed === null) return null
   if (dismissed) return null
 
@@ -57,12 +62,13 @@ export function Banner() {
   }
 
   const hasCustomColors = banner.backgroundColor || banner.textColor
+  const variant = banner.variant ?? 'info'
 
   const inner = (
     <div
       ref={bannerRef}
       data-v-banner
-      data-v-context={hasCustomColors ? undefined : banner.variant}
+      data-v-context={hasCustomColors ? undefined : variant}
       style={Object.keys(style).length > 0 ? style : undefined}
     >
       <div data-v-banner-content>

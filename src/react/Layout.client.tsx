@@ -94,7 +94,7 @@ export function Main(props: Main.Props) {
       {showTopNav && (
         <div
           ref={topGutterRef}
-          className="vocs:bg-primary vocs:fixed vocs:flex vocs:justify-between vocs:h-topNav vocs:px-4 vocs:max-lg:w-full vocs:max-lg:left-0 vocs:max-lg:pr-0 vocs:max-md:border-b vocs:max-md:border-primary vocs:z-20"
+          className="vocs:bg-primary vocs:fixed vocs:flex vocs:justify-between vocs:h-topNav vocs:px-4 vocs:max-lg:w-full vocs:max-lg:left-0 vocs:max-lg:pr-0 vocs:max-md:border-b vocs:max-md:border-primary"
           data-v-gutter-top
         >
           <div className="vocs:flex vocs:gap-2 vocs:h-full vocs:py-2" data-v-gutter-top-left>
@@ -169,7 +169,7 @@ export function Main(props: Main.Props) {
 
       {showAskAi && (
         <div
-          className="vocs:fixed vocs:bottom-6 vocs:max-md:bottom-2 vocs:w-full vocs:flex vocs:justify-center vocs:z-40"
+          className="vocs:fixed vocs:bottom-6 vocs:max-md:bottom-2 vocs:left-1/2 vocs:-translate-x-1/2 vocs:z-40"
           data-v-ask-ai-container
         >
           <AskAi.AskAi className="vocs:w-[290px]! vocs:h-10! vocs:z-50! vocs:bg-surfaceTint/20! vocs:backdrop-blur-md!" />

@@ -24,9 +24,26 @@ function getSystemTheme(): 'light' | 'dark' {
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
 }
 
+const disableTransitionsCSS =
+  '*,*::before,*::after{-webkit-transition:none!important;-moz-transition:none!important;-o-transition:none!important;-ms-transition:none!important;transition:none!important}'
+
 function applyTheme(theme: Theme) {
   const resolved = theme === 'system' ? getSystemTheme() : theme
+
+  // Disable transitions to prevent flash
+  const style = document.createElement('style')
+  style.appendChild(document.createTextNode(disableTransitionsCSS))
+  document.head.appendChild(style)
+
   document.documentElement.style.colorScheme = resolved
+
+  // Force reflow and re-enable transitions
+  ;(() => window.getComputedStyle(document.body))()
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      document.head.removeChild(style)
+    })
+  })
 }
 
 export function ThemeToggle(props: ThemeToggle.Props) {

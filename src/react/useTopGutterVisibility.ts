@@ -33,6 +33,13 @@ export function useTopGutterVisibility(maxOffset: number): React.RefCallback<HTM
       s.currentOffset = 0
       s.animating = false
 
+      function hasBanner(): boolean {
+        const bannerHeight = getComputedStyle(document.documentElement).getPropertyValue(
+          '--vocs-spacing-banner',
+        )
+        return Boolean(bannerHeight && bannerHeight !== '0px')
+      }
+
       const animate = () => {
         s.currentOffset = lerp(s.currentOffset, s.targetOffset)
 
@@ -44,15 +51,16 @@ export function useTopGutterVisibility(maxOffset: number): React.RefCallback<HTM
         }
 
         const opacity = 1 - s.currentOffset / maxOffset
-        element.style.cssText = `
-          will-change: transform, opacity;
-          transform: translate3d(0, -${s.currentOffset}px, 0);
-          opacity: ${opacity};
-          visibility: ${opacity < 0.1 ? 'hidden' : 'visible'};
-        `
+        element.style.willChange = 'transform, opacity'
+        element.style.transform = `translate3d(0, -${s.currentOffset}px, 0)`
+        element.style.opacity = String(opacity)
+        element.style.visibility = opacity < 0.1 ? 'hidden' : 'visible'
       }
 
       const onScroll = () => {
+        // Disable hide-on-scroll when banner is visible
+        if (hasBanner()) return
+
         const scrollY = window.scrollY
 
         if (scrollY < 0) {
