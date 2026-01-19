@@ -1,19 +1,16 @@
 'use client'
 
+import { Popover } from '@base-ui/react/popover'
 import { cx } from 'cva'
 import * as React from 'react'
 import { Link, useRouter } from 'waku'
+import LucideArrowUp from '~icons/lucide/arrow-up'
+import LucideChevronRight from '~icons/lucide/chevron-right'
 import LucideTextAlignStart from '~icons/lucide/text-align-start'
 import * as MdxPageContext from '../MdxPageContext.js'
 
-export function Outline(props: Outline.Props) {
-  const { className, minLevel = 2, maxLevel: maxLevelProp = 3 } = props
-
-  const { frontmatter } = MdxPageContext.use()
-  const { outline = true } = frontmatter ?? {}
-  const maxLevel = typeof outline === 'number' ? outline + 1 : maxLevelProp
-  const enabled = outline !== false
-
+function useOutlineItems(options: { minLevel: number; maxLevel: number }) {
+  const { minLevel, maxLevel } = options
   const router = useRouter()
   const [items, setItems] = React.useState<Outline.Item[]>([])
   const [activeId, setActiveId] = React.useState<string | null>(null)
@@ -114,22 +111,109 @@ export function Outline(props: Outline.Props) {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [items])
 
+  return { items, activeId }
+}
+
+export function Outline(props: Outline.Props) {
+  const { className, minLevel = 2, maxLevel: maxLevelProp = 3 } = props
+
+  const { frontmatter } = MdxPageContext.use()
+  const { outline = true } = frontmatter ?? {}
+  const maxLevel = typeof outline === 'number' ? outline + 1 : maxLevelProp
+  const enabled = outline !== false
+
+  const { items, activeId } = useOutlineItems({ minLevel, maxLevel })
+
+  const [showReturnToTop, setShowReturnToTop] = React.useState(false)
+  const [popoverOpen, setPopoverOpen] = React.useState(false)
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const handleScroll = () => {
+      setShowReturnToTop(window.scrollY > 100)
+    }
+
+    handleScroll()
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
   if (!enabled || items.length === 0) return null
 
   return (
-    <nav
-      className={cx('vocs:flex vocs:flex-col vocs:text-[13px] vocs:gap-3 vocs:min-h-0', className)}
-      data-v-outline
-    >
-      <div className="vocs:flex vocs:items-center vocs:gap-1 vocs:text-[13px] vocs:font-medium vocs:shrink-0">
-        <LucideTextAlignStart className="vocs:size-3.5" />
-        On this page
+    <>
+      {/* Mobile: popover in flow */}
+      <div
+        className={cx(
+          'vocs:min-[1376px]:hidden vocs:sticky vocs:top-topNav vocs:z-10 vocs:bg-surface vocs:px-content-px vocs:py-4 vocs:border-b vocs:border-primary',
+          className,
+        )}
+        data-v-outline
+        data-v-outline-mobile
+      >
+        <div className="vocs:flex vocs:w-full vocs:items-center vocs:gap-1 vocs:text-[13px] vocs:font-medium">
+          <Popover.Root open={popoverOpen} onOpenChange={setPopoverOpen}>
+            <Popover.Trigger className="vocs:flex vocs:items-center vocs:gap-1 vocs:cursor-pointer vocs:select-none">
+              <LucideTextAlignStart className="vocs:size-3.5" />
+              On this page
+              <LucideChevronRight className="vocs:size-3.5 vocs:text-secondary/80 vocs:transition-transform vocs:duration-200 vocs:data-[popup-open]:rotate-90 vocs:translate-y-px" />
+            </Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner side="bottom" align="start" sideOffset={8}>
+                <Popover.Popup
+                  className="vocs:bg-primary vocs:border vocs:border-primary vocs:rounded-lg vocs:shadow-lg vocs:p-3 vocs:max-h-[60vh] vocs:overflow-y-auto vocs:w-[calc(100vw-var(--vocs-spacing-gutter)-2*var(--vocs-spacing-content-px))] vocs:max-w-[70ch] vocs:origin-(--transform-origin) vocs:transition-all vocs:duration-150 vocs:scale-100 vocs:opacity-100 vocs:data-starting-style:opacity-0 vocs:data-starting-style:scale-95 vocs:data-ending-style:opacity-0 vocs:data-ending-style:scale-95 vocs:min-[1376px]:hidden"
+                  data-v-outline-popup
+                >
+                  <Items
+                    items={items}
+                    activeId={activeId}
+                    minLevel={minLevel}
+                    onSelect={() => setPopoverOpen(false)}
+                  />
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+
+          {showReturnToTop && (
+            <button
+              type="button"
+              className="vocs:ml-auto vocs:flex vocs:items-center vocs:gap-1 vocs:text-secondary/80 vocs:hover:text-heading vocs:cursor-pointer vocs:select-none"
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            >
+              <LucideArrowUp className="vocs:size-3.5" />
+              Return to top
+            </button>
+          )}
+        </div>
       </div>
 
-      <div className="vocs:overflow-y-auto vocs:min-h-0 vocs:overscroll-contain">
-        <Items items={items} activeId={activeId} minLevel={minLevel} />
+      {/* Desktop: fixed sidebar */}
+      <div
+        className={cx(
+          'vocs:max-[1376px]:hidden vocs:fixed vocs:top-topNav vocs:flex vocs:flex-col vocs:w-gutter vocs:pt-content-py vocs:pr-8 vocs:right-0',
+          className,
+        )}
+        style={{ maxHeight: 'calc(100vh - var(--vocs-spacing-topNav))' }}
+        data-v-outline
+        data-v-gutter-right
+      >
+        <nav
+          className="vocs:flex vocs:flex-col vocs:text-[13px] vocs:gap-3 vocs:min-h-0"
+          data-v-outline-nav
+        >
+          <div className="vocs:flex vocs:items-center vocs:gap-1 vocs:text-[13px] vocs:font-medium vocs:shrink-0">
+            <LucideTextAlignStart className="vocs:size-3.5" />
+            On this page
+          </div>
+
+          <div className="vocs:overflow-y-auto vocs:min-h-0 vocs:overscroll-contain vocs:scrollbar-none vocs:pb-4">
+            <Items items={items} activeId={activeId} minLevel={minLevel} />
+          </div>
+        </nav>
       </div>
-    </nav>
+    </>
   )
 }
 
@@ -150,7 +234,7 @@ export declare namespace Outline {
 
 // biome-ignore lint/correctness/noUnusedVariables: _
 function Items(props: Items.Props) {
-  const { items, activeId, minLevel } = props
+  const { items, activeId, minLevel, onSelect } = props
 
   const containerRef = React.useRef<HTMLUListElement>(null)
   const [positions, setPositions] = React.useState<Map<string, { top: number; height: number }>>(
@@ -282,11 +366,11 @@ function Items(props: Items.Props) {
   return (
     <ul
       ref={containerRef}
-      className="vocs:relative vocs:flex vocs:flex-col vocs:border-l-2 vocs:border-primary vocs:mb-16"
+      className="vocs:relative vocs:flex vocs:flex-col vocs:min-[1376px]:border-l-2 vocs:border-primary vocs:text-[13px]"
       data-v-outline-items
     >
       <div
-        className="vocs:absolute vocs:left-[-2px] vocs:w-0.5 vocs:rounded-full vocs:bg-accent vocs:transition-[transform,height] vocs:duration-150 vocs:ease-out vocs:will-change-transform"
+        className="vocs:absolute vocs:left-[-2px] vocs:w-0.5 vocs:rounded-full vocs:bg-accent vocs:transition-[transform,height] vocs:duration-150 vocs:ease-out vocs:will-change-transform vocs:max-[1376px]:hidden"
         style={indicatorStyle}
         data-v-outline-indicator
       />
@@ -298,6 +382,7 @@ function Items(props: Items.Props) {
           depth={1}
           activeIds={activeIds}
           childrenMap={childrenMap}
+          onSelect={onSelect}
         />
       ))}
     </ul>
@@ -309,11 +394,12 @@ const OutlineItem = React.memo(function OutlineItem(props: {
   depth: number
   activeIds: Set<string>
   childrenMap: Map<string, Outline.Item[]>
+  onSelect?: (() => void) | undefined
 }) {
-  const { item, depth, activeIds, childrenMap } = props
+  const { item, depth, activeIds, childrenMap, onSelect } = props
   const isActive = activeIds.has(item.id)
   const children = childrenMap.get(item.id) ?? []
-  const indent = (depth - 1) * 12
+  const indent = (depth - 1) * 16
 
   return (
     <>
@@ -328,6 +414,7 @@ const OutlineItem = React.memo(function OutlineItem(props: {
           className="vocs:block vocs:leading-snug vocs:py-0.75 vocs:pl-3 vocs:cursor-pointer vocs:font-[450] vocs:transition-colors vocs:duration-100 vocs:text-secondary vocs:data-[active=true]:text-accent vocs:hover:text-link"
           style={{ paddingLeft: `${indent + 12}px` }}
           data-active={isActive}
+          onClick={onSelect}
         >
           {item.text}
         </Link>
@@ -340,6 +427,7 @@ const OutlineItem = React.memo(function OutlineItem(props: {
           depth={depth + 1}
           activeIds={activeIds}
           childrenMap={childrenMap}
+          onSelect={onSelect}
         />
       ))}
     </>
@@ -351,5 +439,6 @@ declare namespace Items {
     items: Outline.Item[]
     activeId: string | null
     minLevel: number
+    onSelect?: (() => void) | undefined
   }
 }

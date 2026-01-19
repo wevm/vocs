@@ -47,7 +47,8 @@ h6[data-v] {
   @apply vocs:text-secondary vocs:translate-y-[0.05em];
 }
 
-:is(h1, h2, h3, h4, h5, h6)[data-v]:hover .heading-anchor {
+:is(h1, h2, h3, h4, h5, h6)[data-v]:hover .heading-anchor,
+.heading-anchor:focus-visible {
   @apply vocs:opacity-100;
 }
 
@@ -623,6 +624,18 @@ pre[data-v] .line[data-v-collapse-trigger][data-v-collapsed=""] [data-v-collapse
 
 pre[data-v] .line[data-v-collapse-trigger][data-v-collapsed="false"] [data-v-collapse-icon] {
   @apply vocs:rotate-0;
+}
+
+/* #endregion */
+
+/* #region Code fold */
+
+[data-v-fold-button] {
+  @apply vocs:bg-surface vocs:text-secondary vocs:rounded-md vocs:px-1.5 vocs:py-0.5 vocs:text-xs vocs:font-mono vocs:cursor-pointer vocs:border vocs:border-primary vocs:transition-colors vocs:duration-150;
+
+  &:hover {
+    @apply vocs:bg-surfaceTint vocs:text-heading;
+  }
 }
 
 /* #endregion */

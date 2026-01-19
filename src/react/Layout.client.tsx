@@ -94,7 +94,7 @@ export function Main(props: Main.Props) {
       {showTopNav && (
         <div
           ref={topGutterRef}
-          className="vocs:bg-primary vocs:fixed vocs:flex vocs:justify-between vocs:h-topNav vocs:px-4 vocs:max-lg:w-full vocs:max-lg:left-0 vocs:max-lg:pr-0 vocs:max-md:border-b vocs:max-md:border-primary"
+          className="vocs:bg-primary vocs:fixed vocs:flex vocs:justify-between vocs:h-topNav vocs:px-4 vocs:max-lg:w-full vocs:max-lg:left-0 vocs:max-lg:pr-0 vocs:max-md:border-b vocs:max-md:border-primary vocs:z-20"
           data-v-gutter-top
         >
           <div className="vocs:flex vocs:gap-2 vocs:h-full vocs:py-2" data-v-gutter-top-left>
@@ -144,6 +144,8 @@ export function Main(props: Main.Props) {
         data-v-main
         id="vocs-content"
       >
+        {showOutline && <Outline.Outline />}
+
         <article
           className="vocs:px-content-px vocs:py-content-py vocs:relative vocs:w-full vocs:max-w-content vocs:space-y-6 vocs:max-md:overflow-x-hidden"
           data-v-content
@@ -171,16 +173,6 @@ export function Main(props: Main.Props) {
           data-v-ask-ai-container
         >
           <AskAi.AskAi className="vocs:w-[290px]! vocs:h-10! vocs:z-50! vocs:bg-surfaceTint/20! vocs:backdrop-blur-md!" />
-        </div>
-      )}
-
-      {showOutline && (
-        <div
-          className="vocs:fixed vocs:flex vocs:flex-col vocs:w-gutter vocs:py-content-py vocs:right-0 vocs:max-[1376px]:hidden"
-          style={{ maxHeight: 'calc(100vh)' }}
-          data-v-gutter-right
-        >
-          <Outline.Outline />
         </div>
       )}
     </div>

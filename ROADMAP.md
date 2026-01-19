@@ -19,8 +19,8 @@ A comprehensive checklist of features for Vocs v2, based on Vocs v1 feature pari
 ## Layout & Navigation
 
 - [x] Layout component (base)
-  - [ ] Blank *
-  - [ ] Minimal *
+  - [x] Blank *
+  - [x] Minimal *
 - [x] Sidebar component
 - [x] Sidebar parsing from config
 - [x] Top navigation component
@@ -42,11 +42,7 @@ A comprehensive checklist of features for Vocs v2, based on Vocs v1 feature pari
 - [x] Search trigger component
 - [x] Search dialog implementation
 - [x] "Jump to" suggestions
-- [ ] "Ask AI" → Open in X *
-- [ ] Hybrid local/AI search
-  - [x] Minisearch (Local)
-  - [ ] RAG (AI)
-  - [ ] Optimistic keyword search (local), then hydrate with semantic suggestions (AI)
+- [x] "Ask AI" → Open in X *
 - [x] Keyboard navigation
 - [x] Recently viewed pages
 
@@ -168,7 +164,6 @@ A comprehensive checklist of features for Vocs v2, based on Vocs v1 feature pari
 - [x] llms-full.txt generation
 - [x] Per-page markdown (/assets/md/*.md)
 - [x] Ask AI component
-- [ ] Inline AI assistant
 - [ ] "Is this page useful?" feedback widget
 
 ## Styling & Theming
@@ -195,6 +190,6 @@ A comprehensive checklist of features for Vocs v2, based on Vocs v1 feature pari
 - [ ] Internationalization/i18n
 - [ ] OpenAPI
 - [ ] OpenRPC
-- [ ] Analytics integration
+- [ ] Analytics integration *
 - [ ] MDX remote/dynamic content
 - [ ] PDF export

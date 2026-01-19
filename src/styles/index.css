@@ -38,7 +38,7 @@
   /* Top nav gutter - defaults for no sidebar */
   [data-v-gutter-top] {
     top: var(--vocs-spacing-banner);
-    z-index: 0;
+    z-index: 20;
     left: 0;
     width: 100%;
     padding-right: 1rem;
@@ -46,8 +46,9 @@
 
   /* Top nav gutter - with sidebar */
   [data-v-sidebar] > [data-v-gutter-top] {
-    z-index: 10;
-    @media (width >= 64rem) {
+    z-index: 20;
+    /* biome-ignore lint/correctness/noUnknownFunction: _ */
+    @media (width >= theme(--breakpoint-lg)) {
       left: var(--vocs-spacing-gutter);
       width: calc(100vw - var(--vocs-spacing-gutter));
       padding-right: calc(var(--vocs-spacing-gutter) - var(--vocs-spacing-sidebar) - (var(--vocs-spacing) * 4));
@@ -61,14 +62,16 @@
 
   /* Top nav left section - with sidebar */
   [data-v-sidebar] > [data-v-gutter-top] [data-v-gutter-top-left] {
-    @media (width >= 64rem) {
+    /* biome-ignore lint/correctness/noUnknownFunction: _ */
+    @media (width >= theme(--breakpoint-lg)) {
       margin-left: -1.75rem;
     }
   }
 
   /* Logo link - hide on large screens when sidebar is present */
   [data-v-sidebar] [data-v-logo-link] {
-    @media (width >= 64rem) {
+    /* biome-ignore lint/correctness/noUnknownFunction: _ */
+    @media (width >= theme(--breakpoint-lg)) {
       display: none !important;
     }
   }
@@ -79,7 +82,8 @@
   }
 
   [data-v-topnav] > [data-v-surface-bg] {
-    @media (width >= 64rem) {
+    /* biome-ignore lint/correctness/noUnknownFunction: _ */
+    @media (width >= theme(--breakpoint-lg)) {
       border-top-left-radius: 1rem;
     }
   }
@@ -96,7 +100,8 @@
 
   /* Main content - with sidebar */
   [data-v-sidebar] > [data-v-main] {
-    @media (width >= 64rem) {
+    /* biome-ignore lint/correctness/noUnknownFunction: _ */
+    @media (width >= theme(--breakpoint-lg)) {
       margin-left: var(--vocs-spacing-gutter);
     }
   }
@@ -114,7 +119,8 @@
 
   /* Content article - with sidebar (not centered on large screens) */
   [data-v-sidebar] [data-v-content] {
-    @media (width >= 64rem) {
+    /* biome-ignore lint/correctness/noUnknownFunction: _ */
+    @media (width >= theme(--breakpoint-lg)) {
       margin-left: unset;
       margin-right: unset;
     }
@@ -166,5 +172,34 @@
   *:focus-visible {
     @apply vocs:outline-2 vocs:outline-accent vocs:outline-offset-2;
     outline-style: solid;
+  }
+
+  /* Scrollbar styling */
+  * {
+    @apply vocs:scrollbar-width-thin;
+    scrollbar-color: light-dark(var(--vocs-color-gray10), var(--vocs-color-gray7)) transparent;
+  }
+}
+
+@utility scrollbar-gutter-auto {
+  scrollbar-gutter: auto;
+}
+
+@utility scrollbar-gutter-stable {
+  scrollbar-gutter: stable;
+}
+
+@utility scrollbar-width-thin {
+  scrollbar-width: thin;
+}
+
+@utility scrollbar-* {
+  scrollbar-color: --value(--color-*) transparent;
+}
+
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
   }
 }
