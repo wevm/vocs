@@ -13,6 +13,7 @@ export const defaultLangs = [
   'mdx',
   'plaintext',
   'rust',
+  'sol',
   'solidity',
   'ts',
   'tsx',
