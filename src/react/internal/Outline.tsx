@@ -8,6 +8,7 @@ import LucideArrowUp from '~icons/lucide/arrow-up'
 import LucideChevronRight from '~icons/lucide/chevron-right'
 import LucideTextAlignStart from '~icons/lucide/text-align-start'
 import * as MdxPageContext from '../MdxPageContext.js'
+import { useTopGutterOffset } from '../useTopGutterOffset.js'
 
 function useOutlineItems(options: { minLevel: number; maxLevel: number }) {
   const { minLevel, maxLevel } = options
@@ -126,6 +127,7 @@ export function Outline(props: Outline.Props) {
 
   const [showReturnToTop, setShowReturnToTop] = React.useState(false)
   const [popoverOpen, setPopoverOpen] = React.useState(false)
+  const topOffset = useTopGutterOffset()
 
   React.useEffect(() => {
     if (typeof window === 'undefined') return
@@ -146,10 +148,10 @@ export function Outline(props: Outline.Props) {
       {/* Mobile: popover in flow */}
       <div
         className={cx(
-          'vocs:min-[1376px]:hidden vocs:sticky vocs:z-10 vocs:bg-surface vocs:px-content-px vocs:py-3 vocs:border-b vocs:border-t-0 vocs:border-primary vocs:lg:border-t vocs:lg:border-l vocs:lg:rounded-tl-2xl vocs:max-h-12',
+          'vocs:min-[1376px]:hidden vocs:sticky vocs:z-10 vocs:bg-surface vocs:px-content-px vocs:py-3 vocs:border-b vocs:border-t-0 vocs:border-primary vocs:lg:border-t vocs:lg:border-l vocs:lg:rounded-tl-2xl vocs:max-h-12 vocs:transition-[top] vocs:duration-150',
           className,
         )}
-        style={{ top: 'calc(var(--vocs-spacing-topNav) + var(--vocs-spacing-banner))' }}
+        style={{ top: `calc(var(--vocs-spacing-topNav) + var(--vocs-spacing-banner) - ${topOffset}px)` }}
         data-v-outline
         data-v-outline-mobile
       >

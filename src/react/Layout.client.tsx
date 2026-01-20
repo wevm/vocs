@@ -18,7 +18,7 @@ import * as TopNav from './internal/TopNav.js'
 import { Link } from './Link.js'
 import { useConfig } from './useConfig.js'
 import { useLayout } from './useLayout.js'
-import { useTopGutterVisibility } from './useTopGutterVisibility.js'
+import { useTopGutterRef } from './useTopGutterOffset.js'
 
 // TODO:
 // - user "slots"
@@ -29,7 +29,7 @@ export function Main(props: Main.Props) {
   const { layout, showAskAi, showSidebar, showTopNav, showLogo, showOutline } = useLayout()
 
   const sidebarScrollRef = React.useRef<HTMLDivElement>(null)
-  const topGutterRef = useTopGutterVisibility(48)
+  const topGutterRef = useTopGutterRef()
 
   return (
     <div
