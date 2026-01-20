@@ -169,9 +169,12 @@ export type Config<partial extends boolean = false> = MaybePartial<
      *
      * @example
      * // Dynamic URL based on path
-     * ogImageUrl: (path) => `/api/og?title=%title&path=${path}`
+     * ogImageUrl: (path, { baseUrl }) => `${baseUrl}/api/og?title=%title&path=${path}`
      */
-    ogImageUrl?: string | ((path: string) => string) | undefined
+    ogImageUrl?:
+      | string
+      | ((path: string, context: { baseUrl?: string | undefined }) => string)
+      | undefined
     /**
      * Markdown configuration.
      */

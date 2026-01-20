@@ -21,7 +21,7 @@ export function Head() {
   const canonicalUrl = baseUrl ? `${baseUrl}${fullPathname}` : undefined
 
   const ogImageTemplate = (() => {
-    if (typeof ogImageUrl === 'function') return ogImageUrl(pathname)
+    if (typeof ogImageUrl === 'function') return ogImageUrl(pathname, { baseUrl })
     if (typeof ogImageUrl === 'string') return ogImageUrl
     if (renderStrategy === 'full-static') return undefined
     return `${baseUrl ?? ''}/api/og?title=%title&description=%description`
