@@ -52,6 +52,10 @@ export default defineConfig({
           link: '/guide/markdown-extensions',
         },
         {
+          text: 'Code & Syntax Highlighting',
+          link: '/guide/syntax-highlighting',
+        },
+        {
           text: 'Asset Handling',
           link: '/guide/asset-handling',
         },

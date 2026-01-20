@@ -21,6 +21,7 @@ type Page =
 | { path: '/guide/navigation'; render: 'static' }
 | { path: '/guide/project-structure'; render: 'static' }
 | { path: '/guide/react'; render: 'static' }
+| { path: '/guide/syntax-highlighting'; render: 'static' }
 | { path: '/guide/theming'; render: 'static' }
 | { path: '/guide/twoslash'; render: 'static' }
 | { path: '/guide/what-is-vocs'; render: 'static' };
