@@ -151,7 +151,9 @@ export function Outline(props: Outline.Props) {
           'vocs:min-[1376px]:hidden vocs:sticky vocs:z-10 vocs:bg-surface vocs:px-content-px vocs:py-3 vocs:border-b vocs:border-t-0 vocs:border-primary vocs:lg:border-t vocs:lg:border-l vocs:lg:rounded-tl-2xl vocs:max-h-12 vocs:transition-[top] vocs:duration-150',
           className,
         )}
-        style={{ top: `calc(var(--vocs-spacing-topNav) + var(--vocs-spacing-banner) - ${topOffset}px)` }}
+        style={{
+          top: `calc(var(--vocs-spacing-topNav) + var(--vocs-spacing-banner) - ${topOffset}px)`,
+        }}
         data-v-outline
         data-v-outline-mobile
       >

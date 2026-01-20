@@ -1,8 +1,11 @@
 {
   "name": "site",
   "private": true,
-  "version": "0.0.0",
   "type": "module",
+  "imports": {
+    "#*": "./src/*",
+    "#package.json": "./package.json"
+  },
   "scripts": {
     "dev": "NODE_OPTIONS='--import=tsx' vite dev",
     "build": "NODE_OPTIONS='--import=tsx' vite build",

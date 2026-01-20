@@ -1,5 +1,19 @@
-# Welcome
+---
+layout: minimal
+showAskAi: false
+showLogo: false
+---
 
-Welcome to your new Vocs documentation site.
+import { HomePage } from 'vocs'
 
-Get started by editing this page at `src/pages/index.mdx`.
+<HomePage.Root>
+  <HomePage.Logo />
+  <HomePage.Tagline>Portable Documentation Framework, powered by Vite.</HomePage.Tagline>
+  <HomePage.CreatePackage name="vocs" />
+  <HomePage.Description>Vocs is a minimal static documentation generator designed to supercharge your documentation workflow, built with modern web technologies.</HomePage.Description>
+  <HomePage.Buttons>
+    <HomePage.Button href="/guide/what-is-vocs" variant="accent">What is Vocs?</HomePage.Button>
+    <HomePage.Button href="/guide/getting-started">Quick Start</HomePage.Button>
+    <HomePage.Button href="https://github.com/wevm/vocs">GitHub</HomePage.Button>
+  </HomePage.Buttons>
+</HomePage.Root>

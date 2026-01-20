@@ -240,3 +240,13 @@ export declare namespace InstallPackage {
     type?: 'install' | 'init' | undefined
   }
 }
+
+export function CreatePackage(props: CreatePackage.Props) {
+  return <InstallPackage {...props} type="init" />
+}
+
+export declare namespace CreatePackage {
+  export type Props = {
+    name: string
+  }
+}
