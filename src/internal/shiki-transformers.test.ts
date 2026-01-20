@@ -61,17 +61,17 @@ describe('notationCollapse', () => {
 describe('notationFold', () => {
   test('basic fold annotation with regex', () => {
     const html = highlight(
-      `// !fold[/className="(.*?)"/g]
+      `// [!code fold /className="(.*?)"/g]
 <div className="bg-red-200">hey</div>`,
       'jsx',
     )
     expect(html).toContain('data-v-fold')
-    expect(html).not.toContain('!fold')
+    expect(html).not.toContain('[!code fold')
   })
 
   test('folds multiple matches', () => {
     const html = highlight(
-      `// !fold[/className="(.*?)"/g]
+      `// [!code fold /className="(.*?)"/g]
 <div className="a"><span className="b">hey</span></div>`,
       'jsx',
     )
@@ -83,7 +83,7 @@ describe('notationFold', () => {
 
   test('fold with different regex', () => {
     const html = highlight(
-      `// !fold[/return \\d+/g]
+      `// [!code fold /return \\d+/g]
 function foo() {
   return 42
   return 100
@@ -98,7 +98,7 @@ function foo() {
 
   test('adds has-fold class', () => {
     const html = highlight(
-      `// !fold[/foo/g]
+      `// [!code fold /foo/g]
 const foo = 1`,
       'javascript',
     )
@@ -112,16 +112,16 @@ const foo = 1`,
 
   test('removes fold annotation line', () => {
     const html = highlight(
-      `// !fold[/x/g]
+      `// [!code fold /x/g]
 const x = 1`,
       'javascript',
     )
-    expect(html).not.toContain('!fold[')
+    expect(html).not.toContain('[!code fold')
   })
 
   test('fold without global flag matches first only', () => {
     const html = highlight(
-      `// !fold[/foo/]
+      `// [!code fold /foo/]
 foo bar baz`,
       'javascript',
     )

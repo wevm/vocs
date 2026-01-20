@@ -35,7 +35,11 @@ export function CollapseHandler() {
       const applyState = (collapsed: boolean) => {
         trigger.setAttribute('data-v-collapsed', collapsed ? '' : 'false')
         for (const line of contentLines) {
-          line.style.display = collapsed ? 'none' : ''
+          if (collapsed) {
+            line.setAttribute('hidden', 'until-found')
+          } else {
+            line.removeAttribute('hidden')
+          }
         }
       }
 
@@ -46,9 +50,19 @@ export function CollapseHandler() {
         applyState(!currentlyCollapsed)
       }
 
+      const handleBeforeMatch = () => {
+        applyState(false)
+      }
+
       trigger.addEventListener('click', handleClick)
+      for (const line of contentLines) {
+        line.addEventListener('beforematch', handleBeforeMatch)
+      }
       cleanups.push(() => {
         trigger.removeEventListener('click', handleClick)
+        for (const line of contentLines) {
+          line.removeEventListener('beforematch', handleBeforeMatch)
+        }
         icon.remove()
       })
     }
