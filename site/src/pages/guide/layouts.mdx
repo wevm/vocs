@@ -1,0 +1,60 @@
+# Layouts
+
+Vocs provides different layouts for various documentation needs.
+
+## Default Layout
+
+The default layout includes a sidebar, content area, and table of contents.
+
+## Minimal Layout
+
+Use the minimal layout for pages that don't need navigation:
+
+```yaml
+---
+layout: minimal
+---
+```
+
+## Landing Layout
+
+Create a custom landing page without the standard documentation layout:
+
+```yaml
+---
+layout: landing
+---
+```
+
+## Custom Layouts
+
+Create custom layouts by adding React components:
+
+```tsx
+// src/layouts/CustomLayout.tsx
+export function CustomLayout({ children }) {
+  return (
+    <div className="custom-layout">
+      {children}
+    </div>
+  )
+}
+```
+
+Then reference it in frontmatter:
+
+```yaml
+---
+layout: custom
+---
+```
+
+## Layout Components
+
+Each layout can include:
+
+- **Header** - Top navigation bar
+- **Sidebar** - Left navigation panel
+- **Content** - Main content area
+- **Outline** - Right table of contents
+- **Footer** - Bottom section

@@ -1,0 +1,66 @@
+# Theming
+
+Customize the look and feel of your Vocs documentation site.
+
+## Colors
+
+Override theme colors in your `vocs.config.ts`:
+
+```ts
+export default defineConfig({
+  theme: {
+    accentColor: '#3b82f6',
+  },
+})
+```
+
+## Custom CSS
+
+Create a `_root.css` file in your pages directory for global styles:
+
+```css
+:root {
+  --vocs-color-background: #0a0a0a;
+  --vocs-color-text: #fafafa;
+}
+```
+
+## Dark Mode
+
+Vocs supports dark mode out of the box. Users can toggle between light and dark themes.
+
+## Fonts
+
+Customize fonts via CSS:
+
+```css
+:root {
+  --vocs-font-family: 'Inter', sans-serif;
+  --vocs-font-family-mono: 'Fira Code', monospace;
+}
+```
+
+## Logo
+
+Add a custom logo:
+
+```ts
+export default defineConfig({
+  logo: {
+    light: '/logo-light.svg',
+    dark: '/logo-dark.svg',
+  },
+})
+```
+
+## Code Block Themes
+
+Vocs uses Shiki for syntax highlighting. Configure the theme:
+
+```ts
+export default defineConfig({
+  shiki: {
+    theme: 'github-dark',
+  },
+})
+```

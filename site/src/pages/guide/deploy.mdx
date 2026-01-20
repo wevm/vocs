@@ -1,0 +1,42 @@
+# Deploy
+
+Deploy your Vocs documentation site to any static hosting provider.
+
+## Build
+
+Generate a production build:
+
+```bash
+pnpm vocs build
+```
+
+This outputs static files to the `dist/` directory.
+
+## Hosting Providers
+
+### Vercel
+
+Vocs works out of the box with Vercel. Simply connect your repository and deploy.
+
+### Netlify
+
+Configure Netlify with:
+
+- **Build command:** `pnpm vocs build`
+- **Publish directory:** `dist`
+
+### GitHub Pages
+
+1. Build your site
+2. Push the `dist/` directory to your `gh-pages` branch
+
+### Cloudflare Pages
+
+Configure Cloudflare Pages with:
+
+- **Build command:** `pnpm vocs build`
+- **Build output directory:** `dist`
+
+## Custom Domain
+
+Most hosting providers support custom domains. Refer to your provider's documentation for setup instructions.

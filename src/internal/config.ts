@@ -159,23 +159,6 @@ export type Config<partial extends boolean = false> = MaybePartial<
      */
     logoUrl?: string | ThemeValue<string> | undefined
     /**
-     * OG Image URL template. Can be a string or a function that returns a URL based on the path.
-     *
-     * Template variables: `%logo`, `%title`, `%description`
-     *
-     * @example
-     * // Static URL for all pages
-     * ogImageUrl: '/api/og?title=%title&description=%description'
-     *
-     * @example
-     * // Dynamic URL based on path
-     * ogImageUrl: (path, { baseUrl }) => `${baseUrl}/api/og?title=%title&path=${path}`
-     */
-    ogImageUrl?:
-      | string
-      | ((path: string, context: { baseUrl?: string | undefined }) => string)
-      | undefined
-    /**
      * Markdown configuration.
      */
     markdown?: MdxRollup.Options | undefined
@@ -204,6 +187,23 @@ export type Config<partial extends boolean = false> = MaybePartial<
           /** Source code adapters for navigating codebases. */
           sources?: readonly McpSource.Adapter[] | undefined
         }
+      | undefined
+    /**
+     * OG Image URL template. Can be a string or a function that returns a URL based on the path.
+     *
+     * Template variables: `%logo`, `%title`, `%description`
+     *
+     * @example
+     * // Static URL for all pages
+     * ogImageUrl: '/api/og?title=%title&description=%description'
+     *
+     * @example
+     * // Dynamic URL based on path
+     * ogImageUrl: (path, { baseUrl }) => `${baseUrl}/api/og?title=%title&path=${path}`
+     */
+    ogImageUrl?:
+      | string
+      | ((path: string, context: { baseUrl?: string | undefined }) => string)
       | undefined
     /**
      * The output directory relative to root.
@@ -369,19 +369,21 @@ export function define(config: define.Options = {}): Config {
   const {
     accentColor = 'light-dark(black, white)',
     banner,
-    changelog,
     basePath = '/',
     cacheDir,
+    changelog,
+    checkDeadlinks = true,
     codeHighlight,
     colorScheme = 'light dark',
-    checkDeadlinks = true,
     description,
     iconUrl,
     logoUrl,
-    ogImageUrl,
     markdown,
-    renderStrategy = 'dynamic',
+    mcp,
+    ogImageUrl,
     outDir = 'dist',
+    redirects,
+    renderStrategy = 'dynamic',
     rootDir = process.cwd(),
     search,
     sidebar,
@@ -390,9 +392,7 @@ export function define(config: define.Options = {}): Config {
     title = 'Docs',
     titleTemplate = `%s – ${title}`,
     topNav,
-    redirects,
     twoslash,
-    mcp,
   } = config
 
   const pagesDir = 'pages'
@@ -438,6 +438,7 @@ export function define(config: define.Options = {}): Config {
     iconUrl,
     logoUrl,
     markdown,
+    mcp,
     ogImageUrl,
     outDir,
     pagesDir,
@@ -467,11 +468,10 @@ export function define(config: define.Options = {}): Config {
     sidebar,
     socials,
     srcDir,
-    topNav,
     title,
     titleTemplate,
+    topNav,
     twoslash,
-    mcp,
   }
 }
 

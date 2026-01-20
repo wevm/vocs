@@ -1,0 +1,61 @@
+# Dynamic OG Images
+
+Generate dynamic Open Graph images for social sharing.
+
+## Overview
+
+Vocs can automatically generate OG images for each page based on its title and description.
+
+## Configuration
+
+Enable dynamic OG images in your config:
+
+```ts
+export default defineConfig({
+  ogImage: true,
+})
+```
+
+## Customization
+
+Customize the OG image template:
+
+```ts
+export default defineConfig({
+  ogImage: {
+    template: 'default',
+    backgroundColor: '#000000',
+    textColor: '#ffffff',
+  },
+})
+```
+
+## Custom Templates
+
+Create custom OG image templates:
+
+```ts
+export default defineConfig({
+  ogImage: {
+    template: './src/og-template.tsx',
+  },
+})
+```
+
+## Per-Page Override
+
+Override OG images on specific pages:
+
+```yaml
+---
+title: My Page
+ogImage: /custom-og-image.png
+---
+```
+
+## Best Practices
+
+- Use high-contrast colors for readability
+- Keep titles concise for better display
+- Test images with social media debuggers
+- Recommended size: 1200x630 pixels

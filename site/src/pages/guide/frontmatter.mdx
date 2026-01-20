@@ -1,0 +1,76 @@
+# Frontmatter
+
+Configure page-level metadata using YAML frontmatter at the top of your MDX files.
+
+## Basic Usage
+
+```yaml
+---
+title: My Page Title
+description: A description of this page
+---
+```
+
+## Available Options
+
+### `title`
+
+The page title, used in the browser tab and navigation.
+
+```yaml
+---
+title: Getting Started
+---
+```
+
+### `description`
+
+A description for SEO and social sharing.
+
+```yaml
+---
+description: Learn how to get started with Vocs
+---
+```
+
+### `layout`
+
+Specify a custom layout for the page.
+
+```yaml
+---
+layout: minimal
+---
+```
+
+### `sidebar`
+
+Control sidebar visibility.
+
+```yaml
+---
+sidebar: false
+---
+```
+
+### `outline`
+
+Configure the table of contents.
+
+```yaml
+---
+outline: [2, 3]
+---
+```
+
+## Example
+
+```yaml
+---
+title: API Reference
+description: Complete API documentation
+layout: docs
+sidebar: true
+outline: [2, 4]
+---
+```

@@ -1,0 +1,61 @@
+# Sidebar & Top Navigation
+
+Configure your site's navigation structure in `vocs.config.ts`.
+
+## Sidebar
+
+Define the sidebar navigation with nested items:
+
+```ts
+import { defineConfig } from 'vocs'
+
+export default defineConfig({
+  sidebar: [
+    {
+      text: 'Guide',
+      items: [
+        { text: 'Introduction', link: '/guide/intro' },
+        { text: 'Getting Started', link: '/guide/getting-started' },
+      ],
+    },
+    {
+      text: 'API',
+      items: [
+        { text: 'Configuration', link: '/api/config' },
+      ],
+    },
+  ],
+})
+```
+
+## Top Navigation
+
+Configure the top navigation bar:
+
+```ts
+export default defineConfig({
+  topNav: [
+    { text: 'Guide', link: '/guide/intro' },
+    { text: 'API', link: '/api/config' },
+    { text: 'GitHub', link: 'https://github.com/wevm/vocs' },
+  ],
+})
+```
+
+## Collapsible Groups
+
+Sidebar groups can be collapsible:
+
+```ts
+{
+  text: 'Advanced',
+  collapsed: true,
+  items: [
+    { text: 'Plugins', link: '/advanced/plugins' },
+  ],
+}
+```
+
+## External Links
+
+Both sidebar and top nav support external links with automatic external link icons.

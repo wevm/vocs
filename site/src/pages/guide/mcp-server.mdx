@@ -1,0 +1,53 @@
+# MCP Server
+
+Vocs includes a Model Context Protocol (MCP) server for AI-powered documentation interactions.
+
+## Overview
+
+The MCP server exposes your documentation as a searchable context for AI assistants and tools.
+
+## Configuration
+
+Enable the MCP server in your config:
+
+```ts
+export default defineConfig({
+  mcp: {
+    enabled: true,
+  },
+})
+```
+
+## Features
+
+### Semantic Search
+
+AI assistants can search your documentation semantically to find relevant content.
+
+### Context Retrieval
+
+Retrieve specific sections of documentation for AI context windows.
+
+### Tool Integration
+
+The MCP server integrates with AI tools that support the Model Context Protocol.
+
+## Usage with AI Assistants
+
+Configure your AI assistant to connect to the Vocs MCP server:
+
+```json
+{
+  "mcpServers": {
+    "docs": {
+      "url": "http://localhost:5173/mcp"
+    }
+  }
+}
+```
+
+## API Endpoints
+
+- `GET /mcp/search` - Search documentation
+- `GET /mcp/context` - Get page context
+- `GET /mcp/manifest` - Server manifest

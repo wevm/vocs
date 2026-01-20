@@ -1,0 +1,73 @@
+# Changelog Generation
+
+Automatically generate changelogs from your Git history or release notes.
+
+## Overview
+
+Vocs can generate and display changelogs for your project, keeping users informed about updates.
+
+## From Git History
+
+Generate changelogs from conventional commits:
+
+```ts
+export default defineConfig({
+  changelog: {
+    source: 'git',
+    format: 'conventional',
+  },
+})
+```
+
+## From Changesets
+
+Integrate with [Changesets](https://github.com/changesets/changesets):
+
+```ts
+export default defineConfig({
+  changelog: {
+    source: 'changesets',
+    path: '.changeset',
+  },
+})
+```
+
+## Manual Changelog
+
+Create a manual changelog page:
+
+```ts
+export default defineConfig({
+  changelog: {
+    source: 'manual',
+    path: 'src/pages/changelog.mdx',
+  },
+})
+```
+
+## Display Options
+
+Configure how changelogs are displayed:
+
+```ts
+export default defineConfig({
+  changelog: {
+    groupBy: 'version', // or 'date'
+    showDates: true,
+    showAuthors: false,
+  },
+})
+```
+
+## Changelog Components
+
+Use changelog components in MDX:
+
+```mdx
+import { ChangelogEntry } from 'vocs'
+
+<ChangelogEntry version="1.0.0" date="2024-01-01">
+  - Added new feature
+  - Fixed bug
+</ChangelogEntry>
+```

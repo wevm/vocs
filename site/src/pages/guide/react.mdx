@@ -1,0 +1,66 @@
+# Using React in Markdown
+
+Vocs supports MDX, allowing you to use React components directly in your Markdown files.
+
+## Importing Components
+
+Import and use React components in your MDX files:
+
+```mdx
+import { Button } from '../components/Button'
+
+# My Page
+
+Click the button below:
+
+<Button>Click me</Button>
+```
+
+## Inline Expressions
+
+Use JavaScript expressions inline:
+
+```mdx
+The current year is {new Date().getFullYear()}.
+```
+
+## Custom Components
+
+Create custom components for your documentation:
+
+```tsx
+// src/components/Greeting.tsx
+export function Greeting({ name }) {
+  return <p>Hello, {name}!</p>
+}
+```
+
+Then use in MDX:
+
+```mdx
+import { Greeting } from '../components/Greeting'
+
+<Greeting name="World" />
+```
+
+## Built-in Components
+
+Vocs provides built-in components:
+
+- `<Callout>` - Highlighted callout boxes
+- `<CodeGroup>` - Tabbed code blocks
+- `<Steps>` - Step-by-step guides
+- `<Tabs>` - Tabbed content
+
+## Client Components
+
+For interactive components, use the `'use client'` directive:
+
+```tsx
+'use client'
+
+export function Counter() {
+  const [count, setCount] = useState(0)
+  return <button onClick={() => setCount(c => c + 1)}>{count}</button>
+}
+```

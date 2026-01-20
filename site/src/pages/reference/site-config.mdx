@@ -1,0 +1,99 @@
+# Site Configuration
+
+Complete reference for `vocs.config.ts` options.
+
+## Basic Configuration
+
+```ts
+import { defineConfig } from 'vocs'
+
+export default defineConfig({
+  title: 'My Docs',
+  description: 'Documentation for my project',
+})
+```
+
+## Options
+
+### `title`
+
+- **Type:** `string`
+- **Required:** Yes
+
+The site title, displayed in the header and browser tab.
+
+### `description`
+
+- **Type:** `string`
+
+The site description for SEO.
+
+### `logo`
+
+- **Type:** `string | { light: string; dark: string }`
+
+Path to the logo image.
+
+### `sidebar`
+
+- **Type:** `SidebarItem[]`
+
+Sidebar navigation configuration.
+
+### `topNav`
+
+- **Type:** `TopNavItem[]`
+
+Top navigation bar items.
+
+### `socials`
+
+- **Type:** `Social[]`
+
+Social media links displayed in the header.
+
+```ts
+socials: [
+  { icon: 'github', link: 'https://github.com/wevm/vocs' },
+  { icon: 'twitter', link: 'https://twitter.com/weaboratory' },
+]
+```
+
+### `theme`
+
+- **Type:** `ThemeConfig`
+
+Theme customization options.
+
+### `shiki`
+
+- **Type:** `ShikiConfig`
+
+Syntax highlighting configuration.
+
+### `ogImage`
+
+- **Type:** `boolean | OgImageConfig`
+
+Dynamic OG image generation settings.
+
+## Full Example
+
+```ts
+import { defineConfig } from 'vocs'
+
+export default defineConfig({
+  title: 'My Docs',
+  description: 'My project documentation',
+  logo: '/logo.svg',
+  sidebar: [
+    { text: 'Guide', link: '/guide' },
+  ],
+  topNav: [
+    { text: 'GitHub', link: 'https://github.com' },
+  ],
+  theme: {
+    accentColor: '#3b82f6',
+  },
+})
+```

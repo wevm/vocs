@@ -1,0 +1,53 @@
+# Asset Handling
+
+Learn how to include images, fonts, and other assets in your Vocs documentation.
+
+## Public Directory
+
+Static assets placed in the `public/` directory are served at the root path.
+
+```
+public/
+├── logo.svg      # Available at /logo.svg
+├── images/
+│   └── hero.png  # Available at /images/hero.png
+└── fonts/
+    └── inter.woff2
+```
+
+## Importing Assets
+
+You can import assets directly in MDX files:
+
+```mdx
+import logo from '../public/logo.svg'
+
+<img src={logo} alt="Logo" />
+```
+
+## Images
+
+Reference images in Markdown:
+
+```md
+![Alt text](/images/screenshot.png)
+```
+
+## Fonts
+
+Custom fonts can be loaded via CSS in your `_root.css` file:
+
+```css
+@font-face {
+  font-family: 'Custom Font';
+  src: url('/fonts/custom.woff2') format('woff2');
+}
+```
+
+## Favicons
+
+Place your favicon files in the `public/` directory:
+
+- `favicon.ico`
+- `favicon.svg`
+- `apple-touch-icon.png`
