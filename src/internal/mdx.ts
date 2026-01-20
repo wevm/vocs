@@ -21,7 +21,7 @@ import type {
 } from 'shiki'
 import { bundledLanguages } from 'shiki/bundle/web'
 import rust from 'shiki/langs/rust.mjs'
-import sol from 'shiki/langs/solidity.mjs'
+import solidity from 'shiki/langs/solidity.mjs'
 
 import type { Pluggable, PluggableList } from 'unified'
 import * as UnistUtil from 'unist-util-visit'
@@ -38,6 +38,12 @@ import type { ExactPartial, UnionOmit } from './types.js'
 
 export { default as remarkFrontmatter } from 'remark-frontmatter'
 export { default as remarkMdxFrontmatter } from 'remark-mdx-frontmatter'
+
+const defaultLanguages = {
+  ...bundledLanguages,
+  rust,
+  solidity,
+} as const
 
 /**
  * Remark plugin that transforms mermaid code blocks into Mermaid components.
@@ -380,8 +386,6 @@ export function rehypeLinks(config: Config.Config) {
 // Re-export from separate module to avoid importing vite in runtime contexts
 export { remarkVocsScope } from './remark-vocs-scope.js'
 
-const defaultLangs = [...Object.values(bundledLanguages), ...rust, ...sol]
-
 /**
  * Rehype plugin that processes code blocks with Shiki.
  */
@@ -410,7 +414,7 @@ export function rehypeShiki(
       inline: 'tailing-curly-colon',
       rootStyle: false,
       themes,
-      langs: [...defaultLangs, ...transformerLangs],
+      langs: [...Object.values(defaultLanguages), ...transformerLangs],
       // TODO: infer `langs` for faster cold start.
       transformers: [
         rootDir && srcDir ? ShikiTransformers.notationInclude({ srcDir, rootDir }) : undefined,
@@ -563,10 +567,6 @@ export function remarkLangCommaAttrs() {
  * When no lang is specified (e.g., ``` [Title]), the bracket syntax
  * may be parsed as the lang. This moves it to meta instead.
  */
-const defaultLangNames = defaultLangs.flatMap((l) =>
-  typeof l === 'function' ? [] : [l.name, ...(l.aliases ?? [])],
-)
-
 export function remarkCodeTitle(options: remarkCodeTitle.Options = {}) {
   const specialLanguages = ['ansi', 'text', 'txt', 'plain', 'plaintext']
   const additionalLanguages = options.additionalLanguages ?? []
@@ -574,7 +574,7 @@ export function remarkCodeTitle(options: remarkCodeTitle.Options = {}) {
     UnistUtil.visit(tree, 'code', (node) => {
       if (!node.lang) return
       const match =
-        defaultLangNames.includes(node.lang) ||
+        Object.keys(defaultLanguages).includes(node.lang) ||
         specialLanguages.includes(node.lang) ||
         additionalLanguages.includes(node.lang)
       if (match) return
