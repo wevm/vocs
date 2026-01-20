@@ -20,6 +20,8 @@ import type {
   ShikiTransformer,
 } from 'shiki'
 import { bundledLanguages } from 'shiki/bundle/web'
+import rust from 'shiki/langs/rust.mjs'
+import sol from 'shiki/langs/solidity.mjs'
 
 import type { Pluggable, PluggableList } from 'unified'
 import * as UnistUtil from 'unist-util-visit'
@@ -378,6 +380,8 @@ export function rehypeLinks(config: Config.Config) {
 // Re-export from separate module to avoid importing vite in runtime contexts
 export { remarkVocsScope } from './remark-vocs-scope.js'
 
+const defaultLangs = [...Object.values(bundledLanguages), ...rust, ...sol]
+
 /**
  * Rehype plugin that processes code blocks with Shiki.
  */
@@ -406,7 +410,7 @@ export function rehypeShiki(
       inline: 'tailing-curly-colon',
       rootStyle: false,
       themes,
-      langs: [...Object.values(bundledLanguages), ...transformerLangs],
+      langs: [...defaultLangs, ...transformerLangs],
       // TODO: infer `langs` for faster cold start.
       transformers: [
         rootDir && srcDir ? ShikiTransformers.notationInclude({ srcDir, rootDir }) : undefined,
@@ -559,6 +563,10 @@ export function remarkLangCommaAttrs() {
  * When no lang is specified (e.g., ``` [Title]), the bracket syntax
  * may be parsed as the lang. This moves it to meta instead.
  */
+const defaultLangNames = defaultLangs.flatMap((l) =>
+  typeof l === 'function' ? [] : [l.name, ...(l.aliases ?? [])],
+)
+
 export function remarkCodeTitle(options: remarkCodeTitle.Options = {}) {
   const specialLanguages = ['ansi', 'text', 'txt', 'plain', 'plaintext']
   const additionalLanguages = options.additionalLanguages ?? []
@@ -566,7 +574,7 @@ export function remarkCodeTitle(options: remarkCodeTitle.Options = {}) {
     UnistUtil.visit(tree, 'code', (node) => {
       if (!node.lang) return
       const match =
-        Object.keys(bundledLanguages).includes(node.lang) ||
+        defaultLangNames.includes(node.lang) ||
         specialLanguages.includes(node.lang) ||
         additionalLanguages.includes(node.lang)
       if (match) return
