@@ -10,6 +10,7 @@
     "dev:playground": "pnpm --filter playground dev",
     "dev:playground:twoslash-rust": "cd playground && node ../dist/cli.js twoslash-rust",
     "docs:dev": "pnpm --filter site dev",
+    "docs:twoslash-rust": "cd site && node ../dist/cli.js twoslash-rust",
     "postinstall": "pnpm dev",
     "test": "vitest ./src",
     "test:twoslash-rust": "cargo test --manifest-path twoslash-rust/Cargo.toml"

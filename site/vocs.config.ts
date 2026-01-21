@@ -116,6 +116,6 @@ export default defineConfig({
     },
   ],
   twoslash: {
-    transformers: [Twoslash.experimental_rust()],
+    transformers: [Twoslash.experimental_rust({ cargoToml: './Cargo.toml', cacheOnly: true })],
   },
 })
