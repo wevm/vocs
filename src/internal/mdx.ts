@@ -30,6 +30,7 @@ import { createLogger } from 'vite'
 import * as yaml from 'yaml'
 import type * as Config from './config.js'
 import * as Icons from './icons.js'
+import { rehypeImageSize } from './rehype-image-size.js'
 import { remarkVocsScope } from './remark-vocs-scope.js'
 import { remarkSandbox } from './sandbox.js'
 import * as ShikiTransformers from './shiki-transformers.js'
@@ -185,6 +186,7 @@ export function getCompileOptions(
           rehypeShiki({ ...codeHighlight, cacheDir, rootDir, srcDir, twoslash }),
           ...(markdown?.rehypePlugins ?? []),
           rehypeCodeInLink,
+          rehypeImageSize(config),
           rehypeLinks(config),
         ],
         remarkPlugins: [

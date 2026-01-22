@@ -52,6 +52,7 @@ const dataVElements = new Set([
   'th',
   'td',
   'hr',
+  'img',
 ])
 
 /**

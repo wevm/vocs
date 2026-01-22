@@ -64,6 +64,10 @@ p[data-v] {
   @apply vocs:leading-p vocs:tracking-normal;
 }
 
+img[data-v] {
+  @apply vocs:max-w-full vocs:h-auto;
+}
+
 /* #endregion */
 
 /* #region Main Heading (hgroup/h1) */
