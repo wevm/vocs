@@ -45,6 +45,15 @@ const defaultLanguages = {
   solidity,
 } as const
 
+/** Set of all valid language names including aliases from explicitly imported languages */
+const validLanguageNames = new Set([
+  ...Object.keys(bundledLanguages),
+  // Extract names and aliases from explicitly imported language modules (non-function values)
+  ...Object.values(defaultLanguages).flatMap((lang) =>
+    typeof lang === 'function' ? [] : lang.flatMap((l) => [l.name, ...(l.aliases ?? [])]),
+  ),
+])
+
 /**
  * Remark plugin that transforms mermaid code blocks into Mermaid components.
  * Replaces ```mermaid code blocks with a paragraph that has hName/hProperties
@@ -568,15 +577,15 @@ export function remarkLangCommaAttrs() {
  * may be parsed as the lang. This moves it to meta instead.
  */
 export function remarkCodeTitle(options: remarkCodeTitle.Options = {}) {
-  const specialLanguages = ['ansi', 'text', 'txt', 'plain', 'plaintext']
-  const additionalLanguages = options.additionalLanguages ?? []
+  const specialLanguages = new Set(['ansi', 'text', 'txt', 'plain', 'plaintext'])
+  const additionalLanguages = new Set(options.additionalLanguages ?? [])
   return (tree: MdAst.Root) => {
     UnistUtil.visit(tree, 'code', (node) => {
       if (!node.lang) return
       const match =
-        Object.keys(defaultLanguages).includes(node.lang) ||
-        specialLanguages.includes(node.lang) ||
-        additionalLanguages.includes(node.lang)
+        validLanguageNames.has(node.lang) ||
+        specialLanguages.has(node.lang) ||
+        additionalLanguages.has(node.lang)
       if (match) return
       node.meta = node.lang
       node.lang = 'plaintext'
