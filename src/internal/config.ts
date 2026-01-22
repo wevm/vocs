@@ -2,6 +2,7 @@ import * as fs from 'node:fs'
 import * as path from 'node:path'
 import type * as MdxRollup from '@mdx-js/rollup'
 import type * as Changelog from './changelog.js'
+import type * as Feedback from './feedback.js'
 import * as Langs from './langs.js'
 import type * as McpSource from './mcp-source.js'
 import type * as Mdx from './mdx.js'
@@ -37,6 +38,8 @@ export type Config<partial extends boolean = false> = MaybePartial<
           backgroundColor?: string | undefined
           /** Whether the banner can be dismissed. Persists in localStorage. @default true */
           dismissable?: boolean | undefined
+          /** Unique ID for tracking dismissal in localStorage. If not provided, a hash of the content is used. */
+          dismissId?: string | undefined
           /** Height of the banner (CSS value, e.g., '28px'). */
           height?: string | undefined
           /** Optional link (internal or external) the banner navigates to when clicked. */
@@ -136,6 +139,27 @@ export type Config<partial extends boolean = false> = MaybePartial<
           text?: string | undefined
         }
       | undefined
+    /**
+     * Whether the feedback widget is enabled.
+     * This is derived from the presence of a feedback adapter.
+     */
+    feedback: boolean
+    /**
+     * Feedback adapter (server-side only, not serialized to client).
+     * Displays a "Was this helpful?" widget below the page outline.
+     *
+     * @example
+     * ```ts
+     * import { Feedback } from 'vocs'
+     *
+     * export default defineConfig({
+     *   feedback: Feedback.slack({
+     *     webhookUrl: process.env.SLACK_WEBHOOK_URL,
+     *   }),
+     * })
+     * ```
+     */
+    _feedback?: Feedback.Adapter | undefined
     /**
      * Group icons configuration for code block labels.
      * Displays icons next to code block titles based on file extensions and tools.
@@ -434,6 +458,8 @@ export function define(config: define.Options = {}): Config {
     editLink: config.editLink
       ? { text: 'Suggest changes to this page', ...config.editLink }
       : undefined,
+    feedback: !!(config.feedback || (config as { _feedback?: unknown })._feedback),
+    _feedback: (config as { _feedback?: Feedback.Adapter })._feedback ?? config.feedback,
     groupIcons: config.groupIcons,
     iconUrl,
     logoUrl,
@@ -476,7 +502,13 @@ export function define(config: define.Options = {}): Config {
 }
 
 export declare namespace define {
-  export type Options = UnionOmit<Config<true>, 'pagesDir'>
+  export type Options = UnionOmit<Config<true>, 'pagesDir' | 'feedback' | '_feedback'> & {
+    /**
+     * Feedback adapter configuration.
+     * Displays a "Was this helpful?" widget below the page outline.
+     */
+    feedback?: Feedback.Adapter | undefined
+  }
 }
 
 export function getConfigFile(options: getConfigFile.Options = {}): string | undefined {
@@ -496,8 +528,8 @@ export async function resolve(options: resolve.Options = {}): Promise<Config> {
 
   if (server && process.env['NODE_ENV'] === 'production') {
     const configPath = path.resolve(import.meta.dirname, '../vocs.config.js')
-    const resolved = (await import(/* @vite-ignore */ configPath)).default as Config
-    return resolved
+    const resolved = (await import(/* @vite-ignore */ configPath)).default as define.Options
+    return define({ ...resolved, rootDir })
   }
 
   const configFile = getConfigFile({ rootDir })

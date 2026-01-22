@@ -12,6 +12,7 @@ type Page =
   | { path: '/guide/changelog'; render: 'static' }
   | { path: '/guide/deploy'; render: 'static' }
   | { path: '/guide/dynamic-og-images'; render: 'static' }
+  | { path: '/guide/feedback'; render: 'static' }
   | { path: '/guide/frontmatter'; render: 'static' }
   | { path: '/guide/getting-started'; render: 'static' }
   | { path: '/guide/layouts'; render: 'static' }

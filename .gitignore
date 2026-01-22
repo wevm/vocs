@@ -7,3 +7,4 @@ routeTree.gen.ts
 tsconfig.tsbuildinfo
 tsconfig.tmp.*
 .vocs
+.env

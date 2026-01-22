@@ -8,7 +8,7 @@ import LucideArrowUp from '~icons/lucide/arrow-up'
 import LucideChevronRight from '~icons/lucide/chevron-right'
 import LucideTextAlignStart from '~icons/lucide/text-align-start'
 import * as MdxPageContext from '../MdxPageContext.js'
-import { useTopGutterOffset } from '../useTopGutterOffset.js'
+import * as Feedback from './Feedback.client.js'
 
 function useOutlineItems(options: { minLevel: number; maxLevel: number }) {
   const { minLevel, maxLevel } = options
@@ -127,7 +127,6 @@ export function Outline(props: Outline.Props) {
 
   const [showReturnToTop, setShowReturnToTop] = React.useState(false)
   const [popoverOpen, setPopoverOpen] = React.useState(false)
-  const topOffset = useTopGutterOffset()
 
   React.useEffect(() => {
     if (typeof window === 'undefined') return
@@ -152,7 +151,7 @@ export function Outline(props: Outline.Props) {
           className,
         )}
         style={{
-          top: `calc(var(--vocs-spacing-topNav) + var(--vocs-spacing-banner) - ${topOffset}px)`,
+          top: 'calc(var(--vocs-spacing-topNav) + var(--vocs-spacing-banner))',
         }}
         data-v-outline
         data-v-outline-mobile
@@ -197,7 +196,7 @@ export function Outline(props: Outline.Props) {
       {/* Desktop: fixed sidebar */}
       <div
         className={cx(
-          'vocs:max-[1376px]:hidden vocs:fixed vocs:flex vocs:flex-col vocs:w-gutter vocs:py-content-py vocs:pr-8 vocs:right-0 vocs:overflow-y-auto vocs:scrollbar-none',
+          'vocs:max-[1376px]:hidden vocs:fixed vocs:z-10 vocs:flex vocs:flex-col vocs:w-gutter vocs:py-content-py vocs:pr-8 vocs:pl-1 vocs:right-0 vocs:overflow-y-auto vocs:overflow-x-clip vocs:scrollbar-none',
           className,
         )}
         style={{
@@ -218,6 +217,8 @@ export function Outline(props: Outline.Props) {
 
           <Items items={items} activeId={activeId} minLevel={minLevel} />
         </nav>
+
+        <Feedback.Feedback className="vocs:mt-6 vocs:max-w-68.5" />
       </div>
     </>
   )

@@ -6,8 +6,18 @@ import LucideX from '~icons/lucide/x'
 import { Link } from '../Link.js'
 import { useConfig } from '../useConfig.js'
 
-const storageKey = 'vocs-banner-dismissed'
+const storageKeyPrefix = 'vocs-banner-dismissed'
 const cssVar = '--vocs-spacing-banner'
+
+function hashContent(content: string): string {
+  let hash = 0
+  for (let i = 0; i < content.length; i++) {
+    const char = content.charCodeAt(i)
+    hash = (hash << 5) - hash + char
+    hash |= 0
+  }
+  return hash.toString(36)
+}
 
 export function Banner() {
   const { banner: bannerConfig } = useConfig()
@@ -20,9 +30,15 @@ export function Banner() {
     return bannerConfig
   }, [bannerConfig])
 
+  const storageKey = React.useMemo(() => {
+    if (!banner) return storageKeyPrefix
+    if (banner.dismissId) return `${storageKeyPrefix}-${banner.dismissId}`
+    return `${storageKeyPrefix}-${hashContent(banner.content)}`
+  }, [banner])
+
   React.useEffect(() => {
     setDismissed(localStorage.getItem(storageKey) === 'true')
-  }, [])
+  }, [storageKey])
 
   React.useEffect(() => {
     if (dismissed || !banner) {

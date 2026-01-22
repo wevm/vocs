@@ -1,0 +1,97 @@
+# Feedback
+
+import { FeedbackWidget } from 'vocs'
+
+Vocs includes a built-in feedback widget that displays "Was this helpful?" below the page outline on desktop and in the footer on mobile. When users provide feedback, it's sent to your configured adapter (e.g. Slack).
+
+:::code-group
+<div data-title="Preview">
+<FeedbackWidget />
+</div>
+:::
+
+## Setup
+
+Enable feedback by adding a feedback adapter to your config:
+
+```ts twoslash [vocs.config.ts]
+import { defineConfig, Feedback } from 'vocs/config'
+
+export default defineConfig({
+  feedback: Feedback.slack(),
+})
+```
+
+## Slack Adapter
+
+The Slack adapter sends feedback to a Slack channel via an [incoming webhook](https://api.slack.com/messaging/webhooks).
+
+### Creating a Slack App
+
+1. Go to [api.slack.com/apps](https://api.slack.com/apps) and click **Create New App**
+2. Choose **From scratch**
+3. Name your app and select your workspace
+4. In the sidebar, go to **Incoming Webhooks**
+5. Toggle **Activate Incoming Webhooks** to On
+6. Click **Add New Webhook to Workspace**
+7. Select the channel where feedback should be posted
+8. Copy the webhook URL
+
+### Configuration
+
+Set the webhook URL as an environment variable:
+
+```bash
+SLACK_FEEDBACK_WEBHOOK=https://hooks.slack.com/services/...
+```
+
+The Slack adapter reads from `SLACK_FEEDBACK_WEBHOOK` by default. You can also pass it explicitly:
+
+```ts twoslash [vocs.config.ts]
+import { defineConfig, Feedback } from 'vocs/config'
+
+export default defineConfig({
+  feedback: Feedback.slack({
+    webhookUrl: process.env.MY_CUSTOM_WEBHOOK,
+  }),
+})
+```
+
+### Feedback Format
+
+When a user submits feedback, Slack receives a formatted message with:
+
+- **Sentiment**: Positive (👍) or negative (👎)
+- **Page URL**: The page where feedback was submitted
+- **Category**: What the user liked or what went wrong
+- **Message**: Optional free-form message from the user
+
+## Custom Adapter
+
+Create a custom adapter for other destinations:
+
+```ts [vocs.config.ts]
+import { defineConfig, Feedback } from 'vocs/config'
+
+export default defineConfig({
+  feedback: Feedback.from({
+    type: 'custom',
+    async submit(data) {
+      // data.helpful: boolean
+      // data.category?: string
+      // data.message?: string
+      // data.pageUrl: string
+      // data.timestamp: string (ISO format)
+      
+      await fetch('https://your-api.com/feedback', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      })
+    },
+  }),
+})
+```
+
+## Disabling Feedback
+
+To disable the feedback widget, simply omit the `feedback` option from your config or set it to `undefined`.

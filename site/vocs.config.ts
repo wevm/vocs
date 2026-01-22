@@ -1,10 +1,11 @@
-import { Changelog, defineConfig, McpSource, Twoslash } from 'vocs/config'
+import { Changelog, defineConfig, Feedback, McpSource, Twoslash } from 'vocs/config'
 import { version } from '../package.json'
 
 export default defineConfig({
   banner: 'Vocs v2 is now available!',
   changelog: Changelog.github({ repo: 'wevm/vocs' }),
   checkDeadlinks: true,
+  feedback: Feedback.slack(),
   description: 'Vocs is a library for creating documentation websites.',
   editLink: {
     link: 'https://github.com/wevm/vocs/edit/main/site/src/pages/:path',
@@ -52,6 +53,7 @@ export default defineConfig({
           { text: 'Layouts 🚧', link: '/guide/layouts' },
           { text: 'Dynamic OG Images 🚧', link: '/guide/dynamic-og-images' },
           { text: 'MCP Server 🚧', link: '/guide/mcp-server' },
+          { text: 'Feedback', link: '/guide/feedback' },
           { text: 'Changelog Generation 🚧', link: '/guide/changelog-generation' },
         ],
       },

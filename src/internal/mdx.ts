@@ -373,6 +373,18 @@ export function rehypeLinks(config: Config.Config) {
         extensions.some((ext) => fs.existsSync(`${resolvedPath}${ext}`)) ||
         extensions.some((ext) => fs.existsSync(`${resolvedPath}/index${ext}`))
 
+      // Allow /TODO links but still style them with squiggly underline
+      const isTodoLink = linkPath === '/TODO'
+      if (isTodoLink) {
+        element.properties['data-v-dead-link'] = ''
+        if (checkDeadlinks !== false) {
+          logger.warn(`TODO link in "/${path.relative(pagesDirPath, vfile.path)}": "${href}"`, {
+            timestamp: true,
+          })
+        }
+        return
+      }
+
       if (!exists && checkDeadlinks !== false) {
         element.properties['data-v-dead-link'] = ''
         logger.error(
