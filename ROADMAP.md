@@ -164,7 +164,7 @@ A comprehensive checklist of features for Vocs v2, based on Vocs v1 feature pari
 - [x] llms-full.txt generation
 - [x] Per-page markdown (/assets/md/*.md)
 - [x] Ask AI component
-- [ ] "Is this page useful?" feedback widget
+- [x] "Is this page useful?" feedback widget
 
 ## Styling & Theming
 
