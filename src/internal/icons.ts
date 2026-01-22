@@ -108,6 +108,10 @@ export const builtinIcons: Record<string, string> = {
   'vercel.json': 'vscode-icons:file-type-vercel',
   'netlify.toml': 'vscode-icons:file-type-netlify',
 
+  // Language identifiers (for code blocks without file extensions)
+  tsx: 'vscode-icons:file-type-reactts',
+  jsx: 'vscode-icons:file-type-reactjs',
+
   // Frameworks/tools
   vue: 'vscode-icons:file-type-vue',
   react: 'vscode-icons:file-type-reactjs',
