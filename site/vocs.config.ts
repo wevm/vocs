@@ -57,6 +57,7 @@ export default defineConfig({
           { text: 'Changelog Generation 🚧', link: '/guide/changelog-generation' },
         ],
       },
+      { text: 'AI Support', link: '/guide/ai-support' },
       { text: 'Config & API Reference', link: '/reference/site-config' },
       { text: 'Changelog', link: '/guide/changelog' },
     ],

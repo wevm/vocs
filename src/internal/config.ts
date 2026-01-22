@@ -371,6 +371,11 @@ export type Frontmatter = {
    */
   showAskAi?: boolean | undefined
   /**
+   * Whether to show the feedback widget.
+   * @default true
+   */
+  showFeedback?: boolean | undefined
+  /**
    * Whether to show the logo in the top navigation.
    * @default true
    */

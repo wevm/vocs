@@ -26,7 +26,7 @@ const negativeCategories = [
 ]
 
 export function Feedback(props: Feedback.Props) {
-  const { className } = props
+  const { className, frontmatter } = props
 
   const config = useConfig()
   const router = useRouter()
@@ -44,7 +44,7 @@ export function Feedback(props: Feedback.Props) {
     setMessage('')
   }, [router.path])
 
-  if (!feedback) return null
+  if (!feedback || frontmatter?.showFeedback === false) return null
 
   const categories = state === 'positive' ? positiveCategories : negativeCategories
 
@@ -166,5 +166,6 @@ export function Feedback(props: Feedback.Props) {
 export declare namespace Feedback {
   export type Props = {
     className?: string | undefined
+    frontmatter?: { showFeedback?: boolean | undefined } | undefined
   }
 }

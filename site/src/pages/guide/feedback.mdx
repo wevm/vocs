@@ -94,4 +94,16 @@ export default defineConfig({
 
 ## Disabling Feedback
 
-To disable the feedback widget, simply omit the `feedback` option from your config or set it to `undefined`.
+To disable the feedback widget globally, simply omit the `feedback` option from your config or set it to `undefined`.
+
+To disable the feedback widget on a specific page, use the `showFeedback` frontmatter option:
+
+```mdx
+---
+showFeedback: false
+---
+
+# Page Title
+
+This page won't show the feedback widget.
+```
