@@ -42,6 +42,36 @@ const shiki = await getSingletonHighlighterCore({
 :::
 
 
+### React / JSX
+
+Twoslash works with React and JSX. Use `.tsx` for the language identifier:
+
+:::code-group
+
+```tsx [Output] twoslash
+// @jsx: react-jsx
+import { useState } from 'react'
+
+function Counter() {
+  const [count, setCount] = useState(0)
+  return <button onClick={() => setCount(count + 1)}>{count}</button>
+}
+```
+
+````md [Markdown]
+```tsx twoslash
+// @jsx: react-jsx
+import { useState } from 'react'
+
+function Counter() {
+  const [count, setCount] = useState(0)
+  return <button onClick={() => setCount(count + 1)}>{count}</button>
+}
+```
+````
+
+:::
+
 ### Completions
 
 Using `^|` you can pull out information about a what the auto-complete looks like at a particular location.
