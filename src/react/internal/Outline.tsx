@@ -8,6 +8,7 @@ import LucideArrowUp from '~icons/lucide/arrow-up'
 import LucideChevronRight from '~icons/lucide/chevron-right'
 import LucideTextAlignStart from '~icons/lucide/text-align-start'
 import * as MdxPageContext from '../MdxPageContext.js'
+import { useTopGutterOffset } from '../useTopGutterOffset.js'
 import * as Feedback from './Feedback.client.js'
 
 function useOutlineItems(options: { minLevel: number; maxLevel: number }) {
@@ -127,6 +128,7 @@ export function Outline(props: Outline.Props) {
 
   const [showReturnToTop, setShowReturnToTop] = React.useState(false)
   const [popoverOpen, setPopoverOpen] = React.useState(false)
+  const topOffset = useTopGutterOffset()
 
   React.useEffect(() => {
     if (typeof window === 'undefined') return
@@ -151,7 +153,7 @@ export function Outline(props: Outline.Props) {
           className,
         )}
         style={{
-          top: 'calc(var(--vocs-spacing-topNav) + var(--vocs-spacing-banner))',
+          top: `calc(var(--vocs-spacing-topNav) + var(--vocs-spacing-banner) - ${topOffset}px)`,
         }}
         data-v-outline
         data-v-outline-mobile

@@ -181,8 +181,7 @@ function VersionOutline(props: VersionOutline.Props): React.JSX.Element | null {
 
   const outline = (
     <nav
-      className="vocs:hidden vocs:xl:block vocs:text-[13px] vocs:fixed vocs:right-[max(2rem,calc((100vw-1200px)/2))] vocs:top-24 vocs:w-48 vocs:z-50"
-      style={{ maxHeight: 'calc(100vh - 8rem)' }}
+      className="vocs:hidden vocs:xl:block vocs:text-[13px] vocs:fixed vocs:right-[max(2rem,calc((100vw-1200px)/2))] vocs:top-[calc(var(--vocs-spacing-topNav)+var(--vocs-spacing-banner)+1.5rem)] vocs:max-h-[calc(100vh-var(--vocs-spacing-topNav)-var(--vocs-spacing-banner)-3rem)] vocs:w-48 vocs:z-50"
       data-v-version-outline
     >
       <div className="vocs:flex vocs:items-center vocs:gap-1.5 vocs:text-[13px] vocs:font-medium vocs:mb-3">
