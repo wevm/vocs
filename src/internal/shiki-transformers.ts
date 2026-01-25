@@ -105,6 +105,7 @@ export function twoslash(options: twoslash.Options): ShikiTransformer {
     ...twoslashOptions,
     compilerOptions: {
       moduleResolution: 100, // bundler (default, can be overridden)
+      preserveSymlinks: false, // needed for monorepo/workspace symlinks
       ...(twoslashOptions?.compilerOptions ?? {}),
     },
   })
