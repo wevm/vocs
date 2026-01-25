@@ -74,6 +74,8 @@
   --color-accenta8: oklch(from var(--vocs-color-accent) 0.44 c h / 84%);
   --color-accenta9: oklch(from var(--vocs-color-accent) 0.4 c h / 94%);
 
+  --color-accentInvert: oklch(from var(--vocs-color-accent) clamp(0, (0.6 - l) * 100, 1) 0 0);
+
   /* #endregion */
 
   /* #region Standard Colors */

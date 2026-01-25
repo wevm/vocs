@@ -1,7 +1,7 @@
 'use client'
 
 import { Tabs as BaseTabs } from '@base-ui/react/tabs'
-import { cx } from 'cva'
+import { cva, cx } from 'cva'
 import * as React from 'react'
 import { Link } from './Link.js'
 import { useConfig } from './useConfig.js'
@@ -126,27 +126,27 @@ export declare namespace Buttons {
   }
 }
 
+const buttonVariants = cva(
+  'vocs:inline-flex vocs:items-center vocs:justify-center vocs:px-5 vocs:py-2.5 vocs:rounded-lg vocs:text-[15px] vocs:font-medium vocs:transition-colors vocs:no-underline',
+  {
+    variants: {
+      variant: {
+        accent: 'vocs:bg-accent vocs:text-accentInvert vocs:hover:opacity-90',
+        secondary:
+          'vocs:bg-surface vocs:border vocs:border-primary vocs:text-heading vocs:hover:bg-surfaceTint',
+      },
+    },
+    defaultVariants: {
+      variant: 'secondary',
+    },
+  },
+)
+
 export function Button(props: Button.Props) {
   const { children, href, variant = 'secondary', className } = props
 
-  const baseClasses =
-    'vocs:inline-flex vocs:items-center vocs:justify-center vocs:px-5 vocs:py-2.5 vocs:rounded-lg vocs:text-[15px] vocs:font-medium vocs:transition-colors vocs:no-underline'
-
-  const variantClasses =
-    variant === 'accent'
-      ? 'vocs:hover:opacity-90'
-      : 'vocs:bg-surface vocs:border vocs:border-primary vocs:text-heading vocs:hover:bg-surfaceTint'
-
-  const accentStyle =
-    variant === 'accent'
-      ? {
-          backgroundColor: 'var(--vocs-text-color-heading)',
-          color: 'var(--vocs-background-color-primary)',
-        }
-      : undefined
-
   return (
-    <Link to={href} className={cx(baseClasses, variantClasses, className)} style={accentStyle}>
+    <Link to={href} className={buttonVariants({ variant, className })}>
       {children}
     </Link>
   )
