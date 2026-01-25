@@ -104,8 +104,8 @@ export function twoslash(options: twoslash.Options): ShikiTransformer {
   twoslasher ??= createTwoslasher({
     ...twoslashOptions,
     compilerOptions: {
+      moduleResolution: 100, // bundler (default, can be overridden)
       ...(twoslashOptions?.compilerOptions ?? {}),
-      moduleResolution: 100, // bundler,
     },
   })
 
