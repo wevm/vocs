@@ -83,6 +83,14 @@ export function notationCollapse(): ShikiTransformer[] {
   return [detector, applier]
 }
 
+export type TwoslashError = {
+  message: string
+  code: string
+  lang: string
+  meta?: string | undefined
+}
+export const twoslashErrors: TwoslashError[] = []
+
 let twoslasher: TwoslashInstance
 
 export function twoslash(options: twoslash.Options): ShikiTransformer {
@@ -115,10 +123,17 @@ export function twoslash(options: twoslash.Options): ShikiTransformer {
     renderer,
   )({
     explicitTrigger,
-    onShikiError() {},
-    onTwoslashError() {},
     throws,
     typesCache,
+    onTwoslashError(error, code, lang, options) {
+      const message = error instanceof Error ? error.message : String(error)
+      const meta = options?.meta?.__raw
+      twoslashErrors.push({ message, code, lang, meta })
+    },
+    onShikiError(error, code, lang) {
+      const message = error instanceof Error ? error.message : String(error)
+      twoslashErrors.push({ message, code, lang })
+    },
     ...(disableTriggers ? { disableTriggers } : {}),
     ...(filter ? { filter } : {}),
     ...(includesMap ? { includesMap } : {}),

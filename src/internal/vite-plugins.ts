@@ -14,6 +14,7 @@ import * as Icons from './icons.js'
 import * as Langs from './langs.js'
 import * as Mdx from './mdx.js'
 import { SearchDocuments, SearchIndex } from './search.js'
+import * as ShikiTransformers from './shiki-transformers.js'
 import * as TaskRunner from './task-runner.js'
 
 export { default as icons } from 'unplugin-icons/vite'
@@ -334,6 +335,22 @@ export function mdx(config: Config.Config): PluginOption {
     },
     buildEnd() {
       if (mode !== 'production') return
+
+      // Check for twoslash errors
+      if (ShikiTransformers.twoslashErrors.length > 0) {
+        const errors = ShikiTransformers.twoslashErrors.map((err) => {
+          const lines = err.code.split('\n')
+          const numberedCode = lines
+            .map((line, i) => `  ${String(i + 1).padStart(3)} | ${line}`)
+            .join('\n')
+          return `[${err.lang}]${err.meta ? ` (${err.meta})` : ''}:\n${err.message}\n\n${numberedCode}`
+        })
+        throw new Error(
+          `[vocs:twoslash] Found ${errors.length} twoslash error(s):\n\n${errors.join('\n\n---\n\n')}`,
+        )
+      }
+
+      // Check for dead links
       if (Mdx.deadLinks.size === 0) return
       if (checkDeadlinks === 'warn' || checkDeadlinks === false) return
 
