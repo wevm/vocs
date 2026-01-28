@@ -3,6 +3,7 @@
 import { cx } from 'cva'
 import * as React from 'react'
 import { useRouter } from 'waku'
+import LucideArrowLeft from '~icons/lucide/arrow-left'
 import LucideArrowUpRight from '~icons/lucide/arrow-up-right'
 import LucideChevronRight from '~icons/lucide/chevron-right'
 import * as Path from '../../internal/path.js'
@@ -29,6 +30,7 @@ export function Sidebar(props: Sidebar.Props) {
       )}
       data-v-sidebar
     >
+      {sidebar.backLink && <BackLink onNavigate={onNavigate} />}
       {sidebar.items.map((item, i) => (
         <Section
           key={`${item.text}-${i}`}
@@ -39,6 +41,21 @@ export function Sidebar(props: Sidebar.Props) {
         />
       ))}
     </nav>
+  )
+}
+
+function BackLink(props: { onNavigate?: (() => void) | undefined }) {
+  const { onNavigate } = props
+  return (
+    <Link
+      className="vocs:flex vocs:items-center vocs:gap-1.5 vocs:text-secondary vocs:hover:text-heading vocs:mb-4 vocs:-ml-0.5"
+      data-v-sidebar-back-link
+      onClick={onNavigate}
+      to="/"
+    >
+      <LucideArrowLeft className="vocs:size-4" />
+      <span>Back</span>
+    </Link>
   )
 }
 
