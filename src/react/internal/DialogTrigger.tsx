@@ -29,10 +29,10 @@ export const DialogTrigger = React.forwardRef<HTMLButtonElement, DialogTrigger.P
           {children}
         </div>
         <div className="vocs:flex vocs:items-center vocs:gap-0.5">
-          <div className="vocs:bg-primary vocs:text-xs vocs:flex vocs:items-center vocs:justify-center vocs:size-5 vocs:border vocs:border-primary vocs:rounded-sm">
+          <div className="vocs:bg-primary vocs:text-xs vocs:flex vocs:items-center vocs:justify-center vocs:h-5 vocs:w-auto vocs:px-0.75 vocs:border vocs:border-primary vocs:rounded-sm">
             {modifierKey}
           </div>{' '}
-          <div className="vocs:bg-primary vocs:text-xs vocs:flex vocs:items-center vocs:justify-center vocs:size-5 vocs:border vocs:border-primary vocs:rounded-sm">
+          <div className="vocs:bg-primary vocs:text-xs vocs:flex vocs:items-center vocs:justify-center vocs:h-5 vocs:w-auto vocs:px-0.75 vocs:border vocs:border-primary vocs:rounded-sm">
             {triggerKey}
           </div>
         </div>
