@@ -214,12 +214,17 @@ export function llms(config: Config.Config): PluginOption {
       )
 
     const sitemap = ['<!--', 'Sitemap:', ...nav, '-->', '', ''].join('\n')
+
+
+    const originalContents = results.map((r) => r.content)
+
+    // Add sitemap to each page for individual MD serving (/assets/md/*.md)
     for (const result of results) result.content = sitemap + result.content
 
     const short = [...llmsTxtContent, ...nav]
 
-    const full = [...llmsTxtContent]
-    for (const { content } of results) full.push(content)
+    // For full: add sitemap ONCE at top, then original contents (without per-page sitemap)
+    const full = [...llmsTxtContent, sitemap, ...originalContents]
 
     return { full: full.join('\n'), results, short: short.join('\n') }
   }
