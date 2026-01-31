@@ -18,15 +18,14 @@ import * as TopNav from './internal/TopNav.js'
 import { Link } from './Link.js'
 import { useConfig } from './useConfig.js'
 import { useLayout } from './useLayout.js'
+import { useSlots } from './useSlots.js'
 import { useTopGutterRef } from './useTopGutterOffset.js'
-
-// TODO:
-// - user "slots"
 
 export function Main(props: Main.Props) {
   const { children } = props
 
   const { layout, showAskAi, showSidebar, showTopNav, showLogo, showOutline } = useLayout()
+  const { Footer, OutlineFooter, SidebarHeader } = useSlots()
 
   const sidebarScrollRef = React.useRef<HTMLDivElement>(null)
   const topGutterRef = useTopGutterRef()
@@ -68,6 +67,12 @@ export function Main(props: Main.Props) {
               className="vocs:bg-linear-to-t vocs:from-transparent vocs:to-dark vocs:min-h-4 vocs:top-0 vocs:w-full vocs:sticky"
               data-v-sidebar-curtain
             />
+
+            {SidebarHeader && (
+              <div className="vocs:mb-4" data-v-sidebar-header>
+                <SidebarHeader />
+              </div>
+            )}
 
             <Sidebar.Sidebar
               className="vocs:pb-8 vocs:[&>*:first-child>[data-empty]]:h-0"
@@ -144,7 +149,7 @@ export function Main(props: Main.Props) {
         data-v-main
         id="vocs-content"
       >
-        {showOutline && <Outline.Outline />}
+        {showOutline && <Outline.Outline footer={OutlineFooter} />}
 
         <article
           className="vocs:px-content-px vocs:py-content-py vocs:relative vocs:w-full vocs:max-w-content vocs:space-y-6 vocs:max-md:overflow-x-hidden"
@@ -165,6 +170,15 @@ export function Main(props: Main.Props) {
             </div>
           )}
         </article>
+
+        {Footer && (
+          <footer
+            className="vocs:px-content-px vocs:pb-12 vocs:w-full vocs:max-w-content"
+            data-v-footer
+          >
+            <Footer />
+          </footer>
+        )}
       </main>
 
       {showAskAi && (

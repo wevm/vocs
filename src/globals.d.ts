@@ -40,3 +40,10 @@ declare module 'virtual:vocs/user-styles?inline' {
   const css: string | undefined
   export default css
 }
+
+declare module 'virtual:vocs/slots' {
+  import type { ComponentType } from 'react'
+  export const Footer: ComponentType | undefined
+  export const OutlineFooter: ComponentType | undefined
+  export const SidebarHeader: ComponentType | undefined
+}

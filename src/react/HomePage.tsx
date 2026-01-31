@@ -127,13 +127,18 @@ export declare namespace Buttons {
 }
 
 const buttonVariants = cva(
-  'vocs:inline-flex vocs:items-center vocs:justify-center vocs:px-5 vocs:py-2.5 vocs:rounded-lg vocs:text-[15px] vocs:font-medium vocs:transition-colors vocs:no-underline vocs:bg-surface vocs:border vocs:border-primary vocs:text-heading vocs:hover:bg-surfaceTint',
+  'vocs:inline-flex vocs:items-center vocs:justify-center vocs:px-5 vocs:py-2.5 vocs:rounded-lg vocs:text-[15px] vocs:font-medium vocs:transition-colors vocs:no-underline',
   {
     variants: {
       variant: {
+        default:
+          'vocs:bg-surface vocs:border vocs:border-primary vocs:text-heading vocs:hover:bg-surfaceTint',
         accent:
-          'vocs:bg-accent vocs:text-accentInvert vocs:border-transparent vocs:hover:bg-accent vocs:hover:opacity-90',
+          'vocs:bg-accent vocs:text-accentInvert vocs:border-transparent vocs:hover:opacity-90',
       },
+    },
+    defaultVariants: {
+      variant: 'default',
     },
   },
 )
@@ -152,7 +157,7 @@ export declare namespace Button {
   export type Props = {
     children: React.ReactNode
     href: string
-    variant?: 'accent' | undefined
+    variant?: 'default' | 'accent' | undefined
     className?: string | undefined
   }
 }

@@ -33,6 +33,7 @@ export async function vocs(): Promise<PluginOption[]> {
     Plugins.routeWatcher(config),
     Plugins.search(config),
     Plugins.sitemap(config),
+    Plugins.slots(config),
     Plugins.tailwind(),
     Plugins.userStyles(config),
     Plugins.virtualConfig(config),

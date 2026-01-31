@@ -577,6 +577,43 @@ export function userStyles(config: Config.Config): PluginOption {
 }
 
 /**
+ * Vite plugin that loads user slot components from `_slots.tsx`.
+ *
+ * Users can export `Footer`, `OutlineFooter`, `SidebarHeader` components
+ * that will be injected into the layout.
+ */
+export function slots(config: Config.Config): PluginOption {
+  const virtualModuleId = 'virtual:vocs/slots'
+  const resolvedVirtualModuleId = `\0${virtualModuleId}`
+  const slotsPath = path.resolve(config.rootDir, config.srcDir, config.pagesDir, '_slots.tsx')
+
+  return {
+    name: 'vocs:slots',
+    enforce: 'pre',
+    async resolveId(id) {
+      if (id === virtualModuleId) return resolvedVirtualModuleId
+      return
+    },
+    async load(id) {
+      if (id === resolvedVirtualModuleId) {
+        try {
+          await fs.access(slotsPath)
+          return `
+import * as Slots from '${slotsPath}'
+export const Footer = Slots.Footer ?? undefined
+export const OutlineFooter = Slots.OutlineFooter ?? undefined
+export const SidebarHeader = Slots.SidebarHeader ?? undefined
+`
+        } catch {
+          return 'export const Footer = undefined; export const OutlineFooter = undefined; export const SidebarHeader = undefined;'
+        }
+      }
+      return
+    },
+  }
+}
+
+/**
  * Vite plugin that builds and serves the search index.
  *
  * - Dev: builds index on start, updates on HMR, serves via virtual module

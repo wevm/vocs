@@ -112,13 +112,15 @@
   }
 
   /* Content article - defaults (centered) */
-  [data-v-content] {
+  [data-v-content],
+  [data-v-footer] {
     margin-left: auto;
     margin-right: auto;
   }
 
   /* Content article - with sidebar (not centered on large screens) */
-  [data-v-sidebar] [data-v-content] {
+  [data-v-sidebar] [data-v-content],
+  [data-v-sidebar] [data-v-footer] {
     /* biome-ignore lint/correctness/noUnknownFunction: _ */
     @media (width >= theme(--breakpoint-lg)) {
       margin-left: unset;

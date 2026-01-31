@@ -117,7 +117,7 @@ function useOutlineItems(options: { minLevel: number; maxLevel: number }) {
 }
 
 export function Outline(props: Outline.Props) {
-  const { className, minLevel = 2, maxLevel: maxLevelProp = 3 } = props
+  const { className, minLevel = 2, maxLevel: maxLevelProp = 3, footer: Footer } = props
 
   const { frontmatter } = MdxPageContext.use()
   const { outline = true } = frontmatter ?? {}
@@ -221,6 +221,12 @@ export function Outline(props: Outline.Props) {
         </nav>
 
         <Feedback.Feedback className="vocs:mt-6 vocs:max-w-68.5" frontmatter={frontmatter} />
+
+        {Footer && (
+          <div className="vocs:mt-6" data-v-outline-footer>
+            <Footer />
+          </div>
+        )}
       </div>
     </>
   )
@@ -229,6 +235,7 @@ export function Outline(props: Outline.Props) {
 export declare namespace Outline {
   export type Props = {
     className?: string | undefined
+    footer?: React.ComponentType | undefined
     minLevel?: number | undefined
     maxLevel?: number | undefined
   }
