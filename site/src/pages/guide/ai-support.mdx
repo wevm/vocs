@@ -65,7 +65,7 @@ Vocs includes a built-in [Model Context Protocol (MCP)](https://modelcontextprot
 ### Enabling MCP
 
 ```ts twoslash
-import { defineConfig } from 'vocs'
+import { defineConfig } from 'vocs/config'
 
 export default defineConfig({
   mcp: {
@@ -103,7 +103,7 @@ The MCP server exposes these tools to AI assistants:
 You can expose source code repositories for AI navigation using source adapters:
 
 ```ts twoslash
-import { defineConfig, McpSource } from 'vocs'
+import { defineConfig, McpSource } from 'vocs/config'
 
 export default defineConfig({
   mcp: {
@@ -129,7 +129,7 @@ When sources are configured, additional tools become available:
 ### GitHub Adapter Options
 
 ```ts twoslash
-import { McpSource } from 'vocs'
+import { McpSource } from 'vocs/config'
 
 McpSource.github({
   // Unique identifier for this source
@@ -151,7 +151,7 @@ McpSource.github({
 Create custom adapters for non-GitHub sources:
 
 ```ts twoslash
-import { defineConfig, McpSource } from 'vocs'
+import { defineConfig, McpSource } from 'vocs/config'
 
 export default defineConfig({
   mcp: {

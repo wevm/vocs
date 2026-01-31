@@ -224,6 +224,12 @@ export function processImports(options: processImports.Options): processImports.
       const hasFilename = result.includes('@filename: example.ts')
       const main = hasFilename ? '' : '// @filename: example.ts\n// ---cut---\n'
       result = prefix + main + result
+
+      // Rewrite .ts imports to .js for TypeScript ES module resolution
+      if (importPath.endsWith('.ts')) {
+        const jsPath = importPath.replace(/\.ts$/, '.js')
+        result = result.replace(importPath, jsPath)
+      }
       break
     }
   }
