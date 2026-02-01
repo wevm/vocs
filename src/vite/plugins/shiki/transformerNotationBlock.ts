@@ -1,4 +1,4 @@
-import type { Element, Text } from 'hast'
+import type { Element, ElementContent } from 'hast'
 import { addClassToHast, type ShikiTransformer } from 'shiki'
 
 export interface TransformerNotationBlockOptions {
@@ -17,13 +17,6 @@ export interface TransformerNotationBlockOptions {
    * @default 'has-focused'
    */
   focusActivePreClass?: string
-}
-
-type BlockType = 'hl' | 'focus'
-
-interface BlockState {
-  type: BlockType
-  startIndex: number
 }
 
 const startRegex = /^\s*(?:\/\/|\/\*|<!--|#|--)\s*\[!code\s+(hl|focus):start\]\s*(?:\*\/|-->)?$/
@@ -50,61 +43,55 @@ export function transformerNotationBlock(
   return {
     name: 'vocs:notation-block',
     code(code) {
-      const lines = code.children.filter((i) => i.type === 'element') as Element[]
-      const linesToRemove: (Element | Text)[] = []
-      const activeBlocks: BlockState[] = []
-      const lineAnnotations: Map<number, BlockType[]> = new Map()
+      const children = code.children
+      const lines = children.filter((i) => i.type === 'element') as Element[]
+      const removeSet = new Set<ElementContent>()
+
+      let hlDepth = 0
+      let focusDepth = 0
       let hasFocus = false
 
-      lines.forEach((line, idx) => {
+      for (const line of lines) {
         const lineText = getLineText(line)
 
         const startMatch = lineText.match(startRegex)
         if (startMatch) {
-          const blockType = startMatch[1] as BlockType
-          activeBlocks.push({ type: blockType, startIndex: idx })
-          markLineForRemoval(line, code, linesToRemove)
-          return
+          const blockType = startMatch[1]
+          if (blockType === 'hl') {
+            hlDepth++
+          } else {
+            focusDepth++
+          }
+          markLineForRemoval(line, code, removeSet)
+          continue
         }
 
         const endMatch = lineText.match(endRegex)
         if (endMatch) {
-          const blockType = endMatch[1] as BlockType
-          const blockIndex = activeBlocks.findIndex((b) => b.type === blockType)
-          if (blockIndex !== -1) {
-            activeBlocks.splice(blockIndex, 1)
+          const blockType = endMatch[1]
+          if (blockType === 'hl') {
+            hlDepth = Math.max(0, hlDepth - 1)
+          } else {
+            focusDepth = Math.max(0, focusDepth - 1)
           }
-          markLineForRemoval(line, code, linesToRemove)
-          return
+          markLineForRemoval(line, code, removeSet)
+          continue
         }
 
-        for (const block of activeBlocks) {
-          const annotations = lineAnnotations.get(idx) || []
-          annotations.push(block.type)
-          lineAnnotations.set(idx, annotations)
-          if (block.type === 'focus') hasFocus = true
+        if (hlDepth > 0) {
+          addClassToHast(line, highlightClass)
         }
-      })
-
-      for (const [idx, annotations] of lineAnnotations) {
-        const line = lines[idx]
-        if (!line) continue
-        for (const annotation of annotations) {
-          const className = annotation === 'hl' ? highlightClass : focusClass
-          addClassToHast(line, className)
+        if (focusDepth > 0) {
+          addClassToHast(line, focusClass)
+          hasFocus = true
         }
       }
 
-      if (hasFocus) {
+      if (hasFocus && this.pre) {
         addClassToHast(this.pre, focusActivePreClass)
       }
 
-      for (const node of linesToRemove) {
-        const index = code.children.indexOf(node)
-        if (index !== -1) {
-          code.children.splice(index, 1)
-        }
-      }
+      code.children = children.filter((n) => !removeSet.has(n))
     },
   }
 }
@@ -121,11 +108,15 @@ function getLineText(line: Element): string {
   return text
 }
 
-function markLineForRemoval(line: Element, code: Element, linesToRemove: (Element | Text)[]): void {
-  linesToRemove.push(line)
+function markLineForRemoval(line: Element, code: Element, removeSet: Set<ElementContent>): void {
+  removeSet.add(line)
   const lineIndex = code.children.indexOf(line)
   const nextNode = code.children[lineIndex + 1]
-  if (nextNode && nextNode.type === 'text' && nextNode.value === '\n') {
-    linesToRemove.push(nextNode)
+  if (
+    nextNode &&
+    nextNode.type === 'text' &&
+    (nextNode.value === '\n' || nextNode.value === '\r\n')
+  ) {
+    removeSet.add(nextNode)
   }
 }
