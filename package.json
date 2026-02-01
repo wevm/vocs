@@ -9,6 +9,7 @@
     "changeset:publish": "tsx scripts/prepublish.ts && pnpm build && changeset publish",
     "changeset:version": "changeset version && pnpm install --lockfile-only",
     "check": "biome check . --write --unsafe",
+    "test": "vitest",
     "check:deps": "pnpx taze -r",
     "check:types": "tsc --noEmit",
     "docs:dev": "node --import tsx/esm ./src/cli/index.ts dev",
@@ -40,6 +41,7 @@
     "typescript": "catalog:",
     "vercel": "^32.7.2",
     "viem": "^2.38.3",
+    "vitest": "^4.0.18",
     "vocs": "workspace:*"
   },
   "simple-git-hooks": {
