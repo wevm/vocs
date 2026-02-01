@@ -19,8 +19,8 @@ export interface TransformerNotationBlockOptions {
   focusActivePreClass?: string
 }
 
-const startRegex = /^\s*(?:\/\/|\/\*|<!--|#|--)\s*\[!code\s+(hl|focus):start\]\s*(?:\*\/|-->)?$/
-const endRegex = /^\s*(?:\/\/|\/\*|<!--|#|--)\s*\[!code\s+(hl|focus):end\]\s*(?:\*\/|-->)?$/
+const startRegex = /^\s*(?:\/\/|\/\*|<!--|#|--)\s+\[!code\s+(hl|focus):start\]\s*(?:\*\/|-->)?\s*$/
+const endRegex = /^\s*(?:\/\/|\/\*|<!--|#|--)\s+\[!code\s+(hl|focus):end\]\s*(?:\*\/|-->)?\s*$/
 
 /**
  * Transformer that handles block-level code annotations for highlight and focus.

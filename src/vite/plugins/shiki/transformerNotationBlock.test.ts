@@ -247,6 +247,222 @@ const a = 1
     })
   })
 
+  describe('regex patterns', () => {
+    describe('comment style variations', () => {
+      it('should match // style comments', async () => {
+        const code = `// [!code hl:start]
+const a = 1
+// [!code hl:end]`
+        const html = await highlight(code)
+        expect(html).toContain('highlighted')
+        expect(html).not.toContain('[!code')
+      })
+
+      it('should match # style comments', async () => {
+        const code = `# [!code hl:start]
+x = 1
+# [!code hl:end]`
+        const html = await highlight(code, 'python')
+        expect(html).toContain('highlighted')
+        expect(html).not.toContain('[!code')
+      })
+
+      it('should match /* */ style comments', async () => {
+        const code = `/* [!code hl:start] */
+const a = 1
+/* [!code hl:end] */`
+        const html = await highlight(code)
+        expect(html).toContain('highlighted')
+        expect(html).not.toContain('[!code')
+      })
+
+      it('should match <!-- --> style comments', async () => {
+        const code = `<!-- [!code hl:start] -->
+<div>test</div>
+<!-- [!code hl:end] -->`
+        const html = await highlight(code, 'html')
+        expect(html).toContain('highlighted')
+        expect(html).not.toContain('[!code')
+      })
+
+      it('should match -- style comments (SQL)', async () => {
+        const code = `-- [!code hl:start]
+SELECT * FROM users
+-- [!code hl:end]`
+        const html = await highlight(code, 'sql')
+        expect(html).toContain('highlighted')
+        expect(html).not.toContain('[!code')
+      })
+    })
+
+    describe('whitespace handling', () => {
+      it('should match with no leading whitespace', async () => {
+        const code = `// [!code hl:start]
+const a = 1
+// [!code hl:end]`
+        const html = await highlight(code)
+        expect(html).toContain('highlighted')
+      })
+
+      it('should match with leading spaces', async () => {
+        const code = `  // [!code hl:start]
+const a = 1
+  // [!code hl:end]`
+        const html = await highlight(code)
+        expect(html).toContain('highlighted')
+      })
+
+      it('should match with leading tabs', async () => {
+        const code = `\t// [!code hl:start]
+const a = 1
+\t// [!code hl:end]`
+        const html = await highlight(code)
+        expect(html).toContain('highlighted')
+      })
+
+      it('should match with extra space after comment token', async () => {
+        const code = `//  [!code hl:start]
+const a = 1
+//  [!code hl:end]`
+        const html = await highlight(code)
+        expect(html).toContain('highlighted')
+      })
+
+      it('should match with multiple spaces inside marker', async () => {
+        const code = `// [!code  hl:start]
+const a = 1
+// [!code  hl:end]`
+        const html = await highlight(code)
+        expect(html).toContain('highlighted')
+      })
+
+      it('should match with trailing whitespace before closing', async () => {
+        const code = `/* [!code hl:start]  */
+const a = 1
+/* [!code hl:end]  */`
+        const html = await highlight(code)
+        expect(html).toContain('highlighted')
+      })
+    })
+
+    describe('non-matching patterns', () => {
+      it('should NOT match marker with trailing text', async () => {
+        const code = `// [!code hl:start] some note
+const a = 1
+// [!code hl:end]`
+        const html = await highlight(code)
+        expect(html).toContain('[!code hl:start] some note')
+      })
+
+      it('should NOT match marker mid-line', async () => {
+        const code = `const x = 1 // [!code hl:start]
+const a = 1
+// [!code hl:end]`
+        const html = await highlight(code)
+        expect(html).not.toContain('highlighted')
+      })
+
+      it('should NOT match typo hl:stat', async () => {
+        const code = `// [!code hl:stat]
+const a = 1
+// [!code hl:end]`
+        const html = await highlight(code)
+        expect(html).not.toContain('highlighted')
+        expect(html).toContain('[!code hl:stat]')
+      })
+
+      it('should NOT match typo focus:star', async () => {
+        const code = `// [!code focus:star]
+const a = 1
+// [!code focus:end]`
+        const html = await highlight(code)
+        expect(html).not.toContain('focused')
+      })
+
+      it('should NOT match missing space after comment token', async () => {
+        const code = `//[!code hl:start]
+const a = 1
+//[!code hl:end]`
+        const html = await highlight(code)
+        expect(html).not.toContain('highlighted')
+      })
+
+      it('should NOT match wrong bracket style', async () => {
+        const code = `// (!code hl:start)
+const a = 1
+// (!code hl:end)`
+        const html = await highlight(code)
+        expect(html).not.toContain('highlighted')
+      })
+
+      it('should NOT match missing exclamation mark', async () => {
+        const code = `// [code hl:start]
+const a = 1
+// [code hl:end]`
+        const html = await highlight(code)
+        expect(html).not.toContain('highlighted')
+      })
+
+      it('should NOT match case variations', async () => {
+        const code = `// [!CODE HL:START]
+const a = 1
+// [!CODE HL:END]`
+        const html = await highlight(code)
+        expect(html).not.toContain('highlighted')
+      })
+
+      it('should match block comments without closing (optional closing)', async () => {
+        const code = `/* [!code hl:start]
+const a = 1
+/* [!code hl:end]`
+        const html = await highlight(code)
+        expect(html).toContain('highlighted')
+      })
+    })
+
+    describe('block type matching', () => {
+      it('should only match hl type for hl markers', async () => {
+        const code = `// [!code hl:start]
+const a = 1
+// [!code hl:end]`
+        const html = await highlight(code)
+        expect(html).toContain('highlighted')
+        expect(html).not.toContain('focused')
+      })
+
+      it('should only match focus type for focus markers', async () => {
+        const code = `// [!code focus:start]
+const a = 1
+// [!code focus:end]`
+        const html = await highlight(code)
+        expect(html).toContain('focused')
+        expect(html).not.toContain('highlighted')
+      })
+
+      it('should NOT match unknown block types', async () => {
+        const code = `// [!code diff:start]
+const a = 1
+// [!code diff:end]`
+        const html = await highlight(code)
+        expect(html).not.toContain('highlighted')
+        expect(html).not.toContain('focused')
+        expect(html).toContain('[!code diff:start]')
+      })
+
+      it('should leave hl block open when end type does not match', async () => {
+        const code = `// [!code hl:start]
+const a = 1
+// [!code focus:end]
+const b = 2`
+        const html = await highlight(code)
+        const highlightedCount = (html.match(/class="line highlighted"/g) || []).length
+        expect(highlightedCount).toBe(2)
+        expect(html).not.toContain('[!code hl:start]')
+        expect(html).not.toContain('[!code focus:end]')
+      })
+    })
+  })
+
   describe('custom options', () => {
     it('should use custom highlight class', async () => {
       const highlighter = await createHighlighter({
