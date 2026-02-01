@@ -16,15 +16,19 @@ export declare namespace Cards {
 }
 
 export async function Card(props: Card.Props) {
-  const { title, description, icon, to } = props
+  const { title, description, icon, to, topRight } = props
 
   const html = icon ? ((await Icons.resolveIcon(icon)) ?? null) : null
 
   return (
     <Link
       to={to}
-      className="vocs:flex vocs:flex-col vocs:space-y-2 vocs:rounded-md vocs:bg-surfaceTint/70 vocs:border vocs:border-primary vocs:p-4 vocs:no-underline vocs:transition-colors vocs:hover:bg-surfaceTint"
+      className="vocs:relative vocs:flex vocs:flex-col vocs:space-y-2 vocs:rounded-md vocs:bg-surfaceTint/70 vocs:border vocs:border-primary vocs:p-4 vocs:no-underline vocs:transition-colors vocs:hover:bg-surfaceTint"
     >
+      {topRight ? (
+        <div className="vocs:absolute vocs:top-4 vocs:right-4">{topRight}</div>
+      ) : null}
+
       {html ? (
         <div
           className="vocs:size-8 vocs:flex vocs:items-center vocs:justify-center vocs:rounded-lg vocs:border vocs:border-primary vocs:bg-surface vocs:text-accent"
@@ -46,5 +50,6 @@ export declare namespace Card {
     description: string
     icon?: string | undefined
     to: string
+    topRight?: React.ReactNode | undefined
   }
 }
