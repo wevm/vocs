@@ -169,6 +169,10 @@ if (import.meta.hot)
 export function vocsConfig(config: VocsConfig.Config): Plugin {
   const configFile = VocsConfig.getConfigFile({ rootDir: config.rootDir })
   const configPath = configFile ? path.resolve(config.rootDir, configFile) : undefined
+  const configDir = configPath ? path.dirname(configPath) : undefined
+
+  // Track files directly imported by the config to bundle together
+  const imports = new Set<string>()
 
   let isBuild = false
 
@@ -181,6 +185,13 @@ export function vocsConfig(config: VocsConfig.Config): Plugin {
             build: {
               rollupOptions: {
                 external: ['fsevents', 'vite'],
+                output: {
+                  manualChunks(id) {
+                    // Only bundle files explicitly imported by vocs.config
+                    if (imports.has(id)) return 'vocs.config'
+                    return undefined
+                  },
+                },
               },
             },
             resolve: {
@@ -189,6 +200,23 @@ export function vocsConfig(config: VocsConfig.Config): Plugin {
           },
         },
       }
+    },
+    // Track which local files the config imports (e.g. sidebar.ts)
+    resolveId(source, importer) {
+      if (!configPath || !configDir || !importer) return null
+      // If the importer is the config file and source is a relative import
+      if (importer === configPath && source.startsWith('./')) {
+        const resolved = path.resolve(configDir, source)
+        // Find the actual file with extension
+        for (const ext of ['.ts', '.tsx', '.js', '.jsx', '.mjs']) {
+          const fullPath = resolved.endsWith(ext) ? resolved : resolved + ext
+          if (existsSync(fullPath)) {
+            imports.add(fullPath)
+            break
+          }
+        }
+      }
+      return null
     },
     configResolved(resolvedConfig) {
       isBuild = resolvedConfig.command === 'build'
