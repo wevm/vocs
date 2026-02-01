@@ -1,4 +1,5 @@
 import * as Icons from '../internal/icons.js'
+import * as Markdown from '../internal/markdown.js'
 import { Link } from './Link.js'
 
 export function Cards(props: Cards.Props) {
@@ -18,7 +19,8 @@ export declare namespace Cards {
 export async function Card(props: Card.Props) {
   const { title, description, icon, to, topRight } = props
 
-  const html = icon ? ((await Icons.resolveIcon(icon)) ?? null) : null
+  const iconHtml = icon ? ((await Icons.resolveIcon(icon)) ?? null) : null
+  const descriptionHtml = Markdown.toHtml(description)
 
   return (
     <Link
@@ -29,17 +31,21 @@ export async function Card(props: Card.Props) {
         <div className="vocs:absolute vocs:top-4 vocs:right-4">{topRight}</div>
       ) : null}
 
-      {html ? (
+      {iconHtml ? (
         <div
           className="vocs:size-8 vocs:flex vocs:items-center vocs:justify-center vocs:rounded-lg vocs:border vocs:border-primary vocs:bg-surface vocs:text-accent"
           // biome-ignore lint/security/noDangerouslySetInnerHtml: _
-          dangerouslySetInnerHTML={{ __html: html }}
+          dangerouslySetInnerHTML={{ __html: iconHtml }}
         />
       ) : null}
 
       <div className="vocs:text-[15px] vocs:font-medium vocs:text-heading">{title}</div>
 
-      <div className="vocs:text-sm vocs:leading-relaxed vocs:text-secondary">{description}</div>
+      <div
+        className="vocs:text-sm vocs:leading-relaxed vocs:text-secondary"
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: _
+        dangerouslySetInnerHTML={{ __html: descriptionHtml }}
+      />
     </Link>
   )
 }
