@@ -457,9 +457,10 @@ export function rehypeShiki(
       transformers: [
         rootDir && srcDir ? ShikiTransformers.notationInclude({ srcDir, rootDir }) : undefined,
         twoslash
-          ? ShikiTransformers.twoslash(
-              typeof twoslash === 'object' ? { ...twoslash, cacheDir } : {},
-            )
+          ? ShikiTransformers.twoslash({
+              ...(typeof twoslash === 'object' ? twoslash : {}),
+              cacheDir,
+            })
           : undefined,
         ...(twoslashTransformers ?? []),
         ShikiTransformers.emptyLine(),

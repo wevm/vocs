@@ -1,3 +1,4 @@
+import * as path from 'node:path'
 import { createCommentNotationTransformer } from '@shikijs/transformers'
 import { createTransformerFactory, type TransformerTwoslashOptions } from '@shikijs/twoslash/core'
 import type { ShikiTransformer } from '@shikijs/types'
@@ -222,7 +223,7 @@ export function twoslash(options: twoslash.Options): ShikiTransformer {
     renderer = Renderer.rich(),
     throws = true,
     twoslashOptions,
-    typesCache = TypesCache.fs({ dir: cacheDir }),
+    typesCache = TypesCache.fs({ dir: cacheDir ? path.join(cacheDir, 'twoslash') : undefined }),
   } = options
 
   // singleton twoslasher saves ~1.5s cold start time
