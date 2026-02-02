@@ -58,7 +58,7 @@ export async function buildLlmsContent(options: buildLlmsContent.Options) {
   const short = [...llmsTxtContent, ...nav]
   const full = [...llmsTxtContent, sitemap, ...results.map((r) => r.content)]
 
-  const resultsWithSitemap = results.map((r) => ({ ...r, content: sitemap + r.content }))
+  const resultsWithSitemap = results.map((r) => ({ ...r, content: `${sitemap}\n${r.content}` }))
 
   return { full: full.join('\n'), results: resultsWithSitemap, short: short.join('\n') }
 }

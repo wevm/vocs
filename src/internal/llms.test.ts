@@ -228,6 +228,15 @@ This is the home page.`,
       Content.
       "
     `)
+    expect(result.results[0]?.content).toMatchInlineSnapshot(`
+      "<!--
+      Sitemap:
+      - [Page](/page)
+      -->
+
+      Content.
+      "
+    `)
   })
 
   test('description is included in output when provided', async () => {
