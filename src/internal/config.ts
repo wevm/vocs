@@ -446,7 +446,7 @@ export function define(config: define.Options = {}): Config {
       : undefined,
     baseUrl,
     basePath,
-    cacheDir: cacheDir ?? path.resolve(rootDir, '.vocs/cache'),
+    cacheDir: path.resolve(rootDir, cacheDir ?? '.vocs/cache'),
     changelog,
     checkDeadlinks,
     codeHighlight: {
