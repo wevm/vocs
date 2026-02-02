@@ -55,66 +55,165 @@ cli
   })
 
 cli
-  .command('twoslash-rust', 'Pre-build Rust twoslash cache')
-  .option('--concurrency <n>', 'Number of parallel compilations', { default: 1 })
-  .action(async (options: { concurrency: number }) => {
+  .command('twoslash', 'Check twoslash blocks for errors')
+  .option('--lang <lang>', 'Language to check: typescript, rust, or all', { default: 'typescript' })
+  .option('--fail-on-error', 'Exit with non-zero code if errors found', { default: true })
+  .option('--concurrency <n>', 'Number of parallel Rust compilations', { default: 1 })
+  .action(async (options: { lang: string; failOnError: boolean; concurrency: number }) => {
     const config = await Config.resolve()
+    const srcDir = path.resolve(config.rootDir, config.srcDir)
     const cacheDir = path.resolve(config.rootDir, '.vocs/cache')
 
-    // Import twoslash dynamically to avoid circular deps
-    const Twoslash = await import('./internal/twoslash/index.js')
-    const twoslasher = Twoslash.createRustTwoslasher({ cacheDir })
-
     // Find all MDX files
-    const srcDir = path.resolve(config.rootDir, config.srcDir)
     const mdxFiles: string[] = []
     for await (const file of glob('**/*.mdx', { cwd: srcDir })) {
       mdxFiles.push(path.resolve(srcDir, file))
     }
 
-    // Regex to find ```rust twoslash code blocks
-    const rustTwoslashRegex = /```(?:rust|rs)\s+twoslash\n([\s\S]*?)```/g
+    // Regex to find ```lang twoslash code blocks
+    const twoslashRegex = /```(\w+)\s+twoslash([^\n]*)\n([\s\S]*?)```/g
+    // Regex to find :::code-group blocks
+    const codeGroupRegex = /:::code-group\n([\s\S]*?):::/g
+    // Regex to extract filename from meta (e.g., filename="hello.ts")
+    const filenameRegex = /filename=["']([^"']+)["']/
 
-    const blocks: { file: string; code: string }[] = []
+    const tsLangs = ['ts', 'tsx', 'typescript', 'js', 'jsx', 'javascript']
+    const rustLangs = ['rust', 'rs']
+
+    type Block = { file: string; code: string; lang: string; meta: string }
+    const tsBlocks: Block[] = []
+    const rustBlocks: Block[] = []
+
+    // Import snippets for processing virtual file imports
+    const Snippets = await import('./internal/snippets.js')
 
     for (const file of mdxFiles) {
       const content = fs.readFileSync(file, 'utf-8')
-      for (const match of content.matchAll(rustTwoslashRegex)) {
-        if (match[1]) blocks.push({ file, code: match[1] })
+
+      // Build virtual file map from code-groups
+      const virtualFiles = new Map<string, string>()
+      for (const groupMatch of content.matchAll(codeGroupRegex)) {
+        const groupContent = groupMatch[1] ?? ''
+        for (const blockMatch of groupContent.matchAll(twoslashRegex)) {
+          const meta = blockMatch[2]?.trim() ?? ''
+          const code = blockMatch[3] ?? ''
+          const filenameMatch = meta.match(filenameRegex)
+          if (filenameMatch?.[1]) {
+            virtualFiles.set(filenameMatch[1], code.trim())
+          }
+        }
+      }
+
+      for (const match of content.matchAll(twoslashRegex)) {
+        const lang = match[1]
+        const meta = match[2]?.trim() ?? ''
+        let code = match[3]
+        if (!lang || !code) continue
+
+        // Process imports if we have virtual files
+        if (virtualFiles.size > 0 && tsLangs.includes(lang)) {
+          code = Snippets.processImports({ code, virtualFiles })
+        }
+
+        if (tsLangs.includes(lang)) {
+          tsBlocks.push({ file, code, lang, meta })
+        } else if (rustLangs.includes(lang)) {
+          rustBlocks.push({ file, code, lang, meta })
+        }
       }
     }
 
-    if (blocks.length === 0) {
-      console.log('[vocs] No Rust twoslash blocks found')
+    const checkTs = options.lang === 'typescript' || options.lang === 'all'
+    const checkRust = options.lang === 'rust' || options.lang === 'all'
+
+    const blocksToCheck = (checkTs ? tsBlocks.length : 0) + (checkRust ? rustBlocks.length : 0)
+    if (blocksToCheck === 0) {
+      console.log('[vocs] No twoslash blocks found')
       return
     }
 
-    console.log(`[vocs] Found ${blocks.length} Rust twoslash block(s) to process`)
+    type TwoslashError = { file: string; lang: string; meta: string; code: string; error: string }
+    const errors: TwoslashError[] = []
 
-    // Process blocks with concurrency limit
-    const concurrency = Math.max(1, options.concurrency)
-    let completed = 0
+    // Check TypeScript blocks
+    if (checkTs && tsBlocks.length > 0) {
+      console.log(`[vocs] Checking ${tsBlocks.length} TypeScript twoslash block(s)...`)
+      const { createTwoslasher } = await import('twoslash')
+      const twoslasher = createTwoslasher({
+        compilerOptions: {
+          moduleResolution: 100, // bundler
+          preserveSymlinks: false,
+        },
+      })
 
-    const processBlock = async (block: { file: string; code: string }) => {
-      const relativePath = path.relative(config.rootDir, block.file)
-      const preview = block.code.slice(0, 50).replace(/\n/g, '\\n')
-      console.log(
-        `[vocs] [${++completed}/${blocks.length}] Processing: ${relativePath} - "${preview}..."`,
-      )
-      twoslasher(block.code, 'rust')
+      for (const block of tsBlocks) {
+        const relativePath = path.relative(config.rootDir, block.file)
+        try {
+          twoslasher(block.code, block.lang)
+        } catch (err) {
+          const message = err instanceof Error ? err.message : String(err)
+          errors.push({
+            file: relativePath,
+            lang: block.lang,
+            meta: block.meta,
+            code: block.code,
+            error: message,
+          })
+        }
+      }
     }
 
-    // Simple concurrency limiter
-    const queue = [...blocks]
-    const workers = Array.from({ length: concurrency }, async () => {
-      while (queue.length > 0) {
-        const block = queue.shift()
-        if (block) await processBlock(block)
-      }
-    })
+    // Check Rust blocks
+    if (checkRust && rustBlocks.length > 0) {
+      console.log(`[vocs] Checking ${rustBlocks.length} Rust twoslash block(s)...`)
+      const Twoslash = await import('./internal/twoslash/index.js')
+      const rustTwoslasher = Twoslash.createRustTwoslasher({ cacheDir, verbose: false })
 
-    await Promise.all(workers)
-    console.log(`[vocs] Twoslash Rust complete: ${blocks.length} block(s) processed`)
+      const concurrency = Math.max(1, options.concurrency)
+      const queue = [...rustBlocks]
+
+      const processBlock = async (block: Block) => {
+        const relativePath = path.relative(config.rootDir, block.file)
+        try {
+          rustTwoslasher(block.code, 'rust')
+        } catch (err) {
+          const message = err instanceof Error ? err.message : String(err)
+          errors.push({
+            file: relativePath,
+            lang: block.lang,
+            meta: block.meta,
+            code: block.code,
+            error: message,
+          })
+        }
+      }
+
+      const workers = Array.from({ length: concurrency }, async () => {
+        while (queue.length > 0) {
+          const block = queue.shift()
+          if (block) await processBlock(block)
+        }
+      })
+      await Promise.all(workers)
+    }
+
+    if (errors.length === 0) {
+      console.log(`[vocs] All ${blocksToCheck} twoslash block(s) passed`)
+      return
+    }
+
+    console.error(`\n[vocs] Found ${errors.length} twoslash error(s):\n`)
+    for (const err of errors) {
+      console.error(`File: ${err.file}`)
+      console.error(`Lang: ${err.lang}${err.meta ? ` ${err.meta}` : ''}`)
+      console.error(`Error: ${err.error}`)
+      console.error(`Code:\n${err.code.slice(0, 200)}${err.code.length > 200 ? '...' : ''}`)
+      console.error('\n---\n')
+    }
+
+    if (options.failOnError) {
+      process.exit(1)
+    }
   })
 
 cli.help()

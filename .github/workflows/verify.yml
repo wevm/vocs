@@ -21,6 +21,9 @@ jobs:
       - name: Check types
         run: pnpm check:types
 
+      - name: Check twoslash
+        run: pnpm docs:twoslash
+
   test:
     name: Test Runtime
     runs-on: ubuntu-latest
@@ -96,3 +99,7 @@ jobs:
 
       - name: Run integration tests
         run: pnpm vitest src/internal/twoslash/experimental_rust.test.ts --run
+
+      - name: Check twoslash
+        run: pnpm docs:twoslash --lang rust
+
