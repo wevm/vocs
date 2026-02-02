@@ -27,9 +27,7 @@ export async function Card(props: Card.Props) {
       to={to}
       className="vocs:relative vocs:flex vocs:flex-col vocs:space-y-2 vocs:rounded-md vocs:bg-surfaceTint/70 vocs:border vocs:border-primary vocs:p-4 vocs:no-underline vocs:transition-colors vocs:hover:bg-surfaceTint"
     >
-      {topRight ? (
-        <div className="vocs:absolute vocs:top-4 vocs:right-4">{topRight}</div>
-      ) : null}
+      {topRight ? <div className="vocs:absolute vocs:top-4 vocs:right-4">{topRight}</div> : null}
 
       {iconHtml ? (
         <div

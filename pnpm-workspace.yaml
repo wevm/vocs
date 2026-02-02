@@ -17,12 +17,13 @@ catalog:
   react-dom: ^19.2.3
   simple-git-hooks: ^2.13.1
   typescript: ^5.9.3
-  vite: ^7.2.7
+  vite: ~7.2.7
   vitest: ^4.0.16
-  waku: 1.0.0-alpha.2
+  waku: 1.0.0-alpha.3
   zile: 0.0.19
 
 overrides:
   '@vocs/twoslash-rust': workspace:*
   create-vocs: workspace:*
   vite: 'catalog:'
+  rollup: 4.53.5

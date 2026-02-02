@@ -28,7 +28,7 @@ import rust from 'shiki/langs/rust.mjs'
 import solidity from 'shiki/langs/solidity.mjs'
 import sql from 'shiki/langs/sql.mjs'
 import toml from 'shiki/langs/toml.mjs'
-import yaml from 'shiki/langs/yaml.mjs'
+import yamlLang from 'shiki/langs/yaml.mjs'
 
 import type { Pluggable, PluggableList } from 'unified'
 import * as UnistUtil from 'unist-util-visit'
@@ -57,7 +57,7 @@ const defaultLanguages = {
   solidity,
   sql,
   toml,
-  yaml,
+  yaml: yamlLang,
 } as const
 
 /** Set of all valid language names including aliases from explicitly imported languages */
