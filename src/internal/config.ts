@@ -90,7 +90,8 @@ export type Config<partial extends boolean = false> = MaybePartial<
     //  */
     // blogDir?: string
     /**
-     * Absolute path to the directory to store cache files.
+     * Path to the directory to store cache files, relative to `rootDir`.
+     * @default ".vocs/cache"
      */
     cacheDir: string
     /**
