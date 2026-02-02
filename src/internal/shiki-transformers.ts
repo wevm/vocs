@@ -18,6 +18,99 @@ export {
 } from '@shikijs/transformers'
 
 /**
+ * Shiki transformer that enables block-based highlight and focus annotations.
+ *
+ * Detects `// [!code hl:start]` / `// [!code hl:end]` and
+ * `// [!code focus:start]` / `// [!code focus:end]` annotations,
+ * applying the appropriate class to all lines within the block.
+ *
+ * - `// [!code hl:start]` ... `// [!code hl:end]` - Highlights all lines in block
+ * - `// [!code focus:start]` ... `// [!code focus:end]` - Focuses all lines in block
+ *
+ * Marker lines are removed from output. Blocks can overlap and nest.
+ * Only pure marker lines (where the marker is the only meaningful content) are detected.
+ */
+export function notationBlock(): ShikiTransformer[] {
+  type Element = import('hast').Element
+  type Text = import('hast').Text
+  type ElementContent = import('hast').ElementContent
+
+  type BlockType = 'highlighted' | 'focused'
+  type BlockMarker = { type: BlockType; action: 'start' | 'end' }
+
+  const markerPattern =
+    /^\s*(?:\/\/|\/\*|#|;|--|<!--)\s*\[!code (hl|focus):(start|end)\]\s*(?:\*\/|-->)?\s*$/
+
+  function getTextContent(element: Element): string {
+    let text = ''
+    for (const child of element.children) {
+      if (child.type === 'text') text += (child as Text).value
+      else if (child.type === 'element') text += getTextContent(child as Element)
+    }
+    return text
+  }
+
+  function isMarkerLine(line: Element): BlockMarker | null {
+    const text = getTextContent(line)
+    const match = text.match(markerPattern)
+    if (!match) return null
+    const [, type, action] = match as [string, 'hl' | 'focus', 'start' | 'end']
+    const blockType: BlockType = type === 'hl' ? 'highlighted' : 'focused'
+    return { type: blockType, action }
+  }
+
+  return [
+    {
+      name: 'vocs:notation-block',
+      code(code) {
+        const activeBlocks: Map<BlockType, number> = new Map()
+        const newChildren: ElementContent[] = []
+        let hasFocus = false
+        let skipNextNewline = false
+
+        for (const child of code.children) {
+          if (skipNextNewline && child.type === 'text' && child.value === '\n') {
+            skipNextNewline = false
+            continue
+          }
+          skipNextNewline = false
+
+          if (child.type !== 'element') {
+            newChildren.push(child)
+            continue
+          }
+
+          const line = child as Element
+          const marker = isMarkerLine(line)
+
+          if (marker) {
+            if (marker.action === 'start') {
+              activeBlocks.set(marker.type, (activeBlocks.get(marker.type) ?? 0) + 1)
+            } else {
+              const count = activeBlocks.get(marker.type) ?? 0
+              if (count > 0) activeBlocks.set(marker.type, count - 1)
+            }
+            skipNextNewline = true
+            continue
+          }
+
+          for (const [blockType, count] of activeBlocks) {
+            if (count > 0) {
+              this.addClassToHast(line, blockType)
+              if (blockType === 'focused') hasFocus = true
+            }
+          }
+          newChildren.push(child)
+        }
+
+        code.children = newChildren
+        if (hasFocus) this.addClassToHast(code, 'has-focused')
+      },
+    },
+  ]
+}
+
+/**
  * Shiki transformer that enables collapsible code regions.
  *
  * Detects `// [!code collapse]` or `// [!code collapse:N]` annotations and marks

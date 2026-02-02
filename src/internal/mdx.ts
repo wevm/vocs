@@ -454,6 +454,7 @@ export function rehypeShiki(
         ShikiTransformers.notationFocus(),
         ShikiTransformers.notationHighlight(),
         ShikiTransformers.notationWordHighlight(),
+        ...ShikiTransformers.notationBlock(),
         ...ShikiTransformers.notationCollapse(),
         ...ShikiTransformers.notationFold(),
         ShikiTransformers.removeNotationEscape(),
