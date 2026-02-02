@@ -572,17 +572,62 @@ export function shellPrompt(options: shellPrompt.Options = {}): ShikiTransformer
 
         const text = textNode.value.trim()
 
-        if (promptChars.has(text)) {
-          const secondChild = line.children[1]
-          if (secondChild?.type === 'element') {
-            const secondSpan = secondChild as Element
-            const secondTextNode = secondSpan.children[0] as Text | undefined
-            if (secondTextNode?.type === 'text' && secondTextNode.value.startsWith(' ')) {
-              textNode.value = `${text} `
-              secondTextNode.value = secondTextNode.value.slice(1)
+        // Check if line starts with a prompt character
+        // Case 1: Prompt is isolated in its own span (e.g., "$")
+        // Case 2: Prompt is at start of span followed by space (e.g., "$ forge build")
+        const startsWithPrompt =
+          promptChars.has(text) || [...promptChars].some((p) => text.startsWith(`${p} `))
+
+        if (startsWithPrompt) {
+          if (promptChars.has(text)) {
+            // Case 1: Prompt is isolated — move trailing space from next span if present
+            const secondChild = line.children[1]
+            if (secondChild?.type === 'element') {
+              const secondSpan = secondChild as Element
+              const secondTextNode = secondSpan.children[0] as Text | undefined
+              if (secondTextNode?.type === 'text' && secondTextNode.value.startsWith(' ')) {
+                textNode.value = `${text} `
+                secondTextNode.value = secondTextNode.value.slice(1)
+              }
             }
+            span.properties = { ...span.properties, 'data-v-shell-prompt': '' }
+          } else {
+            // Case 2: Prompt is inline — split the span into prompt + command
+            const prompt = [...promptChars].find((p) => text.startsWith(`${p} `)) as string
+            const commandText = textNode.value
+              .slice(textNode.value.indexOf(prompt) + prompt.length + 1)
+              .trimStart()
+            const leadingWs = textNode.value.slice(0, textNode.value.indexOf(prompt))
+
+            // Create prompt span with shell prompt styling
+            const promptSpan: Element = {
+              type: 'element',
+              tagName: 'span',
+              properties: {
+                style: 'color:var(--shiki-token-function)',
+                'data-v-shell-prompt': '',
+              },
+              children: [{ type: 'text', value: `${leadingWs}${prompt} ` }],
+            }
+
+            // Create command span with shell command styling
+            const commandSpan: Element = {
+              type: 'element',
+              tagName: 'span',
+              properties: { style: 'color:var(--shiki-token-string)' },
+              children: [{ type: 'text', value: commandText }],
+            }
+
+            // Replace line children with prompt + command + rest of children
+            const spanIndex = line.children.indexOf(span)
+            const newChildren = [
+              ...line.children.slice(0, spanIndex),
+              promptSpan,
+              ...(commandText.length > 0 ? [commandSpan] : []),
+              ...line.children.slice(spanIndex + 1),
+            ]
+            line.children = newChildren
           }
-          span.properties = { ...span.properties, 'data-v-shell-prompt': '' }
           line.properties = { ...line.properties, 'data-v-shell-line': '' }
         }
       }

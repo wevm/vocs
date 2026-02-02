@@ -9,14 +9,16 @@ export function CopyButton() {
   const buttonRef = React.useRef<HTMLButtonElement>(null)
   const [copied, setCopied] = React.useState(false)
   const [singleLine, setSingleLine] = React.useState(false)
-  const [isShell, setIsShell] = React.useState(false)
+  const [hasShellPrompts, setHasShellPrompts] = React.useState(false)
 
   React.useEffect(() => {
     const pre = buttonRef.current?.parentElement as HTMLPreElement | null
     if (!pre) return
     const lineCount = pre.querySelectorAll('.line').length
     setSingleLine(lineCount <= 1)
-    setIsShell(pre.hasAttribute('data-v-shell'))
+    // Only hide copy button if there are actual shell prompt lines (per-line copy buttons)
+    const shellLineCount = pre.querySelectorAll('.line[data-v-shell-line]').length
+    setHasShellPrompts(shellLineCount > 0)
   }, [])
 
   React.useEffect(() => {
@@ -39,7 +41,7 @@ export function CopyButton() {
     setCopied(true)
   }, [])
 
-  if (isShell) return null
+  if (hasShellPrompts) return null
   return (
     <button
       ref={buttonRef}

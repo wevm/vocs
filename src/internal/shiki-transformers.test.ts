@@ -1,6 +1,6 @@
 import { type BundledLanguage, createHighlighter } from 'shiki'
 import { describe, expect, it } from 'vitest'
-import { notationBlock } from './shiki-transformers.js'
+import { notationBlock, shellPrompt } from './shiki-transformers.js'
 
 async function highlight(code: string, lang: BundledLanguage = 'typescript') {
   const highlighter = await createHighlighter({
@@ -312,5 +312,76 @@ const a = 1
       expect(html).toContain('custom-has-focus')
       expect(html).not.toContain('has-focused')
     })
+  })
+})
+
+describe('shellPrompt', () => {
+  it('should mark shell prompt lines with data-v-shell-line', async () => {
+    const highlighter = await createHighlighter({
+      themes: ['github-dark'],
+      langs: ['bash'],
+    })
+
+    const code = `$ echo hello
+$ ls -la`
+
+    const html = highlighter.codeToHtml(code, {
+      lang: 'bash',
+      theme: 'github-dark',
+      transformers: [shellPrompt()],
+    })
+
+    highlighter.dispose()
+
+    expect(html).toContain('data-v-shell')
+    expect(html).toContain('data-v-shell-line')
+    expect(html).toContain('data-v-shell-prompt')
+  })
+
+  it('should apply consistent styling with dual themes (light-dark)', async () => {
+    const highlighter = await createHighlighter({
+      themes: ['github-light', 'github-dark-dimmed'],
+      langs: ['bash'],
+    })
+
+    const code = `$ forge test
+output
+$ forge build`
+
+    const html = highlighter.codeToHtml(code, {
+      lang: 'bash',
+      themes: { light: 'github-light', dark: 'github-dark-dimmed' },
+      defaultColor: 'light-dark()',
+      transformers: [shellPrompt()],
+    })
+
+    highlighter.dispose()
+
+    // Both command lines should be marked
+    const shellLineMatches = html.match(/data-v-shell-line/g)
+    expect(shellLineMatches?.length).toBe(2)
+
+    // With dual themes, Shiki properly tokenizes each command
+    // Check that both commands have proper light-dark styling
+    expect(html).toContain('light-dark(')
+  })
+
+  it('should not process non-shell languages', async () => {
+    const highlighter = await createHighlighter({
+      themes: ['github-dark'],
+      langs: ['typescript'],
+    })
+
+    const code = `$ echo hello`
+
+    const html = highlighter.codeToHtml(code, {
+      lang: 'typescript',
+      theme: 'github-dark',
+      transformers: [shellPrompt()],
+    })
+
+    highlighter.dispose()
+
+    expect(html).not.toContain('data-v-shell')
   })
 })

@@ -222,6 +222,7 @@ export function getCompileOptions(
           remarkMdxFrontmatter,
           remarkSandbox,
           remarkSteps,
+          remarkTerminal,
           remarkSubheading,
           remarkVocsScope,
           ...(markdown?.remarkPlugins ?? []),
@@ -809,6 +810,63 @@ export function remarkSteps() {
       children.push(currentChild)
 
       node.children = children
+    })
+  }
+}
+
+/**
+ * Remark plugin that handles :::terminal directive.
+ * Stitches command and output code blocks together visually.
+ *
+ * Usage:
+ * :::terminal
+ * ```bash
+ * forge test
+ * ```
+ * ```ansi
+ * [32m[PASS][0m test passed
+ * ```
+ * :::
+ *
+ * The first code block is the command (with copy button).
+ * Subsequent code blocks are output (no copy, rendered with ANSI support).
+ */
+export function remarkTerminal() {
+  return (tree: MdAst.Root) => {
+    UnistUtil.visit(tree, (node) => {
+      if (node.type !== 'containerDirective') return
+      if (node.name !== 'terminal') return
+
+      // biome-ignore lint/suspicious/noAssignInExpressions: _
+      const data = node.data || (node.data = {})
+      const tagName = 'div'
+
+      node.attributes = {
+        ...node.attributes,
+        'data-v-terminal': '',
+      }
+
+      data.hName = tagName
+      data.hProperties = node.attributes || {}
+
+      let isFirst = true
+      node.children = node.children
+        .map((child) => {
+          if (child.type !== 'code') return child
+          const isCommand = isFirst
+          isFirst = false
+          return {
+            type: 'paragraph',
+            children: [child],
+            data: {
+              hName: 'div',
+              hProperties: isCommand
+                ? { 'data-v-terminal-command': '' }
+                : { 'data-v-terminal-output': '' },
+            },
+          }
+        })
+        .filter(Boolean) as (MdAst.BlockContent | MdAst.DefinitionContent)[]
     })
   }
 }
