@@ -202,6 +202,10 @@ function Section(props: Section.Props) {
     return Boolean(props.collapsed)
   })
 
+  React.useEffect(() => {
+    if (hasActiveChildItem) setCollapsed(false)
+  }, [hasActiveChildItem])
+
   const collapsable = typeof props.collapsed === 'boolean' && !props.disabled
   const onCollapseInteraction = React.useCallback(
     (event: React.KeyboardEvent | React.MouseEvent) => {
