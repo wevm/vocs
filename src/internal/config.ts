@@ -208,6 +208,12 @@ export type Config<partial extends boolean = false> = MaybePartial<
       | {
           /** Enable MCP server endpoint at `/api/mcp`. */
           enabled?: boolean | undefined
+          /**
+           * Show "Copy page for AI" button in the outline sidebar.
+           * Copies page markdown to clipboard for use with AI assistants.
+           * @default true (when mcp.enabled is true)
+           */
+          copyForAi?: boolean | undefined
           /** Source code adapters for navigating codebases. */
           sources?: readonly McpSource.Adapter[] | undefined
         }

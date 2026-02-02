@@ -9,6 +9,7 @@ import LucideChevronRight from '~icons/lucide/chevron-right'
 import LucideTextAlignStart from '~icons/lucide/text-align-start'
 import * as MdxPageContext from '../MdxPageContext.js'
 import { useTopGutterOffset } from '../useTopGutterOffset.js'
+import * as CopyForAi from './CopyForAi.client.js'
 import * as Feedback from './Feedback.client.js'
 
 function useOutlineItems(options: { minLevel: number; maxLevel: number }) {
@@ -221,6 +222,8 @@ export function Outline(props: Outline.Props) {
         </nav>
 
         <Feedback.Feedback className="vocs:mt-6 vocs:max-w-68.5" frontmatter={frontmatter} />
+
+        <CopyForAi.CopyForAi className="vocs:mt-6 vocs:max-w-68.5" />
 
         {Footer && (
           <div className="vocs:mt-6" data-v-outline-footer>
