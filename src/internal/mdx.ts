@@ -20,8 +20,15 @@ import type {
   ShikiTransformer,
 } from 'shiki'
 import { bundledLanguages } from 'shiki/bundle/web'
+import dockerfile from 'shiki/langs/dockerfile.mjs'
+import go from 'shiki/langs/go.mjs'
+import protobuf from 'shiki/langs/protobuf.mjs'
+import python from 'shiki/langs/python.mjs'
 import rust from 'shiki/langs/rust.mjs'
 import solidity from 'shiki/langs/solidity.mjs'
+import sql from 'shiki/langs/sql.mjs'
+import toml from 'shiki/langs/toml.mjs'
+import yaml from 'shiki/langs/yaml.mjs'
 
 import type { Pluggable, PluggableList } from 'unified'
 import * as UnistUtil from 'unist-util-visit'
@@ -42,8 +49,15 @@ export { default as remarkMdxFrontmatter } from 'remark-mdx-frontmatter'
 
 const defaultLanguages = {
   ...bundledLanguages,
+  dockerfile,
+  go,
+  protobuf,
+  python,
   rust,
   solidity,
+  sql,
+  toml,
+  yaml,
 } as const
 
 /** Set of all valid language names including aliases from explicitly imported languages */
