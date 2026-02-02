@@ -450,6 +450,7 @@ export function rehypeShiki(
         ShikiTransformers.emptyLine(),
         ShikiTransformers.customTag(),
         ShikiTransformers.lineNumbers(),
+        ShikiTransformers.notationBlock(),
         ShikiTransformers.notationDiff(),
         ShikiTransformers.notationFocus(),
         ShikiTransformers.notationHighlight(),

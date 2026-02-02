@@ -1,132 +1,316 @@
-import { createHighlighter } from 'shiki'
-import { describe, expect, test } from 'vitest'
-import { notationCollapse, notationFold } from './shiki-transformers.js'
+import { type BundledLanguage, createHighlighter } from 'shiki'
+import { describe, expect, it } from 'vitest'
+import { notationBlock } from './shiki-transformers.js'
 
-const highlighter = await createHighlighter({
-  themes: ['github-dark'],
-  langs: ['javascript', 'jsx', 'typescript'],
-})
+async function highlight(code: string, lang: BundledLanguage = 'typescript') {
+  const highlighter = await createHighlighter({
+    themes: ['github-dark'],
+    langs: [lang],
+  })
 
-function highlight(code: string, lang = 'javascript') {
-  return highlighter.codeToHtml(code, {
+  const html = highlighter.codeToHtml(code, {
     lang,
     theme: 'github-dark',
-    transformers: [...notationCollapse(), ...notationFold()],
+    transformers: [notationBlock()],
   })
+
+  highlighter.dispose()
+  return html
 }
 
-describe('notationCollapse', () => {
-  test('basic collapse annotation', () => {
-    const html = highlight(`function foo() { // [!code collapse]
-  return 1
-  return 2
-}`)
-    expect(html).toContain('data-v-collapse-trigger')
-    expect(html).toContain('data-v-collapse-content')
+describe('notationBlock', () => {
+  describe('highlight blocks', () => {
+    it('should highlight lines between hl:start and hl:end markers', async () => {
+      const code = `const a = 1
+// [!code hl:start]
+const b = 2
+const c = 3
+// [!code hl:end]
+const d = 4`
+
+      const html = await highlight(code)
+
+      expect(html).toContain('class="line highlighted"')
+      expect(html).not.toContain('[!code hl:start]')
+      expect(html).not.toContain('[!code hl:end]')
+      expect(html).toMatch(/line highlighted[^>]*>.*\bb\b/)
+      expect(html).toMatch(/line highlighted[^>]*>.*\bc\b/)
+      expect(html).not.toMatch(/line highlighted[^>]*>.*\ba\b.*=.*1/)
+      expect(html).not.toMatch(/line highlighted[^>]*>.*\bd\b.*=.*4/)
+    })
+
+    it('should handle multiple separate highlight blocks', async () => {
+      const code = `// [!code hl:start]
+const a = 1
+// [!code hl:end]
+const b = 2
+// [!code hl:start]
+const c = 3
+// [!code hl:end]`
+
+      const html = await highlight(code)
+
+      const highlightedCount = (html.match(/class="line highlighted"/g) || []).length
+      expect(highlightedCount).toBe(2)
+    })
+
+    it('should handle hash comments for Python/Ruby', async () => {
+      const code = `x = 1
+# [!code hl:start]
+y = 2
+z = 3
+# [!code hl:end]
+w = 4`
+
+      const html = await highlight(code, 'python')
+
+      expect(html).toContain('class="line highlighted"')
+      expect(html).not.toContain('[!code hl:start]')
+      expect(html).not.toContain('[!code hl:end]')
+    })
+
+    it('should handle HTML comments', async () => {
+      const code = `<div>
+<!-- [!code hl:start] -->
+<span>highlighted</span>
+<!-- [!code hl:end] -->
+</div>`
+
+      const html = await highlight(code, 'html')
+
+      expect(html).toContain('class="line highlighted"')
+      expect(html).not.toContain('[!code hl:start]')
+      expect(html).not.toContain('[!code hl:end]')
+    })
+
+    it('should handle block comments /* */', async () => {
+      const code = `const a = 1
+/* [!code hl:start] */
+const b = 2
+/* [!code hl:end] */
+const c = 3`
+
+      const html = await highlight(code)
+
+      expect(html).toContain('class="line highlighted"')
+      expect(html).not.toContain('[!code hl:start]')
+    })
   })
 
-  test('collapse with count', () => {
-    const html = highlight(`function foo() { // [!code collapse:2]
-  return 1
-  return 2
-  return 3
-}`)
-    expect(html).toContain('data-v-collapse-trigger')
-    expect(html).toContain('data-v-collapse-content')
-    expect(html.match(/data-v-collapse-content/g)?.length).toBe(2)
+  describe('focus blocks', () => {
+    it('should focus lines between focus:start and focus:end markers', async () => {
+      const code = `const a = 1
+// [!code focus:start]
+const b = 2
+const c = 3
+// [!code focus:end]
+const d = 4`
+
+      const html = await highlight(code)
+
+      expect(html).toContain('class="line focused"')
+      expect(html).toContain('has-focused')
+      expect(html).not.toContain('[!code focus:start]')
+      expect(html).not.toContain('[!code focus:end]')
+    })
+
+    it('should add has-focused class to pre element', async () => {
+      const code = `// [!code focus:start]
+const x = 1
+// [!code focus:end]`
+
+      const html = await highlight(code)
+
+      expect(html).toMatch(/<pre[^>]*class="[^"]*has-focused[^"]*"/)
+    })
   })
 
-  test('collapse with collapsed state', () => {
-    const html = highlight(`function foo() { // [!code collapse collapsed]
-  return 1
-}`)
-    expect(html).toContain('data-v-collapsed')
+  describe('mixed blocks', () => {
+    it('should handle both hl and focus blocks in same code', async () => {
+      const code = `const a = 1
+// [!code hl:start]
+const b = 2
+// [!code hl:end]
+// [!code focus:start]
+const c = 3
+// [!code focus:end]
+const d = 4`
+
+      const html = await highlight(code)
+
+      expect(html).toContain('class="line highlighted"')
+      expect(html).toContain('class="line focused"')
+    })
+
+    it('should handle overlapping hl and focus blocks', async () => {
+      const code = `// [!code hl:start]
+// [!code focus:start]
+const a = 1
+// [!code focus:end]
+const b = 2
+// [!code hl:end]`
+
+      const html = await highlight(code)
+
+      expect(html).toContain('highlighted')
+      expect(html).toContain('focused')
+    })
+
+    it('should apply both classes to overlapping lines', async () => {
+      const code = `// [!code hl:start]
+// [!code focus:start]
+const a = 1
+// [!code hl:end]
+// [!code focus:end]`
+
+      const html = await highlight(code)
+
+      expect(html).toMatch(/class="line (highlighted focused|focused highlighted)"/)
+    })
   })
 
-  test('adds has-collapse class', () => {
-    const html = highlight(`function foo() { // [!code collapse]
-  return 1
-}`)
-    expect(html).toContain('has-collapse')
+  describe('edge cases', () => {
+    it('should handle empty blocks', async () => {
+      const code = `const a = 1
+// [!code hl:start]
+// [!code hl:end]
+const b = 2`
+
+      const html = await highlight(code)
+
+      expect(html).not.toContain('[!code hl:start]')
+      expect(html).not.toContain('[!code hl:end]')
+    })
+
+    it('should handle unclosed blocks (apply to end of file)', async () => {
+      const code = `const a = 1
+// [!code hl:start]
+const b = 2
+const c = 3`
+
+      const html = await highlight(code)
+
+      const highlightedCount = (html.match(/class="line highlighted"/g) || []).length
+      expect(highlightedCount).toBe(2)
+    })
+
+    it('should handle nested blocks of same type gracefully', async () => {
+      const code = `// [!code hl:start]
+const a = 1
+// [!code hl:start]
+const b = 2
+// [!code hl:end]
+const c = 3
+// [!code hl:end]`
+
+      const html = await highlight(code)
+
+      expect(html).toContain('highlighted')
+      expect(html).not.toContain('[!code hl:start]')
+    })
+
+    it('should handle markers with extra whitespace', async () => {
+      const code = `const a = 1
+//   [!code hl:start]
+const b = 2
+//   [!code hl:end]
+const c = 3`
+
+      const html = await highlight(code)
+
+      expect(html).toContain('class="line highlighted"')
+    })
+
+    it('should preserve code without any markers', async () => {
+      const code = `const a = 1
+const b = 2
+const c = 3`
+
+      const html = await highlight(code)
+
+      expect(html).not.toContain('highlighted')
+      expect(html).not.toContain('focused')
+      expect(html).toContain('a')
+      expect(html).toContain('b')
+      expect(html).toContain('c')
+    })
+
+    it('should not match partial markers', async () => {
+      const code = `// [!code hl:star]
+const a = 1
+// [!code hl:ending]`
+
+      const html = await highlight(code)
+
+      expect(html).not.toContain('highlighted')
+      expect(html).toContain('[!code hl:star]')
+    })
   })
 
-  test('no annotation produces no collapse attributes', () => {
-    const html = highlight(`function foo() {
-  return 1
-}`)
-    expect(html).not.toContain('data-v-collapse')
-  })
-})
+  describe('custom options', () => {
+    it('should use custom highlight class', async () => {
+      const highlighter = await createHighlighter({
+        themes: ['github-dark'],
+        langs: ['typescript'],
+      })
 
-describe('notationFold', () => {
-  test('basic fold annotation with regex', () => {
-    const html = highlight(
-      `// [!code fold /className="(.*?)"/g]
-<div className="bg-red-200">hey</div>`,
-      'jsx',
-    )
-    expect(html).toContain('data-v-fold')
-    expect(html).not.toContain('[!code fold')
-  })
+      const code = `// [!code hl:start]
+const a = 1
+// [!code hl:end]`
 
-  test('folds multiple matches', () => {
-    const html = highlight(
-      `// [!code fold /className="(.*?)"/g]
-<div className="a"><span className="b">hey</span></div>`,
-      'jsx',
-    )
-    expect(html).toContain('data-v-fold')
-    expect(html).toContain('>className<')
-    expect(html).toContain('"a"')
-    expect(html).toContain('"b"')
-  })
+      const html = highlighter.codeToHtml(code, {
+        lang: 'typescript',
+        theme: 'github-dark',
+        transformers: [notationBlock({ highlightClass: 'my-highlight' })],
+      })
 
-  test('fold with different regex', () => {
-    const html = highlight(
-      `// [!code fold /return \\d+/g]
-function foo() {
-  return 42
-  return 100
-}`,
-      'javascript',
-    )
-    expect(html).toContain('data-v-fold')
-    expect(html).toContain('>return<')
-    expect(html).toContain('42')
-    expect(html).toContain('100')
-  })
+      highlighter.dispose()
 
-  test('adds has-fold class', () => {
-    const html = highlight(
-      `// [!code fold /foo/g]
-const foo = 1`,
-      'javascript',
-    )
-    expect(html).toContain('has-fold')
-  })
+      expect(html).toContain('my-highlight')
+      expect(html).not.toContain('highlighted')
+    })
 
-  test('no annotation produces no fold attributes', () => {
-    const html = highlight(`const foo = 1`, 'javascript')
-    expect(html).not.toContain('data-v-fold')
-  })
+    it('should use custom focus class', async () => {
+      const highlighter = await createHighlighter({
+        themes: ['github-dark'],
+        langs: ['typescript'],
+      })
 
-  test('removes fold annotation line', () => {
-    const html = highlight(
-      `// [!code fold /x/g]
-const x = 1`,
-      'javascript',
-    )
-    expect(html).not.toContain('[!code fold')
-  })
+      const code = `// [!code focus:start]
+const a = 1
+// [!code focus:end]`
 
-  test('fold without global flag matches first only', () => {
-    const html = highlight(
-      `// [!code fold /foo/]
-foo bar baz`,
-      'javascript',
-    )
-    expect(html).toContain('data-v-fold')
-    const foldMatch = html.match(/<span data-v-fold[^>]*>[^<]*<\/span>/g)
-    expect(foldMatch?.length).toBe(1)
+      const html = highlighter.codeToHtml(code, {
+        lang: 'typescript',
+        theme: 'github-dark',
+        transformers: [notationBlock({ focusClass: 'my-focus' })],
+      })
+
+      highlighter.dispose()
+
+      expect(html).toContain('my-focus')
+    })
+
+    it('should use custom focus active pre class', async () => {
+      const highlighter = await createHighlighter({
+        themes: ['github-dark'],
+        langs: ['typescript'],
+      })
+
+      const code = `// [!code focus:start]
+const a = 1
+// [!code focus:end]`
+
+      const html = highlighter.codeToHtml(code, {
+        lang: 'typescript',
+        theme: 'github-dark',
+        transformers: [notationBlock({ focusActivePreClass: 'custom-has-focus' })],
+      })
+
+      highlighter.dispose()
+
+      expect(html).toContain('custom-has-focus')
+      expect(html).not.toContain('has-focused')
+    })
   })
 })
