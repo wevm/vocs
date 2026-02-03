@@ -54,25 +54,34 @@ cli
   })
 
 cli
-  .command('twoslash', 'Check twoslash blocks for errors [experimental]')
+  .command('twoslash [pattern]', 'Check twoslash blocks for errors [experimental]')
   .option('--lang <lang>', 'Language to check: typescript, rust, or all', { default: 'typescript' })
   .option('--fail-on-error', 'Exit with non-zero code if errors found', { default: true })
   .option('--concurrency <n>', 'Number of parallel Rust compilations', { default: 1 })
   .option('--verbose', 'Enable verbose output', { default: false })
   .action(
-    async (options: {
-      lang: string
-      failOnError: boolean
-      concurrency: number
-      verbose: boolean
-    }) => {
+    async (
+      pattern: string | undefined,
+      options: {
+        lang: string
+        failOnError: boolean
+        concurrency: number
+        verbose: boolean
+      },
+    ) => {
       const config = await Config.resolve()
       const srcDir = path.resolve(config.rootDir, config.srcDir)
       const cacheDir = path.resolve(config.rootDir, '.vocs/cache')
 
-      // Find all MDX files
+      // Find MD/MDX files matching the pattern
+      // Auto-append /*.{md,mdx} if pattern doesn't already specify an extension
+      let globPattern = pattern ?? '**/*.{md,mdx}'
+      if (pattern && !pattern.match(/\.mdx?(\})?$/)) {
+        globPattern = pattern.endsWith('/') ? `${pattern}*.{md,mdx}` : `${pattern}/*.{md,mdx}`
+      }
+
       const mdxFiles: string[] = []
-      for await (const file of glob('**/*.mdx', { cwd: srcDir }))
+      for await (const file of glob(globPattern, { cwd: srcDir }))
         mdxFiles.push(path.resolve(srcDir, file))
 
       if (mdxFiles.length === 0) {
