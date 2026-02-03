@@ -5,7 +5,6 @@ import * as path from 'node:path'
 import react from '@vitejs/plugin-react'
 import { cac } from 'cac'
 import * as vite from 'vite'
-
 import * as Config from './internal/config.js'
 import { vocs } from './waku/vite.js'
 
@@ -55,166 +54,211 @@ cli
   })
 
 cli
-  .command('twoslash', 'Check twoslash blocks for errors')
+  .command('twoslash', 'Check twoslash blocks for errors [experimental]')
   .option('--lang <lang>', 'Language to check: typescript, rust, or all', { default: 'typescript' })
   .option('--fail-on-error', 'Exit with non-zero code if errors found', { default: true })
   .option('--concurrency <n>', 'Number of parallel Rust compilations', { default: 1 })
-  .action(async (options: { lang: string; failOnError: boolean; concurrency: number }) => {
-    const config = await Config.resolve()
-    const srcDir = path.resolve(config.rootDir, config.srcDir)
-    const cacheDir = path.resolve(config.rootDir, '.vocs/cache')
+  .option('--verbose', 'Enable verbose output', { default: false })
+  .action(
+    async (options: {
+      lang: string
+      failOnError: boolean
+      concurrency: number
+      verbose: boolean
+    }) => {
+      const config = await Config.resolve()
+      const srcDir = path.resolve(config.rootDir, config.srcDir)
+      const cacheDir = path.resolve(config.rootDir, '.vocs/cache')
 
-    // Find all MDX files
-    const mdxFiles: string[] = []
-    for await (const file of glob('**/*.mdx', { cwd: srcDir })) {
-      mdxFiles.push(path.resolve(srcDir, file))
-    }
+      // Find all MDX files
+      const mdxFiles: string[] = []
+      for await (const file of glob('**/*.mdx', { cwd: srcDir }))
+        mdxFiles.push(path.resolve(srcDir, file))
 
-    // Regex to find ```lang twoslash code blocks
-    const twoslashRegex = /```(\w+)\s+twoslash([^\n]*)\n([\s\S]*?)```/g
-    // Regex to find :::code-group blocks
-    const codeGroupRegex = /:::code-group\n([\s\S]*?):::/g
-    // Regex to extract filename from meta (e.g., filename="hello.ts")
-    const filenameRegex = /filename=["']([^"']+)["']/
+      if (mdxFiles.length === 0) {
+        console.log('[vocs] No MDX files found')
+        return
+      }
 
-    const tsLangs = ['ts', 'tsx', 'typescript', 'js', 'jsx', 'javascript']
-    const rustLangs = ['rust', 'rs']
+      // Regex to find ```lang twoslash code blocks (3+ backticks or tildes)
+      const twoslashRegex = /(?:`{3,}|~{3,})(\w+)\s+twoslash([^\n]*)\n([\s\S]*?)(?:`{3,}|~{3,})/g
+      // Regex to find :::code-group blocks (3+ colons)
+      const codeGroupRegex = /:{3,}code-group\n([\s\S]*?):{3,}/g
+      // Regex to extract filename from meta
+      const filenameRegex = /filename=["']([^"']+)["']/
 
-    type Block = { file: string; code: string; lang: string; meta: string }
-    const tsBlocks: Block[] = []
-    const rustBlocks: Block[] = []
+      const tsLangs = ['ts', 'tsx', 'typescript', 'js', 'jsx', 'javascript']
+      const rustLangs = ['rust', 'rs']
 
-    // Import snippets for processing virtual file imports
-    const Snippets = await import('./internal/snippets.js')
+      type Block = { file: string; code: string; lang: string; meta: string }
+      const tsBlocks: Block[] = []
+      const rustBlocks: Block[] = []
 
-    for (const file of mdxFiles) {
-      const content = fs.readFileSync(file, 'utf-8')
+      // Physical source getter for `// [!include ~/...]`
+      const Snippets = await import('./internal/snippets.js')
+      const physicalSourceGetter = Snippets.createPhysicalSourceGetter({
+        srcDir: config.srcDir,
+        rootDir: config.rootDir,
+      })
 
-      // Build virtual file map from code-groups
-      const virtualFiles = new Map<string, string>()
-      for (const groupMatch of content.matchAll(codeGroupRegex)) {
-        const groupContent = groupMatch[1] ?? ''
-        for (const blockMatch of groupContent.matchAll(twoslashRegex)) {
-          const meta = blockMatch[2]?.trim() ?? ''
-          const code = blockMatch[3] ?? ''
-          const filenameMatch = meta.match(filenameRegex)
-          if (filenameMatch?.[1]) {
-            virtualFiles.set(filenameMatch[1], code.trim())
+      /** Removes common leading whitespace from all lines. */
+      function dedent(text: string): string {
+        const lines = text.split('\n')
+        let minIndent = Number.POSITIVE_INFINITY
+        for (const line of lines) {
+          if (line.trim().length === 0) continue
+          const match = line.match(/^(\s*)/)
+          if (match) minIndent = Math.min(minIndent, match[1]?.length ?? 0)
+        }
+        if (minIndent === Number.POSITIVE_INFINITY || minIndent === 0) return text
+        return lines.map((line) => line.slice(minIndent)).join('\n')
+      }
+
+      for (const file of mdxFiles) {
+        const content = fs.readFileSync(file, 'utf-8')
+
+        // Build virtual file map from code-groups
+        const virtualFiles = new Map<string, string>()
+        for (const groupMatch of content.matchAll(codeGroupRegex)) {
+          const groupContent = groupMatch[1] ?? ''
+          for (const blockMatch of groupContent.matchAll(twoslashRegex)) {
+            const meta = blockMatch[2]?.trim() ?? ''
+            let code = blockMatch[3] ?? ''
+            const filenameMatch = meta.match(filenameRegex)
+            if (filenameMatch?.[1]) {
+              code = Snippets.processIncludes({
+                code: code.trim(),
+                getSource: physicalSourceGetter,
+              })
+              virtualFiles.set(filenameMatch[1], code)
+            }
+          }
+        }
+
+        // Combine physical and virtual source getters
+        const virtualSourceGetter = Snippets.createVirtualSourceGetter({ virtualFiles })
+        const getSource = Snippets.combineSourceGetters(physicalSourceGetter, virtualSourceGetter)
+
+        for (const match of content.matchAll(twoslashRegex)) {
+          const lang = match[1]
+          const meta = match[2]?.trim() ?? ''
+          let code = match[3]
+          if (!lang || !code) continue
+
+          code = dedent(code)
+          code = Snippets.processIncludes({ code, getSource })
+
+          if (virtualFiles.size > 0 && tsLangs.includes(lang)) {
+            code = Snippets.processImports({ code, virtualFiles })
+          }
+
+          if (tsLangs.includes(lang)) {
+            tsBlocks.push({ file, code, lang, meta })
+          } else if (rustLangs.includes(lang)) {
+            rustBlocks.push({ file, code, lang, meta })
           }
         }
       }
 
-      for (const match of content.matchAll(twoslashRegex)) {
-        const lang = match[1]
-        const meta = match[2]?.trim() ?? ''
-        let code = match[3]
-        if (!lang || !code) continue
+      const checkTs = options.lang === 'typescript' || options.lang === 'all'
+      const checkRust = options.lang === 'rust' || options.lang === 'all'
 
-        // Process imports if we have virtual files
-        if (virtualFiles.size > 0 && tsLangs.includes(lang)) {
-          code = Snippets.processImports({ code, virtualFiles })
-        }
-
-        if (tsLangs.includes(lang)) {
-          tsBlocks.push({ file, code, lang, meta })
-        } else if (rustLangs.includes(lang)) {
-          rustBlocks.push({ file, code, lang, meta })
-        }
+      const blocksToCheck = (checkTs ? tsBlocks.length : 0) + (checkRust ? rustBlocks.length : 0)
+      if (blocksToCheck === 0) {
+        console.log('[vocs] No twoslash blocks found')
+        return
       }
-    }
 
-    const checkTs = options.lang === 'typescript' || options.lang === 'all'
-    const checkRust = options.lang === 'rust' || options.lang === 'all'
+      type TwoslashError = { file: string; lang: string; meta: string; code: string; error: string }
+      const errors: TwoslashError[] = []
 
-    const blocksToCheck = (checkTs ? tsBlocks.length : 0) + (checkRust ? rustBlocks.length : 0)
-    if (blocksToCheck === 0) {
-      console.log('[vocs] No twoslash blocks found')
-      return
-    }
+      // Check TypeScript blocks
+      if (checkTs && tsBlocks.length > 0) {
+        console.log(`[vocs] Checking ${tsBlocks.length} TypeScript twoslash block(s)...`)
 
-    type TwoslashError = { file: string; lang: string; meta: string; code: string; error: string }
-    const errors: TwoslashError[] = []
+        // Use same config as build (shiki-transformers.ts)
+        const { createTwoslasher } = await import('twoslash')
+        const twoslasher = createTwoslasher({
+          compilerOptions: {
+            moduleResolution: 100, // bundler
+            preserveSymlinks: false,
+          },
+          customTags: ['log', 'error', 'warn', 'annotate'],
+        })
 
-    // Check TypeScript blocks
-    if (checkTs && tsBlocks.length > 0) {
-      console.log(`[vocs] Checking ${tsBlocks.length} TypeScript twoslash block(s)...`)
-      const { createTwoslasher } = await import('twoslash')
-      const twoslasher = createTwoslasher({
-        compilerOptions: {
-          moduleResolution: 100, // bundler
-          preserveSymlinks: false,
-        },
-      })
-
-      for (const block of tsBlocks) {
-        const relativePath = path.relative(config.rootDir, block.file)
-        try {
-          twoslasher(block.code, block.lang)
-        } catch (err) {
-          const message = err instanceof Error ? err.message : String(err)
-          errors.push({
-            file: relativePath,
-            lang: block.lang,
-            meta: block.meta,
-            code: block.code,
-            error: message,
-          })
-        }
-      }
-    }
-
-    // Check Rust blocks
-    if (checkRust && rustBlocks.length > 0) {
-      console.log(`[vocs] Checking ${rustBlocks.length} Rust twoslash block(s)...`)
-      const Twoslash = await import('./internal/twoslash/index.js')
-      const rustTwoslasher = Twoslash.createRustTwoslasher({ cacheDir, verbose: false })
-
-      const concurrency = Math.max(1, options.concurrency)
-      const queue = [...rustBlocks]
-
-      const processBlock = async (block: Block) => {
-        const relativePath = path.relative(config.rootDir, block.file)
-        try {
-          rustTwoslasher(block.code, 'rust')
-        } catch (err) {
-          const message = err instanceof Error ? err.message : String(err)
-          errors.push({
-            file: relativePath,
-            lang: block.lang,
-            meta: block.meta,
-            code: block.code,
-            error: message,
-          })
+        for (const block of tsBlocks) {
+          const relativePath = path.relative(config.rootDir, block.file)
+          try {
+            twoslasher(block.code, block.lang)
+          } catch (err) {
+            const message = err instanceof Error ? err.message : String(err)
+            errors.push({
+              file: relativePath,
+              lang: block.lang,
+              meta: block.meta,
+              code: block.code,
+              error: message,
+            })
+          }
         }
       }
 
-      const workers = Array.from({ length: concurrency }, async () => {
-        while (queue.length > 0) {
-          const block = queue.shift()
-          if (block) await processBlock(block)
+      // Check Rust blocks
+      if (checkRust && rustBlocks.length > 0) {
+        console.log(`[vocs] Checking ${rustBlocks.length} Rust twoslash block(s)...`)
+        const { createRustTwoslasher } = await import('./internal/twoslash/index.js')
+        const rustTwoslasher = createRustTwoslasher({
+          cacheDir,
+          verbose: options.verbose,
+        })
+
+        const concurrency = Math.max(1, options.concurrency)
+        const queue = [...rustBlocks]
+
+        const processBlock = async (block: Block) => {
+          const relativePath = path.relative(config.rootDir, block.file)
+          try {
+            rustTwoslasher(block.code, 'rust')
+          } catch (err) {
+            const message = err instanceof Error ? err.message : String(err)
+            errors.push({
+              file: relativePath,
+              lang: block.lang,
+              meta: block.meta,
+              code: block.code,
+              error: message,
+            })
+          }
         }
-      })
-      await Promise.all(workers)
-    }
 
-    if (errors.length === 0) {
-      console.log(`[vocs] All ${blocksToCheck} twoslash block(s) passed`)
-      return
-    }
+        const workers = Array.from({ length: concurrency }, async () => {
+          while (queue.length > 0) {
+            const block = queue.shift()
+            if (block) await processBlock(block)
+          }
+        })
+        await Promise.all(workers)
+      }
 
-    console.error(`\n[vocs] Found ${errors.length} twoslash error(s):\n`)
-    for (const err of errors) {
-      console.error(`File: ${err.file}`)
-      console.error(`Lang: ${err.lang}${err.meta ? ` ${err.meta}` : ''}`)
-      console.error(`Error: ${err.error}`)
-      console.error(`Code:\n${err.code.slice(0, 200)}${err.code.length > 200 ? '...' : ''}`)
-      console.error('\n---\n')
-    }
+      if (errors.length === 0) {
+        console.log(`[vocs] All ${blocksToCheck} twoslash block(s) passed`)
+        return
+      }
 
-    if (options.failOnError) {
-      process.exit(1)
-    }
-  })
+      console.error(`\n[vocs] Found ${errors.length} twoslash error(s):\n`)
+      for (const err of errors) {
+        console.error(`File: ${err.file}`)
+        console.error(`Lang: ${err.lang}${err.meta ? ` ${err.meta}` : ''}`)
+        console.error(`Error: ${err.error}`)
+        console.error(`Code:\n${err.code.slice(0, 200)}${err.code.length > 200 ? '...' : ''}`)
+        console.error('\n---\n')
+      }
+
+      if (options.failOnError) {
+        process.exit(1)
+      }
+    },
+  )
 
 cli.help()
 cli.version(pkg.version)
