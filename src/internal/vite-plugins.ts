@@ -47,6 +47,7 @@ export function deps(): PluginOption {
         optimizeDeps: {
           ...config?.optimizeDeps,
           include: [
+            'debug',
             'vocs > @base-ui/react/dialog',
             'vocs > @base-ui/react/menu',
             'vocs > @base-ui/react/navigation-menu',
@@ -107,7 +108,7 @@ export function deps(): PluginOption {
         },
         ssr: {
           external: ['@takumi-rs/core'],
-          noExternal: ['@takumi-rs/image-response', '@takumi-rs/wasm'],
+          noExternal: ['debug', '@takumi-rs/image-response', '@takumi-rs/wasm'],
         },
       }
     },
