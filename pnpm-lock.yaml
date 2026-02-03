@@ -135,6 +135,9 @@ importers:
       cva:
         specifier: npm:class-variance-authority@^0.7.1
         version: class-variance-authority@0.7.1
+      debug:
+        specifier: ^4.4.0
+        version: 4.4.3
       esast-util-from-js:
         specifier: ^2.0.1
         version: 2.0.1
@@ -144,6 +147,9 @@ importers:
       estree-util-visit:
         specifier: ^2.0.0
         version: 2.0.0
+      extend:
+        specifier: ^3.0.2
+        version: 3.0.2
       github-slugger:
         specifier: ^2.0.0
         version: 2.0.0

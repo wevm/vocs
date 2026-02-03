@@ -47,7 +47,8 @@ export function deps(): PluginOption {
         optimizeDeps: {
           ...config?.optimizeDeps,
           include: [
-            'debug',
+            'vocs > debug',
+            'vocs > extend',
             'vocs > @base-ui/react/dialog',
             'vocs > @base-ui/react/menu',
             'vocs > @base-ui/react/navigation-menu',
