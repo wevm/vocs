@@ -430,7 +430,7 @@ export { remarkVocsScope } from './remark-vocs-scope.js'
 export function rehypeShiki(
   options: ExactPartial<rehypeShiki.Options> = {},
 ): [typeof shiki, RehypeShikiOptions] {
-  const { cacheDir, srcDir, rootDir, themes, twoslash = true } = options
+  const { cacheDir, langs: userLangs, srcDir, rootDir, themes, twoslash = true } = options
 
   // Process twoslash transformers - inject cacheDir if they're factory functions
   const rawTransformers =
@@ -443,6 +443,13 @@ export function rehypeShiki(
   const transformerLangs =
     rawTransformers?.flatMap((t) => ('langs' in t ? (t.langs as LanguageRegistration[]) : [])) ?? []
 
+  // Merge default languages with user-provided languages and transformer languages
+  const mergedLangs = [
+    ...Object.values(defaultLanguages),
+    ...(userLangs ?? []),
+    ...transformerLangs,
+  ]
+
   return [
     shiki,
     {
@@ -452,7 +459,7 @@ export function rehypeShiki(
       inline: 'tailing-curly-colon',
       rootStyle: false,
       themes,
-      langs: [...Object.values(defaultLanguages), ...transformerLangs],
+      langs: mergedLangs,
       // TODO: infer `langs` for faster cold start.
       transformers: [
         rootDir && srcDir ? ShikiTransformers.notationInclude({ srcDir, rootDir }) : undefined,
