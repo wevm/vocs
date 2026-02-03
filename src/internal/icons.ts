@@ -145,6 +145,15 @@ const iconSets: Record<string, IconifyJSON> = {
   'vscode-icons': vscodeIcons,
 }
 
+function matchesKey(filename: string, key: string): boolean {
+  const lowerKey = key.toLowerCase()
+  // For file extensions (starting with .), use includes
+  if (lowerKey.startsWith('.')) return filename.includes(lowerKey)
+  // For words, require word boundary (not preceded/followed by a letter)
+  const regex = new RegExp(`(?<![a-z])${lowerKey.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![a-z])`)
+  return regex.test(filename)
+}
+
 export function matchIcon(
   filename: string,
   customIcons?: Record<string, string>,
@@ -153,12 +162,12 @@ export function matchIcon(
 
   if (customIcons) {
     for (const [key, icon] of Object.entries(customIcons)) {
-      if (normalizedFilename.includes(key.toLowerCase())) return icon
+      if (matchesKey(normalizedFilename, key)) return icon
     }
   }
 
   for (const [key, icon] of sortedBuiltins) {
-    if (normalizedFilename.includes(key.toLowerCase())) return icon
+    if (matchesKey(normalizedFilename, key)) return icon
   }
 
   return undefined

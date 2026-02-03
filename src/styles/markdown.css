@@ -571,6 +571,14 @@ pre[data-v] {
   @apply vocs:px-code-block-px;
 }
 
+pre[data-v][data-v-wrapped] {
+  @apply vocs:overflow-x-hidden;
+
+  & > code > .line {
+    @apply vocs:whitespace-pre-wrap vocs:break-all;
+  }
+}
+
 [data-v-code-header] {
   @apply vocs:h-10 vocs:bg-surface vocs:rounded-t-lg vocs:max-md:rounded-none vocs:text-sm vocs:flex vocs:items-center vocs:border vocs:border-primary vocs:max-md:-mx-4;
 }

@@ -1,6 +1,6 @@
 import { type BundledLanguage, createHighlighter } from 'shiki'
 import { describe, expect, it } from 'vitest'
-import { notationBlock, shellPrompt } from './shiki-transformers.js'
+import { inlineLanguage, notationBlock, shellPrompt } from './shiki-transformers.js'
 
 async function highlight(code: string, lang: BundledLanguage = 'typescript') {
   const highlighter = await createHighlighter({
@@ -383,5 +383,42 @@ $ forge build`
     highlighter.dispose()
 
     expect(html).not.toContain('data-v-shell')
+  })
+})
+
+describe('inlineLanguage', () => {
+  it('should add data-language attribute to code element', async () => {
+    const highlighter = await createHighlighter({
+      themes: ['github-dark'],
+      langs: ['javascript'],
+    })
+
+    const html = highlighter.codeToHtml('console.log("hello")', {
+      lang: 'javascript',
+      theme: 'github-dark',
+      transformers: [inlineLanguage()],
+    })
+
+    highlighter.dispose()
+
+    expect(html).toContain('data-language="javascript"')
+    expect(html).toContain('<code')
+  })
+
+  it('should not add data-language for plaintext', async () => {
+    const highlighter = await createHighlighter({
+      themes: ['github-dark'],
+      langs: ['javascript'],
+    })
+
+    const html = highlighter.codeToHtml('some text', {
+      lang: 'plaintext',
+      theme: 'github-dark',
+      transformers: [inlineLanguage()],
+    })
+
+    highlighter.dispose()
+
+    expect(html).not.toContain('data-language=')
   })
 })

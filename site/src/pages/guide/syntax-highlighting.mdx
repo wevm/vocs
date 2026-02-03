@@ -62,6 +62,47 @@ export function hello(name: string = 'World') {
 ````
 :::
 
+## Word Wrap Toggle
+
+:::code-group
+<div data-title="Preview">
+```ts
+// [!code show-wrap]
+export function Head() {
+  return (
+    <>
+      {/* Theme initialization (prevents FOUC) */}
+      <script
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: blocking script to prevent FOUC
+        dangerouslySetInnerHTML={{
+          __html: `(function(){try{var t=localStorage.getItem('vocs-theme');if(t==='light'||t==='dark'){document.documentElement.style.colorScheme=t}else if(window.matchMedia('(prefers-color-scheme:dark)').matches){document.documentElement.style.colorScheme='dark'}else if(window.matchMedia('(prefers-color-scheme:light)').matches){document.documentElement.style.colorScheme='light'}else{document.documentElement.style.colorScheme='dark'}}catch(e){}})()`,
+        }}
+      />
+    <>
+  )
+}
+```
+</div>
+````md [Markdown]
+```ts
+// [\!code show-wrap]
+export function Head() {
+  return (
+    <>
+      {/* Theme initialization (prevents FOUC) */}
+      <script
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: blocking script to prevent FOUC
+        dangerouslySetInnerHTML={{
+          __html: `(function(){try{var t=localStorage.getItem('vocs-theme');if(t==='light'||t==='dark'){document.documentElement.style.colorScheme=t}else if(window.matchMedia('(prefers-color-scheme:dark)').matches){document.documentElement.style.colorScheme='dark'}else if(window.matchMedia('(prefers-color-scheme:light)').matches){document.documentElement.style.colorScheme='light'}else{document.documentElement.style.colorScheme='dark'}}catch(e){}})()`,
+        }}
+      />
+    <>
+  )
+}
+```
+````
+:::
+
 ## Line Focus
 
 :::code-group
@@ -370,6 +411,26 @@ yarn create vocs
 ```
 ```bash [bun]
 bun create vocs
+```
+:::
+
+## Inline Code
+
+:::code-group
+<div data-title="Preview">
+Inline `code` has `back-ticks around` it.
+
+Inline [`code`](#inline-code) with link.
+
+Inline `console.log("hello world"){:js}` highlighted code
+
+Inline ANSI `> Local: [0;36mhttp://localhost:[0;36;1m3000[0;36m/[0m{:ansi}`
+</div>
+```md [Markdown]
+Inline `code` has `back-ticks around` it.
+Inline [`code`](#inline-code) with link.
+Inline `console.log("hello world"){:js}` highlighted code
+Inline ANSI `> Local: [0;36mhttp://localhost:[0;36;1m3000[0;36m/[0m{:ansi}`
 ```
 :::
 

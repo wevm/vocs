@@ -3,7 +3,45 @@
 import * as React from 'react'
 import LucideCheck from '~icons/lucide/check'
 import LucideClipboard from '~icons/lucide/clipboard'
+import LucideWrapText from '~icons/lucide/wrap-text'
 import { getIconHtml } from './utils.js'
+
+export function WrapButton() {
+  const buttonRef = React.useRef<HTMLButtonElement>(null)
+  const [wrapped, setWrapped] = React.useState(false)
+  const [singleLine, setSingleLine] = React.useState(false)
+
+  React.useEffect(() => {
+    const pre = buttonRef.current?.parentElement as HTMLPreElement | null
+    if (!pre) return
+    const lineCount = pre.querySelectorAll('.line').length
+    setSingleLine(lineCount <= 1)
+  }, [])
+
+  const toggle = React.useCallback(() => {
+    const pre = buttonRef.current?.parentElement as HTMLPreElement | null
+    if (!pre) return
+    const next = !wrapped
+    setWrapped(next)
+    if (next) pre.setAttribute('data-v-wrapped', '')
+    else pre.removeAttribute('data-v-wrapped')
+  }, [wrapped])
+
+  return (
+    <button
+      ref={buttonRef}
+      aria-label={wrapped ? 'Disable word wrap' : 'Enable word wrap'}
+      aria-pressed={wrapped}
+      className="vocs:absolute vocs:top-2.5 vocs:data-[single-line=true]:top-1/2 vocs:data-[single-line=true]:-translate-y-1/2 vocs:right-10 vocs:p-1.5 vocs:rounded-md vocs:opacity-0 vocs:transition-opacity vocs:duration-150 vocs:text-secondary vocs:hover:text-heading vocs:cursor-pointer vocs:group-hover/code:opacity-100 vocs:data-[wrapped=true]:opacity-100 vocs:data-[wrapped=true]:text-accent"
+      data-wrapped={wrapped}
+      data-single-line={singleLine}
+      onClick={toggle}
+      type="button"
+    >
+      <LucideWrapText className="vocs:size-4" />
+    </button>
+  )
+}
 
 export function CopyButton() {
   const buttonRef = React.useRef<HTMLButtonElement>(null)

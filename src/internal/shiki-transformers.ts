@@ -502,6 +502,51 @@ export function title(): ShikiTransformer {
 }
 
 /**
+ * Shiki transformer that adds a wrap toggle button to code blocks.
+ * Enabled via `// [!code show-wrap]` comment.
+ */
+export function showWrap(): ShikiTransformer {
+  type Element = import('hast').Element
+
+  const pattern = /^\s*(?:\/\/|\/\*|<!--|#|--)\s*\[!code show-wrap\]\s*(?:\*\/|-->)?\s*$/
+
+  function getTextContent(element: Element): string {
+    let text = ''
+    for (const child of element.children) {
+      if (child.type === 'text') text += child.value
+      else if (child.type === 'element') text += getTextContent(child as Element)
+    }
+    return text
+  }
+
+  return {
+    name: 'vocs:show-wrap',
+    code(code) {
+      const lines = code.children.filter((x) => x.type === 'element') as Element[]
+
+      for (const line of lines) {
+        const lineText = getTextContent(line)
+        if (!pattern.test(lineText)) continue
+
+        // Add attribute to pre element
+        // biome-ignore lint/suspicious/noExplicitAny: _
+        const pre = this.pre as any
+        pre.properties = { ...pre.properties, 'data-v-show-wrap': '' }
+
+        // Remove the line and following newline
+        const index = code.children.indexOf(line)
+        if (index === -1) continue
+        const nextNode = code.children[index + 1]
+        let removeLength = 1
+        if (nextNode?.type === 'text' && nextNode.value === '\n') removeLength = 2
+        code.children.splice(index, removeLength)
+        break
+      }
+    },
+  }
+}
+
+/**
  * Shiki transformer that processes `// [!include ...]` markers for physical files.
  * Physical files use `~` prefix to indicate root-relative paths.
  */
@@ -760,6 +805,24 @@ export function customTag(): ShikiTransformer {
           code.children.splice(nextIndex + 1, 0, tagLine, { type: 'text', value: '\n' } as Text)
         else code.children.splice(nextIndex, 0, tagLine, { type: 'text', value: '\n' } as Text)
       }
+    },
+  }
+}
+
+/**
+ * Transformer that adds `data-language` attribute to code elements.
+ *
+ * For @shikijs/rehype inline mode, the highlighter outputs standard <pre><code>
+ * structure, then the rehype plugin changes <pre> to <span>. This transformer
+ * adds the language to the <code> element so it's available for styling.
+ */
+export function inlineLanguage(): ShikiTransformer {
+  return {
+    name: 'vocs:inline-language',
+    code(node) {
+      const lang = this.options.lang
+      if (!lang || lang === 'plaintext') return
+      node.properties['data-language'] = lang
     },
   }
 }
