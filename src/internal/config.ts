@@ -452,6 +452,10 @@ export function define(config: define.Options = {}): Config {
     checkDeadlinks,
     codeHighlight: {
       ...codeHighlight,
+      langAlias: {
+        sol: 'solidity',
+        ...(codeHighlight?.langAlias ?? {}),
+      },
       langs: codeHighlight?.langs ?? (Langs.infer({ rootDir, srcDir, pagesDir }) as never),
       themes: {
         light: 'github-light',
