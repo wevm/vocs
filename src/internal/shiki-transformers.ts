@@ -244,11 +244,13 @@ export function twoslash(options: twoslash.Options): ShikiTransformer {
     throws,
     typesCache,
     onTwoslashError(error, code, lang, options) {
+      if (!throws) return
       const message = error instanceof Error ? error.message : String(error)
       const meta = options?.meta?.__raw
       twoslashErrors.push({ message, code, lang, meta })
     },
     onShikiError(error, code, lang) {
+      if (!throws) return
       const message = error instanceof Error ? error.message : String(error)
       twoslashErrors.push({ message, code, lang })
     },
