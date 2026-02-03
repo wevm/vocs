@@ -363,6 +363,9 @@ export function rehypeLinks(config: Config.Config) {
       // Skip external links and hash-only links
       if (href.match(/^(https?:\/\/|mailto:|tel:|#)/)) return
 
+      // Skip URL-encoded backtick paths (e.g., %60Context%60 from Rust Twoslash type hints)
+      if (href.includes('%60')) return
+
       // Check if link has .md/.mdx extension to process
       const hasExtension = extensions.some((ext) => href.endsWith(ext))
 
