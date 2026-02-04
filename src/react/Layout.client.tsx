@@ -24,7 +24,8 @@ import { useTopGutterRef } from './useTopGutterOffset.js'
 export function Main(props: Main.Props) {
   const { children } = props
 
-  const { layout, showAskAi, showSidebar, showTopNav, showLogo, showOutline } = useLayout()
+  const { layout, showAskAi, showSearch, showSidebar, showTopNav, showLogo, showOutline } =
+    useLayout()
   const { Footer, OutlineFooter, SidebarHeader } = useSlots()
 
   const sidebarScrollRef = React.useRef<HTMLDivElement>(null)
@@ -111,26 +112,30 @@ export function Main(props: Main.Props) {
 
             <div className="vocs:w-1" />
 
-            <div className="vocs:max-lg:w-[180px] vocs:w-[240px] vocs:max-md:hidden">
-              <Search.Search />
-            </div>
+            {showSearch && (
+              <div className="vocs:max-lg:w-[180px] vocs:w-[240px] vocs:max-md:hidden">
+                <Search.Search />
+              </div>
+            )}
           </div>
 
           <TopNav.TopNav className="vocs:max-lg:hidden vocs:px-2" />
 
           <div className="vocs:lg:hidden vocs:flex vocs:items-center vocs:px-3 vocs:gap-1">
-            <Search.Search
-              disableKeyboardShortcut
-              trigger={
-                <button
-                  aria-label="Search"
-                  className="vocs:flex vocs:md:hidden vocs:items-center vocs:justify-center vocs:cursor-pointer vocs:size-8"
-                  type="button"
-                >
-                  <LucideSearch />
-                </button>
-              }
-            />
+            {showSearch && (
+              <Search.Search
+                disableKeyboardShortcut
+                trigger={
+                  <button
+                    aria-label="Search"
+                    className="vocs:flex vocs:md:hidden vocs:items-center vocs:justify-center vocs:cursor-pointer vocs:size-8"
+                    type="button"
+                  >
+                    <LucideSearch />
+                  </button>
+                }
+              />
+            )}
 
             <MobileNav.MobileNav />
           </div>

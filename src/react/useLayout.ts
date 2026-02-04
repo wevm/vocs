@@ -8,6 +8,7 @@ export type LayoutState = {
   showAskAi: boolean
   showLogo: boolean
   showOutline: boolean
+  showSearch: boolean
   showSidebar: boolean
   showTopNav: boolean
   /** Outline depth (number of heading levels to show). `undefined` means show all. */
@@ -37,6 +38,11 @@ export function useLayout(): LayoutState {
     },
     get showAskAi() {
       if (frontmatter?.showAskAi !== undefined) return frontmatter.showAskAi
+      if (layout === 'blank') return false
+      return true
+    },
+    get showSearch() {
+      if (frontmatter?.showSearch !== undefined) return frontmatter.showSearch
       if (layout === 'blank') return false
       return true
     },
