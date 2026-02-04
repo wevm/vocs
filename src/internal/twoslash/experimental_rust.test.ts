@@ -1,6 +1,8 @@
 import { spawnSync } from 'node:child_process'
-import { existsSync } from 'node:fs'
+import { existsSync, mkdirSync } from 'node:fs'
 import { createRequire } from 'node:module'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { describe, expect, test } from 'vitest'
 
 const require = createRequire(import.meta.url)
@@ -18,9 +20,13 @@ function getBinaryPath(): string | null {
 const binaryPath = getBinaryPath()
 const describeFn = binaryPath ? describe : describe.skip
 
+// Deterministic target dir caches compiled deps across test runs and processes
+const sharedTargetDir = join(tmpdir(), 'vocs-twoslash-rust-target')
+mkdirSync(sharedTargetDir, { recursive: true })
+
 function runTwoslash(code: string) {
   if (!binaryPath) throw new Error('Binary path not available')
-  const result = spawnSync(binaryPath, [], {
+  const result = spawnSync(binaryPath, ['--target-dir', sharedTargetDir], {
     input: code,
     encoding: 'utf8',
   })
@@ -28,7 +34,7 @@ function runTwoslash(code: string) {
   return JSON.parse(result.stdout)
 }
 
-describeFn('experimental_rust', () => {
+describeFn('experimental_rust', { timeout: 30_000 }, () => {
   test('getBinaryPath resolves to vendored binary', () => {
     expect(binaryPath).toMatch(/twoslash-rust\/target\/release\/twoslash-rust$/)
   })
