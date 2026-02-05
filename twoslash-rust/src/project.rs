@@ -100,6 +100,9 @@ fn bootstrap_project_in(
     // Always run cargo check to fetch deps and set up sysroot for rust-analyzer
     let mut cmd = Command::new("cargo");
     cmd.args(["check"]).current_dir(root);
+    // Clear RUSTC/RUSTDOC env vars so cargo uses the system toolchain,
+    // not a custom one that may lack a sysroot (e.g., rustdoc's stage1 rustc)
+    cmd.env_remove("RUSTC").env_remove("RUSTDOC");
 
     // Use shared target directory if provided (caches compiled deps across runs)
     if let Some(target) = target_dir {
