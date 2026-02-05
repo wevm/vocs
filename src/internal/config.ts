@@ -372,6 +372,11 @@ export type Frontmatter = {
    */
   showAskAi?: boolean | undefined
   /**
+   * Whether to show the search box.
+   * @default true
+   */
+  showSearch?: boolean | undefined
+  /**
    * Whether to show the feedback widget.
    * @default true
    */
