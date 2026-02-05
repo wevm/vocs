@@ -125,7 +125,16 @@ export function AskAi(props: AskAi.Props) {
                 <Menu.Item
                   key={provider.name}
                   className="vocs:flex vocs:items-center vocs:gap-2 vocs:px-2 vocs:py-1.5 vocs:text-primary/80 vocs:hover:text-heading vocs:hover:bg-accenta3 vocs:rounded-md vocs:text-sm vocs:cursor-pointer vocs:transition-colors"
-                  onClick={() => window.open(provider.url, '_blank')}
+                  onClick={() => {
+                    // On mobile, use location.href to trigger Universal Links / App Links
+                    // which will open the native app if installed
+                    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+                    if (isMobile) {
+                      window.location.href = provider.url
+                    } else {
+                      window.open(provider.url, '_blank')
+                    }
+                  }}
                 >
                   <provider.icon className="vocs:size-4" />
                   {provider.name}
