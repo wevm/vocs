@@ -38,6 +38,21 @@ export function middleware(): MiddlewareHandler {
 
     const userAgent = context.req.header('user-agent') ?? ''
     const isAiAgent = aiUserAgents.some((agent) => userAgent.includes(agent))
+    const acceptHeader = context.req.header('accept') ?? ''
+    const acceptsMarkdown = acceptHeader.includes('text/markdown')
+
+    if (url.pathname === '/' && acceptsMarkdown) {
+      const llmsUrl = new URL('/llms.txt', url.origin)
+      const response = await globalThis.fetch(llmsUrl)
+      if (!response.ok) return next()
+
+      context.res = new Response(await response.text(), {
+        headers: {
+          'Content-Type': 'text/markdown; charset=utf-8',
+        },
+      })
+      return
+    }
 
     const isMarkdownRequest = url.pathname.endsWith('.md')
     if (!isMarkdownRequest && !isAiAgent) return next()
