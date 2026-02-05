@@ -1,6 +1,15 @@
+//! Twoslash output types.
+//!
+//! This module contains the data structures returned by twoslash analysis,
+//! including type information, diagnostics, and query results.
+
 use ra_ide::Severity;
 use serde::Serialize;
 
+/// A highlighted region in the source code.
+///
+/// Highlights are typically used for syntax highlighting or
+/// marking specific tokens of interest.
 #[derive(Serialize)]
 pub struct Highlight {
     kind: String,
@@ -17,23 +26,51 @@ pub struct Highlight {
     length: u32,
 }
 
+/// Type information for an identifier in the source code.
+///
+/// This is the primary output of twoslash analysis. Each `StaticQuickInfo`
+/// represents hover information for a specific token, similar to what you'd
+/// see when hovering over a symbol in an IDE.
+///
+/// # Example
+///
+/// For the code `let x = 42;`, you might get:
+///
+/// ```text
+/// StaticQuickInfo {
+///     target_string: "x",
+///     text: "let x: i32",
+///     start: 4,  // byte offset of "x"
+///     length: 1,
+///     ...
+/// }
+/// ```
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct StaticQuickInfo {
-    /// The string content of the node this represents (mainly for debugging)
+    /// The string content of the node (the identifier text).
     pub target_string: String,
-    /// The base LSP response (the type)
+
+    /// The type signature or hover text from rust-analyzer.
+    ///
+    /// This is the main content you'll display to users, e.g., `let x: i32`
+    /// or `fn foo(a: i32) -> String`.
     pub text: String,
-    /// Attached JSDoc info
+
+    /// Documentation attached to the symbol, if any.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub docs: Option<String>,
-    /// The index of the text in the file
+
+    /// Byte offset where this token starts in the source.
     pub start: u32,
-    /// how long the identifier
+
+    /// Length of the token in bytes.
     pub length: u32,
-    /// line number where this is found
+
+    /// Line number (0-indexed) where this token is found.
     pub line: u32,
-    /// The character on the line
+
+    /// Character offset within the line.
     pub character: u32,
 }
 
@@ -119,22 +156,58 @@ pub struct Error {
     pub character: u32,
 }
 
+/// The complete result of analyzing a code snippet.
+///
+/// This is the main output type from [`analyze`](crate::analyze) and
+/// [`Analyzer::analyze`](crate::Analyzer::analyze). It contains all
+/// extracted type information, diagnostics, and metadata.
+///
+/// # Example
+///
+/// ```rust
+/// let result = twoslash_rust::analyze(r#"
+///     let numbers = vec![1, 2, 3];
+///     let first = numbers.first();
+/// "#, None).unwrap();
+///
+/// // Access type information
+/// for info in &result.static_quick_infos {
+///     println!("At offset {}: {}", info.start, info.text);
+/// }
+///
+/// // Check for errors
+/// if !result.errors.is_empty() {
+///     eprintln!("Code has {} errors", result.errors.len());
+/// }
+/// ```
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TwoSlash {
+    /// The analyzed source code.
     pub code: String,
+
+    /// File extension (always "rs" for Rust).
     pub extension: String,
-    /// Requests to highlight a particular part of the code
+
+    /// Highlighted regions in the code.
     pub highlights: Vec<Highlight>,
-    /// An array of LSP responses identifiers in the sample
+
+    /// Type information for identifiers.
+    ///
+    /// This is the primary output—each entry contains the type signature
+    /// and documentation for a token in the source code.
     pub static_quick_infos: Vec<StaticQuickInfo>,
-    /// Requests to use the LSP to get info for a particular symbol in the source
+
+    /// Results from explicit `// ^?` queries in the code.
     pub queries: Vec<Query>,
-    /// The extracted twoslash commands for any custom tags passed in via customTags
+
+    /// Custom tags extracted from comments.
     pub tags: Vec<Tag>,
-    /// Diagnostic error messages which came up when creating the program
+
+    /// Compiler errors and warnings.
     pub errors: Vec<Error>,
-    /// The URL for this sample in the playground
+
+    /// Playground URL for this code snippet.
     #[serde(rename = "playgroundURL")]
     pub playground_url: String,
 }

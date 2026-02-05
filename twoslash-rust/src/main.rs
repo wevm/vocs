@@ -1,12 +1,7 @@
 mod doc;
-mod project;
-#[cfg(test)]
-mod project_test;
 mod protocol;
-mod query_parser;
-mod twoslash;
 
-use project::{Project, ProjectSettings};
+use twoslash_rust::project::{Project, ProjectSettings};
 
 use anyhow::Result;
 use std::io::{Read, Write};

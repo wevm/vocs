@@ -147,7 +147,7 @@ fn pre_index(
 }
 
 impl Project {
-    pub fn scaffold(settings: ProjectSettings) -> Result<Project> {
+    pub fn scaffold(settings: ProjectSettings<'_>) -> Result<Project> {
         Self::scaffold_with_code(
             settings,
             // Basis code for scaffolding
@@ -156,7 +156,7 @@ impl Project {
     }
 
     /// Like `scaffold`, but injects user code immediately.
-    pub fn scaffold_with_code<'a>(settings: ProjectSettings, source: &'a str) -> Result<Project> {
+    pub fn scaffold_with_code<'a>(settings: ProjectSettings<'_>, source: &'a str) -> Result<Project> {
         let parse_result = find_queries(source);
         let source = parse_result.code;
         let queries = parse_result.queries;
@@ -576,10 +576,31 @@ impl Cut {
 }
 
 fn ra_hover_to_text(markup: String) -> String {
-    markup
-        .trim()
-        .lines()
-        .filter(|&line| line != "```rust" && line != "```")
-        .collect::<Vec<_>>()
-        .join("\n")
+    let trimmed = markup.trim();
+
+    // Split on the "---" separator: before it, strip all code fences;
+    // after it, preserve code fences for proper markdown rendering.
+    let (sig_part, docs_part) = if let Some(sep_pos) = trimmed.find("\n---\n") {
+        let before = &trimmed[..sep_pos];
+        let after = &trimmed[sep_pos..];
+        (before, Some(after))
+    } else {
+        (trimmed, None)
+    };
+
+    let mut lines: Vec<&str> = Vec::new();
+    for line in sig_part.lines() {
+        if line == "```rust" || line == "```" {
+            continue;
+        }
+        lines.push(line);
+    }
+
+    if let Some(docs) = docs_part {
+        for line in docs.lines() {
+            lines.push(line);
+        }
+    }
+
+    lines.join("\n")
 }

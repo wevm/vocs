@@ -8,6 +8,14 @@ repository = "https://github.com/wevm/vocs"
 keywords = ["twoslash", "rust-analyzer", "documentation", "ide"]
 categories = ["development-tools"]
 
+[lib]
+name = "twoslash_rust"
+path = "src/lib.rs"
+
+[[bin]]
+name = "twoslash-rust"
+path = "src/main.rs"
+
 [dependencies]
 anyhow = "1.0.56"
 lazy_static = "1.4.0"
