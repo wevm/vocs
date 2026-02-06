@@ -19,6 +19,7 @@ type Page =
   | { path: '/guide/layouts'; render: 'static' }
   | { path: '/guide/markdown-extensions'; render: 'static' }
   | { path: '/guide/mcp-server'; render: 'static' }
+  | { path: '/guide/mermaid'; render: 'static' }
   | { path: '/guide/navigation'; render: 'static' }
   | { path: '/guide/project-structure'; render: 'static' }
   | { path: '/guide/react'; render: 'static' }

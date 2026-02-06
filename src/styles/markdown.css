@@ -771,7 +771,7 @@ pre[data-v-shell] {
 }
 
 [data-v-mermaid-loading] {
-  @apply vocs:text-secondary vocs:text-center vocs:py-8;
+  @apply vocs:text-secondary vocs:text-center vocs:py-8 vocs:min-h-40;
 }
 
 [data-v-mermaid-error] {

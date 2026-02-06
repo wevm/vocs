@@ -43,6 +43,7 @@ export default defineConfig({
           { text: 'Frontmatter 🚧', link: '/guide/frontmatter' },
           { text: 'Using React in Markdown 🚧', link: '/guide/react' },
           { text: 'Twoslash', link: '/guide/twoslash' },
+          { text: 'Mermaid Diagrams', link: '/guide/mermaid' },
         ],
       },
       {

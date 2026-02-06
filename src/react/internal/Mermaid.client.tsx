@@ -3,6 +3,11 @@
 import * as React from 'react'
 import { useColorScheme } from '../useColorScheme.js'
 
+const themes = {
+  light: { bg: '#ffffff', fg: '#27272a' },
+  dark: { bg: '#18181b', fg: '#e4e4e7', line: '#71717a', muted: '#a1a1aa', accent: '#a1a1aa' },
+} as const
+
 export function MermaidClient(props: MermaidClient.Props) {
   const { chart } = props
   const containerRef = React.useRef<HTMLDivElement>(null)
@@ -15,17 +20,12 @@ export function MermaidClient(props: MermaidClient.Props) {
 
     async function render() {
       try {
-        const mermaid = (await import('mermaid')).default
-        mermaid.initialize({
-          startOnLoad: false,
-          theme: colorScheme === 'dark' ? 'dark' : 'default',
-          securityLevel: 'loose',
-          fontFamily: 'inherit',
+        const { renderMermaid } = await import('beautiful-mermaid')
+        const result = await renderMermaid(chart, {
+          ...themes[colorScheme],
+          transparent: true,
         })
-
-        const id = `mermaid-${Math.random().toString(36).slice(2, 11)}`
-        const { svg } = await mermaid.render(id, chart)
-        if (!cancelled) setSvg(svg)
+        if (!cancelled) setSvg(result)
       } catch (err) {
         if (!cancelled) setError(err instanceof Error ? err.message : String(err))
       }

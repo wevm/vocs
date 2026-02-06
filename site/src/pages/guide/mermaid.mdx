@@ -1,0 +1,502 @@
+---
+outline: 2
+---
+
+# Mermaid Diagrams [Render diagrams from code using beautiful-mermaid]
+
+Vocs supports [Mermaid](https://mermaid.js.org/) diagrams via [`beautiful-mermaid`](https://github.com/lukilabs/beautiful-mermaid) — a fast, themeable renderer that outputs clean SVGs.
+
+Wrap diagram code in a `mermaid` code block:
+
+````md
+```mermaid
+graph TD
+  A[Start] --> B[Process] --> C[End]
+```
+````
+
+## Flowcharts
+
+### Simple Flow
+
+```mermaid
+graph TD
+  A[Start] --> B[Process] --> C[End]
+```
+
+### Node Shapes
+
+```mermaid
+graph LR
+  A[Rectangle] --> B(Rounded)
+  B --> C{Diamond}
+  C --> D([Stadium])
+  D --> E((Circle))
+```
+
+### All Flowchart Shapes
+
+```mermaid
+graph LR
+  A[Rectangle] --> B(Rounded)
+  B --> C{Diamond}
+  C --> D([Stadium])
+  D --> E((Circle))
+  E --> F[[Subroutine]]
+  F --> G(((Double Circle)))
+  G --> H{{Hexagon}}
+  H --> I[(Database)]
+  I --> J>Flag]
+  J --> K[/Trapezoid\]
+  K --> L[\Inverse Trap/]
+```
+
+### Subgraphs
+
+```mermaid
+graph TD
+  subgraph Frontend
+    A[React App] --> B[State Manager]
+  end
+  subgraph Backend
+    C[API Server] --> D[Database]
+  end
+  B --> C
+```
+
+## State Diagrams
+
+### Basic State Diagram
+
+```mermaid
+stateDiagram-v2
+  [*] --> Idle
+  Idle --> Active : start
+  Active --> Idle : cancel
+  Active --> Done : complete
+  Done --> [*]
+```
+
+### Composite States
+
+```mermaid
+stateDiagram-v2
+  [*] --> Idle
+  Idle --> Processing : submit
+  state Processing {
+    parse --> validate
+    validate --> execute
+  }
+  Processing --> Complete : done
+  Processing --> Error : fail
+  Error --> Idle : retry
+  Complete --> [*]
+```
+
+## Sequence Diagrams
+
+### Basic Messages
+
+```mermaid
+sequenceDiagram
+  Alice->>Bob: Hello Bob!
+  Bob-->>Alice: Hi Alice!
+```
+
+### Participant Aliases
+
+```mermaid
+sequenceDiagram
+  participant A as Alice
+  participant B as Bob
+  participant C as Charlie
+  A->>B: Hello
+  B->>C: Forward
+  C-->>A: Reply
+```
+
+### Arrow Types
+
+```mermaid
+sequenceDiagram
+  A->>B: Solid arrow (sync)
+  B-->>A: Dashed arrow (return)
+  A-)B: Open arrow (async)
+  B--)A: Open dashed arrow
+```
+
+### Activation Boxes
+
+```mermaid
+sequenceDiagram
+  participant C as Client
+  participant S as Server
+  C->>+S: Request
+  S->>+S: Process
+  S->>-S: Done
+  S-->>-C: Response
+```
+
+### Self-Messages
+
+```mermaid
+sequenceDiagram
+  participant S as Server
+  S->>S: Internal process
+  S->>S: Validate
+  S-->>S: Log
+```
+
+### Opt Block
+
+```mermaid
+sequenceDiagram
+  participant A as App
+  participant C as Cache
+  participant DB as Database
+  A->>C: Get data
+  C-->>A: Cache miss
+  opt Cache miss
+    A->>DB: Query
+    DB-->>A: Results
+    A->>C: Store in cache
+  end
+```
+
+### Par Block
+
+```mermaid
+sequenceDiagram
+  participant C as Client
+  participant A as AuthService
+  participant U as UserService
+  participant O as OrderService
+  C->>A: Authenticate
+  par Fetch user data
+    A->>U: Get profile
+  and Fetch orders
+    A->>O: Get orders
+  end
+  A-->>C: Combined response
+```
+
+### Notes
+
+```mermaid
+sequenceDiagram
+  participant A as Alice
+  participant B as Bob
+  Note left of A: Alice prepares
+  A->>B: Hello
+  Note right of B: Bob thinks
+  B-->>A: Reply
+  Note over A,B: Conversation complete
+```
+
+### OAuth 2.0 Flow
+
+```mermaid
+sequenceDiagram
+  actor U as User
+  participant App as Client App
+  participant Auth as Auth Server
+  participant API as Resource API
+  U->>App: Click Login
+  App->>Auth: Authorization request
+  Auth->>U: Login page
+  U->>Auth: Credentials
+  Auth-->>App: Authorization code
+  App->>Auth: Exchange code for token
+  Auth-->>App: Access token
+  App->>API: Request + token
+  API-->>App: Protected resource
+  App-->>U: Display data
+```
+
+### Microservice Orchestration
+
+```mermaid
+sequenceDiagram
+  participant G as Gateway
+  participant A as Auth
+  participant U as Users
+  participant O as Orders
+  participant N as Notify
+  G->>A: Validate token
+  A-->>G: Valid
+  par Fetch data
+    G->>U: Get user
+    U-->>G: User data
+  and
+    G->>O: Get orders
+    O-->>G: Order list
+  end
+  G->>N: Send notification
+  N-->>G: Queued
+  Note over G: Aggregate response
+```
+
+## Class Diagrams
+
+### Basic Class
+
+```mermaid
+classDiagram
+  class Animal {
+    +String name
+    +int age
+    +eat() void
+    +sleep() void
+  }
+```
+
+### Visibility Markers
+
+```mermaid
+classDiagram
+  class User {
+    +String name
+    -String password
+    #int internalId
+    ~String packageField
+    +login() bool
+    -hashPassword() String
+    #validate() void
+    ~notify() void
+  }
+```
+
+### Interface Annotation
+
+```mermaid
+classDiagram
+  class Serializable {
+    <<interface>>
+    +serialize() String
+    +deserialize(data) void
+  }
+```
+
+### Abstract Annotation
+
+```mermaid
+classDiagram
+  class Shape {
+    <<abstract>>
+    +String color
+    +area() double
+    +draw() void
+  }
+```
+
+### Enum Annotation
+
+```mermaid
+classDiagram
+  class Status {
+    <<enumeration>>
+    ACTIVE
+    INACTIVE
+    PENDING
+    DELETED
+  }
+```
+
+### Inheritance
+
+```mermaid
+classDiagram
+  class Animal {
+    +String name
+    +eat() void
+  }
+  class Dog {
+    +String breed
+    +bark() void
+  }
+  class Cat {
+    +bool isIndoor
+    +meow() void
+  }
+  Animal <|-- Dog
+  Animal <|-- Cat
+```
+
+### Composition
+
+```mermaid
+classDiagram
+  class Car {
+    +String model
+    +start() void
+  }
+  class Engine {
+    +int horsepower
+    +rev() void
+  }
+  Car *-- Engine
+```
+
+### Aggregation
+
+```mermaid
+classDiagram
+  class University {
+    +String name
+  }
+  class Department {
+    +String faculty
+  }
+  University o-- Department
+```
+
+### All Relationship Types
+
+```mermaid
+classDiagram
+  A <|-- B : inheritance
+  C *-- D : composition
+  E o-- F : aggregation
+  G --> H : association
+  I ..> J : dependency
+  K ..|> L : realization
+```
+
+### MVC Architecture
+
+```mermaid
+classDiagram
+  class Model {
+    -data Map
+    +getData() Map
+    +setData(key, val) void
+    +notify() void
+  }
+  class View {
+    -model Model
+    +render() void
+    +update() void
+  }
+  class Controller {
+    -model Model
+    -view View
+    +handleInput(event) void
+    +updateModel(data) void
+  }
+  Controller --> Model : updates
+  Controller --> View : refreshes
+  View --> Model : reads
+  Model ..> View : notifies
+```
+
+### Full Hierarchy
+
+```mermaid
+classDiagram
+  class Animal {
+    <<abstract>>
+    +String name
+    +int age
+    +eat() void
+    +sleep() void
+  }
+  class Mammal {
+    +bool warmBlooded
+    +nurse() void
+  }
+  class Bird {
+    +bool canFly
+    +layEggs() void
+  }
+  class Dog {
+    +String breed
+    +bark() void
+  }
+  class Cat {
+    +bool isIndoor
+    +purr() void
+  }
+  class Parrot {
+    +String vocabulary
+    +speak() void
+  }
+  Animal <|-- Mammal
+  Animal <|-- Bird
+  Mammal <|-- Dog
+  Mammal <|-- Cat
+  Bird <|-- Parrot
+```
+
+## ER Diagrams
+
+### Basic Relationship
+
+```mermaid
+erDiagram
+  CUSTOMER ||--o{ ORDER : places
+```
+
+### Entity with Attributes
+
+```mermaid
+erDiagram
+  CUSTOMER {
+    int id PK
+    string name
+    string email UK
+    date created_at
+  }
+```
+
+### All Cardinality Types
+
+```mermaid
+erDiagram
+  A ||--|| B : one-to-one
+  C ||--o{ D : one-to-many
+  E |o--|{ F : opt-to-many
+  G }|--o{ H : many-to-many
+```
+
+### Identifying vs Non-Identifying
+
+```mermaid
+erDiagram
+  ORDER ||--|{ LINE_ITEM : contains
+  ORDER ||..o{ SHIPMENT : ships-via
+  PRODUCT ||--o{ LINE_ITEM : includes
+  PRODUCT ||..o{ REVIEW : receives
+```
+
+### School Management Schema
+
+```mermaid
+erDiagram
+  STUDENT {
+    int id PK
+    string name
+    date dob
+    string grade
+  }
+  TEACHER {
+    int id PK
+    string name
+    string department
+  }
+  COURSE {
+    int id PK
+    string title
+    int teacher_id FK
+    int credits
+  }
+  ENROLLMENT {
+    int id PK
+    int student_id FK
+    int course_id FK
+    string semester
+    float grade
+  }
+  TEACHER ||--o{ COURSE : teaches
+  STUDENT ||--o{ ENROLLMENT : enrolled
+  COURSE ||--o{ ENROLLMENT : has
+```
