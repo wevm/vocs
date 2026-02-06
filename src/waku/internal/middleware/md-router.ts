@@ -1,8 +1,4 @@
-import * as path from 'node:path'
 import type { MiddlewareHandler } from 'hono'
-import * as Config from '../../../internal/config.js'
-import * as Llms from '../../../internal/llms.js'
-import * as Mdx from '../../../internal/mdx.js'
 
 export const aiUserAgents = [
   'GPTBot',
@@ -38,7 +34,14 @@ export const aiUserAgents = [
 
 export const terminalUserAgents = ['curl/', 'Wget/', 'HTTPie/', 'httpie-go/', 'xh/']
 
+const isDev = process.env['NODE_ENV'] !== 'production'
+
 async function resolveContent() {
+  const path = await import('node:path')
+  const Config = await import('../../../internal/config.js')
+  const Llms = await import('../../../internal/llms.js')
+  const Mdx = await import('../../../internal/mdx.js')
+
   const config = await Config.resolve({ server: true })
   const { rehypePlugins, remarkPlugins } = Mdx.getCompileOptions('txt', config)
   const pagesDir = path.resolve(config.rootDir, config.srcDir, config.pagesDir)
@@ -52,6 +55,13 @@ async function resolveContent() {
   })
 }
 
+async function fetchMarkdown(url: URL, assetPath: string) {
+  const assetUrl = new URL(assetPath, url.origin)
+  const response = await globalThis.fetch(assetUrl)
+  if (!response.ok) return null
+  return response.text()
+}
+
 export function middleware(): MiddlewareHandler {
   return async (context, next) => {
     const url = new URL(context.req.url)
@@ -63,8 +73,16 @@ export function middleware(): MiddlewareHandler {
     const acceptsMarkdown = acceptHeader.includes('text/markdown')
 
     if (url.pathname === '/' && (acceptsMarkdown || isTerminal)) {
-      const content = await resolveContent()
-      context.res = new Response(content.short, {
+      let text: string | null
+      if (isDev) {
+        const content = await resolveContent()
+        text = content.short
+      } else {
+        text = await fetchMarkdown(url, '/llms.txt')
+      }
+      if (!text) return next()
+
+      context.res = new Response(text, {
         headers: {
           'Content-Type': 'text/markdown; charset=utf-8',
         },
@@ -76,13 +94,20 @@ export function middleware(): MiddlewareHandler {
     if (!isMarkdownRequest && !isAiAgent && !isTerminal) return next()
 
     const pagePath = url.pathname.replace(/\.md$/, '').replace(/\/index$/, '')
-    const content = await resolveContent()
-    const result = content.results.find(
-      (r) => r.path.replace(/\/$/, '') === pagePath.replace(/\/$/, ''),
-    )
-    if (!result) return next()
 
-    context.res = new Response(result.content, {
+    let text: string | null
+    if (isDev) {
+      const content = await resolveContent()
+      const result = content.results.find(
+        (r) => r.path.replace(/\/$/, '') === pagePath.replace(/\/$/, ''),
+      )
+      text = result?.content ?? null
+    } else {
+      text = await fetchMarkdown(url, `/assets/md${url.pathname}`)
+    }
+    if (!text) return next()
+
+    context.res = new Response(text, {
       headers: {
         'Content-Type': `${url.pathname.endsWith('.txt') ? 'text/plain' : 'text/markdown'}; charset=utf-8`,
       },
