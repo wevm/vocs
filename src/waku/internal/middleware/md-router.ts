@@ -103,7 +103,10 @@ export function middleware(): MiddlewareHandler {
       )
       text = result?.content ?? null
     } else {
-      text = await fetchMarkdown(url, `/assets/md${url.pathname}`)
+      const assetPath = url.pathname.endsWith('.md')
+        ? `/assets/md${url.pathname}`
+        : `/assets/md${url.pathname}.md`
+      text = await fetchMarkdown(url, assetPath)
     }
     if (!text) return next()
 
