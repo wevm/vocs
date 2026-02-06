@@ -191,7 +191,7 @@ export function Main(props: Main.Props) {
 
       {showAskAi && (
         <div
-          className="vocs:fixed vocs:bottom-6 vocs:max-md:bottom-2 vocs:left-1/2 vocs:-translate-x-1/2 vocs:z-40"
+          className="vocs:fixed vocs:bottom-6 vocs:max-md:bottom-2 vocs:left-1/2 vocs:-translate-x-1/2 vocs:z-40 vocs:will-change-transform"
           data-v-ask-ai-container
         >
           <AskAi.AskAi className="vocs:w-[290px]! vocs:h-10! vocs:z-50! vocs:bg-surfaceTint/20! vocs:backdrop-blur-md!" />
