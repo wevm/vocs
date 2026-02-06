@@ -26,7 +26,10 @@ export function Main(props: Main.Props) {
 
   const { layout, showAskAi, showSearch, showSidebar, showTopNav, showLogo, showOutline } =
     useLayout()
+  const { colorScheme } = useConfig()
   const { Footer, OutlineFooter, SidebarHeader } = useSlots()
+
+  const showThemeToggle = colorScheme === 'light dark'
 
   const sidebarScrollRef = React.useRef<HTMLDivElement>(null)
   const topGutterRef = useTopGutterRef()
@@ -90,7 +93,7 @@ export function Main(props: Main.Props) {
                 data-v-sidebar-footer-content
               >
                 <Socials.Socials />
-                <ThemeToggle.ThemeToggle />
+                {showThemeToggle && <ThemeToggle.ThemeToggle />}
               </div>
             </div>
           </aside>

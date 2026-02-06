@@ -9,7 +9,9 @@ export function Head() {
   const { path: pathname } = useRouter()
   const { frontmatter } = MdxPageContext.use()
 
-  const { basePath, baseUrl, iconUrl, logoUrl, ogImageUrl, renderStrategy } = config
+  const { basePath, baseUrl, colorScheme, iconUrl, logoUrl, ogImageUrl, renderStrategy } = config
+
+  const staticScheme = colorScheme !== 'light dark'
 
   const title = frontmatter?.title ?? config.title
   const titleTemplate = title.includes(config.title) ? undefined : config.titleTemplate
@@ -40,12 +42,14 @@ export function Head() {
   return (
     <>
       {/* Theme initialization (prevents FOUC) */}
-      <script
-        // biome-ignore lint/security/noDangerouslySetInnerHtml: blocking script to prevent FOUC
-        dangerouslySetInnerHTML={{
-          __html: `(function(){try{var t=localStorage.getItem('vocs-theme');if(t==='light'||t==='dark'){document.documentElement.style.colorScheme=t}else if(window.matchMedia('(prefers-color-scheme:dark)').matches){document.documentElement.style.colorScheme='dark'}else if(window.matchMedia('(prefers-color-scheme:light)').matches){document.documentElement.style.colorScheme='light'}else{document.documentElement.style.colorScheme='dark'}}catch(e){}})()`,
-        }}
-      />
+      {!staticScheme && (
+        <script
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: blocking script to prevent FOUC
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('vocs-theme');if(t==='light'||t==='dark'){document.documentElement.style.colorScheme=t}else if(window.matchMedia('(prefers-color-scheme:dark)').matches){document.documentElement.style.colorScheme='dark'}else if(window.matchMedia('(prefers-color-scheme:light)').matches){document.documentElement.style.colorScheme='light'}else{document.documentElement.style.colorScheme='dark'}}catch(e){}})()`,
+          }}
+        />
+      )}
 
       {/* Robots  */}
       <meta
