@@ -18,7 +18,6 @@ export const aiUserAgents = [
   'Applebot-Extended',
   'FacebookBot',
   'meta-externalagent',
-  'LinkedInBot',
   'Bytespider',
   'DuckAssistBot',
   'cohere-ai',
@@ -33,6 +32,21 @@ export const aiUserAgents = [
 ]
 
 export const terminalUserAgents = ['curl/', 'Wget/', 'HTTPie/', 'httpie-go/', 'xh/']
+
+export const ogBotUserAgents = [
+  'Discordbot',
+  'Embedly',
+  'Facebot',
+  'Iframely',
+  'LinkedInBot',
+  'Pinterestbot',
+  'Slackbot',
+  'Slurp',
+  'TelegramBot',
+  'Twitterbot',
+  'WhatsApp',
+  'facebookexternalhit',
+]
 
 const isDev = process.env['NODE_ENV'] !== 'production'
 
@@ -67,6 +81,9 @@ export function middleware(): MiddlewareHandler {
     const url = new URL(context.req.url)
 
     const userAgent = context.req.header('user-agent') ?? ''
+    const isOgBot = ogBotUserAgents.some((agent) => userAgent.includes(agent))
+    if (isOgBot) return next()
+
     const isAiAgent = aiUserAgents.some((agent) => userAgent.includes(agent))
     const isTerminal = terminalUserAgents.some((agent) => userAgent.includes(agent))
     const acceptHeader = context.req.header('accept') ?? ''
