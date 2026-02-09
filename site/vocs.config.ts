@@ -3,6 +3,7 @@ import { version } from '../package.json'
 
 export default defineConfig({
   banner: 'Vocs v2 is now available!',
+  baseUrl: 'https://next.vocs.dev',
   changelog: Changelog.github({ repo: 'wevm/vocs' }),
   checkDeadlinks: true,
   feedback: Feedback.slack(),
@@ -21,6 +22,9 @@ export default defineConfig({
   mcp: {
     enabled: true,
     sources: [McpSource.github({ repo: 'wevm/vocs' })],
+  },
+  ogImageUrl: (_path, { baseUrl }) => {
+    return `${baseUrl ?? ''}/api/og?logo=%logo&title=%title&description=%description`
   },
   redirects: [],
   sidebar: {
