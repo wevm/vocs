@@ -4,7 +4,9 @@ import * as React from 'react'
 import LucideSearch from '~icons/lucide/search'
 import * as AskAi from './internal/AskAi.js'
 import * as Banner from './internal/Banner.client.js'
+import * as CopyForAi from './internal/CopyForAi.client.js'
 import * as EditLink from './internal/EditLink.client.js'
+import * as Feedback from './internal/Feedback.client.js'
 import * as LastUpdated from './internal/LastUpdated.client.js'
 import * as MobileNav from './internal/MobileNav.js'
 import * as Outline from './internal/Outline.js'
@@ -16,6 +18,7 @@ import * as Socials from './internal/Socials.client.js'
 import * as ThemeToggle from './internal/ThemeToggle.client.js'
 import * as TopNav from './internal/TopNav.js'
 import { Link } from './Link.js'
+import * as MdxPageContext from './MdxPageContext.js'
 import { useConfig } from './useConfig.js'
 import { useLayout } from './useLayout.js'
 import { useSlots } from './useSlots.js'
@@ -166,11 +169,15 @@ export function Main(props: Main.Props) {
           {children}
 
           {layout === 'full' && (
-            <div className="vocs:mt-8 vocs:max-sm:hidden" data-v-content-footer>
-              <div className="vocs:flex vocs:justify-between vocs:items-center vocs:mb-4">
+            <div className="vocs:mt-8" data-v-content-footer>
+              <MobileFeedback />
+
+              <div className="vocs:flex vocs:max-sm:flex-col vocs:justify-between vocs:items-center vocs:max-sm:items-start vocs:gap-2 vocs:mb-4">
                 <EditLink.EditLink />
                 <LastUpdated.LastUpdated />
               </div>
+
+              <MobileCopyForAi />
 
               <div className="vocs:border-t vocs:border-primary vocs:pt-8">
                 <Pagination.Pagination />
@@ -205,6 +212,27 @@ export namespace Main {
   export type Props = {
     children: React.ReactNode
   }
+}
+
+function MobileFeedback() {
+  const { frontmatter } = MdxPageContext.use()
+  return (
+    <div className="vocs:min-[1376px]:hidden vocs:mb-6">
+      <Feedback.Feedback frontmatter={frontmatter} />
+    </div>
+  )
+}
+
+function MobileCopyForAi() {
+  const { frontmatter } = MdxPageContext.use()
+  return (
+    <div className="vocs:min-[1376px]:hidden vocs:mb-6">
+      <CopyForAi.CopyForAi
+        className="vocs:border vocs:border-primary vocs:rounded-lg vocs:px-3 vocs:py-2"
+        frontmatter={frontmatter}
+      />
+    </div>
+  )
 }
 
 export function Logo() {

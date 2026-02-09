@@ -40,18 +40,24 @@ export function Pagination(props: Pagination.Props) {
   return (
     <nav
       aria-label="Pagination"
-      className={cx('vocs:flex vocs:justify-between vocs:items-start', className)}
+      className={cx(
+        'vocs:flex vocs:max-sm:flex-col vocs:justify-between vocs:items-start vocs:gap-4',
+        className,
+      )}
       data-v-pagination
     >
       {prev?.link ? (
-        <Link className="vocs:flex vocs:flex-col vocs:gap-1.5 vocs:group" to={prev.link}>
+        <Link
+          className="vocs:flex vocs:max-sm:w-full vocs:max-sm:border vocs:max-sm:border-primary vocs:max-sm:rounded-lg vocs:max-sm:p-3 vocs:flex-col vocs:gap-1.5 vocs:group"
+          to={prev.link}
+        >
           <span className="vocs:flex vocs:items-center vocs:gap-2 vocs:text-heading vocs:text-lg vocs:font-medium vocs:group-hover:text-accent8 vocs:transition-colors">
             <LucideArrowLeft className="vocs:size-4" />
             {prev.text}
           </span>
           <span className="vocs:flex vocs:items-center vocs:gap-1.5 vocs:text-secondary vocs:text-xs">
             Previous
-            <span className="vocs:flex vocs:items-center vocs:gap-1">
+            <span className="vocs:max-sm:hidden vocs:flex vocs:items-center vocs:gap-1">
               <Kbd>Shift</Kbd>
               <Kbd>←</Kbd>
             </span>
@@ -63,7 +69,7 @@ export function Pagination(props: Pagination.Props) {
 
       {next?.link ? (
         <Link
-          className="vocs:flex vocs:flex-col vocs:items-end vocs:gap-1.5 vocs:group"
+          className="vocs:flex vocs:max-sm:w-full vocs:max-sm:border vocs:max-sm:border-primary vocs:max-sm:rounded-lg vocs:max-sm:p-3 vocs:flex-col vocs:items-end vocs:gap-1.5 vocs:group"
           to={next.link}
         >
           <span className="vocs:flex vocs:items-center vocs:gap-2 vocs:text-heading vocs:text-lg vocs:font-medium vocs:group-hover:text-accent8 vocs:transition-colors">
@@ -72,7 +78,7 @@ export function Pagination(props: Pagination.Props) {
           </span>
           <span className="vocs:flex vocs:items-center vocs:gap-1.5 vocs:text-secondary vocs:text-xs">
             Next
-            <span className="vocs:flex vocs:items-center vocs:gap-1">
+            <span className="vocs:max-sm:hidden vocs:flex vocs:items-center vocs:gap-1">
               <Kbd>Shift</Kbd>
               <Kbd>→</Kbd>
             </span>
