@@ -80,19 +80,33 @@ function Item(props: Item.Props) {
   )
 
   const itemRef = React.useRef<HTMLElement>(null)
-  const listen = React.useRef(true)
+  const prevPath = React.useRef(path)
   React.useEffect(() => {
-    if (!listen.current) return
-    listen.current = false
-
     const match = Path.matches(path, link)
     if (!match) return
 
+    const pathChanged = prevPath.current !== path
+    prevPath.current = path
+
     requestAnimationFrame(() => {
-      const offsetTop = itemRef.current?.offsetTop ?? 0
-      const navHeight = (scrollRef?.current?.clientHeight ?? 0) - 120
-      if (offsetTop < navHeight) return
-      scrollRef?.current?.scrollTo({ behavior: 'smooth', top: offsetTop - 100 })
+      const item = itemRef.current
+      const container = scrollRef?.current
+      if (!item || !container) return
+
+      const itemTop = item.offsetTop
+      const itemBottom = itemTop + item.offsetHeight
+      const containerScrollTop = container.scrollTop
+      const containerHeight = container.clientHeight
+
+      const isVisible =
+        itemTop >= containerScrollTop && itemBottom <= containerScrollTop + containerHeight
+
+      if (isVisible) return
+
+      container.scrollTo({
+        behavior: pathChanged ? 'smooth' : 'instant',
+        top: itemTop - 100,
+      })
     })
   }, [link, path, scrollRef])
 
@@ -187,6 +201,10 @@ function Section(props: Section.Props) {
     if (props.disabled) return false
     return Boolean(props.collapsed)
   })
+
+  React.useEffect(() => {
+    if (hasActiveChildItem) setCollapsed(false)
+  }, [hasActiveChildItem])
 
   const collapsable = typeof props.collapsed === 'boolean' && !props.disabled
   const onCollapseInteraction = React.useCallback(

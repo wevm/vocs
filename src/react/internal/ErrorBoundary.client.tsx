@@ -29,6 +29,8 @@ export declare namespace ErrorBoundary {
 // biome-ignore lint/correctness/noUnusedVariables: _
 function Fallback(props: Fallback.Props) {
   const { error } = props
+  const message =
+    error instanceof Error ? error.message : typeof error === 'string' ? error : String(error)
 
   return (
     <div
@@ -56,12 +58,12 @@ function Fallback(props: Fallback.Props) {
         An unexpected error occurred.
       </p>
 
-      {error && (
+      {message && (
         <pre
           className="vocs:text-sm vocs:text-secondary vocs:bg-surface vocs:border vocs:border-primary vocs:rounded-lg vocs:px-4 vocs:py-3 vocs:w-[768px] vocs:max-w-full vocs:h-[400px] vocs:overflow-auto"
           data-v-error-message
         >
-          {error.message}
+          {message}
         </pre>
       )}
     </div>
@@ -70,6 +72,6 @@ function Fallback(props: Fallback.Props) {
 
 declare namespace Fallback {
   type Props = {
-    error: Error
+    error: unknown
   }
 }

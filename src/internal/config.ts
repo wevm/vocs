@@ -90,7 +90,8 @@ export type Config<partial extends boolean = false> = MaybePartial<
     //  */
     // blogDir?: string
     /**
-     * Absolute path to the directory to store cache files.
+     * Path to the directory to store cache files, relative to `rootDir`.
+     * @default ".vocs/cache"
      */
     cacheDir: string
     /**
@@ -377,6 +378,11 @@ export type Frontmatter = {
    */
   showAskAi?: boolean | undefined
   /**
+   * Whether to show the search box.
+   * @default true
+   */
+  showSearch?: boolean | undefined
+  /**
    * Whether to show the feedback widget.
    * @default true
    */
@@ -452,11 +458,15 @@ export function define(config: define.Options = {}): Config {
       : undefined,
     baseUrl,
     basePath,
-    cacheDir: cacheDir ?? path.resolve(rootDir, '.vocs/cache'),
+    cacheDir: path.resolve(rootDir, cacheDir ?? '.vocs/cache'),
     changelog,
     checkDeadlinks,
     codeHighlight: {
       ...codeHighlight,
+      langAlias: {
+        sol: 'solidity',
+        ...(codeHighlight?.langAlias ?? {}),
+      },
       langs: codeHighlight?.langs ?? (Langs.infer({ rootDir, srcDir, pagesDir }) as never),
       themes: {
         light: 'github-light',

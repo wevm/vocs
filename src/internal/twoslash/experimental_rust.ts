@@ -345,6 +345,7 @@ export function createRustTwoslasher(options: experimental_rust.Options) {
   // Use a shared target directory to cache compiled deps across runs
   const targetDir = cacheDir ? path.join(cacheDir, 'target') : undefined
   const cacheOnly = options.cacheOnly ?? false
+  const verbose = options.verbose ?? true
 
   // Validate cargoToml exists if provided
   if (cargoTomlPath && !node_fs.existsSync(cargoTomlPath)) {
@@ -369,9 +370,10 @@ export function createRustTwoslasher(options: experimental_rust.Options) {
       : null
     const cachePath = cacheKey && cacheDir ? path.join(cacheDir, `${cacheKey}.json`) : null
 
-    console.log(
-      `[vocs] rust-twoslash: binaryPath=${binaryPath}, cacheDir=${cacheDir}, cachePath=${cachePath}, exists=${cachePath ? node_fs.existsSync(cachePath) : false}`,
-    )
+    if (verbose)
+      console.log(
+        `[vocs] rust-twoslash: binaryPath=${binaryPath}, cacheDir=${cacheDir}, cachePath=${cachePath}, exists=${cachePath ? node_fs.existsSync(cachePath) : false}`,
+      )
 
     if (cachePath && node_fs.existsSync(cachePath)) {
       try {
@@ -382,11 +384,13 @@ export function createRustTwoslasher(options: experimental_rust.Options) {
           nodes: convertLegacyToNodes(cached, { ...directives, removedLines }),
           meta: ext ? { extension: ext } : undefined,
         }
-        const codePreview = code.length > 60 ? `${code.slice(0, 60)}...` : code
-        console.log(`[vocs] rust-twoslash: cache hit for "${codePreview.replace(/\n/g, '\\n')}"`)
+        if (verbose) {
+          const codePreview = code.length > 60 ? `${code.slice(0, 60)}...` : code
+          console.log(`[vocs] rust-twoslash: cache hit for "${codePreview.replace(/\n/g, '\\n')}"`)
+        }
         return cachedResult as TwoslashShikiReturn
       } catch {
-        console.log('[vocs] rust-twoslash: cache miss')
+        if (verbose) console.log('[vocs] rust-twoslash: cache miss')
       }
     }
 
@@ -404,8 +408,10 @@ export function createRustTwoslasher(options: experimental_rust.Options) {
       args.push('--target-dir', targetDir)
     }
 
-    const codePreview = code.length > 60 ? `${code.slice(0, 60)}...` : code
-    console.log(`[vocs] rust-twoslash: compiling "${codePreview.replace(/\n/g, '\\n')}"`)
+    if (verbose) {
+      const codePreview = code.length > 60 ? `${code.slice(0, 60)}...` : code
+      console.log(`[vocs] rust-twoslash: compiling "${codePreview.replace(/\n/g, '\\n')}"`)
+    }
     const startTime = performance.now()
 
     const spawnResult = spawnSync(binaryPath, args, {
@@ -415,7 +421,7 @@ export function createRustTwoslasher(options: experimental_rust.Options) {
     })
 
     const elapsed = Math.round(performance.now() - startTime)
-    console.log(`[vocs] rust-twoslash: completed in ${elapsed}ms`)
+    if (verbose) console.log(`[vocs] rust-twoslash: completed in ${elapsed}ms`)
 
     if (spawnResult.error) {
       console.error('[vocs] rust-twoslash error:', spawnResult.error.message)
@@ -538,6 +544,11 @@ export declare namespace experimental_rust {
      * @default false
      */
     throws?: boolean | undefined
+    /**
+     * Whether to log verbose output.
+     * @default true
+     */
+    verbose?: boolean | undefined
   }
 
   export type ReturnType = ((options?: { cacheDir?: string | undefined }) => ShikiTransformer) & {

@@ -1,6 +1,8 @@
+import * as path from 'node:path'
 import { createCommentNotationTransformer } from '@shikijs/transformers'
 import { createTransformerFactory, type TransformerTwoslashOptions } from '@shikijs/twoslash/core'
 import type { ShikiTransformer } from '@shikijs/types'
+import { addClassToHast } from 'shiki'
 import { createTwoslasher, type TwoslashInstance } from 'twoslash'
 
 type TransformerTwoslashIndexOptions = TransformerTwoslashOptions
@@ -16,6 +18,122 @@ export {
   transformerNotationWordHighlight as notationWordHighlight,
   transformerRemoveNotationEscape as removeNotationEscape,
 } from '@shikijs/transformers'
+
+const notationBlockStartRegex =
+  /^\s*(?:\/\/|\/\*|<!--|#|--)\s+\[!code\s+(hl|focus):start\]\s*(?:\*\/|-->)?\s*$/
+const notationBlockEndRegex =
+  /^\s*(?:\/\/|\/\*|<!--|#|--)\s+\[!code\s+(hl|focus):end\]\s*(?:\*\/|-->)?\s*$/
+
+/**
+ * Transformer that handles block-level code annotations for highlight and focus.
+ *
+ * Supports start/end markers:
+ * - // [!code hl:start] ... // [!code hl:end]
+ * - // [!code focus:start] ... // [!code focus:end]
+ *
+ * Works with various comment styles: //, /* *\/, <!--  -->, #, --
+ */
+export function notationBlock(options: notationBlock.Options = {}): ShikiTransformer {
+  type Element = import('hast').Element
+  type ElementContent = import('hast').ElementContent
+
+  const {
+    highlightClass = 'highlighted',
+    focusClass = 'focused',
+    focusActivePreClass = 'has-focused',
+  } = options
+
+  return {
+    name: 'vocs:notation-block',
+    code(code) {
+      const children = code.children
+      const lines = children.filter((i) => i.type === 'element') as Element[]
+      const removeSet = new Set<ElementContent>()
+
+      let hlDepth = 0
+      let focusDepth = 0
+      let hasFocus = false
+
+      for (const line of lines) {
+        const lineText = getLineText(line)
+
+        const startMatch = lineText.match(notationBlockStartRegex)
+        if (startMatch) {
+          const blockType = startMatch[1]
+          if (blockType === 'hl') {
+            hlDepth++
+          } else {
+            focusDepth++
+          }
+          markLineForRemoval(line, code, removeSet)
+          continue
+        }
+
+        const endMatch = lineText.match(notationBlockEndRegex)
+        if (endMatch) {
+          const blockType = endMatch[1]
+          if (blockType === 'hl') {
+            hlDepth = Math.max(0, hlDepth - 1)
+          } else {
+            focusDepth = Math.max(0, focusDepth - 1)
+          }
+          markLineForRemoval(line, code, removeSet)
+          continue
+        }
+
+        if (hlDepth > 0) {
+          addClassToHast(line, highlightClass)
+        }
+        if (focusDepth > 0) {
+          addClassToHast(line, focusClass)
+          hasFocus = true
+        }
+      }
+
+      if (hasFocus && this.pre) {
+        addClassToHast(this.pre, focusActivePreClass)
+      }
+
+      code.children = children.filter((n) => !removeSet.has(n))
+    },
+  }
+
+  function getLineText(line: Element): string {
+    let text = ''
+    for (const child of line.children) {
+      if (child.type === 'text') {
+        text += child.value
+      } else if (child.type === 'element') {
+        text += getLineText(child as Element)
+      }
+    }
+    return text
+  }
+
+  function markLineForRemoval(line: Element, code: Element, removeSet: Set<ElementContent>): void {
+    removeSet.add(line)
+    const lineIndex = code.children.indexOf(line)
+    const nextNode = code.children[lineIndex + 1]
+    if (
+      nextNode &&
+      nextNode.type === 'text' &&
+      (nextNode.value === '\n' || nextNode.value === '\r\n')
+    ) {
+      removeSet.add(nextNode)
+    }
+  }
+}
+
+export declare namespace notationBlock {
+  type Options = {
+    /** Class to apply to highlighted lines. @default 'highlighted' */
+    highlightClass?: string | undefined
+    /** Class to apply to focused lines. @default 'focused' */
+    focusClass?: string | undefined
+    /** Class added to the <pre> element when focus blocks are present. @default 'has-focused' */
+    focusActivePreClass?: string | undefined
+  }
+}
 
 /**
  * Shiki transformer that enables collapsible code regions.
@@ -105,7 +223,7 @@ export function twoslash(options: twoslash.Options): ShikiTransformer {
     renderer = Renderer.rich(),
     throws = true,
     twoslashOptions,
-    typesCache = TypesCache.fs({ dir: cacheDir }),
+    typesCache = TypesCache.fs({ dir: cacheDir ? path.join(cacheDir, 'twoslash') : undefined }),
   } = options
 
   // singleton twoslasher saves ~1.5s cold start time
@@ -126,11 +244,13 @@ export function twoslash(options: twoslash.Options): ShikiTransformer {
     throws,
     typesCache,
     onTwoslashError(error, code, lang, options) {
+      if (!throws) return
       const message = error instanceof Error ? error.message : String(error)
       const meta = options?.meta?.__raw
       twoslashErrors.push({ message, code, lang, meta })
     },
     onShikiError(error, code, lang) {
+      if (!throws) return
       const message = error instanceof Error ? error.message : String(error)
       twoslashErrors.push({ message, code, lang })
     },
@@ -382,6 +502,51 @@ export function title(): ShikiTransformer {
 }
 
 /**
+ * Shiki transformer that adds a wrap toggle button to code blocks.
+ * Enabled via `// [!code show-wrap]` comment.
+ */
+export function showWrap(): ShikiTransformer {
+  type Element = import('hast').Element
+
+  const pattern = /^\s*(?:\/\/|\/\*|<!--|#|--)\s*\[!code show-wrap\]\s*(?:\*\/|-->)?\s*$/
+
+  function getTextContent(element: Element): string {
+    let text = ''
+    for (const child of element.children) {
+      if (child.type === 'text') text += child.value
+      else if (child.type === 'element') text += getTextContent(child as Element)
+    }
+    return text
+  }
+
+  return {
+    name: 'vocs:show-wrap',
+    code(code) {
+      const lines = code.children.filter((x) => x.type === 'element') as Element[]
+
+      for (const line of lines) {
+        const lineText = getTextContent(line)
+        if (!pattern.test(lineText)) continue
+
+        // Add attribute to pre element
+        // biome-ignore lint/suspicious/noExplicitAny: _
+        const pre = this.pre as any
+        pre.properties = { ...pre.properties, 'data-v-show-wrap': '' }
+
+        // Remove the line and following newline
+        const index = code.children.indexOf(line)
+        if (index === -1) continue
+        const nextNode = code.children[index + 1]
+        let removeLength = 1
+        if (nextNode?.type === 'text' && nextNode.value === '\n') removeLength = 2
+        code.children.splice(index, removeLength)
+        break
+      }
+    },
+  }
+}
+
+/**
  * Shiki transformer that processes `// [!include ...]` markers for physical files.
  * Physical files use `~` prefix to indicate root-relative paths.
  */
@@ -455,17 +620,62 @@ export function shellPrompt(options: shellPrompt.Options = {}): ShikiTransformer
 
         const text = textNode.value.trim()
 
-        if (promptChars.has(text)) {
-          const secondChild = line.children[1]
-          if (secondChild?.type === 'element') {
-            const secondSpan = secondChild as Element
-            const secondTextNode = secondSpan.children[0] as Text | undefined
-            if (secondTextNode?.type === 'text' && secondTextNode.value.startsWith(' ')) {
-              textNode.value = `${text} `
-              secondTextNode.value = secondTextNode.value.slice(1)
+        // Check if line starts with a prompt character
+        // Case 1: Prompt is isolated in its own span (e.g., "$")
+        // Case 2: Prompt is at start of span followed by space (e.g., "$ forge build")
+        const startsWithPrompt =
+          promptChars.has(text) || [...promptChars].some((p) => text.startsWith(`${p} `))
+
+        if (startsWithPrompt) {
+          if (promptChars.has(text)) {
+            // Case 1: Prompt is isolated — move trailing space from next span if present
+            const secondChild = line.children[1]
+            if (secondChild?.type === 'element') {
+              const secondSpan = secondChild as Element
+              const secondTextNode = secondSpan.children[0] as Text | undefined
+              if (secondTextNode?.type === 'text' && secondTextNode.value.startsWith(' ')) {
+                textNode.value = `${text} `
+                secondTextNode.value = secondTextNode.value.slice(1)
+              }
             }
+            span.properties = { ...span.properties, 'data-v-shell-prompt': '' }
+          } else {
+            // Case 2: Prompt is inline — split the span into prompt + command
+            const prompt = [...promptChars].find((p) => text.startsWith(`${p} `)) as string
+            const commandText = textNode.value
+              .slice(textNode.value.indexOf(prompt) + prompt.length + 1)
+              .trimStart()
+            const leadingWs = textNode.value.slice(0, textNode.value.indexOf(prompt))
+
+            // Create prompt span with shell prompt styling
+            const promptSpan: Element = {
+              type: 'element',
+              tagName: 'span',
+              properties: {
+                style: 'color:var(--shiki-token-function)',
+                'data-v-shell-prompt': '',
+              },
+              children: [{ type: 'text', value: `${leadingWs}${prompt} ` }],
+            }
+
+            // Create command span with shell command styling
+            const commandSpan: Element = {
+              type: 'element',
+              tagName: 'span',
+              properties: { style: 'color:var(--shiki-token-string)' },
+              children: [{ type: 'text', value: commandText }],
+            }
+
+            // Replace line children with prompt + command + rest of children
+            const spanIndex = line.children.indexOf(span)
+            const newChildren = [
+              ...line.children.slice(0, spanIndex),
+              promptSpan,
+              ...(commandText.length > 0 ? [commandSpan] : []),
+              ...line.children.slice(spanIndex + 1),
+            ]
+            line.children = newChildren
           }
-          span.properties = { ...span.properties, 'data-v-shell-prompt': '' }
           line.properties = { ...line.properties, 'data-v-shell-line': '' }
         }
       }
@@ -595,6 +805,24 @@ export function customTag(): ShikiTransformer {
           code.children.splice(nextIndex + 1, 0, tagLine, { type: 'text', value: '\n' } as Text)
         else code.children.splice(nextIndex, 0, tagLine, { type: 'text', value: '\n' } as Text)
       }
+    },
+  }
+}
+
+/**
+ * Transformer that adds `data-language` attribute to code elements.
+ *
+ * For @shikijs/rehype inline mode, the highlighter outputs standard <pre><code>
+ * structure, then the rehype plugin changes <pre> to <span>. This transformer
+ * adds the language to the <code> element so it's available for styling.
+ */
+export function inlineLanguage(): ShikiTransformer {
+  return {
+    name: 'vocs:inline-language',
+    code(node) {
+      const lang = this.options.lang
+      if (!lang || lang === 'plaintext') return
+      node.properties['data-language'] = lang
     },
   }
 }

@@ -20,8 +20,15 @@ import type {
   ShikiTransformer,
 } from 'shiki'
 import { bundledLanguages } from 'shiki/bundle/web'
+import dockerfile from 'shiki/langs/dockerfile.mjs'
+import go from 'shiki/langs/go.mjs'
+import protobuf from 'shiki/langs/protobuf.mjs'
+import python from 'shiki/langs/python.mjs'
 import rust from 'shiki/langs/rust.mjs'
 import solidity from 'shiki/langs/solidity.mjs'
+import sql from 'shiki/langs/sql.mjs'
+import toml from 'shiki/langs/toml.mjs'
+import yamlLang from 'shiki/langs/yaml.mjs'
 
 import type { Pluggable, PluggableList } from 'unified'
 import * as UnistUtil from 'unist-util-visit'
@@ -42,8 +49,15 @@ export { default as remarkMdxFrontmatter } from 'remark-mdx-frontmatter'
 
 const defaultLanguages = {
   ...bundledLanguages,
+  dockerfile,
+  go,
+  protobuf,
+  python,
   rust,
   solidity,
+  sql,
+  toml,
+  yaml: yamlLang,
 } as const
 
 /** Set of all valid language names including aliases from explicitly imported languages */
@@ -208,6 +222,7 @@ export function getCompileOptions(
           remarkMdxFrontmatter,
           remarkSandbox,
           remarkSteps,
+          remarkTerminal,
           remarkSubheading,
           remarkVocsScope,
           ...(markdown?.remarkPlugins ?? []),
@@ -348,6 +363,9 @@ export function rehypeLinks(config: Config.Config) {
       // Skip external links and hash-only links
       if (href.match(/^(https?:\/\/|mailto:|tel:|#)/)) return
 
+      // Skip URL-encoded backtick paths (e.g., %60Context%60 from Rust Twoslash type hints)
+      if (href.includes('%60')) return
+
       // Check if link has .md/.mdx extension to process
       const hasExtension = extensions.some((ext) => href.endsWith(ext))
 
@@ -415,7 +433,7 @@ export { remarkVocsScope } from './remark-vocs-scope.js'
 export function rehypeShiki(
   options: ExactPartial<rehypeShiki.Options> = {},
 ): [typeof shiki, RehypeShikiOptions] {
-  const { cacheDir, srcDir, rootDir, themes, twoslash = true } = options
+  const { cacheDir, langs: userLangs, srcDir, rootDir, themes, twoslash = true } = options
 
   // Process twoslash transformers - inject cacheDir if they're factory functions
   const rawTransformers =
@@ -428,6 +446,13 @@ export function rehypeShiki(
   const transformerLangs =
     rawTransformers?.flatMap((t) => ('langs' in t ? (t.langs as LanguageRegistration[]) : [])) ?? []
 
+  // Merge default languages with user-provided languages and transformer languages
+  const mergedLangs = [
+    ...Object.values(defaultLanguages),
+    ...(userLangs ?? []),
+    ...transformerLangs,
+  ]
+
   return [
     shiki,
     {
@@ -437,29 +462,33 @@ export function rehypeShiki(
       inline: 'tailing-curly-colon',
       rootStyle: false,
       themes,
-      langs: [...Object.values(defaultLanguages), ...transformerLangs],
+      langs: mergedLangs,
       // TODO: infer `langs` for faster cold start.
       transformers: [
         rootDir && srcDir ? ShikiTransformers.notationInclude({ srcDir, rootDir }) : undefined,
         twoslash
-          ? ShikiTransformers.twoslash(
-              typeof twoslash === 'object' ? { ...twoslash, cacheDir } : {},
-            )
+          ? ShikiTransformers.twoslash({
+              ...(typeof twoslash === 'object' ? twoslash : {}),
+              cacheDir,
+            })
           : undefined,
         ...(twoslashTransformers ?? []),
         ShikiTransformers.emptyLine(),
         ShikiTransformers.customTag(),
         ShikiTransformers.lineNumbers(),
+        ShikiTransformers.notationBlock(),
         ShikiTransformers.notationDiff(),
         ShikiTransformers.notationFocus(),
         ShikiTransformers.notationHighlight(),
         ShikiTransformers.notationWordHighlight(),
         ...ShikiTransformers.notationCollapse(),
         ...ShikiTransformers.notationFold(),
+        ShikiTransformers.showWrap(),
         ShikiTransformers.removeNotationEscape(),
         ShikiTransformers.shellPrompt(options.shellPrompt),
         ShikiTransformers.tagLine(),
         ShikiTransformers.title(),
+        ShikiTransformers.inlineLanguage(),
         ...(options.transformers ?? []),
       ].filter(Boolean),
     } as RehypeShikiOptions,
@@ -669,14 +698,16 @@ export function remarkDefaultFrontmatter() {
 
     if (hasTitle && hasDescription) return
 
-    // Find first h1
-    const h1 = tree.children.find(
+    // Find first heading (prefer h1, fall back to first heading of any depth)
+    const heading = (tree.children.find(
       (node) => node.type === 'heading' && (node as { depth: number }).depth === 1,
-    ) as { type: 'heading'; children: { type: string; value?: string }[] } | undefined
-    if (!h1) return
+    ) ?? tree.children.find((node) => node.type === 'heading')) as
+      | { type: 'heading'; children: { type: string; value?: string }[] }
+      | undefined
+    if (!heading) return
 
     // Extract text content
-    const textContent = h1.children.map((child) => child.value ?? '').join('')
+    const textContent = heading.children.map((child) => child.value ?? '').join('')
 
     // Parse title and description: "My Title [Description here]"
     const match = textContent.match(/^(.+?)\s*\[(.+)\]$/)
@@ -794,6 +825,63 @@ export function remarkSteps() {
       children.push(currentChild)
 
       node.children = children
+    })
+  }
+}
+
+/**
+ * Remark plugin that handles :::terminal directive.
+ * Stitches command and output code blocks together visually.
+ *
+ * Usage:
+ * :::terminal
+ * ```bash
+ * forge test
+ * ```
+ * ```ansi
+ * [32m[PASS][0m test passed
+ * ```
+ * :::
+ *
+ * The first code block is the command (with copy button).
+ * Subsequent code blocks are output (no copy, rendered with ANSI support).
+ */
+export function remarkTerminal() {
+  return (tree: MdAst.Root) => {
+    UnistUtil.visit(tree, (node) => {
+      if (node.type !== 'containerDirective') return
+      if (node.name !== 'terminal') return
+
+      // biome-ignore lint/suspicious/noAssignInExpressions: _
+      const data = node.data || (node.data = {})
+      const tagName = 'div'
+
+      node.attributes = {
+        ...node.attributes,
+        'data-v-terminal': '',
+      }
+
+      data.hName = tagName
+      data.hProperties = node.attributes || {}
+
+      let isFirst = true
+      node.children = node.children
+        .map((child) => {
+          if (child.type !== 'code') return child
+          const isCommand = isFirst
+          isFirst = false
+          return {
+            type: 'paragraph',
+            children: [child],
+            data: {
+              hName: 'div',
+              hProperties: isCommand
+                ? { 'data-v-terminal-command': '' }
+                : { 'data-v-terminal-output': '' },
+            },
+          }
+        })
+        .filter(Boolean) as (MdAst.BlockContent | MdAst.DefinitionContent)[]
     })
   }
 }

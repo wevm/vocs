@@ -8,6 +8,7 @@ import { CodeToHtml } from './react/internal/CodeToHtml.js'
 import { FileTree } from './react/internal/FileTree.mdx.js'
 import { Mermaid } from './react/internal/Mermaid.mdx.js'
 import { Steps } from './react/internal/Steps.mdx.js'
+import { Terminal } from './react/internal/Terminal.mdx.js'
 import { TwoslashCompletionList } from './react/internal/TwoslashCompletionList.js'
 import { TwoslashHover } from './react/internal/TwoslashHover.js'
 import { Link } from './react/Link.js'
@@ -40,6 +41,7 @@ export const components: MDXComponents = {
     if ('data-v-mermaid-chart' in props)
       return <Mermaid chart={props['data-v-mermaid-chart'] ?? ''} />
     if ('data-v-steps' in props) return <Steps {...props} />
+    if ('data-v-terminal' in props) return <Terminal {...props} />
     return <div {...props} />
   },
   code(props: React.PropsWithChildren<React.ComponentProps<'code'>>) {

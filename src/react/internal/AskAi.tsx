@@ -19,6 +19,7 @@ export function AskAi(props: AskAi.Props) {
 
   const [menuOpen, setMenuOpen] = React.useState(false)
   const [copied, setCopied] = React.useState(false)
+  const [mcpCopied, setMcpCopied] = React.useState(false)
 
   const [modifierKey, setModifierKey] = React.useState('⌘')
   React.useEffect(() => {
@@ -32,6 +33,12 @@ export function AskAi(props: AskAi.Props) {
     const timeout = setTimeout(() => setCopied(false), 1500)
     return () => clearTimeout(timeout)
   }, [copied])
+
+  React.useEffect(() => {
+    if (!mcpCopied) return
+    const timeout = setTimeout(() => setMcpCopied(false), 1500)
+    return () => clearTimeout(timeout)
+  }, [mcpCopied])
 
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -125,7 +132,16 @@ export function AskAi(props: AskAi.Props) {
                 <Menu.Item
                   key={provider.name}
                   className="vocs:flex vocs:items-center vocs:gap-2 vocs:px-2 vocs:py-1.5 vocs:text-primary/80 vocs:hover:text-heading vocs:hover:bg-accenta3 vocs:rounded-md vocs:text-sm vocs:cursor-pointer vocs:transition-colors"
-                  onClick={() => window.open(provider.url, '_blank')}
+                  onClick={() => {
+                    // On mobile, use location.href to trigger Universal Links / App Links
+                    // which will open the native app if installed
+                    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+                    if (isMobile) {
+                      window.location.href = provider.url
+                    } else {
+                      window.open(provider.url, '_blank')
+                    }
+                  }}
                 >
                   <provider.icon className="vocs:size-4" />
                   {provider.name}
@@ -136,6 +152,7 @@ export function AskAi(props: AskAi.Props) {
             <Menu.Separator className="vocs:my-2 vocs:border-t vocs:border-primary" />
 
             <Menu.Item
+              closeOnClick={false}
               className="vocs:flex vocs:items-center vocs:gap-2 vocs:px-2 vocs:py-1.5 vocs:text-primary/80 vocs:hover:text-heading vocs:hover:bg-accenta3 vocs:rounded-md vocs:text-sm vocs:cursor-pointer vocs:transition-colors"
               onClick={copyPageForAi}
             >
@@ -155,13 +172,15 @@ export function AskAi(props: AskAi.Props) {
               <>
                 <Menu.Separator className="vocs:my-2 vocs:border-t vocs:border-primary" />
                 <Menu.Item
+                  closeOnClick={false}
                   className="vocs:flex vocs:items-center vocs:gap-2 vocs:px-2 vocs:py-1.5 vocs:text-primary/80 vocs:hover:text-heading vocs:hover:bg-accenta3 vocs:rounded-md vocs:text-sm vocs:cursor-pointer vocs:transition-colors"
                   onClick={() => {
                     navigator.clipboard.writeText(mcpUrl)
+                    setMcpCopied(true)
                   }}
                 >
                   <SimpleIconsModelcontextprotocol className="vocs:size-4" />
-                  Copy MCP URL
+                  {mcpCopied ? 'Copied!' : 'Copy MCP URL'}
                 </Menu.Item>
               </>
             )}

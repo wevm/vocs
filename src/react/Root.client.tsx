@@ -42,7 +42,9 @@ function applyTheme(theme: 'light' | 'dark' | 'system') {
 }
 
 export function Root_client({ children }: { children: React.ReactNode }) {
-  const { accentColor } = useConfig()
+  const { accentColor, colorScheme } = useConfig()
+
+  const staticScheme = colorScheme !== 'light dark'
 
   // react to theme config changes.
   useEffect(() => {
@@ -55,6 +57,7 @@ export function Root_client({ children }: { children: React.ReactNode }) {
 
   // Listen for system theme changes (needed for pages without ThemeToggle)
   useEffect(() => {
+    if (staticScheme) return
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
     const handler = () => {
       const storedTheme = getStoredTheme()
@@ -62,7 +65,7 @@ export function Root_client({ children }: { children: React.ReactNode }) {
     }
     mediaQuery.addEventListener('change', handler)
     return () => mediaQuery.removeEventListener('change', handler)
-  }, [])
+  }, [staticScheme])
 
   return (
     <NuqsAdapter>

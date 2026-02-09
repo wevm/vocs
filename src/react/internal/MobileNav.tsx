@@ -19,6 +19,9 @@ import * as ThemeToggle from './ThemeToggle.client.js'
 
 export function MobileNav(props: MobileNav.Props) {
   const { className } = props
+  const { colorScheme } = useConfig()
+
+  const showThemeToggle = colorScheme === 'light dark'
 
   const sidebarScrollRef = React.useRef<HTMLDivElement>(null)
 
@@ -65,7 +68,7 @@ export function MobileNav(props: MobileNav.Props) {
               data-v-mobile-nav-footer
             >
               <Socials.Socials />
-              <ThemeToggle.ThemeToggle />
+              {showThemeToggle && <ThemeToggle.ThemeToggle />}
             </div>
           </div>
         </Dialog.Popup>

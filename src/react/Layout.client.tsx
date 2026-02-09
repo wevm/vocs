@@ -24,8 +24,12 @@ import { useTopGutterRef } from './useTopGutterOffset.js'
 export function Main(props: Main.Props) {
   const { children } = props
 
-  const { layout, showAskAi, showSidebar, showTopNav, showLogo, showOutline } = useLayout()
+  const { layout, showAskAi, showSearch, showSidebar, showTopNav, showLogo, showOutline } =
+    useLayout()
+  const { colorScheme } = useConfig()
   const { Footer, OutlineFooter, SidebarHeader } = useSlots()
+
+  const showThemeToggle = colorScheme === 'light dark'
 
   const sidebarScrollRef = React.useRef<HTMLDivElement>(null)
   const topGutterRef = useTopGutterRef()
@@ -89,7 +93,7 @@ export function Main(props: Main.Props) {
                 data-v-sidebar-footer-content
               >
                 <Socials.Socials />
-                <ThemeToggle.ThemeToggle />
+                {showThemeToggle && <ThemeToggle.ThemeToggle />}
               </div>
             </div>
           </aside>
@@ -111,26 +115,30 @@ export function Main(props: Main.Props) {
 
             <div className="vocs:w-1" />
 
-            <div className="vocs:max-lg:w-[180px] vocs:w-[240px] vocs:max-md:hidden">
-              <Search.Search />
-            </div>
+            {showSearch && (
+              <div className="vocs:max-lg:w-[180px] vocs:w-[240px] vocs:max-md:hidden">
+                <Search.Search />
+              </div>
+            )}
           </div>
 
           <TopNav.TopNav className="vocs:max-lg:hidden vocs:px-2" />
 
           <div className="vocs:lg:hidden vocs:flex vocs:items-center vocs:px-3 vocs:gap-1">
-            <Search.Search
-              disableKeyboardShortcut
-              trigger={
-                <button
-                  aria-label="Search"
-                  className="vocs:flex vocs:md:hidden vocs:items-center vocs:justify-center vocs:cursor-pointer vocs:size-8"
-                  type="button"
-                >
-                  <LucideSearch />
-                </button>
-              }
-            />
+            {showSearch && (
+              <Search.Search
+                disableKeyboardShortcut
+                trigger={
+                  <button
+                    aria-label="Search"
+                    className="vocs:flex vocs:md:hidden vocs:items-center vocs:justify-center vocs:cursor-pointer vocs:size-8"
+                    type="button"
+                  >
+                    <LucideSearch />
+                  </button>
+                }
+              />
+            )}
 
             <MobileNav.MobileNav />
           </div>
@@ -183,7 +191,7 @@ export function Main(props: Main.Props) {
 
       {showAskAi && (
         <div
-          className="vocs:fixed vocs:bottom-6 vocs:max-md:bottom-2 vocs:left-1/2 vocs:-translate-x-1/2 vocs:z-40"
+          className="vocs:fixed vocs:bottom-6 vocs:max-md:bottom-2 vocs:left-1/2 vocs:-translate-x-1/2 vocs:z-40 vocs:will-change-transform"
           data-v-ask-ai-container
         >
           <AskAi.AskAi className="vocs:w-[290px]! vocs:h-10! vocs:z-50! vocs:bg-surfaceTint/20! vocs:backdrop-blur-md!" />

@@ -62,6 +62,47 @@ export function hello(name: string = 'World') {
 ````
 :::
 
+## Word Wrap Toggle
+
+:::code-group
+<div data-title="Preview">
+```ts
+// [!code show-wrap]
+export function Head() {
+  return (
+    <>
+      {/* Theme initialization (prevents FOUC) */}
+      <script
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: blocking script to prevent FOUC
+        dangerouslySetInnerHTML={{
+          __html: `(function(){try{var t=localStorage.getItem('vocs-theme');if(t==='light'||t==='dark'){document.documentElement.style.colorScheme=t}else if(window.matchMedia('(prefers-color-scheme:dark)').matches){document.documentElement.style.colorScheme='dark'}else if(window.matchMedia('(prefers-color-scheme:light)').matches){document.documentElement.style.colorScheme='light'}else{document.documentElement.style.colorScheme='dark'}}catch(e){}})()`,
+        }}
+      />
+    <>
+  )
+}
+```
+</div>
+````md [Markdown]
+```ts
+// [\!code show-wrap]
+export function Head() {
+  return (
+    <>
+      {/* Theme initialization (prevents FOUC) */}
+      <script
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: blocking script to prevent FOUC
+        dangerouslySetInnerHTML={{
+          __html: `(function(){try{var t=localStorage.getItem('vocs-theme');if(t==='light'||t==='dark'){document.documentElement.style.colorScheme=t}else if(window.matchMedia('(prefers-color-scheme:dark)').matches){document.documentElement.style.colorScheme='dark'}else if(window.matchMedia('(prefers-color-scheme:light)').matches){document.documentElement.style.colorScheme='light'}else{document.documentElement.style.colorScheme='dark'}}catch(e){}})()`,
+        }}
+      />
+    <>
+  )
+}
+```
+````
+:::
+
 ## Line Focus
 
 :::code-group
@@ -203,6 +244,29 @@ const d = 1
 ````
 :::
 
+## Shell Commands
+
+Shell code blocks with prompt symbols have per-line copy buttons and the prompt is not copied.
+
+:::code-group
+<div data-title="Preview">
+```bash
+$ pnpm create vocs
+$ pnpm vocs dev
+$ pnpm vocs build
+$ pnpm vocs preview
+```
+</div>
+````md [Markdown]
+```bash
+$ pnpm create vocs
+$ pnpm vocs dev
+$ pnpm vocs build
+$ pnpm vocs preview
+```
+````
+:::
+
 ## ANSI
 
 :::code-group
@@ -232,28 +296,46 @@ const d = 1
 ````
 :::
 
-## Shell Commands
+## Terminal Directive
 
-Shell code blocks with prompt symbols have per-line copy buttons and the prompt is not copied.
+For cleaner separation of commands and output, use the `:::terminal` directive. This stitches code blocks together visually.
 
-:::code-group
+:::::code-group
 <div data-title="Preview">
+:::terminal
 ```bash
-$ pnpm create vocs
-$ pnpm vocs dev
-$ pnpm vocs build
-$ pnpm vocs preview
+forge test
 ```
+```ansi
+No files changed, compilation skipped
+
+Ran 2 tests for test/Counter.t.sol:CounterTest
+[32m[PASS][0m testFuzz_SetNumber(uint256) (runs: 256, μ: 27578, ~: 29289)
+[32m[PASS][0m test_Increment() (gas: 28783)
+Suite result: [32mok[0m. [32m2[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 3.27ms (3.11ms CPU time)
+
+Ran 1 test suite in 126.64ms (3.27ms CPU time): [32m2[0m tests passed, [31m0[0m failed, [33m0[0m skipped (2 total tests)
+```
+:::
 </div>
 ````md [Markdown]
+:::terminal
 ```bash
-$ pnpm create vocs
-$ pnpm vocs dev
-$ pnpm vocs build
-$ pnpm vocs preview
+forge test
 ```
-````
+```ansi
+No files changed, compilation skipped
+
+Ran 2 tests for test/Counter.t.sol:CounterTest
+\x1b[32m[PASS]\x1b[0m testFuzz_SetNumber(uint256) (runs: 256, μ: 27578, ~: 29289)
+\x1b[32m[PASS]\x1b[0m test_Increment() (gas: 28783)
+Suite result: \x1b[32mok\x1b[0m. \x1b[32m2\x1b[0m passed; \x1b[31m0\x1b[0m failed; \x1b[33m0\x1b[0m skipped; finished in 3.27ms (3.11ms CPU time)
+
+Ran 1 test suite in 126.64ms (3.27ms CPU time): \x1b[32m2\x1b[0m tests passed, \x1b[31m0\x1b[0m failed, \x1b[33m0\x1b[0m skipped (2 total tests)
+```
 :::
+````
+:::::
 
 ## Code Groups
 
@@ -329,6 +411,26 @@ yarn create vocs
 ```
 ```bash [bun]
 bun create vocs
+```
+:::
+
+## Inline Code
+
+:::code-group
+<div data-title="Preview">
+Inline `code` has `back-ticks around` it.
+
+Inline [`code`](#inline-code) with link.
+
+Inline `console.log("hello world"){:js}` highlighted code
+
+Inline ANSI `> Local: [0;36mhttp://localhost:[0;36;1m3000[0;36m/[0m{:ansi}`
+</div>
+```md [Markdown]
+Inline `code` has `back-ticks around` it.
+Inline [`code`](#inline-code) with link.
+Inline `console.log("hello world"){:js}` highlighted code
+Inline ANSI `> Local: [0;36mhttp://localhost:[0;36;1m3000[0;36m/[0m{:ansi}`
 ```
 :::
 
@@ -451,4 +553,3 @@ export function hello(name: string = 'World') {
 :::
 ``````
 ::::
-

@@ -2,16 +2,13 @@ import * as fs from 'node:fs/promises'
 import * as path from 'node:path'
 import mdxPlugin from '@mdx-js/rollup'
 import tailwindcss, { type PluginOptions as TailwindOptions } from '@tailwindcss/vite'
-import remarkMdx from 'remark-mdx'
-import remarkParse from 'remark-parse'
-import remarkStringify from 'remark-stringify'
-import { unified } from 'unified'
 import type { PluginOption, ResolvedConfig, ViteDevServer } from 'vite'
 import { createLogger } from 'vite'
 import * as Config from './config.js'
 import * as ConfigSerializer from './config-serializer.js'
 import * as Icons from './icons.js'
 import * as Langs from './langs.js'
+import * as Llms from './llms.js'
 import * as Mdx from './mdx.js'
 import { SearchDocuments, SearchIndex } from './search.js'
 import * as ShikiTransformers from './shiki-transformers.js'
@@ -50,6 +47,8 @@ export function deps(): PluginOption {
         optimizeDeps: {
           ...config?.optimizeDeps,
           include: [
+            'vocs > debug',
+            'vocs > extend',
             'vocs > @base-ui/react/dialog',
             'vocs > @base-ui/react/menu',
             'vocs > @base-ui/react/navigation-menu',
@@ -72,6 +71,12 @@ export function deps(): PluginOption {
             'vocs',
             '@takumi-rs/core',
             '@takumi-rs/wasm',
+            'rehype-stringify',
+            'remark-gfm',
+            'remark-parse',
+            'remark-rehype',
+            'unified',
+            'unist-util-visit',
             ...(config?.optimizeDeps?.exclude ?? []),
           ],
         },
@@ -104,7 +109,7 @@ export function deps(): PluginOption {
         },
         ssr: {
           external: ['@takumi-rs/core'],
-          noExternal: ['@takumi-rs/image-response', '@takumi-rs/wasm'],
+          noExternal: ['debug', '@takumi-rs/image-response', '@takumi-rs/wasm'],
         },
       }
     },
@@ -164,64 +169,8 @@ export function llms(config: Config.Config): PluginOption {
 
   async function buildLlmsContent() {
     const pagesDir = path.resolve(viteConfig.root, config.srcDir, config.pagesDir)
-    const pages = await Array.fromAsync(fs.glob(`${pagesDir}/**/*.{md,mdx}`))
-
-    const results = await Promise.all(
-      pages.map(async (page) => {
-        const content = await fs.readFile(page, 'utf-8')
-        const file = await unified()
-          .use(remarkParse)
-          .use(remarkMdx)
-          .use(remarkStringify)
-          .use(remarkPlugins)
-          .use(rehypePlugins)
-          .process(content)
-
-        const { title, description } = (file?.data?.['frontmatter'] ?? {}) as Config.Frontmatter
-        if (!title) return null
-
-        const path = page
-          .replace(pagesDir, '')
-          .replace(/\.mdx?$/, '')
-          .replace(/\/$/, '')
-          .replace(/index$/, '')
-        return {
-          content: String(file),
-          file,
-          title,
-          description,
-          path,
-        }
-      }),
-    )
-      .then((data) => data.filter((data): data is NonNullable<typeof data> => data !== null))
-      .then((data) =>
-        data.sort((a, b) => {
-          const depthA = a.path.split('/').filter(Boolean).length
-          const depthB = b.path.split('/').filter(Boolean).length
-          if (depthA !== depthB) return depthA - depthB
-          return a.path.localeCompare(b.path)
-        }),
-      )
-
-    const llmsTxtContent: string[] = [`# ${title}`, '']
-    if (description) llmsTxtContent.push(description, '')
-
-    const nav = []
-    for (const { title, description, path } of results)
-      nav.push(
-        `- [${title}](${path === '/' ? '/index' : path})${description ? `: ${description}` : ''}`,
-      )
-
-    const sitemap = ['<!--', 'Sitemap:', ...nav, '-->', '', ''].join('\n')
-    for (const result of results) result.content = sitemap + result.content
-
-    const short = [...llmsTxtContent, ...nav]
-
-    const full = [...llmsTxtContent]
-    for (const { content } of results) full.push(content)
-
-    return { full: full.join('\n'), results, short: short.join('\n') }
+    const pages = await Llms.getPagesFromDir(pagesDir)
+    return Llms.buildLlmsContent({ pages, title, description, rehypePlugins, remarkPlugins })
   }
 
   return {
