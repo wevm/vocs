@@ -698,14 +698,16 @@ export function remarkDefaultFrontmatter() {
 
     if (hasTitle && hasDescription) return
 
-    // Find first h1
-    const h1 = tree.children.find(
+    // Find first heading (prefer h1, fall back to first heading of any depth)
+    const heading = (tree.children.find(
       (node) => node.type === 'heading' && (node as { depth: number }).depth === 1,
-    ) as { type: 'heading'; children: { type: string; value?: string }[] } | undefined
-    if (!h1) return
+    ) ?? tree.children.find((node) => node.type === 'heading')) as
+      | { type: 'heading'; children: { type: string; value?: string }[] }
+      | undefined
+    if (!heading) return
 
     // Extract text content
-    const textContent = h1.children.map((child) => child.value ?? '').join('')
+    const textContent = heading.children.map((child) => child.value ?? '').join('')
 
     // Parse title and description: "My Title [Description here]"
     const match = textContent.match(/^(.+?)\s*\[(.+)\]$/)
