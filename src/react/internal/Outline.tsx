@@ -221,9 +221,9 @@ export function Outline(props: Outline.Props) {
           <Items items={items} activeId={activeId} minLevel={minLevel} />
         </nav>
 
-        <Feedback.Feedback className="vocs:mt-6 vocs:max-w-68.5" frontmatter={frontmatter} />
+        <CopyForAi.CopyForAi className="vocs:mt-6 vocs:max-w-68.5" frontmatter={frontmatter} />
 
-        <CopyForAi.CopyForAi className="vocs:mt-6 vocs:max-w-68.5" />
+        <Feedback.Feedback className="vocs:mt-6 vocs:max-w-68.5" frontmatter={frontmatter} />
 
         {Footer && (
           <div className="vocs:mt-6" data-v-outline-footer>

@@ -5,14 +5,12 @@ import * as React from 'react'
 import { useRouter } from 'waku'
 import LucideCheck from '~icons/lucide/check'
 import LucideClipboard from '~icons/lucide/clipboard'
-import { useConfig } from '../useConfig.js'
 
 type CopyState = 'idle' | 'copying' | 'copied' | 'error'
 
 export function CopyForAi(props: CopyForAi.Props) {
-  const { className } = props
+  const { className, frontmatter } = props
 
-  const { mcp } = useConfig()
   const router = useRouter()
   const [state, setState] = React.useState<CopyState>('idle')
 
@@ -40,7 +38,7 @@ export function CopyForAi(props: CopyForAi.Props) {
     }
   }, [router.path, state])
 
-  if (!mcp?.enabled || mcp.copyForAi === false) return null
+  if (frontmatter?.showAskAi === false) return null
 
   return (
     <button
@@ -67,5 +65,6 @@ export function CopyForAi(props: CopyForAi.Props) {
 export declare namespace CopyForAi {
   export type Props = {
     className?: string | undefined
+    frontmatter?: { showAskAi?: boolean | undefined } | undefined
   }
 }
