@@ -6,6 +6,7 @@ import type { PluginOption, ResolvedConfig, ViteDevServer } from 'vite'
 import { createLogger } from 'vite'
 import * as Config from './config.js'
 import * as ConfigSerializer from './config-serializer.js'
+import * as Git from './git.js'
 import * as Icons from './icons.js'
 import * as Langs from './langs.js'
 import * as Llms from './llms.js'
@@ -366,7 +367,6 @@ export function sitemap(config: Config.Config): PluginOption {
         continue
 
       runner.run(async () => {
-        const stat = await fs.stat(page)
         const pagePath =
           page
             .replace(pagesDir, '')
@@ -375,7 +375,10 @@ export function sitemap(config: Config.Config): PluginOption {
             .replace(/\/$/, '') || '/'
 
         const loc = `${siteUrl.replace(/\/$/, '')}${pagePath}`
-        const lastmod = stat.mtime.toISOString().split('T')[0] as string
+        const gitDate = Git.getLastModified(page)
+        const lastmod = gitDate
+          ? (gitDate.split('T')[0] as string)
+          : ((await fs.stat(page)).mtime.toISOString().split('T')[0] as string)
 
         urls.push({ loc, lastmod })
       })

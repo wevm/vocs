@@ -5,7 +5,6 @@ import shiki, { type RehypeShikiOptions } from '@shikijs/rehype'
 import * as EstreeUtil from 'esast-util-from-js'
 import type * as Estree from 'estree'
 import type * as HAst from 'hast'
-
 import type * as MdAst from 'mdast'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import rehypeSlug from 'rehype-slug'
@@ -29,13 +28,13 @@ import solidity from 'shiki/langs/solidity.mjs'
 import sql from 'shiki/langs/sql.mjs'
 import toml from 'shiki/langs/toml.mjs'
 import yamlLang from 'shiki/langs/yaml.mjs'
-
 import type { Pluggable, PluggableList } from 'unified'
 import * as UnistUtil from 'unist-util-visit'
 import type { VFile } from 'vfile'
 import { createLogger } from 'vite'
 import * as yaml from 'yaml'
 import type * as Config from './config.js'
+import * as Git from './git.js'
 import * as Icons from './icons.js'
 import { rehypeImageSize } from './rehype-image-size.js'
 import { remarkVocsScope } from './remark-vocs-scope.js'
@@ -271,7 +270,7 @@ export function recmaMdxLayout(config: Config.Config) {
       return `import _Layout from '${layoutPath}';`
     }
 
-    const lastModified = vfile.path ? fs.statSync(vfile.path).mtime.toISOString() : undefined
+    const lastModified = vfile.path ? Git.getLastModified(vfile.path) : undefined
     const filePath = vfile.path ? path.relative(pagesDirPath, vfile.path) : undefined
 
     const importAst = EstreeUtil.fromJs(
