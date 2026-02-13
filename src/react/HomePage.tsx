@@ -168,12 +168,7 @@ type PackageManager = (typeof packageManagers)[number]
 export function InstallPackage(props: InstallPackage.Props) {
   const { name, type = 'install' } = props
   const [selected, setSelected] = React.useState<PackageManager>('npm')
-  const [hasMounted, setHasMounted] = React.useState(false)
   const [copied, setCopied] = React.useState(false)
-
-  React.useEffect(() => {
-    setHasMounted(true)
-  }, [])
 
   const getCommand = (pm: PackageManager) => {
     if (type === 'init') {
@@ -195,8 +190,6 @@ export function InstallPackage(props: InstallPackage.Props) {
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
-
-  if (!hasMounted) return null
 
   return (
     <BaseTabs.Root
