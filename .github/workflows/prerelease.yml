@@ -17,6 +17,7 @@ jobs:
         run: |
           pnpm run build
           pnpm run --filter create-vocs build
+          pnpm pkg delete scripts.postinstall
           pnpx pkg-pr-new publish --pnpm . ./create-vocs
 
   # Slow path: build Rust binaries then publish twoslash-rust packages
