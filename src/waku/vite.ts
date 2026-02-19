@@ -48,6 +48,7 @@ export async function vocs(options: vocs.Options = {}): Promise<PluginOption[]> 
     Plugins.notFound(),
     Plugins.patchRsdw(),
     Plugins.buildMetadata(wakuConfig),
+    Plugins.buildStaticFiles(wakuConfig),
     Plugins.privateDir(wakuConfig),
     Plugins.fallbackHtml(),
     Plugins.fsRouterTypegen(wakuConfig),

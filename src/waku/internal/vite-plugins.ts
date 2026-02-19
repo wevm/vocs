@@ -15,6 +15,7 @@ import {
 export {
   unstable_allowServerPlugin as allowServer,
   unstable_buildMetadataPlugin as buildMetadata,
+  unstable_buildStaticFilesPlugin as buildStaticFiles,
   unstable_defaultAdapterPlugin as defaultAdapter,
   unstable_fallbackHtmlPlugin as fallbackHtml,
   unstable_mainPlugin as main,
