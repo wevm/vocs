@@ -3,7 +3,12 @@ import { version } from '../package.json'
 
 export default defineConfig({
   banner: 'Vocs v2 is now available!',
-  baseUrl: 'https://next.vocs.dev',
+  baseUrl:
+    process.env.VERCEL_ENV === 'production'
+      ? 'https://next.vocs.dev'
+      : process.env.VERCEL_URL
+        ? `https://${process.env.VERCEL_URL}`
+        : 'https://next.vocs.dev',
   changelog: Changelog.github({ repo: 'wevm/vocs' }),
   checkDeadlinks: true,
   feedback: Feedback.slack(),
