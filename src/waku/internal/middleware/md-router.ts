@@ -110,6 +110,16 @@ export function middleware(): MiddlewareHandler {
     const isMarkdownRequest = url.pathname.endsWith('.md')
     if (!isMarkdownRequest && !isAiAgent && !isTerminal) return next()
 
+    // Regular browsers requesting .md URLs should get the rendered HTML page,
+    // not raw markdown. Redirect to the clean URL so Vocs renders it.
+    if (isMarkdownRequest && !isAiAgent && !isTerminal && !acceptsMarkdown) {
+      const cleanPath = url.pathname.replace(/\.md$/, '').replace(/\/index$/, '') || '/'
+      const destination = new URL(cleanPath, url.origin)
+      destination.search = url.search
+      context.res = context.redirect(destination.toString(), 302)
+      return
+    }
+
     const pagePath = url.pathname.replace(/\.md$/, '').replace(/\/index$/, '')
 
     let text: string | null
