@@ -69,7 +69,7 @@ async function resolveContent() {
   })
 }
 
-async function fetchMarkdown(url: URL, assetPath: string, cookie?: string) {
+export async function fetchMarkdown(url: URL, assetPath: string, cookie?: string) {
   // Try reading from disk first (avoids self-fetch issues with deployment protection).
   try {
     const fs = await import('node:fs/promises')
