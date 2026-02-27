@@ -173,16 +173,8 @@ export function matchIcon(
   return undefined
 }
 
-export async function resolveIcon(icon: string): Promise<string | undefined> {
+export function resolveIconSync(icon: string): string | undefined {
   if (icon.startsWith('<svg')) return icon
-
-  if (/^https?:\/\//.test(icon)) {
-    try {
-      const response = await fetch(icon)
-      if (response.ok) return await response.text()
-    } catch {}
-    return undefined
-  }
 
   const [collection, iconName] = icon.split(':')
   if (!collection || !iconName) return undefined
@@ -195,4 +187,18 @@ export async function resolveIcon(icon: string): Promise<string | undefined> {
 
   const { attributes, body } = iconToSVG(data)
   return iconToHTML(body, attributes)
+}
+
+export async function resolveIcon(icon: string): Promise<string | undefined> {
+  if (icon.startsWith('<svg')) return icon
+
+  if (/^https?:\/\//.test(icon)) {
+    try {
+      const response = await fetch(icon)
+      if (response.ok) return await response.text()
+    } catch {}
+    return undefined
+  }
+
+  return resolveIconSync(icon)
 }

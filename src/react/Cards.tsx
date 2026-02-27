@@ -16,10 +16,10 @@ export declare namespace Cards {
   }
 }
 
-export async function Card(props: Card.Props) {
+export function Card(props: Card.Props) {
   const { title, description, icon, to, topRight } = props
 
-  const iconHtml = icon ? ((await Icons.resolveIcon(icon)) ?? null) : null
+  const iconHtml = icon ? (Icons.resolveIconSync(icon) ?? null) : null
   const descriptionHtml = Markdown.toHtml(description)
 
   return (
