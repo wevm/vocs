@@ -991,7 +991,7 @@ export async function getFileIconSvg(filename) {
   return Icons.resolveIcon(icon)
 }
 
-export { matchIcon, resolveIcon } from './icons.js'
+export { matchIcon, resolveIcon, resolveIconSync } from './icons.js'
 `
     },
   }
