@@ -52,9 +52,9 @@ describe('fetchMarkdown', () => {
 
     expect(result).toBe('# Hello from fetch')
     expect(fetchSpy).toHaveBeenCalledOnce()
-    const [url, init] = fetchSpy.mock.calls[0]
-    expect(url.toString()).toBe('https://example.com/assets/md/docs.md')
-    expect(init.headers).toEqual({ cookie: 'session=abc123' })
+    const call = fetchSpy.mock.calls[0]
+    expect(call?.[0].toString()).toBe('https://example.com/assets/md/docs.md')
+    expect(call?.[1].headers).toEqual({ cookie: 'session=abc123' })
   })
 
   it('returns null when both disk and HTTP fetch fail', async () => {

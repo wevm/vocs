@@ -83,7 +83,7 @@ export async function fetchMarkdown(url: URL, assetPath: string, cookie?: string
   // Fall back to HTTP fetch, forwarding cookies for auth-protected deployments.
   const assetUrl = new URL(assetPath, url.origin)
   const headers: HeadersInit = {}
-  if (cookie) headers.cookie = cookie
+  if (cookie) headers['cookie'] = cookie
   const response = await globalThis.fetch(assetUrl, { headers })
   if (!response.ok) return null
   return response.text()
