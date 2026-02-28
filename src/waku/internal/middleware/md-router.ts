@@ -69,9 +69,22 @@ async function resolveContent() {
   })
 }
 
-async function fetchMarkdown(url: URL, assetPath: string) {
+export async function fetchMarkdown(url: URL, assetPath: string, cookie?: string) {
+  // Try reading from disk first (avoids self-fetch issues with deployment protection).
+  try {
+    const fs = await import('node:fs/promises')
+    const path = await import('node:path')
+    const { fileURLToPath } = await import('node:url')
+    const distDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
+    const filePath = path.join(distDir, 'public', assetPath.replace(/^\//, ''))
+    return await fs.readFile(filePath, 'utf-8')
+  } catch {}
+
+  // Fall back to HTTP fetch, forwarding cookies for auth-protected deployments.
   const assetUrl = new URL(assetPath, url.origin)
-  const response = await globalThis.fetch(assetUrl)
+  const headers: HeadersInit = {}
+  if (cookie) headers['cookie'] = cookie
+  const response = await globalThis.fetch(assetUrl, { headers })
   if (!response.ok) return null
   return response.text()
 }
@@ -95,7 +108,7 @@ export function middleware(): MiddlewareHandler {
         const content = await resolveContent()
         text = content.short
       } else {
-        text = await fetchMarkdown(url, '/llms.txt')
+        text = await fetchMarkdown(url, '/llms.txt', context.req.header('cookie'))
       }
       if (!text) return next()
 
@@ -123,7 +136,7 @@ export function middleware(): MiddlewareHandler {
       const assetPath = url.pathname.endsWith('.md')
         ? `/assets/md${url.pathname}`
         : `/assets/md${url.pathname}.md`
-      text = await fetchMarkdown(url, assetPath)
+      text = await fetchMarkdown(url, assetPath, context.req.header('cookie'))
     }
     if (!text) return next()
 
