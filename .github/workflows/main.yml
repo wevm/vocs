@@ -32,7 +32,7 @@ jobs:
 
       - name: PR or publish
         id: changesets
-        uses: changesets/action@06245a4e0a36c064a573d4150030f5ec548e4fcc # 06245a4e0a36c064a573d4150030f5ec548e4fcc
+        uses: changesets/action@6a0a831ff30acef54f2c6aa1cbbc1096b066edaf # 06245a4e0a36c064a573d4150030f5ec548e4fcc
         with:
           title: 'chore: version packages'
           commit: 'chore: version packages'
