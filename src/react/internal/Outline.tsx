@@ -11,6 +11,7 @@ import * as MdxPageContext from '../MdxPageContext.js'
 import { useTopGutterOffset } from '../useTopGutterOffset.js'
 import * as CopyForAi from './CopyForAi.client.js'
 import * as Feedback from './Feedback.client.js'
+import { getHeadingText } from './getHeadingText.js'
 
 function useOutlineItems(options: { minLevel: number; maxLevel: number }) {
   const { minLevel, maxLevel } = options
@@ -32,7 +33,7 @@ function useOutlineItems(options: { minLevel: number; maxLevel: number }) {
           if (level < minLevel || level > maxLevel) return null
 
           const id = element.id
-          const text = element.textContent ?? ''
+          const text = getHeadingText(element)
           const topOffset = window.scrollY + element.getBoundingClientRect().top
 
           return { id, level, text, topOffset }

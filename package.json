@@ -28,6 +28,7 @@
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "astring": "^1.9.0",
+    "jsdom": "^28.1.0",
     "mermaid": "^11.12.2",
     "react": "catalog:",
     "react-dom": "catalog:",
