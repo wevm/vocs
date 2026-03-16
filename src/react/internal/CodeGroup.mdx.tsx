@@ -106,7 +106,7 @@ function CodeGroupTabs({ items }: { items: CodeGroupItem[] }) {
 
 function CodeGroupPanels({ items }: { items: CodeGroupItem[] }) {
   return (
-    <>
+    <div className="vocs:grid">
       {items.map(({ value, content }, i) => {
         const isCodeBlock =
           content &&
@@ -115,8 +115,9 @@ function CodeGroupPanels({ items }: { items: CodeGroupItem[] }) {
           'data-v-code-container' in (content.props as React.ComponentProps<'div'>)
         return (
           <Tabs.Panel
-            className="vocs:*:rounded-t-none vocs:*:border-t-0"
+            className="vocs:col-start-1 vocs:row-start-1 vocs:*:rounded-t-none vocs:*:border-t-0 vocs:data-hidden:invisible"
             data-v-code-group-panel
+            keepMounted
             key={value || i.toString()}
             value={value || i.toString()}
           >
@@ -130,7 +131,7 @@ function CodeGroupPanels({ items }: { items: CodeGroupItem[] }) {
           </Tabs.Panel>
         )
       })}
-    </>
+    </div>
   )
 }
 
