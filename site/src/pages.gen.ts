@@ -9,6 +9,7 @@ type Page =
   | { path: '/reference/site-config'; render: 'static' }
   | { path: '/guide/ai-support'; render: 'static' }
   | { path: '/guide/asset-handling'; render: 'static' }
+  | { path: '/guide/bugfix-test'; render: 'static' }
   | { path: '/guide/changelog-generation'; render: 'static' }
   | { path: '/guide/changelog'; render: 'static' }
   | { path: '/guide/deploy'; render: 'static' }

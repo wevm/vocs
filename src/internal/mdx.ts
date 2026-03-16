@@ -472,6 +472,7 @@ export function rehypeShiki(
             })
           : undefined,
         ...(twoslashTransformers ?? []),
+        ShikiTransformers.shellNotation(),
         ShikiTransformers.emptyLine(),
         ShikiTransformers.customTag(),
         ShikiTransformers.lineNumbers(),

@@ -1,6 +1,6 @@
 import { type BundledLanguage, createHighlighter } from 'shiki'
 import { describe, expect, it } from 'vitest'
-import { inlineLanguage, notationBlock, shellPrompt } from './shiki-transformers.js'
+import { inlineLanguage, notationBlock, shellNotation, shellPrompt } from './shiki-transformers.js'
 
 async function highlight(code: string, lang: BundledLanguage = 'typescript') {
   const highlighter = await createHighlighter({
@@ -383,6 +383,73 @@ $ forge build`
     highlighter.dispose()
 
     expect(html).not.toContain('data-v-shell')
+  })
+})
+
+describe('shellNotation', () => {
+  it('should highlight bash lines with backslash continuation before # [!code hl]', async () => {
+    const highlighter = await createHighlighter({
+      themes: ['github-dark'],
+      langs: ['bash'],
+    })
+
+    const code = `tempo node \\
+  --follow \\ # [!code hl]
+  --http --http.port 8545`
+
+    const html = highlighter.codeToHtml(code, {
+      lang: 'bash',
+      theme: 'github-dark',
+      transformers: [shellNotation()],
+    })
+
+    highlighter.dispose()
+
+    expect(html).toContain('highlighted')
+    expect(html).not.toContain('[!code hl]')
+    // The backslash continuation should be preserved
+    expect(html).toContain('--follow')
+  })
+
+  it('should not affect non-shell languages', async () => {
+    const highlighter = await createHighlighter({
+      themes: ['github-dark'],
+      langs: ['typescript'],
+    })
+
+    const code = `const x = 'test \\\\ # [!code hl]'`
+
+    const html = highlighter.codeToHtml(code, {
+      lang: 'typescript',
+      theme: 'github-dark',
+      transformers: [shellNotation()],
+    })
+
+    highlighter.dispose()
+
+    expect(html).not.toContain('highlighted')
+  })
+
+  it('should handle focus annotations', async () => {
+    const highlighter = await createHighlighter({
+      themes: ['github-dark'],
+      langs: ['bash'],
+    })
+
+    const code = `tempo node \\
+  --follow \\ # [!code focus]
+  --http`
+
+    const html = highlighter.codeToHtml(code, {
+      lang: 'bash',
+      theme: 'github-dark',
+      transformers: [shellNotation()],
+    })
+
+    highlighter.dispose()
+
+    expect(html).toContain('focused')
+    expect(html).not.toContain('[!code focus]')
   })
 })
 

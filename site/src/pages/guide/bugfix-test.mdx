@@ -1,0 +1,140 @@
+# Bug Fix Test Page [Visual test for shell copy, code group height, and shell annotations]
+
+This page reproduces three bugs to verify fixes.
+
+## Bug 1: Multiline bash copy
+
+Clicking the copy button on a multiline `\`-continuation command should copy **all** continuation lines, not just the first.
+
+```bash
+$ tempo node \
+  --follow \
+  --http --http.port 8545 \
+  --http.api eth,net,web3,txpool,trace
+```
+
+```bash
+$ sudo tee /etc/systemd/system/tempo.service > /dev/null <<EOF \
+  --datadir /data \
+  --follow \
+  --http \
+  --http.addr 0.0.0.0
+```
+
+Single-line command (should still work normally):
+
+```bash
+$ echo hello world
+```
+
+## Bug 2: Code group tab switching (no page jump)
+
+Switch between the tabs below. The page should **not** jump or shift — the container height should stay constant (equal to the tallest tab).
+
+:::code-group
+
+```ts [TypeScript]
+import { createClient } from 'viem'
+
+const client = createClient({
+  transport: http(),
+})
+```
+
+```rust [Rust]
+use alloy::{
+    primitives::{address, Address, U256},
+    providers::{Provider, ProviderBuilder},
+    sol_types::SolCall,
+};
+use tempo_alloy::{
+    TempoNetwork,
+    contracts::precompiles::ITIP20,
+    primitives::transaction::Call,
+    rpc::TempoTransactionRequest,
+};
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let provider = ProviderBuilder::new_with_network::<TempoNetwork>()
+        .connect(&std::env::var("RPC_URL").expect("No RPC URL set"))
+        .await?;
+
+    let recipient1 = address!("0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb");
+    let recipient2 = address!("0x70997970C51812dc3A010C7d01b50e0d17dc79C8");
+    let token_address: Address = address!("0x20c0000000000000000000000000000000000001");
+
+    let calls = vec![
+        Call {
+            to: token_address.into(),
+            input: ITIP20::transferCall {
+                to: recipient1,
+                amount: U256::from(100_000_000),
+            }
+            .abi_encode()
+            .into(),
+            value: U256::ZERO,
+        },
+        Call {
+            to: token_address.into(),
+            input: ITIP20::transferCall {
+                to: recipient2,
+                amount: U256::from(50_000_000),
+            }
+            .abi_encode()
+            .into(),
+            value: U256::ZERO,
+        },
+    ];
+
+    let pending = provider
+        .send_transaction(TempoTransactionRequest {
+            calls,
+            ..Default::default()
+        })
+        .await?;
+    let tx_hash = pending.tx_hash();
+
+    println!("Batch transaction sent: {tx_hash:?}");
+
+    Ok(())
+}
+```
+
+```solidity [Solidity]
+contract Example {
+    function transfer() external {
+        token.transfer(recipient, amount);
+    }
+}
+```
+
+:::
+
+## Bug 3: `[!code hl]` with bash backslash continuations
+
+The `# [!code hl]` annotation should be **stripped** from the output and the line should be highlighted. Previously the annotation was left visible because `\` before `#` prevented Shiki from recognizing it as a comment.
+
+```bash
+tempo node \
+  --follow \ # [!code hl]
+  --http --http.port 8545 \
+  --http.api eth,net,web3,txpool,trace
+```
+
+Mixed annotations — highlight and focus:
+
+```bash
+docker run \
+  --name tempo \ # [!code hl]
+  -p 8545:8545 \ # [!code hl]
+  -v /data:/data \ # [!code focus]
+  tempo:latest
+```
+
+Normal `# [!code hl]` (non-continuation) should still work:
+
+```bash
+echo "this line is highlighted" # [!code hl]
+echo "this line is not"
+```

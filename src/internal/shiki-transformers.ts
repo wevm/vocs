@@ -693,6 +693,94 @@ export declare namespace shellPrompt {
 }
 
 /**
+ * Shiki transformer that handles [!code ...] annotations on bash lines
+ * where backslash-space before `#` prevents the standard comment-based
+ * transformers from recognizing them.
+ *
+ * Example: `--flag \ # [!code hl]` → marks line as highlighted, outputs `--flag \`
+ */
+export function shellNotation(): ShikiTransformer {
+  // Match lines ending with: \ # [!code <annotation>]
+  // where annotation is hl, focus, ++, --, etc.
+  const shellAnnotationRegex = /^(.*\\\s*)#\s*\[!code\s+(hl|focus|\+\+|--)\]\s*$/
+
+  return {
+    name: 'vocs:shell-notation',
+    preprocess(code, options) {
+      const lang = options.lang
+      const shellLanguages = new Set([
+        'bash',
+        'console',
+        'fish',
+        'nu',
+        'nushell',
+        'powershell',
+        'ps',
+        'ps1',
+        'sh',
+        'shell',
+        'terminal',
+        'zsh',
+      ])
+      if (!lang || !shellLanguages.has(lang)) return code
+
+      const lines = code.split('\n')
+      const annotations: Array<{ lineIndex: number; type: string }> = []
+      const processedLines: string[] = []
+
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i]!
+        const match = line.match(shellAnnotationRegex)
+        if (match) {
+          const [, prefix, type] = match as [string, string, string]
+          processedLines.push(prefix.trimEnd())
+          annotations.push({ lineIndex: i, type })
+        } else {
+          processedLines.push(line)
+        }
+      }
+
+      if (annotations.length === 0)
+        return code
+
+        // Store annotations for the code hook to apply
+        // biome-ignore lint/suspicious/noExplicitAny: _
+      ;(this as any).__shellAnnotations = annotations
+
+      return processedLines.join('\n')
+    },
+    code(code) {
+      // biome-ignore lint/suspicious/noExplicitAny: _
+      const annotations = (this as any).__shellAnnotations as
+        | Array<{ lineIndex: number; type: string }>
+        | undefined
+      if (!annotations || annotations.length === 0) return
+
+      type Element = import('hast').Element
+      const lines = code.children.filter((x) => x.type === 'element') as Element[]
+
+      for (const { lineIndex, type } of annotations) {
+        const line = lines[lineIndex]
+        if (!line) continue
+
+        const classMap: Record<string, string> = {
+          hl: 'highlighted',
+          focus: 'focused',
+          '++': 'diff add',
+          '--': 'diff remove',
+        }
+        const cls = classMap[type]
+        if (cls) addClassToHast(line, cls)
+
+        if (type === 'focus' && this.pre) {
+          addClassToHast(this.pre, 'has-focused')
+        }
+      }
+    },
+  }
+}
+
+/**
  * Transformer that detects and renders custom comment tags in code blocks.
  *
  * Detects tag patterns in comments and replaces them with styled tag divs.

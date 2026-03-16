@@ -135,7 +135,24 @@ export function ShellLineCopyButtons() {
         const clone = line.cloneNode(true) as HTMLElement
         clone.querySelector('[data-v-shell-prompt]')?.remove()
         clone.querySelector('[data-v-shell-copy]')?.remove()
-        const text = clone.textContent?.trim() ?? ''
+        let text = clone.textContent?.trim() ?? ''
+
+        // Collect continuation lines (lines after backslash continuations)
+        if (text.endsWith('\\')) {
+          const allLines = Array.from(pre.querySelectorAll('.line')) as HTMLElement[]
+          const startIdx = allLines.indexOf(line)
+          for (let i = startIdx + 1; i < allLines.length; i++) {
+            const next = allLines[i]!
+            if (next.hasAttribute('data-v-shell-line')) break
+            const nextClone = next.cloneNode(true) as HTMLElement
+            nextClone.querySelector('[data-v-shell-copy]')?.remove()
+            const nextText = nextClone.textContent ?? ''
+            if (!nextText.trim()) break
+            text += '\n' + nextText
+            if (!nextText.trimEnd().endsWith('\\')) break
+          }
+        }
+
         navigator.clipboard.writeText(text)
 
         button.setAttribute('data-copied', 'true')
