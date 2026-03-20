@@ -190,6 +190,19 @@ export function llms(config: Config.Config): PluginOption {
           return
         }
 
+        if (req.url === '/mcp-index.json') {
+          content = await buildLlmsContent()
+          const mcpIndex = content.results.map(({ content, path, title, description }) => ({
+            path,
+            title,
+            description,
+            content,
+          }))
+          res.setHeader('Content-Type', 'application/json')
+          res.end(JSON.stringify(mcpIndex))
+          return
+        }
+
         if (req.url?.startsWith('/assets/md/')) {
           content = await buildLlmsContent()
           const pagePath = req.url.slice('/assets/md'.length, -3) || '/'
@@ -210,9 +223,20 @@ export function llms(config: Config.Config): PluginOption {
       const content = await buildLlmsContent()
       const outDir = path.resolve(viteConfig.root, config.outDir, 'public')
       await fs.mkdir(outDir, { recursive: true })
+
+      const mcpIndex = content.results.map(({ content, path, title, description }) => ({
+        path,
+        title,
+        description,
+        content,
+      }))
+
       await Promise.all([
         fs.writeFile(path.join(outDir, 'llms-full.txt'), content.full, { encoding: 'utf-8' }),
         fs.writeFile(path.join(outDir, 'llms.txt'), content.short, { encoding: 'utf-8' }),
+        fs.writeFile(path.join(outDir, 'mcp-index.json'), JSON.stringify(mcpIndex), {
+          encoding: 'utf-8',
+        }),
         ...content.results.map(async ({ content, path: pagePath }) => {
           const mdPath = path.join(
             outDir,

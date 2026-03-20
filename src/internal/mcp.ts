@@ -38,6 +38,41 @@ export type McpConfig = {
   sources?: readonly McpSource.Adapter[] | undefined
 }
 
+export type McpPage = {
+  path: string
+  title: string
+  description?: string | undefined
+  content: string
+}
+
+async function loadPages(config: Config): Promise<McpPage[]> {
+  // Try pre-built index first (works in production and after local build)
+  const indexPath = path.resolve(config.rootDir, config.outDir, 'public', 'mcp-index.json')
+  try {
+    const data = await fs.readFile(indexPath, 'utf-8')
+    return JSON.parse(data) as McpPage[]
+  } catch {}
+
+  // Fallback: scan source files directly (dev mode)
+  try {
+    const pagesDir = path.resolve(config.rootDir, config.srcDir, config.pagesDir)
+    const files = await Array.fromAsync(fs.glob(`${pagesDir}/**/*.{md,mdx}`))
+    return await Promise.all(
+      files.map(async (file) => {
+        const content = await fs.readFile(file, 'utf-8')
+        const pagePath = file
+          .replace(pagesDir, '')
+          .replace(/\.mdx?$/, '')
+          .replace(/\/$/, '')
+          .replace(/index$/, '')
+        return { path: pagePath || '/', title: '', content }
+      }),
+    )
+  } catch {}
+
+  return []
+}
+
 /**
  * Create an MCP server instance with all documentation tools registered.
  */
@@ -50,8 +85,6 @@ export function createServer(config: Config): McpServer {
     { capabilities: { logging: {} } },
   )
 
-  const pagesDir = path.resolve(config.rootDir, config.srcDir, config.pagesDir)
-
   server.registerTool(
     'list_pages',
     {
@@ -59,16 +92,8 @@ export function createServer(config: Config): McpServer {
       inputSchema: {},
     },
     async () => {
-      const pages = await Array.fromAsync(fs.glob(`${pagesDir}/**/*.{md,mdx}`))
-
-      const results = pages.map((page) => {
-        const relativePath = page
-          .replace(pagesDir, '')
-          .replace(/\.mdx?$/, '')
-          .replace(/\/$/, '')
-          .replace(/index$/, '')
-        return relativePath || '/'
-      })
+      const pages = await loadPages(config)
+      const results = pages.map((p) => p.path)
 
       return {
         content: [{ type: 'text', text: JSON.stringify(results, null, 2) }],
@@ -85,19 +110,13 @@ export function createServer(config: Config): McpServer {
       },
     },
     async ({ pagePath }) => {
-      const possiblePaths = [
-        path.join(pagesDir, `${pagePath}.mdx`),
-        path.join(pagesDir, `${pagePath}.md`),
-        path.join(pagesDir, pagePath, 'index.mdx'),
-        path.join(pagesDir, pagePath, 'index.md'),
-      ]
+      const pages = await loadPages(config)
+      const normalized = pagePath.replace(/\/index$/, '').replace(/\/$/, '') || '/'
+      const page = pages.find(
+        (p) => p.path === normalized || p.path === `${normalized}/` || p.path === pagePath,
+      )
 
-      for (const filePath of possiblePaths) {
-        try {
-          const content = await fs.readFile(filePath, 'utf-8')
-          return { content: [{ type: 'text', text: content }] }
-        } catch {}
-      }
+      if (page) return { content: [{ type: 'text', text: page.content }] }
 
       return {
         content: [{ type: 'text', text: `Page not found: ${pagePath}` }],
@@ -116,23 +135,16 @@ export function createServer(config: Config): McpServer {
     },
     async ({ query }) => {
       const lowerQuery = query.toLowerCase()
-      const pages = await Array.fromAsync(fs.glob(`${pagesDir}/**/*.{md,mdx}`))
+      const pages = await loadPages(config)
 
       const results: { path: string; snippet: string }[] = []
 
       for (const page of pages) {
-        const content = await fs.readFile(page, 'utf-8')
-        if (content.toLowerCase().includes(lowerQuery)) {
-          const lines = content.split('\n')
+        if (page.content.toLowerCase().includes(lowerQuery)) {
+          const lines = page.content.split('\n')
           const matchLine = lines.find((line) => line.toLowerCase().includes(lowerQuery))
-          const relativePath = page
-            .replace(pagesDir, '')
-            .replace(/\.mdx?$/, '')
-            .replace(/\/$/, '')
-            .replace(/index$/, '')
-
           results.push({
-            path: relativePath || '/',
+            path: page.path,
             snippet: matchLine?.trim().slice(0, 200) || '',
           })
         }
