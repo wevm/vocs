@@ -168,9 +168,15 @@ export function Outline(props: Outline.Props) {
               <LucideChevronRight className="vocs:size-3.5 vocs:text-secondary/80 vocs:transition-transform vocs:duration-200 vocs:data-[popup-open]:rotate-90 vocs:translate-y-px" />
             </Popover.Trigger>
             <Popover.Portal>
-              <Popover.Positioner side="top" align="start" sideOffset={8}>
+              <Popover.Positioner
+                side="bottom"
+                align="start"
+                sideOffset={8}
+                collisionAvoidance={{ side: 'none' }}
+                style={{ zIndex: 50 }}
+              >
                 <Popover.Popup
-                  className="vocs:bg-primary vocs:border vocs:border-primary vocs:rounded-lg vocs:shadow-lg vocs:p-3 vocs:max-h-[60vh] vocs:overflow-y-auto vocs:w-[calc(100vw-var(--vocs-spacing-gutter)-2*var(--vocs-spacing-content-px))] vocs:max-w-[70ch] vocs:origin-(--transform-origin) vocs:transition-all vocs:duration-150 vocs:scale-100 vocs:opacity-100 vocs:data-starting-style:opacity-0 vocs:data-starting-style:scale-95 vocs:data-ending-style:opacity-0 vocs:data-ending-style:scale-95 vocs:min-[1376px]:hidden"
+                  className="vocs:relative vocs:z-50 vocs:bg-primary vocs:border vocs:border-primary vocs:rounded-lg vocs:shadow-lg vocs:p-3 vocs:max-h-[60vh] vocs:overflow-y-auto vocs:w-[calc(100vw-var(--vocs-spacing-gutter)-2*var(--vocs-spacing-content-px))] vocs:max-w-[70ch] vocs:origin-(--transform-origin) vocs:transition-all vocs:duration-150 vocs:scale-100 vocs:opacity-100 vocs:data-starting-style:opacity-0 vocs:data-starting-style:scale-95 vocs:data-ending-style:opacity-0 vocs:data-ending-style:scale-95 vocs:min-[1376px]:hidden"
                   data-v-outline-popup
                 >
                   <Items
