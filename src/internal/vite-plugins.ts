@@ -10,8 +10,8 @@ import * as Git from './git.js'
 import * as Icons from './icons.js'
 import * as Langs from './langs.js'
 import * as Llms from './llms.js'
-import * as OpenApi from './openapi.js'
 import * as Mdx from './mdx.js'
+import * as OpenApi from './openapi.js'
 import { SearchDocuments, SearchIndex } from './search.js'
 import * as ShikiTransformers from './shiki-transformers.js'
 import * as TaskRunner from './task-runner.js'
@@ -1074,11 +1074,9 @@ export function openapi(config: Config.Config): PluginOption {
 
       for (const op of ops) {
         const opSlug = OpenApi.getOperationSlug(op)
-        await fs.writeFile(
-          path.join(tagDir, `${opSlug}.tsx`),
-          generateOperationPage(op),
-          { encoding: 'utf-8' },
-        )
+        await fs.writeFile(path.join(tagDir, `${opSlug}.tsx`), generateOperationPage(op), {
+          encoding: 'utf-8',
+        })
       }
     }
 

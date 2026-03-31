@@ -43,8 +43,7 @@ export function extractOperations(doc: OpenAPIV3.Document): Operation[] {
       if (!operation) continue
 
       const op: Operation = {
-        operationId:
-          operation.operationId ?? `${method}-${path.replace(/[^a-zA-Z0-9]/g, '-')}`,
+        operationId: operation.operationId ?? `${method}-${path.replace(/[^a-zA-Z0-9]/g, '-')}`,
         method,
         path,
         tags: operation.tags ?? [],
@@ -64,10 +63,7 @@ export function extractOperations(doc: OpenAPIV3.Document): Operation[] {
 }
 
 /** Group operations by tag and build sidebar items. */
-export function buildSidebarItems(
-  operations: Operation[],
-  basePath: string,
-): SidebarItem[] {
+export function buildSidebarItems(operations: Operation[], basePath: string): SidebarItem[] {
   const groups = new Map<string, Operation[]>()
 
   for (const operation of operations) {
@@ -94,7 +90,9 @@ export function buildSidebarItems(
 }
 
 /** Generate a URL slug for an operation. */
-export function getOperationSlug(operation: Pick<Operation, 'operationId' | 'method' | 'path'>): string {
+export function getOperationSlug(
+  operation: Pick<Operation, 'operationId' | 'method' | 'path'>,
+): string {
   if (operation.operationId) return toKebabCase(operation.operationId)
   return toKebabCase(`${operation.method}-${operation.path}`)
 }

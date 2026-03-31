@@ -134,7 +134,11 @@ export function ParamTable(props: ParamTable.Props) {
         </thead>
         <tbody>
           {parameters.map((param) => (
-            <tr key={param.name} className="vocs:border-b vocs:border-primary/50" data-v-openapi-param>
+            <tr
+              key={param.name}
+              className="vocs:border-b vocs:border-primary/50"
+              data-v-openapi-param
+            >
               <td className="vocs:py-2 vocs:pr-4 vocs:font-mono vocs:text-heading">{param.name}</td>
               <td className="vocs:py-2 vocs:pr-4">
                 <span className="vocs:text-xs vocs:bg-gray-500/10 vocs:text-secondary vocs:px-1.5 vocs:py-0.5 vocs:rounded">
@@ -187,7 +191,10 @@ export function SchemaViewer(props: SchemaViewer.Props) {
 
   return (
     <div
-      className={cx('vocs:flex vocs:flex-col vocs:gap-2', depth > 0 && 'vocs:pl-4 vocs:border-l vocs:border-primary/30')}
+      className={cx(
+        'vocs:flex vocs:flex-col vocs:gap-2',
+        depth > 0 && 'vocs:pl-4 vocs:border-l vocs:border-primary/30',
+      )}
       data-v-openapi-schema
     >
       {entries.map(([name, propSchema]) => (
@@ -211,9 +218,11 @@ export function SchemaViewer(props: SchemaViewer.Props) {
           {propSchema.type === 'object' && propSchema.properties && (
             <SchemaViewer schema={propSchema} depth={depth + 1} />
           )}
-          {propSchema.type === 'array' && propSchema.items && (propSchema.items as OpenAPIV3.SchemaObject).type === 'object' && (
-            <SchemaViewer schema={propSchema.items as OpenAPIV3.SchemaObject} depth={depth + 1} />
-          )}
+          {propSchema.type === 'array' &&
+            propSchema.items &&
+            (propSchema.items as OpenAPIV3.SchemaObject).type === 'object' && (
+              <SchemaViewer schema={propSchema.items as OpenAPIV3.SchemaObject} depth={depth + 1} />
+            )}
         </div>
       ))}
     </div>
@@ -247,9 +256,7 @@ export function RequestBody(props: RequestBody.Props) {
           <span className="vocs:text-xs vocs:font-mono vocs:text-secondary vocs:bg-gray-500/10 vocs:px-2 vocs:py-0.5 vocs:rounded vocs:w-fit">
             {contentType}
           </span>
-          {mediaType.schema && (
-            <SchemaViewer schema={mediaType.schema as OpenAPIV3.SchemaObject} />
-          )}
+          {mediaType.schema && <SchemaViewer schema={mediaType.schema as OpenAPIV3.SchemaObject} />}
         </div>
       ))}
     </div>
@@ -278,7 +285,7 @@ export function ResponseTable(props: ResponseTable.Props) {
   return (
     <div className="vocs:flex vocs:flex-col vocs:gap-4" data-v-openapi-responses>
       {Object.entries(responses).map(([status, response]) => {
-        const color = statusColors[status[0]!] ?? defaultMethodColor
+        const color = statusColors[status[0] ?? ''] ?? defaultMethodColor
         const schema = getResponseSchema(response)
         return (
           <div key={status} className="vocs:flex vocs:flex-col vocs:gap-2" data-v-openapi-response>
@@ -323,12 +330,10 @@ function getSchemaType(schema: OpenAPIV3.SchemaObject | undefined): string {
   return schema.type ?? 'object'
 }
 
-function getResponseSchema(
-  response: OpenAPIV3.ResponseObject,
-): OpenAPIV3.SchemaObject | undefined {
+function getResponseSchema(response: OpenAPIV3.ResponseObject): OpenAPIV3.SchemaObject | undefined {
   const content = response.content
   if (!content) return undefined
-  const mediaType =
-    content['application/json'] ?? content[Object.keys(content)[0]!]
+  const firstKey = Object.keys(content)[0]
+  const mediaType = content['application/json'] ?? (firstKey ? content[firstKey] : undefined)
   return mediaType?.schema as OpenAPIV3.SchemaObject | undefined
 }
