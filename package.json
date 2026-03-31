@@ -62,6 +62,7 @@
     "src"
   ],
   "dependencies": {
+    "@apidevtools/swagger-parser": "^10.1.1",
     "@base-ui/react": "^1.0.0",
     "@codesandbox/sandpack-react": "^2.20.0",
     "@iconify-json/lucide": "^1.2.82",
@@ -219,6 +220,16 @@
       "types": "./dist/styles/*.d.ts",
       "src": "./src/styles/*.css",
       "default": "./dist/styles/*.js"
+    },
+    "./react/internal/OpenApiPage": {
+      "types": "./dist/react/internal/OpenApiPage.d.ts",
+      "src": "./src/react/internal/OpenApiPage.tsx",
+      "default": "./dist/react/internal/OpenApiPage.js"
+    },
+    "./react/internal/OpenApi": {
+      "types": "./dist/react/internal/OpenApi.d.ts",
+      "src": "./src/react/internal/OpenApi.tsx",
+      "default": "./dist/react/internal/OpenApi.js"
     },
     "./cli": {
       "types": "./dist/cli.d.ts",

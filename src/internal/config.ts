@@ -214,6 +214,32 @@ export type Config<partial extends boolean = false> = MaybePartial<
         }
       | undefined
     /**
+     * OpenAPI specification configuration.
+     * Generates API reference documentation from an OpenAPI/Swagger spec.
+     *
+     * @example
+     * ```ts
+     * export default defineConfig({
+     *   openapi: {
+     *     spec: 'https://api.example.com/openapi.json',
+     *     basePath: '/api',
+     *   },
+     * })
+     * ```
+     */
+    openapi?:
+      | {
+          /** URL or file path to the OpenAPI spec (JSON or YAML). */
+          spec: string
+          /**
+           * Base path for generated API reference pages.
+           * @default "/api-reference"
+           */
+          basePath?: string | undefined
+        }
+      | undefined
+
+    /**
      * OG Image URL template. Can be a string or a function that returns a URL based on the path.
      *
      * Template variables: `%logo`, `%title`, `%description`
@@ -415,6 +441,7 @@ export function define(config: define.Options = {}): Config {
     logoUrl,
     markdown,
     mcp,
+    openapi,
     ogImageUrl,
     outDir = 'dist',
     redirects,
@@ -480,6 +507,12 @@ export function define(config: define.Options = {}): Config {
     logoUrl,
     markdown,
     mcp,
+    openapi: openapi
+      ? {
+          spec: openapi.spec,
+          basePath: openapi.basePath ?? '/api-reference',
+        }
+      : undefined,
     ogImageUrl,
     outDir,
     pagesDir,

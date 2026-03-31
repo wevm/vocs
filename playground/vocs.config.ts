@@ -15,6 +15,10 @@ export default defineConfig({
   twoslash: {
     transformers: [Twoslash.experimental_rust({ cargoToml: './Cargo.toml', cacheOnly: true })],
   },
+  openapi: {
+    spec: 'https://withbridge-image1-sv-usw2-monorail-openapi.s3.amazonaws.com/latest.json',
+    basePath: '/api-reference',
+  },
   banner: 'Vocs v2 is now available!',
   baseUrl: process.env.BASE_URL,
   checkDeadlinks: false,
@@ -37,6 +41,7 @@ export default defineConfig({
   },
   topNav: [
     { text: 'Docs', link: '/' },
+    { text: 'API', link: '/api-reference', match: '/api-reference' },
     { text: 'Sub', link: '/sub/links', match: '/sub' },
     { text: 'External Link', link: 'https://viem.sh' },
     {
