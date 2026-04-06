@@ -4,6 +4,8 @@ import type { OneOf } from './types.js'
 export type SidebarItem<strict extends boolean = false> = {
   /** Whether or not to disable the sidebar item. */
   disabled?: boolean | undefined
+  /** Whether to open the link in a new tab. */
+  external?: boolean | undefined
   /** Optional children to nest under this item. */
   items?: SidebarItem<true>[] | undefined
   /** Text to display on the sidebar. */

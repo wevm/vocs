@@ -70,10 +70,11 @@ export declare namespace Sidebar {
 /** @internal */
 // biome-ignore lint/correctness/noUnusedVariables: _
 function Item(props: Item.Props) {
-  const { condensed = false, depth = 0, disabled, link, onNavigate, scrollRef, text } = props
+  const { condensed = false, depth = 0, disabled, external, link, onNavigate, scrollRef, text } =
+    props
 
   const { path } = useRouter()
-  const isExternal = Path.isExternal(link)
+  const isExternal = external ?? Path.isExternal(link)
   const active = React.useMemo(
     () => (isExternal ? false : Path.matches(path, link)),
     [path, link, isExternal],

@@ -131,7 +131,7 @@ function MobileTopNav(props: MobileTopNav.Props) {
                         {item.text}
                       </Menu.GroupLabel>
                       {item.items.map((child, j) => {
-                        const isExternal = Path.isExternal(child.link)
+                        const isExternal = child.external ?? Path.isExternal(child.link)
                         return (
                           <Menu.RadioItem
                             className="vocs:flex vocs:items-center vocs:gap-1 vocs:hover:text-heading vocs:ml-2 vocs:pl-2 vocs:pr-2 vocs:py-1 vocs:text-primary/80 vocs:data-checked:bg-accenta3 vocs:data-checked:text-accent8! vocs:rounded-md vocs:text-[13px] vocs:font-[450] vocs:cursor-pointer"
@@ -154,7 +154,7 @@ function MobileTopNav(props: MobileTopNav.Props) {
                   )
                 }
 
-                const isExternal = Path.isExternal(item.link)
+                const isExternal = item.external ?? Path.isExternal(item.link)
                 return (
                   <Menu.RadioItem
                     className="vocs:flex vocs:items-center vocs:gap-1 vocs:hover:text-heading vocs:px-2 vocs:py-1.5 vocs:text-primary/80 vocs:data-checked:bg-accenta3 vocs:data-checked:text-accent8! vocs:rounded-md vocs:text-[14px] vocs:font-[450] vocs:cursor-pointer"
