@@ -1,6 +1,8 @@
 import type { OneOf, UnionOmit } from './types.js'
 
 export type Item = {
+  /** Whether to open the link in a new tab. */
+  external?: boolean | undefined
   /**
    * The path to match against the current path.
    *

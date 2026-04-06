@@ -44,9 +44,9 @@ export function TopNav(props: TopNav.Props) {
 }
 
 export function Item(props: Item.Props) {
-  const { active, items, link, text } = props
+  const { active, external, items, link, text } = props
 
-  const isExternal = Path.isExternal(link)
+  const isExternal = external ?? Path.isExternal(link)
 
   if (items)
     return (
@@ -59,7 +59,7 @@ export function Item(props: Item.Props) {
         </NavigationMenu.Trigger>
         <NavigationMenu.Content className="vocs:flex vocs:flex-col">
           {items.map((item, i) => {
-            const itemIsExternal = Path.isExternal(item.link)
+            const itemIsExternal = item.external ?? Path.isExternal(item.link)
             return (
               <NavigationMenu.Link
                 className="vocs:flex vocs:items-center vocs:gap-1 vocs:hover:text-heading vocs:px-2 vocs:py-1 vocs:text-primary/80 vocs:data-[v-active=true]:text-accent7 vocs:data-[v-active=true]:bg-accenta3 vocs:rounded-md vocs:text-[14px] vocs:font-[450]"
