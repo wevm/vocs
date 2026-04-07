@@ -164,7 +164,7 @@ export function router(
 
         if (pathItems.at(0) === options.apiDir) {
           // Strip the apiDir prefix from the path (e.g., _api/chat -> chat)
-          const apiPath = pathItems.slice(1).join('/')
+          const apiPath = `/${pathItems.slice(1).join('/')}`
           if (config?.render === 'static') {
             if (Object.keys(mod).length !== 2 || !mod.GET) {
               console.warn(
