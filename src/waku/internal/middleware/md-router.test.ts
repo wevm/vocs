@@ -1,3 +1,4 @@
+import { Hono } from 'hono'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('node:fs/promises', () => ({
@@ -14,14 +15,22 @@ vi.mock('node:url', async () => {
   return { ...actual }
 })
 
+const originalFetch = globalThis.fetch
+const originalNodeEnv = process.env['NODE_ENV']
+
+function restoreNodeEnv() {
+  if (originalNodeEnv === undefined) delete process.env['NODE_ENV']
+  else process.env['NODE_ENV'] = originalNodeEnv
+}
+
+afterEach(() => {
+  restoreNodeEnv()
+  vi.restoreAllMocks()
+  vi.resetModules()
+  globalThis.fetch = originalFetch
+})
+
 describe('fetchMarkdown', () => {
-  const originalFetch = globalThis.fetch
-
-  afterEach(() => {
-    vi.restoreAllMocks()
-    globalThis.fetch = originalFetch
-  })
-
   it('returns content from disk without making an HTTP fetch', async () => {
     const { readFile } = await import('node:fs/promises')
     vi.mocked(readFile).mockResolvedValue('# Hello from disk')
@@ -68,5 +77,48 @@ describe('fetchMarkdown', () => {
     const result = await fetchMarkdown(new URL('https://example.com'), '/assets/md/missing.md')
 
     expect(result).toBeNull()
+  })
+})
+
+describe('middleware', () => {
+  function request(url: string, headers?: HeadersInit) {
+    const app = new Hono()
+    return import('./md-router.js').then(({ middleware }) => {
+      app.use('*', middleware())
+      app.get('*', (c) => c.html('<p>ok</p>'))
+      return app.request(url, { headers })
+    })
+  }
+
+  it('passes search engine crawlers through to HTML', async () => {
+    process.env['NODE_ENV'] = 'production'
+
+    const { readFile } = await import('node:fs/promises')
+    vi.mocked(readFile).mockResolvedValue('# Hello from disk')
+
+    const response = await request('http://localhost/docs', {
+      'user-agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
+    })
+
+    expect(response.status).toBe(200)
+    expect(response.headers.get('content-type')).toContain('text/html')
+    expect(await response.text()).toBe('<p>ok</p>')
+    expect(readFile).not.toHaveBeenCalled()
+  })
+
+  it('still serves markdown to AI agents', async () => {
+    process.env['NODE_ENV'] = 'production'
+
+    const { readFile } = await import('node:fs/promises')
+    vi.mocked(readFile).mockResolvedValue('# Hello from disk')
+
+    const response = await request('http://localhost/docs', {
+      'user-agent': 'Mozilla/5.0 (compatible; GPTBot/1.0; +https://openai.com/gptbot)',
+    })
+
+    expect(response.status).toBe(200)
+    expect(response.headers.get('content-type')).toBe('text/markdown; charset=utf-8')
+    expect(await response.text()).toBe('# Hello from disk')
+    expect(readFile).toHaveBeenCalledOnce()
   })
 })
