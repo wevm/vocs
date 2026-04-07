@@ -1,6 +1,50 @@
 import { describe, expect, it } from 'vitest'
 import * as Redirects from './redirects.js'
 
+describe('Redirects.appendSearch', () => {
+  it('appends query string to bare path', () => {
+    expect(Redirects.appendSearch('/overview', '?ref=nav')).toBe('/overview?ref=nav')
+  })
+
+  it('merges with existing query string', () => {
+    expect(Redirects.appendSearch('/overview?tab=api', '?ref=nav')).toBe(
+      '/overview?tab=api&ref=nav',
+    )
+  })
+
+  it('inserts query before hash fragment', () => {
+    expect(Redirects.appendSearch('/overview#intro', '?ref=nav')).toBe('/overview?ref=nav#intro')
+  })
+
+  it('merges query and preserves hash fragment', () => {
+    expect(Redirects.appendSearch('/overview?tab=api#intro', '?ref=nav')).toBe(
+      '/overview?tab=api&ref=nav#intro',
+    )
+  })
+
+  it('returns destination unchanged when search is empty', () => {
+    expect(Redirects.appendSearch('/overview', '')).toBe('/overview')
+  })
+
+  it('works with absolute URLs', () => {
+    expect(Redirects.appendSearch('https://example.com/docs', '?ref=nav')).toBe(
+      'https://example.com/docs?ref=nav',
+    )
+  })
+
+  it('merges query on absolute URL with existing params', () => {
+    expect(Redirects.appendSearch('https://example.com/docs?tab=api', '?ref=nav')).toBe(
+      'https://example.com/docs?tab=api&ref=nav',
+    )
+  })
+
+  it('handles absolute URL with hash', () => {
+    expect(Redirects.appendSearch('https://example.com/docs#intro', '?ref=nav')).toBe(
+      'https://example.com/docs?ref=nav#intro',
+    )
+  })
+})
+
 describe('Redirects.from', () => {
   it('compiles simple rules', () => {
     const rules = Redirects.from([

@@ -96,6 +96,28 @@ export declare namespace resolve {
 }
 
 /**
+ * Appends a request's query string to a redirect destination, handling
+ * destinations that may already contain query parameters or hash fragments.
+ *
+ * @example
+ * appendSearch('/overview', '?ref=nav')           // '/overview?ref=nav'
+ * appendSearch('/overview?tab=api', '?ref=nav')   // '/overview?tab=api&ref=nav'
+ * appendSearch('/overview#intro', '?ref=nav')     // '/overview?ref=nav#intro'
+ * appendSearch('https://example.com', '')         // 'https://example.com'
+ */
+export function appendSearch(destination: string, search: string): string {
+  if (!search) return destination
+
+  const hashIndex = destination.indexOf('#')
+  const [base, hash] = hashIndex >= 0
+    ? [destination.slice(0, hashIndex), destination.slice(hashIndex)]
+    : [destination, '']
+
+  const query = search.slice(1) // strip leading '?'
+  return `${base}${base.includes('?') ? '&' : '?'}${query}${hash}`
+}
+
+/**
  * Interpolates path parameters into a template string.
  */
 function interpolate(template: string, params: Record<string, string | undefined>): string {
