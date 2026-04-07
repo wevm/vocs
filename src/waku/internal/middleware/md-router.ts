@@ -11,24 +11,27 @@ export const aiUserAgents = [
   'PerplexityBot',
   'Perplexity-User',
   'Google-Extended',
-  'Googlebot',
-  'Bingbot',
-  'Amazonbot',
-  'Applebot',
-  'Applebot-Extended',
   'FacebookBot',
   'meta-externalagent',
   'Bytespider',
-  'DuckAssistBot',
   'cohere-ai',
   'AI2Bot',
   'CCBot',
   'Diffbot',
   'omgili',
   'Timpibot',
-  'YouBot',
   'MistralAI-User',
   'GoogleAgent-Mariner',
+]
+
+export const searchEngineUserAgents = [
+  'Googlebot',
+  'Bingbot',
+  'Amazonbot',
+  'Applebot',
+  'Applebot-Extended',
+  'DuckAssistBot',
+  'YouBot',
 ]
 
 export const terminalUserAgents = ['curl/', 'Wget/', 'HTTPie/', 'httpie-go/', 'xh/']
@@ -98,11 +101,12 @@ export function middleware(): MiddlewareHandler {
     if (isOgBot) return next()
 
     const isAiAgent = aiUserAgents.some((agent) => userAgent.includes(agent))
+    const isSearchEngine = searchEngineUserAgents.some((agent) => userAgent.includes(agent))
     const isTerminal = terminalUserAgents.some((agent) => userAgent.includes(agent))
     const acceptHeader = context.req.header('accept') ?? ''
     const acceptsMarkdown = acceptHeader.includes('text/markdown')
 
-    if (url.pathname === '/' && (acceptsMarkdown || isTerminal)) {
+    if (url.pathname === '/' && (acceptsMarkdown || isTerminal) && !isSearchEngine) {
       let text: string | null
       if (isDev) {
         const content = await resolveContent()
@@ -121,7 +125,7 @@ export function middleware(): MiddlewareHandler {
     }
 
     const isMarkdownRequest = url.pathname.endsWith('.md')
-    if (!isMarkdownRequest && !isAiAgent && !isTerminal) return next()
+    if (!isMarkdownRequest && (isSearchEngine || (!isAiAgent && !isTerminal))) return next()
 
     const pagePath = url.pathname.replace(/\.md$/, '').replace(/\/index$/, '')
 
