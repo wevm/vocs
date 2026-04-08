@@ -10,7 +10,8 @@ describe('rehypeShiki', () => {
 
   test('falls back to default bundled languages when no langs are provided', () => {
     const [, options] = rehypeShiki({})
+    const langs = options.langs ?? []
 
-    expect(options.langs.length).toBeGreaterThan(2)
+    expect(langs.length).toBeGreaterThan(2)
   })
 })
