@@ -445,12 +445,9 @@ export function rehypeShiki(
   const transformerLangs =
     rawTransformers?.flatMap((t) => ('langs' in t ? (t.langs as LanguageRegistration[]) : [])) ?? []
 
-  // Merge default languages with user-provided languages and transformer languages
-  const mergedLangs = [
-    ...Object.values(defaultLanguages),
-    ...(userLangs ?? []),
-    ...transformerLangs,
-  ]
+  // Prefer the caller-provided language list so Vocs can honor inferred Shiki
+  // languages instead of eagerly loading the entire bundled set.
+  const mergedLangs = [...(userLangs ?? Object.values(defaultLanguages)), ...transformerLangs]
 
   return [
     shiki,
@@ -462,7 +459,6 @@ export function rehypeShiki(
       rootStyle: false,
       themes,
       langs: mergedLangs,
-      // TODO: infer `langs` for faster cold start.
       transformers: [
         rootDir && srcDir ? ShikiTransformers.notationInclude({ srcDir, rootDir }) : undefined,
         twoslash
