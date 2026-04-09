@@ -230,6 +230,7 @@ export function twoslash(options: twoslash.Options): ShikiTransformer {
   twoslasher ??= createTwoslasher({
     ...twoslashOptions,
     compilerOptions: {
+      ignoreDeprecations: '6.0', // needed for TS 6 (baseUrl deprecation in @typescript/vfs)
       moduleResolution: 100, // bundler (default, can be overridden)
       preserveSymlinks: false, // needed for monorepo/workspace symlinks
       ...(twoslashOptions?.compilerOptions ?? {}),
