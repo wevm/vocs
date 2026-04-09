@@ -48,6 +48,7 @@ SLACK_FEEDBACK_WEBHOOK=https://hooks.slack.com/services/...
 The Slack adapter reads from `SLACK_FEEDBACK_WEBHOOK` by default. You can also pass it explicitly:
 
 ```ts twoslash [vocs.config.ts]
+// @noErrors
 import { defineConfig, Feedback } from 'vocs/config'
 
 export default defineConfig({
