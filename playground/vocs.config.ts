@@ -27,6 +27,10 @@ export default defineConfig({
   editLink: {
     link: 'https://github.com/wevm/vocs/edit/next/playground/src/pages/:path',
   },
+  linkPrefetch: {
+    mode: false,
+    topNav: 'enter',
+  },
   logoUrl: {
     light: '/logo-tight-light.svg',
     dark: '/logo-tight-dark.svg',
@@ -132,14 +136,16 @@ export default defineConfig({
     ],
     '/sub/': {
       backLink: true,
+      linkPrefetch: false,
       items: [
         {
           text: 'API Reference',
+          linkPrefetch: 'enter',
           items: [
             { text: 'Links', link: '/sub/links' },
             { text: 'defineConfig', link: '/api/define-config' },
             { text: 'CLI', link: '/api/cli' },
-            { text: 'Hooks', link: '/api/hooks' },
+            { text: 'Hooks', link: '/api/hooks', linkPrefetch: false },
           ],
         },
       ],

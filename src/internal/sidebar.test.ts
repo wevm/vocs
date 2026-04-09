@@ -616,6 +616,79 @@ describe('fromConfig', () => {
       `)
     })
 
+    test('returns route-level linkPrefetch from sidebar object config', () => {
+      const config = {
+        '/docs': {
+          linkPrefetch: false,
+          items: [{ text: 'Item', link: '/docs/item' }],
+        },
+      }
+      expect(fromConfig(config, '/docs/page')).toMatchInlineSnapshot(`
+        {
+          "items": [
+            {
+              "items": [
+                {
+                  "link": "/docs/item",
+                  "text": "Item",
+                },
+              ],
+            },
+          ],
+          "key": "/docs",
+          "linkPrefetch": false,
+        }
+      `)
+    })
+
+    test('preserves nested group and leaf linkPrefetch overrides', () => {
+      const config = {
+        '/docs': {
+          items: [
+            {
+              text: 'Guides',
+              linkPrefetch: 'enter' as const,
+              items: [
+                { text: 'Intro', link: '/docs/intro' },
+                {
+                  text: 'Advanced',
+                  linkPrefetch: false,
+                  items: [{ text: 'Perf', link: '/docs/advanced/perf' }],
+                },
+              ],
+            },
+          ],
+        },
+      }
+      expect(fromConfig(config, '/docs/page')).toMatchInlineSnapshot(`
+        {
+          "items": [
+            {
+              "items": [
+                {
+                  "link": "/docs/intro",
+                  "text": "Intro",
+                },
+                {
+                  "items": [
+                    {
+                      "link": "/docs/advanced/perf",
+                      "text": "Perf",
+                    },
+                  ],
+                  "linkPrefetch": false,
+                  "text": "Advanced",
+                },
+              ],
+              "linkPrefetch": "enter",
+              "text": "Guides",
+            },
+          ],
+          "key": "/docs",
+        }
+      `)
+    })
+
     test('complex multi-section object config with deep nesting', () => {
       const config = {
         '/': [{ text: 'Home', link: '/' }],

@@ -6,9 +6,11 @@ import { useRouter } from 'waku'
 import LucideArrowLeft from '~icons/lucide/arrow-left'
 import LucideArrowUpRight from '~icons/lucide/arrow-up-right'
 import LucideChevronRight from '~icons/lucide/chevron-right'
+import * as LinkPrefetch from '../../internal/link-prefetch.js'
 import * as Path from '../../internal/path.js'
 import * as Sidebar_core from '../../internal/sidebar.js'
 import { Link } from '../Link.js'
+import { useLinkPrefetchMode } from '../useLinkPrefetchMode.js'
 import { useSidebar } from '../useSidebar.js'
 
 const maxDepth = 5
@@ -17,6 +19,7 @@ export function Sidebar(props: Sidebar.Props) {
   const { className, onNavigate, scrollRef } = props
 
   const sidebar = useSidebar()
+  const linkPrefetch = useLinkPrefetchMode({ scope: 'sidebar' })
   const condenseSidebar = React.useMemo(
     () => Sidebar_core.length(sidebar.items, { startDepth: 2 }) > 25,
     [sidebar.items],
@@ -30,13 +33,14 @@ export function Sidebar(props: Sidebar.Props) {
       )}
       data-v-sidebar
     >
-      {sidebar.backLink && <BackLink onNavigate={onNavigate} />}
+      {sidebar.backLink && <BackLink onNavigate={onNavigate} prefetch={linkPrefetch} />}
       {sidebar.items.map((item, i) => (
         <Section
           key={`${item.text}-${i}`}
           {...item}
           condensed={condenseSidebar}
           onNavigate={onNavigate}
+          prefetch={linkPrefetch}
           scrollRef={scrollRef}
         />
       ))}
@@ -44,19 +48,27 @@ export function Sidebar(props: Sidebar.Props) {
   )
 }
 
-function BackLink(props: { onNavigate?: (() => void) | undefined }) {
-  const { onNavigate } = props
+function BackLink(props: BackLink.Props) {
+  const { onNavigate, prefetch } = props
   return (
     <Link
       className="vocs:flex vocs:items-center vocs:gap-1.5 vocs:text-secondary vocs:hover:text-heading vocs:mb-4 vocs:-ml-0.5"
       data-v-sidebar-back-link
       onClick={onNavigate}
+      prefetch={prefetch}
       to="/"
     >
       <LucideArrowLeft className="vocs:size-4" />
       <span>Back</span>
     </Link>
   )
+}
+
+declare namespace BackLink {
+  type Props = {
+    onNavigate?: (() => void) | undefined
+    prefetch: LinkPrefetch.Mode
+  }
 }
 
 export declare namespace Sidebar {
@@ -70,8 +82,23 @@ export declare namespace Sidebar {
 /** @internal */
 // biome-ignore lint/correctness/noUnusedVariables: _
 function Item(props: Item.Props) {
-  const { condensed = false, depth = 0, disabled, external, link, onNavigate, scrollRef, text } =
-    props
+  const {
+    condensed = false,
+    depth = 0,
+    disabled,
+    external,
+    link,
+    linkPrefetch,
+    onNavigate,
+    prefetch,
+    scrollRef,
+    text,
+  } = props
+
+  const resolvedPrefetch = LinkPrefetch.resolve({
+    fallbackMode: prefetch,
+    mode: linkPrefetch,
+  })
 
   const { path } = useRouter()
   const isExternal = external ?? Path.isExternal(link)
@@ -137,6 +164,7 @@ function Item(props: Item.Props) {
         data-condensed={condensed && depth > 1}
         data-link={true}
         data-v-sidebar-item
+        prefetch={resolvedPrefetch}
         to={link}
         ref={itemRef as never}
         onClick={onNavigate}
@@ -165,6 +193,7 @@ namespace Item {
     condensed?: boolean | undefined
     depth?: number | undefined
     onNavigate?: (() => void) | undefined
+    prefetch: LinkPrefetch.Mode
     scrollRef?: React.RefObject<HTMLDivElement | null>
   }
 
@@ -175,7 +204,22 @@ namespace Item {
 /** @internal */
 // biome-ignore lint/correctness/noUnusedVariables: _
 function Section(props: Section.Props) {
-  const { condensed = false, depth = 0, link, items, onNavigate, scrollRef, text } = props
+  const {
+    condensed = false,
+    depth = 0,
+    link,
+    linkPrefetch,
+    items,
+    onNavigate,
+    prefetch,
+    scrollRef,
+    text,
+  } = props
+
+  const resolvedPrefetch = LinkPrefetch.resolve({
+    fallbackMode: prefetch,
+    mode: linkPrefetch,
+  })
 
   const { path } = useRouter()
 
@@ -221,7 +265,7 @@ function Section(props: Section.Props) {
       <section data-collapsed={collapsed} data-v-sidebar-section>
         {(() => {
           // Not a header if includes a link.
-          if (link) return <Item {...props} />
+          if (link) return <Item {...props} prefetch={resolvedPrefetch} />
 
           // Non-link item is a header.
           if (text)
@@ -272,6 +316,7 @@ function Section(props: Section.Props) {
                   condensed={condensed}
                   depth={depth + 1}
                   onNavigate={onNavigate}
+                  prefetch={resolvedPrefetch}
                   scrollRef={scrollRef}
                 />
               ))}
@@ -280,7 +325,7 @@ function Section(props: Section.Props) {
       </section>
     )
 
-  return <Item {...props} />
+  return <Item {...props} prefetch={resolvedPrefetch} />
 }
 
 namespace Section {
@@ -288,6 +333,7 @@ namespace Section {
     condensed?: boolean | undefined
     depth?: number | undefined
     onNavigate?: (() => void) | undefined
+    prefetch: LinkPrefetch.Mode
     scrollRef: React.RefObject<HTMLDivElement | null>
   }
 

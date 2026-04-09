@@ -12,6 +12,7 @@ import LucideX from '~icons/lucide/x'
 import * as Path from '../../internal/path.js'
 import * as TopNav_core from '../../internal/topNav.js'
 import { Link } from '../Link.js'
+import { useLinkPrefetchMode } from '../useLinkPrefetchMode.js'
 import { useConfig } from '../useConfig.js'
 import * as Sidebar from './Sidebar.js'
 import * as Socials from './Socials.client.js'
@@ -89,6 +90,7 @@ function MobileTopNav(props: MobileTopNav.Props) {
 
   const { topNav } = useConfig()
   const { path } = useRouter()
+  const linkPrefetch = useLinkPrefetchMode({ scope: 'topNav' })
 
   const [menuOpen, setMenuOpen] = React.useState(false)
 
@@ -139,9 +141,8 @@ function MobileTopNav(props: MobileTopNav.Props) {
                             key={j}
                             value={child.link}
                             onClick={handleNavigate}
-                            // @ts-expect-error
                             // biome-ignore lint/style/noNonNullAssertion: _
-                            render={<Link to={child.link!} />}
+                            render={<Link prefetch={linkPrefetch} to={child.link!} />}
                           >
                             {child.text}
                             {isExternal && (
@@ -162,9 +163,8 @@ function MobileTopNav(props: MobileTopNav.Props) {
                     key={i}
                     value={item.link}
                     onClick={handleNavigate}
-                    // @ts-expect-error
                     // biome-ignore lint/style/noNonNullAssertion: _
-                    render={<Link to={item.link!} />}
+                    render={<Link prefetch={linkPrefetch} to={item.link!} />}
                   >
                     {item.text}
                     {isExternal && (

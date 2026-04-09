@@ -36,9 +36,57 @@ Path to the logo image.
 
 ### `sidebar`
 
-- **Type:** `SidebarItem[]`
+- **Type:** `SidebarItem[] | Record<string, SidebarItem[] | { items: SidebarItem[]; backLink?: boolean; linkPrefetch?: LinkPrefetch }>`
 
 Sidebar navigation configuration.
+
+When using the object form, the deepest matching route prefix wins.
+
+### `linkPrefetch`
+
+- **Type:** `false | true | 'view' | 'enter' | { mode?: LinkPrefetch; topNav?: LinkPrefetch; sidebar?: LinkPrefetch }`
+
+Controls when internal links prefetch their destination.
+
+- `false` disables eager prefetching
+- `true` or `'view'` prefetches when the link enters the viewport
+- `'enter'` prefetches on hover
+
+Defaults to hover prefetching in production and no eager prefetching in development.
+
+```ts
+linkPrefetch: {
+  mode: false,
+  topNav: 'enter',
+}
+```
+
+Sidebar route groups can override it:
+
+```ts
+sidebar: {
+  '/docs': {
+    linkPrefetch: false,
+    items: [{ text: 'Intro', link: '/docs/intro' }],
+  },
+}
+```
+
+Nested sidebar groups and leaf items can also override it:
+
+```ts
+sidebar: {
+  '/docs': {
+    items: [
+      {
+        text: 'Guides',
+        linkPrefetch: 'enter',
+        items: [{ text: 'Intro', link: '/docs/intro' }],
+      },
+    ],
+  },
+}
+```
 
 ### `topNav`
 

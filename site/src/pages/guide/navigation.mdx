@@ -28,6 +28,24 @@ export default defineConfig({
 })
 ```
 
+You can also scope sidebar config by route prefix:
+
+```ts
+export default defineConfig({
+  sidebar: {
+    '/guide': {
+      items: [
+        { text: 'Introduction', link: '/guide/intro' },
+        { text: 'Getting Started', link: '/guide/getting-started' },
+      ],
+    },
+    '/api': {
+      items: [{ text: 'Configuration', link: '/api/config' }],
+    },
+  },
+})
+```
+
 ## Top Navigation
 
 Configure the top navigation bar:
@@ -59,3 +77,90 @@ Sidebar groups can be collapsible:
 ## External Links
 
 Both sidebar and top nav support external links with automatic external link icons.
+
+## Link Prefetch
+
+Vocs prefetches internal links on hover in production and disables eager prefetching in development.
+
+Use `linkPrefetch` to control this behavior globally:
+
+```ts
+export default defineConfig({
+  linkPrefetch: false,
+})
+```
+
+You can also use scoped global overrides:
+
+```ts
+export default defineConfig({
+  linkPrefetch: {
+    mode: false,
+    topNav: 'enter',
+    sidebar: 'view',
+  },
+})
+```
+
+Valid values are:
+
+- `false` — disable eager prefetching
+- `true` or `'view'` — prefetch when the link enters the viewport
+- `'enter'` — prefetch on hover
+
+Route-based sidebar configs can override the global setting:
+
+```ts
+export default defineConfig({
+  linkPrefetch: {
+    mode: false,
+    topNav: 'enter',
+  },
+  sidebar: {
+    '/guide': {
+      linkPrefetch: 'view',
+      items: [
+        { text: 'Introduction', link: '/guide/intro' },
+        { text: 'Getting Started', link: '/guide/getting-started' },
+      ],
+    },
+    '/api': {
+      linkPrefetch: false,
+      items: [{ text: 'Configuration', link: '/api/config' }],
+    },
+  },
+})
+```
+
+Nested sidebar groups and leaf items can override the nearest inherited setting:
+
+```ts
+export default defineConfig({
+  sidebar: {
+    '/guide': {
+      linkPrefetch: false,
+      items: [
+        {
+          text: 'Guides',
+          linkPrefetch: 'enter',
+          items: [
+            { text: 'Introduction', link: '/guide/intro' },
+            {
+              text: 'Advanced',
+              linkPrefetch: false,
+              items: [{ text: 'Plugins', link: '/guide/plugins' }],
+            },
+          ],
+        },
+      ],
+    },
+  },
+})
+```
+
+Prefetch precedence is:
+
+1. Global `linkPrefetch`
+2. Matched route sidebar config `sidebar['/path'].linkPrefetch`
+3. Nested sidebar group `linkPrefetch`
+4. Leaf sidebar item `linkPrefetch`

@@ -7,6 +7,7 @@ import LucideChevronDown from '~icons/lucide/chevron-down'
 import * as Path from '../../internal/path.js'
 import * as TopNav_core from '../../internal/topNav.js'
 import { Link } from '../Link.js'
+import { useLinkPrefetchMode } from '../useLinkPrefetchMode.js'
 import { useConfig } from '../useConfig.js'
 
 export function TopNav(props: TopNav.Props) {
@@ -47,6 +48,7 @@ export function Item(props: Item.Props) {
   const { active, external, items, link, text } = props
 
   const isExternal = external ?? Path.isExternal(link)
+  const linkPrefetch = useLinkPrefetchMode({ scope: 'topNav' })
 
   if (items)
     return (
@@ -66,9 +68,8 @@ export function Item(props: Item.Props) {
                 data-v-active={item.active}
                 // biome-ignore lint/suspicious/noArrayIndexKey: _
                 key={i}
-                // @ts-expect-error
                 // biome-ignore lint/style/noNonNullAssertion: _
-                render={<Link to={item.link!} />}
+                render={<Link prefetch={linkPrefetch} to={item.link!} />}
               >
                 {item.text}
                 {itemIsExternal && (
@@ -88,8 +89,7 @@ export function Item(props: Item.Props) {
       <NavigationMenu.Link
         className={Item.className}
         data-v-active={active}
-        // @ts-expect-error
-        render={<Link to={link} />}
+        render={<Link prefetch={linkPrefetch} to={link} />}
       >
         {text}
         {isExternal && (

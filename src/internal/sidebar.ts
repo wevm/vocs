@@ -1,4 +1,5 @@
 import type { Config } from './config.js'
+import type * as LinkPrefetch from './link-prefetch.js'
 import type { OneOf } from './types.js'
 
 export type SidebarItem<strict extends boolean = false> = {
@@ -8,6 +9,8 @@ export type SidebarItem<strict extends boolean = false> = {
   external?: boolean | undefined
   /** Optional children to nest under this item. */
   items?: SidebarItem<true>[] | undefined
+  /** Override link prefetch behavior for this item and its descendants. */
+  linkPrefetch?: LinkPrefetch.Input | undefined
   /** Text to display on the sidebar. */
   text?: string | undefined
 } & (strict extends true
@@ -34,6 +37,7 @@ export type Sidebar = {
   backLink?: boolean | undefined
   items: SidebarItem[]
   key?: string | undefined
+  linkPrefetch?: LinkPrefetch.Config | undefined
 }
 
 export function flatten(items: SidebarItem[]): Omit<SidebarItem, 'items'>[] {
@@ -94,8 +98,9 @@ export function fromConfig(config: Config['sidebar'], path: string) {
   if (value && typeof value === 'object' && 'items' in value) {
     return {
       key: sidebarKey,
-      backLink: value.backLink,
+      ...(value.backLink !== undefined ? { backLink: value.backLink } : {}),
       items: group(value.items),
+      ...(value.linkPrefetch !== undefined ? { linkPrefetch: value.linkPrefetch } : {}),
     }
   }
 

@@ -4,6 +4,7 @@ import type * as MdxRollup from '@mdx-js/rollup'
 import type * as Changelog from './changelog.js'
 import type * as Feedback from './feedback.js'
 import * as Langs from './langs.js'
+import type * as LinkPrefetch from './link-prefetch.js'
 import type * as McpSource from './mcp-source.js'
 import type * as Mdx from './mdx.js'
 import type * as Redirects from './redirects.js'
@@ -184,6 +185,27 @@ export type Config<partial extends boolean = false> = MaybePartial<
      */
     logoUrl?: string | ThemeValue<string> | undefined
     /**
+     * Control when internal links prefetch their target route.
+     *
+     * - `false`: Disable eager prefetching.
+     * - `true` or `'view'`: Prefetch when a link enters the viewport.
+     * - `'enter'`: Prefetch when a link is hovered.
+     * - Object form allows scoped overrides for `topNav` and `sidebar`.
+     *
+     * By default, Vocs prefetches on hover in production and disables eager
+     * prefetching in development.
+     *
+     * @example
+     * linkPrefetch: false
+     *
+     * @example
+     * linkPrefetch: {
+     *   mode: false,
+     *   topNav: 'enter',
+     * }
+     */
+    linkPrefetch?: LinkPrefetch.Config | undefined
+    /**
      * Markdown configuration.
      */
     markdown?: MdxRollup.Options | undefined
@@ -289,7 +311,11 @@ export type Config<partial extends boolean = false> = MaybePartial<
       | {
           [path: string]:
             | readonly Sidebar.SidebarItem<true>[]
-            | { backLink?: boolean; items: Sidebar.SidebarItem<true>[] }
+            | {
+                backLink?: boolean
+                items: Sidebar.SidebarItem<true>[]
+                linkPrefetch?: LinkPrefetch.Config | undefined
+              }
         }
       | undefined
     /**
@@ -412,6 +438,7 @@ export function define(config: define.Options = {}): Config {
     colorScheme = 'light dark',
     description,
     iconUrl,
+    linkPrefetch,
     logoUrl,
     markdown,
     mcp,
@@ -477,6 +504,7 @@ export function define(config: define.Options = {}): Config {
     _feedback: (config as { _feedback?: Feedback.Adapter })._feedback ?? config.feedback,
     groupIcons: config.groupIcons,
     iconUrl,
+    linkPrefetch,
     logoUrl,
     markdown,
     mcp,
