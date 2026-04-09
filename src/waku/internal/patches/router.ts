@@ -117,8 +117,7 @@ export function router(
         // For MDX files, create a lazy component without importing the module eagerly.
         const mdxRegex = /\.mdx?$/
         if (mdxRegex.test(file)) {
-          const exists = allPages[file.replace(mdxRegex, '.tsx')]
-          if (exists) continue
+          if (file.replace(mdxRegex, '.tsx') in allPages) continue
 
           const component = lazy(() =>
             (importFn() as Promise<{ Page: FunctionComponent }>).then((mod) => ({

@@ -46,8 +46,8 @@ catalogs:
       specifier: 1.0.0-alpha.6
       version: 1.0.0-alpha.6
     zile:
-      specifier: 0.0.21
-      version: 0.0.21
+      specifier: 0.0.25
+      version: 0.0.25
 
 overrides:
   '@vocs/twoslash-rust': workspace:*
@@ -330,7 +330,7 @@ importers:
         version: 1.0.0-alpha.6(@types/node@25.2.0)(jiti@2.6.1)(lightningcss@1.30.2)(react-dom@19.2.4(react@19.2.4))(react-server-dom-webpack@19.2.4(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(webpack@5.104.1))(react@19.2.4)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)
       zile:
         specifier: 'catalog:'
-        version: 0.0.21(typescript@6.0.2)
+        version: 0.0.25(typescript@6.0.2)
 
   create-vocs:
     dependencies:
@@ -349,7 +349,7 @@ importers:
         version: 6.0.2
       zile:
         specifier: 'catalog:'
-        version: 0.0.21(typescript@6.0.2)
+        version: 0.0.25(typescript@6.0.2)
 
   playground:
     dependencies:
@@ -4318,8 +4318,8 @@ packages:
       typescript:
         optional: true
 
-  zile@0.0.21:
-    resolution: {integrity: sha512-Q5jCsjc/wQI6+bX33qHcrDNnTw+mEAqA0aEFgTh0r8iL6+dGvHOjx681A7wouu8tqJCj9jnxLEHB8FsgB/2cJw==}
+  zile@0.0.25:
+    resolution: {integrity: sha512-SftBTadMUaUGBoKHsDjGf26fPCuaps0wOmEcTihV2eQ8DzMs+vn1OebXVtNgPN9jAfG6Rh3mZ1Yci/qQPMIhbQ==}
     hasBin: true
     peerDependencies:
       '@typescript/native-preview': '>=7.0.0'
@@ -8737,7 +8737,7 @@ snapshots:
     optionalDependencies:
       typescript: 5.9.3
 
-  zile@0.0.21(typescript@6.0.2):
+  zile@0.0.25(typescript@6.0.2):
     dependencies:
       '@clack/prompts': 1.0.0
       cac: 6.7.14
