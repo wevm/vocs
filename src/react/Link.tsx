@@ -4,7 +4,7 @@ import { useRouter, Link as WakuLink } from 'waku'
 import * as Path from '../internal/path.js'
 
 export function Link(props: Link.Props) {
-  const { to, ...rest } = props
+  const { prefetch = import.meta.env.DEV ? 'none' : 'view', to, ...rest } = props
   const { path } = useRouter()
 
   if (Path.isExternal(props.to))
@@ -12,9 +12,20 @@ export function Link(props: Link.Props) {
 
   const [before, after] = (props.to || '').split('#')
   const resolvedTo = `${before ? before : path}${after ? `#${after}` : ''}`
-  return <WakuLink {...rest} to={resolvedTo} unstable_prefetchOnView={!import.meta.env.DEV} />
+  return (
+    <WakuLink
+      {...rest}
+      to={resolvedTo}
+      unstable_prefetchOnEnter={prefetch === 'intent'}
+      unstable_prefetchOnView={prefetch === 'view'}
+    />
+  )
 }
 
 export namespace Link {
-  export type Props = React.ComponentProps<typeof WakuLink>
+  export type Prefetch = 'none' | 'intent' | 'view'
+
+  export type Props = React.ComponentProps<typeof WakuLink> & {
+    prefetch?: Prefetch | undefined
+  }
 }

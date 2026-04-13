@@ -51,6 +51,7 @@ function BackLink(props: { onNavigate?: (() => void) | undefined }) {
       className="vocs:flex vocs:items-center vocs:gap-1.5 vocs:text-secondary vocs:hover:text-heading vocs:mb-4 vocs:-ml-0.5"
       data-v-sidebar-back-link
       onClick={onNavigate}
+      prefetch="intent"
       to="/"
     >
       <LucideArrowLeft className="vocs:size-4" />
@@ -70,8 +71,16 @@ export declare namespace Sidebar {
 /** @internal */
 // biome-ignore lint/correctness/noUnusedVariables: _
 function Item(props: Item.Props) {
-  const { condensed = false, depth = 0, disabled, external, link, onNavigate, scrollRef, text } =
-    props
+  const {
+    condensed = false,
+    depth = 0,
+    disabled,
+    external,
+    link,
+    onNavigate,
+    scrollRef,
+    text,
+  } = props
 
   const { path } = useRouter()
   const isExternal = external ?? Path.isExternal(link)
@@ -137,6 +146,7 @@ function Item(props: Item.Props) {
         data-condensed={condensed && depth > 1}
         data-link={true}
         data-v-sidebar-item
+        prefetch="intent"
         to={link}
         ref={itemRef as never}
         onClick={onNavigate}
