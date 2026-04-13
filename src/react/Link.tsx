@@ -4,7 +4,7 @@ import { useRouter, Link as WakuLink } from 'waku'
 import * as Path from '../internal/path.js'
 
 export function Link(props: Link.Props) {
-  const { prefetch = import.meta.env.DEV ? 'none' : 'view', to, ...rest } = props
+  const { prefetch = 'view', to, ...rest } = props
   const { path } = useRouter()
 
   if (Path.isExternal(props.to))

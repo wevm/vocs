@@ -8,6 +8,16 @@ vi.mock('waku', () => ({
 import { Link } from './Link.js'
 
 describe('Link', () => {
+  test('defaults to prefetch on view', () => {
+    const element = Link({
+      children: null,
+      to: '/guide/payments/send-a-payment',
+    })
+
+    expect(element.props.unstable_prefetchOnEnter).toBe(false)
+    expect(element.props.unstable_prefetchOnView).toBe(true)
+  })
+
   test('maps prefetch="view" to prefetch on view', () => {
     const element = Link({
       children: null,

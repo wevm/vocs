@@ -1,6 +1,8 @@
 import type { Config } from './config.js'
 import type { OneOf } from './types.js'
 
+export type Prefetch = 'none' | 'intent' | 'view'
+
 export type SidebarItem<strict extends boolean = false> = {
   /** Whether or not to disable the sidebar item. */
   disabled?: boolean | undefined
@@ -34,6 +36,7 @@ export type Sidebar = {
   backLink?: boolean | undefined
   items: SidebarItem[]
   key?: string | undefined
+  prefetch?: Prefetch | undefined
 }
 
 export function flatten(items: SidebarItem[]): Omit<SidebarItem, 'items'>[] {
@@ -93,9 +96,10 @@ export function fromConfig(config: Config['sidebar'], path: string) {
   if (Array.isArray(value)) return { key: sidebarKey, items: group(value) }
   if (value && typeof value === 'object' && 'items' in value) {
     return {
+      ...(value.backLink !== undefined ? { backLink: value.backLink } : {}),
       key: sidebarKey,
-      backLink: value.backLink,
       items: group(value.items),
+      ...(value.prefetch !== undefined ? { prefetch: value.prefetch } : {}),
     }
   }
 

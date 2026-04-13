@@ -30,13 +30,14 @@ export function Sidebar(props: Sidebar.Props) {
       )}
       data-v-sidebar
     >
-      {sidebar.backLink && <BackLink onNavigate={onNavigate} />}
+      {sidebar.backLink && <BackLink onNavigate={onNavigate} prefetch={sidebar.prefetch} />}
       {sidebar.items.map((item, i) => (
         <Section
           key={`${item.text}-${i}`}
           {...item}
           condensed={condenseSidebar}
           onNavigate={onNavigate}
+          prefetch={sidebar.prefetch}
           scrollRef={scrollRef}
         />
       ))}
@@ -44,14 +45,14 @@ export function Sidebar(props: Sidebar.Props) {
   )
 }
 
-function BackLink(props: { onNavigate?: (() => void) | undefined }) {
-  const { onNavigate } = props
+function BackLink(props: { onNavigate?: (() => void) | undefined; prefetch?: Link.Prefetch }) {
+  const { onNavigate, prefetch } = props
   return (
     <Link
       className="vocs:flex vocs:items-center vocs:gap-1.5 vocs:text-secondary vocs:hover:text-heading vocs:mb-4 vocs:-ml-0.5"
       data-v-sidebar-back-link
       onClick={onNavigate}
-      prefetch="intent"
+      prefetch={prefetch}
       to="/"
     >
       <LucideArrowLeft className="vocs:size-4" />
@@ -78,6 +79,7 @@ function Item(props: Item.Props) {
     external,
     link,
     onNavigate,
+    prefetch,
     scrollRef,
     text,
   } = props
@@ -146,7 +148,7 @@ function Item(props: Item.Props) {
         data-condensed={condensed && depth > 1}
         data-link={true}
         data-v-sidebar-item
-        prefetch="intent"
+        prefetch={prefetch}
         to={link}
         ref={itemRef as never}
         onClick={onNavigate}
@@ -175,6 +177,7 @@ namespace Item {
     condensed?: boolean | undefined
     depth?: number | undefined
     onNavigate?: (() => void) | undefined
+    prefetch?: Link.Prefetch | undefined
     scrollRef?: React.RefObject<HTMLDivElement | null>
   }
 
@@ -185,7 +188,7 @@ namespace Item {
 /** @internal */
 // biome-ignore lint/correctness/noUnusedVariables: _
 function Section(props: Section.Props) {
-  const { condensed = false, depth = 0, link, items, onNavigate, scrollRef, text } = props
+  const { condensed = false, depth = 0, link, items, onNavigate, prefetch, scrollRef, text } = props
 
   const { path } = useRouter()
 
@@ -282,6 +285,7 @@ function Section(props: Section.Props) {
                   condensed={condensed}
                   depth={depth + 1}
                   onNavigate={onNavigate}
+                  prefetch={prefetch}
                   scrollRef={scrollRef}
                 />
               ))}
@@ -298,6 +302,7 @@ namespace Section {
     condensed?: boolean | undefined
     depth?: number | undefined
     onNavigate?: (() => void) | undefined
+    prefetch?: Link.Prefetch | undefined
     scrollRef: React.RefObject<HTMLDivElement | null>
   }
 

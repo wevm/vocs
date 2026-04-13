@@ -591,6 +591,31 @@ describe('fromConfig', () => {
       `)
     })
 
+    test('handles sidebar object with prefetch', () => {
+      const config = {
+        '/docs': {
+          items: [{ text: 'Item', link: '/docs/item' }],
+          prefetch: 'intent' as const,
+        },
+      }
+      expect(fromConfig(config, '/docs/page')).toMatchInlineSnapshot(`
+        {
+          "items": [
+            {
+              "items": [
+                {
+                  "link": "/docs/item",
+                  "text": "Item",
+                },
+              ],
+            },
+          ],
+          "key": "/docs",
+          "prefetch": "intent",
+        }
+      `)
+    })
+
     test('handles sidebar object with backLink false', () => {
       const config = {
         '/docs': {

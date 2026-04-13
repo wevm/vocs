@@ -289,7 +289,14 @@ export type Config<partial extends boolean = false> = MaybePartial<
       | {
           [path: string]:
             | readonly Sidebar.SidebarItem<true>[]
-            | { backLink?: boolean; items: Sidebar.SidebarItem<true>[] }
+            | {
+                /** Whether to render a back link at the top of the sidebar. */
+                backLink?: boolean | undefined
+                /** Prefetch mode for links rendered in this sidebar section. @default 'view' */
+                prefetch?: Sidebar.Prefetch | undefined
+                /** Sidebar items for this path section. */
+                items: Sidebar.SidebarItem<true>[]
+              }
         }
       | undefined
     /**
