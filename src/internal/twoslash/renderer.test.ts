@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { defaultMarkdownPatterns, reconstructDocs, rustMarkdownPatterns } from './renderer.js'
+import { defaultMarkdownPatterns, reconstructDocs, rich, rustMarkdownPatterns } from './renderer.js'
 
 // Re-implement fixUnclosedCodeBlocks for testing (since it's not exported)
 function fixUnclosedCodeBlocks(markdown: string, patterns: RegExp[]): string {
@@ -433,4 +433,90 @@ test('reconstructDocs: handles multiple example tags', () => {
   expect(reconstructDocs(docs, tags)).toBe(
     'Description\n\n**Example**\n\n```ts\nexample1\n```\n\n**Example**\n\n```ts\nexample2\n```',
   )
+})
+
+function createFakeContext(lang = 'ts') {
+  return {
+    codeToHast(code: string) {
+      return {
+        type: 'root',
+        children: [
+          {
+            type: 'element',
+            tagName: 'pre',
+            properties: { class: 'shiki' },
+            children: [
+              {
+                type: 'element',
+                tagName: 'code',
+                properties: {},
+                children: [{ type: 'text', value: `${lang}:${code}` }],
+              },
+            ],
+          },
+        ],
+      }
+    },
+    options: { lang },
+  } as any
+}
+
+test('rich: nodeStaticInfo stores popup payload in attrs instead of child nodes', () => {
+  const renderer = rich()
+  const token = { type: 'text', value: 'token' } as const
+
+  if (typeof renderer.nodeStaticInfo !== 'function') throw new Error('expected nodeStaticInfo')
+
+  const result = renderer.nodeStaticInfo.call(
+    createFakeContext(),
+    { docs: 'Useful docs', tags: [], text: 'value: string' },
+    token,
+  )
+
+  expect(result).toMatchObject({
+    type: 'element',
+    tagName: 'span',
+    properties: {
+      class: 'twoslash-hover twoslash-popup-container',
+    },
+    children: [token],
+  })
+  if (result.type !== 'element') throw new Error('expected element')
+  if (!result.properties) throw new Error('expected properties')
+
+  expect(result.children).toEqual([token])
+  expect(result.properties['data-v-twoslash-code-html']).toContain('twoslash-popup-code')
+  expect(result.properties['data-v-twoslash-code-html']).toContain('ts:value: string')
+  expect(result.properties['data-v-twoslash-code-html']).toContain('data-v-overflow-sentinel')
+  expect(result.properties['data-v-twoslash-docs-html']).toContain('twoslash-popup-docs')
+  expect(result.properties['data-v-twoslash-docs-html']).toContain('Useful docs')
+})
+
+test('rich: nodeQuery stores persisted popup payload in attrs', () => {
+  const renderer = rich()
+  const token = { type: 'text', value: 'token' } as const
+
+  if (typeof renderer.nodeQuery !== 'function') throw new Error('expected nodeQuery')
+
+  const result = renderer.nodeQuery.call(
+    createFakeContext('tsx'),
+    { docs: undefined, tags: [], text: 'fn(): Promise<void>' },
+    token,
+  )
+
+  expect(result).toMatchObject({
+    type: 'element',
+    tagName: 'span',
+    properties: {
+      class: 'twoslash-hover twoslash-query-persisted twoslash-popup-container',
+    },
+    children: [token],
+  })
+  if (result.type !== 'element') throw new Error('expected element')
+  if (!result.properties) throw new Error('expected properties')
+
+  expect(result.properties['data-v-twoslash-code-html']).toContain(
+    'tsx:function fn(): Promise&#x3C;void>',
+  )
+  expect(result.properties['data-v-twoslash-docs-html']).toBeUndefined()
 })

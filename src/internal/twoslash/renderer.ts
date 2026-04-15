@@ -4,6 +4,7 @@ import type { Element, ElementContent } from 'hast'
 import { fromMarkdown } from 'mdast-util-from-markdown'
 import { gfmFromMarkdown } from 'mdast-util-gfm'
 import { defaultHandlers, toHast } from 'mdast-util-to-hast'
+import { hastToHtml } from 'shiki'
 import type { NodeError, NodeHover, NodeQuery } from 'twoslash'
 import { remarkVocsScope } from '../remark-vocs-scope.js'
 
@@ -28,6 +29,11 @@ export const rustMarkdownPatterns: RegExp[] = [
   /^>\s/, // Blockquote
 ]
 
+export type PopupPayload = {
+  codeHtml?: string | undefined
+  docsHtml?: string | undefined
+}
+
 /**
  * An alternative renderer that providers better prefixed class names,
  * with syntax highlight for the info text.
@@ -35,36 +41,50 @@ export const rustMarkdownPatterns: RegExp[] = [
 export function rich(options: rich.Options = {}): TwoslashRenderer {
   const { markdownPatterns = defaultMarkdownPatterns } = options
 
-  function getPopupContent(
+  function getPopupPayload(
     this: ShikiTransformerContextCommon,
     info: NodeHover | NodeQuery,
-  ): ElementContent[] {
-    if (!info.text) return []
+  ): PopupPayload | undefined {
+    if (!info.text) return undefined
 
     // Rust twoslash combines code and docs in `text` separated by `---`
     // Split them so docs can be rendered as markdown
     const { code: extractedCode, docs: extractedDocs } = splitCodeAndDocs(info.text)
 
     const content = processHoverInfo(extractedCode)
-    if (!content || content === 'any') return []
-
-    const popupContents: ElementContent[] = []
+    if (!content || content === 'any') return undefined
 
     let lang = this.options.lang
     if (lang === 'jsx') lang = 'tsx'
     else if (lang === 'js' || lang === 'javascript') lang = 'ts'
 
-    popupContents.push({
-      type: 'element',
-      tagName: 'pre',
-      properties: {
-        class: 'twoslash-popup-code',
-        'data-v-code': content,
-        'data-v-codeToHtml': true,
-        'data-v-lang': lang,
-      },
-      children: [],
+    const codeHast = this.codeToHast(content, {
+      ...this.options,
+      defaultColor: 'light-dark()',
+      lang,
+      meta: { 'data-v-overflow-fade': true },
+      rootStyle: false,
+      structure: 'classic',
+      transformers: [],
     })
+
+    const codePre = codeHast.children[0]
+    if (codePre?.type === 'element' && codePre.tagName === 'pre') {
+      codePre.properties = {
+        ...codePre.properties,
+        class: mergeClasses(codePre.properties?.['class'], 'twoslash-popup-code'),
+      }
+      codePre.children.push({
+        type: 'element',
+        tagName: 'div',
+        properties: { 'data-v-overflow-sentinel': true },
+        children: [],
+      })
+    }
+
+    const payload: PopupPayload = {
+      codeHtml: hastToHtml(codeHast),
+    }
 
     // Use extracted docs from text (Rust) or explicit docs field (TypeScript)
     // Also reconstruct docs from spurious tags that were incorrectly parsed
@@ -104,7 +124,7 @@ export function rich(options: rich.Options = {}): TwoslashRenderer {
         },
       }) as Element
 
-      popupContents.push({
+      payload.docsHtml = hastToHtml({
         type: 'element',
         tagName: 'div',
         properties: { class: 'twoslash-popup-docs', 'data-v-overflow-fade': true },
@@ -120,9 +140,7 @@ export function rich(options: rich.Options = {}): TwoslashRenderer {
       })
     }
 
-    // TODO: render `info.tags`
-
-    return popupContents
+    return payload
   }
 
   return {
@@ -160,32 +178,38 @@ export function rich(options: rich.Options = {}): TwoslashRenderer {
     },
 
     nodeStaticInfo(info, node) {
-      const content = getPopupContent.call(this, info)
+      const payload = getPopupPayload.call(this, info)
 
-      if (!content.length) return node
+      if (!payload) return node
 
       return {
         type: 'element',
         tagName: 'span',
         properties: {
           class: 'twoslash-hover twoslash-popup-container',
+          'data-v-twoslash-code-html': payload.codeHtml,
+          'data-v-twoslash-docs-html': payload.docsHtml,
         },
-        children: [node, ...content],
+        children: [node],
       }
     },
 
     nodeQuery(query, node) {
       if (!query.text) return {}
 
-      const content = getPopupContent.call(this, query)
+      const payload = getPopupPayload.call(this, query)
+
+      if (!payload) return node
 
       return {
         type: 'element',
         tagName: 'span',
         properties: {
           class: 'twoslash-hover twoslash-query-persisted twoslash-popup-container',
+          'data-v-twoslash-code-html': payload.codeHtml,
+          'data-v-twoslash-docs-html': payload.docsHtml,
         },
-        children: [node, ...content],
+        children: [node],
       }
     },
 
@@ -411,6 +435,16 @@ function processHoverDocs(docs: string, markdownPatterns: RegExp[]): string {
   processed = fixUnclosedCodeBlocks(processed, markdownPatterns)
 
   return processed
+}
+
+function mergeClasses(existing: unknown, next: string): string {
+  const classes = Array.isArray(existing)
+    ? existing.flatMap((value) => String(value).split(' '))
+    : typeof existing === 'string'
+      ? existing.split(' ')
+      : []
+
+  return [...classes.filter(Boolean), next].join(' ')
 }
 
 /**

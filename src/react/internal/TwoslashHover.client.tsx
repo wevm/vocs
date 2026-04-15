@@ -5,34 +5,44 @@ import type * as React from 'react'
 import { useCallback } from 'react'
 
 export function TwoslashHover(props: TwoslashHover.Props) {
-  const { className = '', children, trigger } = props
+  const { children, className = '', codeHtml, docsHtml, trigger } = props
 
   const { ref } = TwoslashHover.useOverflowFade()
 
   const open = className?.includes('twoslash-query-persisted')
+  const contentHtml = [codeHtml, docsHtml].filter(Boolean).join('')
+
+  const popupContent = contentHtml ? (
+    // biome-ignore lint/security/noDangerouslySetInnerHtml: trusted build-time HTML payload
+    <div dangerouslySetInnerHTML={{ __html: contentHtml }} data-v-content ref={ref} />
+  ) : children ? (
+    <div data-v-content ref={ref}>
+      {children}
+    </div>
+  ) : null
 
   return (
     <Popover.Root {...(open ? { open } : {})}>
       <Popover.Trigger data-v-twoslash-trigger openOnHover delay={0}>
         <span>{trigger}</span>
       </Popover.Trigger>
-      <Popover.Portal>
-        <Popover.Positioner
-          align="start"
-          side="bottom"
-          sideOffset={4}
-          collisionAvoidance={{ side: 'none' }}
-        >
-          <Popover.Popup className={className} initialFocus={false}>
-            <Popover.Arrow className="vocs:data-[side=bottom]:top-[-8px] vocs:data-[side=left]:right-[-13px] vocs:data-[side=left]:rotate-90 vocs:data-[side=right]:left-[-13px] vocs:data-[side=right]:-rotate-90 vocs:data-[side=top]:bottom-[-8px] vocs:data-[side=top]:rotate-180">
-              <ArrowSvg />
-            </Popover.Arrow>
-            <div data-v-content ref={ref}>
-              {children}
-            </div>
-          </Popover.Popup>
-        </Popover.Positioner>
-      </Popover.Portal>
+      {popupContent ? (
+        <Popover.Portal>
+          <Popover.Positioner
+            align="start"
+            side="bottom"
+            sideOffset={4}
+            collisionAvoidance={{ side: 'none' }}
+          >
+            <Popover.Popup className={className} initialFocus={false}>
+              <Popover.Arrow className="vocs:data-[side=bottom]:top-[-8px] vocs:data-[side=left]:right-[-13px] vocs:data-[side=left]:rotate-90 vocs:data-[side=right]:left-[-13px] vocs:data-[side=right]:-rotate-90 vocs:data-[side=top]:bottom-[-8px] vocs:data-[side=top]:rotate-180">
+                <ArrowSvg />
+              </Popover.Arrow>
+              {popupContent}
+            </Popover.Popup>
+          </Popover.Positioner>
+        </Popover.Portal>
+      ) : null}
     </Popover.Root>
   )
 }
@@ -41,6 +51,8 @@ export namespace TwoslashHover {
   export type Props = {
     className?: string | undefined
     children: React.ReactNode
+    codeHtml?: string | undefined
+    docsHtml?: string | undefined
     open?: boolean | undefined
     trigger: React.ReactNode
   }
