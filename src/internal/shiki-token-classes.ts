@@ -107,11 +107,29 @@ export function classNameForTokenStyle(style: string) {
 }
 
 export function installTokenClassesRuntime(
-  document_: Document,
-  window_: Window,
+  document_: installTokenClassesRuntime.DocumentLike,
+  window_: installTokenClassesRuntime.WindowLike,
   dataAttribute_: string,
   styleAttribute_: string,
 ) {
+  const isElementLike = (value: unknown): value is installTokenClassesRuntime.ElementLike => {
+    return (
+      typeof value === 'object' &&
+      value !== null &&
+      'getAttribute' in value &&
+      typeof value.getAttribute === 'function' &&
+      'matches' in value &&
+      typeof value.matches === 'function' &&
+      'removeAttribute' in value &&
+      typeof value.removeAttribute === 'function'
+    )
+  }
+
+  const querySelectorAll = (root: installTokenClassesRuntime.ParentNodeLike, selector: string) => {
+    if (typeof root.querySelectorAll !== 'function') return []
+    return Array.from(root.querySelectorAll(selector))
+  }
+
   const existingRuntime = window_.__vocsShikiTokenClasses
   if (existingRuntime) {
     existingRuntime.flush(document_)
@@ -133,14 +151,11 @@ export function installTokenClassesRuntime(
     style.textContent = `${style.textContent ?? ''}${css}`
   }
 
-  const flush = (root: ParentNode) => {
-    const nodes: globalThis.Element[] = []
-    if (root instanceof Element && root.matches(`pre[${dataAttribute_}]`)) nodes.push(root)
-    if ('querySelectorAll' in root) {
-      root.querySelectorAll(`pre[${dataAttribute_}]`).forEach((node) => {
-        nodes.push(node)
-      })
-    }
+  const flush = (root: installTokenClassesRuntime.ParentNodeLike) => {
+    const nodes = [
+      ...(isElementLike(root) && root.matches(`pre[${dataAttribute_}]`) ? [root] : []),
+      ...querySelectorAll(root, `pre[${dataAttribute_}]`),
+    ]
 
     for (const pre of nodes) {
       const css = pre.getAttribute(dataAttribute_)
@@ -149,11 +164,12 @@ export function installTokenClassesRuntime(
     }
   }
 
-  if (document_.body) {
-    new MutationObserver((records) => {
+  const MutationObserver_ = window_.MutationObserver
+  if (document_.body && MutationObserver_) {
+    new MutationObserver_((records) => {
       for (const record of records) {
-        for (const node of record.addedNodes) {
-          if (node instanceof Element) flush(node)
+        for (const node of Array.from(record.addedNodes)) {
+          if (isElementLike(node)) flush(node)
         }
       }
     }).observe(document_.body, { childList: true, subtree: true })
@@ -163,12 +179,54 @@ export function installTokenClassesRuntime(
   flush(document_)
 }
 
+export declare namespace installTokenClassesRuntime {
+  type ParentNodeLike = {
+    querySelectorAll?: (selector: string) => Iterable<ElementLike> | ArrayLike<ElementLike>
+  }
+
+  type ElementLike = ParentNodeLike & {
+    getAttribute(name: string): string | null
+    matches(selector: string): boolean
+    removeAttribute(name: string): void
+    setAttribute(name: string, value: string): void
+    textContent: string | null
+  }
+
+  type DocumentLike = ParentNodeLike & {
+    body: ParentNodeLike | null
+    createElement(tagName: string): ElementLike
+    head: {
+      appendChild(node: unknown): unknown
+    }
+    querySelector(selector: string): ElementLike | null
+  }
+
+  type MutationRecordLike = {
+    addedNodes: Iterable<unknown> | ArrayLike<unknown>
+  }
+
+  type MutationObserverLike = {
+    observe(target: unknown, options?: unknown): unknown
+  }
+
+  type MutationObserverConstructor = new (
+    callback: (records: MutationRecordLike[]) => void,
+  ) => MutationObserverLike
+
+  type WindowLike = {
+    MutationObserver?: MutationObserverConstructor
+    __vocsShikiTokenClasses?: {
+      flush(root: ParentNodeLike): void
+    }
+  }
+}
+
 export const tokenClassesScript = `;(${installTokenClassesRuntime.toString()})(document, window, ${JSON.stringify(dataAttribute)}, ${JSON.stringify(styleAttribute)});`
 
 declare global {
   interface Window {
     __vocsShikiTokenClasses?: {
-      flush(root: ParentNode): void
+      flush(root: installTokenClassesRuntime.ParentNodeLike): void
     }
   }
 }

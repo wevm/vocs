@@ -159,7 +159,10 @@ impl Project {
     }
 
     /// Like `scaffold`, but injects user code immediately.
-    pub fn scaffold_with_code<'a>(settings: ProjectSettings<'_>, source: &'a str) -> Result<Project> {
+    pub fn scaffold_with_code<'a>(
+        settings: ProjectSettings<'_>,
+        source: &'a str,
+    ) -> Result<Project> {
         let parse_result = find_queries(source);
         let source = parse_result.code;
         let queries = parse_result.queries;

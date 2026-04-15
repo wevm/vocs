@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { createHighlighter } from 'shiki'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   classNameForTokenStyle,
   dataAttribute,
@@ -11,8 +11,18 @@ import {
   tokenClasses,
 } from './shiki-token-classes.js'
 
+const styleA = 'color:light-dark(#D73A49, #F47067);--shiki-light:#D73A49;--shiki-dark:#F47067'
+const styleB = 'color:light-dark(#24292E, #ADBAC7);--shiki-light:#24292E;--shiki-dark:#ADBAC7'
+
+type SpanFixture = {
+  children?: SpanFixture[]
+  className?: string | string[]
+  style?: string
+  text?: string
+}
+
 // biome-ignore lint/suspicious/noExplicitAny: test fixture for untyped HAST nodes
-function makeRoot(styles: string[]): any {
+function makeRoot(spans: SpanFixture[]): any {
   return {
     type: 'root',
     children: [
@@ -25,14 +35,27 @@ function makeRoot(styles: string[]): any {
             type: 'element',
             tagName: 'code',
             properties: {},
-            children: styles.map((style) => ({
-              type: 'element',
-              tagName: 'span',
-              properties: { style },
-              children: [{ type: 'text', value: 'token' }],
-            })),
+            children: spans.map(makeSpan),
           },
         ],
+      },
+    ],
+  }
+}
+
+// biome-ignore lint/suspicious/noExplicitAny: test fixture for untyped HAST nodes
+function makeSpan({ children, className, style, text = 'token' }: SpanFixture): any {
+  return {
+    type: 'element',
+    tagName: 'span',
+    properties: {
+      ...(className ? { class: Array.isArray(className) ? className : [className] } : {}),
+      ...(style ? { style } : {}),
+    },
+    children: children?.map(makeSpan) ?? [
+      {
+        type: 'text',
+        value: text,
       },
     ],
   }
@@ -52,6 +75,11 @@ function getClassName(value: unknown) {
   return Array.isArray(value) ? value.join(' ') : String(value)
 }
 
+function getRules(root: any) {
+  const css = root.children[0]?.properties[dataAttribute]
+  return typeof css === 'string' ? css.split('\n') : []
+}
+
 beforeEach(() => {
   document.head.innerHTML = ''
   document.body.innerHTML = ''
@@ -59,59 +87,124 @@ beforeEach(() => {
 })
 
 describe('splitStyle', () => {
-  it('separates token colors from other inline styles', () => {
-    expect(
-      splitStyle(
+  it.each([
+    {
+      name: 'separates token colors from other inline styles',
+      style:
         'color:light-dark(#111111, #eeeeee);--shiki-light:#111111;--shiki-dark:#eeeeee;font-style:italic',
-      ),
-    ).toEqual({
-      color: 'color:light-dark(#111111, #eeeeee);--shiki-light:#111111;--shiki-dark:#eeeeee',
-      rest: 'font-style:italic',
-    })
+      expected: {
+        color: 'color:light-dark(#111111, #eeeeee);--shiki-light:#111111;--shiki-dark:#eeeeee',
+        rest: 'font-style:italic',
+      },
+    },
+    {
+      name: 'extracts background token declarations',
+      style:
+        'background-color:light-dark(#ffffff, #000000);--shiki-light-bg:#ffffff;--shiki-dark-bg:#000000;opacity:0.8',
+      expected: {
+        color:
+          'background-color:light-dark(#ffffff, #000000);--shiki-light-bg:#ffffff;--shiki-dark-bg:#000000',
+        rest: 'opacity:0.8',
+      },
+    },
+    {
+      name: 'ignores malformed declarations while keeping valid ones',
+      style: 'color:light-dark(#111111, #eeeeee);broken;font-weight:700',
+      expected: {
+        color: 'color:light-dark(#111111, #eeeeee)',
+        rest: 'font-weight:700',
+      },
+    },
+  ])('$name', ({ style, expected }) => {
+    expect(splitStyle(style)).toEqual(expected)
   })
 })
 
 describe('tokenClasses', () => {
-  it('replaces repeated color styles with shared classes and per-block css', () => {
-    const styleA = 'color:light-dark(#D73A49, #F47067);--shiki-light:#D73A49;--shiki-dark:#F47067'
-    const styleB = 'color:light-dark(#24292E, #ADBAC7);--shiki-light:#24292E;--shiki-dark:#ADBAC7'
-    const root = makeRoot([styleA, styleB, styleA, styleB])
+  it.each([
+    {
+      name: 'replaces repeated color styles with shared classes and per-block css',
+      spans: [{ style: styleA }, { style: styleB }, { style: styleA }, { style: styleB }],
+      expectedRuleCount: 2,
+      expectedInlineStyles: [undefined, undefined, undefined, undefined],
+      assert(spans: any[]) {
+        expect(getClassName(spans[0]?.properties.class)).toBe(
+          getClassName(spans[2]?.properties.class),
+        )
+        expect(getClassName(spans[1]?.properties.class)).toBe(
+          getClassName(spans[3]?.properties.class),
+        )
+      },
+    },
+    {
+      name: 'preserves non-color inline styles',
+      spans: [{ style: `${styleA};font-style:italic` }],
+      expectedRuleCount: 1,
+      expectedInlineStyles: ['font-style:italic'],
+    },
+    {
+      name: 'leaves non-token inline styles untouched',
+      spans: [{ style: 'font-style:italic' }],
+      expectedRuleCount: 0,
+      expectedInlineStyles: ['font-style:italic'],
+      expectTokenClass: false,
+    },
+    {
+      name: 'keeps existing classes when appending token classes',
+      spans: [{ className: 'existing-token', style: styleA }],
+      expectedRuleCount: 1,
+      expectedInlineStyles: [undefined],
+      assert(spans: any[]) {
+        expect(getClassName(spans[0]?.properties.class)).toContain('existing-token')
+      },
+    },
+  ])('$name', ({
+    spans: fixtures,
+    expectedInlineStyles,
+    expectedRuleCount,
+    expectTokenClass = true,
+    assert,
+  }) => {
+    const root = makeRoot(fixtures)
 
     tokenClasses().root?.call({} as never, root)
 
-    const pre = getPre(root)
     const spans = getSpans(root)
-    const css = String(pre.properties[dataAttribute])
-    const rules = css.split('\n')
+    const rules = getRules(root)
 
-    expect(rules).toHaveLength(2)
-    expect(rules[0]).toContain(styleA)
-    expect(rules[1]).toContain(styleB)
-    expect(getClassName(spans[0]?.properties.class)).toBe(getClassName(spans[2]?.properties.class))
-    expect(getClassName(spans[1]?.properties.class)).toBe(getClassName(spans[3]?.properties.class))
+    expect(rules).toHaveLength(expectedRuleCount)
+    expectedInlineStyles.forEach((style, index) => {
+      expect(spans[index]?.properties.style).toBe(style)
+      if (expectTokenClass) {
+        expect(getClassName(spans[index]?.properties.class)).toMatch(/(?:^| )vocs-shiki-/)
+      } else {
+        expect(spans[index]?.properties.class).toBeUndefined()
+      }
+    })
 
-    for (const span of spans) {
-      expect(span.properties.style).toBeUndefined()
-      expect(getClassName(span.properties.class)).toMatch(/^vocs-shiki-/)
-    }
+    assert?.(spans)
   })
 
-  it('preserves non-color inline styles', () => {
+  it('walks nested spans and emits css for descendant tokens', () => {
     const root = makeRoot([
-      'color:light-dark(#D73A49, #F47067);--shiki-light:#D73A49;--shiki-dark:#F47067;font-style:italic',
+      {
+        children: [{ style: styleA, text: 'nested-token' }],
+      },
     ])
 
     tokenClasses().root?.call({} as never, root)
 
-    const [span] = getSpans(root)
-    expect(span?.properties.style).toBe('font-style:italic')
-    expect(getClassName(span?.properties.class)).toMatch(/^vocs-shiki-/)
+    const outerSpan = getSpans(root)[0]
+    const innerSpan = outerSpan?.children[0]
+
+    expect(outerSpan?.properties.class).toBeUndefined()
+    expect(getClassName(innerSpan?.properties.class)).toMatch(/^vocs-shiki-/)
+    expect(getRules(root)).toEqual([expect.stringContaining(styleA)])
   })
 
   it('emits css on every block while keeping class names stable', () => {
-    const style = 'color:light-dark(#D73A49, #F47067);--shiki-light:#D73A49;--shiki-dark:#F47067'
-    const firstRoot = makeRoot([style])
-    const secondRoot = makeRoot([style])
+    const firstRoot = makeRoot([{ style: styleA }])
+    const secondRoot = makeRoot([{ style: styleA }])
 
     tokenClasses().root?.call({} as never, firstRoot)
     tokenClasses().root?.call({} as never, secondRoot)
@@ -122,8 +215,8 @@ describe('tokenClasses', () => {
     const secondClass = getClassName(getSpans(secondRoot)[0]?.properties.class)
 
     expect(firstClass).toBe(secondClass)
-    expect(firstPre.properties[dataAttribute]).toContain(`.${firstClass}{${style}}`)
-    expect(secondPre.properties[dataAttribute]).toContain(`.${secondClass}{${style}}`)
+    expect(firstPre.properties[dataAttribute]).toContain(`.${firstClass}{${styleA}}`)
+    expect(secondPre.properties[dataAttribute]).toContain(`.${secondClass}{${styleA}}`)
   })
 
   it('integrates with dual-theme shiki output', async () => {
@@ -148,45 +241,75 @@ describe('tokenClasses', () => {
   })
 })
 
-describe('tokenClassesScript', () => {
-  it('collects block css once and removes data attributes', () => {
-    const sharedClass = classNameForTokenStyle(
-      'color:light-dark(#D73A49, #F47067);--shiki-light:#D73A49;--shiki-dark:#F47067',
-    )
-    const uniqueClass = classNameForTokenStyle(
-      'color:light-dark(#24292E, #ADBAC7);--shiki-light:#24292E;--shiki-dark:#ADBAC7',
-    )
-    const sharedRule = `.${sharedClass}{color:light-dark(#D73A49, #F47067);--shiki-light:#D73A49;--shiki-dark:#F47067}`
-    const uniqueRule = `.${uniqueClass}{color:light-dark(#24292E, #ADBAC7);--shiki-light:#24292E;--shiki-dark:#ADBAC7}`
+describe('installTokenClassesRuntime', () => {
+  it.each([
+    {
+      name: 'collects block css once and removes data attributes',
+      setup() {
+        const sharedClass = classNameForTokenStyle(styleA)
+        const uniqueClass = classNameForTokenStyle(styleB)
+        const sharedRule = `.${sharedClass}{${styleA}}`
+        const uniqueRule = `.${uniqueClass}{${styleB}}`
 
-    document.body.innerHTML = `
-      <pre ${dataAttribute}="${sharedRule}\n${uniqueRule}"></pre>
-      <pre ${dataAttribute}="${sharedRule}"></pre>
-    `
+        document.body.innerHTML = `
+          <pre ${dataAttribute}="${sharedRule}\n${uniqueRule}"></pre>
+          <pre ${dataAttribute}="${sharedRule}"></pre>
+        `
 
-    installTokenClassesRuntime(document, window, dataAttribute, styleAttribute)
+        return {
+          expectedCss: `${sharedRule}${uniqueRule}`,
+          flushRoot: document,
+          installFirst: false,
+          pre: document.querySelector('pre'),
+          wrapper: undefined,
+        }
+      },
+    },
+    {
+      name: 'flushes nested blocks added after the initial render',
+      setup() {
+        const className = classNameForTokenStyle(
+          'color:light-dark(#79C0FF, #79C0FF);--shiki-light:#79C0FF;--shiki-dark:#79C0FF',
+        )
+        const rule = `.${className}{color:light-dark(#79C0FF, #79C0FF);--shiki-light:#79C0FF;--shiki-dark:#79C0FF}`
+        const wrapper = document.createElement('div')
+        wrapper.innerHTML = `<section><pre ${dataAttribute}="${rule}"></pre></section>`
+        return {
+          expectedCss: rule,
+          flushRoot: wrapper,
+          installFirst: true,
+          pre: wrapper.querySelector('pre'),
+          wrapper,
+        }
+      },
+    },
+  ])('$name', ({ setup }) => {
+    const { expectedCss, flushRoot, installFirst, pre, wrapper } = setup()
+    if (installFirst) installTokenClassesRuntime(document, window, dataAttribute, styleAttribute)
+    if (wrapper) document.body.appendChild(wrapper)
+    if (!installFirst) installTokenClassesRuntime(document, window, dataAttribute, styleAttribute)
+    window.__vocsShikiTokenClasses?.flush(flushRoot)
 
     const style = document.querySelector(`style[${styleAttribute}]`)
-    expect(style?.textContent).toBe(`${sharedRule}${uniqueRule}`)
-    expect(document.querySelectorAll(`pre[${dataAttribute}]`)).toHaveLength(0)
+    expect(style?.textContent).toBe(expectedCss)
+    expect(pre?.hasAttribute(dataAttribute)).toBe(false)
   })
 
-  it('flushes code blocks added after the initial render', () => {
-    const className = classNameForTokenStyle(
-      'color:light-dark(#79C0FF, #79C0FF);--shiki-light:#79C0FF;--shiki-dark:#79C0FF',
-    )
-    const rule = `.${className}{color:light-dark(#79C0FF, #79C0FF);--shiki-light:#79C0FF;--shiki-dark:#79C0FF}`
+  it('reuses the installed runtime and existing style element on repeat installs', () => {
+    const className = classNameForTokenStyle(styleA)
+    const rule = `.${className}{${styleA}}`
+    document.body.innerHTML = `<pre ${dataAttribute}="${rule}"></pre>`
 
     installTokenClassesRuntime(document, window, dataAttribute, styleAttribute)
 
-    const pre = document.createElement('pre')
-    pre.setAttribute(dataAttribute, rule)
-    document.body.appendChild(pre)
+    const runtime = window.__vocsShikiTokenClasses
+    const flushSpy = runtime ? vi.spyOn(runtime, 'flush') : undefined
+    document.body.innerHTML = `<pre ${dataAttribute}="${rule}"></pre>`
 
-    window.__vocsShikiTokenClasses?.flush(document.body)
+    installTokenClassesRuntime(document, window, dataAttribute, styleAttribute)
 
-    const style = document.querySelector(`style[${styleAttribute}]`)
-    expect(style?.textContent).toBe(rule)
-    expect(pre.hasAttribute(dataAttribute)).toBe(false)
+    expect(flushSpy).toHaveBeenCalledWith(document)
+    expect(document.querySelectorAll(`style[${styleAttribute}]`)).toHaveLength(1)
+    expect(document.querySelector(`style[${styleAttribute}]`)?.textContent).toBe(rule)
   })
 })
