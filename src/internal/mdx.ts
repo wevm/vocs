@@ -39,6 +39,7 @@ import * as Icons from './icons.js'
 import { rehypeImageSize } from './rehype-image-size.js'
 import { remarkVocsScope } from './remark-vocs-scope.js'
 import { remarkSandbox } from './sandbox.js'
+import { tokenClasses } from './shiki-token-classes.js'
 import * as ShikiTransformers from './shiki-transformers.js'
 import * as Snippets from './snippets.js'
 import type { ExactPartial, UnionOmit } from './types.js'
@@ -490,6 +491,7 @@ export function rehypeShiki(
         ShikiTransformers.title(),
         ShikiTransformers.inlineLanguage(),
         ...(options.transformers ?? []),
+        tokenClasses(),
       ].filter(Boolean),
     } as RehypeShikiOptions,
   ]

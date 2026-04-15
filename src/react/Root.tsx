@@ -5,6 +5,7 @@ import groupIconsCss from 'virtual:vocs/group-icons.css?inline'
 // biome-ignore lint/suspicious/noTsIgnore: _
 // @ts-ignore
 import userStyles from 'virtual:vocs/user-styles?inline'
+import { tokenClassesScript } from '../internal/shiki-token-classes.js'
 // biome-ignore lint/suspicious/noTsIgnore: _
 // @ts-ignore
 import styles from '../styles/index.css?inline'
@@ -33,6 +34,8 @@ export async function Root({ children }: { children: React.ReactNode }) {
       </head>
       <body data-version="1.0">
         <Root_client>{children}</Root_client>
+        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: inline script hydrates token colors */}
+        <script dangerouslySetInnerHTML={{ __html: tokenClassesScript }} />
         <ScrollRestoration />
       </body>
     </html>
