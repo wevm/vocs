@@ -3,15 +3,19 @@ on:
   workflow_call:
   workflow_dispatch:
 
+permissions: {}
+
 jobs:
   check:
     name: Check
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions:
+      contents: write
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
@@ -19,7 +23,7 @@ jobs:
       - name: Check code
         run: pnpm check
       
-      - uses: stefanzweifel/git-auto-commit-action@v6
+      - uses: stefanzweifel/git-auto-commit-action@04702edda442b2e678b25b537cec683a1493fcb9 # v7.1.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -31,10 +35,14 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions:
+      contents: read
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
@@ -45,10 +53,14 @@ jobs:
   types:
     name: Check types
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies

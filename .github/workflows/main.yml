@@ -3,6 +3,8 @@ on:
   push:
     branches: [main]
 
+permissions: {}
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -11,7 +13,6 @@ jobs:
   verify:
     name: Verify
     uses: ./.github/workflows/verify.yml
-    secrets: inherit
 
   changesets:
     name: Changesets
@@ -25,14 +26,16 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 11bd71901bbe5b1630ceea73d27597364c9af683
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
 
       - name: PR or publish
         id: changesets
-        uses: changesets/action@06245a4e0a36c064a573d4150030f5ec548e4fcc # 06245a4e0a36c064a573d4150030f5ec548e4fcc
+        uses: changesets/action@06245a4e0a36c064a573d4150030f5ec548e4fcc # v1.4.10
         with:
           title: 'chore: version packages'
           commit: 'chore: version packages'

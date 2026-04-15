@@ -5,6 +5,6 @@ runs:
   using: "composite"
   steps:
     - name: Set up pnpm
-      uses: wevm/actions/.github/actions/pnpm@main
+      uses: wevm/actions/.github/actions/pnpm@f7ad7f00e16e73322562922c241f21f0c7ffbbec # main
       with:
         node-version: 24.5
