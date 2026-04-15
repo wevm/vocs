@@ -15,6 +15,7 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
+    "types": ["node"],
     "paths": {
       "vocs/server": ["../src/server/index.ts"],
       "vocs/server/*": ["../src/server/*"]

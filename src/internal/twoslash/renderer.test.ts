@@ -1,3 +1,4 @@
+import type { NodeHover, NodeQuery } from 'twoslash'
 import { expect, test } from 'vitest'
 import { defaultMarkdownPatterns, reconstructDocs, rich, rustMarkdownPatterns } from './renderer.js'
 
@@ -467,11 +468,13 @@ test('rich: nodeStaticInfo stores popup payload in attrs instead of child nodes'
 
   if (typeof renderer.nodeStaticInfo !== 'function') throw new Error('expected nodeStaticInfo')
 
-  const result = renderer.nodeStaticInfo.call(
-    createFakeContext(),
-    { docs: 'Useful docs', tags: [], text: 'value: string' },
-    token,
-  )
+  const hover = {
+    docs: 'Useful docs',
+    tags: [],
+    text: 'value: string',
+  } as unknown as NodeHover
+
+  const result = renderer.nodeStaticInfo.call(createFakeContext(), hover, token)
 
   expect(result).toMatchObject({
     type: 'element',
@@ -498,11 +501,12 @@ test('rich: nodeQuery stores persisted popup payload in attrs', () => {
 
   if (typeof renderer.nodeQuery !== 'function') throw new Error('expected nodeQuery')
 
-  const result = renderer.nodeQuery.call(
-    createFakeContext('tsx'),
-    { docs: undefined, tags: [], text: 'fn(): Promise<void>' },
-    token,
-  )
+  const query = {
+    tags: [],
+    text: 'fn(): Promise<void>',
+  } as unknown as NodeQuery
+
+  const result = renderer.nodeQuery.call(createFakeContext('tsx'), query, token)
 
   expect(result).toMatchObject({
     type: 'element',
