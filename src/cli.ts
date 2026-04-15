@@ -189,8 +189,10 @@ cli
         const { createTwoslasher } = await import('twoslash')
         const twoslasher = createTwoslasher({
           compilerOptions: {
+            ignoreDeprecations: '6.0',
             moduleResolution: 100, // bundler
             preserveSymlinks: false,
+            types: ['node'],
           },
           customTags: ['log', 'error', 'warn', 'annotate'],
         })
