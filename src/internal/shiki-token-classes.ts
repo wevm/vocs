@@ -2,6 +2,10 @@ import type { ShikiTransformer } from '@shikijs/types'
 import type { Element as HastElement } from 'hast'
 import { addClassToHast } from 'shiki'
 
+// Shiki emits token colors as inline styles on every span. This module lifts
+// the reusable color declarations into stable CSS classes, stores the emitted
+// rules on each <pre>, and lets a tiny runtime merge those rules into one
+// shared <style> tag after hydration and client navigations.
 const colorProperties = new Set([
   '--shiki-dark',
   '--shiki-dark-bg',
@@ -11,6 +15,7 @@ const colorProperties = new Set([
   'color',
 ])
 
+// Module-level caches keep class names stable across separate render passes.
 const styleToClassName = new Map<string, string>()
 const classNameToStyle = new Map<string, string>()
 
@@ -61,6 +66,7 @@ export declare namespace tokenClasses {
 }
 
 export function splitStyle(style: string): splitStyle.ReturnType {
+  // Preserve declaration order so equivalent styles keep the same cache key.
   const colorDeclarations: string[] = []
   const restDeclarations: string[] = []
 
@@ -143,6 +149,7 @@ export function installTokenClassesRuntime(
     document_.head.appendChild(style)
   }
 
+  // Deduping on the full CSS text makes repeated render passes idempotent.
   const seen = new Set<string>()
 
   const append = (css: string) => {
