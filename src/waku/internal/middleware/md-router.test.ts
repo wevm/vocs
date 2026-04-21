@@ -25,7 +25,7 @@ function restoreNodeEnv() {
 
 afterEach(() => {
   restoreNodeEnv()
-  vi.restoreAllMocks()
+  vi.resetAllMocks()
   vi.resetModules()
   globalThis.fetch = originalFetch
 })
@@ -86,7 +86,7 @@ describe('middleware', () => {
     return import('./md-router.js').then(({ middleware }) => {
       app.use('*', middleware())
       app.get('*', (c) => c.html('<p>ok</p>'))
-      return app.request(url, { headers })
+      return app.request(url, headers ? { headers } : {})
     })
   }
 

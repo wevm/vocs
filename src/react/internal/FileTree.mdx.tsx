@@ -102,17 +102,19 @@ export namespace FileTree {
               }
             />
           ) : (
-            <div
-              className="vocs:flex vocs:items-center vocs:gap-2 vocs:text-primary vocs:data-[highlighted=true]:bg-surfaceTint vocs:data-[highlighted=true]:border vocs:data-[highlighted=true]:border-primary vocs:rounded-md vocs:px-2 vocs:py-0.5 vocs:-mx-2 vocs:-my-0.5"
-              data-highlighted={item.highlighted}
-            >
-              {item.name !== '...' && (
-                <span className="vocs:shrink-0">
-                  <FileIcon icon={item.icon} />
+            <div className="vocs:flex vocs:items-center vocs:text-primary">
+              <span
+                className="vocs:flex vocs:items-center vocs:gap-2 vocs:data-[highlighted=true]:bg-surfaceTint vocs:data-[highlighted=true]:border vocs:data-[highlighted=true]:border-primary vocs:rounded-md vocs:px-2 vocs:py-0.5 vocs:-mx-2 vocs:-my-0.5"
+                data-highlighted={item.highlighted}
+              >
+                {item.name !== '...' && (
+                  <span className="vocs:shrink-0">
+                    <FileIcon icon={item.icon} />
+                  </span>
+                )}
+                <span className={item.name === '...' ? 'vocs:text-muted' : undefined}>
+                  {item.name}
                 </span>
-              )}
-              <span className={item.name === '...' ? 'vocs:text-muted' : undefined}>
-                {item.name}
               </span>
               {item.comment && <span className="vocs:text-muted vocs:ml-4">{item.comment}</span>}
             </div>

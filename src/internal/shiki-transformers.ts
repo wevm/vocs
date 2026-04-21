@@ -1,9 +1,10 @@
+import { createRequire } from 'node:module'
 import * as path from 'node:path'
 import { createCommentNotationTransformer } from '@shikijs/transformers'
 import { createTransformerFactory, type TransformerTwoslashOptions } from '@shikijs/twoslash/core'
 import type { ShikiTransformer } from '@shikijs/types'
 import { addClassToHast } from 'shiki'
-import { createTwoslasher, type TwoslashInstance } from 'twoslash'
+import { createTwoslasher, type TS, type TwoslashInstance } from 'twoslash/core'
 
 type TransformerTwoslashIndexOptions = TransformerTwoslashOptions
 
@@ -209,7 +210,11 @@ export type TwoslashError = {
 }
 export const twoslashErrors: TwoslashError[] = []
 
+const cwd = typeof process !== 'undefined' && typeof process.cwd === 'function' ? process.cwd() : ''
+const require = createRequire(import.meta.url)
+
 let twoslasher: TwoslashInstance
+let typescript: TS | undefined
 
 export function twoslash(options: twoslash.Options): ShikiTransformer {
   const { cacheDir } = options
@@ -226,20 +231,35 @@ export function twoslash(options: twoslash.Options): ShikiTransformer {
     typesCache = TypesCache.fs({ dir: cacheDir ? path.join(cacheDir, 'twoslash') : undefined }),
   } = options
 
-  // singleton twoslasher saves ~1.5s cold start time
-  twoslasher ??= createTwoslasher({
-    ...twoslashOptions,
-    compilerOptions: {
-      ignoreDeprecations: '6.0', // needed for TS 6 (baseUrl deprecation in @typescript/vfs)
-      moduleResolution: 100, // bundler (default, can be overridden)
-      preserveSymlinks: false, // needed for monorepo/workspace symlinks
-      types: ['node'], // include node types by default (process.env, etc.)
-      ...(twoslashOptions?.compilerOptions ?? {}),
-    },
-  })
+  const lazyTwoslasher = (
+    code: string,
+    lang?: string,
+    executeOptions?: Parameters<TwoslashInstance>[2],
+  ) => {
+    if (!twoslasher) {
+      const tsModule = twoslashOptions?.tsModule ?? getTypeScript()
+
+      // singleton twoslasher saves ~1.5s cold start time
+      twoslasher = createTwoslasher({
+        ...twoslashOptions,
+        tsModule,
+        vfsRoot: twoslashOptions?.vfsRoot ?? cwd,
+        compilerOptions: {
+          // @typescript/vfs still uses deprecated baseUrl behavior, but TS 5 only accepts 5.0 here.
+          ignoreDeprecations: Number.parseInt(tsModule.versionMajorMinor, 10) >= 6 ? '6.0' : '5.0',
+          moduleResolution: 100, // bundler (default, can be overridden)
+          preserveSymlinks: false, // needed for monorepo/workspace symlinks
+          types: ['node'], // include node types by default (process.env, etc.)
+          ...(twoslashOptions?.compilerOptions ?? {}),
+        },
+      })
+    }
+
+    return twoslasher(code, lang, executeOptions)
+  }
 
   return createTransformerFactory(
-    twoslasher,
+    lazyTwoslasher,
     renderer,
   )({
     explicitTrigger,
@@ -266,6 +286,19 @@ export function twoslash(options: twoslash.Options): ShikiTransformer {
 
 export declare namespace twoslash {
   export type Options = TransformerTwoslashIndexOptions & { cacheDir?: string | undefined }
+}
+
+function getTypeScript(): TS {
+  if (typescript) return typescript
+
+  try {
+    typescript = require('typescript') as TS
+    return typescript
+  } catch {
+    throw new Error(
+      'Using twoslash code blocks requires `typescript` to be installed in your project.',
+    )
+  }
 }
 
 export function emptyLine(): ShikiTransformer {
@@ -731,7 +764,8 @@ export function shellNotation(): ShikiTransformer {
       const processedLines: string[] = []
 
       for (let i = 0; i < lines.length; i++) {
-        const line = lines[i]!
+        const line = lines[i]
+        if (line === undefined) continue
         const match = line.match(shellAnnotationRegex)
         if (match) {
           const [, prefix, type] = match as [string, string, string]

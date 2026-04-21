@@ -1,13 +1,12 @@
 # Twoslash
 
-[TypeScript Twoslash](https://www.typescriptlang.org/dev/twoslash) can be seen as a pre-processor that enhances your code-samples. 
-It is a markup language for JavaScript and TypeScript. 
+[TypeScript Twoslash](https://www.typescriptlang.org/dev/twoslash) enriches code samples with compiler-powered hover information, diagnostics, completions, and type callouts.
 
-It leverages the compiler APIs used by text editors to offer type-driven hover information, precise error messages, and type callouts. 
+It uses the same compiler APIs as an editor, so examples can show real type information inline.
 
 ## Queries
 
-One of the key reasons for making Twoslash is the ability to use the TypeScript compiler to pull out type information about your code mechanically. Twoslash comes with two different ways to query your code: `^?` and `^|`.
+A core Twoslash feature is querying the TypeScript compiler for inline information. Twoslash supports two standard query markers: `^?` and `^|`.
 
 ### Extract Type
 
@@ -41,7 +40,6 @@ const shiki = await getSingletonHighlighterCore({
 
 :::
 
-
 ### React / JSX
 
 Twoslash works with React and JSX. Use `.tsx` for the language identifier:
@@ -74,7 +72,7 @@ function Counter() {
 
 ### Completions
 
-Using `^|` you can pull out information about a what the auto-complete looks like at a particular location.
+Using `^|` you can inspect what autocomplete looks like at a particular location.
 
 :::code-group
 
@@ -91,11 +89,8 @@ const example: Example = { a: 'foo' }
 example.a 
 //       ^|
 
-
-
 example.apple === ' 
 //                 ^|
-
 
 ```
 
@@ -113,11 +108,8 @@ const example: Example = { a: 'foo' }
 example.a 
 //       ^|
 
-
-
 example.apple === ' 
 //                 ^|
-
 
 ```
 ````
@@ -152,11 +144,11 @@ function add(foo: number, bar: number) {
 
 ## Cutting
 
-Every Twoslash code sample needs to be a complete TypeScript program realistically, basically it needs to compile. Quite often to make it compiler, there is a bunch of code which isn't relevant to the user. This can be extracted out of the code sample via `// ---cut---` which removes all of the code above it from the output.
+Every Twoslash sample needs to be valid TypeScript. Often that means including setup code that is useful to the compiler but not to the reader. Use `// ---cut---` to hide everything above that line in the rendered output.
 
 ### `---cut---`
 
-Cut works after TypeScript has generated the project and pulled out all the editor information (like identifiers, queries, highlights etc) and then amends all of their offsets and lines to re-fit the smaller output. What your user sees is everything below the `---cut---`.
+`---cut---` runs after Twoslash has built the program and collected editor information such as identifiers, queries, and highlights. Vocs then remaps those offsets to the shortened output, so readers only see the lines below `---cut---`.
 
 The below example only shows a single line.
 
@@ -178,9 +170,9 @@ console.log(level)
 
 :::
 
-The example below shows the last two lines, but to TypeScript it was a program with 2 files and all of the IDE information is hooked up correctly across the files. 
+The example below shows only the last two lines, but Twoslash still evaluates it as a two-file program and keeps the editor data wired up across those files.
 
-This is why `// @filename: [file]` is specifically the only Twoslash command which is not removed, because if it's not relevant it can be `---cut---` away.
+`// @filename: [file]` is the only Twoslash directive that stays in the output by default. If you do not want to show it, place `---cut---` below it.
 
 :::code-group
 
@@ -431,13 +423,13 @@ export default () => <MultiFileDocs/>
 
 ## External Types
 
-Unless you're teaching TypeScript/JavaScript, you're probably going to want to import libraries into your code samples.
+In most cases, you will want to import libraries into your code samples.
 
-Twoslash works by faking a virtual file system over your existing file system. This means any `@types` or libraries with TypeScript definitions should work out of the box with no config.
+Twoslash creates a virtual file system over your existing file system. That means `@types` packages and libraries with TypeScript definitions usually work without extra configuration.
 
 ### Globals
 
-Setting up globals is a little bit more complex, but not drastically. You need to use the [triple slash reference](https://www.typescriptlang.org/docs/handbook/triple-slash-directives.html#-reference-types-) which adds a particular library to the global scope.
+Setting up globals is slightly more involved. Use a [triple slash reference](https://www.typescriptlang.org/docs/handbook/triple-slash-directives.html#-reference-types-) to add a library to the global scope.
 
 :::code-group
 
@@ -886,3 +878,4 @@ tempo-alloy = "0.1"
 tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
 ```
 :::
+

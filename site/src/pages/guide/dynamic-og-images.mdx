@@ -1,61 +1,179 @@
 # Dynamic OG Images
 
-Generate dynamic Open Graph images for social sharing.
+Open Graph images power link previews in Slack, Discord, X, and other clients. Vocs can generate them per page by combining your page metadata with an image endpoint.
 
-## Overview
+## How It Works
 
-Vocs can automatically generate OG images for each page based on its title and description.
+Vocs generates social image metadata in three steps:
 
-## Configuration
+1. It reads each page's `title` and `description` from frontmatter.
+2. It resolves `ogImageUrl` for the current page.
+3. It replaces `%title`, `%description`, and `%logo`, then writes the final URL to both
+`og:image` and `twitter:image`.
 
-Enable dynamic OG images in your config:
+In Waku-powered Vocs sites, `/api/og` is available by default. If you want a different design, create your own route at `src/pages/_api/api/og.tsx` and point `ogImageUrl` at it.
 
-```ts
+## Configure `ogImageUrl`
+
+The `ogImageUrl` option controls which image URL Vocs emits for each page.
+
+```ts [vocs.config.ts]
+import { defineConfig } from 'vocs/config'
+
 export default defineConfig({
-  ogImage: true,
-})
-```
-
-## Customization
-
-Customize the OG image template:
-
-```ts
-export default defineConfig({
-  ogImage: {
-    template: 'default',
-    backgroundColor: '#000000',
-    textColor: '#ffffff',
+  baseUrl: 'https://docs.example.com',
+  ogImageUrl: (_path, { baseUrl }) => {
+    return `${baseUrl ?? ''}/api/og?title=%title&description=%description`
   },
 })
 ```
 
-## Custom Templates
+Using the function form is recommended because social crawlers work best with absolute URLs.
 
-Create custom OG image templates:
+If you do not set `ogImageUrl`, Vocs falls back to `/api/og?title=%title&description=%description` for non-`full-static` sites.
 
-```ts
+## Build A Custom OG Route
+
+If you want to change the design of the generated card, add your own API route and render the image with `Handler.og`.
+
+:::file-tree
+- +src
+  - +pages
+    - +_api
+      - +api
+        - **og.tsx**
+:::
+
+```tsx [src/pages/_api/api/og.tsx]
+import { Handler } from 'vocs/server'
+
+const colors = {
+  background: '#161616',
+  text: '#ffffff',
+  textMuted: 'rgba(255, 255, 255, 0.6)',
+}
+
+export default function handler(request: Request) {
+  return Handler.og(({ title, description, logo }) => (
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'flex-start',
+        justifyContent: 'center',
+        width: '100%',
+        height: '100%',
+        padding: 80,
+        backgroundColor: colors.background,
+        color: colors.text,
+      }}
+    >
+      {logo && (
+        <img
+          alt=""
+          src={logo}
+          style={{
+            height: 48,
+            position: 'absolute',
+            right: 40,
+            bottom: 40,
+          }}
+        />
+      )}
+
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 12,
+        }}
+      >
+        <div
+          style={{
+            fontSize: title.length < 15 ? 80 : 64,
+            fontWeight: 700,
+            lineHeight: 1.1,
+            color: colors.text,
+          }}
+        >
+          {title}
+        </div>
+
+        {description && (
+          <div
+            style={{
+              fontSize: 28,
+              color: colors.textMuted,
+              maxWidth: 800,
+            }}
+          >
+            {description}
+          </div>
+        )}
+      </div>
+    </div>
+  )).fetch(request)
+}
+```
+
+`Handler.og` handles the image response for you. It reads `title` and `description` from the query string, falls back to your site config when they are missing, and passes a resolved `logo` based on `logoUrl`.
+
+## Vary Images By Path
+
+`ogImageUrl` can inspect the current pathname, so you can send different sections of your docs to different templates or static assets.
+
+```ts [vocs.config.ts]
+import { defineConfig } from 'vocs/config'
+
 export default defineConfig({
-  ogImage: {
-    template: './src/og-template.tsx',
+  baseUrl: 'https://docs.example.com',
+  ogImageUrl: (path, { baseUrl }) => {
+    const origin = baseUrl ?? ''
+
+    if (path.startsWith('/blog/')) {
+      return `${origin}/api/og/blog?title=%title&description=%description`
+    }
+
+    if (path === '/guide/getting-started') {
+      return `${origin}/images/getting-started-og.png`
+    }
+
+    return `${origin}/api/og?title=%title&description=%description`
   },
 })
 ```
 
-## Per-Page Override
+This is the main way to do page-specific OG customization in Vocs.
 
-Override OG images on specific pages:
+## Per-Page Metadata
 
-```yaml
+Vocs uses normal page frontmatter for page-specific OG content.
+
+```mdx
 ---
-title: My Page
-ogImage: /custom-og-image.png
+title: Deploying with Waku
+description: Set up a production-ready Vocs site with Waku and Vite.
 ---
 ```
 
-## Best Practices
+Those values feed:
 
-- Use high-contrast colors for readability
-- Keep titles concise for better display
-- Test images with social media debuggers
-- Recommended size: 1200x630 pixels
+- the document `<title>`
+- the page description meta tag
+- `%title` and `%description` in `ogImageUrl`
+
+Vocs does not use a separate `ogImage` frontmatter field. If one page needs a completely different image, return a different URL for that page from `ogImageUrl`.
+
+## Tips
+
+- Set `baseUrl` so generated OG image URLs are absolute.
+- Keep generated images at `1200x630` for the broadest social sharing compatibility.
+- Use short titles and high-contrast colors so previews stay readable.
+- If you use `renderStrategy: 'full-static'`, configure `ogImageUrl` explicitly because the
+default dynamic `/api/og` fallback is not used.
+
+## Next Steps
+
+- [Site Config](/reference/site-config)
+- [Frontmatter](/guide/frontmatter)
+

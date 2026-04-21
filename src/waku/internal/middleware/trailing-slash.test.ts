@@ -47,9 +47,9 @@ describe('trailingSlash', () => {
     // The Location header must not leak the internal http:// origin.
     const res = await request('http://mpp.dev/about/')
     expect(res.status).toBe(308)
-    const location = res.headers.get('location')!
+    const location = res.headers.get('location')
     expect(location).toBe('/about')
-    expect(location).not.toContain('http://')
+    expect(location?.includes('http://')).toBe(false)
   })
 
   it('handles deeply nested paths', async () => {

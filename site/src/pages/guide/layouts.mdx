@@ -1,60 +1,129 @@
 # Layouts
 
-Vocs provides different layouts for various documentation needs.
+Vocs ships with three built-in page layouts controlled by frontmatter:
+
+- `full`
+- `minimal`
+- `blank`
+
+Use these when you want to change the page chrome around your MDX content. For the full set of page-level options, see [Frontmatter](/guide/frontmatter).
 
 ## Default Layout
 
-The default layout includes a sidebar, content area, and table of contents.
+Pages use `layout: full` by default.
+
+The full layout is the standard docs experience:
+
+- sidebar navigation
+- top navigation
+- main content
+- page outline
+- pagination, edit link, and last updated footer under the page content
+
+```mdx
+---
+layout: full
+---
+```
+
+Use it for most documentation pages.
 
 ## Minimal Layout
 
-Use the minimal layout for pages that don't need navigation:
+The minimal layout removes the sidebar and keeps the page focused on the content.
 
-```yaml
+```mdx
 ---
 layout: minimal
 ---
 ```
 
-## Landing Layout
+Use it for pages like landing pages, guides with a custom hero, or standalone docs pages that should not inherit the full sidebar shell.
 
-Create a custom landing page without the standard documentation layout:
+The homepage in this repo uses `minimal` plus a couple of visibility toggles:
 
-```yaml
+```mdx
 ---
-layout: landing
+layout: minimal
+showAskAi: false
+showLogo: false
 ---
 ```
 
-## Custom Layouts
+By default, `minimal` also hides the outline, but you can opt back into it:
 
-Create custom layouts by adding React components:
+```mdx
+---
+layout: minimal
+outline: true
+---
+```
 
-```tsx
-// src/layouts/CustomLayout.tsx
-export function CustomLayout({ children }) {
-  return (
-    <div className="custom-layout">
-      {children}
-    </div>
-  )
+## Blank Layout
+
+The blank layout strips the page shell down to the content area.
+
+```mdx
+---
+layout: blank
+---
+```
+
+Use it when you want to provide nearly all of the page structure yourself inside MDX.
+
+By default, `blank` hides the top nav, sidebar, outline, search UI, and Ask AI button. You can enable specific pieces with frontmatter such as `showTopNav`, `showSearch`, or `showAskAi`.
+
+## Layout Overrides
+
+Layouts set defaults, but you can override individual parts of the shell per page with frontmatter:
+
+- `showSidebar`
+- `showTopNav`
+- `showLogo`
+- `showSearch`
+- `showAskAi`
+- `showFeedback`
+- `outline`
+
+```mdx
+---
+layout: blank
+showTopNav: true
+showSearch: true
+outline: 2
+---
+```
+
+This is often simpler than changing layouts entirely.
+
+## Directory Wrappers
+
+If you need more than the built-in shells, create an `_mdx-wrapper.tsx` file in a pages directory.
+
+That wrapper is applied to every Markdown and MDX page in that directory, and nested directories can override it with their own wrapper.
+
+:::file-tree
+- +src
+  - +pages
+    - +guide
+      - **_mdx-wrapper.tsx**
+      - getting-started.mdx
+      - navigation.mdx
+:::
+
+```tsx [src/pages/guide/_mdx-wrapper.tsx]
+export default function GuideWrapper(props: { children: React.ReactNode }) {
+  return <div className="guide-shell">{props.children}</div>
 }
 ```
 
-Then reference it in frontmatter:
+Use `_mdx-wrapper.tsx` when you want shared React UI around a section of your docs without inventing new frontmatter layout names.
 
-```yaml
----
-layout: custom
----
-```
+## Wrappers vs Layouts
 
-## Layout Components
+Choose the smallest tool that solves the problem:
 
-Each layout can include:
+- Use `layout` when you only need to switch between the built-in page shells.
+- Use frontmatter toggles when you need to hide or show specific layout parts.
+- Use `_mdx-wrapper.tsx` when an entire section needs shared custom UI around the page body.
 
-- **Header** - Top navigation bar
-- **Sidebar** - Left navigation panel
-- **Content** - Main content area
-- **Outline** - Right table of contents
-- **Footer** - Bottom section

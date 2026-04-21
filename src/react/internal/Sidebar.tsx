@@ -70,8 +70,16 @@ export declare namespace Sidebar {
 /** @internal */
 // biome-ignore lint/correctness/noUnusedVariables: _
 function Item(props: Item.Props) {
-  const { condensed = false, depth = 0, disabled, external, link, onNavigate, scrollRef, text } =
-    props
+  const {
+    condensed = false,
+    depth = 0,
+    disabled,
+    external,
+    link,
+    onNavigate,
+    scrollRef,
+    text,
+  } = props
 
   const { path } = useRouter()
   const isExternal = external ?? Path.isExternal(link)
@@ -178,6 +186,11 @@ function Section(props: Section.Props) {
   const { condensed = false, depth = 0, link, items, onNavigate, scrollRef, text } = props
 
   const { path } = useRouter()
+  const groupLinkIsExternal = link ? Path.isExternal(link) : false
+  const groupLinkIsActive = React.useMemo(
+    () => Boolean(link && !groupLinkIsExternal && Path.matches(path, link)),
+    [groupLinkIsExternal, link, path],
+  )
 
   const hasActiveChildItem = React.useMemo(() => {
     if (!items) return false
@@ -220,8 +233,39 @@ function Section(props: Section.Props) {
     return (
       <section data-collapsed={collapsed} data-v-sidebar-section>
         {(() => {
-          // Not a header if includes a link.
-          if (link) return <Item {...props} />
+          if (text && link)
+            return (
+              <div
+                className={depth > 0 ? Section.childHeaderClassName : Section.rootHeaderClassName}
+                data-condensed={condensed && depth > 1}
+                data-collapsed={collapsed}
+                data-collapsable={collapsable}
+                data-v-sidebar-section-header
+                {...(groupLinkIsActive && { 'data-active': true })}
+              >
+                <Link className={Section.headerLinkClassName} onClick={onNavigate} to={link}>
+                  <span className="vocs:inline-flex vocs:items-center vocs:gap-1">
+                    {text}
+                    {groupLinkIsExternal && <LucideArrowUpRight className="vocs:size-3" />}
+                  </span>
+                </Link>
+
+                {collapsable && (
+                  <button
+                    aria-expanded={!collapsed}
+                    aria-label={`Toggle ${text} section`}
+                    className="vocs:ml-2 vocs:-mr-1 vocs:shrink-0 vocs:rounded-md vocs:p-1 vocs:text-secondary/80 vocs:hover:text-heading"
+                    onClick={() => setCollapsed((x) => !x)}
+                    type="button"
+                  >
+                    <LucideChevronRight
+                      className="vocs:data-collapsed:rotate-90 vocs:transition-transform vocs:duration-200 vocs:ease-in-out"
+                      {...(!collapsed ? { 'data-collapsed': false } : {})}
+                    />
+                  </button>
+                )}
+              </div>
+            )
 
           // Non-link item is a header.
           if (text)
@@ -295,6 +339,9 @@ namespace Section {
     Item.className,
     'vocs:data-[collapsable=true]:hover:text-accent vocs:data-[collapsable=true]:hover:cursor-pointer',
   )
+
+  export const headerLinkClassName =
+    'vocs:flex-1 vocs:min-w-0 vocs:text-inherit vocs:hover:text-inherit'
 
   export const rootHeaderClassName =
     'vocs:h-[2.5em] vocs:px-3 vocs:-mx-3 vocs:rounded-md vocs:flex vocs:items-center vocs:justify-between vocs:text-heading vocs:font-medium vocs:data-[collapsable=true]:cursor-pointer'

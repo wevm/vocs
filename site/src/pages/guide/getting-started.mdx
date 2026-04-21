@@ -1,37 +1,139 @@
 # Getting Started
 
-Get up and running with Vocs in minutes.
+## Overview
 
-## Installation
+Vocs is a portable documentation framework for Vite apps, powered by [Vite](https://vitejs.dev) with first-class [Waku](https://waku.gg) support.
+
+Write content in [Markdown](https://en.wikipedia.org/wiki/Markdown) or [MDX](https://mdxjs.com/), configure the site in TypeScript, and ship a docs site with the built-in Vocs UI.
+
+## Quick Start
+
+### Bootstrap via CLI
+
+Scaffold a new project with the command line:
 
 :::code-group
 
-```bash [pnpm]
-pnpm add vocs
+```bash [npm]
+npm init vocs@next
 ```
 
-```bash [npm]
-npm install vocs
+```bash [pnpm]
+pnpm create vocs@next
 ```
 
 ```bash [yarn]
-yarn add vocs
+yarn create vocs@next
+```
+
+```bash [bun]
+bun create vocs@next
 ```
 
 :::
 
-## Quick Start
+### Bootstrap via Vercel
 
-1. Create a `vocs.config.ts` file in your project root
-2. Add your first page in `src/pages/index.mdx`
-3. Run the development server
+Scaffold a new project and deploy it instantly with Vercel:
 
-```bash
-pnpm vocs dev
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fwevm%2Fvocs%2Ftree%2Fnext%2Fcreate-vocs%2Ftemplate)
+
+## Manual Installation
+
+You can also add Vocs to an existing project. The example below matches the current `create-vocs` template.
+
+::::steps
+
+### Add Vocs to an Existing App
+
+If you already have a React + Vite project, you can merge these entries into your existing `package.json`.
+
+If you are starting from scratch, prefer the CLI above.
+
+```json [package.json]
+{
+  "scripts": {
+    "dev": "vocs dev",
+    "build": "vocs build",
+    "preview": "vocs preview"
+  },
+  "dependencies": {
+    "vocs": "https://pkg.pr.new/wevm/vocs@next",
+    "waku": "^1.0.0-alpha.4"
+  }
+}
 ```
 
-## Next Steps
+### Add Your Vocs Config
 
-- Learn about [Project Structure](/guide/project-structure)
-- Explore [Markdown Extensions](/guide/markdown-extensions)
-- Configure [Sidebar & Navigation](/guide/navigation)
+Create a `vocs.config.ts` file at the root of your project:
+
+```ts [vocs.config.ts]
+import { defineConfig } from 'vocs/config'
+
+export default defineConfig({
+  title: 'Docs',
+  sidebar: [
+    {
+      text: 'Welcome',
+      link: '/',
+    },
+  ],
+})
+```
+
+### Create your First Page
+
+Vocs looks for pages in `src/pages` by default. Create a starter page at `src/pages/index.mdx`:
+
+:::file-tree
+- +my-project
+  - **+src**
+    - **+pages**
+      - **index.mdx**
+  - package.json
+  - vocs.config.ts
+:::
+
+```mdx [src/pages/index.mdx]
+# Welcome
+
+Welcome to your new Vocs documentation site.
+```
+
+### Install and Run
+
+Install your dependencies and start the development server:
+
+:::code-group
+
+```bash [npm]
+npm install
+npm run dev
+```
+
+```bash [pnpm]
+pnpm install
+pnpm dev
+```
+
+```bash [yarn]
+yarn install
+yarn dev
+```
+
+```bash [bun]
+bun install
+bun run dev
+```
+
+:::
+
+Then open your browser to `http://localhost:5173` to view your site.
+
+### Next Steps
+
+Now that you have a basic documentation site up and running, learn how the default Vocs file layout works in [Project Structure](/guide/structure).
+
+::::
+

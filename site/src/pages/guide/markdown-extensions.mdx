@@ -10,22 +10,22 @@ To create a blockquote, add a `>` in front of a paragraph.
 
 :::code-group
 <div data-title="Preview">
-> Blockquotes are very handy in email to emulate reply text.
+> Quoted text can span multiple lines.
 > This line is part of the same quote.
 
-> This is a very long line that will still be quoted properly when it wraps. Oh boy let's keep writing to make sure this is long enough to actually wrap for everyone. Oh, you can *put* **Markdown** into a blockquote. 
+> Long quoted lines still wrap correctly, and you can use *Markdown* inside a blockquote.
 </div>
 ```md [Markdown]
-> Blockquotes are very handy in email to emulate reply text.
+> Quoted text can span multiple lines.
 > This line is part of the same quote.
 
-> This is a very long line that will still be quoted properly when it wraps. Oh boy let's keep writing to make sure this is long enough to actually wrap for everyone. Oh, you can *put* **Markdown** into a blockquote. 
+> Long quoted lines still wrap correctly, and you can use *Markdown* inside a blockquote.
 ```
 :::
 
 ## Callouts
 
-Callouts can be rendered using one of the following [directives](https://talk.commonmark.org/t/generic-directives-plugins-syntax/444):
+Use one of the following [directives](https://talk.commonmark.org/t/generic-directives-plugins-syntax/444), or the generic `callout` directive, to render callouts:
 
 ::::code-group
 <div data-title="Preview">
@@ -70,7 +70,30 @@ This is a success callout.
 ````
 ::::
 
-Other markdown extensions are allowed inside callouts.
+Callouts can also have custom titles.
+
+::::code-group
+<div data-title="Preview">
+:::callout[Heads up]
+This is a generic info callout with a custom title.
+:::
+
+:::warning[Breaking change]
+This warning callout has a custom title.
+:::
+</div>
+````md [Markdown]
+:::callout[Heads up]
+This is a generic info callout with a custom title.
+:::
+
+:::warning[Breaking change]
+This warning callout has a custom title.
+:::
+````
+::::
+
+Other Markdown extensions can appear inside callouts.
 
 ::::code-group
 <div data-title="Preview">
@@ -91,6 +114,27 @@ console.log('hello world')
 
 ````
 ::::
+
+## Badges
+
+Use the `:badge[...]` text directive for small inline status labels.
+
+:::code-group
+<div data-title="Preview">
+Vocs v2 is :badge[Beta]{warning}.
+
+The Vite plugin is :badge[Stable]{success}.
+
+This feature is :badge[Experimental].
+</div>
+```md [Markdown]
+Vocs v2 is :badge[Beta]{warning}.
+
+The Vite plugin is :badge[Stable]{success}.
+
+This feature is :badge[Experimental].
+```
+:::
 
 ## Emphasis
 
@@ -118,7 +162,7 @@ Strikethrough uses two tildes. ~~Scratch this.~~
 <div data-title="Preview">
 Here is a simple footnote[^1].
 
-A footnote can also have multiple lines[^2].  
+A footnote can also have multiple lines[^2].
 
 You can also use words, to fit your writing style more closely[^note].
 
@@ -147,7 +191,7 @@ You can also use words, to fit your writing style more closely[^note].
 
 ## Frontmatter
 
-[YAML frontmatter](https://jekyllrb.com/docs/front-matter) is supported out of the box:
+[YAML frontmatter](https://jekyllrb.com/docs/front-matter) is supported:
 
 ```
 ---
@@ -291,6 +335,19 @@ Headers automatically get anchor links applied.
 ```
 :::
 
+Headings can also include subtext using `# Title [Description]`.
+
+:::code-group
+<div data-title="Preview">
+# Deploy Contracts [Ship Solidity apps with Vite-native docs]
+</div>
+```md [Markdown]
+# Deploy Contracts [Ship Solidity apps with Vite-native docs]
+```
+:::
+
+Vocs renders the bracketed text as page subtext and uses it to fill in default `title` and `description` frontmatter when those values are not set explicitly.
+
 ## Images
 
 :::code-group
@@ -325,13 +382,13 @@ Both internal and external links get special treatment. Internal links are conve
 
 www.example.com, https://example.com, and contact@example.com.
 
-[Dead link](/TODO)
+[Reference link](/reference/site-config#metadata)
 </div>
 ```md [Markdown]
 [Internal link](/guide/markdown-extensions)
 [External link](https://example.com)
 www.example.com, https://example.com, and contact@example.com.
-[Dead link](/TODO)
+[Reference link](/reference/site-config#metadata)
 ```
 :::
 
@@ -341,7 +398,7 @@ www.example.com, https://example.com, and contact@example.com.
 <div data-title="Preview">
 1. First ordered list item
 2. Another item
-3. Actual numbers don't matter, just that it's a number
+3. Third ordered list item
     1. Ordered sub-list
         1. Ordered sub-list
     2. Ordered sub-list
@@ -363,7 +420,7 @@ www.example.com, https://example.com, and contact@example.com.
 ```md [Markdown]
 1. First ordered list item
 2. Another item
-3. Actual numbers don't matter, just that it's a number
+3. Third ordered list item
     1. Ordered sub-list
         1. Ordered sub-list
     2. Ordered sub-list
@@ -381,15 +438,6 @@ www.example.com, https://example.com, and contact@example.com.
 
 * [ ] to do
 * [x] done
-```
-:::
-
-## Markdown Snippets
-
-:::code-group
-<div data-title="Preview">
-</div>
-```md [Markdown]
 ```
 :::
 
@@ -513,3 +561,4 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce vestibulum ante n
 | zebra stripes | are neat      |    $1 |
 ```
 :::
+

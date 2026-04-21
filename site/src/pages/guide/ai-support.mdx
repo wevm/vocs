@@ -1,13 +1,13 @@
 # AI Support
 
-Vocs is built with AI-first principles, providing multiple features to make your documentation accessible to LLMs and AI assistants.
+Vocs includes built-in features that make your documentation easier for LLMs and AI assistants to consume.
 
 ## llms.txt
 
 Vocs automatically generates [`llms.txt`](https://llmstxt.org/) files for LLM consumption:
 
-- `/llms.txt` – A concise index of all pages with titles and descriptions
-- `/llms-full.txt` – Complete documentation content in a single file
+- `/llms.txt`: A concise index of all pages with titles and descriptions
+- `/llms-full.txt`: Complete documentation content in a single file
 
 These files are generated at build time and served at the root of your site. No configuration required.
 
@@ -20,7 +20,7 @@ Vocs is a library for creating documentation websites.
 
 - [What is Vocs?](/guide/what-is-vocs): Learn about Vocs and its features
 - [Getting Started](/guide/getting-started): Quick start guide
-- [AI Support](/guide/ai-support): AI-first documentation features
+- [AI Support](/guide/ai-support): Documentation features for AI agents
 ```
 
 ## Markdown Rendering for AI Agents
@@ -43,10 +43,16 @@ Search engine crawlers such as `Googlebot`, `Bingbot`, `Amazonbot`, and `Applebo
 
 ### Manual Markdown Access
 
-Any page can be accessed as Markdown by appending `.md` to the URL:
+Most pages can be accessed as Markdown by appending `.md` to the URL:
 
 ```
 https://docs.example.com/getting-started.md
+```
+
+For the home page, use:
+
+```
+https://docs.example.com/index.md
 ```
 
 This is useful for copying documentation into AI conversations or for custom integrations.
@@ -60,11 +66,13 @@ Vocs includes a built-in "Ask AI" menu (`⌘I` / `Ctrl+I`) that provides:
 - **View as Markdown**: Opens the raw Markdown version of the current page
 - **Copy MCP URL**: Copies the MCP server URL (when MCP is enabled)
 
+If needed, you can hide the menu for a page with `showAskAi: false` in frontmatter.
+
 ## MCP Server
 
 Vocs includes a built-in [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server that allows AI assistants to navigate your documentation and source code programmatically.
 
-### Enabling MCP
+Enable it in your Vocs config:
 
 ```ts twoslash
 import { defineConfig } from 'vocs/config'
@@ -76,9 +84,9 @@ export default defineConfig({
 })
 ```
 
-### Connecting AI Assistants
+When enabled, the MCP endpoint is available at `/api/mcp`.
 
-Configure your AI assistant to connect to the MCP server:
+Most users will want to point their MCP client at a deployed URL such as:
 
 ```json
 {
@@ -90,95 +98,12 @@ Configure your AI assistant to connect to the MCP server:
 }
 ```
 
-### MCP Tools
+The dedicated [MCP Server](/guide/mcp-server) guide covers:
 
-The MCP server exposes these tools to AI assistants:
-
-| Tool | Description |
-| --- | --- |
-| `list_pages` | List all documentation pages with their paths |
-| `read_page` | Read the content of a specific documentation page |
-| `search_docs` | Search documentation for a query string |
-
-### Source Code Navigation
-
-You can expose source code repositories for AI navigation using source adapters:
-
-```ts twoslash
-import { defineConfig, McpSource } from 'vocs/config'
-
-export default defineConfig({
-  mcp: {
-    enabled: true,
-    sources: [
-      McpSource.github({ name: 'viem', repo: 'wevm/viem' }),
-      McpSource.github({ name: 'wagmi', repo: 'wevm/wagmi' }),
-    ],
-  },
-})
-```
-
-When sources are configured, additional tools become available:
-
-| Tool | Description |
-| --- | --- |
-| `list_sources` | List available source code repositories |
-| `list_source_files` | List files in a directory |
-| `read_source_file` | Read a source code file |
-| `get_file_tree` | Get a recursive file tree |
-| `search_source` | Search source code for a pattern |
-
-### GitHub Adapter Options
-
-```ts twoslash
-import { McpSource } from 'vocs/config'
-
-McpSource.github({
-  // Unique identifier for this source
-  name: 'viem',
-  // GitHub repository in "owner/repo" format
-  repo: 'wevm/viem',
-  // Branch to use (default: "main")
-  branch: 'main',
-  // Paths to expose (default: ["src"])
-  paths: ['src', 'docs'],
-  // Optional: GitHub API token for higher rate limits
-  // Falls back to GITHUB_TOKEN environment variable
-  token: process.env['GITHUB_TOKEN'],
-})
-```
-
-### Custom Source Adapters
-
-Create custom adapters for non-GitHub sources:
-
-```ts twoslash
-import { defineConfig, McpSource } from 'vocs/config'
-
-export default defineConfig({
-  mcp: {
-    enabled: true,
-    sources: [
-      McpSource.from({
-        name: 'my-source',
-        type: 'custom',
-        async listFiles(path) {
-          // Return files in the directory
-          return [{ name: 'index.ts', path: 'src/index.ts', type: 'file' }]
-        },
-        async readFile(path) {
-          // Return file content
-          return '// file content'
-        },
-        async getTree(options) {
-          // Return file tree
-          return { files: [], truncated: false }
-        },
-      }),
-    ],
-  },
-})
-```
+- The docs tools Vocs exposes by default
+- How to connect local and deployed MCP clients
+- How to expose GitHub repositories and custom source adapters
+- Security, rate limit, and search behavior considerations
 
 ## Best Practices
 
@@ -195,3 +120,4 @@ export default defineConfig({
 - Source code navigation is read-only
 - Consider using authentication for private documentation
 - Use `GITHUB_TOKEN` for higher API rate limits when using the GitHub adapter
+

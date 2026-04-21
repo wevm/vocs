@@ -15,6 +15,7 @@
     "@vocs/twoslash-rust": "workspace:*",
     "react": "catalog:",
     "react-dom": "catalog:",
+    "viem": "^2.43.3",
     "vocs": "workspace:*",
     "waku": "catalog:"
   },
