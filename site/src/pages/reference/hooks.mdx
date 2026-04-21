@@ -1,0 +1,59 @@
+# Hooks
+
+Reference for the hooks exported from `vocs`.
+
+## useConfig
+
+Use `useConfig` in client components to read the resolved Vocs site configuration.
+
+:::code-group
+```tsx [Usage]
+'use client'
+
+import { useConfig } from 'vocs'
+
+export function SiteMeta() {
+  const { title, description } = useConfig()
+
+  return (
+    <>
+      <h1>{title}</h1>
+      <p>{description}</p>
+    </>
+  )
+}
+```
+```tsx [Syntax]
+const config = useConfig()
+```
+:::
+
+## useRouter
+
+`useRouter` is re-exported from `waku` and gives you access to the current route plus navigation methods like `push`, `replace`, and `back`.
+
+:::code-group
+```tsx [Usage]
+'use client'
+
+import { useRouter } from 'vocs'
+
+export function NavigationActions() {
+  const router = useRouter()
+
+  return (
+    <button onClick={() => router.push('/guide/getting-started')}>
+      Get started
+    </button>
+  )
+}
+```
+```tsx [Syntax]
+const { path, query } = useRouter()
+
+router.push('/guide/getting-started')
+router.replace('/reference/components')
+router.back()
+```
+:::
+

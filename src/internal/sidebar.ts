@@ -1,5 +1,4 @@
 import type { Config } from './config.js'
-import type { OneOf } from './types.js'
 
 export type SidebarItem<strict extends boolean = false> = {
   /** Whether or not to disable the sidebar item. */
@@ -11,18 +10,12 @@ export type SidebarItem<strict extends boolean = false> = {
   /** Text to display on the sidebar. */
   text?: string | undefined
 } & (strict extends true
-  ? OneOf<
-      | {
-          /** Whether or not to collapse the sidebar item by default. */
-          collapsed: boolean
-        }
-      | {
-          /** Optional pathname to the target documentation page. */
-          link: string
-        }
-      // biome-ignore lint/complexity/noBannedTypes: _
-      | {}
-    >
+  ? {
+      /** Whether or not to collapse the sidebar item by default. */
+      collapsed?: boolean | undefined
+      /** Optional pathname to the target documentation page. */
+      link?: string | undefined
+    }
   : {
       /** Whether or not to collapse the sidebar item by default. */
       collapsed?: boolean | undefined

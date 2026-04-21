@@ -4,6 +4,7 @@ import { createTransformerFactory, type TransformerTwoslashOptions } from '@shik
 import type { ShikiTransformer } from '@shikijs/types'
 import { addClassToHast } from 'shiki'
 import { createTwoslasher, type TwoslashInstance } from 'twoslash'
+import * as typescript from 'typescript'
 
 type TransformerTwoslashIndexOptions = TransformerTwoslashOptions
 
@@ -209,6 +210,8 @@ export type TwoslashError = {
 }
 export const twoslashErrors: TwoslashError[] = []
 
+const ignoreDeprecations = Number.parseInt(typescript.versionMajorMinor, 10) >= 6 ? '6.0' : '5.0'
+
 let twoslasher: TwoslashInstance
 
 export function twoslash(options: twoslash.Options): ShikiTransformer {
@@ -230,7 +233,8 @@ export function twoslash(options: twoslash.Options): ShikiTransformer {
   twoslasher ??= createTwoslasher({
     ...twoslashOptions,
     compilerOptions: {
-      ignoreDeprecations: '6.0', // needed for TS 6 (baseUrl deprecation in @typescript/vfs)
+      // @typescript/vfs still uses deprecated baseUrl behavior, but TS 5 only accepts 5.0 here.
+      ignoreDeprecations,
       moduleResolution: 100, // bundler (default, can be overridden)
       preserveSymlinks: false, // needed for monorepo/workspace symlinks
       types: ['node'], // include node types by default (process.env, etc.)

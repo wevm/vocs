@@ -1,6 +1,6 @@
 # Code & Syntax Highlighting [Rich markup and annotations for code]
 
-Code can be formatted into blocks using triple backticks (`` ``` ``). Optionally, you can specify the language of the code block for syntax highlighting.
+Use fenced code blocks with triple backticks (`` ``` ``) to format code. Add a language identifier to enable syntax highlighting.
 
 :::code-group
 <div data-title="Preview">
@@ -21,7 +21,7 @@ export function hello(name: string = 'World') {
 
 ## Titles
 
-Code blocks can have titles. The title can be specified in the code block "meta", after the triple backticks.
+Code blocks can have titles. Add the title in the code block metadata after the opening backticks.
 
 :::code-group
 <div data-title="Preview">
@@ -284,14 +284,7 @@ $ pnpm vocs preview
 </div>
 ````md [Markdown]
 ```ansi
-[0;32mcolored foreground[0m
-[0;42mcolored background[0m
-[0;1mbold text[0m
-[0;2mdimmed text[0m
-[0;4munderlined text[0m
-[0;7mreversed text[0m
-[0;9mstrikethrough text[0m
-[0;4;9munderlined + strikethrough text[0m
+[0;32mcolored foreground[0m [0;42mcolored background[0m [0;1mbold text[0m [0;2mdimmed text[0m [0;4munderlined text[0m [0;7mreversed text[0m [0;9mstrikethrough text[0m [0;4;9munderlined + strikethrough text[0m
 ```
 ````
 :::
@@ -434,7 +427,11 @@ Inline ANSI `> Local: [0;36mhttp://localhost:[0;36;1m3000[0;36m/[0m{:ansi}`
 ```
 :::
 
-## Virtual File Snippets
+## Markdown Snippets
+
+Vocs supports reusable snippets inside fenced code blocks.
+
+### Virtual Files
 
 Define a virtual file with `filename="..."`, then include it in other code blocks.
 
@@ -480,44 +477,70 @@ const blockNumber = await client.getBlockNumber()
 ````
 :::
 
-## Physical File Snippets
+### Physical Files
 
-Include code from physical files on disk using `~/path`:
+Include code from files on disk with a root-relative `~/` path.
+
+:::code-group
+<div data-title="Preview">
+```ts
+// [!include ~/snippets/example.ts]
+```
+</div>
+````md [Markdown]
+```ts
+// [\!include ~/snippets/example.ts]
+```
+````
+:::
+
+### Regions
+
+Mark regions in a source file, then include only the part you need.
 
 ::::code-group
 <div data-title="Preview">
-TODO
+```ts
+// [!include ~/snippets/example.ts:setup]
+```
 </div>
 ``````md [Markdown]
-TODO
+```ts [src/snippets/example.ts]
+// [!region setup]
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = createPublicClient({
+  chain: mainnet,
+  transport: http(),
+})
+// [!endregion setup]
+```
+
+```md
+```ts
+// [\!include ~/snippets/example.ts:setup]
+```
+```
 ``````
 ::::
 
-## Regions
+### Find and Replace
 
-Include specific named regions from files:
+Modify included code on the fly with `/find/replace/` syntax.
 
-::::code-group
+:::code-group
 <div data-title="Preview">
-TODO
+```ts
+// [!include ~/snippets/example.ts:setup /mainnet/optimism/]
+```
 </div>
-``````md [Markdown]
-TODO
-``````
-::::
-
-## Find and Replace
-
-Modify included code on the fly with `/find/replace/` syntax:
-
-::::code-group
-<div data-title="Preview">
-TODO
-</div>
-``````md [Markdown]
-TODO
-``````
-::::
+````md [Markdown]
+```ts
+// [\!include ~/snippets/example.ts:setup /mainnet/optimism/]
+```
+````
+:::
 
 ## Virtual Files with Twoslash
 
@@ -553,3 +576,4 @@ export function hello(name: string = 'World') {
 :::
 ``````
 ::::
+

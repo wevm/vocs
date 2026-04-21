@@ -18,16 +18,18 @@ type Handler = {
  *
  * @example
  * ```tsx
- * // src/pages/api/og.tsx
+ * // src/pages/_api/api/og.tsx
  * import { Handler } from 'vocs/server'
  *
- * export default Handler.og(({ title, description, logo }) => (
- *   <div style={{ display: 'flex', width: '100%', height: '100%' }}>
- *     <h1>{title}</h1>
- *     <p>{description}</p>
- *     {logo && <img src={logo} />}
- *   </div>
- * ))
+ * export default function handler(request: Request) {
+ *   return Handler.og(({ title, description, logo }) => (
+ *     <div style={{ display: 'flex', width: '100%', height: '100%' }}>
+ *       <h1>{title}</h1>
+ *       <p>{description}</p>
+ *       {logo && <img src={logo} />}
+ *     </div>
+ *   )).fetch(request)
+ * }
  * ```
  */
 export function og(render: (props: og.Props) => React.JSX.Element): Handler {

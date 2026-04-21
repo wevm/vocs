@@ -1,61 +1,143 @@
 # Sidebar & Top Navigation
 
-Configure your site's navigation structure in `vocs.config.ts`.
+Configure both navigation surfaces in `vocs.config.ts`:
+
+- `sidebar` for the docs navigation on the left
+- `topNav` for the links and menus in the top bar
 
 ## Sidebar
 
-Define the sidebar navigation with nested items:
+Use the array form when your whole site shares one sidebar.
 
 ```ts
 import { defineConfig } from 'vocs/config'
 
 export default defineConfig({
   sidebar: [
+    { text: 'Getting Started', link: '/guide/getting-started' },
     {
-      text: 'Guide',
+      text: 'Writing',
+      collapsed: false,
       items: [
-        { text: 'Introduction', link: '/guide/intro' },
-        { text: 'Getting Started', link: '/guide/getting-started' },
+        { text: 'Markdown Extensions', link: '/guide/markdown-extensions' },
+        { text: 'Twoslash', link: '/guide/twoslash' },
       ],
     },
     {
       text: 'API',
+      collapsed: true,
       items: [
-        { text: 'Configuration', link: '/api/config' },
+        { text: 'Site Config', link: '/reference/site-config' },
+        { text: 'Components', link: '/reference/components' },
       ],
     },
   ],
 })
 ```
 
-## Top Navigation
+Each sidebar item can use these fields:
 
-Configure the top navigation bar:
+- `text`
+- `link`
+- `items`
+- `collapsed`
+- `disabled`
+- `external`
+
+## Path-Scoped Sidebars
+
+Use the object form when different route sections should have different sidebars.
 
 ```ts
 export default defineConfig({
+  sidebar: {
+    '/guide': [
+      { text: 'Getting Started', link: '/guide/getting-started' },
+      { text: 'Theming', link: '/guide/theming' },
+    ],
+    '/reference': {
+      backLink: true,
+      items: [
+        { text: 'Site Config', link: '/reference/site-config' },
+        { text: 'Components', link: '/reference/components' },
+      ],
+    },
+  },
+})
+```
+
+When you use the object form, Vocs picks the deepest matching path prefix for the current page.
+
+### `backLink`
+
+Set `backLink: true` to show a `Back` link at the top of that sidebar section.
+
+```ts
+sidebar: {
+  '/reference': {
+    backLink: true,
+    items: [
+      { text: 'Site Config', link: '/reference/site-config' },
+    ],
+  },
+}
+```
+
+## Top Navigation
+
+Top nav items are either direct links or dropdown menus.
+
+```ts
+import { defineConfig } from 'vocs/config'
+
+export default defineConfig({
   topNav: [
-    { text: 'Guide', link: '/guide/intro' },
-    { text: 'API', link: '/api/config' },
-    { text: 'GitHub', link: 'https://github.com/wevm/vocs' },
+    {
+      text: 'Guide & API',
+      link: '/guide/getting-started',
+      match: (path) => Boolean(path?.startsWith('/guide') || path?.startsWith('/reference')),
+    },
+    {
+      text: 'Resources',
+      items: [
+        { text: 'Changelog', link: '/guide/changelog' },
+        { text: 'GitHub', link: 'https://github.com/wevm/vocs' },
+      ],
+    },
   ],
 })
 ```
 
-## Collapsible Groups
+## Active Matching
 
-Sidebar groups can be collapsible:
+By default, a top nav link is active when the current path matches its `link` prefix.
+
+Use `match` when one item should stay active across a broader section.
 
 ```ts
 {
-  text: 'Advanced',
-  collapsed: true,
-  items: [
-    { text: 'Plugins', link: '/advanced/plugins' },
-  ],
+  text: 'Guide',
+  link: '/guide/getting-started',
+  match: '/guide',
 }
 ```
 
+`match` can be either:
+
+- a string prefix like `'/guide'`
+- a function like `(path) => path?.startsWith('/guide')`
+
 ## External Links
 
-Both sidebar and top nav support external links with automatic external link icons.
+Both sidebar and top nav support external links.
+
+Absolute URLs are treated as external automatically, and Vocs adds the external-link treatment in the UI. You can also set `external: true` explicitly.
+
+```ts
+{
+  text: 'GitHub',
+  link: 'https://github.com/wevm/vocs',
+  external: true,
+}
+```
+

@@ -2,7 +2,7 @@
 
 import { FeedbackWidget } from 'vocs'
 
-Vocs includes a built-in feedback widget that displays "Was this helpful?" below the page outline on desktop and in the footer on mobile. When users provide feedback, it's sent to your configured adapter (e.g. Slack).
+Vocs includes a built-in feedback widget that displays "Was this helpful?" below the page outline on desktop and in the footer on mobile. When users submit feedback, Vocs sends it to your configured adapter, such as Slack.
 
 :::code-group
 <div data-title="Preview">
@@ -94,7 +94,7 @@ export default defineConfig({
 
 ## Disabling Feedback
 
-To disable the feedback widget globally, simply omit the `feedback` option from your config or set it to `undefined`.
+To disable the feedback widget globally, omit the `feedback` option from your config or set it to `undefined`.
 
 To disable the feedback widget on a specific page, use the `showFeedback` frontmatter option:
 
@@ -107,3 +107,4 @@ showFeedback: false
 
 This page won't show the feedback widget.
 ```
+

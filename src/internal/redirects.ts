@@ -109,9 +109,10 @@ export function appendSearch(destination: string, search: string): string {
   if (!search) return destination
 
   const hashIndex = destination.indexOf('#')
-  const [base, hash] = hashIndex >= 0
-    ? [destination.slice(0, hashIndex), destination.slice(hashIndex)]
-    : [destination, '']
+  const [base, hash] =
+    hashIndex >= 0
+      ? [destination.slice(0, hashIndex), destination.slice(hashIndex)]
+      : [destination, '']
 
   const query = search.slice(1) // strip leading '?'
   return `${base}${base.includes('?') ? '&' : '?'}${query}${hash}`
