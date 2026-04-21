@@ -1,5 +1,5 @@
-import * as path from 'node:path'
 import { createRequire } from 'node:module'
+import * as path from 'node:path'
 import { createCommentNotationTransformer } from '@shikijs/transformers'
 import { createTransformerFactory, type TransformerTwoslashOptions } from '@shikijs/twoslash/core'
 import type { ShikiTransformer } from '@shikijs/types'

@@ -1,6 +1,12 @@
 import { type BundledLanguage, createHighlighter } from 'shiki'
 import { describe, expect, it } from 'vitest'
-import { inlineLanguage, notationBlock, shellNotation, shellPrompt, twoslash } from './shiki-transformers.js'
+import {
+  inlineLanguage,
+  notationBlock,
+  shellNotation,
+  shellPrompt,
+  twoslash,
+} from './shiki-transformers.js'
 
 async function highlight(code: string, lang: BundledLanguage = 'typescript') {
   const highlighter = await createHighlighter({
