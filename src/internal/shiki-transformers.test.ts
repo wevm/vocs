@@ -1,6 +1,6 @@
 import { type BundledLanguage, createHighlighter } from 'shiki'
 import { describe, expect, it } from 'vitest'
-import { inlineLanguage, notationBlock, shellNotation, shellPrompt } from './shiki-transformers.js'
+import { inlineLanguage, notationBlock, shellNotation, shellPrompt, twoslash } from './shiki-transformers.js'
 
 async function highlight(code: string, lang: BundledLanguage = 'typescript') {
   const highlighter = await createHighlighter({
@@ -17,6 +17,21 @@ async function highlight(code: string, lang: BundledLanguage = 'typescript') {
   highlighter.dispose()
   return html
 }
+
+describe('twoslash', () => {
+  it('should not initialize twoslash when the transformer is created', () => {
+    const tsModule = new Proxy(
+      {},
+      {
+        get() {
+          throw new Error('twoslash initialized eagerly')
+        },
+      },
+    )
+
+    expect(() => twoslash({ twoslashOptions: { tsModule: tsModule as never } })).not.toThrow()
+  })
+})
 
 describe('notationBlock', () => {
   describe('highlight blocks', () => {
