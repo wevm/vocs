@@ -764,7 +764,8 @@ export function shellNotation(): ShikiTransformer {
       const processedLines: string[] = []
 
       for (let i = 0; i < lines.length; i++) {
-        const line = lines[i]!
+        const line = lines[i]
+        if (line === undefined) continue
         const match = line.match(shellAnnotationRegex)
         if (match) {
           const [, prefix, type] = match as [string, string, string]

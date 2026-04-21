@@ -12,6 +12,16 @@ const pkg = JSON.parse(fs.readFileSync(new URL('../package.json', import.meta.ur
 
 const cli = cac('vocs')
 
+async function getTypeScriptForTwoslash() {
+  try {
+    return await import('typescript')
+  } catch {
+    throw new Error(
+      'Using twoslash code blocks requires `typescript` to be installed in your project.',
+    )
+  }
+}
+
 cli
   .command('dev', 'Start development server')
   .option('--port <port>', 'Port to listen on', { default: 5173 })
@@ -187,10 +197,15 @@ cli
 
         // Use same config as build (shiki-transformers.ts)
         const { createTwoslasher } = await import('twoslash')
+        const tsModule = await getTypeScriptForTwoslash()
         const twoslasher = createTwoslasher({
+          tsModule,
           compilerOptions: {
+            ignoreDeprecations:
+              Number.parseInt(tsModule.versionMajorMinor, 10) >= 6 ? '6.0' : '5.0',
             moduleResolution: 100, // bundler
             preserveSymlinks: false,
+            types: ['node'],
           },
           customTags: ['log', 'error', 'warn', 'annotate'],
         })

@@ -25,7 +25,7 @@ function restoreNodeEnv() {
 
 afterEach(() => {
   restoreNodeEnv()
-  vi.restoreAllMocks()
+  vi.resetAllMocks()
   vi.resetModules()
   globalThis.fetch = originalFetch
 })

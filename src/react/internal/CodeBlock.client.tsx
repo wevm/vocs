@@ -142,7 +142,8 @@ export function ShellLineCopyButtons() {
           const allLines = Array.from(pre.querySelectorAll('.line')) as HTMLElement[]
           const startIdx = allLines.indexOf(line)
           for (let i = startIdx + 1; i < allLines.length; i++) {
-            const next = allLines[i]!
+            const next = allLines[i]
+            if (!next) continue
             if (next.hasAttribute('data-v-shell-line')) break
             const nextClone = next.cloneNode(true) as HTMLElement
             nextClone.querySelector('[data-v-shell-copy]')?.remove()
