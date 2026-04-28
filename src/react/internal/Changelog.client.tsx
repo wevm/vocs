@@ -284,10 +284,10 @@ function Release(props: Release.Props): React.JSX.Element {
             href={release.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="vocs:inline-flex vocs:items-center vocs:gap-1.5 vocs:text-sm vocs:font-mono vocs:font-medium vocs:text-heading vocs:bg-surfaceTint vocs:border vocs:border-primary vocs:px-2.5 vocs:py-1 vocs:rounded-md vocs:w-fit vocs:hover:bg-surfaceTint/80 vocs:transition-colors"
+            className="vocs:inline-flex vocs:flex-wrap vocs:items-center vocs:gap-1.5 vocs:text-sm vocs:font-mono vocs:font-medium vocs:text-heading vocs:bg-surfaceTint vocs:border vocs:border-primary vocs:px-2.5 vocs:py-1 vocs:rounded-md vocs:w-fit vocs:max-w-full vocs:hover:bg-surfaceTint/80 vocs:transition-colors"
           >
-            {release.version}
-            <LucideExternalLink className="vocs:size-3 vocs:opacity-60" />
+            <span className="vocs:break-all vocs:min-w-0">{release.version}</span>
+            <LucideExternalLink className="vocs:size-3 vocs:opacity-60 vocs:shrink-0" />
           </a>
 
           {/* Date */}
@@ -317,10 +317,10 @@ function Release(props: Release.Props): React.JSX.Element {
             href={release.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="vocs:inline-flex vocs:items-center vocs:gap-1.5 vocs:text-sm vocs:font-mono vocs:font-medium vocs:text-heading vocs:bg-surfaceTint vocs:border vocs:border-primary vocs:px-2.5 vocs:py-1 vocs:rounded-md vocs:hover:bg-surfaceTint/80 vocs:transition-colors"
+            className="vocs:inline-flex vocs:flex-wrap vocs:items-center vocs:gap-1.5 vocs:text-sm vocs:font-mono vocs:font-medium vocs:text-heading vocs:bg-surfaceTint vocs:border vocs:border-primary vocs:px-2.5 vocs:py-1 vocs:rounded-md vocs:max-w-full vocs:hover:bg-surfaceTint/80 vocs:transition-colors"
           >
-            {release.version}
-            <LucideExternalLink className="vocs:size-3 vocs:opacity-60" />
+            <span className="vocs:break-all vocs:min-w-0">{release.version}</span>
+            <LucideExternalLink className="vocs:size-3 vocs:opacity-60 vocs:shrink-0" />
           </a>
           <time dateTime={release.date} className="vocs:text-sm vocs:text-secondary">
             {formattedDate}
