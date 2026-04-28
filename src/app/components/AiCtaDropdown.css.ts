@@ -94,11 +94,13 @@ export const dropdownMenuItem = style(
     display: 'flex',
     alignItems: 'center',
     borderRadius: borderRadiusVars['4'],
+    color: 'inherit',
     gap: spaceVars[8],
     cursor: 'pointer',
     fontSize: fontSizeVars[12],
     fontWeight: fontWeightVars.medium,
     padding: `0 ${spaceVars[8]}`,
+    textDecoration: 'none',
     selectors: {
       '&:hover': {
         backgroundColor: primitiveColorVars.background2,

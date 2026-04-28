@@ -26,6 +26,8 @@ type RequiredBy<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>
 
 type RequiredProperties = 'blogDir' | 'markdown' | 'rootDir' | 'title' | 'titleTemplate'
 
+export type AiModel = 'chatgpt' | 'claude' | 'gemini'
+
 export type Config<
   parsed extends boolean = false,
   colorScheme extends ColorScheme = ColorScheme,
@@ -39,9 +41,17 @@ export type Config<
       | boolean
       | {
           /**
+           * Ordered list of AI models to show. The first entry becomes the primary CTA button
+           * and the rest appear in the dropdown. Omit to show all models with ChatGPT as primary.
+           *
+           * @example
+           * ['claude', 'gemini'] // Claude primary, Gemini in dropdown, ChatGPT hidden
+           */
+          models?: AiModel[]
+          /**
            * Query for the LLM.
            */
-          query: (p: { location: string }) => string
+          query?: (p: { location: string }) => string
         }
     /**
      * Configuration for the banner fixed to the top of the page.

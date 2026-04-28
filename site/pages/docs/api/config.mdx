@@ -31,16 +31,29 @@ export default defineConfig({
 
 ### aiCta
 
-- **Type:** `boolean | { query: ((p: { location: string }) => string) }`
+- **Type:** `boolean | { models?: ('chatgpt' | 'claude' | 'gemini')[], query?: ((p: { location: string }) => string) }`
 - **Default:** `true`
 
-Whether or not to show the AI call-to-action dropdown (ie. "Open in ChatGPT").
+Whether or not to show the AI call-to-action dropdown (ie. "Ask in ChatGPT").
 
 ```ts twoslash
 import { defineConfig } from 'vocs'
 
 export default defineConfig({
   aiCta: false, // [!code focus]
+  title: 'Viem'
+})
+```
+
+You can choose which AI providers appear in the dropdown via `models`. The first entry becomes the primary button and the rest appear in the dropdown. Omit to show all providers with ChatGPT as primary.
+
+```ts twoslash
+import { defineConfig } from 'vocs'
+
+export default defineConfig({
+  aiCta: { // [!code focus]
+    models: ['claude', 'gemini'], // [!code focus]
+  }, // [!code focus]
   title: 'Viem'
 })
 ```
