@@ -68,6 +68,24 @@ const validLanguageNames = new Set([
   ),
 ])
 
+function getLanguageNames(langs: readonly unknown[] | undefined): string[] {
+  if (!langs) return []
+
+  return langs.flatMap((lang) => {
+    if (Array.isArray(lang)) return getLanguageNames(lang)
+    if (typeof lang === 'string') return [lang]
+    if (!lang || typeof lang !== 'object') return []
+    if ('default' in lang) {
+      const defaultLangs = lang.default
+      return getLanguageNames(Array.isArray(defaultLangs) ? defaultLangs : [defaultLangs])
+    }
+    if (!('name' in lang)) return []
+
+    const { aliases, name } = lang as LanguageRegistration
+    return name ? [name, ...(aliases ?? [])] : (aliases ?? [])
+  })
+}
+
 /**
  * Remark plugin that transforms mermaid code blocks into Mermaid components.
  * Replaces ```mermaid code blocks with a paragraph that has hName/hProperties
@@ -132,6 +150,10 @@ export function getCompileOptions(
             : [],
         )
       : []
+  const codeHighlightLanguageNames = getLanguageNames(codeHighlight.langs)
+  const additionalLanguageNames = Array.from(
+    new Set([...twoslashTransformerLangs, ...codeHighlightLanguageNames]),
+  )
 
   const { recmaPlugins, rehypePlugins, remarkPlugins } = (() => {
     if (type === 'txt')
@@ -210,7 +232,7 @@ export function getCompileOptions(
           remarkChangelog,
           remarkCodeGroup,
           remarkLangCommaAttrs,
-          [remarkCodeTitle, { additionalLanguages: twoslashTransformerLangs }] as Pluggable,
+          [remarkCodeTitle, { additionalLanguages: additionalLanguageNames }] as Pluggable,
           remarkDefaultFrontmatter,
           remarkDetails,
           remarkDirective,
