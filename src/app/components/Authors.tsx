@@ -20,7 +20,8 @@ export function Authors(props: AuthorsProps) {
 
   const formattedDate = useMemo(() => {
     if (!date) return null
-    const dateObject = new Date(date)
+    const [y, m, d] = date.split('-').map(Number)
+    const dateObject = new Date(y, m - 1, d)
     return dateObject.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
