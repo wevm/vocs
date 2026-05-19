@@ -51,6 +51,8 @@ export function Head() {
         />
       )}
 
+      <meta name="color-scheme" content={colorScheme} />
+
       {/* Robots  */}
       <meta
         name="robots"

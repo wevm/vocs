@@ -46,14 +46,17 @@ export function Root_client({ children }: { children: React.ReactNode }) {
 
   const staticScheme = colorScheme !== 'light dark'
 
-  // react to theme config changes.
+  // React to theme config changes.
   useEffect(() => {
-    if (import.meta.env.PROD) return
     const html = document.documentElement
+
+    if (staticScheme) html.style.colorScheme = colorScheme
+    else applyTheme(getStoredTheme())
+
     if (html) {
-      html.style.setProperty('--vocs-color-accent', accentColor)
+      if (!import.meta.env.PROD) html.style.setProperty('--vocs-color-accent', accentColor)
     }
-  }, [accentColor])
+  }, [accentColor, colorScheme, staticScheme])
 
   // Listen for system theme changes (needed for pages without ThemeToggle)
   useEffect(() => {

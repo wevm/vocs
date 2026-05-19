@@ -105,6 +105,7 @@ Create `src/pages/_root.css` when you want to override colors, fonts, spacing, o
   --vocs-font-family-mono: 'JetBrains Mono', monospace;
 }
 
+:root[style*='color-scheme:dark'],
 :root[style*='color-scheme: dark'] {
   --vocs-color-background: #0b1020;
   --vocs-color-background-primary: #111827;
@@ -112,7 +113,7 @@ Create `src/pages/_root.css` when you want to override colors, fonts, spacing, o
 }
 ```
 
-The key detail is the dark-mode selector. Vocs stores the active theme on the document's `color-scheme`, so if you want CSS overrides to follow the built-in theme toggle, target `:root[style*='color-scheme: dark']` instead of relying only on `prefers-color-scheme`.
+The key detail is the dark-mode selector. Vocs stores the active theme on the document's `color-scheme`, so if you want CSS overrides to follow the built-in theme toggle, target the inline `color-scheme` value instead of relying only on `prefers-color-scheme`.
 
 ## Common Theme Tokens
 
@@ -234,4 +235,3 @@ For most sites, a typical theming workflow looks like this:
 2. Add `src/pages/_root.css` for brand fonts and background/text tuning.
 3. Adjust a few spacing or typography variables only if the default layout still feels off.
 4. Set `codeHighlight.themes` if your code blocks should use a different palette than the default.
-
