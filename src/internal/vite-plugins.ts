@@ -889,7 +889,7 @@ export function groupIcons(config: Config.Config): PluginOption {
   async function buildCss(): Promise<string> {
     const iconGroups = new Map<string, string[]>()
 
-    for (const label of labels) {
+    for (const label of [...labels].sort()) {
       const icon = matchIconForLabel(label)
       if (!icon) continue
 
@@ -900,7 +900,9 @@ export function groupIcons(config: Config.Config): PluginOption {
 
     const cssRules: string[] = []
 
-    for (const [icon, iconLabels] of iconGroups) {
+    for (const [icon, iconLabels] of [...iconGroups].sort(([iconA], [iconB]) =>
+      iconA.localeCompare(iconB),
+    )) {
       const svg = await Icons.resolveIcon(icon)
       if (!svg) continue
 
