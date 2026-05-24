@@ -200,6 +200,16 @@
       "src": "./src/waku/internal/index.ts",
       "default": "./dist/waku/internal/index.js"
     },
+    "./waku/internal/patches/adapters/vercel": {
+      "types": "./dist/waku/internal/patches/adapters/vercel.d.ts",
+      "src": "./src/waku/internal/patches/adapters/vercel.ts",
+      "default": "./dist/waku/internal/patches/adapters/vercel.js"
+    },
+    "./waku/internal/patches/adapters/vercel-build-enhancer": {
+      "types": "./dist/waku/internal/patches/adapters/vercel-build-enhancer.d.ts",
+      "src": "./src/waku/internal/patches/adapters/vercel-build-enhancer.ts",
+      "default": "./dist/waku/internal/patches/adapters/vercel-build-enhancer.js"
+    },
     "./waku/middleware": {
       "types": "./dist/waku/middleware.d.ts",
       "src": "./src/waku/middleware.ts",
