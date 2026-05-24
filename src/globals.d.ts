@@ -31,6 +31,11 @@ declare module 'virtual:vocs/group-icons.css?inline' {
   export default css
 }
 
+declare module 'virtual:vocs/group-icons.css?url' {
+  const url: string | undefined
+  export default url
+}
+
 declare module 'virtual:vocs/user-styles' {
   const url: string | undefined
   export default url
@@ -39,6 +44,11 @@ declare module 'virtual:vocs/user-styles' {
 declare module 'virtual:vocs/user-styles?inline' {
   const css: string | undefined
   export default css
+}
+
+declare module '*.css?url' {
+  const url: string
+  export default url
 }
 
 declare module 'virtual:vocs/slots' {

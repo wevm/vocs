@@ -1,13 +1,7 @@
 import { config } from 'virtual:vocs/config'
-// biome-ignore lint/suspicious/noTsIgnore: _
-// @ts-ignore
-import groupIconsCss from 'virtual:vocs/group-icons.css?inline'
-// biome-ignore lint/suspicious/noTsIgnore: _
-// @ts-ignore
-import userStyles from 'virtual:vocs/user-styles?inline'
-// biome-ignore lint/suspicious/noTsIgnore: _
-// @ts-ignore
-import styles from '../styles/index.css?inline'
+import groupIconsStylesUrl from 'virtual:vocs/group-icons.css?url'
+import userStylesUrl from 'virtual:vocs/user-styles'
+import stylesUrl from '../styles/index.css?url'
 import { Head } from './Head.js'
 import { Root_client } from './Root.client.js'
 import { ScrollRestoration } from './ScrollRestoration.js'
@@ -22,13 +16,9 @@ export async function Root({ children }: { children: React.ReactNode }) {
       suppressHydrationWarning
     >
       <head>
-        {/* Critical CSS inlined for faster FCP/LCP - eliminates render-blocking requests */}
-        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: inlined CSS for performance */}
-        <style dangerouslySetInnerHTML={{ __html: styles }} />
-        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: inlined user CSS for performance */}
-        {userStyles && <style dangerouslySetInnerHTML={{ __html: userStyles }} />}
-        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: group icons CSS */}
-        {groupIconsCss && <style dangerouslySetInnerHTML={{ __html: groupIconsCss }} />}
+        <link rel="stylesheet" href={stylesUrl} />
+        {userStylesUrl && <link rel="stylesheet" href={userStylesUrl} />}
+        {groupIconsStylesUrl && <link rel="stylesheet" href={groupIconsStylesUrl} />}
         <Head />
       </head>
       <body data-version="1.0">

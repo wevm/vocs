@@ -12,7 +12,14 @@ export function Link(props: Link.Props) {
 
   const [before, after] = (props.to || '').split('#')
   const resolvedTo = `${before ? before : path}${after ? `#${after}` : ''}`
-  return <WakuLink {...rest} to={resolvedTo} unstable_prefetchOnView={!import.meta.env.DEV} />
+  return (
+    <WakuLink
+      {...rest}
+      to={resolvedTo}
+      unstable_prefetchOnEnter={!import.meta.env.DEV}
+      unstable_prefetchOnView={!import.meta.env.DEV}
+    />
+  )
 }
 
 export namespace Link {

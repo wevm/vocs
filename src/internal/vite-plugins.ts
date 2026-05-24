@@ -1,3 +1,4 @@
+import crypto from 'node:crypto'
 import * as fs from 'node:fs/promises'
 import * as path from 'node:path'
 import mdxPlugin from '@mdx-js/rollup'
@@ -853,6 +854,19 @@ export function groupIcons(config: Config.Config): PluginOption {
     return `url("data:image/svg+xml,${encoded}")`
   }
 
+  function cssToDataUrl(css: string): string {
+    return `data:text/css;charset=utf-8,${encodeURIComponent(css)}`
+  }
+
+  function cssAssetFileName(css: string): string {
+    const hash = crypto.createHash('md5').update(css).digest('hex').slice(0, 12)
+    return `vocs-group-icons-${hash}.css`
+  }
+
+  function cssAssetUrl(css: string): string {
+    return `${config.basePath.endsWith('/') ? config.basePath : `${config.basePath}/`}assets/${cssAssetFileName(css)}`
+  }
+
   async function scanLabels(): Promise<void> {
     const files = await Array.fromAsync(fs.glob(`${pagesDirPath}/**/*.{md,mdx}`))
     labels.clear()
@@ -940,22 +954,45 @@ export function groupIcons(config: Config.Config): PluginOption {
     },
 
     resolveId(id) {
-      if (id === virtualModuleId || id === `${virtualModuleId}?inline`)
+      if (
+        id === virtualModuleId ||
+        id === `${virtualModuleId}?inline` ||
+        id === `${virtualModuleId}?url`
+      )
         return id === virtualModuleId
           ? resolvedVirtualModuleId
-          : `${resolvedVirtualModuleId}?inline`
+          : id === `${virtualModuleId}?inline`
+            ? `${resolvedVirtualModuleId}?inline`
+            : `${resolvedVirtualModuleId}?url`
       return
     },
 
     async load(id) {
-      if (id !== resolvedVirtualModuleId && id !== `${resolvedVirtualModuleId}?inline`) return
+      const isUrl = id === `${resolvedVirtualModuleId}?url`
+      if (id !== resolvedVirtualModuleId && id !== `${resolvedVirtualModuleId}?inline` && !isUrl)
+        return
 
       if (!cachedCss && labels.size === 0) {
         await scanLabels()
         cachedCss = await buildCss()
       }
 
+      if (isUrl) {
+        if (!cachedCss) return 'export default undefined'
+        if (server) return `export default ${JSON.stringify(cssToDataUrl(cachedCss))}`
+        return `export default ${JSON.stringify(cssAssetUrl(cachedCss))}`
+      }
+
       return cachedCss
+    },
+
+    generateBundle() {
+      if (!cachedCss) return
+      this.emitFile({
+        type: 'asset',
+        fileName: `assets/${cssAssetFileName(cachedCss)}`,
+        source: cachedCss,
+      })
     },
 
     async buildStart() {
