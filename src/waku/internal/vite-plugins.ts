@@ -98,6 +98,35 @@ await import('./serve-node.js');
   }
 }
 
+const wakuDefineRouterRegex = /[/\\]waku[/\\]dist[/\\]router[/\\]define-router\.js(?:\?.*)?$/
+
+const wakuRouterPrefetchCodeRegex =
+  /Object\.entries\(path2moduleIds\)\.forEach\(\(\[path,\s*ids\]\)=>\{\s*path2idxs\[path\]\s*=\s*ids\.map\(\(id\)=>ids\.indexOf\(id\)\);\s*\}\);/
+
+export function patchRouterPrefetchCode(code: string, id: string) {
+  if (!wakuDefineRouterRegex.test(id)) return
+  const patched = code.replace(
+    wakuRouterPrefetchCodeRegex,
+    `Object.entries(path2moduleIds).forEach(([path, pathIds])=>{
+        path2idxs[path] = pathIds.map((id)=>ids.indexOf(id));
+    });`,
+  )
+  if (patched === code) return
+  return patched
+}
+
+export function patchRouterPrefetch(): Plugin {
+  return {
+    name: 'vocs:patch-router-prefetch',
+    enforce: 'pre',
+    transform(code, id) {
+      const patched = patchRouterPrefetchCode(code, id)
+      if (!patched) return null
+      return { code: patched, map: null }
+    },
+  }
+}
+
 export function userEntries(config: Required<WakuConfig>, vocsConfig: VocsConfig.Config): Plugin {
   return {
     name: 'waku:vite-plugins:user-entries',
