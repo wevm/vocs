@@ -1,10 +1,18 @@
 import { type FunctionComponent, lazy, type ReactNode } from 'react'
 import { createPages } from 'waku/router/server'
 import * as DedupeHead from '../dedupe-head.js'
+import {
+  type ApiHandler,
+  type ApiRouteModule,
+  getApiHandlers,
+  hasInvalidStaticApiExports,
+} from './api-routes.js'
 import { isIgnoredPath } from './utils/fs-router.js'
 
 type Pages = ReturnType<typeof createPages>
-type Method = (typeof METHODS)[number]
+type RouteModule = ApiRouteModule & {
+  default: FunctionComponent<{ children: ReactNode }> | { fetch: ApiHandler }
+}
 
 type RenderHtml = (
   elementsStream: ReadableStream,
@@ -40,8 +48,6 @@ const wrapPages = (pages: Pages): Pages => ({
     })
   },
 })
-
-const METHODS = ['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'CONNECT', 'OPTIONS', 'TRACE', 'PATCH']
 
 export function router(
   /**
@@ -176,22 +182,14 @@ export function router(
             continue
           }
 
-          const mod = (await importFn()) as {
-            default:
-              | FunctionComponent<{ children: ReactNode }>
-              | { fetch: (req: Request) => Promise<Response> }
-            getConfig?: () => Promise<{
-              render?: 'static' | 'dynamic'
-            }>
-            GET?: (req: Request) => Promise<Response>
-          }
+          const mod = (await importFn()) as RouteModule
 
           const config = await mod.getConfig?.()
           if (pathItems.at(0) === apiDir) {
             // Strip the apiDir prefix from the path (e.g., _api/hello.txt -> hello.txt)
             const apiPath = '/' + pathItems.slice(1).join('/')
             if (config?.render === 'static') {
-              if (Object.keys(mod).length !== 2 || !mod.GET) {
+              if (hasInvalidStaticApiExports(mod) || !mod.GET) {
                 console.warn(
                   `API ${path} is invalid. For static API routes, only a single GET handler is supported.`,
                 )
@@ -206,31 +204,10 @@ export function router(
                 ...sourceFileProperty,
               })
             } else {
-              const validMethods = new Set<string>(METHODS)
-              const handlers = Object.fromEntries(
-                Object.entries(mod).flatMap(([exportName, handler]) => {
-                  const isValidExport =
-                    exportName === 'getConfig' ||
-                    exportName === 'default' ||
-                    validMethods.has(exportName as Method)
-                  if (!isValidExport) {
-                    console.warn(
-                      `API ${path} has an invalid export: ${exportName}. Valid exports are: ${METHODS.join(
-                        ', ',
-                      )}`,
-                    )
-                  }
-                  return isValidExport && exportName !== 'getConfig'
-                    ? exportName === 'default'
-                      ? [['all', handler]]
-                      : [[exportName, handler]]
-                    : []
-                }),
-              )
               createApi({
                 path: apiPath,
                 render: 'dynamic',
-                handlers,
+                handlers: getApiHandlers(mod, path),
                 ...sourceFileProperty,
               })
             }
