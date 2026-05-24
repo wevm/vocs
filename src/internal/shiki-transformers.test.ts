@@ -1,11 +1,14 @@
 import { type BundledLanguage, createHighlighter } from 'shiki'
 import { describe, expect, it } from 'vitest'
 import {
+  checkTwoslashSnippets,
   inlineLanguage,
   notationBlock,
+  resetTwoslashSnippets,
   shellNotation,
   shellPrompt,
   twoslash,
+  twoslashErrors,
 } from './shiki-transformers.js'
 
 async function highlight(code: string, lang: BundledLanguage = 'typescript') {
@@ -36,6 +39,164 @@ describe('twoslash', () => {
     )
 
     expect(() => twoslash({ twoslashOptions: { tsModule: tsModule as never } })).not.toThrow()
+  })
+
+  it('should typecheck without rendering twoslash metadata in check-only mode', async () => {
+    const highlighter = await createHighlighter({
+      themes: ['github-dark'],
+      langs: ['typescript'],
+    })
+    const tsModule = new Proxy(
+      {},
+      {
+        get() {
+          throw new Error('twoslash initialized')
+        },
+      },
+    )
+
+    const html = highlighter.codeToHtml('const value = 1\n//    ^?', {
+      lang: 'typescript',
+      theme: 'github-dark',
+      transformers: [
+        twoslash({
+          checkOnly: true,
+          explicitTrigger: false,
+          twoslashOptions: { tsModule: tsModule as never },
+          typesCache: {
+            init() {
+              throw new Error('cache initialized')
+            },
+            read() {
+              throw new Error('cache read')
+            },
+            write() {
+              throw new Error('cache written')
+            },
+          },
+        }),
+      ],
+    })
+
+    expect(html).toContain('const')
+    expect(html).not.toContain('^?')
+    expect(html).not.toContain('twoslash-hover')
+
+    highlighter.dispose()
+  })
+
+  it('should collect type errors in check-only mode', async () => {
+    const highlighter = await createHighlighter({
+      themes: ['github-dark'],
+      langs: ['typescript'],
+    })
+
+    twoslashErrors.length = 0
+    resetTwoslashSnippets()
+
+    highlighter.codeToHtml('const value: string = 1', {
+      lang: 'typescript',
+      theme: 'github-dark',
+      transformers: [twoslash({ checkOnly: true, explicitTrigger: false })],
+    })
+    checkTwoslashSnippets()
+
+    expect(twoslashErrors).toHaveLength(1)
+    expect(twoslashErrors[0]?.message).toContain('Errors were thrown in the sample')
+
+    twoslashErrors.length = 0
+    resetTwoslashSnippets()
+
+    highlighter.dispose()
+  })
+
+  it('should accept expected type errors in check-only mode', async () => {
+    const highlighter = await createHighlighter({
+      themes: ['github-dark'],
+      langs: ['typescript'],
+    })
+
+    twoslashErrors.length = 0
+    resetTwoslashSnippets()
+
+    highlighter.codeToHtml('const value: string = 1\n// @errors: 2322', {
+      lang: 'typescript',
+      theme: 'github-dark',
+      transformers: [twoslash({ checkOnly: true, explicitTrigger: false })],
+    })
+    checkTwoslashSnippets()
+
+    expect(twoslashErrors).toHaveLength(0)
+
+    resetTwoslashSnippets()
+
+    highlighter.dispose()
+  })
+
+  it('should typecheck tsx snippets in check-only mode', async () => {
+    const highlighter = await createHighlighter({
+      themes: ['github-dark'],
+      langs: ['tsx'],
+    })
+
+    twoslashErrors.length = 0
+    resetTwoslashSnippets()
+
+    highlighter.codeToHtml(
+      `export {}
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      div: Record<string, never>
+    }
+  }
+}
+const element = <div />`,
+      {
+        lang: 'tsx',
+        theme: 'github-dark',
+        transformers: [twoslash({ checkOnly: true, explicitTrigger: false })],
+      },
+    )
+    checkTwoslashSnippets()
+
+    expect(twoslashErrors).toHaveLength(0)
+
+    resetTwoslashSnippets()
+
+    highlighter.dispose()
+  })
+
+  it('should typecheck virtual json files in check-only mode', async () => {
+    const highlighter = await createHighlighter({
+      themes: ['github-dark'],
+      langs: ['typescript'],
+    })
+
+    twoslashErrors.length = 0
+    resetTwoslashSnippets()
+
+    highlighter.codeToHtml(
+      `// @resolveJsonModule
+// @filename: app.json
+{ "version": "23.2.3" }
+
+// @filename: index.ts
+import appSettings from './app.json'
+appSettings.version`,
+      {
+        lang: 'typescript',
+        theme: 'github-dark',
+        transformers: [twoslash({ checkOnly: true, explicitTrigger: false })],
+      },
+    )
+    checkTwoslashSnippets()
+
+    expect(twoslashErrors).toHaveLength(0)
+
+    resetTwoslashSnippets()
+
+    highlighter.dispose()
   })
 })
 

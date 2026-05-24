@@ -4,11 +4,18 @@ import { createCommentNotationTransformer } from '@shikijs/transformers'
 import { createTransformerFactory, type TransformerTwoslashOptions } from '@shikijs/twoslash/core'
 import type { ShikiTransformer } from '@shikijs/types'
 import { addClassToHast } from 'shiki'
-import { createTwoslasher, type TS, type TwoslashInstance } from 'twoslash/core'
+import {
+  createTwoslasher,
+  removeTwoslashNotations,
+  type TS,
+  type TwoslashInstance,
+  type TwoslashOptions,
+} from 'twoslash/core'
 
 type TransformerTwoslashIndexOptions = TransformerTwoslashOptions
 
 import * as Snippets from './snippets.js'
+import * as TwoslashChecker from './twoslash/checker.js'
 import * as Renderer from './twoslash/renderer.js'
 import * as TypesCache from './twoslash/types-cache.js'
 
@@ -219,6 +226,7 @@ let typescript: TS | undefined
 export function twoslash(options: twoslash.Options): ShikiTransformer {
   const { cacheDir } = options
   const {
+    checkOnly = false,
     explicitTrigger = true,
     disableTriggers,
     filter,
@@ -257,14 +265,17 @@ export function twoslash(options: twoslash.Options): ShikiTransformer {
 
     return twoslasher(code, lang, executeOptions)
   }
+  const activeTwoslasher = checkOnly
+    ? checkOnlyTwoslasher({ throws, twoslashOptions })
+    : lazyTwoslasher
 
   return createTransformerFactory(
-    lazyTwoslasher,
+    activeTwoslasher,
     renderer,
   )({
     explicitTrigger,
     throws,
-    typesCache,
+    ...(checkOnly ? {} : { typesCache }),
     onTwoslashError(error, code, lang, options) {
       if (!throws) return
       const message = error instanceof Error ? error.message : String(error)
@@ -285,7 +296,61 @@ export function twoslash(options: twoslash.Options): ShikiTransformer {
 }
 
 export declare namespace twoslash {
-  export type Options = TransformerTwoslashIndexOptions & { cacheDir?: string | undefined }
+  export type Options = TransformerTwoslashIndexOptions & {
+    /**
+     * Run TypeScript checks for twoslash snippets, but render plain highlighted code without
+     * hover, query, completion, or error metadata.
+     */
+    checkOnly?: boolean | undefined
+    cacheDir?: string | undefined
+  }
+}
+
+function checkOnlyTwoslasher(options: {
+  throws?: boolean | undefined
+  twoslashOptions?: TwoslashOptions | undefined
+}) {
+  return (
+    code: string,
+    lang?: string,
+    executeOptions?: Parameters<TwoslashInstance>[2],
+    meta?: { __raw?: string | undefined },
+  ) => {
+    const twoslashOptions = {
+      ...options.twoslashOptions,
+      ...executeOptions,
+      handbookOptions: {
+        ...options.twoslashOptions?.handbookOptions,
+        ...executeOptions?.handbookOptions,
+        noStaticSemanticInfo: true,
+      },
+    }
+
+    TwoslashChecker.collect({
+      code: removeTypeInfoNotations(code),
+      lang: lang ?? 'ts',
+      meta: meta?.__raw,
+      throws: options.throws,
+      twoslashOptions,
+    })
+
+    return {
+      code: removeTwoslashNotations(code, twoslashOptions.customTags),
+      nodes: [],
+    }
+  }
+}
+
+function removeTypeInfoNotations(code: string): string {
+  return code.replace(/^\s*\/\/\s*\^(\?|\||\^+)( .*)?(?:\r?\n|$)/gm, '')
+}
+
+export function checkTwoslashSnippets() {
+  twoslashErrors.push(...TwoslashChecker.check())
+}
+
+export function resetTwoslashSnippets() {
+  TwoslashChecker.reset()
 }
 
 function getTypeScript(): TS {

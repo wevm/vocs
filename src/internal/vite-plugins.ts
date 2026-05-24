@@ -241,7 +241,7 @@ export function llms(config: Config.Config): PluginOption {
  * @returns Plugin.
  */
 export function mdx(config: Config.Config): PluginOption {
-  const { checkDeadlinks } = config
+  const { checkDeadlinks, twoslash } = config
   const plugin = mdxPlugin(Mdx.getCompileOptions('react', config))
 
   let mode: 'development' | 'production' = 'development'
@@ -295,6 +295,8 @@ export function mdx(config: Config.Config): PluginOption {
       if (mode !== 'production') return
 
       // Check for twoslash errors
+      if (twoslash && typeof twoslash === 'object' && twoslash.checkOnly)
+        ShikiTransformers.checkTwoslashSnippets()
       if (ShikiTransformers.twoslashErrors.length > 0) {
         const errors = ShikiTransformers.twoslashErrors.map((err) => {
           const lines = err.code.split('\n')

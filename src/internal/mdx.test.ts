@@ -1,7 +1,7 @@
 import ruby from 'shiki/langs/ruby.mjs'
 import { describe, expect, it } from 'vitest'
 import * as Config from './config.js'
-import { getCompileOptions, remarkCodeTitle, remarkLangCommaAttrs } from './mdx.js'
+import { getCompileOptions, remarkCodeTitle, remarkFilename, remarkLangCommaAttrs } from './mdx.js'
 
 type CodeNode = {
   type: 'code'
@@ -10,9 +10,15 @@ type CodeNode = {
   value: string
 }
 
+type ContainerDirectiveNode = {
+  type: 'containerDirective'
+  name: string
+  children: CodeNode[]
+}
+
 type Root = {
   type: 'root'
-  children: [CodeNode]
+  children: Array<CodeNode | ContainerDirectiveNode>
 }
 
 type TransformCodeNodeOptions = {
@@ -46,8 +52,90 @@ function transformCodeNode(
 
   remarkCodeTitle(getCodeTitlePlugin(config))(tree as never)
 
-  return tree.children[0]
+  return tree.children[0] as CodeNode
 }
+
+describe('remarkFilename', () => {
+  it('scopes duplicate code-group filenames to their group', () => {
+    const firstExample = {
+      type: 'code',
+      lang: 'ts',
+      meta: 'twoslash [example.ts]',
+      value: "import { value } from './config'\nvalue",
+    } satisfies CodeNode
+    const secondExample = { ...firstExample }
+    const tree = {
+      type: 'root',
+      children: [
+        {
+          type: 'containerDirective',
+          name: 'code-group',
+          children: [
+            firstExample,
+            {
+              type: 'code',
+              lang: 'ts',
+              meta: '[config.ts]',
+              value: "export const value = 'one'",
+            },
+          ],
+        },
+        {
+          type: 'containerDirective',
+          name: 'code-group',
+          children: [
+            secondExample,
+            {
+              type: 'code',
+              lang: 'ts',
+              meta: '[config.ts]',
+              value: "export const value = 'two'",
+            },
+          ],
+        },
+      ],
+    } satisfies Root
+
+    remarkFilename()(tree as never)
+
+    expect(firstExample.value).toContain("export const value = 'one'")
+    expect(firstExample.value).not.toContain("export const value = 'two'")
+    expect(secondExample.value).toContain("export const value = 'two'")
+    expect(secondExample.value).not.toContain("export const value = 'one'")
+  })
+
+  it('keeps document virtual files available to later snippets', () => {
+    const laterExample = {
+      type: 'code',
+      lang: 'ts',
+      meta: 'twoslash',
+      value: "import { value } from './config'\nvalue",
+    } satisfies CodeNode
+    const tree = {
+      type: 'root',
+      children: [
+        {
+          type: 'containerDirective',
+          name: 'code-group',
+          children: [
+            {
+              type: 'code',
+              lang: 'ts',
+              meta: '[config.ts]',
+              value: "export const value = 'shared'",
+            },
+          ],
+        },
+        laterExample,
+      ],
+    } satisfies Root
+
+    remarkFilename()(tree as never)
+
+    expect(laterExample.value).toContain('// @filename: config.ts')
+    expect(laterExample.value).toContain("export const value = 'shared'")
+  })
+})
 
 describe('getCompileOptions', () => {
   it('preserves configured custom language fences', () => {

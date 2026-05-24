@@ -982,7 +982,8 @@ export function remarkSubheading() {
   }
 }
 
-const filenameRegex = /filename="([^"]+)"/
+const filenameRegex = /filename=["']([^"']+)["']/
+const titleFilenameRegex = /\[([./\w-]+\.(?:[cm]?[jt]sx?|json|sol|rs|toml|ya?ml|css|html|mdx?))\]/
 
 /**
  * Remark plugin that processes virtual file snippets defined with `filename="..."` meta.
@@ -994,33 +995,67 @@ const filenameRegex = /filename="([^"]+)"/
  */
 export function remarkFilename(): remarkFilename.ReturnType {
   return (tree: MdAst.Root) => {
-    const virtualFiles = new Map<string, string>()
-    const codeNodes: MdAst.Code[] = []
+    const allCodeNodes = getCodeNodes(tree)
+    const documentVirtualFiles = getVirtualFiles(allCodeNodes)
+    const processed = new Set<MdAst.Code>()
 
-    UnistUtil.visit(tree, 'code', (node) => {
-      codeNodes.push(node)
-      if (!node.meta?.includes('filename')) return
-      const match = node.meta.match(filenameRegex)
-      const fileName = match?.[1]
-      if (!fileName) return
-      virtualFiles.set(fileName, node.value)
+    UnistUtil.visit(tree, (node) => {
+      if (node.type !== 'containerDirective') return
+      if (node.name !== 'code-group') return
+
+      const codeNodes = getCodeNodes(node)
+      const virtualFiles = getVirtualFiles(codeNodes)
+      if (virtualFiles.size === 0) return
+
+      processCodeNodes(codeNodes, virtualFiles)
+      for (const node of codeNodes) processed.add(node)
     })
 
-    if (virtualFiles.size === 0) return
+    if (documentVirtualFiles.size === 0) return
 
-    const getVirtualSource = Snippets.createVirtualSourceGetter({ virtualFiles })
-
-    for (const node of codeNodes) {
-      if (node.meta?.includes('twoslash')) {
-        node.value = Snippets.processImports({ code: node.value, virtualFiles })
-      }
-      node.value = Snippets.processIncludes({ code: node.value, getSource: getVirtualSource })
-    }
+    const codeNodes = allCodeNodes.filter((node) => !processed.has(node))
+    processCodeNodes(codeNodes, documentVirtualFiles)
   }
 }
 
 export declare namespace remarkFilename {
   type ReturnType = (tree: MdAst.Root) => void
+}
+
+function getCodeNodes(node: unknown): MdAst.Code[] {
+  const codeNodes: MdAst.Code[] = []
+  UnistUtil.visit(node as MdAst.Root, 'code', (node) => {
+    codeNodes.push(node)
+  })
+  return codeNodes
+}
+
+function getVirtualFiles(codeNodes: MdAst.Code[]): Map<string, string> {
+  const virtualFiles = new Map<string, string>()
+  for (const node of codeNodes) {
+    const fileName = getCodeFileName(node)
+    if (!fileName) continue
+    virtualFiles.set(fileName, node.value)
+  }
+  return virtualFiles
+}
+
+function processCodeNodes(codeNodes: MdAst.Code[], virtualFiles: Map<string, string>) {
+  const getVirtualSource = Snippets.createVirtualSourceGetter({ virtualFiles })
+
+  for (const node of codeNodes) {
+    if (node.meta?.includes('twoslash')) {
+      node.value = Snippets.processImports({ code: node.value, virtualFiles })
+    }
+    node.value = Snippets.processIncludes({ code: node.value, getSource: getVirtualSource })
+  }
+}
+
+function getCodeFileName(node: MdAst.Code): string | undefined {
+  if (!node.meta) return undefined
+  const filename = node.meta.match(filenameRegex)?.[1]
+  if (filename) return filename
+  return node.meta.match(titleFilenameRegex)?.[1]
 }
 
 /**
