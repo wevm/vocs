@@ -1,12 +1,29 @@
+// waku/router is technically a separate library from waku core.
+// This file is an exception placed here so that fsRouter users
+// get automatic type generation with better DX.
+
 import { existsSync, readFileSync } from 'node:fs'
 import { readdir, writeFile } from 'node:fs/promises'
-import type * as estree from 'estree'
-import type { Plugin } from 'vite'
-import { parseAstAsync, transformWithEsbuild } from 'vite'
+import type { ParseResult, Plugin } from 'vite'
+import { parse, transformWithOxc } from 'vite'
 import { EXTENSIONS, SRC_PAGES, SRC_SERVER_ENTRY } from '../constants.js'
 import { getGrouplessPath } from '../utils/create-pages.js'
 import { isIgnoredPath } from '../utils/fs-router.js'
 import { joinPath } from '../utils/path.js'
+
+type ProgramNode = ParseResult['program']
+type ImportDeclaration = ProgramNode['body'][number] & {
+  type: 'ImportDeclaration'
+}
+type ImportSpecifier = ImportDeclaration['specifiers'][number] & {
+  type: 'ImportSpecifier'
+}
+type ExportNamedDeclaration = ProgramNode['body'][number] & {
+  type: 'ExportNamedDeclaration'
+}
+type ExportSpecifier = ExportNamedDeclaration['specifiers'][number] & {
+  type: 'ExportSpecifier'
+}
 
 // https://tc39.es/ecma262/multipage/ecmascript-language-lexical-grammar.html#sec-names-and-keywords
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#identifiers
@@ -58,24 +75,24 @@ export function getImportModuleNames(filePaths: string[]): {
 
 const parseModule = async (filePath: string) => {
   const source = readFileSync(filePath, 'utf8')
-  const loader: 'jsx' | 'ts' | 'tsx' = filePath.endsWith('.tsx')
+  const lang: 'jsx' | 'ts' | 'tsx' = filePath.endsWith('.tsx')
     ? 'tsx'
     : filePath.endsWith('.ts')
       ? 'ts'
       : 'jsx'
-  const transformed = await transformWithEsbuild(source, filePath, {
-    loader,
+  const transformed = await transformWithOxc(source, filePath, {
+    lang,
     jsx: 'preserve',
   })
-  return parseAstAsync(transformed.code, { jsx: true })
+  return (await parse(filePath, transformed.code, { lang } as never)).program
 }
 
-const getImportedName = (specifier: estree.ImportSpecifier) =>
+const getImportedName = (specifier: ImportSpecifier) =>
   specifier.imported.type === 'Identifier'
     ? specifier.imported.name
     : String(specifier.imported.value)
 
-const getExportedName = (specifier: estree.ExportSpecifier) =>
+const getExportedName = (specifier: ExportSpecifier) =>
   specifier.exported.type === 'Identifier'
     ? specifier.exported.name
     : String(specifier.exported.value)
@@ -156,25 +173,23 @@ export async function detectFsRouterUsage(srcDir: string): Promise<boolean> {
   }
 }
 
-const PAGE_EXTENSIONS = ['.tsx', '.mdx', '.md']
-
 export async function generateFsRouterTypes(pagesDir: string) {
+  const PAGE_EXTENSIONS = ['.tsx', '.mdx', '.md']
+
   // Recursively collect page files in the given directory
   const collectFiles = async (dir: string, files: string[] = []): Promise<string[]> => {
-    const entries = await readdir(dir, {
-      recursive: true,
-      withFileTypes: true,
-    })
+    // TODO revisit recursive option for readdir once more stable
+    // https://nodejs.org/docs/latest-v20.x/api/fs.html#direntparentpath
+    const entries = await readdir(dir, { withFileTypes: true })
     for (const entry of entries) {
+      const fullPath = joinPath(dir, entry.name)
       if (entry.isDirectory()) {
-        continue
+        await collectFiles(fullPath, files)
+      } else {
+        if (PAGE_EXTENSIONS.some((ext) => entry.name.endsWith(ext))) {
+          files.push(fullPath.slice(pagesDir.length))
+        }
       }
-      if (!PAGE_EXTENSIONS.some((ext) => entry.name.endsWith(ext))) {
-        continue
-      }
-      const parentPath = (entry as { parentPath?: string }).parentPath ?? dir
-      const fullPath = joinPath(parentPath, entry.name)
-      files.push(fullPath.slice(pagesDir.length))
     }
     return files
   }
@@ -227,7 +242,7 @@ export async function generateFsRouterTypes(pagesDir: string) {
       // where to import the component from
       const src = filePath.replace(/^\//, '')
       const ext = getFileExtension(filePath)
-      let hasGetConfig = false
+      let hasGetConfig: boolean
       try {
         hasGetConfig = await fileExportsGetConfig(filePath)
       } catch {
@@ -253,44 +268,57 @@ export async function generateFsRouterTypes(pagesDir: string) {
       }
     }
 
-    let result = `// deno-fmt-ignore-file
-// biome-ignore format: generated types do not need formatting
-// prettier-ignore
-import type { PathsForPages, GetConfigResponse } from 'waku/router';\n\n`
+    const hasAnyGetConfig = fileInfo.some((file) => file.hasGetConfig)
+    const lines: string[] = [
+      '// deno-fmt-ignore-file',
+      '// biome-ignore format: generated types do not need formatting',
+      '// prettier-ignore',
+      hasAnyGetConfig
+        ? "import type { PathsForPages, GetConfigResponse } from 'waku/router'"
+        : "import type { PathsForPages } from 'waku/router'",
+    ]
 
-    for (const file of fileInfo) {
-      const moduleName = moduleNames[file.src]
-      if (file.hasGetConfig) {
-        result += `// prettier-ignore\nimport type { getConfig as ${moduleName}_getConfig } from './${SRC_PAGES}/${removeExtension(file.src)}';\n`
+    if (hasAnyGetConfig) {
+      lines.push('')
+      for (const file of fileInfo) {
+        if (!file.hasGetConfig) {
+          continue
+        }
+        const moduleName = moduleNames[file.src]
+        lines.push(
+          `// prettier-ignore`,
+          `import type { getConfig as ${moduleName}_getConfig } from './${SRC_PAGES}/${removeExtension(file.src)}'`,
+        )
       }
     }
 
-    result += `\n// prettier-ignore\ntype Page =\n`
-
+    lines.push('', '// prettier-ignore', 'type Page =')
     for (const file of fileInfo) {
       const moduleName = moduleNames[file.src]
       if (file.hasGetConfig) {
-        result += `| ({ path: '${file.path}' } & GetConfigResponse<typeof ${moduleName}_getConfig>)\n`
+        lines.push(
+          `  | ({ path: '${file.path}' } & GetConfigResponse<typeof ${moduleName}_getConfig>)`,
+        )
       } else {
-        // fs-router defaults to 'static' when no getConfig is exported
-        result += `| { path: '${file.path}'; render: 'static' }\n`
+        lines.push(`  | { path: '${file.path}'; render: 'static' }`)
       }
     }
 
-    result =
-      result.slice(0, -1) +
-      `;
+    lines.push(
+      '',
+      '// prettier-ignore',
+      "declare module 'waku/router' {",
+      '  interface RouteConfig {',
+      '    paths: PathsForPages<Page>',
+      '  }',
+      '  interface CreatePagesConfig {',
+      '    pages: Page',
+      '  }',
+      '}',
+      '',
+    )
 
-// prettier-ignore
-declare module 'waku/router' {
-  interface RouteConfig {
-    paths: PathsForPages<Page>;
-  }
-  interface CreatePagesConfig {
-    pages: Page;
-  }
-}
-`
+    const result = lines.join('\n')
 
     return result
   }

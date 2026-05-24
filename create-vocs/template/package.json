@@ -12,14 +12,14 @@
     "react": "^19",
     "react-dom": "^19",
     "vocs": "https://pkg.pr.new/wevm/vocs@next",
-    "waku": "^1.0.0-alpha.4"
+    "waku": "^1.0.0-beta.0"
   },
   "devDependencies": {
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@vitejs/plugin-react": "^5",
+    "@vitejs/plugin-react": "^6",
     "typescript": "^5",
-    "vite": "^7"
+    "vite": "^8"
   }
 }

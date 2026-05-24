@@ -2,7 +2,7 @@ import * as fs from 'node:fs/promises'
 import * as path from 'node:path'
 import mdxPlugin from '@mdx-js/rollup'
 import tailwindcss, { type PluginOptions as TailwindOptions } from '@tailwindcss/vite'
-import type { PluginOption, ResolvedConfig, ViteDevServer } from 'vite'
+import type { PluginOption, ResolvedConfig, Rolldown, ViteDevServer } from 'vite'
 import { createLogger } from 'vite'
 import * as Config from './config.js'
 import * as ConfigSerializer from './config-serializer.js'
@@ -31,12 +31,13 @@ export function deps(): PluginOption {
   return {
     name: 'vocs:deps',
     config(config) {
+      const { rollupOptions: _rollupOptions, ...build } = config?.build ?? {}
       return {
         build: {
-          ...config?.build,
+          ...build,
           chunkSizeWarningLimit: 1000,
-          rollupOptions: {
-            ...config?.build?.rollupOptions,
+          rolldownOptions: {
+            ...build.rolldownOptions,
             onLog(level, log, handler) {
               if (log.message.includes('Error when using sourcemap for reporting an error')) return
               if (log.code === 'MODULE_LEVEL_DIRECTIVE') return
@@ -246,10 +247,17 @@ export function mdx(config: Config.Config): PluginOption {
   let mode: 'development' | 'production' = 'development'
 
   // TODO: fs cache
-  const cache = new Map<
-    string,
-    { code: string; result: Awaited<ReturnType<typeof plugin.transform>> }
-  >()
+  const cache = new Map<string, { code: string; result: Rolldown.TransformResult }>()
+
+  const normalizeTransformResult = (
+    result: Awaited<ReturnType<typeof plugin.transform>>,
+  ): Rolldown.TransformResult => {
+    if (result && typeof result === 'object' && 'map' in result && result.map === undefined) {
+      const { map: _map, ...rest } = result
+      return rest as Rolldown.TransformResult
+    }
+    return result as Rolldown.TransformResult
+  }
 
   return {
     ...plugin,
@@ -257,7 +265,7 @@ export function mdx(config: Config.Config): PluginOption {
     configResolved(resolvedConfig) {
       mode = resolvedConfig.command === 'build' ? 'production' : 'development'
     },
-    async transform(code, id) {
+    async transform(code, id): Promise<Rolldown.TransformResult> {
       if (!id.endsWith('.mdx') && !id.endsWith('.md')) return null
       if (!plugin.transform) return null
 
@@ -265,7 +273,7 @@ export function mdx(config: Config.Config): PluginOption {
       if (cached && cached.code === code) return cached.result
 
       try {
-        const result = await plugin.transform(code, id)
+        const result = normalizeTransformResult(await plugin.transform.call(this, code, id))
         if (result) cache.set(id, { code, result })
         return result
       } catch (error) {

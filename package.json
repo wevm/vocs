@@ -80,11 +80,11 @@
     "@shikijs/types": "^3.20.0",
     "@svgr/core": "^8.1.0",
     "@svgr/plugin-jsx": "^8.1.0",
-    "@tailwindcss/vite": "^4.1.8",
+    "@tailwindcss/vite": "^4.3.0",
     "@takumi-rs/image-response": "^0.62.7",
     "@takumi-rs/wasm": "^0.62.7",
     "@vitejs/plugin-react": "catalog:",
-    "@vitejs/plugin-rsc": "^0.5.9",
+    "@vitejs/plugin-rsc": "^0.5.26",
     "cac": "^6.7.14",
     "cva": "npm:class-variance-authority@^0.7.1",
     "debug": "^4.4.0",
@@ -118,7 +118,7 @@
     "remark-stringify": "^11.0.0",
     "shiki": "^3.20.0",
     "sucrase": "^3.35.1",
-    "tailwindcss": "^4.1.8",
+    "tailwindcss": "^4.3.0",
     "tailwindcss-logical": "^4.1.0",
     "tsx": "^4.21.0",
     "twoslash": "^0.3.6",
@@ -128,7 +128,7 @@
     "urlpattern-polyfill": "^10.1.0",
     "vfile": "^6.0.3",
     "vite-plugin-arraybuffer": "^0.1.1",
-    "vite-plugin-wasm": "^3.5.0",
+    "vite-plugin-wasm": "^3.6.0",
     "yaml": "^2.8.2",
     "zod": "^4.3.5"
   },
@@ -137,8 +137,8 @@
     "mermaid": "^11",
     "react": "^19",
     "react-dom": "^19",
-    "vite": "^7",
-    "waku": "^1"
+    "vite": "^8",
+    "waku": "^1.0.0-beta.0"
   },
   "peerDependenciesMeta": {
     "@vocs/twoslash-rust": {

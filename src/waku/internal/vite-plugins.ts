@@ -1,3 +1,4 @@
+import { randomBytes } from 'node:crypto'
 import { existsSync } from 'node:fs'
 import * as fs from 'node:fs/promises'
 import * as path from 'node:path'
@@ -13,18 +14,35 @@ import {
 } from './patches/constants.js'
 
 export {
+  unstable_adapterAliasPlugin as adapterAlias,
   unstable_allowServerPlugin as allowServer,
   unstable_buildMetadataPlugin as buildMetadata,
-  unstable_buildStaticFilesPlugin as buildStaticFiles,
-  unstable_defaultAdapterPlugin as defaultAdapter,
-  unstable_fallbackHtmlPlugin as fallbackHtml,
-  unstable_mainPlugin as main,
+  unstable_environmentsPlugin as environments,
+  unstable_htmlShellPlugin as htmlShell,
   unstable_notFoundPlugin as notFound,
   unstable_patchRsdwPlugin as patchRsdw,
   unstable_privateDirPlugin as privateDir,
+  unstable_staticBuildPlugin as staticBuild,
   unstable_virtualConfigPlugin as virtualConfig,
 } from 'waku/vite-plugins'
 export { fsRouterTypegenPlugin as fsRouterTypegen } from './patches/vite-plugins/fs-router-typegen.js'
+
+export function buildId(): Plugin {
+  const key = 'import.meta.env.WAKU_BUILD_ID'
+  const buildId = randomBytes(6).toString('base64url')
+
+  return {
+    name: 'vocs:build-id',
+    config(merged, env) {
+      if (merged.define && key in merged.define) return
+      return {
+        define: {
+          [key]: JSON.stringify(env.command === 'serve' ? 'dev' : buildId),
+        },
+      }
+    },
+  }
+}
 
 /**
  * Builds a script to preview the build output.
@@ -125,9 +143,9 @@ import adapter from 'waku/adapters/default';
 export default adapter(
   router(
     import.meta.glob(
-      ${JSON.stringify(globPattern)},
-      { base: ${JSON.stringify(globBase)} }
-    )
+      ${JSON.stringify(globPattern)}
+    ),
+    { srcDir: ${JSON.stringify(config.srcDir)} }
   ),
   {
     middlewareModules: middlewareModules(
@@ -184,7 +202,7 @@ export function vocsConfig(config: VocsConfig.Config): Plugin {
         environments: {
           rsc: {
             build: {
-              rollupOptions: {
+              rolldownOptions: {
                 external: ['fsevents', 'vite'],
                 output: {
                   manualChunks(id) {
