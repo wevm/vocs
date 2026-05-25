@@ -4,7 +4,6 @@ import * as React from 'react'
 import LucideCheck from '~icons/lucide/check'
 import LucideClipboard from '~icons/lucide/clipboard'
 import LucideWrapText from '~icons/lucide/wrap-text'
-import { getIconHtml } from './utils.js'
 
 export function WrapButton() {
   const buttonRef = React.useRef<HTMLButtonElement>(null)
@@ -99,8 +98,10 @@ export function CopyButton() {
   )
 }
 
-const clipboardIconHtml = getIconHtml('clipboard', 'vocs:size-3.5')
-const checkIconHtml = getIconHtml('check', 'vocs:size-3.5')
+const clipboardIconHtml =
+  '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" class="vocs:size-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg>'
+const checkIconHtml =
+  '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" class="vocs:size-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>'
 
 function createIconElement(html: string): HTMLElement {
   const template = document.createElement('template')
