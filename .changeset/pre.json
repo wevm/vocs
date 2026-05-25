@@ -8,5 +8,5 @@
     "@vocs/twoslash-rust-darwin-arm64": "0.0.1",
     "@vocs/twoslash-rust-linux-x64-gnu": "0.0.1"
   },
-  "changesets": ["waku-beta-rc"]
+  "changesets": ["waku-beta-rc", "partial-static-markdown-router"]
 }
