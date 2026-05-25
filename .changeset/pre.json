@@ -2,7 +2,7 @@
   "mode": "pre",
   "tag": "rc",
   "initialVersions": {
-    "vocs": "0.0.0",
+    "vocs": "1.4.1",
     "create-vocs": "2.0.0-alpha.0",
     "@vocs/twoslash-rust": "0.0.1",
     "@vocs/twoslash-rust-darwin-arm64": "0.0.1",
