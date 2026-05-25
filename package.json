@@ -3,6 +3,7 @@
     "build": "pnpm --filter create-vocs build && pnpm --filter @vocs/twoslash-rust build && pnpm --filter @vocs/twoslash-rust build:npm && zile",
     "clean": "tsc -b --clean && rm -rf dist",
     "changeset:publish": "pnpm build && zile publish:prepare && changeset publish && zile publish:post",
+    "changeset:publish:rc": "pnpm build && zile publish:prepare && changeset publish --tag rc && zile publish:post",
     "changeset:version": "changeset version",
     "check": "biome check --fix --unsafe",
     "check:types": "tsc -b",
@@ -54,7 +55,7 @@
   "[!start-pkg]": "",
   "name": "vocs",
   "type": "module",
-  "version": "0.0.0",
+  "version": "1.0.0-rc.0",
   "main": "./dist/index.js",
   "license": "MIT",
   "files": [
@@ -133,7 +134,7 @@
     "zod": "^4.3.5"
   },
   "peerDependencies": {
-    "@vocs/twoslash-rust": "^0.1.0",
+    "@vocs/twoslash-rust": "^0.1.0-rc.0",
     "mermaid": "^11",
     "react": "^19",
     "react-dom": "^19",

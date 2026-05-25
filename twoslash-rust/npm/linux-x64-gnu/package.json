@@ -1,6 +1,6 @@
 {
   "name": "@vocs/twoslash-rust-linux-x64-gnu",
-  "version": "0.0.1",
+  "version": "0.1.0-rc.0",
   "os": [
     "linux"
   ],
