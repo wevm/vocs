@@ -3,7 +3,7 @@
     "build": "pnpm --filter create-vocs build && pnpm --filter @vocs/twoslash-rust build && pnpm --filter @vocs/twoslash-rust build:npm && zile",
     "clean": "tsc -b --clean && rm -rf dist",
     "changeset:publish": "pnpm build && zile publish:prepare && changeset publish && zile publish:post",
-    "changeset:publish:rc": "pnpm build && zile publish:prepare && changeset publish --tag rc && zile publish:post",
+    "changeset:publish:rc": "pnpm build && zile publish:prepare && changeset publish && zile publish:post",
     "changeset:version": "changeset version",
     "check": "biome check --fix --unsafe",
     "check:types": "tsc -b",
