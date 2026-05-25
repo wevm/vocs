@@ -8,5 +8,9 @@
     "@vocs/twoslash-rust-darwin-arm64": "0.0.1",
     "@vocs/twoslash-rust-linux-x64-gnu": "0.0.1"
   },
-  "changesets": ["partial-static-markdown-router", "waku-beta-rc"]
+  "changesets": [
+    "deferred-viewport-prefetch",
+    "partial-static-markdown-router",
+    "waku-beta-rc"
+  ]
 }
