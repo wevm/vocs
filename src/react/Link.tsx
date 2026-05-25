@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter, Link as WakuLink } from 'waku'
 import * as Path from '../internal/path.js'
 
-const viewportPrefetchDelayMs = 4_000
+const viewportPrefetchDelayMs = 2_000
 
 let viewportPrefetchReady = false
 let viewportPrefetchScheduled = false
