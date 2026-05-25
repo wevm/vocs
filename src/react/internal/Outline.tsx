@@ -1,0 +1,474 @@
+'use client'
+
+import { Popover } from '@base-ui/react/popover'
+import { cx } from 'cva'
+import * as React from 'react'
+import { Link, useRouter } from 'waku'
+import LucideArrowUp from '~icons/lucide/arrow-up'
+import LucideChevronRight from '~icons/lucide/chevron-right'
+import LucideTextAlignStart from '~icons/lucide/text-align-start'
+import * as MdxPageContext from '../MdxPageContext.js'
+import { useTopGutterOffset } from '../useTopGutterOffset.js'
+import * as CopyForAi from './CopyForAi.client.js'
+import * as Feedback from './Feedback.client.js'
+import { getHeadingText } from './getHeadingText.js'
+
+function useOutlineItems(options: { minLevel: number; maxLevel: number }) {
+  const { minLevel, maxLevel } = options
+  const router = useRouter()
+  const [items, setItems] = React.useState<Outline.Item[]>([])
+  const [activeId, setActiveId] = React.useState<string | null>(null)
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: path triggers re-scan on route change
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const scanHeadings = () => {
+      const headingElements = Array.from(
+        document.querySelectorAll('article[data-v-content] :is(h2, h3, h4, h5, h6)[id]'),
+      )
+      const newItems = headingElements
+        .map((element) => {
+          const level = Number.parseInt(element.tagName[1] ?? '0', 10)
+          if (level < minLevel || level > maxLevel) return null
+
+          const id = element.id
+          const text = getHeadingText(element)
+          const topOffset = window.scrollY + element.getBoundingClientRect().top
+
+          return { id, level, text, topOffset }
+        })
+        .filter(Boolean) as Outline.Item[]
+
+      setItems((prev) => {
+        const prevIds = prev.map((i) => i.id).join(',')
+        const newIds = newItems.map((i) => i.id).join(',')
+        if (prevIds === newIds) return prev
+        return newItems
+      })
+    }
+
+    scanHeadings()
+
+    if (window.location.hash) setActiveId(window.location.hash.slice(1))
+    else {
+      setItems((current) => {
+        const first = current[0]
+        if (first) setActiveId(first.id)
+        return current
+      })
+    }
+
+    const article = document.querySelector('article[data-v-content]')
+    if (!article) return
+
+    const observer = new MutationObserver(scanHeadings)
+    observer.observe(article, { childList: true, subtree: true })
+
+    return () => observer.disconnect()
+  }, [router.path, minLevel, maxLevel])
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return
+    if (items.length === 0) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries)
+          if (entry.isIntersecting) {
+            setActiveId(entry.target.id)
+            break
+          }
+      },
+      { rootMargin: '0px 0px -80% 0px' },
+    )
+
+    for (const item of items) {
+      const element = document.getElementById(item.id)
+      if (element) observer.observe(element)
+    }
+
+    return () => observer.disconnect()
+  }, [items])
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined' || items.length === 0) return
+
+    const handleScroll = () => {
+      const first = items[0]
+      if (window.scrollY === 0 && first) {
+        setActiveId(first.id)
+        return
+      }
+
+      const scrollBottom = window.scrollY + window.innerHeight
+      const docHeight = document.documentElement.scrollHeight
+
+      const last = items[items.length - 1]
+      if (scrollBottom >= docHeight - 10 && last) {
+        setActiveId(last.id)
+        return
+      }
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [items])
+
+  return { items, activeId }
+}
+
+export function Outline(props: Outline.Props) {
+  const { className, minLevel = 2, maxLevel: maxLevelProp = 3, footer: Footer } = props
+
+  const { frontmatter } = MdxPageContext.use()
+  const { outline = true } = frontmatter ?? {}
+  const maxLevel = typeof outline === 'number' ? outline + 1 : maxLevelProp
+  const enabled = outline !== false
+
+  const { items, activeId } = useOutlineItems({ minLevel, maxLevel })
+
+  const [showReturnToTop, setShowReturnToTop] = React.useState(false)
+  const [popoverOpen, setPopoverOpen] = React.useState(false)
+  const topOffset = useTopGutterOffset()
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const handleScroll = () => {
+      setShowReturnToTop(window.scrollY > 100)
+    }
+
+    handleScroll()
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  if (!enabled || items.length === 0) return null
+
+  return (
+    <>
+      {/* Mobile: popover in flow */}
+      <div
+        className={cx(
+          'vocs:min-[1376px]:hidden vocs:sticky vocs:z-10 vocs:bg-surface vocs:px-content-px vocs:py-3 vocs:border-b vocs:border-t-0 vocs:border-primary vocs:lg:border-t vocs:lg:border-l vocs:lg:rounded-tl-2xl vocs:max-h-12 vocs:transition-[top] vocs:duration-150',
+          className,
+        )}
+        style={{
+          top: `calc(var(--vocs-spacing-topNav) + var(--vocs-spacing-banner) - ${topOffset}px)`,
+        }}
+        data-v-outline
+        data-v-outline-mobile
+      >
+        <div className="vocs:flex vocs:w-full vocs:items-center vocs:gap-1 vocs:text-[13px] vocs:font-medium">
+          <Popover.Root open={popoverOpen} onOpenChange={setPopoverOpen}>
+            <Popover.Trigger className="vocs:flex vocs:items-center vocs:gap-1 vocs:cursor-pointer vocs:select-none">
+              <LucideTextAlignStart className="vocs:size-3.5" />
+              On this page
+              <LucideChevronRight className="vocs:size-3.5 vocs:text-secondary/80 vocs:transition-transform vocs:duration-200 vocs:data-[popup-open]:rotate-90 vocs:translate-y-px" />
+            </Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner
+                side="bottom"
+                align="start"
+                sideOffset={8}
+                collisionAvoidance={{ side: 'none' }}
+                style={{ zIndex: 50 }}
+              >
+                <Popover.Popup
+                  className="vocs:relative vocs:z-50 vocs:bg-primary vocs:border vocs:border-primary vocs:rounded-lg vocs:shadow-lg vocs:p-3 vocs:max-h-[60vh] vocs:overflow-y-auto vocs:w-[calc(100vw-var(--vocs-spacing-gutter)-2*var(--vocs-spacing-content-px))] vocs:max-w-[70ch] vocs:origin-(--transform-origin) vocs:transition-all vocs:duration-150 vocs:scale-100 vocs:opacity-100 vocs:data-starting-style:opacity-0 vocs:data-starting-style:scale-95 vocs:data-ending-style:opacity-0 vocs:data-ending-style:scale-95 vocs:min-[1376px]:hidden"
+                  data-v-outline-popup
+                >
+                  <Items
+                    items={items}
+                    activeId={activeId}
+                    minLevel={minLevel}
+                    onSelect={() => setPopoverOpen(false)}
+                  />
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+
+          {showReturnToTop && (
+            <button
+              type="button"
+              className="vocs:ml-auto vocs:flex vocs:items-center vocs:gap-1 vocs:text-secondary/80 vocs:hover:text-heading vocs:cursor-pointer vocs:select-none"
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            >
+              <LucideArrowUp className="vocs:size-3.5" />
+              Return to top
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Desktop: fixed sidebar */}
+      <div
+        className={cx(
+          'vocs:max-[1376px]:hidden vocs:fixed vocs:z-10 vocs:flex vocs:flex-col vocs:w-gutter vocs:py-content-py vocs:pr-8 vocs:pl-1 vocs:right-0 vocs:overflow-y-auto vocs:overflow-x-clip vocs:scrollbar-none',
+          className,
+        )}
+        style={{
+          top: 'calc(var(--vocs-spacing-topNav) + var(--vocs-spacing-banner))',
+          maxHeight: 'calc(100vh - var(--vocs-spacing-topNav) - var(--vocs-spacing-banner))',
+        }}
+        data-v-outline
+        data-v-gutter-right
+      >
+        <nav
+          className="vocs:flex vocs:flex-col vocs:text-[13px] vocs:gap-3 vocs:shrink-0"
+          data-v-outline-nav
+        >
+          <div className="vocs:flex vocs:items-center vocs:gap-1 vocs:text-[13px] vocs:font-medium vocs:shrink-0">
+            <LucideTextAlignStart className="vocs:size-3.5" />
+            On this page
+          </div>
+
+          <Items items={items} activeId={activeId} minLevel={minLevel} />
+        </nav>
+
+        <CopyForAi.CopyForAi className="vocs:mt-6 vocs:max-w-68.5" frontmatter={frontmatter} />
+
+        <Feedback.Feedback className="vocs:mt-6 vocs:max-w-68.5" frontmatter={frontmatter} />
+
+        {Footer && (
+          <div className="vocs:mt-6" data-v-outline-footer>
+            <Footer />
+          </div>
+        )}
+      </div>
+    </>
+  )
+}
+
+export declare namespace Outline {
+  export type Props = {
+    className?: string | undefined
+    footer?: React.ComponentType | undefined
+    minLevel?: number | undefined
+    maxLevel?: number | undefined
+  }
+
+  export type Item = {
+    id: string
+    level: number
+    text: string
+    topOffset: number
+  }
+}
+
+// biome-ignore lint/correctness/noUnusedVariables: _
+function Items(props: Items.Props) {
+  const { items, activeId, minLevel, onSelect } = props
+
+  const containerRef = React.useRef<HTMLUListElement>(null)
+  const [positions, setPositions] = React.useState<Map<string, { top: number; height: number }>>(
+    new Map(),
+  )
+
+  const topLevelItems = React.useMemo(
+    () => items.filter((item: Outline.Item) => item.level === minLevel),
+    [items, minLevel],
+  )
+
+  const childrenMap = React.useMemo(() => {
+    const map = new Map<string, Outline.Item[]>()
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i]
+      if (!item) continue
+      const nextLevel = item.level + 1
+      const children: Outline.Item[] = []
+
+      for (let j = i + 1; j < items.length; j++) {
+        const nextItem = items[j]
+        if (!nextItem) break
+        if (nextItem.level <= item.level) break
+        if (nextItem.level === nextLevel) children.push(nextItem)
+      }
+
+      map.set(item.id, children)
+    }
+    return map
+  }, [items])
+
+  const activeIds = React.useMemo(() => {
+    if (!activeId) return new Set<string>()
+
+    const active = new Set<string>()
+
+    const hasActiveDescendant = (item: Outline.Item) => {
+      const children = childrenMap.get(item.id) ?? []
+      for (const child of children)
+        if (child.id === activeId || hasActiveDescendant(child)) return true
+      return false
+    }
+
+    for (const item of items) {
+      if (item.id === activeId || hasActiveDescendant(item)) {
+        active.add(item.id)
+      }
+    }
+
+    return active
+  }, [activeId, items, childrenMap])
+
+  React.useLayoutEffect(() => {
+    const container = containerRef.current
+    if (!container) return
+
+    const measurePositions = () => {
+      const positions = new Map<string, { top: number; height: number }>()
+      const listItems = container.querySelectorAll<HTMLLIElement>('[data-v-outline-item]')
+
+      for (const el of listItems) {
+        const id = el.dataset['itemId']
+        if (id)
+          positions.set(id, {
+            top: el.offsetTop,
+            height: el.offsetHeight,
+          })
+      }
+
+      setPositions(positions)
+    }
+
+    measurePositions()
+
+    const observer = new ResizeObserver(measurePositions)
+    observer.observe(container)
+    return () => observer.disconnect()
+  }, [])
+
+  const indicatorStyle = React.useMemo<React.CSSProperties>(() => {
+    if (activeIds.size === 0 || positions.size === 0)
+      return { transform: 'translateY(0)', height: 0 }
+
+    const activeItems = items.filter((item) => activeIds.has(item.id))
+    if (activeItems.length === 0) return { transform: 'translateY(0)', height: 0 }
+
+    const firstActive = activeItems[0]
+    const lastActive = activeItems[activeItems.length - 1]
+    if (!firstActive || !lastActive) return { transform: 'translateY(0)', height: 0 }
+
+    const firstPos = positions.get(firstActive.id)
+    const lastPos = positions.get(lastActive.id)
+    if (!firstPos || !lastPos) return { transform: 'translateY(0)', height: 0 }
+
+    return {
+      transform: `translateY(${firstPos.top}px)`,
+      height: lastPos.top + lastPos.height - firstPos.top,
+    }
+  }, [activeIds, positions, items])
+
+  // Scroll the active item into view in the outline with margin
+  React.useEffect(() => {
+    if (!activeId || !containerRef.current) return
+
+    const activeItem = containerRef.current.querySelector<HTMLElement>(
+      `[data-item-id="${activeId}"]`,
+    )
+    if (!activeItem) return
+
+    // Find the scrollable ancestor (the one with overflow-y: auto)
+    let container: HTMLElement | null = containerRef.current.parentElement
+    while (container && getComputedStyle(container).overflowY !== 'auto') {
+      container = container.parentElement
+    }
+    if (!container) return
+
+    const margin = 64
+    const itemRect = activeItem.getBoundingClientRect()
+    const containerRect = container.getBoundingClientRect()
+
+    if (itemRect.bottom > containerRect.bottom - margin)
+      container.scrollBy({
+        top: itemRect.bottom - containerRect.bottom + margin,
+        behavior: 'smooth',
+      })
+    else if (itemRect.top < containerRect.top + margin)
+      container.scrollBy({
+        top: itemRect.top - containerRect.top - margin,
+        behavior: 'smooth',
+      })
+  }, [activeId])
+
+  return (
+    <ul
+      ref={containerRef}
+      className="vocs:relative vocs:flex vocs:flex-col vocs:min-[1376px]:border-l-2 vocs:border-primary vocs:text-[13px]"
+      data-v-outline-items
+    >
+      <div
+        className="vocs:absolute vocs:left-[-2px] vocs:w-0.5 vocs:rounded-full vocs:bg-accent vocs:transition-[transform,height] vocs:duration-150 vocs:ease-out vocs:will-change-transform vocs:max-[1376px]:hidden"
+        style={indicatorStyle}
+        data-v-outline-indicator
+      />
+
+      {topLevelItems.map((item) => (
+        <OutlineItem
+          key={item.id}
+          item={item}
+          depth={1}
+          activeIds={activeIds}
+          childrenMap={childrenMap}
+          onSelect={onSelect}
+        />
+      ))}
+    </ul>
+  )
+}
+
+const OutlineItem = React.memo(function OutlineItem(props: {
+  item: Outline.Item
+  depth: number
+  activeIds: Set<string>
+  childrenMap: Map<string, Outline.Item[]>
+  onSelect?: (() => void) | undefined
+}) {
+  const { item, depth, activeIds, childrenMap, onSelect } = props
+  const isActive = activeIds.has(item.id)
+  const children = childrenMap.get(item.id) ?? []
+  const indent = (depth - 1) * 16
+
+  return (
+    <>
+      <li
+        data-v-outline-item
+        data-item-id={item.id}
+        data-active={isActive}
+        className="vocs:scroll-my-4"
+      >
+        <Link
+          to={`#${item.id}`}
+          className="vocs:block vocs:leading-snug vocs:py-0.75 vocs:pl-3 vocs:cursor-pointer vocs:font-[450] vocs:transition-colors vocs:duration-100 vocs:text-secondary vocs:data-[active=true]:text-accent vocs:hover:text-link"
+          style={{ paddingLeft: `${indent + 12}px` }}
+          data-active={isActive}
+          onClick={onSelect}
+        >
+          {item.text}
+        </Link>
+      </li>
+
+      {children.map((child) => (
+        <OutlineItem
+          key={child.id}
+          item={child}
+          depth={depth + 1}
+          activeIds={activeIds}
+          childrenMap={childrenMap}
+          onSelect={onSelect}
+        />
+      ))}
+    </>
+  )
+})
+
+declare namespace Items {
+  type Props = {
+    items: Outline.Item[]
+    activeId: string | null
+    minLevel: number
+    onSelect?: (() => void) | undefined
+  }
+}

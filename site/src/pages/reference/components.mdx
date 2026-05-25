@@ -1,0 +1,342 @@
+import { Badge, Callout, Card, Cards, FeedbackWidget, HomePage, Link, Sandbox, Tab, Tabs } from 'vocs'
+
+# Components
+
+Reference for the public React components exported from `vocs`.
+
+## Badge
+
+Use `Badge` to add a small status label inline with content.
+
+:::code-group
+<div data-title="Preview">
+  <Badge variant="success">Stable</Badge>
+</div>
+```tsx [Code]
+import { Badge } from 'vocs'
+
+export function ReleaseStatus() {
+  return <Badge variant="success">Stable</Badge>
+}
+```
+:::
+
+## Callout
+
+Use `Callout` when you want a callout component in JSX instead of Markdown directives.
+
+:::code-group
+<div data-title="Preview">
+  <Callout variant="warning">Breaking change: update your config before upgrading.</Callout>
+</div>
+```tsx [Code]
+import { Callout } from 'vocs'
+
+export function UpgradeNotice() {
+  return <Callout variant="warning">Breaking change: update your config before upgrading.</Callout>
+}
+```
+:::
+
+## Card
+
+Use `Card` to create a linked card with a title, description, and optional icon.
+
+:::code-group
+<div data-title="Preview">
+  <Card
+    title="Getting Started"
+  description="Create your first Vocs site."
+    icon="book-open"
+    to="/guide/getting-started"
+  />
+</div>
+```tsx [Code]
+import { Card } from 'vocs'
+
+export function QuickLink() {
+  return (
+    <Card
+      title="Getting Started"
+      description="Create your first Vocs site."
+      icon="book-open"
+      to="/guide/getting-started"
+    />
+  )
+}
+```
+:::
+
+## Cards
+
+Use `Cards` as a responsive grid wrapper for multiple `Card` children.
+
+:::code-group
+<div data-title="Preview">
+  <Cards>
+    <Card
+    title="Getting Started"
+    description="Create your first Vocs site."
+    to="/guide/getting-started"
+    />
+    <Card
+    title="Theming"
+    description="Customize the look and feel of your docs."
+    to="/guide/theming"
+    />
+  </Cards>
+</div>
+```tsx [Code]
+import { Card, Cards } from 'vocs'
+
+export function QuickLinks() {
+  return (
+    <Cards>
+      <Card
+        title="Getting Started"
+        description="Create your first Vocs site."
+        to="/guide/getting-started"
+      />
+      <Card
+        title="Theming"
+        description="Customize the look and feel of your docs."
+        to="/guide/theming"
+      />
+    </Cards>
+  )
+}
+```
+:::
+
+## HomePage
+
+`HomePage` is a namespace export with helpers for building landing pages, including `HomePage.Root`, `HomePage.Logo`, `HomePage.Tagline`, `HomePage.Description`, `HomePage.Buttons`, `HomePage.Button`, `HomePage.InstallPackage`, and `HomePage.CreatePackage`.
+
+:::code-group
+<div data-title="Preview">
+  <HomePage.Root className="vocs:py-10 vocs:px-4 vocs:gap-5">
+    <HomePage.Logo className="vocs:h-10!" />
+    <HomePage.Tagline>
+      Portable docs powered by <a href="https://vitejs.dev">Vite</a> and{' '}
+      <a href="https://waku.gg">Waku</a>.
+    </HomePage.Tagline>
+    <HomePage.Description>Build a documentation site with Vocs.</HomePage.Description>
+    <HomePage.Buttons>
+      <HomePage.Button href="/guide/getting-started" variant="accent">
+        Get started
+      </HomePage.Button>
+    </HomePage.Buttons>
+  </HomePage.Root>
+</div>
+```tsx [Code]
+import { HomePage } from 'vocs'
+
+export function LandingPage() {
+  return (
+    <HomePage.Root>
+      <HomePage.Logo />
+      <HomePage.Tagline>
+        Portable docs powered by <a href="https://vitejs.dev">Vite</a> and{' '}
+        <a href="https://waku.gg">Waku</a>.
+      </HomePage.Tagline>
+      <HomePage.Description>Build a documentation site with Vocs.</HomePage.Description>
+      <HomePage.Buttons>
+        <HomePage.Button href="/guide/getting-started" variant="accent">
+          Get started
+        </HomePage.Button>
+      </HomePage.Buttons>
+      <HomePage.InstallPackage name="vocs" />
+    </HomePage.Root>
+  )
+}
+```
+:::
+
+## FeedbackWidget
+
+Use `FeedbackWidget` to render the built-in feedback UI manually.
+
+:::code-group
+<div data-title="Preview">
+  <FeedbackWidget />
+</div>
+```tsx [Code]
+import { FeedbackWidget } from 'vocs'
+
+export function PageFeedback() {
+  return <FeedbackWidget />
+}
+```
+:::
+
+`FeedbackWidget` only renders when `feedback` is configured in `vocs.config.ts`.
+
+## Head
+
+Use `Head` when you are composing your own page shell and still want Vocs to emit its metadata.
+
+```tsx
+import { Head } from 'vocs'
+
+export function CustomShell(props: { children: React.ReactNode }) {
+  return (
+    <>
+      <Head />
+      {props.children}
+    </>
+  )
+}
+```
+
+## Layout
+
+Use `Layout` to render the built-in Vocs shell around custom page content.
+
+```tsx
+import { Layout } from 'vocs'
+
+export default function Page(props: { children: React.ReactNode }) {
+  return <Layout>{props.children}</Layout>
+}
+```
+
+## Link
+
+Use `Link` for internal navigation, hash links, and external URLs.
+
+:::code-group
+<div data-title="Preview">
+  <div className="vocs:flex vocs:flex-wrap vocs:gap-4">
+    <Link to="/guide/getting-started">Get started</Link>
+    <Link to="#link">Jump to this section</Link>
+    <Link to="https://github.com/wevm/vocs">GitHub</Link>
+  </div>
+</div>
+```tsx [Code]
+import { Link } from 'vocs'
+
+export function Navigation() {
+  return <Link to="/guide/getting-started">Get started</Link>
+}
+```
+:::
+
+## MdxPageContextProvider
+
+Use `MdxPageContextProvider` when you need to provide frontmatter to components that read from `MdxPageContext.use()`.
+
+```tsx
+import { MdxPageContext, MdxPageContextProvider } from 'vocs'
+
+function PageTitle() {
+  const { frontmatter } = MdxPageContext.use()
+  return <h1>{frontmatter?.title}</h1>
+}
+
+export function WrappedPage() {
+  return (
+    <MdxPageContextProvider frontmatter={{ title: 'Custom page' }}>
+      <PageTitle />
+    </MdxPageContextProvider>
+  )
+}
+```
+
+## Sandbox
+
+Use `Sandbox` to render a runnable code example with an editor and console.
+
+:::code-group
+<div data-title="Preview">
+  <Sandbox
+    code={`const greeting: string = 'Hello from Vocs'
+
+console.log(greeting)`}
+    autoRun
+    showConsole
+  />
+</div>
+```tsx [Code]
+import { Sandbox } from 'vocs'
+
+export async function ExamplePage() {
+  return (
+    <Sandbox
+      code={`console.log('Hello from Vocs')`}
+      deps={{ react: '^19.0.0' }}
+      autoRun
+      showConsole
+      showPreview
+    />
+  )
+}
+```
+:::
+
+## ScrollRestoration
+
+Use `ScrollRestoration` to keep scroll position in sync during client-side navigation.
+
+```tsx
+import { Layout, ScrollRestoration } from 'vocs'
+
+export default function Root(props: { children: React.ReactNode }) {
+  return (
+    <>
+      <ScrollRestoration />
+      <Layout>{props.children}</Layout>
+    </>
+  )
+}
+```
+
+## Tab
+
+Use `Tab` to define the content for a single `Tabs` panel.
+
+:::code-group
+<div data-title="Preview">
+  <Tabs stateKey="component-tab-preview">
+    <Tab title="React">Install the React adapter.</Tab>
+    <Tab title="Vue">Install the Vue adapter.</Tab>
+  </Tabs>
+</div>
+```tsx [Code]
+import { Tab, Tabs } from 'vocs'
+
+export function FrameworkTab() {
+  return (
+    <Tabs>
+      <Tab title="React">Install the React adapter.</Tab>
+      <Tab title="Vue">Install the Vue adapter.</Tab>
+    </Tabs>
+  )
+}
+```
+:::
+
+## Tabs
+
+Use `Tabs` to render tabbed content and optionally sync tab state with the URL.
+
+:::code-group
+<div data-title="Preview">
+  <Tabs stateKey="component-tabs-preview">
+    <Tab title="React">Install the React adapter.</Tab>
+    <Tab title="Vue">Install the Vue adapter.</Tab>
+  </Tabs>
+</div>
+```tsx [Code]
+import { Tab, Tabs } from 'vocs'
+
+export function FrameworkTabs() {
+  return (
+    <Tabs stateKey="framework">
+      <Tab title="React">Install the React adapter.</Tab>
+      <Tab title="Vue">Install the Vue adapter.</Tab>
+    </Tabs>
+  )
+}
+```
+:::
+

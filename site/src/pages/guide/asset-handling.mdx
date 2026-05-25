@@ -1,0 +1,106 @@
+# Asset Handling
+
+Vocs uses Vite's asset handling model. There are two main ways to work with assets:
+
+- use `public/` for files you want to serve at a fixed URL
+- import assets from source files when they belong to a page or component
+
+## Use `public/` For Fixed URLs
+
+Use `public/` for assets that should be served as-is, such as favicons, logos, social images, and font files.
+
+:::file-tree
+- +my-project
+  - **+public**
+    - **logo.svg**
+    - +images
+      - **hero.png**
+    - +fonts
+      - **soehne-buch.woff2**
+    - **favicon.ico**
+  - +src
+    - +pages
+      - index.mdx
+:::
+
+Files in `public/` are available at the site root:
+
+```mdx [src/pages/index.mdx]
+![Logo](/logo.svg)
+
+<img src="/images/hero.png" alt="Hero" />
+```
+
+```ts [vocs.config.ts]
+import { defineConfig } from 'vocs/config'
+
+export default defineConfig({
+  logoUrl: '/logo.svg',
+  iconUrl: '/favicon.ico',
+})
+```
+
+Do not import files from `public/`. Reference them by URL instead.
+
+## Import Assets From Source Files
+
+If an image belongs to a specific page or component, keep it next to that file and import it. This works well for colocated diagrams, screenshots, and illustrations.
+
+:::file-tree
+- +src
+  - +pages
+    - +guide
+      - **asset-handling.mdx**
+      - **diagram.png**
+:::
+
+```mdx [src/pages/guide/asset-handling.mdx]
+import diagram from './diagram.png'
+
+<img src={diagram} alt="Architecture diagram" />
+```
+
+Imported assets go through Vite's asset pipeline, which makes them a better default when the asset is part of your source tree rather than a globally addressed file.
+
+## Choosing Between `public/` And Imports
+
+Use `public/` when you need:
+
+- a stable URL like `/logo.svg` or `/favicon.ico`
+- files referenced from config such as `logoUrl` and `iconUrl`
+- files referenced from CSS such as font files
+- assets that should be shared across many pages without importing them
+
+Import assets from source files when you want:
+
+- page-specific images colocated with the content that uses them
+- component-specific assets kept next to the component
+- Vite to process the asset as part of the source graph
+
+If you are choosing between the two, prefer imports unless you specifically need a fixed public URL.
+
+## Fonts
+
+Load custom fonts in `src/pages/_root.css`, and place the font files in `public/fonts` or another static asset path.
+
+```css [src/pages/_root.css]
+@font-face {
+  font-family: 'Soehne';
+  src: url('/fonts/soehne-buch.woff2') format('woff2');
+  font-display: swap;
+}
+
+:root {
+  --vocs-font-family: 'Soehne', sans-serif;
+}
+```
+
+See also: [Theming](/guide/theming)
+
+## Common Asset Patterns
+
+- Put shared brand assets like logos, favicons, and social images in `public/`.
+- Put page-local diagrams and screenshots next to the page or component that uses them.
+- Reference `public/` assets with URL paths such as `/logo.svg`.
+- Do not import from `public/` like `import logo from '../public/logo.svg'`.
+

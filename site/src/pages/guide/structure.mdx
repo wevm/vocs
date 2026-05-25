@@ -1,0 +1,169 @@
+# Project Structure [Overview of the structure of a Vocs project]
+
+## Overview
+
+A new Vocs project created with `create-vocs` looks like this by default:
+
+:::file-tree
+- +my-project Your project's root directory.
+  - **+public** Static assets served from the site root.
+    - **favicon.ico** A static asset.
+  - **+src** Application source files.
+    - **+pages** Documentation pages and Vocs-specific extension points.
+      - **index.mdx** The home page at `/`.
+      - **_root.css** Optional global styles loaded automatically.
+      - **_slots.tsx** Optional layout slots.
+      - **guide** Nested routes.
+        - **getting-started.mdx** A page at `/guide/getting-started`.
+        - **_mdx-wrapper.tsx** Optional wrapper for MDX pages in this directory.
+  - package.json Project scripts and dependencies.
+  - tsconfig.json TypeScript configuration.
+  - **vocs.config.ts** Site configuration.
+:::
+
+By default, Vocs reads routes from `src/pages`. You can change where Vocs looks with options such as [`rootDir`](/reference/site-config#rootdir) and [`srcDir`](/reference/site-config#srcdir), but this guide covers the default scaffolded layout.
+
+## `vocs.config.ts`
+
+`vocs.config.ts` defines global site metadata and navigation.
+
+```ts [vocs.config.ts]
+import { defineConfig } from 'vocs/config'
+
+export default defineConfig({
+  title: 'Docs',
+  sidebar: [
+    {
+      text: 'Welcome',
+      link: '/',
+    },
+  ],
+})
+```
+
+Use it to configure things like your `title`, `description`, `sidebar`, `topNav`, `logoUrl`, and integrations such as `feedback`, `mcp`, and `changelog`.
+
+[Read the Site Configuration reference](/reference/site-config#metadata)
+
+## `src/pages`
+
+`src/pages` is the content root for your documentation site. Vocs turns files in this directory into routes.
+
+- `src/pages/index.mdx` becomes `/`
+- `src/pages/guide/getting-started.mdx` becomes `/guide/getting-started`
+- `src/pages/reference/index.mdx` becomes `/reference`
+
+Pages can be written as Markdown, MDX, or React components:
+
+- `.md`
+- `.mdx`
+- `.tsx`
+
+### Nested Routes
+
+You can organize pages in folders to create nested URLs:
+
+:::file-tree
+- +src
+  - +pages
+    - index.mdx
+    - +guide
+      - getting-started.mdx
+      - navigation.mdx
+:::
+
+This produces the routes `/`, `/guide/getting-started`, and `/guide/navigation`.
+
+## `public`
+
+Use the `public/` directory for files that should be served as-is, such as images, icons, and fonts.
+
+:::file-tree
+- +my-project
+  - **+public**
+    - **logo.svg**
+    - **favicon.ico**
+  - +src
+    - +pages
+      - index.mdx
+:::
+
+Files in `public/` are available at the site root:
+
+```mdx [src/pages/index.mdx]
+![Logo](/logo.svg)
+```
+
+```tsx [Example.tsx]
+<img src="/logo.svg" alt="Logo" />
+```
+
+## `_root.css`
+
+Create `src/pages/_root.css` when you want to add global styles for your docs site. Vocs loads this file automatically.
+
+```css [src/pages/_root.css]
+@import 'tailwindcss';
+
+:root {
+  --vocs-color-background: white;
+}
+
+:root[style*='color-scheme:dark'],
+:root[style*='color-scheme: dark'] {
+  --vocs-color-background: #232225;
+}
+```
+
+This is the right place for global CSS variables, font declarations, and site-wide tweaks. When you want your overrides to follow the built-in theme toggle, target the document's `color-scheme` instead of a `.dark` class.
+
+## `_slots.tsx`
+
+Create `src/pages/_slots.tsx` when you want to inject React components into built-in layout slots.
+
+Vocs currently looks for these exports:
+
+- `Footer`
+- `OutlineFooter`
+- `SidebarHeader`
+
+```tsx [src/pages/_slots.tsx]
+export function SidebarHeader() {
+  return <div>Acme Docs</div>
+}
+
+export function Footer() {
+  return <div>Released under the MIT License.</div>
+}
+```
+
+Use slots when you want to customize parts of the default layout without replacing the whole page shell.
+
+## `_mdx-wrapper.tsx`
+
+Create `_mdx-wrapper.tsx` when you want to wrap every Markdown or MDX page in a directory with shared UI.
+
+:::file-tree
+- +src
+  - +pages
+    - +guide
+      - **_mdx-wrapper.tsx**
+      - getting-started.mdx
+      - navigation.mdx
+:::
+
+```tsx [src/pages/guide/_mdx-wrapper.tsx]
+export default function GuideWrapper(props: { children: React.ReactNode }) {
+  return <div className="guide-shell">{props.children}</div>
+}
+```
+
+That wrapper will apply to the MDX pages in `guide/`. Nested directories can define their own `_mdx-wrapper.tsx` files to override a parent wrapper.
+
+## Next Steps
+
+Now that you know how the default project is organized, continue with:
+
+- [Markdown Extensions](/guide/markdown-extensions)
+- [Sidebar & Top Navigation](/guide/navigation)
+- [Theming](/guide/theming)

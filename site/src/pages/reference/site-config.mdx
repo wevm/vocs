@@ -1,0 +1,664 @@
+# Site Configuration
+
+Reference for the options accepted by `defineConfig()` in your Vocs config file.
+
+Vocs looks for a config file at your project root using one of these names:
+
+- `vocs.config.ts`
+- `vocs.config.js`
+- `vocs.config.mjs`
+- `vocs.config.mts`
+
+## Basic Usage
+
+```ts [vocs.config.ts]
+import { defineConfig } from 'vocs/config'
+
+export default defineConfig({
+  title: 'Acme Docs',
+  description: 'Documentation for Acme',
+})
+```
+
+## Full Example
+
+```ts [vocs.config.ts]
+import { Changelog, defineConfig, Feedback, McpSource } from 'vocs/config'
+
+export default defineConfig({
+  title: 'Acme Docs',
+  description: 'Documentation for Acme',
+  baseUrl: 'https://docs.acme.dev',
+  logoUrl: {
+    light: '/logo-light.svg',
+    dark: '/logo-dark.svg',
+  },
+  iconUrl: '/icon.svg',
+  sidebar: [
+    {
+      text: 'Guide',
+      items: [
+        { text: 'Getting Started', link: '/guide/getting-started' },
+        { text: 'Theming', link: '/guide/theming' },
+      ],
+    },
+  ],
+  topNav: [
+    { text: 'Guide', link: '/guide/getting-started' },
+    { text: 'GitHub', link: 'https://github.com/acme/docs', external: true },
+  ],
+  socials: [
+    { icon: 'github', link: 'https://github.com/acme/docs' },
+    { icon: 'discord', link: 'https://discord.gg/acme' },
+  ],
+  editLink: {
+    link: 'https://github.com/acme/docs/edit/main/src/pages/:path',
+  },
+  feedback: Feedback.slack(),
+  mcp: {
+    enabled: true,
+    sources: [McpSource.github({ repo: 'acme/docs' })],
+  },
+  changelog: Changelog.github({ repo: 'acme/docs' }),
+  ogImageUrl: '/api/og?logo=%logo&title=%title&description=%description',
+})
+```
+
+## Metadata
+
+### `title`
+
+- **Type:** `string`
+- **Default:** `'Docs'`
+
+The site title. Vocs uses it in navigation UI and as the base for the document title.
+
+### `description`
+
+- **Type:** `string`
+
+General site description used for metadata and SEO.
+
+### `titleTemplate`
+
+- **Type:** `string`
+- **Default:** `%s – ${title}`
+
+Template used to build each page's `<title>`. Use `%s` as a placeholder for the page title.
+
+```ts
+export default defineConfig({
+  title: 'Acme Docs',
+  titleTemplate: '%s · Acme Docs',
+})
+```
+
+## URLs And Deployment
+
+### `basePath`
+
+- **Type:** `string`
+- **Default:** `'/'`
+
+The subpath your docs site is deployed under. Use this when your site is not served from the domain root.
+
+```ts
+export default defineConfig({
+  basePath: '/docs',
+})
+```
+
+If your production URL is `https://example.com/docs`, set `basePath` to `'/docs'`.
+
+### `baseUrl`
+
+- **Type:** `string`
+
+The canonical base URL for your docs site. Vocs uses this to populate the page `<base>` tag and to resolve the `%logo` variable in `ogImageUrl` templates.
+
+```ts
+export default defineConfig({
+  baseUrl: 'https://docs.acme.dev',
+})
+```
+
+If you omit the protocol, Vocs normalizes it to `https://`.
+
+### `redirects`
+
+- **Type:** `Array<{ source: string; destination: string; status?: 301 | 302 | 307 | 308 }>`
+
+Redirect incoming paths to new destinations. Redirects support named parameters such as `:slug` and wildcards such as `:path*`.
+
+```ts
+export default defineConfig({
+  redirects: [
+    { source: '/docs', destination: '/guide/getting-started' },
+    { source: '/old/:path*', destination: '/new/:path*', status: 301 },
+  ],
+})
+```
+
+If you omit `status`, Vocs uses `307`.
+
+### `renderStrategy`
+
+- **Type:** `'full-static' | 'partial-static' | 'dynamic'`
+- **Default:** `'dynamic'`
+
+Controls how Vocs renders the site.
+
+- `full-static` generates a fully static site.
+- `partial-static` statically generates pages while leaving other routes dynamic.
+- `dynamic` renders routes dynamically.
+
+### `checkDeadlinks`
+
+- **Type:** `boolean | 'warn'`
+- **Default:** `true`
+
+Controls dead link validation.
+
+- `true` throws on dead links.
+- `false` disables checking.
+- `'warn'` reports dead links without failing the build.
+
+## Branding And Theme
+
+### `logoUrl`
+
+- **Type:** `string | { light: string; dark: string }`
+
+Logo displayed in the site navigation.
+
+```ts
+export default defineConfig({
+  logoUrl: {
+    light: '/logo-light.svg',
+    dark: '/logo-dark.svg',
+  },
+})
+```
+
+### `iconUrl`
+
+- **Type:** `string | { light: string; dark: string }`
+
+Icon used for site metadata such as the favicon.
+
+```ts
+export default defineConfig({
+  iconUrl: '/icon.svg',
+})
+```
+
+### `accentColor`
+
+- **Type:** `string`
+- **Default:** `'light-dark(black, white)'`
+
+Accent color used throughout the UI. You can pass any CSS color value, including `light-dark()` for different light and dark theme values.
+
+```ts
+export default defineConfig({
+  accentColor: 'light-dark(#2563eb, #60a5fa)',
+})
+```
+
+See also: [Theming](/guide/theming)
+
+### `colorScheme`
+
+- **Type:** `'light' | 'dark' | 'light dark'`
+- **Default:** `'light dark'`
+
+Controls whether your site is locked to light mode, locked to dark mode, or follows the user's system preference.
+
+### `banner`
+
+- **Type:**
+
+```ts
+string | {
+  content: string
+  backgroundColor?: string
+  dismissable?: boolean
+  dismissId?: string
+  height?: string
+  href?: string
+  textColor?: string
+  variant?: 'note' | 'info' | 'warning' | 'danger' | 'tip' | 'success'
+}
+```
+
+Displays a banner fixed to the top of the page. A string value is treated as the banner's Markdown content.
+
+When you pass an object, `dismissable` defaults to `true` and `variant` defaults to `'info'`.
+
+```ts
+export default defineConfig({
+  banner: {
+    content: 'Vocs v2 is now available.',
+    href: '/guide/changelog',
+    variant: 'tip',
+  },
+})
+```
+
+## Navigation
+
+### `sidebar`
+
+- **Type:**
+
+```ts
+SidebarItem[] | {
+  [path: string]: SidebarItem[] | {
+    backLink?: boolean
+    items: SidebarItem[]
+  }
+}
+```
+
+Configures sidebar navigation. Use the array form when the whole site shares one sidebar. Use the object form when different route sections need different sidebars.
+
+Each sidebar item supports these fields:
+
+```ts
+{
+  text?: string
+  link?: string
+  items?: SidebarItem[]
+  collapsed?: boolean
+  disabled?: boolean
+  external?: boolean
+}
+```
+
+```ts
+export default defineConfig({
+  sidebar: [
+    { text: 'Getting Started', link: '/guide/getting-started' },
+    {
+      text: 'Writing',
+      collapsed: false,
+      items: [
+        { text: 'Markdown Extensions', link: '/guide/markdown-extensions' },
+        { text: 'Twoslash', link: '/guide/twoslash' },
+      ],
+    },
+  ],
+})
+```
+
+```ts
+export default defineConfig({
+  sidebar: {
+    '/guide': [
+      { text: 'Getting Started', link: '/guide/getting-started' },
+      { text: 'Theming', link: '/guide/theming' },
+    ],
+    '/reference': {
+      backLink: true,
+      items: [
+        { text: 'Site Configuration', link: '/reference/site-config' },
+        { text: 'Components', link: '/reference/components' },
+      ],
+    },
+  },
+})
+```
+
+When you use the object form, Vocs picks the deepest matching path prefix for the current route.
+
+See also: [Sidebar & Top Navigation](/guide/navigation)
+
+### `topNav`
+
+- **Type:** `Array<{ text: string } & ({ link: string } | { items: Array<{ text: string; link: string }> })>`
+
+Configures the top navigation bar. Each item is either a direct link or a dropdown with nested items.
+
+Each top nav item supports these fields:
+
+```ts
+{
+  text: string
+  external?: boolean
+  match?: string | ((path: string | undefined) => boolean)
+} & (
+  | { link: string }
+  | {
+      items: Array<{
+        text: string
+        link: string
+        external?: boolean
+        match?: string | ((path: string | undefined) => boolean)
+      }>
+    }
+)
+```
+
+```ts
+export default defineConfig({
+  topNav: [
+    {
+      text: 'Guide',
+      link: '/guide/getting-started',
+      match: '/guide',
+    },
+    {
+      text: 'Resources',
+      items: [
+        { text: 'API', link: '/reference/site-config' },
+        { text: 'GitHub', link: 'https://github.com/acme/docs', external: true },
+      ],
+    },
+  ],
+})
+```
+
+Use `match` when the active state should be driven by a broader route prefix than the item's own `link`.
+
+### `socials`
+
+- **Type:** `Array<{ icon: 'bluesky' | 'discord' | 'farcaster' | 'github' | 'telegram' | 'x'; link: string }>`
+
+Social links displayed in the sidebar footer.
+
+```ts
+export default defineConfig({
+  socials: [
+    { icon: 'github', link: 'https://github.com/wevm/vocs' },
+    { icon: 'x', link: 'https://x.com/wevm_dev' },
+    { icon: 'discord', link: 'https://discord.gg/JUrRkGweXV' },
+  ],
+})
+```
+
+### `editLink`
+
+- **Type:**
+
+```ts
+{
+  link: string | ((filePath: string) => string)
+  text?: string
+}
+```
+
+Adds a "Suggest changes to this page" link. In string templates, use `:path` as a placeholder for the page's file path.
+
+`text` defaults to `'Suggest changes to this page'`.
+
+```ts
+export default defineConfig({
+  editLink: {
+    link: 'https://github.com/acme/docs/edit/main/src/pages/:path',
+  },
+})
+```
+
+## Content Pipeline
+
+### `markdown`
+
+- **Type:** `@mdx-js/rollup` options
+
+Extends the underlying MDX compilation pipeline. Use this when you need to add custom remark, rehype, or recma plugins.
+
+```ts
+import rehypeExternalLinks from 'rehype-external-links'
+
+export default defineConfig({
+  markdown: {
+    rehypePlugins: [[rehypeExternalLinks, { target: '_blank' }]],
+  },
+})
+```
+
+Vocs already includes its own MDX plugins for features such as callouts, code groups, frontmatter handling, and syntax highlighting, so `markdown` is usually only needed for custom behavior.
+
+### `codeHighlight`
+
+- **Type:** Vocs' Shiki configuration
+
+Configures syntax highlighting for fenced code blocks. This is the main place to customize Shiki themes, languages, aliases, and transformers.
+
+Useful fields include:
+
+```ts
+{
+  themes?: { light: string; dark: string }
+  langs?: string[]
+  langAlias?: Record<string, string>
+  transformers?: unknown[]
+}
+```
+
+By default, Vocs uses `github-light` for light mode and `github-dark-dimmed` for dark mode, and automatically adds a `sol -> solidity` language alias.
+
+```ts
+export default defineConfig({
+  codeHighlight: {
+    themes: {
+      light: 'github-light',
+      dark: 'tokyo-night',
+    },
+    langAlias: {
+      shell: 'bash',
+    },
+  },
+})
+```
+
+See also: [Code & Syntax Highlighting](/guide/syntax-highlighting)
+
+### `twoslash`
+
+- **Type:** `false | Twoslash config`
+
+Configures [Twoslash](/guide/twoslash) for type-aware code examples. Set it to `false` to disable Twoslash entirely.
+
+```ts
+import { Twoslash, defineConfig } from 'vocs/config'
+
+export default defineConfig({
+  twoslash: {
+    transformers: [Twoslash.experimental_rust({ cargoToml: './Cargo.toml' })],
+  },
+})
+```
+
+### `groupIcons`
+
+- **Type:** `{ customIcons?: Record<string, string> }`
+
+Adds custom icon mappings for code block labels in code groups.
+
+```ts
+export default defineConfig({
+  groupIcons: {
+    customIcons: {
+      '.mdx': 'vscode-icons:file-type-mdx',
+      'bun.lock': 'vscode-icons:file-type-bun',
+    },
+  },
+})
+```
+
+### `search`
+
+- **Type:**
+
+```ts
+{
+  boost?: Record<string, number>
+  boostDocument?: (
+    id: string,
+    term: string,
+    storedFields?: Record<string, unknown>,
+  ) => number
+  combineWith?: 'AND' | 'OR'
+  fuzzy?: number | boolean
+  prefix?: boolean
+}
+```
+
+Customizes built-in documentation search.
+
+Defaults:
+
+- `combineWith: 'AND'`
+- `fuzzy: 0.2`
+- `prefix: true`
+- `boost: { title: 4, subtitle: 3, text: 2, category: 1, titles: 1 }`
+
+```ts
+export default defineConfig({
+  search: {
+    combineWith: 'OR',
+    fuzzy: 0.1,
+    boost: {
+      title: 6,
+      text: 1,
+    },
+  },
+})
+```
+
+## Integrations
+
+### `feedback`
+
+- **Type:** `Feedback.Adapter`
+
+Enables the built-in feedback widget by providing a feedback adapter.
+
+```ts
+import { Feedback, defineConfig } from 'vocs/config'
+
+export default defineConfig({
+  feedback: Feedback.slack(),
+})
+```
+
+You can provide your own adapter with `Feedback.from()`.
+
+See also: [Feedback](/guide/feedback)
+
+### `mcp`
+
+- **Type:**
+
+```ts
+{
+  enabled?: boolean
+  sources?: readonly McpSource.Adapter[]
+}
+```
+
+Configures Vocs' built-in MCP server. When enabled, Vocs serves the endpoint at `/api/mcp`.
+
+```ts
+import { McpSource, defineConfig } from 'vocs/config'
+
+export default defineConfig({
+  mcp: {
+    enabled: true,
+    sources: [McpSource.github({ repo: 'wevm/vocs', paths: ['src', 'site'] })],
+  },
+})
+```
+
+Use `McpSource.github()` for GitHub-backed repositories or `McpSource.from()` for custom sources.
+
+See also: [MCP Server](/guide/mcp-server)
+
+### `changelog`
+
+- **Type:** `Changelog.Adapter`
+
+Configures the source used for changelog data.
+
+```ts
+import { Changelog, defineConfig } from 'vocs/config'
+
+export default defineConfig({
+  changelog: Changelog.github({ repo: 'wevm/vocs' }),
+})
+```
+
+Use `Changelog.github()` to read GitHub releases or `Changelog.from()` to provide your own adapter.
+
+See also: [Changelog Generation](/guide/changelog-generation)
+
+### `ogImageUrl`
+
+- **Type:** `string | ((path: string, context: { baseUrl?: string }) => string)`
+
+Configures the Open Graph image URL used for page metadata.
+
+String templates can use these placeholders:
+
+- `%logo`
+- `%title`
+- `%description`
+
+```ts
+export default defineConfig({
+  ogImageUrl: '/api/og?logo=%logo&title=%title&description=%description',
+})
+```
+
+You can also compute the URL dynamically:
+
+```ts
+export default defineConfig({
+  ogImageUrl: (path, { baseUrl }) => {
+    return `${baseUrl ?? ''}/api/og?title=%title&path=${path}`
+  },
+})
+```
+
+See also: [Dynamic OG Images](/guide/dynamic-og-images)
+
+## Filesystem And Output
+
+### `rootDir`
+
+- **Type:** `string`
+- **Default:** `process.cwd()`
+
+Root directory used to resolve the rest of the config's filesystem paths.
+
+### `srcDir`
+
+- **Type:** `string`
+- **Default:** `'src'`
+
+Source directory relative to `rootDir`. Vocs reads your pages from `srcDir/pages`.
+
+```ts
+export default defineConfig({
+  srcDir: 'docs',
+})
+```
+
+With this config, Vocs will look for pages in `docs/pages`.
+
+See also: [Project Structure](/guide/structure)
+
+### `cacheDir`
+
+- **Type:** `string`
+- **Default:** `'.vocs/cache'`
+
+Directory used for cached build artifacts, resolved relative to `rootDir`.
+
+### `outDir`
+
+- **Type:** `string`
+- **Default:** `'dist'`
+
+Output directory for the built site, relative to `rootDir`.

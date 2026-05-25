@@ -1,0 +1,56 @@
+[package]
+name = "twoslash-rust"
+version = "0.0.3"
+edition = "2021"
+license = "MIT"
+description = "Twoslash for Rust - extract type information from Rust code using rust-analyzer"
+repository = "https://github.com/wevm/vocs"
+keywords = ["twoslash", "rust-analyzer", "documentation", "ide"]
+categories = ["development-tools"]
+
+[lib]
+name = "twoslash_rust"
+path = "src/lib.rs"
+
+[[bin]]
+name = "twoslash-rust"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = "1.0.56"
+lazy_static = "1.4.0"
+regex = "1.5.5"
+serde = "1.0.136"
+serde_derive = "1.0.136"
+serde_json = "1.0.79"
+tempfile = "3.3.0"
+
+[dependencies.ra_ide]
+package = "ra_ap_ide"
+version = "0.0.315"
+
+[dependencies.ra_ide_db]
+package = "ra_ap_ide_db"
+version = "0.0.315"
+
+[dependencies.ra_project_model]
+package = "ra_ap_project_model"
+version = "0.0.315"
+
+[dependencies.ra_syntax]
+package = "ra_ap_syntax"
+version = "0.0.315"
+
+[dependencies.ra_vfs]
+package = "ra_ap_vfs"
+version = "0.0.315"
+
+[dependencies.load_cargo]
+package = "ra_ap_load-cargo"
+version = "0.0.315"
+
+[dependencies.camino]
+version = "1.0"
+
+[dev-dependencies]
+insta = { version = "1.40", features = ["yaml"] }

@@ -1,7 +1,7 @@
 name: Main
 on:
   push:
-    branches: [main]
+    branches: [main, rc]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -13,30 +13,79 @@ jobs:
     uses: ./.github/workflows/verify.yml
     secrets: inherit
 
+  build-twoslash-rust:
+    name: Build twoslash-rust
+    needs: verify
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            name: darwin-arm64
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            name: linux-x64-gnu
+
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: twoslash-rust
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Build
+        run: cargo build --release --target ${{ matrix.target }}
+
+      - name: Strip binary
+        run: strip target/${{ matrix.target }}/release/twoslash-rust
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bindings-${{ matrix.target }}
+          path: twoslash-rust/target/${{ matrix.target }}/release/twoslash-rust
+          if-no-files-found: error
+
   changesets:
     name: Changesets
-    needs: verify
+    needs: build-twoslash-rust
     permissions:
       contents: write
       id-token: write
       pull-requests: write
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 11bd71901bbe5b1630ceea73d27597364c9af683
+        uses: actions/checkout@v4
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
 
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: twoslash-rust/artifacts
+
       - name: PR or publish
         id: changesets
-        uses: changesets/action@06245a4e0a36c064a573d4150030f5ec548e4fcc # 06245a4e0a36c064a573d4150030f5ec548e4fcc
+        uses: changesets/action@v1
         with:
           title: 'chore: version packages'
           commit: 'chore: version packages'
-          publish: pnpm changeset:publish
-          version: pnpm changeset:version
+          publish: pnpm run changeset:publish
+          version: pnpm run changeset:version
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          ARTIFACTS_DIR: artifacts

@@ -1,0 +1,19 @@
+{
+  "name": "@vocs/twoslash-rust-darwin-arm64",
+  "version": "0.1.0-rc.0",
+  "os": [
+    "darwin"
+  ],
+  "cpu": [
+    "arm64"
+  ],
+  "main": "./bin/twoslash-rust",
+  "files": [
+    "bin"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wevm/vocs"
+  }
+}
