@@ -121,4 +121,20 @@ describe('middleware', () => {
     expect(await response.text()).toBe('# Hello from disk')
     expect(readFile).toHaveBeenCalledOnce()
   })
+
+  it('serves page markdown when requested through the accept header', async () => {
+    process.env['NODE_ENV'] = 'production'
+
+    const { readFile } = await import('node:fs/promises')
+    vi.mocked(readFile).mockResolvedValue('# Hello from disk')
+
+    const response = await request('http://localhost/docs', {
+      accept: 'text/markdown',
+    })
+
+    expect(response.status).toBe(200)
+    expect(response.headers.get('content-type')).toBe('text/markdown; charset=utf-8')
+    expect(await response.text()).toBe('# Hello from disk')
+    expect(readFile).toHaveBeenCalledOnce()
+  })
 })

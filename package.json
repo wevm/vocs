@@ -68,6 +68,7 @@
   "dependencies": {
     "@base-ui/react": "^1.0.0",
     "@codesandbox/sandpack-react": "^2.20.0",
+    "@hono/node-server": "^2.0.2",
     "@iconify-json/lucide": "^1.2.82",
     "@iconify-json/simple-icons": "^1.2.65",
     "@iconify-json/vscode-icons": "^1.2.39",
@@ -97,7 +98,7 @@
     "estree-util-visit": "^2.0.0",
     "extend": "^3.0.2",
     "github-slugger": "^2.0.0",
-    "hono": "^4.11.3",
+    "hono": "^4.12.14",
     "image-size": "^2.0.2",
     "mdast-util-from-markdown": "^2.0.2",
     "mdast-util-gfm": "^3.1.0",
@@ -208,6 +209,11 @@
       "types": "./dist/waku/internal/patches/adapters/vercel.d.ts",
       "src": "./src/waku/internal/patches/adapters/vercel.ts",
       "default": "./dist/waku/internal/patches/adapters/vercel.js"
+    },
+    "./waku/internal/patches/adapters/node": {
+      "types": "./dist/waku/internal/patches/adapters/node.d.ts",
+      "src": "./src/waku/internal/patches/adapters/node.ts",
+      "default": "./dist/waku/internal/patches/adapters/node.js"
     },
     "./waku/internal/patches/adapters/vercel-build-enhancer": {
       "types": "./dist/waku/internal/patches/adapters/vercel-build-enhancer.d.ts",

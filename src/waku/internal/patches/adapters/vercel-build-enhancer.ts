@@ -1,5 +1,6 @@
 import { cpSync, existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
+import { aiUserAgents, terminalUserAgents } from '../../middleware/md-router.js'
 
 export type BuildOptions = {
   assetsDir: string
@@ -9,6 +10,43 @@ export type BuildOptions = {
   basePath: string
   DIST_PUBLIC: string
   serverless: boolean
+}
+
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+function markdownRoutes({
+  assetsDir,
+  basePath,
+  rscBase,
+}: Pick<BuildOptions, 'assetsDir' | 'basePath' | 'rscBase'>) {
+  const destination = basePath + rscBase + '/'
+  const markdownSource = `^${basePath}(?!${assetsDir}/)(.*\\.md)$`
+  const cleanPageSource = `^${basePath}(?!${assetsDir}/)(?!.*\\.[^/]+$)(.*)$`
+  const markdownUserAgentPattern = `.*(?:${[...aiUserAgents, ...terminalUserAgents]
+    .map(escapeRegExp)
+    .join('|')}).*`
+
+  // Vercel's filesystem handler would serve prerendered HTML before mdRouter sees
+  // the request. Route markdown-eligible clean URLs to RSC first so mdRouter can
+  // choose markdown or HTML.
+  return [
+    {
+      src: markdownSource,
+      dest: destination,
+    },
+    {
+      src: cleanPageSource,
+      has: [{ type: 'header', key: 'accept', value: '.*text/markdown.*' }],
+      dest: destination,
+    },
+    {
+      src: cleanPageSource,
+      has: [{ type: 'header', key: 'user-agent', value: markdownUserAgentPattern }],
+      dest: destination,
+    },
+  ]
 }
 
 async function postBuild({
@@ -81,6 +119,7 @@ export default getRequestListener(
     },
     ...(serverless
       ? [
+          ...markdownRoutes({ assetsDir, basePath, rscBase }),
           { handle: 'filesystem' },
           {
             src: basePath + '(.*)',
