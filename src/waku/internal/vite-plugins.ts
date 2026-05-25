@@ -99,9 +99,50 @@ await import('./serve-node.js');
 }
 
 const wakuDefineRouterRegex = /[/\\]waku[/\\]dist[/\\]router[/\\]define-router\.js(?:\?.*)?$/
+const wakuMinimalClientRegex = /[/\\]waku[/\\]dist[/\\]minimal[/\\]client\.js(?:\?.*)?$/
 
+// TODO: Remove these Waku prefetch patches once https://github.com/wakujs/waku/issues/2099 is fixed.
 const wakuRouterPrefetchCodeRegex =
   /Object\.entries\(path2moduleIds\)\.forEach\(\(\[path,\s*ids\]\)=>\{\s*path2idxs\[path\]\s*=\s*ids\.map\(\(id\)=>ids\.indexOf\(id\)\);\s*\}\);/
+
+const wakuClientPrefetchKeysCode = `const KEY_RESPONSE = 'r';
+const KEY_CLOSE = 'x';`
+const wakuClientPrefetchKeysPatchedCode = `const KEY_RESPONSE = 'r';
+const KEY_ELEMENTS = 'e';
+const KEY_CLOSE = 'x';`
+
+const wakuClientPrefetchElementsCode = `    if (prefetchOnly) {
+        prefetched[rscPath] = {
+            [KEY_RESPONSE]: responsePromise,
+            [KEY_CLIENT_PREFETCHED]: true,
+            [KEY_RSC_PARAMS]: rscParams,
+            [KEY_TEMPORARY_REFERENCES]: temporaryReferences
+        };
+        return undefined;
+    }
+    const elements = createFromFetch(checkStatus(responsePromise), {
+        callServer: (funcId, args)=>unstable_callServerRsc(funcId, args, ()=>fetchRscStore),
+        debugChannel: debug?.debugChannel,
+        temporaryReferences
+    });`
+const wakuClientPrefetchElementsPatchedCode = `    const createElements = ()=>createFromFetch(checkStatus(responsePromise), {
+        callServer: (funcId, args)=>unstable_callServerRsc(funcId, args, ()=>fetchRscStore),
+        debugChannel: debug?.debugChannel,
+        temporaryReferences
+    });
+    if (prefetchOnly) {
+        const elements = createElements();
+        Promise.resolve(elements).catch(()=>{});
+        prefetched[rscPath] = {
+            [KEY_RESPONSE]: responsePromise,
+            [KEY_ELEMENTS]: elements,
+            [KEY_CLIENT_PREFETCHED]: true,
+            [KEY_RSC_PARAMS]: rscParams,
+            [KEY_TEMPORARY_REFERENCES]: temporaryReferences
+        };
+        return undefined;
+    }
+    const elements = prefetchedEntry?.[KEY_ELEMENTS] || createElements();`
 
 export function patchRouterPrefetchCode(code: string, id: string) {
   if (!wakuDefineRouterRegex.test(id)) return
@@ -115,12 +156,26 @@ export function patchRouterPrefetchCode(code: string, id: string) {
   return patched
 }
 
+export function patchClientRscPrefetchCode(code: string, id: string) {
+  if (!wakuMinimalClientRegex.test(id)) return
+  if (!code.includes(wakuClientPrefetchKeysCode) || !code.includes(wakuClientPrefetchElementsCode))
+    return
+  const patched = code
+    .replace(wakuClientPrefetchKeysCode, wakuClientPrefetchKeysPatchedCode)
+    .replace(wakuClientPrefetchElementsCode, wakuClientPrefetchElementsPatchedCode)
+  return patched
+}
+
+export function patchWakuPrefetchCode(code: string, id: string) {
+  return patchRouterPrefetchCode(code, id) ?? patchClientRscPrefetchCode(code, id)
+}
+
 export function patchRouterPrefetch(): Plugin {
   return {
     name: 'vocs:patch-router-prefetch',
     enforce: 'pre',
     transform(code, id) {
-      const patched = patchRouterPrefetchCode(code, id)
+      const patched = patchWakuPrefetchCode(code, id)
       if (!patched) return null
       return { code: patched, map: null }
     },

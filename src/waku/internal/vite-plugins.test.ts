@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { patchRouterPrefetchCode } from './vite-plugins.js'
+import { patchClientRscPrefetchCode, patchRouterPrefetchCode } from './vite-plugins.js'
 
 describe('patchRouterPrefetchCode', () => {
   it('maps route module ids through the global module id list', () => {
@@ -34,6 +34,50 @@ globalThis.__WAKU_ROUTER_PREFETCH__ = (path, callback) => {
 
   it('ignores other modules', () => {
     expect(patchRouterPrefetchCode('', '/repo/node_modules/waku/dist/router/client.js')).toBe(
+      undefined,
+    )
+  })
+})
+
+describe('patchClientRscPrefetchCode', () => {
+  it('decodes and reuses prefetched RSC elements', () => {
+    const code = `
+const KEY_RESPONSE = 'r';
+const KEY_CLOSE = 'x';
+const fetchRscInternal = (fetchRscStore, rscPath, rscParams, prefetchOnly)=>{
+    const responsePromise = prefetchedEntry ? prefetchedEntry[KEY_RESPONSE] : fetchFn(url);
+    if (prefetchOnly) {
+        prefetched[rscPath] = {
+            [KEY_RESPONSE]: responsePromise,
+            [KEY_CLIENT_PREFETCHED]: true,
+            [KEY_RSC_PARAMS]: rscParams,
+            [KEY_TEMPORARY_REFERENCES]: temporaryReferences
+        };
+        return undefined;
+    }
+    const elements = createFromFetch(checkStatus(responsePromise), {
+        callServer: (funcId, args)=>unstable_callServerRsc(funcId, args, ()=>fetchRscStore),
+        debugChannel: debug?.debugChannel,
+        temporaryReferences
+    });
+};`
+
+    const patched = patchClientRscPrefetchCode(
+      code,
+      '/repo/node_modules/waku/dist/minimal/client.js',
+    )
+
+    expect(patched).toContain("const KEY_ELEMENTS = 'e';")
+    expect(patched).toContain('const createElements = ()=>createFromFetch')
+    expect(patched).toContain('Promise.resolve(elements).catch(()=>{});')
+    expect(patched).toContain('[KEY_ELEMENTS]: elements')
+    expect(patched).toContain(
+      'const elements = prefetchedEntry?.[KEY_ELEMENTS] || createElements();',
+    )
+  })
+
+  it('ignores other modules', () => {
+    expect(patchClientRscPrefetchCode('', '/repo/node_modules/waku/dist/router/client.js')).toBe(
       undefined,
     )
   })
