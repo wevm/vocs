@@ -3,6 +3,10 @@
   "version": "0.1.0-rc.0",
   "type": "module",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wevm/vocs"
+  },
   "main": "./dist/index.js",
   "bin": {
     "twoslash-rust": "./dist/bin.js",

@@ -48,13 +48,20 @@ for (const platform of platforms) {
     main: './bin/twoslash-rust',
     files: ['bin'],
     license: 'MIT',
+    repository: {
+      type: 'git',
+      url: 'https://github.com/wevm/vocs',
+    },
   }
 
   if (platform.libc) {
     platformPkg.libc = [platform.libc]
   }
 
-  fs.writeFileSync(path.join(packageDir, 'package.json'), JSON.stringify(platformPkg, null, 2))
+  fs.writeFileSync(
+    path.join(packageDir, 'package.json'),
+    `${JSON.stringify(platformPkg, null, 2)}\n`,
+  )
 
   const binaryName = platform.os === 'win32' ? 'twoslash-rust.exe' : 'twoslash-rust'
   const artifactPath = path.join(artifactsDir, `bindings-${platform.rustTarget}`, binaryName)

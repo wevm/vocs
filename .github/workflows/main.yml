@@ -83,7 +83,7 @@ jobs:
         with:
           title: 'chore: version packages'
           commit: 'chore: version packages'
-          publish: ${{ github.ref_name == 'rc' && 'pnpm run changeset:publish:rc' || 'pnpm run changeset:publish' }}
+          publish: pnpm run changeset:publish
           version: pnpm run changeset:version
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
