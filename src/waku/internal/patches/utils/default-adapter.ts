@@ -3,4 +3,4 @@ export const getDefaultAdapter = () =>
     ? 'vocs/waku/internal/patches/adapters/vercel'
     : process.env['NETLIFY']
       ? 'waku/adapters/netlify'
-      : 'waku/adapters/node'
+      : 'vocs/waku/internal/patches/adapters/node'

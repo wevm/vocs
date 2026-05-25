@@ -125,7 +125,8 @@ export function middleware(): MiddlewareHandler {
     }
 
     const isMarkdownRequest = url.pathname.endsWith('.md')
-    if (!isMarkdownRequest && (isSearchEngine || (!isAiAgent && !isTerminal))) return next()
+    if (!isMarkdownRequest && (isSearchEngine || (!isAiAgent && !isTerminal && !acceptsMarkdown)))
+      return next()
 
     const pagePath = url.pathname.replace(/\.md$/, '').replace(/\/index$/, '')
 

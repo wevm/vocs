@@ -63,6 +63,9 @@ importers:
       '@codesandbox/sandpack-react':
         specifier: ^2.20.0
         version: 2.20.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      '@hono/node-server':
+        specifier: ^2.0.2
+        version: 2.0.4(hono@4.12.22)
       '@iconify-json/lucide':
         specifier: ^1.2.82
         version: 1.2.87
@@ -89,7 +92,7 @@ importers:
         version: 3.1.1(rollup@4.57.1)
       '@modelcontextprotocol/sdk':
         specifier: ^1.25.2
-        version: 1.25.3(hono@4.11.7)(zod@4.3.6)
+        version: 1.25.3(hono@4.12.22)(zod@4.3.6)
       '@remix-run/node-fetch-server':
         specifier: ^0.13.0
         version: 0.13.0
@@ -154,8 +157,8 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0
       hono:
-        specifier: ^4.11.3
-        version: 4.11.7
+        specifier: ^4.12.14
+        version: 4.12.22
       image-size:
         specifier: ^2.0.2
         version: 2.0.2
@@ -2739,10 +2742,6 @@ packages:
   hast-util-whitespace@3.0.0:
     resolution: {integrity: sha512-88JUN06ipLwsnv+dVn+OIYOvAuvBMy/Qoi6O7mQHxdPXpjy+Cd6xRkWwux7DKO+4sYILtLBRIKgsdpS2gQc7qw==}
 
-  hono@4.11.7:
-    resolution: {integrity: sha512-l7qMiNee7t82bH3SeyUCt9UF15EVmaBvsppY2zQtrbIhl/yzBTny+YUxsVjSjQ6gaqaeVtZmGocom8TzBlA4Yw==}
-    engines: {node: '>=16.9.0'}
-
   hono@4.12.22:
     resolution: {integrity: sha512-7fvVPbB92zNRsQke+uiRGwtTuef0tB2Dg4hWxYfFNvkQhIltWoyi0ONReM5LWA+jJWS3nfT5lTq+qbsIpX0IQw==}
     engines: {node: '>=16.9.0'}
@@ -5054,9 +5053,9 @@ snapshots:
 
   '@floating-ui/utils@0.2.10': {}
 
-  '@hono/node-server@1.19.9(hono@4.11.7)':
+  '@hono/node-server@1.19.9(hono@4.12.22)':
     dependencies:
-      hono: 4.11.7
+      hono: 4.12.22
 
   '@hono/node-server@2.0.4(hono@4.12.22)':
     dependencies:
@@ -5209,9 +5208,9 @@ snapshots:
     dependencies:
       langium: 3.3.1
 
-  '@modelcontextprotocol/sdk@1.25.3(hono@4.11.7)(zod@4.3.6)':
+  '@modelcontextprotocol/sdk@1.25.3(hono@4.12.22)(zod@4.3.6)':
     dependencies:
-      '@hono/node-server': 1.19.9(hono@4.11.7)
+      '@hono/node-server': 1.19.9(hono@4.12.22)
       ajv: 8.17.1
       ajv-formats: 3.0.1(ajv@8.17.1)
       content-type: 1.0.5
@@ -6945,8 +6944,6 @@ snapshots:
   hast-util-whitespace@3.0.0:
     dependencies:
       '@types/hast': 3.0.4
-
-  hono@4.11.7: {}
 
   hono@4.12.22: {}
 
