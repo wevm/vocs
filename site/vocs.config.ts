@@ -1,6 +1,9 @@
 import { Changelog, defineConfig, Feedback, McpSource, Twoslash } from 'vocs/config'
 import { version } from '../package.json'
 
+const homeOgDescription = 'Publish docs that stay simple at the source and rich in the browser.'
+const homeOgTitle = 'Minimal Docs\nfor Agents & Humans.'
+
 export default defineConfig({
   baseUrl:
     process.env.VERCEL_ENV === 'production'
@@ -27,7 +30,11 @@ export default defineConfig({
     enabled: true,
     sources: [McpSource.github({ repo: 'wevm/vocs' })],
   },
-  ogImageUrl: (_path, { baseUrl }) => {
+  ogImageUrl: (path, { baseUrl }) => {
+    if (path === '/') {
+      return `${baseUrl ?? ''}/api/og?logo=%logo&title=${encodeURIComponent(homeOgTitle)}&description=${encodeURIComponent(homeOgDescription)}`
+    }
+
     return `${baseUrl ?? ''}/api/og?logo=%logo&title=%title&description=%description`
   },
   redirects: [
