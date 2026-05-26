@@ -1,9 +1,6 @@
 import { Changelog, defineConfig, Feedback, McpSource, Twoslash } from 'vocs/config'
 import { version } from '../package.json'
 
-const homeOgDescription = 'Publish docs that stay simple at the source and rich in the browser.'
-const homeOgTitle = 'Minimal Docs\nfor Agents & Humans.'
-
 export default defineConfig({
   baseUrl:
     process.env.VERCEL_ENV === 'production'
@@ -32,6 +29,10 @@ export default defineConfig({
   },
   ogImageUrl: (path, { baseUrl }) => {
     if (path === '/') {
+      const homeOgDescription =
+        'Publish docs that stay simple at the source and rich in the browser.'
+      const homeOgTitle = 'Minimal Docs\nfor Agents & Humans.'
+
       return `${baseUrl ?? ''}/api/og?logo=%logo&title=${encodeURIComponent(homeOgTitle)}&description=${encodeURIComponent(homeOgDescription)}`
     }
 
