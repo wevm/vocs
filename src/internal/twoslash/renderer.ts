@@ -28,6 +28,39 @@ export const rustMarkdownPatterns: RegExp[] = [
   /^>\s/, // Blockquote
 ]
 
+const customTagLineSeparator = '\u001f'
+const customTagLinePattern = /^(\s*\/\/\s?@(log|error|warn|annotate):\s?)(.*)$/
+
+export function normalizeCustomTagBlocks(code: string) {
+  const lines = code.split('\n')
+  const normalized: string[] = []
+
+  for (let index = 0; index < lines.length; index++) {
+    const line = lines[index] ?? ''
+    const match = line.match(customTagLinePattern)
+    if (!match) {
+      normalized.push(line)
+      continue
+    }
+
+    const [, prefix = '', tag = '', text = ''] = match
+    const values = [text]
+    let nextIndex = index + 1
+
+    while (nextIndex < lines.length) {
+      const nextMatch = lines[nextIndex]?.match(customTagLinePattern)
+      if (!nextMatch || nextMatch[2] !== tag) break
+      values.push(nextMatch[3] ?? '')
+      nextIndex++
+    }
+
+    normalized.push(`${prefix}${values.join(customTagLineSeparator)}`)
+    index = nextIndex - 1
+  }
+
+  return normalized.join('\n')
+}
+
 /**
  * An alternative renderer that providers better prefixed class names,
  * with syntax highlight for the info text.
@@ -275,21 +308,24 @@ export function rich(options: rich.Options = {}): TwoslashRenderer {
     },
 
     lineCustomTag(tag) {
-      return [
-        {
+      const lines = (tag.text || '').split(customTagLineSeparator)
+      const multilineClass = lines.length > 1 ? ' twoslash-tag-multiline-line' : ''
+
+      return lines.map((line) => {
+        return {
           type: 'element',
           tagName: 'div',
           properties: {
-            class: `twoslash-tag-line twoslash-tag-${tag.name}-line`,
+            class: `twoslash-tag-line twoslash-tag-${tag.name}-line${multilineClass}`,
           },
           children: [
             {
               type: 'text',
-              value: tag.text || '',
+              value: line,
             },
           ],
-        },
-      ]
+        }
+      })
     },
 
     nodesHighlight(_, nodes) {

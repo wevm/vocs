@@ -10,6 +10,7 @@ import {
   twoslash,
   twoslashErrors,
 } from './shiki-transformers.js'
+import * as Renderer from './twoslash/renderer.js'
 
 async function highlight(code: string, lang: BundledLanguage = 'typescript') {
   const highlighter = await createHighlighter({
@@ -28,6 +29,48 @@ async function highlight(code: string, lang: BundledLanguage = 'typescript') {
 }
 
 describe('twoslash', () => {
+  it('should group adjacent custom tag comments before rendering', () => {
+    const code = `const result = 1
+// @error: Schema.ValidationError: Schema validation failed with 1 issue.
+// @error: - Value \`nothex\` is an invalid hex value.
+// @error:
+// @error: Hex values must start with \`"0x"\`.`
+
+    const normalized = Renderer.normalizeCustomTagBlocks(code)
+
+    expect(normalized).toBe(`const result = 1
+// @error: Schema.ValidationError: Schema validation failed with 1 issue.\u001f- Value \`nothex\` is an invalid hex value.\u001f\u001fHex values must start with \`"0x"\`.`)
+  })
+
+  it('should render adjacent custom tag comments as multiline tag rows', async () => {
+    const highlighter = await createHighlighter({
+      themes: ['github-dark'],
+      langs: ['typescript'],
+    })
+
+    const html = highlighter.codeToHtml(
+      `const result = 1
+// @error: Schema.ValidationError: Schema validation failed with 1 issue.
+// @error: - Value \`nothex\` is an invalid hex value.
+// @error:
+// @error: Hex values must start with \`"0x"\`.`,
+      {
+        lang: 'typescript',
+        theme: 'github-dark',
+        transformers: [twoslash({ explicitTrigger: false })],
+      },
+    )
+
+    expect(html).toContain('twoslash-tag-error-line twoslash-tag-multiline-line')
+    expect(html).toContain('Schema.ValidationError')
+    expect(html).toContain('- Value `nothex` is an invalid hex value.')
+    expect(html).toContain('Hex values must start with `"0x"`.')
+    expect(html).not.toContain('@error')
+    expect(html).not.toContain('\u001f')
+
+    highlighter.dispose()
+  })
+
   it('should not initialize twoslash when the transformer is created', () => {
     const tsModule = new Proxy(
       {},

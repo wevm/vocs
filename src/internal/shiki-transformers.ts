@@ -268,6 +268,20 @@ export function twoslash(options: twoslash.Options): ShikiTransformer {
   const activeTwoslasher = checkOnly
     ? checkOnlyTwoslasher({ throws, twoslashOptions })
     : lazyTwoslasher
+  const normalizedTypesCache = typesCache
+    ? {
+        ...typesCache,
+        preprocess(
+          code: string,
+          lang?: string,
+          executeOptions?: Parameters<TwoslashInstance>[2],
+          meta?: Parameters<NonNullable<typeof typesCache.preprocess>>[3],
+        ) {
+          const preprocessed = typesCache.preprocess?.(code, lang, executeOptions, meta)
+          return Renderer.normalizeCustomTagBlocks(preprocessed ?? code)
+        },
+      }
+    : undefined
 
   return createTransformerFactory(
     activeTwoslasher,
@@ -275,7 +289,7 @@ export function twoslash(options: twoslash.Options): ShikiTransformer {
   )({
     explicitTrigger,
     throws,
-    ...(checkOnly ? {} : { typesCache }),
+    ...(checkOnly || !normalizedTypesCache ? {} : { typesCache: normalizedTypesCache }),
     onTwoslashError(error, code, lang, options) {
       if (!throws) return
       const message = error instanceof Error ? error.message : String(error)
