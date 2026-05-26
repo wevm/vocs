@@ -1,6 +1,6 @@
 {
   "name": "@vocs/twoslash-rust",
-  "version": "0.1.0-rc.0",
+  "version": "0.1.0",
   "type": "module",
   "license": "MIT",
   "repository": {

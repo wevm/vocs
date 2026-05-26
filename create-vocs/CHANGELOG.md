@@ -1,5 +1,11 @@
 # create-vocs
 
+## 2.0.0
+
+### Major Changes
+
+- db0b626: Released v2
+
 ## 2.0.0-rc.2
 
 ### Patch Changes
