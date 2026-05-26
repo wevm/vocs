@@ -1,0 +1,237 @@
+# Theming [Customize colors, typography, spacing, logos, and code themes]
+
+Vocs gives you two main theming layers:
+
+- top-level site config for things like accent color, color scheme, logo, and icon
+- global CSS in `src/pages/_root.css` for fonts, surfaces, spacing, and other visual tweaks
+
+If you want the full option reference, see [Site Configuration](/reference/site-config#branding-and-theme).
+
+## Theme In Config
+
+Use `vocs.config.ts` for the parts of the theme that Vocs understands directly.
+
+```ts [vocs.config.ts]
+import { defineConfig } from 'vocs/config'
+
+export default defineConfig({
+  accentColor: 'light-dark(#2563eb, #60a5fa)',
+  colorScheme: 'light dark',
+  logoUrl: {
+    light: '/logo-light.svg',
+    dark: '/logo-dark.svg',
+  },
+  iconUrl: {
+    light: '/icon-light.svg',
+    dark: '/icon-dark.svg',
+  },
+})
+```
+
+### `accentColor`
+
+`accentColor` is the main way to change the feel of the entire site. Vocs sets `--vocs-color-accent` on the root document and derives the rest of the accent palette from it.
+
+```ts [vocs.config.ts]
+import { defineConfig } from 'vocs/config'
+
+export default defineConfig({
+  accentColor: '#f97316',
+})
+```
+
+You can also provide a `light-dark()` value when the accent should differ by theme:
+
+```ts [vocs.config.ts]
+import { defineConfig } from 'vocs/config'
+
+export default defineConfig({
+  accentColor: 'light-dark(#0f766e, #5eead4)',
+})
+```
+
+Prefer `accentColor` over manually overriding derived accent tokens in CSS. It keeps links, tabs, highlights, and other accent-driven UI in sync.
+
+### `colorScheme`
+
+`colorScheme` controls whether your site is fixed to one scheme or allows switching.
+
+```ts [vocs.config.ts]
+import { defineConfig } from 'vocs/config'
+
+export default defineConfig({
+  colorScheme: 'light dark',
+})
+```
+
+Supported values:
+
+- `'light'` locks the site to light mode
+- `'dark'` locks the site to dark mode
+- `'light dark'` follows the user's system preference and enables the built-in theme toggle
+
+If you want users to switch between light and dark mode, use `'light dark'`.
+
+### `logoUrl` And `iconUrl`
+
+Use `logoUrl` for the brand mark shown in the UI and `iconUrl` for the favicon and related metadata.
+
+Both options accept either a single string or per-scheme assets.
+
+```ts [vocs.config.ts]
+import { defineConfig } from 'vocs/config'
+
+export default defineConfig({
+  logoUrl: {
+    light: '/logo-light.svg',
+    dark: '/logo-dark.svg',
+  },
+  iconUrl: '/icon.svg',
+})
+```
+
+## Global CSS With `_root.css`
+
+Create `src/pages/_root.css` when you want to override colors, fonts, spacing, or other CSS tokens globally. Vocs loads this file automatically.
+
+```css [src/pages/_root.css]
+:root {
+  --vocs-color-background: #fcfcfd;
+  --vocs-color-background-primary: white;
+  --vocs-color-text: #111827;
+  --vocs-font-family: 'Soehne', sans-serif;
+  --vocs-font-family-mono: 'JetBrains Mono', monospace;
+}
+
+:root[style*='color-scheme:dark'],
+:root[style*='color-scheme: dark'] {
+  --vocs-color-background: #0b1020;
+  --vocs-color-background-primary: #111827;
+  --vocs-color-text: #e5e7eb;
+}
+```
+
+The key detail is the dark-mode selector. Vocs stores the active theme on the document's `color-scheme`, so if you want CSS overrides to follow the built-in theme toggle, target the inline `color-scheme` value instead of relying only on `prefers-color-scheme`.
+
+If you want to use Tailwind utilities for custom page UI, see [Tailwind CSS](/guide/tailwind).
+
+## Common Theme Tokens
+
+You usually do not need to override every variable. Start with the small set that most clearly shapes the site.
+
+### Colors
+
+Useful color tokens include:
+
+- `--vocs-color-accent`
+- `--vocs-color-background`
+- `--vocs-color-background-primary`
+- `--vocs-color-text`
+- `--vocs-background-color-surface`
+- `--vocs-border-color-primary`
+
+```css [src/pages/_root.css]
+:root {
+  --vocs-color-background: #f8fafc;
+  --vocs-color-background-primary: #ffffff;
+  --vocs-color-text: #0f172a;
+}
+
+:root[style*='color-scheme: dark'] {
+  --vocs-color-background: #020617;
+  --vocs-color-background-primary: #0f172a;
+  --vocs-color-text: #e2e8f0;
+}
+```
+
+### Typography
+
+Useful typography tokens include:
+
+- `--vocs-font-family`
+- `--vocs-font-family-mono`
+- `--vocs-text-h1`
+
+```css [src/pages/_root.css]
+:root {
+  --vocs-font-family: 'Soehne', sans-serif;
+  --vocs-font-family-mono: 'IBM Plex Mono', monospace;
+  --vocs-text-h1: 2.5rem;
+}
+```
+
+### Layout
+
+Useful layout tokens include:
+
+- `--vocs-spacing-content-px`
+- `--vocs-spacing-content-py`
+- `--vocs-spacing-sidebar`
+- `--vocs-spacing-topNav`
+
+```css [src/pages/_root.css]
+:root {
+  --vocs-spacing-content-px: 2.5rem;
+  --vocs-spacing-sidebar: 320px;
+  --vocs-spacing-topNav: 60px;
+}
+```
+
+This works well when you want a roomier reading column or a wider sidebar without replacing the default layout.
+
+## Custom Fonts
+
+Load fonts in `_root.css`, then point the Vocs font variables at them.
+
+```css [src/pages/_root.css]
+@font-face {
+  font-family: 'Soehne';
+  src: url('/fonts/soehne-buch.woff2') format('woff2');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'IBM Plex Mono';
+  src: url('/fonts/ibm-plex-mono.woff2') format('woff2');
+  font-display: swap;
+}
+
+:root {
+  --vocs-font-family: 'Soehne', sans-serif;
+  --vocs-font-family-mono: 'IBM Plex Mono', monospace;
+}
+```
+
+Put the font files in `public/fonts` or another static asset path.
+
+See also: [Asset Handling](/guide/asset-handling)
+
+## Code Block Themes
+
+Syntax highlighting is configured separately from the rest of the UI theme. Use `codeHighlight.themes` to choose the Shiki theme for light and dark mode.
+
+```ts [vocs.config.ts]
+import { defineConfig } from 'vocs/config'
+
+export default defineConfig({
+  codeHighlight: {
+    themes: {
+      light: 'github-light',
+      dark: 'github-dark-dimmed',
+    },
+  },
+})
+```
+
+You can also add language aliases or other Shiki options in the same `codeHighlight` block.
+
+See also: [Code & Syntax Highlighting](/guide/syntax-highlighting)
+
+## Practical Approach
+
+For most sites, a typical theming workflow looks like this:
+
+1. Set `accentColor`, `colorScheme`, `logoUrl`, and `iconUrl` in `vocs.config.ts`.
+2. Add `src/pages/_root.css` for brand fonts and background/text tuning.
+3. Adjust a few spacing or typography variables only if the default layout still feels off.
+4. Set `codeHighlight.themes` if your code blocks should use a different palette than the default.

@@ -1,0 +1,39 @@
+---
+layout: blank
+description: Publish docs that stay simple at the source and rich in the browser.
+showAskAi: false
+showBanner: false
+showLogo: false
+---
+
+import { Landing } from '../components/Landing'
+
+{/* TODO: Remove @rc once Vocs v2 is promoted to latest. */}
+
+<Landing
+  agentPrompt="Read https://vocs.dev/guide/getting-started and set up Vocs for my project."
+  description="Vocs is a lightweight framework for writing flexible docs that agents can consume and humans can navigate. Publish docs that stay simple at the source and rich in the browser."
+  docsHref="/guide/getting-started"
+  logoSuffix={
+    <span className="vocs:text-[13px] vocs:font-medium vocs:text-muted">
+      by{' '}
+      <a
+        href="https://wevm.dev"
+        className="vocs:text-muted vocs:no-underline vocs:transition-colors vocs:duration-100 vocs:hover:text-heading"
+      >
+        Wevm
+      </a>
+    </span>
+  }
+  title={
+    <>
+      Minimal Docs
+      <br />
+      <em className="vocs:block vocs:font-semibold vocs:not-italic vocs:text-heading">
+        for Agents &amp; Humans.
+      </em>
+    </>
+  }
+  packageName="vocs@rc"
+  packageType="init"
+/>

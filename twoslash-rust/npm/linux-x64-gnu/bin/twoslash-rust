@@ -1,0 +1,3 @@
+#!/usr/bin/env node
+console.error('twoslash-rust binary not built. Run: cd twoslash-rust && cargo build --release')
+process.exit(1)

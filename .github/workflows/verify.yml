@@ -4,10 +4,9 @@ on:
   workflow_dispatch:
 
 jobs:
-  check:
-    name: Check
+  checks:
+    name: Checks
     runs-on: ubuntu-latest
-    timeout-minutes: 5
 
     steps:
       - name: Clone repository
@@ -18,32 +17,62 @@ jobs:
 
       - name: Check code
         run: pnpm check
-      
-      - uses: stefanzweifel/git-auto-commit-action@v6
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          commit_message: 'chore: format'
-          commit_user_name: 'github-actions[bot]'
-          commit_user_email: 'github-actions[bot]@users.noreply.github.com'
 
-  build:
-    name: Build
+      - name: Check types
+        run: pnpm check:types
+
+      - name: Check twoslash
+        run: pnpm docs:twoslash
+
+  test:
+    name: Test Runtime
     runs-on: ubuntu-latest
-    timeout-minutes: 5
-
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
+
+      - name: Run tests
+        run: pnpm run test --bail=1
+        env:
+          CI: true
+
+  test-twoslash-rust:
+    name: Test twoslash-rust
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: twoslash-rust
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+
+      - name: Cache Rust
+        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2
+        with:
+          workspaces: twoslash-rust
+
+      - name: Format
+        run: cargo fmt --all -- --check
 
       - name: Build
-        run: pnpm build
+        run: cargo build --verbose
 
-  types:
-    name: Check types
+      - name: Run tests
+        run: cargo test --verbose
+        env:
+          INSTA_FORCE_PASS: 1
+
+  test-twoslash-rust-integration:
+    name: Test twoslash-rust Integration
     runs-on: ubuntu-latest
 
     steps:
@@ -53,5 +82,24 @@ jobs:
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
 
-      - name: Check
-        run: pnpm check:types
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust
+        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2
+        with:
+          workspaces: twoslash-rust
+
+      - name: Build twoslash-rust binary
+        run: cargo build --release
+        working-directory: twoslash-rust
+
+      - name: Build twoslash-rust package
+        run: pnpm --filter @vocs/twoslash-rust build
+
+      - name: Run integration tests
+        run: pnpm vitest src/internal/twoslash/experimental_rust.test.ts --run
+
+      - name: Check twoslash
+        run: pnpm docs:twoslash --lang rust
+

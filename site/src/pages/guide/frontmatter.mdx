@@ -1,0 +1,154 @@
+# Frontmatter [Configure page metadata, layouts, search, and UI visibility]
+
+Use YAML frontmatter at the top of an `.mdx` page to control page metadata, layout, and page-level UI.
+
+```mdx
+---
+title: Getting Started
+description: Install Vocs and ship your first docs site.
+---
+```
+
+Vocs preserves custom frontmatter keys and passes them through to the page layout and MDX context, so you can also use frontmatter in your own wrappers and components.
+
+## Common Fields
+
+### `title`
+
+Sets the page title used for document metadata.
+
+```mdx
+---
+title: API Reference
+---
+```
+
+### `description`
+
+Sets the page description used for SEO and social sharing metadata.
+
+```mdx
+---
+description: Endpoints, schemas, and examples for the Vocs API.
+---
+```
+
+### `author`
+
+Adds standard author metadata for the page.
+
+```mdx
+---
+author: wevm
+---
+```
+
+### `robots`
+
+Overrides the page-level `robots` meta tag.
+
+```mdx
+---
+robots: noindex, nofollow
+---
+```
+
+## Layout and UI
+
+### `layout`
+
+Controls the page shell.
+
+- `full`: sidebar, top nav, content, and outline
+- `minimal`: top nav and centered content
+- `blank`: content only
+
+```mdx
+---
+layout: minimal
+---
+```
+
+### `outline`
+
+Controls the table of contents on the right side of the page.
+
+- Set `false` to hide it.
+- Set a number to enable it and limit the heading depth.
+
+```mdx
+---
+outline: 2
+---
+```
+
+### Visibility Toggles
+
+These options override the defaults for the selected layout:
+
+- `showSidebar`
+- `showTopNav`
+- `showLogo`
+- `showSearch`
+- `showAskAi`
+- `showFeedback`
+
+```mdx
+---
+layout: minimal
+showSearch: false
+showFeedback: false
+---
+```
+
+## Search
+
+### `searchPriority`
+
+Vocs reads `searchPriority` when building the local search index.
+
+- `0` excludes the page from search results
+- higher numbers boost the page relative to other matches
+
+```mdx
+---
+searchPriority: 5
+---
+```
+
+## Custom Fields
+
+You can add arbitrary frontmatter keys for your own layouts, wrappers, or components.
+
+```mdx
+---
+status: beta
+section: api
+---
+```
+
+## Auto-Injected Fields
+
+Vocs also adds a few fields automatically at build time:
+
+- `filePath`: the file path relative to `src/pages`
+- `lastModified`: the page's last modified date from git history, when available
+
+These are mainly useful for built-in features such as edit links and last-updated UI, and usually should not be set manually.
+
+## Example
+
+```mdx
+---
+title: API Reference
+description: Endpoints, schemas, and examples for the Vocs API.
+layout: full
+outline: 2
+author: wevm
+robots: index, follow
+showAskAi: false
+showFeedback: false
+searchPriority: 3
+status: stable
+---
+```

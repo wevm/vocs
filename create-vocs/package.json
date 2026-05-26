@@ -1,20 +1,42 @@
 {
+  "scripts": {
+    "build": "zile",
+    "dev": "zile dev"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "zile": "catalog:"
+  },
+  "[!start-pkg]": "",
   "name": "create-vocs",
-  "version": "1.0.0",
+  "version": "2.0.0-rc.2",
   "type": "module",
   "bin": {
-    "create-vocs": "./_lib/bin.js"
+    "create-vocs": "./dist/bin.js",
+    "create-vocs.src": "./bin.ts"
   },
-  "main": "./_lib/index.js",
   "exports": {
-    ".": "./_lib/index.js"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "src": "./index.ts",
+      "default": "./dist/index.js"
+    }
   },
+  "files": [
+    "dist",
+    "template"
+  ],
   "dependencies": {
-    "@clack/prompts": "^0.7.0",
-    "cac": "^6.7.14",
-    "detect-package-manager": "^3.0.2",
-    "fs-extra": "^11.3.0",
+    "@clack/prompts": "^0.11.0",
     "picocolors": "^1.1.1"
   },
-  "repository": "wevm/vocs"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wevm/vocs"
+  },
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts"
 }

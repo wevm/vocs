@@ -1,0 +1,44 @@
+{
+  "name": "@vocs/twoslash-rust",
+  "version": "0.1.0-rc.0",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wevm/vocs"
+  },
+  "main": "./dist/index.js",
+  "bin": {
+    "twoslash-rust": "./dist/bin.js",
+    "twoslash-rust.src": "./src/bin.ts"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "src": "./src/index.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "zile",
+    "build:rust": "cargo build --release",
+    "build:npm": "node --experimental-strip-types scripts/build-npm.ts"
+  },
+  "dependencies": {
+    "detect-libc": "^2.0.3"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "zile": "^0.0.19"
+  },
+  "optionalDependencies": {
+    "@vocs/twoslash-rust-darwin-arm64": "workspace:*",
+    "@vocs/twoslash-rust-linux-x64-gnu": "workspace:*"
+  },
+  "sideEffects": false,
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts"
+}

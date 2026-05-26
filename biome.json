@@ -1,49 +1,93 @@
 {
-  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
-  "files": {
-    "includes": [
-      "**",
-      "!**/_lib",
-      "!**/dist",
-      "!**/node_modules",
-      "!**/tsconfig.json",
-      "!**/tsconfig.*.json",
-      "!**/.vercel",
-      "!**/.vocs"
-    ]
+  "$schema": "https://biomejs.dev/schemas/latest/schema.json",
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
+    },
+    "formatter": {
+      "lineWidth": 120
+    }
   },
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+
   "formatter": {
     "enabled": true,
-    "formatWithErrors": false,
-    "indentStyle": "space",
-    "indentWidth": 2,
-    "lineWidth": 100
+    "indentStyle": "space"
   },
   "linter": {
     "enabled": true,
     "rules": {
+      "recommended": true,
       "style": {
-        "noNonNullAssertion": "off"
+        "noDescendingSpecificity": "off",
+        "useTemplate": "off"
       },
-      "a11y": {
-        "useSemanticElements": "off"
-      },
-      "performance": {
-        "noDynamicNamespaceImportAccess": "off"
-      },
-      "suspicious": {
-        "noAssignInExpressions": "off",
-        "noExplicitAny": "off",
-        "noArrayIndexKey": "off"
+      "complexity": {
+        "useLiteralKeys": "off",
+        "noImportantStyles": "off"
       }
     }
   },
   "javascript": {
     "formatter": {
       "quoteStyle": "single",
-      "trailingCommas": "all",
+      "lineWidth": 100,
       "semicolons": "asNeeded"
+    },
+    "linter": {
+      "enabled": true
     }
   },
-  "assist": { "actions": { "source": { "organizeImports": "on" } } }
+  "html": {
+    "formatter": {
+      "enabled": true
+    },
+    "linter": {
+      "enabled": true
+    }
+  },
+  "json": {
+    "formatter": {
+      "enabled": true
+    },
+    "linter": {
+      "enabled": true
+    }
+  },
+  "assist": {
+    "enabled": true,
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
+    }
+  },
+  "overrides": [
+    {
+      "includes": [
+        "biome.json",
+        "**/*.jsonc",
+        ".vscode/*.json"
+      ],
+      "formatter": {
+        "enabled": true
+      },
+      "json": {
+        "linter": {
+          "enabled": true
+        },
+        "formatter": {
+          "lineWidth": 1
+        },
+        "parser": {
+          "allowComments": true,
+          "allowTrailingCommas": true
+        }
+      }
+    }
+  ]
 }

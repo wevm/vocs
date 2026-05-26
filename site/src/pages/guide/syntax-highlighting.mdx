@@ -1,0 +1,416 @@
+# Code & Syntax Highlighting [Rich markup and annotations for code]
+
+Use fenced code blocks with triple backticks (`` ``` ``) to format code. Add a language identifier to enable syntax highlighting.
+
+For reusable code snippets and `// [!include ...]`, see [Code Snippets](/guide/code-snippets).
+
+:::code-group
+<div data-title="Preview">
+```ts
+export function hello(name: string = 'World') {
+  return `Hello, ${name}!`
+}
+```
+</div>
+````md [Markdown]
+```ts
+export function hello(name: string = 'World') {
+  return `Hello, ${name}!`
+}
+```
+````
+:::
+
+## Titles
+
+Code blocks can have titles. Add the title in the code block metadata after the opening backticks.
+
+:::code-group
+<div data-title="Preview">
+<span/>
+```ts [hello.ts]
+export function hello(name: string = 'World') {
+  return `Hello, ${name}!`
+}
+```
+</div>
+````md [Markdown]
+```ts [hello.ts]
+export function hello(name: string = 'World') {
+  return `Hello, ${name}!`
+}
+```
+````
+:::
+
+## Line Numbers
+
+:::code-group
+<div data-title="Preview">
+```ts
+// [!code line-numbers]
+export function hello(name: string = 'World') {
+  return `Hello, ${name}!`
+}
+```
+</div>
+````md [Markdown]
+```ts
+// [\!code line-numbers]
+export function hello(name: string = 'World') {
+  return `Hello, ${name}!`
+}
+```
+````
+:::
+
+## Word Wrap Toggle
+
+:::code-group
+<div data-title="Preview">
+```ts
+// [!code show-wrap]
+export function Head() {
+  return (
+    <>
+      {/* Theme initialization (prevents FOUC) */}
+      <script
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: blocking script to prevent FOUC
+        dangerouslySetInnerHTML={{
+          __html: `(function(){try{var t=localStorage.getItem('vocs-theme');if(t==='light'||t==='dark'){document.documentElement.style.colorScheme=t}else if(window.matchMedia('(prefers-color-scheme:dark)').matches){document.documentElement.style.colorScheme='dark'}else if(window.matchMedia('(prefers-color-scheme:light)').matches){document.documentElement.style.colorScheme='light'}else{document.documentElement.style.colorScheme='dark'}}catch(e){}})()`,
+        }}
+      />
+    <>
+  )
+}
+```
+</div>
+````md [Markdown]
+```ts
+// [\!code show-wrap]
+export function Head() {
+  return (
+    <>
+      {/* Theme initialization (prevents FOUC) */}
+      <script
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: blocking script to prevent FOUC
+        dangerouslySetInnerHTML={{
+          __html: `(function(){try{var t=localStorage.getItem('vocs-theme');if(t==='light'||t==='dark'){document.documentElement.style.colorScheme=t}else if(window.matchMedia('(prefers-color-scheme:dark)').matches){document.documentElement.style.colorScheme='dark'}else if(window.matchMedia('(prefers-color-scheme:light)').matches){document.documentElement.style.colorScheme='light'}else{document.documentElement.style.colorScheme='dark'}}catch(e){}})()`,
+        }}
+      />
+    <>
+  )
+}
+```
+````
+:::
+
+## Line Focus
+
+:::code-group
+<div data-title="Preview">
+```ts
+export function hello(name: string = 'World') {
+  return `Hello, ${name}!` // [!code focus]
+}
+```
+</div>
+````md [Markdown]
+```ts
+export function hello(name: string = 'World') {
+  return `Hello, ${name}!` // [\!code focus]
+}
+```
+````
+:::
+
+## Word Focus
+
+:::code-group
+<div data-title="Preview">
+```ts
+// [!code word:name]
+export function hello(name: string = 'World') {
+  return `Hello, ${name}!`
+}
+```
+</div>
+````md [Markdown]
+```ts
+// [\!code word:name]
+export function hello(name: string = 'World') {
+  return `Hello, ${name}!`
+}
+```
+````
+:::
+
+## Diff
+
+:::code-group
+<div data-title="Preview">
+```ts
+export function hello(name: string = 'World') {
+  return `Hello, ${name}!` // [!code --]
+  return `Howdy, ${name}!` // [!code ++]
+}
+```
+</div>
+````md [Markdown]
+```ts
+export function hello(name: string = 'World') {
+  return `Hello, ${name}!` // [\!code --]
+  return `Howdy, ${name}!` // [\!code ++]
+}
+```
+````
+:::
+
+## Collapse
+
+:::code-group
+<div data-title="Preview">
+```ts
+export function hello(name: string = 'World') { // [!code collapse:1 collapsed]
+  return `Hello, ${name}!`
+}
+```
+</div>
+````md [Markdown]
+```ts
+export function hello(name: string = 'World') { // [\!code collapse:1 collapsed]
+  return `Hello, ${name}!`
+}
+```
+````
+:::
+
+## Fold
+
+:::code-group
+<div data-title="Preview">
+```tsx
+// [!code fold /(?<=")[^"]{10,}(?=")/g]
+function Foo() {
+  return (
+    <article className="bg-red-200 opacity-50">
+      <h1 className="block text-lg">Hello, World!</h1>
+    </article>
+  )
+}
+```
+</div>
+````md [Markdown]
+```tsx
+// [\!code fold /(?<=")[^"]{10,}(?=")/g]
+function Foo() {
+  return (
+    <div className="bg-red-200 opacity-50">
+      <span className="block text-lg">hey</span>
+    </div>
+  )
+}
+```
+````
+:::
+
+## Annotations
+
+Not to be confused with [Twoslash Callouts](/guide/twoslash#callouts), annotations work without Twoslash.
+
+:::code-group
+<div data-title="Preview">
+```ts
+const a = 1
+// @log: Custom log message
+const b = 1
+// @error: Custom error message
+const c = 1
+// @warn: Custom warning message
+const d = 1
+// @annotate: Custom annotation message
+```
+</div>
+````md [Markdown]
+```ts
+const a = 1
+// @\log: Custom log message
+const b = 1
+// @\error: Custom error message
+const c = 1
+// @\warn: Custom warning message
+const d = 1
+// @\annotate: Custom annotation message
+```
+````
+:::
+
+## Shell Commands
+
+Shell code blocks with prompt symbols have per-line copy buttons and the prompt is not copied.
+
+:::code-group
+<div data-title="Preview">
+```bash
+$ pnpm create vocs@rc
+$ pnpm vocs dev
+$ pnpm vocs build
+$ pnpm vocs preview
+```
+</div>
+````md [Markdown]
+```bash
+$ pnpm create vocs@rc
+$ pnpm vocs dev
+$ pnpm vocs build
+$ pnpm vocs preview
+```
+````
+:::
+
+## ANSI
+
+Use `ansi` code blocks for terminal output with ANSI escape sequences.
+
+:::code-group
+<div data-title="Preview">
+```ansi
+\x1b[0;32mcolored foreground\x1b[0m
+\x1b[0;42mcolored background\x1b[0m
+\x1b[0;1mbold text\x1b[0m
+```
+</div>
+````md [Markdown]
+```ansi
+\x1b[0;32mcolored foreground\x1b[0m
+\x1b[0;42mcolored background\x1b[0m
+\x1b[0;1mbold text\x1b[0m
+```
+````
+:::
+
+## Terminal Directive
+
+For cleaner separation of commands and output, use the `:::terminal` directive. This stitches code blocks together visually.
+
+:::::code-group
+<div data-title="Preview">
+:::terminal
+```bash
+forge test
+```
+```ansi
+\x1b[32m[PASS]\x1b[0m test_Increment() (gas: 28783)
+Suite result: \x1b[32mok\x1b[0m. \x1b[32m1\x1b[0m passed.
+```
+:::
+</div>
+````md [Markdown]
+:::terminal
+```bash
+forge test
+```
+```ansi
+\x1b[32m[PASS]\x1b[0m test_Increment() (gas: 28783)
+Suite result: \x1b[32mok\x1b[0m. \x1b[32m1\x1b[0m passed.
+```
+:::
+````
+:::::
+
+## Code Groups
+
+Code groups let related snippets share one framed surface.
+
+::::code-group
+<div data-title="Preview">
+:::code-group
+<div data-title="Preview">
+```ts
+export function hello(name: string = 'World') {
+  return `Hello, ${name}!`
+}
+```
+</div>
+````md [Markdown]
+```ts
+export function hello(name: string = 'World') {
+  return `Hello, ${name}!`
+}
+```
+````
+:::
+</div>
+``````md [Markdown]
+:::code-group
+<div data-title="Preview">
+```ts
+export function hello(name: string = 'World') {
+  return `Hello, ${name}!`
+}
+```
+</div>
+````md [Markdown]
+```ts
+export function hello(name: string = 'World') {
+  return `Hello, ${name}!`
+}
+```
+````
+:::
+``````
+::::
+
+Code groups automatically display icons based on the label text.
+
+:::code-group
+```bash [npm]
+npm i vocs@rc
+```
+```bash [pnpm]
+pnpm add vocs@rc
+```
+```bash [yarn]
+yarn add vocs@rc
+```
+```bash [bun]
+bun add vocs@rc
+```
+:::
+
+Code groups with package manager tabs automatically sync across the page.
+
+:::code-group
+```bash [npm]
+npm create vocs@rc
+```
+```bash [pnpm]
+pnpm create vocs@rc
+```
+```bash [yarn]
+yarn create vocs@rc
+```
+```bash [bun]
+bun create vocs@rc
+```
+:::
+
+## Inline Code
+
+:::code-group
+<div data-title="Preview">
+Inline `code` has `back-ticks around` it.
+
+Inline [`code`](#inline-code) with link.
+
+Inline `console.log("hello world"){:js}` highlighted code.
+
+Inline ANSI `> Local: \x1b[0;36mhttp://localhost:\x1b[0;36;1m3000\x1b[0;36m/\x1b[0m{:ansi}`.
+</div>
+```md [Markdown]
+Inline `code` has `back-ticks around` it.
+Inline [`code`](#inline-code) with link.
+Inline `console.log("hello world"){:js}` highlighted code.
+Inline ANSI `> Local: \x1b[0;36mhttp://localhost:\x1b[0;36;1m3000\x1b[0;36m/\x1b[0m{:ansi}`.
+```
+:::

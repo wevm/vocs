@@ -1,0 +1,166 @@
+# Code Snippets [Include and reuse code in Markdown]
+
+Code snippets in Vocs come in two forms:
+
+- virtual file snippets defined in your Markdown code
+- physical file snippets loaded from your file system
+
+Use snippets when you want to reuse code across examples, keep docs examples close to source files, or compose larger examples from smaller regions.
+
+For code formatting, highlighting, annotations, terminal output, and code groups, see [Code & Syntax Highlighting](/guide/syntax-highlighting).
+
+## Virtual File Snippets
+
+Define a virtual file with `filename="..."`, then include it in another code block.
+
+::::steps
+
+### Create the snippet
+
+````mdx [example.mdx]
+```ts filename="client.ts"
+import { http, createPublicClient } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = createPublicClient({
+  chain: mainnet,
+  transport: http(),
+})
+```
+````
+
+### Import the snippet
+
+````mdx [example.mdx]
+#### Use Actions
+
+```ts
+// [\!include client.ts]
+const blockNumber = await client.getBlockNumber()
+```
+````
+
+### Output
+
+#### Use Actions
+
+```ts
+// [!include client.ts]
+const blockNumber = await client.getBlockNumber()
+```
+
+::::
+
+## Physical File Snippets
+
+Include code from files on disk with a root-relative `~/` path.
+
+::::steps
+
+### Create the snippet
+
+```ts [src/snippets/example.ts]
+// [!include ~/snippets/example.ts]
+```
+
+### Import the snippet
+
+````mdx [example.mdx]
+```ts
+// [\!include ~/snippets/example.ts]
+```
+````
+
+:::info
+The `~` prefix resolves from your configured `srcDir`. With the default Vocs structure, `~/snippets/example.ts` resolves to `src/snippets/example.ts`.
+:::
+
+### Output
+
+```ts
+// [!include ~/snippets/example.ts]
+```
+
+::::
+
+## Regions
+
+Use `// [!region name]` and `// [!endregion name]` markers when you only want to include part of a source file.
+
+:::code-group
+```ts [src/snippets/example.ts]
+// [\!region setup]
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = createPublicClient({
+  chain: mainnet,
+  transport: http(),
+})
+// [\!endregion setup]
+```
+
+````mdx [example.mdx]
+```ts
+// [\!include ~/snippets/example.ts:setup]
+```
+````
+:::
+
+The rendered snippet only includes the selected region:
+
+```ts
+// [!include ~/snippets/example.ts:setup]
+```
+
+## Find and Replace
+
+Use `/find/replace/` syntax to modify included code while rendering the page.
+
+:::code-group
+<div data-title="Preview">
+```ts
+// [!include ~/snippets/example.ts:setup /mainnet/optimism/]
+```
+</div>
+````mdx [example.mdx]
+```ts
+// [\!include ~/snippets/example.ts:setup /mainnet/optimism/]
+```
+````
+:::
+
+## Twoslash Virtual Files
+
+Virtual files also work with [Twoslash](/guide/twoslash), so examples can import from each other and still get type information.
+
+::::code-group
+<div data-title="Preview">
+:::code-group
+```ts twoslash [example.ts]
+import { hello } from './hello.ts'
+
+console.log(hello('Vocs'))
+```
+```ts twoslash [hello.ts] filename="hello.ts"
+export function hello(name: string = 'World') {
+  return `Hello, ${name}!`
+}
+```
+:::
+</div>
+``````md [Markdown]
+:::code-group
+```ts twoslash [example.ts]
+import { hello } from './hello.ts'
+
+console.log(hello('Vocs'))
+```
+```ts twoslash [hello.ts] filename="hello.ts"
+export function hello(name: string = 'World') {
+  return `Hello, ${name}!`
+}
+```
+:::
+``````
+::::

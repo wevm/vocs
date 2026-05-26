@@ -1,0 +1,295 @@
+# Project Structure [Overview of the structure of a Vocs project]
+
+## Overview
+
+A new Vocs project created with `create-vocs` includes these files by default:
+
+:::file-tree
+- +my-project Your project's root directory.
+  - **+src** Application source files.
+    - **+pages** Documentation pages.
+      - **index.mdx** The home page.
+  - package.json Project scripts and dependencies.
+  - **vocs.config.ts** Site configuration.
+:::
+
+By default, Vocs reads routes from `src/pages`. You can change where Vocs looks with options such as [`rootDir`](/reference/site-config#rootdir) and [`srcDir`](/reference/site-config#srcdir), but this guide covers the default scaffolded layout.
+
+## Possible Files
+
+A Vocs project can include these file types. Most projects only use a subset.
+
+:::file-tree
+- +my-project Your project's root directory.
+  - +public Static assets served from `/`.
+    - logo.svg Static asset.
+  - +src Application source files.
+    - +pages Documentation routes.
+      - index.mdx MDX page.
+      - getting-started.md Markdown page.
+      - about.tsx React page.
+      - _root.css Global styles.
+      - _slots.tsx Layout slots.
+      - _mdx-wrapper.tsx MDX wrapper.
+      - _root.tsx Custom app root.
+      - _layout.tsx Custom route layout.
+      - +_api API routes.
+        - health.ts API route.
+      - +_components Page-local components.
+        - Note.tsx Ignored by routing.
+      - +_hooks Page-local hooks.
+        - useDocs.ts Ignored by routing.
+    - +middleware Waku middleware modules.
+      - auth.ts Middleware module.
+    - waku.client.tsx Custom Waku client entry.
+    - waku.server.tsx Custom Waku server entry.
+  - package.json Project scripts and dependencies.
+  - tsconfig.json TypeScript configuration.
+  - vite.config.ts Vite configuration.
+  - vocs.config.ts Site configuration.
+:::
+
+## Configuration
+
+`vocs.config.ts` defines global site metadata, navigation, theme options, and integrations.
+
+:::file-tree
+- +my-project
+  - vocs.config.ts Site configuration.
+  - vocs.config.mts ESM TypeScript config.
+  - vocs.config.js JavaScript config.
+  - vocs.config.mjs ESM JavaScript config.
+:::
+
+Use one Vocs config file at the project root.
+
+```ts [vocs.config.ts]
+import { defineConfig } from 'vocs/config'
+
+export default defineConfig({
+  title: 'Docs',
+  sidebar: [
+    {
+      text: 'Welcome',
+      link: '/',
+    },
+  ],
+})
+```
+
+Use it to configure things like your `title`, `description`, `sidebar`, `topNav`, `logoUrl`, and integrations such as `feedback`, `mcp`, and `changelog`.
+
+[Read the Site Configuration reference](/reference/site-config)
+
+## Pages
+
+`src/pages` is the content root for your documentation site. Vocs turns files in this directory into routes.
+
+:::file-tree
+- +src
+  - +pages
+    - index.mdx The home page.
+    - getting-started.md Markdown page.
+    - about.tsx React page.
+    - +guide Nested route segment.
+      - index.mdx Page at `/guide`.
+      - installation.mdx Page at `/guide/installation`.
+:::
+
+- `src/pages/index.mdx` becomes `/`
+- `src/pages/guide/getting-started.mdx` becomes `/guide/getting-started`
+- `src/pages/reference/index.mdx` becomes `/reference`
+
+Pages can be written as Markdown, MDX, or React components:
+
+- `.md`
+- `.mdx`
+- `.tsx`
+
+[Read Sidebar & Top Navigation](/guide/navigation)
+
+## Static Assets
+
+Use the `public` directory for files that should be served as-is, such as images, icons, and fonts.
+
+:::file-tree
+- +public
+  - favicon.ico Site icon.
+  - logo.svg Site logo.
+  - +fonts Font files.
+  - +images Shared images.
+:::
+
+Files in `public` are available at the site root:
+
+```mdx [src/pages/index.mdx]
+![Logo](/logo.svg)
+```
+
+```tsx [Example.tsx]
+<img src="/logo.svg" alt="Logo" />
+```
+
+Use `public` when you need a stable URL like `/logo.svg` or `/favicon.ico`. For page-local images, prefer importing assets next to the page that uses them.
+
+[Read Asset Handling](/guide/asset-handling)
+
+## Styles
+
+Create `src/pages/_root.css` when you want to add global styles for your docs site. Vocs loads this file automatically.
+
+:::file-tree
+- +src
+  - +pages
+    - _root.css Global docs styles.
+:::
+
+```css [src/pages/_root.css]
+:root {
+  --vocs-color-background: white;
+}
+
+:root[style*='color-scheme:dark'],
+:root[style*='color-scheme: dark'] {
+  --vocs-color-background: #232225;
+}
+```
+
+This is the right place for global CSS variables, font declarations, and site-wide tweaks. When you want your overrides to follow the built-in theme toggle, target the document's `color-scheme` instead of a `.dark` class.
+
+[Read Theming](/guide/theming)
+
+[Read Tailwind CSS](/guide/tailwind)
+
+## Layout
+
+Use layout files when you need to customize the shell around pages.
+
+:::file-tree
+- +src
+  - +pages
+    - _root.tsx Custom app root.
+    - _layout.tsx Custom route layout.
+    - _mdx-wrapper.tsx Directory MDX wrapper.
+    - +guide
+      - _mdx-wrapper.tsx Guide MDX wrapper.
+:::
+
+Create `_mdx-wrapper.tsx` when you want to wrap every Markdown or MDX page in a directory with shared UI.
+
+```tsx [src/pages/guide/_mdx-wrapper.tsx]
+export default function GuideWrapper(props: { children: React.ReactNode }) {
+  return <div className="guide-shell">{props.children}</div>
+}
+```
+
+That wrapper will apply to the MDX pages in `guide`. Nested directories can define their own `_mdx-wrapper.tsx` files to override a parent wrapper.
+
+Use `_root.tsx` and `_layout.tsx` only when you need lower-level Waku layout control. For most page shell changes, start with frontmatter layouts or `_mdx-wrapper.tsx`.
+
+[Read Layouts](/guide/layouts)
+
+## Slots
+
+Create `src/pages/_slots.tsx` when you want to inject React components into built-in layout slots.
+
+:::file-tree
+- +src
+  - +pages
+    - _slots.tsx Layout slot components.
+:::
+
+Vocs currently looks for these exports:
+
+- `Footer`
+- `OutlineFooter`
+- `SidebarHeader`
+
+```tsx [src/pages/_slots.tsx]
+export function SidebarHeader() {
+  return <div>Acme Docs</div>
+}
+
+export function Footer() {
+  return <div>Released under the MIT License.</div>
+}
+```
+
+Use slots when you want to customize parts of the default layout without replacing the whole page shell.
+
+## API Routes
+
+Files in `src/pages/_api` become API routes. The `_api` prefix is stripped from the URL.
+
+:::file-tree
+- +src
+  - +pages
+    - +_api
+      - health.ts API route at `/health`.
+      - +api
+        - og.tsx API route at `/api/og`.
+:::
+
+```ts [src/pages/_api/health.ts]
+export async function GET() {
+  return Response.json({ status: 'ok' })
+}
+```
+
+Dynamic API route modules should only export HTTP handlers such as `GET`, `POST`, or `OPTIONS`. Static API routes should only export `GET` and `getConfig`.
+
+You can also export `default` as a `fetch` handler when you want a single handler for all methods:
+
+```ts [src/pages/_api/proxy.ts]
+export default {
+  async fetch(request: Request) {
+    return Response.json({ method: request.method })
+  },
+}
+```
+
+[Read Dynamic OG Images](/guide/dynamic-og-images)
+
+## Ignored Routes
+
+Use `_components` and `_hooks` under `src/pages` for helpers that should not become routes.
+
+:::file-tree
+- +src
+  - +pages
+    - +_components Page-local components.
+      - Note.tsx Ignored by routing.
+    - +_hooks Page-local hooks.
+      - useDocs.ts Ignored by routing.
+:::
+
+Vocs ignores any route path containing `_components` or `_hooks`. This lets you colocate helpers near the pages that use them without adding accidental URLs.
+
+Use a top-level `src/components` directory when a component is shared across the whole app. Use `src/pages/_components` when a helper belongs to the docs content tree.
+
+## Waku Entries
+
+Vocs manages Waku client and server entries for you by default. Create custom entries only when you need to replace that default behavior.
+
+:::file-tree
+- +src
+  - waku.client.tsx Custom Waku client entry.
+  - waku.server.tsx Custom Waku server entry.
+:::
+
+Most documentation sites should not need these files. Prefer Vocs configuration, page files, layouts, slots, and API routes before replacing the managed Waku entries.
+
+## Generated Files
+
+Vocs generates agent and discovery files during development or builds.
+
+| Path | Purpose |
+| --- | --- |
+| `/llms.txt` | Concise index of docs pages for AI agents. |
+| `/llms-full.txt` | Full docs content in one Markdown file for AI agents. |
+| `/sitemap.xml` | Sitemap generated from documentation routes. |
+| `/robots.txt` | Robots file that references the sitemap. |
+
+`/llms.txt` and `/llms-full.txt` are available for docs sites automatically. `sitemap.xml` and `robots.txt` require `baseUrl` so Vocs can generate absolute URLs for production.
+
+[Read AI Support](/guide/ai-support)

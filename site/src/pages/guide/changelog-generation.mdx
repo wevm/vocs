@@ -1,0 +1,128 @@
+# Changelog Generation [Fetch release notes and render a changelog page]
+
+Vocs can fetch release data from a changelog adapter and render it as a changelog page in your docs.
+
+Out of the box, Vocs includes a GitHub releases adapter and a simple adapter interface for custom sources.
+
+## Configure a Changelog Source
+
+Add a changelog adapter to `vocs.config.ts`:
+
+```ts [vocs.config.ts]
+import { Changelog, defineConfig } from 'vocs/config'
+
+export default defineConfig({
+  changelog: Changelog.github({ repo: 'wevm/vocs' }),
+})
+```
+
+With this configuration, Vocs fetches releases from the GitHub Releases API.
+
+## GitHub Adapter
+
+Use `Changelog.github()` to read releases from a GitHub repository.
+
+```ts
+import { Changelog } from 'vocs/config'
+
+Changelog.github({
+  repo: 'wevm/vocs',
+  prereleases: true,
+  token: process.env['GITHUB_TOKEN'],
+})
+```
+
+Use the options as follows:
+
+- `repo`: GitHub repository in `owner/repo` format
+- `prereleases`: Include prereleases in the returned changelog
+- `token`: Optional GitHub token for authenticated requests and higher rate limits
+
+If you do not pass `token`, Vocs falls back to `GITHUB_TOKEN`.
+
+## Render the Built-in Changelog
+
+Use the `::changelog` directive in an MDX page to render releases from your configured adapter.
+
+```mdx [src/pages/changelog.mdx]
+# Changelog
+
+::changelog
+```
+
+You can also limit the number of releases shown:
+
+```mdx [src/pages/changelog.mdx]
+::changelog{limit=10}
+```
+
+This is how the [Vocs changelog page](/guide/changelog) is rendered.
+
+## Custom Adapters
+
+If your releases live somewhere other than GitHub, create a custom adapter with `Changelog.from()`.
+
+```ts [vocs.config.ts]
+import { Changelog, defineConfig } from 'vocs/config'
+
+export default defineConfig({
+  changelog: Changelog.from({
+    type: 'custom',
+    async fetch() {
+      return [
+        {
+          version: 'v1.0.0',
+          title: 'v1.0.0',
+          date: '2026-04-21T00:00:00.000Z',
+          body: 'Initial release.',
+          url: 'https://example.com/releases/v1.0.0',
+        },
+      ]
+    },
+  }),
+})
+```
+
+Each release should provide:
+
+- `version`: Release tag or version string
+- `title`: Human-readable release title
+- `date`: ISO timestamp for the release date
+- `body`: Markdown release notes
+- `url`: Canonical release URL
+
+## Fetch Releases Yourself
+
+For custom pages or layouts, use `Actions.fetchChangelog()` in a server component and render the releases yourself.
+
+```tsx
+import { Actions } from 'vocs/server'
+
+export default async function Page() {
+  const releases = await Actions.fetchChangelog({ limit: 10 })
+
+  return (
+    <div>
+      <h1>Changelog</h1>
+      {releases.map((release) => (
+        <article key={release.version}>
+          <h2>
+            <a href={release.url}>{release.title}</a>
+          </h2>
+          <p>{new Date(release.date).toLocaleDateString()}</p>
+          <div dangerouslySetInnerHTML={{ __html: release.bodyHtml ?? '' }} />
+        </article>
+      ))}
+    </div>
+  )
+}
+```
+
+`fetchChangelog()` renders each release body from Markdown to HTML before returning it.
+
+## Notes
+
+- If `changelog` is not configured, the built-in changelog renders no releases.
+- The `::changelog` directive uses your configured adapter and supports `limit`.
+- For a minimal setup, configure `changelog` in `vocs.config.ts` and create a page containing
+`::changelog`.

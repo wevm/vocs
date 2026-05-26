@@ -1,0 +1,79 @@
+# Writing Docs with AI [Use an AI agent to create and maintain Vocs documentation]
+
+Vocs is designed to work well with AI agents. The best results come from giving the agent a clear docs task, the Vocs guides it should read, the files it should edit, and the command it should run to verify the site.
+
+## Start with a Prompt
+
+For a new docs site, ask your agent to read the Getting Started guide first:
+
+```txt
+Read https://vocs.dev/guide/getting-started and set up Vocs for my project.
+```
+
+For an existing project, give the agent a tighter task:
+
+```txt
+Read https://vocs.dev/guide/getting-started, https://vocs.dev/guide/structure, and https://vocs.dev/guide/markdown-extensions.
+
+Then audit this project and add Vocs documentation. Edit the docs source files, update navigation, and run the docs build when you are done.
+```
+
+## Files Agents Usually Edit
+
+| File | Purpose |
+| --- | --- |
+| `vocs.config.ts` | Site title, description, navigation, integrations, and theme config. |
+| `src/pages/**/*.md` | Markdown-only documentation pages. |
+| `src/pages/**/*.mdx` | Documentation pages that use imports, JSX, or Vocs components. |
+| `src/pages/_root.css` | Global docs styles and theme token overrides. |
+| `public/**` | Static assets such as logos, images, favicons, and fonts. |
+
+Ask agents to avoid generated files, build output, and unrelated application code unless the docs task explicitly requires them.
+
+## Add a Page
+
+When asking an agent to add a page, include the route, audience, and outcome:
+
+```txt
+Add a Vocs page at src/pages/guide/authentication.mdx for developers integrating authentication.
+
+Explain the happy path first, include one minimal code example, add a troubleshooting section, and add the page to the sidebar.
+```
+
+For pages that should work well in `llms.txt`, ask for clear headings and a short description:
+
+```txt
+Use a descriptive H1 with bracketed subtext, keep sections task-based, and avoid placeholder examples.
+```
+
+## Update Navigation
+
+Vocs navigation lives in `vocs.config.ts`. When an agent adds, removes, or renames pages, ask it to update the sidebar in the same change.
+
+```txt
+After creating the page, update the Vocs sidebar so the new route appears in the right section.
+```
+
+## Verify the Result
+
+End every docs prompt with a verification step. The exact command depends on your package manager and scripts, but most Vocs projects expose a build script.
+
+```txt
+Run the docs build, fix any broken links or MDX errors, and tell me the local URL I can open.
+```
+
+If the agent changes code examples, ask it to check that imports, filenames, and snippet paths match the project.
+
+## Useful Follow-Up Prompts
+
+```txt
+Audit these docs as if you are a first-time developer using this SDK. List missing pages, unclear examples, and navigation problems.
+```
+
+```txt
+Rewrite this page to be easier for an AI agent to retrieve. Keep headings task-based, add a concise description, and remove placeholder examples.
+```
+
+```txt
+Find code examples in the docs that do not match the current source code and update them.
+```

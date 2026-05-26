@@ -1,0 +1,204 @@
+---
+outline: 2
+---
+
+import { Badge, Card, Cards } from 'vocs'
+
+# Using React in Markdown [Compose MDX pages with React components]
+
+Vocs pages are MDX, so you can mix Markdown for prose with React components for reusable UI, shared page structure, and client-side behavior.
+
+Use plain `.md` when a page is just Markdown. Switch to `.mdx` when the page needs imports, JSX, or JavaScript expressions.
+
+## Import Public Vocs Components
+
+Vocs exports React components such as `Badge`, `Callout`, `Card`, `Cards`, `Link`, `Tab`, and `Tabs`. Import them from `vocs` like any other React module.
+
+:::code-group
+<div data-title="Preview">
+  <Cards>
+    <Card
+    title="Components"
+    description="Reference for the public React components exported from Vocs."
+    to="/reference/components"
+    topRight={<Badge variant="success">Public</Badge>}
+    />
+    <Card
+    title="Markdown Extensions"
+    description="Docs-first syntax for callouts, steps, code groups, and more."
+    to="/guide/markdown-extensions"
+    topRight={<Badge variant="tip">MDX</Badge>}
+    />
+  </Cards>
+</div>
+```mdx [Markdown]
+import { Badge, Card, Cards } from 'vocs'
+
+<Cards>
+  <Card
+    title="Components"
+    description="Reference for the public React components exported from Vocs."
+    to="/reference/components"
+    topRight={<Badge variant="success">Public</Badge>}
+  />
+  <Card
+    title="Markdown Extensions"
+    description="Docs-first syntax for callouts, steps, code groups, and more."
+    to="/guide/markdown-extensions"
+    topRight={<Badge variant="tip">MDX</Badge>}
+  />
+</Cards>
+```
+:::
+
+Use the [Components](/reference/components) reference for the full list of public React exports.
+
+## Import Your Own Components
+
+Create site-specific components in your app, then import them into an `.mdx` page with a normal relative import.
+
+:::code-group
+```tsx [src/components/ApiNotice.tsx]
+import { Callout } from 'vocs'
+
+export function ApiNotice() {
+  return (
+    <Callout variant="warning">
+      This endpoint is available in beta and may change before v1.
+    </Callout>
+  )
+}
+```
+```mdx [src/pages/reference/auth.mdx]
+import { ApiNotice } from '../../components/ApiNotice'
+
+# Auth API
+
+<ApiNotice />
+```
+:::
+
+This works well for shared notices, diagrams, pricing cards, or any other UI that you want to reuse across multiple docs pages.
+
+## Use JavaScript Expressions Inline
+
+MDX also supports inline expressions for small dynamic values.
+
+:::code-group
+<div data-title="Preview">
+Last updated in {new Date().getFullYear()}.
+</div>
+```mdx [Markdown]
+Last updated in {new Date().getFullYear()}.
+```
+:::
+
+Keep expressions small. If the logic starts to feel like UI, move it into a React component.
+
+## Add Interactivity with Client Components
+
+When a component needs browser APIs, local state, or event handlers, make it a client component.
+
+Follow the normal React pattern: add `'use client'` at the top of the component file, then import that component into your MDX page.
+
+:::code-group
+```tsx [src/components/Counter.client.tsx]
+'use client'
+
+import { useState } from 'react'
+
+export function Counter() {
+  const [count, setCount] = useState(0)
+
+  return (
+    <button onClick={() => setCount((count) => count + 1)}>
+      Clicked {count} times
+    </button>
+  )
+}
+```
+```mdx [src/pages/guide/example.mdx]
+import { Counter } from '../../components/Counter.client'
+
+## Interactive example
+
+<Counter />
+```
+:::
+
+The `.client.tsx` suffix is the clearest way to signal that a component is interactive.
+
+## Prefer Markdown for Docs-First Blocks
+
+Not every rich block needs a React import. Vocs already includes Markdown-first syntax for callouts, badges, details, file trees, steps, and code groups.
+
+Prefer that syntax when the content is mostly documentation rather than reusable UI.
+
+::::code-group
+<div data-title="Preview">
+:::note
+Use directives when the content is mostly prose.
+:::
+</div>
+```md [Markdown]
+:::note
+Use directives when the content is mostly prose.
+:::
+```
+::::
+
+For the full syntax, see [Markdown Extensions](/guide/markdown-extensions).
+
+## Wrap a Section with Shared React UI
+
+If a whole directory of pages should share the same React chrome, create an `_mdx-wrapper.tsx` file in that directory.
+
+:::code-group
+```tsx [src/pages/guide/_mdx-wrapper.tsx]
+export default function GuideWrapper(props: { children: React.ReactNode }) {
+  return <div className="guide-shell">{props.children}</div>
+}
+```
+```txt [Applies to]
+src/pages/guide/getting-started.mdx
+src/pages/guide/navigation.mdx
+src/pages/guide/react.mdx
+```
+:::
+
+That wrapper is applied to every Markdown and MDX page in the directory. Nested directories can override it with their own `_mdx-wrapper.tsx` files.
+
+For more on wrappers and page shells, see [Layouts](/guide/layouts).
+
+## Read Frontmatter in a Component
+
+Vocs passes the current page frontmatter through MDX context, so client components can react to page metadata.
+
+:::code-group
+```tsx [src/components/PageStatus.client.tsx]
+'use client'
+
+import { Badge, MdxPageContext } from 'vocs'
+
+export function PageStatus() {
+  const { frontmatter } = MdxPageContext.use()
+  const status = frontmatter?.status
+
+  if (typeof status !== 'string') return null
+
+  return <Badge variant="info">{status}</Badge>
+}
+```
+```mdx [src/pages/reference/auth.mdx]
+---
+status: beta
+---
+
+import { PageStatus } from '../../components/PageStatus.client'
+
+<PageStatus />
+```
+:::
+
+This is useful for page-level badges, notices, or wrappers that respond to custom frontmatter. For the built-in fields, see [Frontmatter](/guide/frontmatter).
+

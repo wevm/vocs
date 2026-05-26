@@ -1,0 +1,111 @@
+# Markdown Snippets [Include other Markdown files in MDX]
+
+Markdown snippets let you reuse Markdown or MDX content across pages by importing one `.mdx` file into another.
+
+:::warning
+Markdown snippets require MDX. If the page importing a snippet is a `.md` file, rename it to `.mdx`.
+:::
+
+## Quick Start
+
+::::steps
+
+### Create a snippet
+
+Create a snippet file next to the page that will import it, or in a shared snippets directory.
+
+```mdx [snippet.mdx]
+### Hello world
+
+This is my snippet.
+```
+
+### Import the snippet
+
+Import the snippet into another MDX file, then render it like a React component.
+
+```mdx [example.mdx]
+import Snippet from './snippet.mdx'
+
+# Example
+
+This is an example of including a snippet in a Markdown file.
+
+<Snippet />
+```
+
+### Output
+
+The rendered page includes both the page content and the imported snippet content.
+
+:::code-group
+<div data-title="Preview">
+# Example
+
+This is an example of including a snippet in a Markdown file.
+
+## Hello world
+
+This is my snippet.
+</div>
+```mdx [Output]
+# Example
+
+This is an example of including a snippet in a Markdown file.
+
+## Hello world
+
+This is my snippet.
+```
+:::
+
+::::
+
+## Passing Props
+
+Imported MDX snippets compile to React components, so you can pass props when rendering them.
+
+:::code-group
+```mdx [example.mdx]
+import Snippet from './snippet.mdx'
+
+# Example
+
+This is an example of including a snippet in a Markdown file.
+
+<Snippet title="Hello world" content="This is my snippet." />
+```
+
+```mdx [snippet.mdx]
+## {props.title}
+
+{props.content}
+```
+:::
+
+Use props for small variations such as names, labels, or short descriptions. If most of the content changes between pages, prefer separate snippets.
+
+## Organizing Snippets
+
+Keep snippets near the pages that use them when they are page-specific.
+
+:::file-tree
+- +src
+  - +pages
+    - +guide
+      - example.mdx
+      - snippet.mdx
+:::
+
+Use a shared directory when a snippet is reused across many pages.
+
+:::file-tree
+- +src
+  - +pages
+    - +_components
+      - BetaNotice.mdx
+    - guide.mdx
+    - reference.mdx
+:::
+
+See also: [Using React in Markdown](/guide/react)

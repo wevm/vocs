@@ -1,9 +1,8 @@
 {
   "editor.defaultFormatter": "biomejs.biome",
-  "typescript.tsdk": "node_modules/typescript/lib",
-  "typescript.enablePromptUseWorkspaceTsdk": true,
-  "[json]": {
-    "editor.defaultFormatter": "biomejs.biome"
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.organizeImports.biome": "explicit"
   },
   "[javascript]": {
     "editor.defaultFormatter": "biomejs.biome"
@@ -17,8 +16,48 @@
   "[typescriptreact]": {
     "editor.defaultFormatter": "biomejs.biome"
   },
-  "css.validate": false,
+  "[html]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[css]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[mdx]": {
+    "editor.defaultFormatter": "unifiedjs.vscode-mdx"
+  },
+  "markdownlint.config": {
+    "MD012": false,
+    "MD033": false,
+    "MD041": false
+  },
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "tailwindCSS.experimental.classRegex": [
+    "vocs:(.*)",
+    // support modern-monaco extraEditorClassName
+    "extraEditorClassName\\(([^)]+)\\)"
+  ],
+  "files.associations": {
+    "biome.json": "jsonc",
+    ".vscode/*": "jsonc",
+    "**/*.css": "tailwindcss"
+  },
+  "files.exclude": {
+    "**/tsconfig.tmp.*": true,
+    "**/tsconfig.tsbuildinfo": true
+  },
+  "files.watcherExclude": {
+    "**/pages.gen.ts": true
+  },
   "search.exclude": {
-    "pnpm-lock.yaml": true
+    "**/pages.gen.ts": true
+  },
+  "files.readonlyInclude": {
+    "**/pages.gen.ts": true
   }
 }
