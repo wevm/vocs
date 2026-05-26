@@ -1,5 +1,16 @@
 # vocs
 
+## 2.0.0
+
+### Major Changes
+
+- db0b626: Released v2
+
+### Patch Changes
+
+- Updated dependencies [db0b626]
+  - @vocs/twoslash-rust@0.1.0
+
 ## 2.0.0-rc.3
 
 ### Patch Changes

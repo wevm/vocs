@@ -54,7 +54,7 @@
   "[!start-pkg]": "",
   "name": "vocs",
   "type": "module",
-  "version": "2.0.0-rc.3",
+  "version": "2.0.0",
   "main": "./dist/index.js",
   "license": "MIT",
   "repository": {
@@ -138,7 +138,7 @@
     "zod": "^4.3.5"
   },
   "peerDependencies": {
-    "@vocs/twoslash-rust": "^0.1.0-rc.0",
+    "@vocs/twoslash-rust": "^0.1.0",
     "mermaid": "^11",
     "react": "^19",
     "react-dom": "^19",
