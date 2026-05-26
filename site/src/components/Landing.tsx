@@ -2,7 +2,7 @@
 
 import type { ReactNode } from 'react'
 import { useState } from 'react'
-import { useConfig } from 'vocs'
+import { Link, useConfig } from 'vocs'
 import IconArrowUpRight from '~icons/lucide/arrow-up-right'
 import IconCheck from '~icons/lucide/check'
 import IconCopy from '~icons/lucide/copy'
@@ -117,13 +117,13 @@ export function Landing(props: Landing.Props) {
             </p>
 
             <div className="vocs:mb-10 vocs:flex vocs:flex-wrap vocs:gap-3">
-              <a
-                href={props.docsHref}
+              <Link
+                to={props.docsHref}
                 className="vocs:inline-flex vocs:min-h-12 vocs:items-center vocs:justify-center vocs:gap-2.5 vocs:rounded-[var(--vocs-radius-lg)] vocs:border vocs:border-solid vocs:border-accent vocs:bg-accent vocs:px-[22px] vocs:text-[15px] vocs:font-medium vocs:text-accentInvert vocs:no-underline vocs:transition-opacity vocs:duration-100 vocs:hover:opacity-90 vocs:max-[700px]:w-full vocs:[&_svg]:size-3.5"
               >
                 Read the docs
                 <IconArrowUpRight aria-hidden />
-              </a>
+              </Link>
               {github && (
                 <a
                   href={github.link}
