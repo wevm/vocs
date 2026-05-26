@@ -20,24 +20,22 @@ Read https://vocs.dev/guide/getting-started and set up Vocs for my project.
 
 Scaffold a new project with the command line:
 
-{/* TODO: Remove @rc once Vocs v2 is promoted to latest. */}
-
 :::code-group
 
 ```bash [npm]
-npm init vocs@rc
+npm init vocs
 ```
 
 ```bash [pnpm]
-pnpm create vocs@rc
+pnpm create vocs
 ```
 
 ```bash [yarn]
-yarn create vocs@rc
+yarn create vocs
 ```
 
 ```bash [bun]
-bun create vocs@rc
+bun create vocs
 ```
 
 :::
@@ -60,8 +58,6 @@ If you already have a React + Vite project, you can merge these entries into you
 
 If you are starting from scratch, prefer the CLI above.
 
-{/* TODO: Replace the rc dist tag with the latest version once Vocs v2 is promoted to latest. */}
-
 ```json [package.json]
 {
   "scripts": {
@@ -70,7 +66,7 @@ If you are starting from scratch, prefer the CLI above.
     "preview": "vocs preview"
   },
   "dependencies": {
-    "vocs": "rc",
+    "vocs": "latest",
     "waku": "^1.0.0-beta.0"
   }
 }
