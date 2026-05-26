@@ -4,10 +4,10 @@ import { version } from '../package.json'
 export default defineConfig({
   baseUrl:
     process.env.VERCEL_ENV === 'production'
-      ? 'https://rc.vocs.dev'
+      ? 'https://vocs.dev'
       : process.env.VERCEL_URL
         ? `https://${process.env.VERCEL_URL}`
-        : 'https://rc.vocs.dev',
+        : 'https://vocs.dev',
   changelog: Changelog.github({ repo: 'wevm/vocs' }),
   checkDeadlinks: true,
   feedback: Feedback.slack(),
