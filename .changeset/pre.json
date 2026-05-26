@@ -11,6 +11,7 @@
   "changesets": [
     "code-block-show-wrap",
     "code-group-preview-spacing",
+    "create-vocs-rc-template",
     "deferred-viewport-prefetch",
     "dev-link-prefetch",
     "escaped-snippet-notation",
