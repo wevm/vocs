@@ -2,4 +2,4 @@
 "vocs": patch
 ---
 
-Fixed `Callout` component styles when rendered directly from MDX.
+Fixed `Callout` component alignment when rendered with plain JSX text children.

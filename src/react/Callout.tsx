@@ -4,7 +4,16 @@ import LucideLightbulb from '~icons/lucide/lightbulb'
 import LucideTriangleAlert from '~icons/lucide/triangle-alert'
 
 export function Callout(props: Callout.Props) {
-  const { variant, ...rest } = props
+  const { children, variant, ...rest } = props
+  const content =
+    typeof children === 'string' || typeof children === 'number' ? (
+      <div data-v-callout-content data-v-content>
+        {children}
+      </div>
+    ) : (
+      children
+    )
+
   return (
     <aside {...rest} data-v data-v-callout data-v-content data-v-context={variant}>
       <div data-v-callout-icon>
@@ -15,7 +24,7 @@ export function Callout(props: Callout.Props) {
         {props.variant === 'tip' ? <LucideLightbulb /> : null}
         {props.variant === 'success' ? <LucideCircleCheck /> : null}
       </div>
-      {props.children}
+      {content}
     </aside>
   )
 }
