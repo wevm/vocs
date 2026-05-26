@@ -9,8 +9,16 @@
     "@vocs/twoslash-rust-linux-x64-gnu": "0.0.1"
   },
   "changesets": [
+    "code-block-show-wrap",
+    "code-group-preview-spacing",
     "deferred-viewport-prefetch",
+    "dev-link-prefetch",
+    "escaped-snippet-notation",
+    "fix-callout-component-styles",
+    "fix-file-tree-guides",
     "partial-static-markdown-router",
+    "sidebar-ordered-llms",
+    "twoslash-custom-tag-blocks",
     "waku-beta-rc"
   ]
 }
