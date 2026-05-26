@@ -2,7 +2,6 @@ import { Changelog, defineConfig, Feedback, McpSource, Twoslash } from 'vocs/con
 import { version } from '../package.json'
 
 export default defineConfig({
-  banner: 'Vocs v2 is now available!',
   baseUrl:
     process.env.VERCEL_ENV === 'production'
       ? 'https://next.vocs.dev'
