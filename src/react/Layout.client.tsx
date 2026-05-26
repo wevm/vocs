@@ -156,7 +156,9 @@ export function Main(props: Main.Props) {
       )}
 
       <main
-        className="vocs:isolate vocs:pb-20 vocs:max-w-screen vocs:h-full"
+        className={`vocs:isolate vocs:max-w-screen vocs:h-full ${
+          layout === 'blank' ? 'vocs:pb-0' : 'vocs:pb-20'
+        }`}
         data-v-main
         id="vocs-content"
       >

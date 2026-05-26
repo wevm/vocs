@@ -4,6 +4,7 @@ import * as React from 'react'
 import LucideArrowRight from '~icons/lucide/arrow-right'
 import LucideX from '~icons/lucide/x'
 import { Link } from '../Link.js'
+import * as MdxPageContext from '../MdxPageContext.js'
 import { useConfig } from '../useConfig.js'
 
 const storageKeyPrefix = 'vocs-banner-dismissed'
@@ -21,6 +22,7 @@ function hashContent(content: string): string {
 
 export function Banner() {
   const { banner: bannerConfig } = useConfig()
+  const { frontmatter } = MdxPageContext.use()
   const [dismissed, setDismissed] = React.useState<boolean | null>(null)
   const bannerRef = React.useRef<HTMLDivElement>(null)
 
@@ -60,6 +62,7 @@ export function Banner() {
     }
   }, [dismissed, banner])
 
+  if (frontmatter?.showBanner === false) return null
   if (!banner) return null
   if (dismissed === null) return null
   if (dismissed) return null

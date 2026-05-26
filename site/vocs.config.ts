@@ -56,10 +56,10 @@ export default defineConfig({
       text: 'Writing',
       collapsed: false,
       items: [
+        { text: 'Markdown Extensions', link: '/guide/markdown-extensions' },
         { text: 'Code & Syntax Highlighting', link: '/guide/syntax-highlighting' },
         { text: 'Code Snippets', link: '/guide/code-snippets' },
         { text: 'Markdown Snippets', link: '/guide/markdown-snippets' },
-        { text: 'Markdown Extensions', link: '/guide/markdown-extensions' },
         { text: 'Asset Handling', link: '/guide/asset-handling' },
         { text: 'Frontmatter', link: '/guide/frontmatter' },
         { text: 'Using React in Markdown', link: '/guide/react' },

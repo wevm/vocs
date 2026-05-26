@@ -1,6 +1,33 @@
 @theme {
   --color-*: initial;
 
+  /* #region Font Family */
+
+  --font-sans: var(
+    --vocs-font-family,
+    "Geist",
+    ui-sans-serif,
+    system-ui,
+    sans-serif,
+    "Apple Color Emoji",
+    "Segoe UI Emoji",
+    "Segoe UI Symbol",
+    "Noto Color Emoji"
+  );
+  --font-mono: var(
+    --vocs-font-family-mono,
+    ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    Monaco,
+    Consolas,
+    "Liberation Mono",
+    "Courier New",
+    monospace
+  );
+
+  /* #endregion */
+
   /* #region Primitive Colors */
 
   --color-white: white;
@@ -9,7 +36,7 @@
   --color-gray2: oklch(0.195 0 0);
   --color-gray3: oklch(0.21 0 0);
   --color-gray4: oklch(0.223 0 0);
-  --color-gray5: oklch(0.25 0 0);
+  --color-gray5: oklch(0.24 0 0);
   --color-gray6: oklch(0.29 0 0);
   --color-gray7: oklch(0.5 0 0);
   --color-gray8: oklch(0.549 0 0);

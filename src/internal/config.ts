@@ -372,6 +372,11 @@ export type Frontmatter = {
    */
   showAskAi?: boolean | undefined
   /**
+   * Whether to show the banner.
+   * @default true
+   */
+  showBanner?: boolean | undefined
+  /**
    * Whether to show the search box.
    * @default true
    */

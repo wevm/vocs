@@ -1,20 +1,36 @@
 ---
-layout: minimal
+layout: blank
 showAskAi: false
+showBanner: false
 showLogo: false
 ---
 
-import { HomePage } from 'vocs'
+import { Landing } from '../components/Landing'
 
-<HomePage.Root>
-  <HomePage.Logo />
-  <HomePage.Tagline>Portable Documentation Framework, powered by Vite.</HomePage.Tagline>
-  <HomePage.CreatePackage name="vocs" />
-  <HomePage.Description>Vocs is a minimal static documentation generator designed to supercharge your workflow, built with modern web technologies.</HomePage.Description>
-  <HomePage.Buttons>
-    <HomePage.Button href="/guide/what-is-vocs" variant="accent">What is Vocs?</HomePage.Button>
-    <HomePage.Button href="/guide/getting-started">Quick Start</HomePage.Button>
-    <HomePage.Button href="https://github.com/wevm/vocs">GitHub</HomePage.Button>
-  </HomePage.Buttons>
-</HomePage.Root>
-
+<Landing
+  agentPrompt="Read https://vocs.dev/guide/getting-started and set up Vocs for my project."
+  description="Vocs is a lightweight framework for writing flexible docs that agents can consume and humans can navigate. Publish docs that stay simple at the source and rich in the browser."
+  docsHref="/guide/getting-started"
+  logoSuffix={
+    <span className="vocs:text-[13px] vocs:font-medium vocs:text-muted">
+      by{' '}
+      <a
+        href="https://wevm.dev"
+        className="vocs:text-muted vocs:no-underline vocs:transition-colors vocs:duration-100 vocs:hover:text-heading"
+      >
+        Wevm
+      </a>
+    </span>
+  }
+  title={
+    <>
+      Minimal Docs
+      <br />
+      <em className="vocs:block vocs:whitespace-nowrap vocs:font-semibold vocs:not-italic vocs:text-heading">
+        for Agents &amp; Humans.
+      </em>
+    </>
+  }
+  packageName="vocs"
+  packageType="init"
+/>

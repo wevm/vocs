@@ -13,6 +13,14 @@
 @source "../";
 
 @layer vocs_base {
+  @font-face {
+    font-family: "Geist";
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url("../server/fonts/geist.woff2") format("woff2");
+  }
+
   :root {
     @apply vocs:bg-primary vocs:max-md:bg-surface vocs:scheme-light-dark vocs:text-primary vocs:tracking-[0.005em];
     font-feature-settings:
