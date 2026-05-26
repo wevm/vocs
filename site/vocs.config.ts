@@ -1,34 +1,19 @@
 import { Changelog, defineConfig, Feedback, McpSource, Twoslash } from 'vocs/config'
 import { version } from '../package.json'
 
-const branchBaseUrls = {
-  main: 'https://vocs.dev',
-  next: 'https://next.vocs.dev',
-  rc: 'https://rc.vocs.dev',
-} as const
-
-const vercelGitCommitRef = process.env.VERCEL_GIT_COMMIT_REF
-const branchBaseUrl =
-  vercelGitCommitRef && vercelGitCommitRef in branchBaseUrls
-    ? branchBaseUrls[vercelGitCommitRef as keyof typeof branchBaseUrls]
-    : undefined
-const vercelDeploymentUrl = process.env.VERCEL_BRANCH_URL ?? process.env.VERCEL_URL
-const vercelDeploymentBaseUrl = vercelDeploymentUrl ? `https://${vercelDeploymentUrl}` : undefined
-const vercelProductionBaseUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
-  ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-  : undefined
-
 export default defineConfig({
   baseUrl:
-    branchBaseUrl ??
-    (process.env.VERCEL_ENV === 'production' ? vercelProductionBaseUrl : vercelDeploymentBaseUrl) ??
-    'https://vocs.dev',
+    process.env.VERCEL_ENV === 'production'
+      ? 'https://rc.vocs.dev'
+      : process.env.VERCEL_URL
+        ? `https://${process.env.VERCEL_URL}`
+        : 'https://rc.vocs.dev',
   changelog: Changelog.github({ repo: 'wevm/vocs' }),
   checkDeadlinks: true,
   feedback: Feedback.slack(),
   description: 'Vocs is a library for creating documentation websites.',
   editLink: {
-    link: `https://github.com/wevm/vocs/edit/${vercelGitCommitRef ?? 'main'}/site/src/pages/:path`,
+    link: 'https://github.com/wevm/vocs/edit/rc/site/src/pages/:path',
   },
   iconUrl: {
     light: '/icon-light.svg',
