@@ -29,10 +29,11 @@ export function CodeBlock(props: CodeBlock.Props) {
           'vocs:relative vocs:group/code',
           title ? ' vocs:rounded-t-none vocs:border-t-0' : '',
         )}
+        data-v-wrapped={showWrap !== undefined ? '' : undefined}
         data-v
       >
         {props.children}
-        {showWrap !== undefined && <WrapButton />}
+        {showWrap !== undefined && <WrapButton defaultWrapped />}
         <CopyButton />
         {isShell !== undefined && <ShellLineCopyButtons />}
         <CollapseHandler />

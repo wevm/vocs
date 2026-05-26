@@ -173,7 +173,14 @@ export function llms(config: Config.Config): PluginOption {
   async function buildLlmsContent() {
     const pagesDir = path.resolve(viteConfig.root, config.srcDir, config.pagesDir)
     const pages = await Llms.getPagesFromDir(pagesDir)
-    return Llms.buildLlmsContent({ pages, title, description, rehypePlugins, remarkPlugins })
+    return Llms.buildLlmsContent({
+      pages,
+      title,
+      description,
+      rehypePlugins,
+      remarkPlugins,
+      sidebar: config.sidebar,
+    })
   }
 
   return {

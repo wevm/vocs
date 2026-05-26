@@ -1111,6 +1111,12 @@ export function remarkFileTree(config: Config.Config): remarkFileTree.ReturnType
       // biome-ignore lint/suspicious/noAssignInExpressions: _
       const nodeData = node.data || (node.data = {})
 
+      function getPhrasingText(node: MdAst.PhrasingContent): string {
+        if (node.type === 'text' || node.type === 'inlineCode') return node.value
+        if ('children' in node) return node.children.map(getPhrasingText).join('')
+        return ''
+      }
+
       function extractFileTree(children: MdAst.RootContent[]): FileTreeItem[] {
         const result: FileTreeItem[] = []
 
@@ -1133,17 +1139,15 @@ export function remarkFileTree(config: Config.Config): remarkFileTree.ReturnType
             let foundName = false
 
             for (const pChild of paragraph.children) {
-              if (pChild.type === 'text' || pChild.type === 'strong') {
+              if (
+                pChild.type === 'text' ||
+                pChild.type === 'inlineCode' ||
+                pChild.type === 'strong'
+              ) {
                 // Only highlight if strong is in filename, not comment
                 if (pChild.type === 'strong' && !foundName) highlighted = true
 
-                const textValue =
-                  pChild.type === 'text'
-                    ? pChild.value
-                    : pChild.children
-                        .filter((c): c is MdAst.Text => c.type === 'text')
-                        .map((c) => c.value)
-                        .join('')
+                const textValue = getPhrasingText(pChild)
 
                 if (foundName) {
                   comment += textValue

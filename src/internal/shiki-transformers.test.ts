@@ -4,6 +4,8 @@ import {
   checkTwoslashSnippets,
   inlineLanguage,
   notationBlock,
+  notationInclude,
+  removeNotationEscape,
   resetTwoslashSnippets,
   shellNotation,
   shellPrompt,
@@ -712,5 +714,29 @@ describe('inlineLanguage', () => {
     highlighter.dispose()
 
     expect(html).not.toContain('data-language=')
+  })
+})
+
+describe('removeNotationEscape', () => {
+  it('renders escaped snippet notation without executing it', async () => {
+    const highlighter = await createHighlighter({
+      themes: ['github-dark'],
+      langs: ['typescript'],
+    })
+
+    const html = highlighter.codeToHtml('// [\\!include ~/snippets/example.ts]', {
+      lang: 'typescript',
+      theme: 'github-dark',
+      transformers: [
+        notationInclude({ rootDir: process.cwd(), srcDir: 'site/src' }),
+        removeNotationEscape(),
+      ],
+    })
+
+    highlighter.dispose()
+
+    expect(html).toContain('[!include ~/snippets/example.ts]')
+    expect(html).not.toContain('[\\!include')
+    expect(html).not.toContain('createPublicClient')
   })
 })

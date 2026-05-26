@@ -1,4 +1,4 @@
-# Site Configuration
+# Site Configuration [Reference for options accepted by defineConfig]
 
 Reference for the options accepted by `defineConfig()` in your Vocs config file.
 
@@ -20,20 +20,136 @@ export default defineConfig({
 })
 ```
 
-## Full Example
+## Configure With AI
+
+When asking an AI agent to update Vocs configuration, point it at this reference and name the outcome you want.
+
+```txt
+Read https://vocs.dev/reference/site-config and update vocs.config.ts for this project.
+
+Preserve the existing config, add only the options needed, and run the docs build when you are done.
+```
+
+For a config-only change, give the agent the exact behavior and any production URLs or service names it needs:
+
+```txt
+Update vocs.config.ts so this docs site uses https://docs.acme.dev as its canonical URL, shows the Acme light and dark logos from public/, enables the MCP server, and exposes the acme/sdk GitHub repository as a source.
+```
+
+## Recipes
+
+Use these recipes as starting points when asking an agent to make common config updates.
+
+### Enable AI Access
+
+Expose your docs and selected source files to AI assistants through MCP.
 
 ```ts [vocs.config.ts]
-import { Changelog, defineConfig, Feedback, McpSource } from 'vocs/config'
+import { McpSource, defineConfig } from 'vocs/config'
+
+export default defineConfig({
+  mcp: {
+    enabled: true,
+    sources: [McpSource.github({ repo: 'acme/sdk', paths: ['src', 'docs'] })],
+  },
+})
+```
+
+### Set Metadata
+
+Set the production URL, page metadata, logo assets, favicon, and accent color.
+
+```ts [vocs.config.ts]
+import { defineConfig } from 'vocs/config'
 
 export default defineConfig({
   title: 'Acme Docs',
-  description: 'Documentation for Acme',
+  description: 'Documentation for the Acme SDK',
   baseUrl: 'https://docs.acme.dev',
   logoUrl: {
     light: '/logo-light.svg',
     dark: '/logo-dark.svg',
   },
   iconUrl: '/icon.svg',
+  accentColor: 'light-dark(#2563eb, #60a5fa)',
+})
+```
+
+### Configure Navigation
+
+Create the sidebar and top navigation shown across your docs site.
+
+```ts [vocs.config.ts]
+import { defineConfig } from 'vocs/config'
+
+export default defineConfig({
+  sidebar: [
+    { text: 'Getting Started', link: '/guide/getting-started' },
+    {
+      text: 'Reference',
+      items: [
+        { text: 'API', link: '/reference/api' },
+        { text: 'Configuration', link: '/reference/configuration' },
+      ],
+    },
+  ],
+  topNav: [
+    { text: 'Guide', link: '/guide/getting-started', match: '/guide' },
+    { text: 'GitHub', link: 'https://github.com/acme/sdk', external: true },
+  ],
+})
+```
+
+### Deploy Under Subpath
+
+Use this when your docs are served from a path such as `/docs` instead of the domain root.
+
+```ts [vocs.config.ts]
+import { defineConfig } from 'vocs/config'
+
+export default defineConfig({
+  basePath: '/docs',
+  baseUrl: 'https://acme.dev/docs',
+})
+```
+
+### Add Integrations
+
+Enable reader feedback, changelog data, and dynamic Open Graph image URLs.
+
+```ts [vocs.config.ts]
+import { Changelog, Feedback, defineConfig } from 'vocs/config'
+
+export default defineConfig({
+  feedback: Feedback.slack(),
+  changelog: Changelog.github({ repo: 'acme/sdk' }),
+  ogImageUrl: '/api/og?logo=%logo&title=%title&description=%description',
+})
+```
+
+## Full Example
+
+```ts [vocs.config.ts]
+import { Changelog, defineConfig, Feedback, McpSource } from 'vocs/config'
+
+export default defineConfig({
+  baseUrl: 'https://docs.acme.dev',
+  changelog: Changelog.github({ repo: 'acme/docs' }),
+  description: 'Documentation for Acme',
+  editLink: {
+    link: 'https://github.com/acme/docs/edit/main/src/pages/:path',
+  },
+  feedback: Feedback.slack(),
+  iconUrl: '/icon.svg',
+  logoUrl: {
+    light: '/logo-light.svg',
+    dark: '/logo-dark.svg',
+  },
+  mcp: {
+    enabled: true,
+    sources: [McpSource.github({ repo: 'acme/docs' })],
+  },
+  ogImageUrl: '/api/og?logo=%logo&title=%title&description=%description',
   sidebar: [
     {
       text: 'Guide',
@@ -43,24 +159,15 @@ export default defineConfig({
       ],
     },
   ],
-  topNav: [
-    { text: 'Guide', link: '/guide/getting-started' },
-    { text: 'GitHub', link: 'https://github.com/acme/docs', external: true },
-  ],
   socials: [
     { icon: 'github', link: 'https://github.com/acme/docs' },
     { icon: 'discord', link: 'https://discord.gg/acme' },
   ],
-  editLink: {
-    link: 'https://github.com/acme/docs/edit/main/src/pages/:path',
-  },
-  feedback: Feedback.slack(),
-  mcp: {
-    enabled: true,
-    sources: [McpSource.github({ repo: 'acme/docs' })],
-  },
-  changelog: Changelog.github({ repo: 'acme/docs' }),
-  ogImageUrl: '/api/og?logo=%logo&title=%title&description=%description',
+  title: 'Acme Docs',
+  topNav: [
+    { text: 'Guide', link: '/guide/getting-started' },
+    { text: 'GitHub', link: 'https://github.com/acme/docs', external: true },
+  ],
 })
 ```
 
@@ -283,6 +390,9 @@ export default defineConfig({
       text: 'Writing',
       collapsed: false,
       items: [
+        { text: 'Code & Syntax Highlighting', link: '/guide/syntax-highlighting' },
+        { text: 'Code Snippets', link: '/guide/code-snippets' },
+        { text: 'Markdown Snippets', link: '/guide/markdown-snippets' },
         { text: 'Markdown Extensions', link: '/guide/markdown-extensions' },
         { text: 'Twoslash', link: '/guide/twoslash' },
       ],

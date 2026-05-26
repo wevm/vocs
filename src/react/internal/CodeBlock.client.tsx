@@ -5,9 +5,9 @@ import LucideCheck from '~icons/lucide/check'
 import LucideClipboard from '~icons/lucide/clipboard'
 import LucideWrapText from '~icons/lucide/wrap-text'
 
-export function WrapButton() {
+export function WrapButton({ defaultWrapped = false }: WrapButton.Props) {
   const buttonRef = React.useRef<HTMLButtonElement>(null)
-  const [wrapped, setWrapped] = React.useState(false)
+  const [wrapped, setWrapped] = React.useState(defaultWrapped)
   const [singleLine, setSingleLine] = React.useState(false)
 
   React.useEffect(() => {
@@ -40,6 +40,12 @@ export function WrapButton() {
       <LucideWrapText className="vocs:size-4" />
     </button>
   )
+}
+
+export declare namespace WrapButton {
+  type Props = {
+    defaultWrapped?: boolean | undefined
+  }
 }
 
 export function CopyButton() {

@@ -78,7 +78,7 @@ hgroup[data-v] {
 
 hgroup[data-v],
 article[data-v-content] > h1[data-v] {
-  @apply vocs:border-b vocs:border-primary;
+  @apply vocs:border-b vocs:border-primary vocs:pb-[0.75em];
 }
 
 hgroup[data-v] p {
@@ -87,7 +87,6 @@ hgroup[data-v] p {
 
 hgroup[data-v]:not(:last-child),
 article[data-v-content] > h1[data-v]:not(:last-child) {
-  @apply vocs:pb-[0.75em];
   margin-block-end: calc(calc(var(--vocs-spacing) * 8) * calc(1 - var(--tw-space-y-reverse))) !important;
 }
 

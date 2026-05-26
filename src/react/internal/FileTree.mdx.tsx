@@ -10,9 +10,14 @@ export function FileTree(props: FileTree.Props) {
     <div
       data-v
       data-v-file-tree
-      className="vocs:bg-code-block vocs:py-4 vocs:px-5 vocs:rounded-lg vocs:border vocs:border-primary vocs:text-sm vocs:font-mono"
+      className="vocs:bg-code-block vocs:py-4 vocs:px-5 vocs:rounded-lg vocs:border vocs:border-primary vocs:text-sm vocs:font-mono vocs:overflow-x-auto"
+      style={
+        {
+          '--vocs-file-tree-label-column': FileTree.getLabelColumnSize(items),
+        } as React.CSSProperties
+      }
     >
-      <FileTree.List items={items} depth={0} activeLines={[]} />
+      <FileTree.List items={items} depth={0} />
     </div>
   )
 }
@@ -33,24 +38,30 @@ export namespace FileTree {
 
   const indentSize = 24
   const iconSize = 16
+  const labelChromeSize = 5
 
   export function List(props: List.Props) {
-    const { items, depth, activeLines } = props
+    const { depth, items } = props
     return (
-      <ul className="vocs:list-none vocs:p-0 vocs:m-0 vocs:overflow-visible">
-        {items.map((item, i) => {
-          const isLast = i === items.length - 1
-          return (
-            <FileTree.Item
-              // biome-ignore lint/suspicious/noArrayIndexKey: _
-              key={i}
-              item={item}
-              depth={depth}
-              activeLines={activeLines}
-              isLast={isLast}
-            />
-          )
-        })}
+      <ul
+        className={`vocs:list-none vocs:m-0 vocs:overflow-visible ${depth === 0 ? 'vocs:p-0' : 'vocs:border-l vocs:border-primary'}`}
+        style={
+          depth === 0
+            ? undefined
+            : {
+                marginLeft: iconSize / 2 - 1,
+                paddingLeft: indentSize - iconSize / 2,
+              }
+        }
+      >
+        {items.map((item, i) => (
+          <FileTree.Item
+            // biome-ignore lint/suspicious/noArrayIndexKey: _
+            key={i}
+            item={item}
+            depth={depth}
+          />
+        ))}
       </ul>
     )
   }
@@ -59,52 +70,43 @@ export namespace FileTree {
     type Props = {
       items: Item[]
       depth: number
-      activeLines: number[]
     }
   }
 
   export function Item(props: Item.Props) {
-    const { item, depth, activeLines } = props
+    const { depth, item } = props
 
     const isFolder = item.type === 'folder'
     const hasChildren = isFolder && item.items && item.items.length > 0
-
-    const linesToRender = activeLines
-    const childActiveLines = hasChildren ? [...activeLines, depth] : activeLines
+    const rowStyle = item.comment
+      ? {
+          gridTemplateColumns: `calc(var(--vocs-file-tree-label-column) - ${depth * indentSize}px) max-content`,
+        }
+      : undefined
 
     return (
       <li className="vocs:relative vocs:overflow-visible">
-        {linesToRender.map((lineDepth) => (
-          <div
-            key={lineDepth}
-            className="vocs:absolute vocs:top-0 vocs:bottom-0 vocs:border-l vocs:border-primary"
-            style={{
-              left: (lineDepth - (depth > 1 ? depth - 1 : 0)) * indentSize + iconSize / 2 - 1,
-            }}
+        {isFolder ? (
+          <FolderToggle
+            name={item.name}
+            comment={item.comment}
+            hasChildren={!!hasChildren}
+            highlighted={item.highlighted}
+            labelColumnOffset={depth * indentSize}
+            folderIcon={<FolderIcon open={false} />}
+            folderOpenIcon={<FolderIcon open={true} />}
+            folderContent={
+              hasChildren && item.items && <List items={item.items} depth={depth + 1} />
+            }
           />
-        ))}
-
-        <div className="vocs:flex vocs:items-center vocs:py-1">
-          <div style={{ width: depth > 0 ? indentSize : 0 }} />
-          {isFolder ? (
-            <FolderToggle
-              name={item.name}
-              comment={item.comment}
-              hasChildren={!!hasChildren}
-              highlighted={item.highlighted}
-              folderIcon={<FolderIcon open={false} />}
-              folderOpenIcon={<FolderIcon open={true} />}
-              folderContent={
-                hasChildren &&
-                item.items && (
-                  <List items={item.items} depth={depth + 1} activeLines={childActiveLines} />
-                )
-              }
-            />
-          ) : (
-            <div className="vocs:flex vocs:items-center vocs:text-primary">
+        ) : (
+          <div className="vocs:relative vocs:flex vocs:items-center vocs:py-1">
+            <div
+              className="vocs:grid vocs:items-center vocs:gap-x-4 vocs:text-primary"
+              style={rowStyle}
+            >
               <span
-                className="vocs:flex vocs:items-center vocs:gap-2 vocs:data-[highlighted=true]:bg-surfaceTint vocs:data-[highlighted=true]:border vocs:data-[highlighted=true]:border-primary vocs:rounded-md vocs:px-2 vocs:py-0.5 vocs:-mx-2 vocs:-my-0.5"
+                className="vocs:flex vocs:items-center vocs:gap-2 vocs:whitespace-nowrap vocs:justify-self-start vocs:data-[highlighted=true]:bg-surfaceTint vocs:data-[highlighted=true]:border vocs:data-[highlighted=true]:border-primary vocs:rounded-md vocs:px-2 vocs:py-0.5 vocs:-mx-2 vocs:-my-0.5"
                 data-highlighted={item.highlighted}
               >
                 {item.name !== '...' && (
@@ -116,10 +118,12 @@ export namespace FileTree {
                   {item.name}
                 </span>
               </span>
-              {item.comment && <span className="vocs:text-muted vocs:ml-4">{item.comment}</span>}
+              {item.comment && (
+                <span className="vocs:text-muted vocs:whitespace-nowrap">{item.comment}</span>
+              )}
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </li>
     )
   }
@@ -128,9 +132,27 @@ export namespace FileTree {
     type Props = {
       item: Item
       depth: number
-      activeLines: number[]
-      isLast: boolean
     }
+  }
+
+  export function getLabelColumnSize(items: Item[]) {
+    let max = 0
+    let value = '0px'
+
+    function walk(items: Item[], depth: number) {
+      for (const item of items) {
+        const chromeSize = item.name === '...' ? 0 : labelChromeSize
+        const size = depth * indentSize + (item.name.length + chromeSize) * 8
+        if (size > max) {
+          max = size
+          value = `calc(${depth * indentSize}px + ${item.name.length + chromeSize}ch)`
+        }
+        if (item.items) walk(item.items, depth + 1)
+      }
+    }
+
+    walk(items, 0)
+    return value
   }
 
   function FolderIcon({ open }: { open: boolean }) {

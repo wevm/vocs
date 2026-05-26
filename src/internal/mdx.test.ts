@@ -1,7 +1,13 @@
 import ruby from 'shiki/langs/ruby.mjs'
 import { describe, expect, it } from 'vitest'
 import * as Config from './config.js'
-import { getCompileOptions, remarkCodeTitle, remarkFilename, remarkLangCommaAttrs } from './mdx.js'
+import {
+  getCompileOptions,
+  remarkCodeTitle,
+  remarkFilename,
+  remarkFileTree,
+  remarkLangCommaAttrs,
+} from './mdx.js'
 
 type CodeNode = {
   type: 'code'
@@ -215,5 +221,57 @@ describe('getCompileOptions', () => {
 
     expect(codeNode.lang).toBe('ts')
     expect(codeNode.meta).toBe('[example.ts]')
+  })
+})
+
+describe('remarkFileTree', () => {
+  it('preserves inline code in file comments', async () => {
+    const tree = {
+      type: 'root',
+      children: [
+        {
+          type: 'containerDirective',
+          name: 'file-tree',
+          children: [
+            {
+              type: 'list',
+              children: [
+                {
+                  type: 'listItem',
+                  children: [
+                    {
+                      type: 'paragraph',
+                      children: [
+                        {
+                          type: 'strong',
+                          children: [{ type: 'text', value: 'getting-started.mdx' }],
+                        },
+                        { type: 'text', value: ' A page at ' },
+                        { type: 'inlineCode', value: '/guide/getting-started' },
+                        { type: 'text', value: '.' },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+
+    await remarkFileTree(Config.define({ rootDir: process.cwd() }))(tree as never)
+
+    const fileTree = tree.children[0] as {
+      data?: { hProperties?: Record<string, string> }
+    }
+    const items = JSON.parse(fileTree.data?.hProperties?.['data-v-file-tree-items'] ?? '[]')
+
+    expect(items[0]).toMatchObject({
+      name: 'getting-started.mdx',
+      type: 'file',
+      comment: 'A page at /guide/getting-started.',
+      highlighted: true,
+    })
   })
 })

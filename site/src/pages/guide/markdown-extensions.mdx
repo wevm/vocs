@@ -2,7 +2,32 @@
 outline: 1
 ---
 
+import { Card, Cards, Link, Tab, Tabs } from 'vocs'
+
 # Markdown Extensions [Features and syntax of Markdown in Vocs]
+
+Vocs supports standard Markdown plus directives for docs-specific UI such as callouts, steps, code groups, and file trees.
+
+## Badges
+
+Use the `:badge[...]` text directive for small inline status labels.
+
+:::code-group
+<div data-title="Preview">
+Vocs v2 is :badge[Beta]{warning}.
+
+The Vite plugin is :badge[Stable]{success}.
+
+This feature is :badge[Experimental].
+</div>
+```md [Markdown]
+Vocs v2 is :badge[Beta]{warning}.
+
+The Vite plugin is :badge[Stable]{success}.
+
+This feature is :badge[Experimental].
+```
+:::
 
 ## Blockquote
 
@@ -115,94 +140,46 @@ console.log('hello world')
 ````
 ::::
 
-## Badges
+## Cards
 
-Use the `:badge[...]` text directive for small inline status labels.
-
-:::code-group
-<div data-title="Preview">
-Vocs v2 is :badge[Beta]{warning}.
-
-The Vite plugin is :badge[Stable]{success}.
-
-This feature is :badge[Experimental].
-</div>
-```md [Markdown]
-Vocs v2 is :badge[Beta]{warning}.
-
-The Vite plugin is :badge[Stable]{success}.
-
-This feature is :badge[Experimental].
-```
-:::
-
-## Emphasis
+Use `Cards` and `Card` to build linked grids for related pages.
 
 :::code-group
 <div data-title="Preview">
-Emphasis, aka italics, with *asterisks* or _underscores_.
- 
-Strong emphasis, aka bold, with **asterisks** or __underscores__.
- 
-Combined emphasis with **asterisks and _underscores_**.
- 
-Strikethrough uses two tildes. ~~Scratch this.~~
+<Cards>
+  <Card
+    title="Getting Started"
+    description="Create your first Vocs site."
+    icon="book-open"
+    to="/guide/getting-started"
+  />
+  <Card
+    title="Site Config"
+    description="Configure navigation, metadata, and AI access."
+    icon="settings"
+    to="/reference/site-config"
+  />
+</Cards>
 </div>
-```md [Markdown]
-Emphasis, aka italics, with *asterisks* or _underscores_.
-Strong emphasis, aka bold, with **asterisks** or __underscores__.
-Combined emphasis with **asterisks and _underscores_**.
-Strikethrough uses two tildes. ~~Scratch this.~~
+```mdx [MDX]
+import { Card, Cards } from 'vocs'
+
+<Cards>
+  <Card
+    title="Getting Started"
+    description="Create your first Vocs site."
+    icon="book-open"
+    to="/guide/getting-started"
+  />
+  <Card
+    title="Site Config"
+    description="Configure navigation, metadata, and AI access."
+    icon="settings"
+    to="/reference/site-config"
+  />
+</Cards>
 ```
 :::
-
-## Footnotes
-
-:::code-group
-<div data-title="Preview">
-Here is a simple footnote[^1].
-
-A footnote can also have multiple lines[^2].
-
-You can also use words, to fit your writing style more closely[^note].
-
-[^1]: My reference.
-[^2]: Every new line should be prefixed with 2 spaces.  
-  This allows you to have a footnote with multiple lines.
-[^note]:
-    Named footnotes will still render with numbers instead of the text but allow easier identification and linking.  
-    This footnote also has been made with a different syntax using 4 spaces for new lines.
-</div>
-```md [Markdown]
-Here is a simple footnote[^1].
-
-A footnote can also have multiple lines[^2].  
-
-You can also use words, to fit your writing style more closely[^note].
-
-[^1]: My reference.
-[^2]: Every new line should be prefixed with 2 spaces.  
-  This allows you to have a footnote with multiple lines.
-[^note]:
-    Named footnotes will still render with numbers instead of the text but allow easier identification and linking.  
-    This footnote also has been made with a different syntax using 4 spaces for new lines.
-```
-:::
-
-## Frontmatter
-
-[YAML frontmatter](https://jekyllrb.com/docs/front-matter) is supported:
-
-```
----
-title: Blogging Like a Hacker
-lang: en-US
----
-```
-
-This data will be available to the rest of the page, along with all custom and theming components.
-
-For more details, see [Frontmatter](/guide/frontmatter).
 
 ## Details
 
@@ -279,6 +256,38 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce vestibulum ante n
 ```
 :::::
 
+## Emphasis
+
+:::code-group
+<div data-title="Preview">
+Emphasis, aka italics, with *asterisks* or _underscores_.
+ 
+Strong emphasis, aka bold, with **asterisks** or __underscores__.
+ 
+Combined emphasis with **asterisks and _underscores_**.
+ 
+Strikethrough uses two tildes. ~~Scratch this.~~
+</div>
+```md [Markdown]
+Emphasis, aka italics, with *asterisks* or _underscores_.
+Strong emphasis, aka bold, with **asterisks** or __underscores__.
+Combined emphasis with **asterisks and _underscores_**.
+Strikethrough uses two tildes. ~~Scratch this.~~
+```
+:::
+
+## FeedbackWidget
+
+Use `FeedbackWidget` when you want to render the configured feedback UI manually.
+
+:::code-group
+```mdx [MDX]
+import { FeedbackWidget } from 'vocs'
+
+<FeedbackWidget />
+```
+:::
+
 ## File Tree
 
 File tree with icons based on the filename, emphasis via `**filename**`, and comments.
@@ -319,6 +328,42 @@ File tree with icons based on the filename, emphasis via `**filename**`, and com
 :::
 ```
 ::::
+
+## Footnotes
+
+Use Markdown footnotes to add references without interrupting the page flow.
+
+:::code-group
+```md [Markdown]
+Here is a simple footnote[^1].
+
+A footnote can also have multiple lines[^2].  
+
+You can also use words, to fit your writing style more closely[^note].
+
+[^1]: My reference.
+[^2]: Every new line should be prefixed with 2 spaces.  
+  This allows you to have a footnote with multiple lines.
+[^note]:
+    Named footnotes will still render with numbers instead of the text but allow easier identification and linking.  
+    This footnote also has been made with a different syntax using 4 spaces for new lines.
+```
+:::
+
+## Frontmatter
+
+[YAML frontmatter](https://jekyllrb.com/docs/front-matter) is supported:
+
+```
+---
+title: Blogging Like a Hacker
+lang: en-US
+---
+```
+
+This data will be available to the rest of the page, along with all custom and theming components.
+
+For more details, see [Frontmatter](/guide/frontmatter).
 
 ## Headings
 
@@ -367,6 +412,21 @@ Local images from the `public` directory automatically get `width` and `height` 
 </div>
 ```md [Markdown]
 ![Togepi](/togepi.jpg)
+```
+:::
+
+## Link
+
+Use `Link` when internal navigation needs to be composed from JSX.
+
+:::code-group
+<div data-title="Preview">
+<Link to="/guide/getting-started">Get started</Link>
+</div>
+```mdx [MDX]
+import { Link } from 'vocs'
+
+<Link to="/guide/getting-started">Get started</Link>
 ```
 :::
 
@@ -472,6 +532,18 @@ sequenceDiagram
 ````
 :::
 
+## Quick Prompt
+
+Ask your AI agent to read this guide before editing Markdown or MDX pages:
+
+```txt
+Read https://vocs.dev/guide/markdown-extensions and update this page using the right Vocs Markdown syntax.
+```
+
+:::tip
+Prefer built-in Vocs directives over raw HTML for callouts, code groups, steps, details, file trees, and badges. Directives keep pages consistent and easier for agents to edit.
+:::
+
 ## Steps
 
 :::::code-group
@@ -562,3 +634,23 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce vestibulum ante n
 ```
 :::
 
+## Tabs
+
+Use `Tabs` and `Tab` to switch between related content.
+
+:::code-group
+<div data-title="Preview">
+<Tabs stateKey="markdown-tabs-preview">
+  <Tab title="Agent">Use a quick prompt for repeatable edits.</Tab>
+  <Tab title="Author">Write Markdown and drop into JSX when needed.</Tab>
+</Tabs>
+</div>
+```mdx [MDX]
+import { Tab, Tabs } from 'vocs'
+
+<Tabs stateKey="workflow">
+  <Tab title="Agent">Use a quick prompt for repeatable edits.</Tab>
+  <Tab title="Author">Write Markdown and drop into JSX when needed.</Tab>
+</Tabs>
+```
+:::

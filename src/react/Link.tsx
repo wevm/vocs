@@ -56,12 +56,7 @@ function useViewportPrefetchReady(enabled: boolean) {
 }
 
 export function Link(props: Link.Props) {
-  const {
-    to,
-    unstable_prefetchOnEnter = !import.meta.env.DEV,
-    unstable_prefetchOnView = !import.meta.env.DEV,
-    ...rest
-  } = props
+  const { to, unstable_prefetchOnEnter = true, unstable_prefetchOnView = true, ...rest } = props
   const { path } = useRouter()
   const prefetchOnView = useViewportPrefetchReady(Boolean(unstable_prefetchOnView))
 

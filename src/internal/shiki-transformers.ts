@@ -1,6 +1,9 @@
 import { createRequire } from 'node:module'
 import * as path from 'node:path'
-import { createCommentNotationTransformer } from '@shikijs/transformers'
+import {
+  createCommentNotationTransformer,
+  transformerRemoveNotationEscape,
+} from '@shikijs/transformers'
 import { createTransformerFactory, type TransformerTwoslashOptions } from '@shikijs/twoslash/core'
 import type { ShikiTransformer } from '@shikijs/types'
 import { addClassToHast } from 'shiki'
@@ -24,7 +27,6 @@ export {
   transformerNotationFocus as notationFocus,
   transformerNotationHighlight as notationHighlight,
   transformerNotationWordHighlight as notationWordHighlight,
-  transformerRemoveNotationEscape as removeNotationEscape,
 } from '@shikijs/transformers'
 
 const notationBlockStartRegex =
@@ -680,6 +682,30 @@ export function notationInclude(options: notationInclude.Options): ShikiTransfor
 
 export declare namespace notationInclude {
   type Options = { srcDir: string; rootDir: string }
+}
+
+export function removeNotationEscape(): ShikiTransformer {
+  type Element = import('hast').Element
+
+  const base = transformerRemoveNotationEscape()
+  return {
+    ...base,
+    name: 'vocs:remove-notation-escape',
+    code(code) {
+      base.code?.call(this, code)
+      removeEscapedSnippetNotation(code)
+    },
+  }
+
+  function removeEscapedSnippetNotation(element: Element): void {
+    for (const child of element.children) {
+      if (child.type === 'text') {
+        child.value = child.value.replace(/\[\\!(include|region|endregion)\b/g, '[!$1')
+      } else if (child.type === 'element') {
+        removeEscapedSnippetNotation(child as Element)
+      }
+    }
+  }
 }
 
 /**

@@ -124,7 +124,7 @@ function CodeGroupPanels({ items }: { items: CodeGroupItem[] }) {
             {isCodeBlock ? (
               <CodeBlock node={content} />
             ) : (
-              <div className="vocs:bg-code-block vocs:border vocs:border-primary vocs:rounded-lg vocs:p-5 vocs:max-md:-mx-4 vocs:max-md:rounded-none">
+              <div className="vocs:bg-code-block vocs:border vocs:border-primary vocs:rounded-lg vocs:p-5 vocs:space-y-3 vocs:max-md:-mx-4 vocs:max-md:rounded-none">
                 {content}
               </div>
             )}

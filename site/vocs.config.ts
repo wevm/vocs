@@ -36,7 +36,9 @@ export default defineConfig({
     { source: '/docs', destination: '/guide/getting-started' },
     { source: '/docs/structure', destination: '/guide/structure' },
     { source: '/docs/markdown', destination: '/guide/markdown-extensions' },
+    { source: '/docs/guides/code-snippets', destination: '/guide/code-snippets' },
     { source: '/docs/guides/layouts', destination: '/guide/layouts' },
+    { source: '/docs/guides/markdown-snippets', destination: '/guide/markdown-snippets' },
     { source: '/docs/guides/navigation', destination: '/guide/navigation' },
     { source: '/docs/guides/og-images', destination: '/guide/dynamic-og-images' },
     { source: '/docs/guides/styling', destination: '/guide/theming' },
@@ -48,13 +50,16 @@ export default defineConfig({
   sidebar: [
     { text: 'What is Vocs?', link: '/guide/what-is-vocs' },
     { text: 'Getting Started', link: '/guide/getting-started' },
+    { text: 'Writing Docs with AI', link: '/guide/writing-docs-with-ai' },
     { text: 'Project Structure', link: '/guide/structure' },
     {
       text: 'Writing',
       collapsed: false,
       items: [
-        { text: 'Markdown Extensions', link: '/guide/markdown-extensions' },
         { text: 'Code & Syntax Highlighting', link: '/guide/syntax-highlighting' },
+        { text: 'Code Snippets', link: '/guide/code-snippets' },
+        { text: 'Markdown Snippets', link: '/guide/markdown-snippets' },
+        { text: 'Markdown Extensions', link: '/guide/markdown-extensions' },
         { text: 'Asset Handling', link: '/guide/asset-handling' },
         { text: 'Frontmatter', link: '/guide/frontmatter' },
         { text: 'Using React in Markdown', link: '/guide/react' },
@@ -67,6 +72,7 @@ export default defineConfig({
       items: [
         { text: 'Sidebar & Top Navigation', link: '/guide/navigation' },
         { text: 'Theming', link: '/guide/theming' },
+        { text: 'Tailwind CSS', link: '/guide/tailwind' },
         { text: 'Layouts', link: '/guide/layouts' },
         { text: 'Dynamic OG Images', link: '/guide/dynamic-og-images' },
         { text: 'Feedback', link: '/guide/feedback' },

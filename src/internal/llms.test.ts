@@ -180,6 +180,112 @@ This is the home page.`,
     `)
   })
 
+  test('pages follow sidebar order when provided', async () => {
+    const result = await buildLlmsContent({
+      pages: [
+        { path: '/reference/site-config', content: '---\ntitle: Site Config\n---\n\nConfig.' },
+        { path: '/guide/getting-started', content: '---\ntitle: Getting Started\n---\n\nStart.' },
+        { path: '/guide/what-is-vocs', content: '---\ntitle: What is Vocs\n---\n\nIntro.' },
+        { path: '/guide/markdown', content: '---\ntitle: Markdown\n---\n\nMarkdown.' },
+      ],
+      sidebar: [
+        { text: 'What is Vocs', link: '/guide/what-is-vocs' },
+        { text: 'Getting Started', link: '/guide/getting-started' },
+        {
+          text: 'Writing',
+          items: [{ text: 'Markdown', link: '/guide/markdown' }],
+        },
+        {
+          text: 'API',
+          items: [{ text: 'Site Config', link: '/reference/site-config' }],
+        },
+      ],
+      title: 'My Docs',
+      ...plugins,
+    })
+
+    expect(result.short).toMatchInlineSnapshot(`
+      "# My Docs
+
+      - [What is Vocs](/guide/what-is-vocs)
+      - [Getting Started](/guide/getting-started)
+      - [Markdown](/guide/markdown)
+      - [Site Config](/reference/site-config)"
+    `)
+  })
+
+  test('path-scoped sidebars are flattened in config order', async () => {
+    const result = await buildLlmsContent({
+      pages: [
+        { path: '/reference/components', content: '---\ntitle: Components\n---\n\nComponents.' },
+        { path: '/guide/theming', content: '---\ntitle: Theming\n---\n\nTheming.' },
+        { path: '/guide/structure', content: '---\ntitle: Structure\n---\n\nStructure.' },
+      ],
+      sidebar: {
+        '/guide': {
+          items: [
+            { text: 'Structure', link: '/guide/structure' },
+            { text: 'Theming', link: '/guide/theming' },
+          ],
+        },
+        '/reference': [{ text: 'Components', link: '/reference/components' }],
+      },
+      title: 'My Docs',
+      ...plugins,
+    })
+
+    expect(result.short).toMatchInlineSnapshot(`
+      "# My Docs
+
+      - [Structure](/guide/structure)
+      - [Theming](/guide/theming)
+      - [Components](/reference/components)"
+    `)
+  })
+
+  test('unlisted pages sort after sidebar pages', async () => {
+    const result = await buildLlmsContent({
+      pages: [
+        { path: '/zebra', content: '---\ntitle: Zebra\n---\n\nZebra.' },
+        { path: '/guide/getting-started', content: '---\ntitle: Getting Started\n---\n\nStart.' },
+        { path: '/about', content: '---\ntitle: About\n---\n\nAbout.' },
+      ],
+      sidebar: [{ text: 'Getting Started', link: '/guide/getting-started' }],
+      title: 'My Docs',
+      ...plugins,
+    })
+
+    expect(result.short).toMatchInlineSnapshot(`
+      "# My Docs
+
+      - [Getting Started](/guide/getting-started)
+      - [About](/about)
+      - [Zebra](/zebra)"
+    `)
+  })
+
+  test('external sidebar links are ignored', async () => {
+    const result = await buildLlmsContent({
+      pages: [
+        { path: '/guide/getting-started', content: '---\ntitle: Getting Started\n---\n\nStart.' },
+        { path: '/guide/what-is-vocs', content: '---\ntitle: What is Vocs\n---\n\nIntro.' },
+      ],
+      sidebar: [
+        { text: 'GitHub', link: 'https://github.com/wevm/vocs' },
+        { text: 'Getting Started', link: '/guide/getting-started' },
+      ],
+      title: 'My Docs',
+      ...plugins,
+    })
+
+    expect(result.short).toMatchInlineSnapshot(`
+      "# My Docs
+
+      - [Getting Started](/guide/getting-started)
+      - [What is Vocs](/guide/what-is-vocs)"
+    `)
+  })
+
   test('index path uses /index in nav links', async () => {
     const result = await buildLlmsContent({
       pages: [{ path: '/', content: '---\ntitle: Home\n---\n\nThis is the homepage.' }],

@@ -2,6 +2,8 @@
 
 Use fenced code blocks with triple backticks (`` ``` ``) to format code. Add a language identifier to enable syntax highlighting.
 
+For reusable code snippets and `// [!include ...]`, see [Code Snippets](/guide/code-snippets).
+
 :::code-group
 <div data-title="Preview">
 ```ts
@@ -227,7 +229,6 @@ const c = 1
 // @warn: Custom warning message
 const d = 1
 // @annotate: Custom annotation message
-
 ```
 </div>
 ````md [Markdown]
@@ -269,22 +270,21 @@ $ pnpm vocs preview
 
 ## ANSI
 
+Use `ansi` code blocks for terminal output with ANSI escape sequences.
+
 :::code-group
 <div data-title="Preview">
 ```ansi
-[0;32mcolored foreground[0m
-[0;42mcolored background[0m
-[0;1mbold text[0m
-[0;2mdimmed text[0m
-[0;4munderlined text[0m
-[0;7mreversed text[0m
-[0;9mstrikethrough text[0m
-[0;4;9munderlined + strikethrough text[0m
+\x1b[0;32mcolored foreground\x1b[0m
+\x1b[0;42mcolored background\x1b[0m
+\x1b[0;1mbold text\x1b[0m
 ```
 </div>
 ````md [Markdown]
 ```ansi
-[0;32mcolored foreground[0m [0;42mcolored background[0m [0;1mbold text[0m [0;2mdimmed text[0m [0;4munderlined text[0m [0;7mreversed text[0m [0;9mstrikethrough text[0m [0;4;9munderlined + strikethrough text[0m
+\x1b[0;32mcolored foreground\x1b[0m
+\x1b[0;42mcolored background\x1b[0m
+\x1b[0;1mbold text\x1b[0m
 ```
 ````
 :::
@@ -300,14 +300,8 @@ For cleaner separation of commands and output, use the `:::terminal` directive. 
 forge test
 ```
 ```ansi
-No files changed, compilation skipped
-
-Ran 2 tests for test/Counter.t.sol:CounterTest
-[32m[PASS][0m testFuzz_SetNumber(uint256) (runs: 256, μ: 27578, ~: 29289)
-[32m[PASS][0m test_Increment() (gas: 28783)
-Suite result: [32mok[0m. [32m2[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 3.27ms (3.11ms CPU time)
-
-Ran 1 test suite in 126.64ms (3.27ms CPU time): [32m2[0m tests passed, [31m0[0m failed, [33m0[0m skipped (2 total tests)
+\x1b[32m[PASS]\x1b[0m test_Increment() (gas: 28783)
+Suite result: \x1b[32mok\x1b[0m. \x1b[32m1\x1b[0m passed.
 ```
 :::
 </div>
@@ -317,20 +311,16 @@ Ran 1 test suite in 126.64ms (3.27ms CPU time): [32m2[0m tests passed, [31m0
 forge test
 ```
 ```ansi
-No files changed, compilation skipped
-
-Ran 2 tests for test/Counter.t.sol:CounterTest
-\x1b[32m[PASS]\x1b[0m testFuzz_SetNumber(uint256) (runs: 256, μ: 27578, ~: 29289)
 \x1b[32m[PASS]\x1b[0m test_Increment() (gas: 28783)
-Suite result: \x1b[32mok\x1b[0m. \x1b[32m2\x1b[0m passed; \x1b[31m0\x1b[0m failed; \x1b[33m0\x1b[0m skipped; finished in 3.27ms (3.11ms CPU time)
-
-Ran 1 test suite in 126.64ms (3.27ms CPU time): \x1b[32m2\x1b[0m tests passed, \x1b[31m0\x1b[0m failed, \x1b[33m0\x1b[0m skipped (2 total tests)
+Suite result: \x1b[32mok\x1b[0m. \x1b[32m1\x1b[0m passed.
 ```
 :::
 ````
 :::::
 
 ## Code Groups
+
+Code groups let related snippets share one framed surface.
 
 ::::code-group
 <div data-title="Preview">
@@ -350,7 +340,6 @@ export function hello(name: string = 'World') {
 ```
 ````
 :::
-
 </div>
 ``````md [Markdown]
 :::code-group
@@ -369,7 +358,6 @@ export function hello(name: string = 'World') {
 ```
 ````
 :::
-
 ``````
 ::::
 
@@ -390,7 +378,7 @@ bun add vocs
 ```
 :::
 
-Code groups with package manager tabs (npm/pnpm/yarn/bun) automatically sync across the page.
+Code groups with package manager tabs automatically sync across the page.
 
 :::code-group
 ```bash [npm]
@@ -415,165 +403,14 @@ Inline `code` has `back-ticks around` it.
 
 Inline [`code`](#inline-code) with link.
 
-Inline `console.log("hello world"){:js}` highlighted code
+Inline `console.log("hello world"){:js}` highlighted code.
 
-Inline ANSI `> Local: [0;36mhttp://localhost:[0;36;1m3000[0;36m/[0m{:ansi}`
+Inline ANSI `> Local: \x1b[0;36mhttp://localhost:\x1b[0;36;1m3000\x1b[0;36m/\x1b[0m{:ansi}`.
 </div>
 ```md [Markdown]
 Inline `code` has `back-ticks around` it.
 Inline [`code`](#inline-code) with link.
-Inline `console.log("hello world"){:js}` highlighted code
-Inline ANSI `> Local: [0;36mhttp://localhost:[0;36;1m3000[0;36m/[0m{:ansi}`
+Inline `console.log("hello world"){:js}` highlighted code.
+Inline ANSI `> Local: \x1b[0;36mhttp://localhost:\x1b[0;36;1m3000\x1b[0;36m/\x1b[0m{:ansi}`.
 ```
 :::
-
-## Markdown Snippets
-
-Vocs supports reusable snippets inside fenced code blocks.
-
-### Virtual Files
-
-Define a virtual file with `filename="..."`, then include it in other code blocks.
-
-:::code-group
-<div data-title="Preview">
-```ts filename="client.ts"
-import { http, createPublicClient } from 'viem'
-import { mainnet } from 'viem/chains'
-
-export const client = createPublicClient({
-  chain: mainnet,
-  transport: http(),
-})
-```
-</div>
-````md [Markdown]
-```ts filename="client.ts"
-import { http, createPublicClient } from 'viem'
-import { mainnet } from 'viem/chains'
-
-export const client = createPublicClient({
-  chain: mainnet,
-  transport: http(),
-})
-```
-````
-:::
-
-Now include the virtual file in another code block:
-
-:::code-group
-<div data-title="Preview">
-```ts
-// [!include client.ts]
-const blockNumber = await client.getBlockNumber()
-```
-</div>
-````md [Markdown]
-```ts
-// [\!include client.ts]
-const blockNumber = await client.getBlockNumber()
-```
-````
-:::
-
-### Physical Files
-
-Include code from files on disk with a root-relative `~/` path.
-
-:::code-group
-<div data-title="Preview">
-```ts
-// [!include ~/snippets/example.ts]
-```
-</div>
-````md [Markdown]
-```ts
-// [\!include ~/snippets/example.ts]
-```
-````
-:::
-
-### Regions
-
-Mark regions in a source file, then include only the part you need.
-
-::::code-group
-<div data-title="Preview">
-```ts
-// [!include ~/snippets/example.ts:setup]
-```
-</div>
-``````md [Markdown]
-```ts [src/snippets/example.ts]
-// [!region setup]
-import { createPublicClient, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-export const client = createPublicClient({
-  chain: mainnet,
-  transport: http(),
-})
-// [!endregion setup]
-```
-
-```md
-```ts
-// [\!include ~/snippets/example.ts:setup]
-```
-```
-``````
-::::
-
-### Find and Replace
-
-Modify included code on the fly with `/find/replace/` syntax.
-
-:::code-group
-<div data-title="Preview">
-```ts
-// [!include ~/snippets/example.ts:setup /mainnet/optimism/]
-```
-</div>
-````md [Markdown]
-```ts
-// [\!include ~/snippets/example.ts:setup /mainnet/optimism/]
-```
-````
-:::
-
-## Virtual Files with Twoslash
-
-Virtual files work with [Twoslash](/guide/twoslash) for type checking across files:
-
-::::code-group
-<div data-title="Preview">
-:::code-group
-```ts twoslash [example.ts]
-import { hello } from './hello.ts'
-
-console.log(hello('Vocs'))
-```
-```ts twoslash [hello.ts] filename="hello.ts"
-export function hello(name: string = 'World') {
-  return `Hello, ${name}!`
-}
-```
-:::
-</div>
-``````md [Markdown]
-:::code-group
-```ts twoslash [example.ts]
-import { hello } from './hello.ts'
-
-console.log(hello('Vocs'))
-```
-```ts twoslash [hello.ts] filename="hello.ts"
-export function hello(name: string = 'World') {
-  return `Hello, ${name}!`
-}
-```
-:::
-``````
-::::
-

@@ -69,6 +69,7 @@ async function resolveContent() {
     description: config.description,
     rehypePlugins,
     remarkPlugins,
+    sidebar: config.sidebar,
   })
 }
 

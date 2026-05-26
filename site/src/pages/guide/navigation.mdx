@@ -1,15 +1,46 @@
-# Sidebar & Top Navigation
+# Sidebar & Top Navigation [Keep docs navigation synced with routes]
+
+Vocs reads pages from `src/pages`, but your visible navigation lives in `vocs.config.ts`. When you add, move, or rename pages, update navigation in the same change.
+
+## Quick Prompt
+
+Ask your AI agent to read this guide before changing navigation:
+
+```txt
+Read https://vocs.dev/guide/navigation and update the sidebar/top navigation for the docs pages in this project.
+```
+
+## Overview
 
 Configure both navigation surfaces in `vocs.config.ts`:
 
-- `sidebar` for the docs navigation on the left
-- `topNav` for the links and menus in the top bar
+- `sidebar` controls the docs navigation.
+- `topNav` controls links and menus in the top bar.
 
-## Sidebar
+The `pages/` directory defines your routes. The `vocs.config.ts` file defines what readers and agents can discover.
 
-Use the array form when your whole site shares one sidebar.
+## Recipes
 
-```ts
+### Adding Pages
+
+When you create `src/pages/guide/install.mdx`, add the matching route to `sidebar`.
+
+```ts [vocs.config.ts]
+import { defineConfig } from 'vocs/config'
+
+export default defineConfig({
+  sidebar: [
+    { text: 'Getting Started', link: '/guide/getting-started' },
+    { text: 'Installation', link: '/guide/install' },
+  ],
+})
+```
+
+### Adding Sections
+
+Group related pages with an item that has `items`.
+
+```ts [vocs.config.ts]
 import { defineConfig } from 'vocs/config'
 
 export default defineConfig({
@@ -19,36 +50,44 @@ export default defineConfig({
       text: 'Writing',
       collapsed: false,
       items: [
+        { text: 'Code & Syntax Highlighting', link: '/guide/syntax-highlighting' },
+        { text: 'Code Snippets', link: '/guide/code-snippets' },
+        { text: 'Markdown Snippets', link: '/guide/markdown-snippets' },
         { text: 'Markdown Extensions', link: '/guide/markdown-extensions' },
-        { text: 'Twoslash', link: '/guide/twoslash' },
-      ],
-    },
-    {
-      text: 'API',
-      collapsed: true,
-      items: [
-        { text: 'Site Config', link: '/reference/site-config' },
-        { text: 'Components', link: '/reference/components' },
+        { text: 'Using React', link: '/guide/react' },
       ],
     },
   ],
 })
 ```
 
-Each sidebar item can use these fields:
+### Moving Pages
 
-- `text`
-- `link`
-- `items`
-- `collapsed`
-- `disabled`
-- `external`
+When you move a page file, update the old sidebar link to the new route and add a redirect from the old URL.
 
-## Path-Scoped Sidebars
+```diff [vocs.config.ts]
+export default defineConfig({
++  redirects: [
++    { source: '/guide/install', destination: '/guide/getting-started/install' },
++  ],
+  sidebar: [
+-   { text: 'Installation', link: '/guide/install' },
++   { text: 'Installation', link: '/guide/getting-started/install' },
+  ],
+})
+```
 
-Use the object form when different route sections should have different sidebars.
+:::tip
+Use [`redirects`](/reference/site-config#redirects) to preserve old links when pages move.
+:::
 
-```ts
+### Scoping Sidebars
+
+Use the object form when different route sections need different sidebars.
+
+```ts [vocs.config.ts]
+import { defineConfig } from 'vocs/config'
+
 export default defineConfig({
   sidebar: {
     '/guide': [
@@ -66,28 +105,13 @@ export default defineConfig({
 })
 ```
 
-When you use the object form, Vocs picks the deepest matching path prefix for the current page.
+Vocs picks the deepest matching path prefix for the current page.
 
-### `backLink`
+### Highlighting Top Nav
 
-Set `backLink: true` to show a `Back` link at the top of that sidebar section.
+Use `match` when one top nav item should stay active across a broader section.
 
-```ts
-sidebar: {
-  '/reference': {
-    backLink: true,
-    items: [
-      { text: 'Site Config', link: '/reference/site-config' },
-    ],
-  },
-}
-```
-
-## Top Navigation
-
-Top nav items are either direct links or dropdown menus.
-
-```ts
+```ts [vocs.config.ts]
 import { defineConfig } from 'vocs/config'
 
 export default defineConfig({
@@ -97,6 +121,31 @@ export default defineConfig({
       link: '/guide/getting-started',
       match: (path) => Boolean(path?.startsWith('/guide') || path?.startsWith('/reference')),
     },
+  ],
+})
+```
+
+`match` can be either:
+
+- a string prefix like `'/guide'`
+- a function like `(path) => path?.startsWith('/guide')`
+
+### Adding External Links
+
+Absolute URLs are treated as external automatically. Set `external: true` when you want to be explicit.
+
+```ts [vocs.config.ts]
+import { defineConfig } from 'vocs/config'
+
+export default defineConfig({
+  sidebar: [
+    {
+      text: 'GitHub',
+      link: 'https://github.com/wevm/vocs',
+      external: true,
+    },
+  ],
+  topNav: [
     {
       text: 'Resources',
       items: [
@@ -108,36 +157,36 @@ export default defineConfig({
 })
 ```
 
-## Active Matching
+## Reference
 
-By default, a top nav link is active when the current path matches its `link` prefix.
+:::note
+See the [Site Config reference](/reference/site-config#sidebar) for the full `sidebar` API.
+:::
 
-Use `match` when one item should stay active across a broader section.
+### Sidebar Fields
 
-```ts
-{
-  text: 'Guide',
-  link: '/guide/getting-started',
-  match: '/guide',
-}
+Each sidebar item can use these fields:
+
+- `text`
+- `link`
+- `items`
+- `collapsed`
+- `disabled`
+- `external`
+
+### `backLink`
+
+Set `backLink: true` to show a `Back` link at the top of a path-scoped sidebar section.
+
+```ts [vocs.config.ts]
+import { defineConfig } from 'vocs/config'
+
+export default defineConfig({
+  sidebar: {
+    '/reference': {
+      backLink: true,
+      items: [{ text: 'Site Config', link: '/reference/site-config' }],
+    },
+  },
+})
 ```
-
-`match` can be either:
-
-- a string prefix like `'/guide'`
-- a function like `(path) => path?.startsWith('/guide')`
-
-## External Links
-
-Both sidebar and top nav support external links.
-
-Absolute URLs are treated as external automatically, and Vocs adds the external-link treatment in the UI. You can also set `external: true` explicitly.
-
-```ts
-{
-  text: 'GitHub',
-  link: 'https://github.com/wevm/vocs',
-  external: true,
-}
-```
-

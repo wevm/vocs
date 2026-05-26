@@ -1,4 +1,4 @@
-# Theming
+# Theming [Customize colors, typography, spacing, logos, and code themes]
 
 Vocs gives you two main theming layers:
 
@@ -95,8 +95,6 @@ export default defineConfig({
 Create `src/pages/_root.css` when you want to override colors, fonts, spacing, or other CSS tokens globally. Vocs loads this file automatically.
 
 ```css [src/pages/_root.css]
-@import 'tailwindcss';
-
 :root {
   --vocs-color-background: #fcfcfd;
   --vocs-color-background-primary: white;
@@ -114,6 +112,8 @@ Create `src/pages/_root.css` when you want to override colors, fonts, spacing, o
 ```
 
 The key detail is the dark-mode selector. Vocs stores the active theme on the document's `color-scheme`, so if you want CSS overrides to follow the built-in theme toggle, target the inline `color-scheme` value instead of relying only on `prefers-color-scheme`.
+
+If you want to use Tailwind utilities for custom page UI, see [Tailwind CSS](/guide/tailwind).
 
 ## Common Theme Tokens
 
