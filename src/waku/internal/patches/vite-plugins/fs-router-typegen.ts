@@ -3,7 +3,7 @@
 // get automatic type generation with better DX.
 
 import { existsSync, readFileSync } from 'node:fs'
-import { readdir, writeFile } from 'node:fs/promises'
+import { readdir, readFile, writeFile } from 'node:fs/promises'
 import type { ParseResult, Plugin } from 'vite'
 import { parse, transformWithOxc } from 'vite'
 import { EXTENSIONS, SRC_PAGES, SRC_SERVER_ENTRY } from '../constants.js'
@@ -119,6 +119,16 @@ export const fsRouterTypegenPlugin = (opts: { srcDir: string }): Plugin => {
         if (!generation) {
           // skip failures
           return
+        }
+        // Skip writes when nothing about the route shape changed (e.g. when the
+        // user just edited the body of an MDX page). Rewriting the file would
+        // otherwise trigger a full page reload via the module graph and break
+        // HMR for in-place MDX edits.
+        try {
+          const current = await readFile(outputFile, 'utf-8')
+          if (current === generation) return
+        } catch {
+          // file doesn't exist yet; fall through to write
         }
         await writeFile(outputFile, generation, 'utf-8')
       }

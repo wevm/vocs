@@ -99,11 +99,36 @@ await import('./serve-node.js');
 }
 
 const wakuDefineRouterRegex = /[/\\]waku[/\\]dist[/\\]router[/\\]define-router\.js(?:\?.*)?$/
+const wakuRouterClientRegex = /[/\\]waku[/\\]dist[/\\]router[/\\]client\.js(?:\?.*)?$/
 const wakuMinimalClientRegex = /[/\\]waku[/\\]dist[/\\]minimal[/\\]client\.js(?:\?.*)?$/
+const wakuBrowserEntryRegex =
+  /[/\\]waku[/\\]dist[/\\]lib[/\\]vite-entries[/\\]entry\.browser\.js(?:\?.*)?$/
 
 // TODO: Remove these Waku prefetch patches once https://github.com/wakujs/waku/issues/2099 is fixed.
 const wakuRouterPrefetchCodeRegex =
   /Object\.entries\(path2moduleIds\)\.forEach\(\(\[path,\s*ids\]\)=>\{\s*path2idxs\[path\]\s*=\s*ids\.map\(\(id\)=>ids\.indexOf\(id\)\);\s*\}\);/
+
+const wakuRouterHmrRefetchCode = `        const refetchRoute = ()=>{
+            staticPathSetRef.current.clear();
+            cachedIdSetRef.current.clear();
+            const rscPath = encodeRoutePath(route.path);
+            const rscParams = createRscParams(route.query);
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            refetch(rscPath, rscParams);
+        };`
+const wakuRouterHmrRefetchPatchedCode = `        const refetchRoute = ()=>{
+            staticPathSetRef.current.clear();
+            cachedIdSetRef.current.clear();
+            const rscPath = encodeRoutePath(route.path);
+            const rscParams = createRscParams(route.query);
+            const hmrRefetchEnhancer = (fetchFn)=>(input, init = {})=>{
+                init.cache = 'no-store';
+                return fetchFn(input, init);
+            };
+            delete globalThis.__WAKU_PREFETCHED__?.[rscPath];
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            refetch(rscPath, rscParams, (store)=>withEnhanceFetchFn(hmrRefetchEnhancer)(store));
+        };`
 
 const wakuClientPrefetchKeysCode = `const KEY_RESPONSE = 'r';
 const KEY_CLOSE = 'x';`
@@ -144,6 +169,18 @@ const wakuClientPrefetchElementsPatchedCode = `    const createElements = ()=>cr
     }
     const elements = prefetchedEntry?.[KEY_ELEMENTS] || createElements();`
 
+const wakuBrowserRscUpdateCode = 'globalThis.__WAKU_RSC_RELOAD_LISTENERS__?.forEach((l)=>l());'
+const wakuBrowserRscUpdatePatchedCode = `if (globalThis.__WAKU_REFETCH_ROUTE__) {
+            globalThis.__WAKU_REFETCH_ROUTE__();
+        } else {
+            globalThis.__WAKU_RSC_RELOAD_LISTENERS__?.forEach((l)=>l());
+        }`
+const wakuBrowserHotStartCode = `if (import.meta.hot) {
+    import.meta.hot.on('rsc:update'`
+const wakuBrowserHotStartPatchedCode = `if (import.meta.hot) {
+    import.meta.hot.accept();
+    import.meta.hot.on('rsc:update'`
+
 export function patchRouterPrefetchCode(code: string, id: string) {
   if (!wakuDefineRouterRegex.test(id)) return
   const patched = code.replace(
@@ -152,6 +189,13 @@ export function patchRouterPrefetchCode(code: string, id: string) {
         path2idxs[path] = pathIds.map((id)=>ids.indexOf(id));
     });`,
   )
+  if (patched === code) return
+  return patched
+}
+
+export function patchRouterHmrRefetchCode(code: string, id: string) {
+  if (!wakuRouterClientRegex.test(id)) return
+  const patched = code.replace(wakuRouterHmrRefetchCode, wakuRouterHmrRefetchPatchedCode)
   if (patched === code) return
   return patched
 }
@@ -166,8 +210,22 @@ export function patchClientRscPrefetchCode(code: string, id: string) {
   return patched
 }
 
+export function patchBrowserRscUpdateCode(code: string, id: string) {
+  if (!wakuBrowserEntryRegex.test(id)) return
+  const patched = code
+    .replace(wakuBrowserHotStartCode, wakuBrowserHotStartPatchedCode)
+    .replace(wakuBrowserRscUpdateCode, wakuBrowserRscUpdatePatchedCode)
+  if (patched === code) return
+  return patched
+}
+
 export function patchWakuPrefetchCode(code: string, id: string) {
-  return patchRouterPrefetchCode(code, id) ?? patchClientRscPrefetchCode(code, id)
+  return (
+    patchRouterPrefetchCode(code, id) ??
+    patchRouterHmrRefetchCode(code, id) ??
+    patchClientRscPrefetchCode(code, id) ??
+    patchBrowserRscUpdateCode(code, id)
+  )
 }
 
 export function patchRouterPrefetch(): Plugin {
@@ -178,6 +236,48 @@ export function patchRouterPrefetch(): Plugin {
       const patched = patchWakuPrefetchCode(code, id)
       if (!patched) return null
       return { code: patched, map: null }
+    },
+  }
+}
+
+export function mdxHmr(): Plugin {
+  const virtualModuleId = 'virtual:vocs/mdx-hmr'
+  const resolvedVirtualModuleId = `\0${virtualModuleId}`
+  let version = 0
+
+  return {
+    name: 'vocs:mdx-hmr',
+    apply: 'serve',
+    async hotUpdate({ file }) {
+      if (!file.endsWith('.md') && !file.endsWith('.mdx')) return
+      if (this.environment.name !== 'client') return
+      version++
+      const mod =
+        this.environment.moduleGraph.getModuleById(resolvedVirtualModuleId) ??
+        (await this.environment.moduleGraph.getModuleByUrl(`/@id/__x00__${virtualModuleId}`))
+      if (!mod) return
+      return [mod]
+    },
+    resolveId(id) {
+      if (id === virtualModuleId) return resolvedVirtualModuleId
+      return
+    },
+    load(id) {
+      if (id !== resolvedVirtualModuleId) return
+      return `\
+const version = ${version};
+
+if (import.meta.hot) {
+  const previousVersion = import.meta.hot.data.version;
+  import.meta.hot.data.version = version;
+  import.meta.hot.accept();
+
+  if (previousVersion !== undefined && previousVersion !== version) {
+    const refetchRoute = globalThis.__WAKU_REFETCH_ROUTE__;
+    if (refetchRoute) refetchRoute();
+  }
+}
+`
     },
   }
 }
@@ -245,6 +345,7 @@ export default adapter(
 import { StrictMode, createElement } from 'react';
 import { createRoot, hydrateRoot } from 'react-dom/client';
 import { Router } from 'waku/router/client';
+import 'virtual:vocs/mdx-hmr';
 
 const rootElement = createElement(StrictMode, null, createElement(Router));
 

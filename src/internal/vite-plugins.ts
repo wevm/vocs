@@ -601,6 +601,9 @@ export function search(config: Config.Config): PluginOption {
   let server: ViteDevServer | undefined
   let mode: 'development' | 'production' = 'development'
   const fileIds = new Map<string, string[]>()
+  let indexUpdatePromise = Promise.resolve()
+  let indexUpdateTimer: ReturnType<typeof setTimeout> | undefined
+  const pendingIndexUpdateFiles = new Set<string>()
 
   async function buildIndex(): Promise<SearchIndex.SearchIndex> {
     logger.info('Building search index...', { timestamp: true })
@@ -629,6 +632,41 @@ export function search(config: Config.Config): PluginOption {
       type: 'update',
       updates: [{ acceptedPath: mod.url, path: mod.url, timestamp: Date.now(), type: 'js-update' }],
     })
+  }
+
+  function updateIndex(file: string): void {
+    indexUpdatePromise = indexUpdatePromise
+      .then(async () => {
+        const index = await indexPromise
+        if (!index) return
+
+        const previousIds = fileIds.get(file) ?? []
+        const newIds = SearchIndex.updateFile(index, file, {
+          pagesDir: pagesDirPath,
+          config,
+          previousIds,
+        })
+        fileIds.set(file, newIds)
+
+        invalidateModule()
+        logger.info(`Search index updated: ${path.relative(rootDir, file)}`, { timestamp: true })
+      })
+      .catch((error) => {
+        logger.error(
+          `Failed to update search index: ${error instanceof Error ? error.message : String(error)}`,
+        )
+      })
+  }
+
+  function scheduleIndexUpdate(file: string): void {
+    pendingIndexUpdateFiles.add(file)
+    if (indexUpdateTimer) clearTimeout(indexUpdateTimer)
+    indexUpdateTimer = setTimeout(() => {
+      indexUpdateTimer = undefined
+      const files = [...pendingIndexUpdateFiles]
+      pendingIndexUpdateFiles.clear()
+      for (const file of files) updateIndex(file)
+    }, 250)
   }
 
   return {
@@ -680,23 +718,11 @@ export function search(config: Config.Config): PluginOption {
       const outDir = options.dir ?? path.resolve(rootDir, config.outDir)
       indexHash = SearchIndex.saveToFile(index, path.resolve(outDir, 'assets'))
     },
-    async handleHotUpdate({ file }) {
+    handleHotUpdate({ file }) {
       if (!file.endsWith('.md') && !file.endsWith('.mdx')) return
       if (!file.startsWith(pagesDirPath)) return
 
-      const index = await indexPromise
-      if (!index) return
-
-      const previousIds = fileIds.get(file) ?? []
-      const newIds = SearchIndex.updateFile(index, file, {
-        pagesDir: pagesDirPath,
-        config,
-        previousIds,
-      })
-      fileIds.set(file, newIds)
-
-      invalidateModule()
-      logger.info(`Search index updated: ${path.relative(rootDir, file)}`, { timestamp: true })
+      scheduleIndexUpdate(file)
     },
   }
 }
