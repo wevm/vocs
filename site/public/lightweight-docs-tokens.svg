@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="450" viewBox="0 0 720 450" role="img" aria-labelledby="title desc">
+  <title id="title">Lightweight docs save tokens</title>
+  <desc id="desc">A comparison of HTML and Markdown documentation responses with different token counts.</desc>
+  <defs>
+    <style><![CDATA[
+      :root { color-scheme: light dark; }
+      .frame { fill: light-dark(#fafafa, #0c0c0c); stroke: light-dark(#e8e8e8, oklch(27% 0 0)); stroke-width: 1; }
+    ]]></style>
+    <clipPath id="clip">
+      <rect x="1" y="1" width="718" height="448" rx="9" />
+    </clipPath>
+  </defs>
+
+  <rect class="frame" x="0.5" y="0.5" width="719" height="449" rx="9.5" />
+  <foreignObject x="1" y="1" width="718" height="448" clip-path="url(#clip)">
+    <div xmlns="http://www.w3.org/1999/xhtml" class="svg-root">
+      <style><![CDATA[
+        :root {
+          color-scheme: light dark;
+          --font-body: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+          --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+          --bg-background: light-dark(#fafafa, #0c0c0c);
+          --bg-surface: light-dark(#ffffff, #141414);
+          --bg-pane: light-dark(oklch(96.19% 0 0), oklch(23.76% 0 0));
+          --bg-secondary: light-dark(oklch(93.89% 0 0), oklch(23.76% 0 0));
+          --fg-foreground: light-dark(oklch(20.44% 0 0), oklch(94.66% 0 0));
+          --fg-foreground-secondary: light-dark(oklch(51.02% 0 0), oklch(70.8% 0 0));
+          --border-border: light-dark(oklch(85% 0 0), oklch(27% 0 0));
+          --border-border-pane: light-dark(oklch(83% 0 0), oklch(25% 0 0));
+        }
+
+        *, *::before, *::after { box-sizing: border-box; }
+
+        .svg-root {
+          width: 718px;
+          height: 448px;
+          box-sizing: border-box;
+          display: grid;
+          place-items: center;
+          padding: 18px 24px;
+          background: var(--bg-background);
+          color: var(--fg-foreground);
+          font-family: var(--font-body);
+          -webkit-font-smoothing: antialiased;
+        }
+
+        .svg-root *,
+        .svg-root *::before,
+        .svg-root *::after {
+          box-sizing: border-box;
+        }
+
+        .embed {
+          width: 100%;
+          max-width: 720px;
+          aspect-ratio: 720 / 420;
+          container-type: inline-size;
+          overflow: hidden;
+          --border-border: light-dark(oklch(85% 0 0), oklch(27% 0 0));
+          --border-border-pane: light-dark(oklch(83% 0 0), oklch(25% 0 0));
+        }
+
+        .stage {
+          width: 720px;
+          height: 420px;
+          transform-origin: top left;
+          position: relative;
+        }
+
+        @container (max-width: 720px) {
+          .stage {
+            transform: scale(calc(100cqw / 720px));
+          }
+        }
+
+        .cards {
+          position: absolute;
+          inset: 0 0 10px;
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 18px;
+        }
+
+        .card {
+          min-width: 0;
+          background: var(--bg-surface);
+          border: 1px solid var(--border-border);
+          border-radius: 8px;
+          overflow: hidden;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .markdown-card {
+          order: -1;
+        }
+
+        .chrome {
+          height: 30px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 0 10px;
+          border-bottom: 1px solid var(--border-border-pane);
+          background: light-dark(#fcfcfc, oklch(20% 0 0));
+          flex-shrink: 0;
+        }
+
+        .method {
+          font-family: var(--font-mono);
+          font-size: 9px;
+          letter-spacing: 0.08em;
+          font-weight: 600;
+          padding: 2px 5px;
+          border-radius: 3px;
+          background: var(--bg-secondary);
+          color: var(--fg-foreground);
+        }
+
+        .addr {
+          flex: 1;
+          min-width: 0;
+          font-family: var(--font-mono);
+          font-size: 10.5px;
+          color: var(--fg-foreground);
+          letter-spacing: 0.01em;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+        }
+
+        .scheme {
+          color: var(--fg-foreground);
+          opacity: 0.5;
+        }
+
+        .ctype {
+          font-family: var(--font-mono);
+          font-size: 9px;
+          letter-spacing: 0.02em;
+          color: var(--fg-foreground-secondary);
+          padding: 2px 6px;
+          background: var(--bg-secondary);
+          border: 1px solid var(--border-border);
+          border-radius: 3px;
+          white-space: nowrap;
+        }
+
+        .body {
+          flex: 1;
+          padding: 8px 14px 20px;
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          min-height: 0;
+        }
+
+        .meter {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          flex-shrink: 0;
+        }
+
+        .meter-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: baseline;
+        }
+
+        .val {
+          font-family: var(--font-mono);
+          font-size: 13px;
+          font-weight: 600;
+          color: var(--fg-foreground);
+          font-variant-numeric: tabular-nums;
+        }
+
+        .unit {
+          font-weight: 400;
+          color: var(--fg-foreground-secondary);
+          font-size: 10px;
+          margin-left: 3px;
+          letter-spacing: 0.04em;
+        }
+
+        .track {
+          height: 5px;
+          background: var(--bg-pane);
+          border: 1px solid var(--border-border-pane);
+          border-radius: 99px;
+          overflow: hidden;
+        }
+
+        .fill {
+          height: 100%;
+          background: var(--fg-foreground);
+          border-radius: 99px;
+        }
+
+        .fill.heavy { width: 78%; }
+        .fill.light { width: 4%; }
+
+        .budget {
+          font-family: var(--font-mono);
+          font-size: 9px;
+          color: var(--fg-foreground-secondary);
+          letter-spacing: 0.02em;
+        }
+
+        .code {
+          flex: 1;
+          background: var(--bg-pane);
+          border: 1px solid var(--border-border-pane);
+          border-radius: 5px;
+          padding: 4px 12px 9px;
+          font-family: var(--font-mono);
+          font-size: 10px;
+          line-height: 1.55;
+          overflow: hidden;
+          white-space: pre;
+          color: color-mix(in oklch, var(--fg-foreground) 35%, transparent);
+          position: relative;
+          min-height: 0;
+          margin-bottom: 2px;
+          isolation: isolate;
+        }
+
+        .ln {
+          display: block;
+          min-height: 1.55em;
+        }
+
+        .hl {
+          color: var(--fg-foreground);
+          font-weight: 500;
+        }
+
+        .hl-line {
+          background: color-mix(in oklch, var(--fg-foreground) 4%, transparent);
+          box-shadow: inset 2px 0 0 var(--fg-foreground);
+          margin: 0 -12px;
+          padding: 0 12px 0 10px;
+        }
+
+        .ellipsis {
+          letter-spacing: 0.1em;
+          opacity: 0.75;
+        }
+
+        .code::after {
+          content: "";
+          position: absolute;
+          left: 1px;
+          right: 1px;
+          bottom: 1px;
+          height: 64px;
+          background: linear-gradient(
+            to bottom,
+            transparent,
+            var(--bg-pane) 72%,
+            var(--bg-pane)
+          );
+          border-radius: 0 0 4px 4px;
+          pointer-events: none;
+          z-index: 1;
+        }
+      ]]></style>
+
+      <div class="embed">
+        <div class="stage" data-screen-label="01 Illustration">
+          <div class="cards">
+            <div class="card html-card">
+              <div class="chrome">
+                <span class="method">GET</span>
+                <span class="addr"><span class="scheme">https://</span>docs.tempo.xyz</span>
+                <span class="ctype">text/html</span>
+              </div>
+              <div class="body">
+                <div class="meter">
+                  <div class="row">
+                    <span class="val">12,400<span class="unit">tokens</span></span>
+                  </div>
+                  <div class="track"><div class="fill heavy"></div></div>
+                  <div class="budget">78% of a 16K context budget</div>
+                </div>
+                <div class="code" aria-label="HTML payload"><span class="ln">&lt;!doctype html&gt;</span><span class="ln">&lt;html lang="en"&gt;</span><span class="ln">  &lt;head&gt;</span><span class="ln">    &lt;meta charset="utf-8" /&gt;</span><span class="ln">    &lt;link rel="stylesheet" href="/_vocs/style-A4f.css" /&gt;</span><span class="ln">    &lt;link rel="modulepreload" href="/_vocs/index.js" /&gt;</span><span class="ln">    &lt;script type="module" src="/_vocs/runtime.js"&gt;&lt;/script&gt;</span><span class="ln">    <span class="ellipsis">... 24 more &lt;meta&gt; / og: / preload</span></span><span class="ln">  &lt;/head&gt;</span><span class="ln">  &lt;body class="vocs vocs-theme-dark"&gt;</span><span class="ln">    &lt;div id="app" class="VocsRoot_1k8j2"&gt;</span><span class="ln">      &lt;header class="VocsHeader_7d2m"&gt;...&lt;/header&gt;</span><span class="ln">      &lt;nav class="VocsSidebar_9p4f"&gt;...&lt;/nav&gt;</span><span class="ln">      &lt;main class="VocsContent_a2b"&gt;</span><span class="ln hl-line"><span class="hl">        &lt;h1&gt;Tempo&lt;/h1&gt;</span></span><span class="ln hl-line"><span class="hl">        &lt;p&gt;Documentation, integration guides,</span></span><span class="ln hl-line"><span class="hl">        and protocol specs.&lt;/p&gt;</span></span><span class="ln">        &lt;div class="VocsCardGrid_g3p"&gt;</span><span class="ln hl-line"><span class="hl">          &lt;a href="/wallet"&gt;Create a Wallet&lt;/a&gt;</span></span><span class="ln hl-line"><span class="hl">          &lt;a href="/connect"&gt;Connect to Tempo&lt;/a&gt;</span></span><span class="ln hl-line"><span class="hl">          &lt;a href="/payments"&gt;Make Payments&lt;/a&gt;</span></span><span class="ln hl-line"><span class="hl">          &lt;a href="/agentic"&gt;Agentic Payments&lt;/a&gt;</span></span><span class="ln">        &lt;/div&gt;</span><span class="ln">      &lt;/main&gt;</span><span class="ln">      &lt;aside class="VocsTOC_m3k"&gt;...&lt;/aside&gt;</span><span class="ln">      &lt;footer class="VocsFooter_p7n"&gt;...&lt;/footer&gt;</span><span class="ln">    &lt;/div&gt;</span><span class="ln">    &lt;script&gt;window.__VOCS__={...}&lt;/script&gt;</span><span class="ln">  &lt;/body&gt;</span><span class="ln">&lt;/html&gt;</span></div>
+              </div>
+            </div>
+
+            <div class="card markdown-card">
+              <div class="chrome">
+                <span class="method">GET</span>
+                <span class="addr"><span class="scheme">https://</span>docs.tempo.xyz</span>
+                <span class="ctype">text/markdown</span>
+              </div>
+              <div class="body">
+                <div class="meter">
+                  <div class="row">
+                    <span class="val">640<span class="unit">tokens</span></span>
+                  </div>
+                  <div class="track"><div class="fill light"></div></div>
+                  <div class="budget">4% of a 16K context budget · 19× lighter</div>
+                </div>
+                <div class="code" aria-label="Markdown payload"><span class="ln hl-line"><span class="hl"># Tempo</span></span><span class="ln"> </span><span class="ln hl-line"><span class="hl">Documentation, integration guides,</span></span><span class="ln hl-line"><span class="hl">and protocol specs.</span></span><span class="ln"> </span><span class="ln hl-line"><span class="hl">- [Create a Wallet](/wallet)</span></span><span class="ln hl-line"><span class="hl">- [Connect to Tempo](/connect)</span></span><span class="ln hl-line"><span class="hl">- [Make Payments](/payments)</span></span><span class="ln hl-line"><span class="hl">- [Agentic Payments](/agentic)</span></span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </foreignObject>
+</svg>
