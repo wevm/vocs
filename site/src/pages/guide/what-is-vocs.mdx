@@ -1,21 +1,55 @@
-# What is Vocs [Learn what Vocs provides for documentation sites]
+# What is Vocs [Learn why Vocs exists and when to use it]
 
-Vocs is a portable documentation framework powered by [Vite](https://vitejs.dev) and [Waku](https://waku.gg).
+Vocs is a lightweight documentation framework for teams who want docs that agents can consume and humans can navigate.
 
-Vocs reads content from `src/pages`, config from `vocs.config.ts`, and builds a docs site with file-based routes, MDX support, and a built-in UI.
+Documentation is no longer only read in a browser. Agents now read docs to answer questions, write code, generate examples, inspect APIs, and make changes inside projects. That changes what a documentation framework needs to optimize for.
 
-Pages can be written in Markdown, MDX, or React components, so you can mix prose with demos and custom UI.
+Good docs still need to feel fast, polished, and readable for people. They also need to stay compact, structured, and easy to retrieve for agents. Vocs is built for both surfaces: simple Markdown and MDX at the source, rich interactive pages in the browser, and agent-friendly outputs such as Markdown routes, `llms.txt`, and MCP.
 
 ## Why Vocs
 
-Vocs is built for documentation that lives alongside your codebase. You keep pages in the repo, configure the site in TypeScript, and use file-based routes by default.
+### Docs Are Agent Interfaces
 
-It comes built-in with [code and syntax highlighting](/guide/syntax-highlighting), [code snippets](/guide/code-snippets), [Twoslash support](/guide/twoslash), [AI features](/guide/ai-support), [dynamic OpenGraph images](/guide/dynamic-og-images), and more.
+<img
+  src="/agent-interfaces.svg"
+  alt="Agents consume lightweight Markdown while humans navigate the richer rendered documentation site."
+/>
 
-## Vite & Waku
+Agents need source material that is direct, structured, and low-friction to retrieve. A heavy page full of layout noise, duplicated chrome, and client-only behavior is harder to use as context.
 
-Vocs is built on top of Vite and Waku.
+Vocs keeps documentation close to the form agents want: files, headings, prose, code blocks, and links. Pages can be served as Markdown, indexed through `llms.txt`, and exposed through MCP when you want agents to navigate docs or source code programmatically.
 
-Vite provides the dev server, build pipeline, and plugin foundation. Waku provides the React app model that Vocs uses for routing and rendering.
+### Fast Docs Improve Feedback
+
+<img
+  src="/fast-feedback.svg"
+  alt="Lighthouse scores showing fast documentation feedback for readers, search engines, and agents."
+/>
+
+Performance matters for more than the person reading in a browser. Agents need quick responses while they iterate, search engines need content that is fast to discover, and readers should not wait for heavy JavaScript before docs are usable.
+
+Vocs is powered by [Vite](https://vitejs.dev) and [Waku](https://waku.gg), with static generation support and a fast development loop. The goal is a docs site that stays fast for humans, crawlers, and agents while still supporting React, MDX, code examples, syntax highlighting, and custom UI.
+
+### Lightweight Docs Save Tokens
+
+<img
+  src="/lightweight-docs-tokens.svg"
+  alt="HTML documentation responses use more tokens than lightweight Markdown responses."
+/>
+
+Agents have context limits. Every duplicated paragraph, unnecessary wrapper, and noisy generated page competes with the actual information needed to solve a task.
+
+Vocs encourages docs that stay small and semantic at the source. Markdown and MDX remain easy to inspect, diff, edit, and feed into models, while the browser experience can still be expressive for humans.
+
+### Docs Should Be Agent-Maintainable
+
+<img
+  src="/agent-maintainable-docs.svg"
+  alt="Documentation files mirror source code files so agents can maintain both together."
+/>
+
+The best docs are not trapped in a hosted CMS. They stay close to the code they describe, where agents can inspect the source, edit pages, update navigation, run checks, and review the diff.
+
+Vocs keeps documentation and source close together in project files. That gives humans and agents the same maintenance surface to read, edit, verify, and ship changes.
 
 Continue with [Getting Started](/guide/getting-started) to create a site.

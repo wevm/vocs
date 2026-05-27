@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="640" viewBox="0 0 720 640" role="img" aria-labelledby="title desc">
+  <title id="title">Agent-maintainable documentation</title>
+  <desc id="desc">A TypeScript library repository with co-located documentation files.</desc>
+  <defs>
+    <style><![CDATA[
+      :root { color-scheme: light dark; }
+      .frame { fill: light-dark(#fafafa, #0c0c0c); stroke: light-dark(#e8e8e8, oklch(27% 0 0)); stroke-width: 1; }
+    ]]></style>
+    <clipPath id="clip">
+      <rect x="1" y="1" width="718" height="638" rx="9" />
+    </clipPath>
+  </defs>
+
+  <rect class="frame" x="0.5" y="0.5" width="719" height="639" rx="9.5" />
+  <foreignObject x="1" y="1" width="718" height="638" clip-path="url(#clip)">
+    <div xmlns="http://www.w3.org/1999/xhtml" class="svg-root">
+      <style><![CDATA[
+        :root {
+          color-scheme: light dark;
+          --font-body: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+          --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+          --color-blue-7: oklch(53.23% 0.2073 259.16);
+          --bg-background: light-dark(#fafafa, #0c0c0c);
+          --bg-surface: light-dark(#ffffff, #141414);
+          --fg-foreground: light-dark(oklch(20.44% 0 0), oklch(94.66% 0 0));
+          --fg-foreground-secondary: light-dark(oklch(51.02% 0 0), oklch(70.8% 0 0));
+          --border-border: light-dark(oklch(93.89% 0 0), oklch(30.08% 0 0));
+          --border-border-pane: light-dark(oklch(91.3% 0 0), oklch(28.01% 0 0));
+          --radius-body: 6px;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; }
+
+        .svg-root {
+          width: 718px;
+          height: 638px;
+          display: grid;
+          place-items: center;
+          padding: 40px 24px;
+          background: var(--bg-background);
+          color: var(--fg-foreground);
+          font-family: var(--font-body);
+          -webkit-font-smoothing: antialiased;
+        }
+
+        .figure {
+          width: 600px;
+          max-width: 100%;
+          margin: 0;
+          background: var(--bg-surface);
+          border: 1px solid var(--border-border);
+          border-radius: var(--radius-body);
+          padding: 8px 12px 14px;
+          display: grid;
+          gap: 6px;
+          font-feature-settings: "ss01";
+        }
+
+        .head {
+          display: flex;
+          align-items: baseline;
+          justify-content: space-between;
+          gap: 12px;
+          padding-left: 15px;
+          color: var(--fg-foreground-secondary);
+          font-family: var(--font-mono);
+          font-size: 13px;
+          line-height: 1.85;
+          letter-spacing: 0;
+          text-transform: none;
+        }
+
+        .head .name {
+          color: var(--fg-foreground);
+        }
+
+        .tree {
+          font-family: var(--font-mono);
+          font-size: 13px;
+          line-height: 1.85;
+          border-top: 1px solid var(--border-border-pane);
+          padding-top: 10px;
+        }
+
+        .row {
+          display: grid;
+          grid-template-columns: 1fr auto;
+          align-items: center;
+          column-gap: 12px;
+          position: relative;
+        }
+
+        .row .path {
+          color: var(--fg-foreground);
+          white-space: nowrap;
+          position: relative;
+        }
+
+        .row.dim .path,
+        .row.dim .ext {
+          color: var(--fg-foreground-secondary);
+          opacity: 0.55;
+        }
+
+        .row.dim .tag {
+          opacity: 0.5;
+        }
+
+        .l1 .path {
+          padding-left: 14px;
+        }
+
+        .l2 .path {
+          padding-left: 28px;
+        }
+
+        .l3 .path {
+          padding-left: 42px;
+        }
+
+        .ext {
+          color: var(--fg-foreground-secondary);
+        }
+
+        .row.mirror .path {
+          font-weight: 500;
+        }
+
+        .group {
+          position: relative;
+          border: 1px solid var(--border-border);
+          border-radius: var(--radius-body);
+          padding: 12px 14px 10px;
+          background: var(--bg-background);
+        }
+
+        .group + .group {
+          margin-top: 10px;
+        }
+
+        .group::before {
+          content: attr(data-label);
+          position: absolute;
+          top: -8px;
+          left: 14px;
+          padding: 0 6px;
+          font-family: var(--font-body);
+          font-size: 10px;
+          font-weight: 500;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          color: var(--fg-foreground-secondary);
+          background: var(--bg-surface);
+        }
+
+        .row.root-align .path {
+          padding-left: 15px;
+        }
+
+        .row.spacer {
+          height: 6px;
+        }
+
+        .foot {
+          border-top: 1px solid var(--border-border-pane);
+          padding-top: 12px;
+          font-size: 13px;
+          color: var(--fg-foreground-secondary);
+          line-height: 1.55;
+        }
+
+        .foot strong {
+          color: var(--fg-foreground);
+          font-weight: 500;
+        }
+
+        .foot .swatch {
+          display: inline-block;
+          width: 6px;
+          height: 6px;
+          border-radius: 9999px;
+          background: var(--color-blue-7);
+          transform: translateY(-1px);
+          margin: 0 2px 0 0;
+        }
+      ]]></style>
+
+      <figure class="figure" aria-label="A TypeScript library repository with co-located docs">
+        <div class="head">
+          <span class="name">my-project/</span>
+        </div>
+
+        <div class="tree" aria-hidden="true">
+          <div class="group" data-label="docs">
+            <div class="row dim"><span class="path">site/</span></div>
+            <div class="row dim l1"><span class="path">index<span class="ext">.mdx</span></span></div>
+            <div class="row l1"><span class="path">actions/</span></div>
+            <div class="row mirror l2"><span class="path">getBalance<span class="ext">.mdx</span></span></div>
+            <div class="row mirror l2"><span class="path">sendTransaction<span class="ext">.mdx</span></span></div>
+            <div class="row l1"><span class="path">utils/</span></div>
+            <div class="row mirror l2"><span class="path">formatUnits<span class="ext">.mdx</span></span></div>
+          </div>
+
+          <div class="group" data-label="library">
+            <div class="row dim"><span class="path">src/</span></div>
+            <div class="row dim l1"><span class="path">index<span class="ext">.ts</span></span></div>
+            <div class="row l1"><span class="path">actions/</span></div>
+            <div class="row mirror l2"><span class="path">getBalance<span class="ext">.ts</span></span></div>
+            <div class="row mirror l2"><span class="path">sendTransaction<span class="ext">.ts</span></span></div>
+            <div class="row l1"><span class="path">utils/</span></div>
+            <div class="row mirror l2"><span class="path">formatUnits<span class="ext">.ts</span></span></div>
+          </div>
+
+          <div class="row spacer"></div>
+
+          <div class="row dim root-align"><span class="path">vocs.config<span class="ext">.ts</span></span></div>
+          <div class="row dim root-align"><span class="path">package<span class="ext">.json</span></span></div>
+          <div class="row dim root-align"><span class="path">tsconfig<span class="ext">.json</span></span></div>
+        </div>
+      </figure>
+    </div>
+  </foreignObject>
+</svg>
