@@ -46,7 +46,7 @@ export function Head() {
         <script
           // biome-ignore lint/security/noDangerouslySetInnerHtml: blocking script to prevent FOUC
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('vocs-theme');if(t==='light'||t==='dark'){document.documentElement.style.colorScheme=t}else if(window.matchMedia('(prefers-color-scheme:dark)').matches){document.documentElement.style.colorScheme='dark'}else if(window.matchMedia('(prefers-color-scheme:light)').matches){document.documentElement.style.colorScheme='light'}else{document.documentElement.style.colorScheme='dark'}}catch(e){}})()`,
+            __html: `(function(){try{var e=document.documentElement;var s=function(t){e.setAttribute('data-vocs-theme',t);e.style.colorScheme=t};var t=localStorage.getItem('vocs-theme');if(t==='light'||t==='dark'){s(t)}else if(window.matchMedia('(prefers-color-scheme:dark)').matches){s('dark')}else if(window.matchMedia('(prefers-color-scheme:light)').matches){s('light')}else{s('dark')}}catch(e){}})()`,
           }}
         />
       )}

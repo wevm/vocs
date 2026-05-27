@@ -11,6 +11,9 @@ export async function Root({ children }: { children: React.ReactNode }) {
   return (
     <html
       data-vocs
+      {...(colorScheme === 'light' || colorScheme === 'dark'
+        ? { 'data-vocs-theme': colorScheme }
+        : {})}
       lang="en"
       style={{ colorScheme, '--vocs-color-accent': accentColor } as never}
       suppressHydrationWarning
