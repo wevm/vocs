@@ -1,5 +1,11 @@
 # vocs
 
+## 2.0.1
+
+### Patch Changes
+
+- 691e378: Fixed theme toggles so explicit light and dark selections overrode compiled `light-dark()` theme tokens instead of continuing to follow the system preference.
+
 ## 2.0.0
 
 ### Major Changes
