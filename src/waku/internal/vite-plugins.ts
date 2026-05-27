@@ -220,10 +220,13 @@ export function mdxHmr(): Plugin {
   const virtualModuleId = 'virtual:vocs/mdx-hmr'
   const resolvedVirtualModuleId = `\0${virtualModuleId}`
   let version = 0
+  let isBuild = false
 
   return {
     name: 'vocs:mdx-hmr',
-    apply: 'serve',
+    configResolved(config) {
+      isBuild = config.command === 'build'
+    },
     async hotUpdate({ file }) {
       if (!file.endsWith('.md') && !file.endsWith('.mdx')) return
       if (this.environment.name !== 'client') return
@@ -240,6 +243,7 @@ export function mdxHmr(): Plugin {
     },
     load(id) {
       if (id !== resolvedVirtualModuleId) return
+      if (isBuild) return ''
       return `\
 const version = ${version};
 
