@@ -64,7 +64,7 @@ export function Landing(props: Landing.Props) {
   const [runner, ...args] = command.split(' ')
 
   return (
-    <div className="vocs:relative vocs:left-1/2 vocs:z-50 vocs:mt-[calc(-1*var(--vocs-spacing-banner)-var(--vocs-spacing-content-py))] vocs:mb-[calc(-1*var(--vocs-spacing-content-py))] vocs:flex vocs:h-[100svh] vocs:w-screen vocs:-translate-x-1/2 vocs:flex-col vocs:overflow-hidden vocs:bg-primary vocs:text-heading">
+    <div className="vocs:relative vocs:left-1/2 vocs:z-50 vocs:mt-[calc(-1*var(--vocs-spacing-banner)-var(--vocs-spacing-content-py))] vocs:mb-[calc(-1*var(--vocs-spacing-content-py))] vocs:flex vocs:h-[100svh] vocs:w-screen vocs:-translate-x-1/2 vocs:flex-col vocs:overflow-hidden vocs:bg-primary vocs:text-heading vocs:max-[700px]:h-auto vocs:max-[700px]:min-h-[100svh] vocs:max-[700px]:overflow-visible">
       <div className="vocs:pointer-events-none vocs:absolute vocs:inset-0 vocs:opacity-35 vocs:dark:opacity-20 vocs:[background-image:repeating-linear-gradient(45deg,transparent_0_27px,light-dark(var(--vocs-color-gray12),var(--vocs-border-color-primary))_27px_28px,transparent_28px_56px),repeating-linear-gradient(-45deg,transparent_0_27px,light-dark(var(--vocs-color-gray12),var(--vocs-border-color-primary))_27px_28px,transparent_28px_56px)]" />
 
       <header className="vocs:relative vocs:pb-4 vocs:pt-8 vocs:max-[700px]:pt-6">
