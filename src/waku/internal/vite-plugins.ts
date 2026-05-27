@@ -101,8 +101,6 @@ await import('./serve-node.js');
 const wakuDefineRouterRegex = /[/\\]waku[/\\]dist[/\\]router[/\\]define-router\.js(?:\?.*)?$/
 const wakuRouterClientRegex = /[/\\]waku[/\\]dist[/\\]router[/\\]client\.js(?:\?.*)?$/
 const wakuMinimalClientRegex = /[/\\]waku[/\\]dist[/\\]minimal[/\\]client\.js(?:\?.*)?$/
-const wakuBrowserEntryRegex =
-  /[/\\]waku[/\\]dist[/\\]lib[/\\]vite-entries[/\\]entry\.browser\.js(?:\?.*)?$/
 
 // TODO: Remove these Waku prefetch patches once https://github.com/wakujs/waku/issues/2099 is fixed.
 const wakuRouterPrefetchCodeRegex =
@@ -169,18 +167,6 @@ const wakuClientPrefetchElementsPatchedCode = `    const createElements = ()=>cr
     }
     const elements = prefetchedEntry?.[KEY_ELEMENTS] || createElements();`
 
-const wakuBrowserRscUpdateCode = 'globalThis.__WAKU_RSC_RELOAD_LISTENERS__?.forEach((l)=>l());'
-const wakuBrowserRscUpdatePatchedCode = `if (globalThis.__WAKU_REFETCH_ROUTE__) {
-            globalThis.__WAKU_REFETCH_ROUTE__();
-        } else {
-            globalThis.__WAKU_RSC_RELOAD_LISTENERS__?.forEach((l)=>l());
-        }`
-const wakuBrowserHotStartCode = `if (import.meta.hot) {
-    import.meta.hot.on('rsc:update'`
-const wakuBrowserHotStartPatchedCode = `if (import.meta.hot) {
-    import.meta.hot.accept();
-    import.meta.hot.on('rsc:update'`
-
 export function patchRouterPrefetchCode(code: string, id: string) {
   if (!wakuDefineRouterRegex.test(id)) return
   const patched = code.replace(
@@ -210,21 +196,11 @@ export function patchClientRscPrefetchCode(code: string, id: string) {
   return patched
 }
 
-export function patchBrowserRscUpdateCode(code: string, id: string) {
-  if (!wakuBrowserEntryRegex.test(id)) return
-  const patched = code
-    .replace(wakuBrowserHotStartCode, wakuBrowserHotStartPatchedCode)
-    .replace(wakuBrowserRscUpdateCode, wakuBrowserRscUpdatePatchedCode)
-  if (patched === code) return
-  return patched
-}
-
 export function patchWakuPrefetchCode(code: string, id: string) {
   return (
     patchRouterPrefetchCode(code, id) ??
     patchRouterHmrRefetchCode(code, id) ??
-    patchClientRscPrefetchCode(code, id) ??
-    patchBrowserRscUpdateCode(code, id)
+    patchClientRscPrefetchCode(code, id)
   )
 }
 

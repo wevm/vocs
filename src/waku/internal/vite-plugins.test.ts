@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest'
 import {
-  patchBrowserRscUpdateCode,
   patchClientRscPrefetchCode,
   patchRouterHmrRefetchCode,
   patchRouterPrefetchCode,
@@ -115,33 +114,5 @@ const InnerRouter = ()=>{
     expect(
       patchRouterHmrRefetchCode('', '/repo/node_modules/waku/dist/router/define-router.js'),
     ).toBe(undefined)
-  })
-})
-
-describe('patchBrowserRscUpdateCode', () => {
-  it('prefers the router refetcher for RSC updates', () => {
-    const code = `
-if (import.meta.hot) {
-    import.meta.hot.on('rsc:update', (e)=>{
-        console.log('[rsc:update]', e);
-        globalThis.__WAKU_RSC_RELOAD_LISTENERS__?.forEach((l)=>l());
-    });
-}`
-
-    const patched = patchBrowserRscUpdateCode(
-      code,
-      '/repo/node_modules/waku/dist/lib/vite-entries/entry.browser.js',
-    )
-
-    expect(patched).toContain('import.meta.hot.accept();')
-    expect(patched).toContain('if (globalThis.__WAKU_REFETCH_ROUTE__)')
-    expect(patched).toContain('globalThis.__WAKU_REFETCH_ROUTE__();')
-    expect(patched).toContain('globalThis.__WAKU_RSC_RELOAD_LISTENERS__?.forEach((l)=>l());')
-  })
-
-  it('ignores other modules', () => {
-    expect(patchBrowserRscUpdateCode('', '/repo/node_modules/waku/dist/router/client.js')).toBe(
-      undefined,
-    )
   })
 })
