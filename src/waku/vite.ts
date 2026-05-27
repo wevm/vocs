@@ -41,6 +41,7 @@ export async function vocs(options: vocs.Options = {}): Promise<PluginOption[]> 
       useBuildAppHook: true,
       clientChunks: (meta) => meta.serverChunk,
     }),
+    Plugins.mdxHmr(),
     Plugins.buildId(),
     Plugins.environments(wakuConfig),
     Plugins.userEntries(wakuConfig, config),

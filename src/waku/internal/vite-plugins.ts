@@ -99,11 +99,34 @@ await import('./serve-node.js');
 }
 
 const wakuDefineRouterRegex = /[/\\]waku[/\\]dist[/\\]router[/\\]define-router\.js(?:\?.*)?$/
+const wakuRouterClientRegex = /[/\\]waku[/\\]dist[/\\]router[/\\]client\.js(?:\?.*)?$/
 const wakuMinimalClientRegex = /[/\\]waku[/\\]dist[/\\]minimal[/\\]client\.js(?:\?.*)?$/
 
 // TODO: Remove these Waku prefetch patches once https://github.com/wakujs/waku/issues/2099 is fixed.
 const wakuRouterPrefetchCodeRegex =
   /Object\.entries\(path2moduleIds\)\.forEach\(\(\[path,\s*ids\]\)=>\{\s*path2idxs\[path\]\s*=\s*ids\.map\(\(id\)=>ids\.indexOf\(id\)\);\s*\}\);/
+
+const wakuRouterHmrRefetchCode = `        const refetchRoute = ()=>{
+            staticPathSetRef.current.clear();
+            cachedIdSetRef.current.clear();
+            const rscPath = encodeRoutePath(route.path);
+            const rscParams = createRscParams(route.query);
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            refetch(rscPath, rscParams);
+        };`
+const wakuRouterHmrRefetchPatchedCode = `        const refetchRoute = ()=>{
+            staticPathSetRef.current.clear();
+            cachedIdSetRef.current.clear();
+            const rscPath = encodeRoutePath(route.path);
+            const rscParams = createRscParams(route.query);
+            const hmrRefetchEnhancer = (fetchFn)=>(input, init = {})=>{
+                init.cache = 'no-store';
+                return fetchFn(input, init);
+            };
+            delete globalThis.__WAKU_PREFETCHED__?.[rscPath];
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            refetch(rscPath, rscParams, (store)=>withEnhanceFetchFn(hmrRefetchEnhancer)(store));
+        };`
 
 const wakuClientPrefetchKeysCode = `const KEY_RESPONSE = 'r';
 const KEY_CLOSE = 'x';`
@@ -156,6 +179,13 @@ export function patchRouterPrefetchCode(code: string, id: string) {
   return patched
 }
 
+export function patchRouterHmrRefetchCode(code: string, id: string) {
+  if (!wakuRouterClientRegex.test(id)) return
+  const patched = code.replace(wakuRouterHmrRefetchCode, wakuRouterHmrRefetchPatchedCode)
+  if (patched === code) return
+  return patched
+}
+
 export function patchClientRscPrefetchCode(code: string, id: string) {
   if (!wakuMinimalClientRegex.test(id)) return
   if (!code.includes(wakuClientPrefetchKeysCode) || !code.includes(wakuClientPrefetchElementsCode))
@@ -167,7 +197,11 @@ export function patchClientRscPrefetchCode(code: string, id: string) {
 }
 
 export function patchWakuPrefetchCode(code: string, id: string) {
-  return patchRouterPrefetchCode(code, id) ?? patchClientRscPrefetchCode(code, id)
+  return (
+    patchRouterPrefetchCode(code, id) ??
+    patchRouterHmrRefetchCode(code, id) ??
+    patchClientRscPrefetchCode(code, id)
+  )
 }
 
 export function patchRouterPrefetch(): Plugin {
@@ -178,6 +212,52 @@ export function patchRouterPrefetch(): Plugin {
       const patched = patchWakuPrefetchCode(code, id)
       if (!patched) return null
       return { code: patched, map: null }
+    },
+  }
+}
+
+export function mdxHmr(): Plugin {
+  const virtualModuleId = 'virtual:vocs/mdx-hmr'
+  const resolvedVirtualModuleId = `\0${virtualModuleId}`
+  let version = 0
+  let isBuild = false
+
+  return {
+    name: 'vocs:mdx-hmr',
+    configResolved(config) {
+      isBuild = config.command === 'build'
+    },
+    async hotUpdate({ file }) {
+      if (!file.endsWith('.md') && !file.endsWith('.mdx')) return
+      if (this.environment.name !== 'client') return
+      version++
+      const mod =
+        this.environment.moduleGraph.getModuleById(resolvedVirtualModuleId) ??
+        (await this.environment.moduleGraph.getModuleByUrl(`/@id/__x00__${virtualModuleId}`))
+      if (!mod) return
+      return [mod]
+    },
+    resolveId(id) {
+      if (id === virtualModuleId) return resolvedVirtualModuleId
+      return
+    },
+    load(id) {
+      if (id !== resolvedVirtualModuleId) return
+      if (isBuild) return ''
+      return `\
+const version = ${version};
+
+if (import.meta.hot) {
+  const previousVersion = import.meta.hot.data.version;
+  import.meta.hot.data.version = version;
+  import.meta.hot.accept();
+
+  if (previousVersion !== undefined && previousVersion !== version) {
+    const refetchRoute = globalThis.__WAKU_REFETCH_ROUTE__;
+    if (refetchRoute) refetchRoute();
+  }
+}
+`
     },
   }
 }
@@ -245,6 +325,7 @@ export default adapter(
 import { StrictMode, createElement } from 'react';
 import { createRoot, hydrateRoot } from 'react-dom/client';
 import { Router } from 'waku/router/client';
+import 'virtual:vocs/mdx-hmr';
 
 const rootElement = createElement(StrictMode, null, createElement(Router));
 
