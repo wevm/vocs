@@ -24,13 +24,15 @@ const disableTransitionsCSS =
 
 function applyTheme(theme: 'light' | 'dark' | 'system') {
   const resolved = theme === 'system' ? getSystemTheme() : theme
+  const html = document.documentElement
 
   // Disable transitions to prevent flash
   const style = document.createElement('style')
   style.appendChild(document.createTextNode(disableTransitionsCSS))
   document.head.appendChild(style)
 
-  document.documentElement.style.colorScheme = resolved
+  html.setAttribute('data-vocs-theme', resolved)
+  html.style.colorScheme = resolved
 
   // Force reflow and re-enable transitions
   ;(() => window.getComputedStyle(document.body))()
@@ -50,8 +52,10 @@ export function Root_client({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const html = document.documentElement
 
-    if (staticScheme) html.style.colorScheme = colorScheme
-    else applyTheme(getStoredTheme())
+    if (staticScheme) {
+      html.setAttribute('data-vocs-theme', colorScheme)
+      html.style.colorScheme = colorScheme
+    } else applyTheme(getStoredTheme())
 
     if (html) {
       if (!import.meta.env.PROD) html.style.setProperty('--vocs-color-accent', accentColor)

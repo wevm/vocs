@@ -29,13 +29,15 @@ const disableTransitionsCSS =
 
 function applyTheme(theme: Theme) {
   const resolved = theme === 'system' ? getSystemTheme() : theme
+  const html = document.documentElement
 
   // Disable transitions to prevent flash
   const style = document.createElement('style')
   style.appendChild(document.createTextNode(disableTransitionsCSS))
   document.head.appendChild(style)
 
-  document.documentElement.style.colorScheme = resolved
+  html.setAttribute('data-vocs-theme', resolved)
+  html.style.colorScheme = resolved
 
   // Force reflow and re-enable transitions
   ;(() => window.getComputedStyle(document.body))()

@@ -31,6 +31,19 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
+  /* Keep Lightning CSS light-dark() output aligned with Vocs' theme toggle. */
+  :root[data-vocs-theme="light"] {
+    --lightningcss-light: initial;
+    --lightningcss-dark: ;
+    color-scheme: light;
+  }
+
+  :root[data-vocs-theme="dark"] {
+    --lightningcss-light: ;
+    --lightningcss-dark: initial;
+    color-scheme: dark;
+  }
+
   html {
     scroll-padding-top: calc(var(--vocs-spacing-topNav) + var(--vocs-spacing-banner) + 1rem);
   }
