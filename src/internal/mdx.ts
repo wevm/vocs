@@ -247,6 +247,7 @@ export function getCompileOptions(
           remarkSubheading,
           remarkVocsScope,
           ...(markdown?.remarkPlugins ?? []),
+          remarkRestoreUnknownTextDirectives,
         ],
         recmaPlugins: [recmaMdxLayout(config), ...(markdown?.recmaPlugins ?? [])],
       }
@@ -616,6 +617,32 @@ export function remarkBadge(): remarkBadge.ReturnType {
 
 export declare namespace remarkBadge {
   type ReturnType = (tree: MdAst.Root) => void
+}
+
+/**
+ * Remark plugin that restores unhandled text directives back to their original Markdown.
+ * This keeps text like `localhost:3003` inside link labels from becoming empty JSX elements.
+ */
+export function remarkRestoreUnknownTextDirectives() {
+  return (tree: MdAst.Root, file: VFile) => {
+    UnistUtil.visit(tree, 'textDirective', (node, index, parent) => {
+      if (index === undefined || !parent) return
+      if (node.data?.hName) return
+
+      parent.children.splice(index, 1, {
+        type: 'text',
+        value: getSourceText(file, node) ?? `:${node.name}`,
+      })
+    })
+  }
+}
+
+function getSourceText(file: VFile, node: MdAst.Nodes) {
+  const source = String(file.value ?? '')
+  const start = node.position?.start.offset
+  const end = node.position?.end.offset
+  if (start === undefined || end === undefined) return undefined
+  return source.slice(start, end)
 }
 
 /**

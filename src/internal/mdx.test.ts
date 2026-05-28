@@ -7,6 +7,7 @@ import {
   remarkFilename,
   remarkFileTree,
   remarkLangCommaAttrs,
+  remarkRestoreUnknownTextDirectives,
 } from './mdx.js'
 
 type CodeNode = {
@@ -221,6 +222,47 @@ describe('getCompileOptions', () => {
 
     expect(codeNode.lang).toBe('ts')
     expect(codeNode.meta).toBe('[example.ts]')
+  })
+})
+
+describe('remarkRestoreUnknownTextDirectives', () => {
+  it('keeps colon text inside link labels as text', () => {
+    const value = '[localhost:3003](http://localhost:3003/)'
+    const tree = {
+      type: 'root',
+      children: [
+        {
+          type: 'paragraph',
+          children: [
+            {
+              type: 'link',
+              title: null,
+              url: 'http://localhost:3003/',
+              children: [
+                { type: 'text', value: 'localhost' },
+                {
+                  type: 'textDirective',
+                  name: '3003',
+                  attributes: {},
+                  children: [],
+                  position: {
+                    start: { line: 1, column: 11, offset: 10 },
+                    end: { line: 1, column: 16, offset: 15 },
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+
+    remarkRestoreUnknownTextDirectives()(tree as never, { value } as never)
+
+    expect(tree.children[0]?.children[0]?.children).toEqual([
+      { type: 'text', value: 'localhost' },
+      { type: 'text', value: ':3003' },
+    ])
   })
 })
 
