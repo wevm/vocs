@@ -1,5 +1,11 @@
 # vocs
 
+## 2.0.3
+
+### Patch Changes
+
+- f98e301: Preserved the configured base path root when normalizing Waku's trailing slash base path.
+
 ## 2.0.2
 
 ### Patch Changes
