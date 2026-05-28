@@ -1,0 +1,131 @@
+# Frontmatter Reference [All frontmatter fields accepted by a Vocs MDX page]
+
+Vocs reads YAML frontmatter at the top of every `.mdx` page to control page metadata, layout, and UI. This page is the canonical reference for every supported field.
+
+For a tutorial-style guide, see [Writing · Frontmatter](/writing/frontmatter).
+
+## Type
+
+```ts
+type Frontmatter = {
+  // Metadata
+  title?: string
+  description?: string
+  author?: string
+  robots?: string
+
+  // Layout
+  layout?: 'full' | 'minimal' | 'blank'
+  outline?: boolean | number
+
+  // UI toggles
+  showAskAi?: boolean
+  showBanner?: boolean
+  showFeedback?: boolean
+  showLogo?: boolean
+  showSearch?: boolean
+  showSidebar?: boolean
+  showTopNav?: boolean
+
+  // Search
+  searchPriority?: number
+
+  // Auto-injected at build time
+  filePath?: string
+  lastModified?: string
+
+  // Anything else — preserved and available to layouts and components
+  [key: string]: unknown
+}
+```
+
+## Metadata
+
+| Field | Type | Default | Description |
+|---|---|---|---|
+| `title` | `string` | derived from `# H1` | Page title for `<title>`, OG, and llms.txt. |
+| `description` | `string` | derived from page intro | Page description for `<meta>`, OG, and llms.txt. |
+| `author` | `string` | — | Sets `<meta name="author">` and OG article author. |
+| `robots` | `string` | — | Overrides the page-level `<meta name="robots">` directive (e.g. `noindex, nofollow`). |
+
+## Layout
+
+| Field | Type | Default | Description |
+|---|---|---|---|
+| `layout` | `'full' \| 'minimal' \| 'blank'` | `'full'` | Switches the page shell. `full` = sidebar + top nav + outline. `minimal` = top nav + centered content + outline. `blank` = content only. |
+| `outline` | `boolean \| number` | `true` | Right-hand table of contents. `false` hides it. A number caps the maximum heading depth shown. |
+
+## UI Visibility
+
+These flags override the default visibility for the active layout.
+
+| Field | Type | Default | Description |
+|---|---|---|---|
+| `showAskAi` | `boolean` | `true` | Show the **Ask AI** button. |
+| `showBanner` | `boolean` | `true` | Show the global banner. |
+| `showFeedback` | `boolean` | `true` | Show the **Was this helpful?** widget. |
+| `showLogo` | `boolean` | `true` | Show the logo in the top nav. |
+| `showSearch` | `boolean` | `true` | Show the search input. The `⌘K` shortcut still works. |
+| `showSidebar` | `boolean` | layout-dependent | Force-show or hide the sidebar. |
+| `showTopNav` | `boolean` | layout-dependent | Force-show or hide the top navigation. |
+
+## Search
+
+| Field | Type | Default | Description |
+|---|---|---|---|
+| `searchPriority` | `number` | `1` | Multiplier applied during search ranking. `0` excludes the page from search entirely. Larger numbers boost the page. |
+
+## Auto-Injected
+
+These fields are populated by Vocs at build time. You normally should not set them yourself.
+
+| Field | Type | Source |
+|---|---|---|
+| `filePath` | `string` | File path relative to `src/pages`. |
+| `lastModified` | `string` | Most recent git commit date for the file, when available. |
+
+## Custom Fields
+
+Frontmatter is open-ended — any extra keys are preserved, exposed to layouts and wrappers through [`MdxPageContext`](/reference/components#mdxpagecontextprovider), and emitted as MDX variables in the compiled page.
+
+```mdx
+---
+status: beta
+section: api
+order: 3
+---
+```
+
+```tsx [_mdx-wrapper.tsx]
+export default function Wrapper({ children, frontmatter }) {
+  return (
+    <div>
+      {frontmatter.status === 'beta' && <Badge>Beta</Badge>}
+      {children}
+    </div>
+  )
+}
+```
+
+## Full Example
+
+```mdx
+---
+title: API Reference
+description: Endpoints, schemas, and examples for the Vocs API.
+author: wevm
+robots: index, follow
+layout: full
+outline: 2
+showAskAi: false
+showFeedback: false
+searchPriority: 3
+status: stable
+---
+```
+
+## See Also
+
+- [Writing · Frontmatter](/writing/frontmatter) — tutorial-style guide.
+- [MDX Wrapper](/features/layouts#mdx-wrapper) — read custom frontmatter inside section wrappers.
+- [Site Configuration](/reference/site-config)

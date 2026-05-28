@@ -1,0 +1,170 @@
+# Layouts [Choose and customize page shells for your docs]
+
+Vocs ships with three built-in page layouts controlled by frontmatter:
+
+- `full`
+- `minimal`
+- `blank`
+
+Use these when you want to change the page chrome around your MDX content. For the full set of page-level options, see [Frontmatter](/writing/frontmatter).
+
+## Default Layout
+
+Pages use `layout: full` by default.
+
+The full layout is the standard docs experience:
+
+- sidebar navigation
+- top navigation
+- main content
+- page outline
+- pagination, edit link, and last updated footer under the page content
+
+```mdx
+---
+layout: full
+---
+```
+
+Use it for most documentation pages.
+
+## Minimal Layout
+
+The minimal layout removes the sidebar and keeps the page focused on the content.
+
+```mdx
+---
+layout: minimal
+---
+```
+
+Use it for pages like landing pages, guides with a custom hero, or standalone docs pages that should not inherit the full sidebar shell.
+
+The homepage in this repo uses `minimal` plus a couple of visibility toggles:
+
+```mdx
+---
+layout: minimal
+showAskAi: false
+showLogo: false
+---
+```
+
+By default, `minimal` also hides the outline, but you can opt back into it:
+
+```mdx
+---
+layout: minimal
+outline: true
+---
+```
+
+## Blank Layout
+
+The blank layout strips the page shell down to the content area.
+
+```mdx
+---
+layout: blank
+---
+```
+
+Use it when you want to provide nearly all of the page structure yourself inside MDX.
+
+By default, `blank` hides the top nav, sidebar, outline, search UI, and Ask AI button. You can enable specific pieces with frontmatter such as `showTopNav`, `showSearch`, or `showAskAi`.
+
+## Layout Overrides
+
+Layouts set defaults, but you can override individual parts of the shell per page with frontmatter:
+
+- `showSidebar`
+- `showTopNav`
+- `showLogo`
+- `showSearch`
+- `showAskAi`
+- `showFeedback`
+- `outline`
+
+```mdx
+---
+layout: blank
+showTopNav: true
+showSearch: true
+outline: 2
+---
+```
+
+This is often simpler than changing layouts entirely.
+
+## MDX Wrapper
+
+If you need more than the built-in shells, create an `_mdx-wrapper.tsx` file in a pages directory. The wrapper applies to every Markdown and MDX page in that directory and its subdirectories. It does not apply to `src/pages/_api/` routes.
+
+The nearest wrapper wins — a deeper `_mdx-wrapper.tsx` takes precedence over a shallower one for that subtree.
+
+:::file-tree
+- +src
+  - +pages
+    - **_mdx-wrapper.tsx** ← applies to all MDX pages
+    - index.mdx
+    - +guides
+      - **_mdx-wrapper.tsx** ← applies to pages in /guides/\*
+      - intro.mdx
+:::
+
+### Writing a Wrapper
+
+The wrapper receives the MDX children plus the page's frontmatter and path.
+
+```tsx [src/pages/guides/_mdx-wrapper.tsx]
+import type { ReactNode } from 'react'
+
+type Props = {
+  children: ReactNode
+  frontmatter: {
+    title?: string
+    description?: string
+    [key: string]: unknown
+  }
+  path: string
+}
+
+export default function GuidesWrapper({ children, frontmatter, path }: Props) {
+  return (
+    <div>
+      <header className="vocs:mb-6 vocs:border-b vocs:pb-4">
+        <p className="vocs:text-xs vocs:text-secondary">Guides · {path}</p>
+        {frontmatter.title && <h1>{frontmatter.title}</h1>}
+        {frontmatter.description && (
+          <p className="vocs:text-secondary">{frontmatter.description}</p>
+        )}
+      </header>
+      {children}
+    </div>
+  )
+}
+```
+
+### When to Use a Wrapper
+
+- A **section banner** ("Beta", "Deprecated", "v2 docs") for everything inside a subtree.
+- A **hero/header pattern** for landing pages like `/blog/*` or `/recipes/*`.
+- **Section-scoped UI** — e.g. table of contents for a tutorial series, a stepper for an onboarding flow.
+- Injecting **section-specific MDX components** by composing your own `MDXProvider`.
+
+## Wrapper vs Layout vs Slots
+
+Choose the smallest tool that solves the problem:
+
+| Use a… | File | When you want to… |
+|---|---|---|
+| [Layout](#default-layout) | `frontmatter.layout` | Switch the entire page shell (`full` / `minimal` / `blank`). |
+| [Wrapper](#mdx-wrapper) | `_mdx-wrapper.tsx` | Add chrome to MDX pages within a directory subtree. |
+| [Slot](/features/slots) | `_slots.tsx` | Replace specific regions of the global shell (`Footer`, `OutlineFooter`, `SidebarHeader`). |
+
+A page can use all three: layout sets the shell, the wrapper handles in-content chrome, and slots customize global regions.
+
+## See Also
+
+- [Frontmatter reference](/reference/frontmatter)
+- [Slots](/features/slots)

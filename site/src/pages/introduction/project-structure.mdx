@@ -97,7 +97,7 @@ Use it to configure things like your `title`, `description`, `sidebar`, `topNav`
 :::
 
 - `src/pages/index.mdx` becomes `/`
-- `src/pages/guide/getting-started.mdx` becomes `/guide/getting-started`
+- `src/pages/introduction/getting-started.mdx` becomes `/introduction/getting-started`
 - `src/pages/reference/index.mdx` becomes `/reference`
 
 Pages can be written as Markdown, MDX, or React components:
@@ -106,7 +106,7 @@ Pages can be written as Markdown, MDX, or React components:
 - `.mdx`
 - `.tsx`
 
-[Read Sidebar & Top Navigation](/guide/navigation)
+[Read Sidebar & Top Navigation](/features/navigation)
 
 ## Static Assets
 
@@ -132,7 +132,7 @@ Files in `public` are available at the site root:
 
 Use `public` when you need a stable URL like `/logo.svg` or `/favicon.ico`. For page-local images, prefer importing assets next to the page that uses them.
 
-[Read Asset Handling](/guide/asset-handling)
+[Read Asset Handling](/writing/assets)
 
 ## Styles
 
@@ -157,9 +157,9 @@ Create `src/pages/_root.css` when you want to add global styles for your docs si
 
 This is the right place for global CSS variables, font declarations, and site-wide tweaks. When you want your overrides to follow the built-in theme toggle, target the document's `color-scheme` instead of a `.dark` class.
 
-[Read Theming](/guide/theming)
+[Read Theming](/features/theming)
 
-[Read Tailwind CSS](/guide/tailwind)
+[Read Tailwind CSS](/features/tailwind)
 
 ## Layout
 
@@ -187,7 +187,7 @@ That wrapper will apply to the MDX pages in `guide`. Nested directories can defi
 
 Use `_root.tsx` and `_layout.tsx` only when you need lower-level Waku layout control. For most page shell changes, start with frontmatter layouts or `_mdx-wrapper.tsx`.
 
-[Read Layouts](/guide/layouts)
+[Read Layouts](/features/layouts)
 
 ## Slots
 
@@ -248,7 +248,7 @@ export default {
 }
 ```
 
-[Read Dynamic OG Images](/guide/dynamic-og-images)
+[Read Dynamic OG Images](/features/dynamic-og-images)
 
 ## Ignored Routes
 
@@ -292,4 +292,4 @@ Vocs generates agent and discovery files during development or builds.
 
 `/llms.txt` and `/llms-full.txt` are available for docs sites automatically. `sitemap.xml` and `robots.txt` require `baseUrl` so Vocs can generate absolute URLs for production.
 
-[Read AI Support](/guide/ai-support)
+[Read AI Support](/features/agent-support)

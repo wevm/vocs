@@ -4,7 +4,7 @@ outline: 2
 
 import { Badge, Card, Cards } from 'vocs'
 
-# Using React in Markdown [Compose MDX pages with React components]
+# React in Markdown [Compose MDX pages with React components]
 
 Vocs pages are MDX, so you can mix Markdown for prose with React components for reusable UI, shared page structure, and client-side behavior.
 
@@ -26,7 +26,7 @@ Vocs exports React components such as `Badge`, `Callout`, `Card`, `Cards`, `Link
     <Card
     title="Markdown Extensions"
     description="Docs-first syntax for callouts, steps, code groups, and more."
-    to="/guide/markdown-extensions"
+    to="/writing/markdown-extensions"
     topRight={<Badge variant="tip">MDX</Badge>}
     />
   </Cards>
@@ -44,7 +44,7 @@ import { Badge, Card, Cards } from 'vocs'
   <Card
     title="Markdown Extensions"
     description="Docs-first syntax for callouts, steps, code groups, and more."
-    to="/guide/markdown-extensions"
+    to="/writing/markdown-extensions"
     topRight={<Badge variant="tip">MDX</Badge>}
   />
 </Cards>
@@ -147,7 +147,7 @@ Use directives when the content is mostly prose.
 ```
 ::::
 
-For the full syntax, see [Markdown Extensions](/guide/markdown-extensions).
+For the full syntax, see [Markdown Extensions](/writing/markdown-extensions).
 
 ## Wrap a Section with Shared React UI
 
@@ -160,15 +160,15 @@ export default function GuideWrapper(props: { children: React.ReactNode }) {
 }
 ```
 ```txt [Applies to]
-src/pages/guide/getting-started.mdx
-src/pages/guide/navigation.mdx
-src/pages/guide/react.mdx
+src/pages/introduction/getting-started.mdx
+src/pages/features/navigation.mdx
+src/pages/writing/react.mdx
 ```
 :::
 
 That wrapper is applied to every Markdown and MDX page in the directory. Nested directories can override it with their own `_mdx-wrapper.tsx` files.
 
-For more on wrappers and page shells, see [Layouts](/guide/layouts).
+For more on wrappers and page shells, see [Layouts](/features/layouts).
 
 ## Read Frontmatter in a Component
 
@@ -200,5 +200,5 @@ import { PageStatus } from '../../components/PageStatus.client'
 ```
 :::
 
-This is useful for page-level badges, notices, or wrappers that respond to custom frontmatter. For the built-in fields, see [Frontmatter](/guide/frontmatter).
+This is useful for page-level badges, notices, or wrappers that respond to custom frontmatter. For the built-in fields, see [Frontmatter](/writing/frontmatter).
 

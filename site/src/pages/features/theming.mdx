@@ -113,7 +113,7 @@ Create `src/pages/_root.css` when you want to override colors, fonts, spacing, o
 
 The key detail is the dark-mode selector. Vocs stores the active theme on the document's `color-scheme`, so if you want CSS overrides to follow the built-in theme toggle, target the inline `color-scheme` value instead of relying only on `prefers-color-scheme`.
 
-If you want to use Tailwind utilities for custom page UI, see [Tailwind CSS](/guide/tailwind).
+If you want to use Tailwind utilities for custom page UI, see [Tailwind CSS](/features/tailwind).
 
 ## Common Theme Tokens
 
@@ -204,7 +204,7 @@ Load fonts in `_root.css`, then point the Vocs font variables at them.
 
 Put the font files in `public/fonts` or another static asset path.
 
-See also: [Asset Handling](/guide/asset-handling)
+See also: [Asset Handling](/writing/assets)
 
 ## Code Block Themes
 
@@ -225,7 +225,7 @@ export default defineConfig({
 
 You can also add language aliases or other Shiki options in the same `codeHighlight` block.
 
-See also: [Code & Syntax Highlighting](/guide/syntax-highlighting)
+See also: [Code & Syntax Highlighting](/writing/syntax-highlighting)
 
 ## Practical Approach
 

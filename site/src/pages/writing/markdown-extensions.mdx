@@ -151,7 +151,7 @@ Use `Cards` and `Card` to build linked grids for related pages.
     title="Getting Started"
     description="Create your first Vocs site."
     icon="book-open"
-    to="/guide/getting-started"
+    to="/introduction/getting-started"
   />
   <Card
     title="Site Config"
@@ -169,7 +169,7 @@ import { Card, Cards } from 'vocs'
     title="Getting Started"
     description="Create your first Vocs site."
     icon="book-open"
-    to="/guide/getting-started"
+    to="/introduction/getting-started"
   />
   <Card
     title="Site Config"
@@ -363,7 +363,7 @@ lang: en-US
 
 This data will be available to the rest of the page, along with all custom and theming components.
 
-For more details, see [Frontmatter](/guide/frontmatter).
+For more details, see [Frontmatter](/writing/frontmatter).
 
 ## Headings
 
@@ -421,12 +421,12 @@ Use `Link` when internal navigation needs to be composed from JSX.
 
 :::code-group
 <div data-title="Preview">
-<Link to="/guide/getting-started">Get started</Link>
+<Link to="/introduction/getting-started">Get started</Link>
 </div>
 ```mdx [MDX]
 import { Link } from 'vocs'
 
-<Link to="/guide/getting-started">Get started</Link>
+<Link to="/introduction/getting-started">Get started</Link>
 ```
 :::
 
@@ -436,7 +436,7 @@ Both internal and external links get special treatment. Internal links are conve
 
 :::code-group
 <div data-title="Preview">
-[Internal link](/guide/markdown-extensions)
+[Internal link](/writing/markdown-extensions)
 
 [External link](https://example.com)
 
@@ -445,7 +445,7 @@ www.example.com, https://example.com, and contact@example.com.
 [Reference link](/reference/site-config#metadata)
 </div>
 ```md [Markdown]
-[Internal link](/guide/markdown-extensions)
+[Internal link](/writing/markdown-extensions)
 [External link](https://example.com)
 www.example.com, https://example.com, and contact@example.com.
 [Reference link](/reference/site-config#metadata)
@@ -537,7 +537,7 @@ sequenceDiagram
 Ask your AI agent to read this guide before editing Markdown or MDX pages:
 
 ```txt
-Read https://vocs.dev/guide/markdown-extensions and update this page using the right Vocs Markdown syntax.
+Read https://vocs.dev/writing/markdown-extensions and update this page using the right Vocs Markdown syntax.
 ```
 
 :::tip

@@ -84,7 +84,7 @@ import { defineConfig } from 'vocs/config'
 
 export default defineConfig({
   sidebar: [
-    { text: 'Getting Started', link: '/guide/getting-started' },
+    { text: 'Getting Started', link: '/introduction/getting-started' },
     {
       text: 'Reference',
       items: [
@@ -94,7 +94,7 @@ export default defineConfig({
     },
   ],
   topNav: [
-    { text: 'Guide', link: '/guide/getting-started', match: '/guide' },
+    { text: 'Guide', link: '/introduction/getting-started', match: '/guide' },
     { text: 'GitHub', link: 'https://github.com/acme/sdk', external: true },
   ],
 })
@@ -154,8 +154,8 @@ export default defineConfig({
     {
       text: 'Guide',
       items: [
-        { text: 'Getting Started', link: '/guide/getting-started' },
-        { text: 'Theming', link: '/guide/theming' },
+        { text: 'Getting Started', link: '/introduction/getting-started' },
+        { text: 'Theming', link: '/features/theming' },
       ],
     },
   ],
@@ -165,7 +165,7 @@ export default defineConfig({
   ],
   title: 'Acme Docs',
   topNav: [
-    { text: 'Guide', link: '/guide/getting-started' },
+    { text: 'Guide', link: '/introduction/getting-started' },
     { text: 'GitHub', link: 'https://github.com/acme/docs', external: true },
   ],
 })
@@ -240,7 +240,7 @@ Redirect incoming paths to new destinations. Redirects support named parameters 
 ```ts
 export default defineConfig({
   redirects: [
-    { source: '/docs', destination: '/guide/getting-started' },
+    { source: '/docs', destination: '/introduction/getting-started' },
     { source: '/old/:path*', destination: '/new/:path*', status: 301 },
   ],
 })
@@ -312,7 +312,7 @@ export default defineConfig({
 })
 ```
 
-See also: [Theming](/guide/theming)
+See also: [Theming](/features/theming)
 
 ### `colorScheme`
 
@@ -346,7 +346,7 @@ When you pass an object, `dismissable` defaults to `true` and `variant` defaults
 export default defineConfig({
   banner: {
     content: 'Vocs v2 is now available.',
-    href: '/guide/changelog',
+    href: '/changelog',
     variant: 'tip',
   },
 })
@@ -385,16 +385,16 @@ Each sidebar item supports these fields:
 ```ts
 export default defineConfig({
   sidebar: [
-    { text: 'Getting Started', link: '/guide/getting-started' },
+    { text: 'Getting Started', link: '/introduction/getting-started' },
     {
       text: 'Writing',
       collapsed: false,
       items: [
-        { text: 'Code & Syntax Highlighting', link: '/guide/syntax-highlighting' },
-        { text: 'Code Snippets', link: '/guide/code-snippets' },
-        { text: 'Markdown Snippets', link: '/guide/markdown-snippets' },
-        { text: 'Markdown Extensions', link: '/guide/markdown-extensions' },
-        { text: 'Twoslash', link: '/guide/twoslash' },
+        { text: 'Code & Syntax Highlighting', link: '/writing/syntax-highlighting' },
+        { text: 'Code Snippets', link: '/writing/code-snippets' },
+        { text: 'Markdown Snippets', link: '/writing/markdown-snippets' },
+        { text: 'Markdown Extensions', link: '/writing/markdown-extensions' },
+        { text: 'Twoslash', link: '/writing/twoslash' },
       ],
     },
   ],
@@ -405,8 +405,8 @@ export default defineConfig({
 export default defineConfig({
   sidebar: {
     '/guide': [
-      { text: 'Getting Started', link: '/guide/getting-started' },
-      { text: 'Theming', link: '/guide/theming' },
+      { text: 'Getting Started', link: '/introduction/getting-started' },
+      { text: 'Theming', link: '/features/theming' },
     ],
     '/reference': {
       backLink: true,
@@ -421,7 +421,7 @@ export default defineConfig({
 
 When you use the object form, Vocs picks the deepest matching path prefix for the current route.
 
-See also: [Sidebar & Top Navigation](/guide/navigation)
+See also: [Sidebar & Top Navigation](/features/navigation)
 
 ### `topNav`
 
@@ -454,7 +454,7 @@ export default defineConfig({
   topNav: [
     {
       text: 'Guide',
-      link: '/guide/getting-started',
+      link: '/introduction/getting-started',
       match: '/guide',
     },
     {
@@ -562,13 +562,13 @@ export default defineConfig({
 })
 ```
 
-See also: [Code & Syntax Highlighting](/guide/syntax-highlighting)
+See also: [Code & Syntax Highlighting](/writing/syntax-highlighting)
 
 ### `twoslash`
 
 - **Type:** `false | Twoslash config`
 
-Configures [Twoslash](/guide/twoslash) for type-aware code examples. Set it to `false` to disable Twoslash entirely.
+Configures [Twoslash](/writing/twoslash) for type-aware code examples. Set it to `false` to disable Twoslash entirely.
 
 ```ts
 import { Twoslash, defineConfig } from 'vocs/config'
@@ -655,7 +655,7 @@ export default defineConfig({
 
 You can provide your own adapter with `Feedback.from()`.
 
-See also: [Feedback](/guide/feedback)
+See also: [Feedback](/features/feedback)
 
 ### `mcp`
 
@@ -683,7 +683,7 @@ export default defineConfig({
 
 Use `McpSource.github()` for GitHub-backed repositories or `McpSource.from()` for custom sources.
 
-See also: [MCP Server](/guide/mcp-server)
+See also: [MCP Server](/features/mcp-server)
 
 ### `changelog`
 
@@ -701,7 +701,7 @@ export default defineConfig({
 
 Use `Changelog.github()` to read GitHub releases or `Changelog.from()` to provide your own adapter.
 
-See also: [Changelog Generation](/guide/changelog-generation)
+See also: [Changelog Generation](/features/changelog-generation)
 
 ### `ogImageUrl`
 
@@ -731,7 +731,7 @@ export default defineConfig({
 })
 ```
 
-See also: [Dynamic OG Images](/guide/dynamic-og-images)
+See also: [Dynamic OG Images](/features/dynamic-og-images)
 
 ## Filesystem And Output
 
@@ -757,7 +757,7 @@ export default defineConfig({
 
 With this config, Vocs will look for pages in `docs/pages`.
 
-See also: [Project Structure](/guide/structure)
+See also: [Project Structure](/introduction/project-structure)
 
 ### `cacheDir`
 
