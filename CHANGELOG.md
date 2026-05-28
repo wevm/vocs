@@ -1,5 +1,11 @@
 # vocs
 
+## 2.0.4
+
+### Patch Changes
+
+- c88d1d2: Fixed unhandled text directives inside link labels rendering as empty elements.
+
 ## 2.0.3
 
 ### Patch Changes
