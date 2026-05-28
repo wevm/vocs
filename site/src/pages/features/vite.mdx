@@ -1,0 +1,101 @@
+# Vite [Customize the Vite config that powers Vocs]
+
+Vocs uses Vite under the hood. Most projects can use Vocs without a `vite.config.ts`, but you can switch to Vite directly when you need Vite-level control such as aliases, dev server options, build options, or extra plugins.
+
+The `vocs` CLI creates its own internal Vite config and does not load `vite.config.ts`. Keep site content, navigation, redirects, search, and theme options in `vocs.config.ts`. Use `vite.config.ts` for Vite behavior.
+
+## Quick Prompt
+
+Ask your AI agent to add a Vite config to your Vocs project:
+
+```txt
+Read https://vocs.dev/features/vite and configure Vite for my Vocs project.
+```
+
+## Steps
+
+::::steps
+
+### Create Vite Config
+
+Create `vite.config.ts` at the project root and add the React and Vocs Vite plugins.
+
+```ts [vite.config.ts]
+import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite'
+import { vocs } from 'vocs/vite'
+
+export default defineConfig({
+  plugins: [react(), vocs()]
+})
+```
+
+:::note
+
+The `vocs` CLI adds `@vitejs/plugin-react` internally. When you run Vite directly, add it to your custom Vite config. Projects created with `create-vocs` already include this dependency.
+
+Vocs still reads `vocs.config.ts` for docs-specific configuration. The Vite config controls the Vite server and build pipeline.
+
+:::
+
+### Switch package.json Scripts
+
+Switch your scripts from `vocs` to `vite` so Vite loads your `vite.config.ts`. If your scripts already use `vite`, leave them as-is.
+
+```diff [package.json]
+{
+  "scripts": {
+-    "dev": "vocs dev",
+-    "build": "vocs build",
+-    "preview": "vocs preview"
++    "dev": "vite dev",
++    "build": "vite build",
++    "preview": "vite preview"
+  }
+}
+```
+
+### Run Dev Server
+
+Start the development server with your package manager.
+
+:::code-group
+
+```bash [npm]
+npm run dev
+```
+
+```bash [pnpm]
+pnpm dev
+```
+
+```bash [yarn]
+yarn dev
+```
+
+```bash [bun]
+bun run dev
+```
+
+:::
+
+::::
+
+## Add Vite Plugins
+
+Add extra Vite plugins next to `vocs()`.
+
+```ts [vite.config.ts]
+import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite'
+import Inspect from 'vite-plugin-inspect'
+import { vocs } from 'vocs/vite'
+
+export default defineConfig({
+  plugins: [react(), Inspect(), vocs()]
+})
+```
+
+Install any plugin you import from `vite.config.ts` in your project.
+
+See also: [Site Configuration](/reference/site-config), [Tailwind CSS](/features/tailwind)
