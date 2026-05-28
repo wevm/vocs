@@ -1,5 +1,11 @@
 # vocs
 
+## 2.0.2
+
+### Patch Changes
+
+- f850193: Improved MDX development hot updates to avoid delayed or stale page updates after edits.
+
 ## 2.0.1
 
 ### Patch Changes
