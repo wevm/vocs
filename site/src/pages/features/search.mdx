@@ -1,0 +1,107 @@
+# Search [Built-in client-side search powered by MiniSearch]
+
+Vocs ships a built-in search dialog. It indexes every MDX page at build time, ships the index to the client, and runs queries entirely in the browser — no third-party service required.
+
+## Opening Search
+
+- Click the search input in the top navigation, or
+- Press `⌘K` / `Ctrl+K` to focus the dialog from anywhere.
+
+Search supports keyboard navigation (`↑` `↓` `Enter`), fuzzy matching, "Jump to" suggestions, and a list of recently viewed pages.
+
+## How It Works
+
+At build time, Vocs walks `src/pages/`, splits each MDX page into title/subtitle/text/category fields, and builds a [MiniSearch](https://lucaong.github.io/minisearch/) index. The index is written to `.vocs/search-index-{hash}.json` for production and served as a virtual module in dev with HMR.
+
+At runtime, the index is fetched once on first search and stays in memory for the session.
+
+## Configuration
+
+Customize search behavior in `vocs.config.ts`:
+
+```ts twoslash
+import { defineConfig } from 'vocs/config'
+
+export default defineConfig({
+  search: {
+    fuzzy: 0.2,
+    prefix: true,
+    combineWith: 'AND',
+    boost: { title: 4, subtitle: 3, text: 2, category: 1, titles: 1 },
+  },
+})
+```
+
+### Options
+
+#### `fuzzy`
+
+- **Type:** `number | boolean`
+- **Default:** `0.2`
+
+Tolerance for typos. A number between `0` and `1` controls the fuzziness ratio. Set `false` to require exact matches.
+
+#### `prefix`
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+When `true`, queries match terms that share a prefix (so `nav` matches `navigation`).
+
+#### `combineWith`
+
+- **Type:** `'AND' | 'OR'`
+- **Default:** `'AND'`
+
+How to combine multiple search terms. `AND` (the default) requires every term to match.
+
+#### `boost`
+
+- **Type:** `Record<string, number>`
+
+Boost factor per indexed field. Defaults:
+
+| Field | Boost |
+|---|---|
+| `title` | 4 |
+| `subtitle` | 3 |
+| `text` | 2 |
+| `titles` | 1 |
+| `category` | 1 |
+
+#### `boostDocument`
+
+- **Type:** `(id: string, term: string, storedFields?: Record<string, unknown>) => number`
+
+Custom function for boosting documents. Vocs's default boosts shallower routes and prefers `/docs/*`. Override to implement your own ranking heuristic.
+
+## Per-Page Boosting
+
+Use the `searchPriority` field in [frontmatter](/reference/frontmatter) to boost or hide a page:
+
+```mdx
+---
+searchPriority: 5    # higher = ranked higher
+---
+```
+
+Set `searchPriority: 0` to exclude a page from search entirely.
+
+## Hiding the Search Box on a Page
+
+```mdx
+---
+showSearch: false
+---
+```
+
+This hides the search trigger only on the affected page; the keyboard shortcut still opens the dialog.
+
+## Local Caching
+
+In production, the search index file is content-hashed (`search-index-{hash}.json`) so browsers and CDNs can cache it indefinitely. When you redeploy with content changes, a new hash invalidates the cache automatically.
+
+## See Also
+
+- [Frontmatter reference](/reference/frontmatter) — `searchPriority`, `showSearch`
+- [Site Configuration](/reference/site-config#search) — full option types

@@ -1,0 +1,73 @@
+# Agent Support [Serve documentation in machine-readable form for AI agents]
+
+Vocs ships built-in support for making documentation easy for LLMs and AI agents to consume — without any configuration.
+
+## llms.txt Files
+
+Vocs automatically generates [`llms.txt`](https://llmstxt.org/) files for LLM consumption:
+
+- `/llms.txt` — A concise index of all pages with titles and descriptions.
+- `/llms-full.txt` — Complete documentation content concatenated into a single file.
+
+These files are generated at build time and served at the root of your site. No configuration is required.
+
+### Example Output
+
+```txt
+# Vocs
+
+Vocs is a library for creating documentation websites.
+
+- [What is Vocs?](/introduction/what-is-vocs): Learn about Vocs and its features
+- [Getting Started](/introduction/getting-started): Quick start guide
+- [Agent Support](/features/agent-support): Machine-readable docs for AI agents
+```
+
+## Markdown Rendering for AI Agents
+
+Vocs automatically detects AI user agents and serves them raw Markdown instead of rendered HTML. This provides better token efficiency and easier parsing for LLMs.
+
+### Supported AI Agents
+
+The following user agents are automatically detected:
+
+- **OpenAI**: `GPTBot`, `OAI-SearchBot`, `ChatGPT-User`
+- **Anthropic**: `anthropic-ai`, `ClaudeBot`, `claude-web`
+- **Google**: `Google-Extended`, `GoogleAgent-Mariner`
+- **Perplexity**: `PerplexityBot`, `Perplexity-User`
+- **Mistral**: `MistralAI-User`
+- **Cohere**: `cohere-ai`
+- **Others**: `FacebookBot`, `meta-externalagent`, `Bytespider`, `AI2Bot`, and more
+
+Search engine crawlers such as `Googlebot`, `Bingbot`, `Amazonbot`, and `Applebot` continue to receive rendered HTML so standard indexing behavior is preserved.
+
+### Manual Markdown Access
+
+Most pages can be accessed as Markdown by appending `.md` to the URL:
+
+```
+https://docs.example.com/getting-started.md
+```
+
+For the home page, use:
+
+```
+https://docs.example.com/index.md
+```
+
+This is useful for copying documentation into AI conversations or for custom integrations.
+
+## Best Practices
+
+### Optimize for LLMs
+
+1. **Write descriptive titles.** Use clear, descriptive page titles that help LLMs understand content.
+2. **Add descriptions.** Include `description` in frontmatter for better `llms.txt` output.
+3. **Structure content.** Use headings, lists, and code blocks for easy parsing.
+4. **Keep pages focused.** Single-topic pages are easier for LLMs to retrieve and reference.
+
+## See Also
+
+- [Ask AI](/features/ask-ai) — User-facing AI menu on every page.
+- [MCP Server](/features/mcp-server) — Expose docs to AI clients via Model Context Protocol.
+- [Writing Docs with AI](/introduction/writing-docs-with-ai) — Workflow for authoring docs with AI agents.

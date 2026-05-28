@@ -1,0 +1,103 @@
+# Redirects [Preserve old URLs and route legacy paths to new locations]
+
+Use the [`redirects`](/reference/site-config#redirects) option in `vocs.config.ts` to map incoming request paths to new destinations. Redirects keep external links, search results, and bookmarks working when you move or rename pages.
+
+## Basic Usage
+
+```ts twoslash
+import { defineConfig } from 'vocs/config'
+
+export default defineConfig({
+  redirects: [
+    { source: '/docs', destination: '/introduction/getting-started' },
+    { source: '/old-page', destination: '/new-page' },
+  ],
+})
+```
+
+A request to `/docs` returns an HTTP 307 redirect to `/introduction/getting-started`.
+
+## Status Codes
+
+Set `status` to control the HTTP status. Vocs uses `307` (temporary, preserves method) by default. Use `301` or `308` for permanent moves so search engines update their indices.
+
+```ts
+redirects: [
+  // Permanent move (cached aggressively, preserves method)
+  { source: '/v1/intro', destination: '/introduction/what-is-vocs', status: 308 },
+
+  // Permanent move (legacy clients may downgrade POST → GET)
+  { source: '/legacy', destination: '/', status: 301 },
+
+  // Temporary redirect (default)
+  { source: '/beta', destination: '/features/search' },
+]
+```
+
+Supported statuses: `301`, `302`, `307`, `308`.
+
+## Wildcards
+
+Use `:path*` to redirect an entire subtree, preserving the trailing path:
+
+```ts
+redirects: [
+  { source: '/old/:path*', destination: '/new/:path*' },
+]
+```
+
+A request to `/old/guides/installation` redirects to `/new/guides/installation`.
+
+## Named Parameters
+
+Use `:name` for a single path segment:
+
+```ts
+redirects: [
+  { source: '/blog/:slug', destination: '/articles/:slug' },
+]
+```
+
+`/blog/hello-world` → `/articles/hello-world`.
+
+## Common Patterns
+
+### Moving a Documentation Section
+
+When restructuring docs, add a one-to-one redirect for every renamed page:
+
+```ts
+redirects: [
+  { source: '/guide/getting-started', destination: '/introduction/getting-started' },
+  { source: '/guide/structure',       destination: '/introduction/project-structure' },
+  { source: '/guide/twoslash',        destination: '/writing/twoslash' },
+]
+```
+
+### Collapsing a Versioned Path
+
+```ts
+redirects: [
+  { source: '/v1/:path*', destination: '/:path*' },
+]
+```
+
+### Canonicalizing a Slug
+
+```ts
+redirects: [
+  { source: '/sign-in', destination: '/login', status: 308 },
+]
+```
+
+## Tips
+
+- Add redirects in the **same commit** that moves a page so external links never break.
+- Use `301`/`308` for permanent moves so they get cached and indexed correctly.
+- Avoid chaining redirects (A → B → C). Always point old paths directly at their final destination.
+- Pair with [`checkDeadlinks`](/reference/site-config#checkdeadlinks) so internal links stay accurate.
+
+## See Also
+
+- [Site Configuration · `redirects`](/reference/site-config#redirects)
+- [Navigation](/features/navigation)

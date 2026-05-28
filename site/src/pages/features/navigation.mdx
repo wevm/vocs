@@ -1,4 +1,4 @@
-# Sidebar & Top Navigation [Keep docs navigation synced with routes]
+# Navigation [Keep docs navigation synced with routes]
 
 Vocs reads pages from `src/pages`, but your visible navigation lives in `vocs.config.ts`. When you add, move, or rename pages, update navigation in the same change.
 
@@ -7,7 +7,7 @@ Vocs reads pages from `src/pages`, but your visible navigation lives in `vocs.co
 Ask your AI agent to read this guide before changing navigation:
 
 ```txt
-Read https://vocs.dev/guide/navigation and update the sidebar/top navigation for the docs pages in this project.
+Read https://vocs.dev/features/navigation and update the sidebar/top navigation for the docs pages in this project.
 ```
 
 ## Overview
@@ -30,7 +30,7 @@ import { defineConfig } from 'vocs/config'
 
 export default defineConfig({
   sidebar: [
-    { text: 'Getting Started', link: '/guide/getting-started' },
+    { text: 'Getting Started', link: '/introduction/getting-started' },
     { text: 'Installation', link: '/guide/install' },
   ],
 })
@@ -45,16 +45,16 @@ import { defineConfig } from 'vocs/config'
 
 export default defineConfig({
   sidebar: [
-    { text: 'Getting Started', link: '/guide/getting-started' },
+    { text: 'Getting Started', link: '/introduction/getting-started' },
     {
       text: 'Writing',
       collapsed: false,
       items: [
-        { text: 'Code & Syntax Highlighting', link: '/guide/syntax-highlighting' },
-        { text: 'Code Snippets', link: '/guide/code-snippets' },
-        { text: 'Markdown Snippets', link: '/guide/markdown-snippets' },
-        { text: 'Markdown Extensions', link: '/guide/markdown-extensions' },
-        { text: 'Using React', link: '/guide/react' },
+        { text: 'Code & Syntax Highlighting', link: '/writing/syntax-highlighting' },
+        { text: 'Code Snippets', link: '/writing/code-snippets' },
+        { text: 'Markdown Snippets', link: '/writing/markdown-snippets' },
+        { text: 'Markdown Extensions', link: '/writing/markdown-extensions' },
+        { text: 'Using React', link: '/writing/react' },
       ],
     },
   ],
@@ -68,11 +68,11 @@ When you move a page file, update the old sidebar link to the new route and add 
 ```diff [vocs.config.ts]
 export default defineConfig({
 +  redirects: [
-+    { source: '/guide/install', destination: '/guide/getting-started/install' },
++    { source: '/guide/install', destination: '/introduction/getting-started/install' },
 +  ],
   sidebar: [
 -   { text: 'Installation', link: '/guide/install' },
-+   { text: 'Installation', link: '/guide/getting-started/install' },
++   { text: 'Installation', link: '/introduction/getting-started/install' },
   ],
 })
 ```
@@ -91,8 +91,8 @@ import { defineConfig } from 'vocs/config'
 export default defineConfig({
   sidebar: {
     '/guide': [
-      { text: 'Getting Started', link: '/guide/getting-started' },
-      { text: 'Theming', link: '/guide/theming' },
+      { text: 'Getting Started', link: '/introduction/getting-started' },
+      { text: 'Theming', link: '/features/theming' },
     ],
     '/reference': {
       backLink: true,
@@ -118,7 +118,7 @@ export default defineConfig({
   topNav: [
     {
       text: 'Guide & API',
-      link: '/guide/getting-started',
+      link: '/introduction/getting-started',
       match: (path) => Boolean(path?.startsWith('/guide') || path?.startsWith('/reference')),
     },
   ],
@@ -149,7 +149,7 @@ export default defineConfig({
     {
       text: 'Resources',
       items: [
-        { text: 'Changelog', link: '/guide/changelog' },
+        { text: 'Changelog', link: '/changelog' },
         { text: 'GitHub', link: 'https://github.com/wevm/vocs' },
       ],
     },

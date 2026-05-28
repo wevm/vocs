@@ -1,0 +1,27 @@
+# Ask AI [Built-in AI assistant menu on every page]
+
+Vocs includes a built-in "Ask AI" menu (`⌘I` / `Ctrl+I`) that opens the current page in popular AI assistants or copies it as Markdown for use anywhere.
+
+## Menu Actions
+
+The Ask AI menu provides:
+
+- **Open in ChatGPT/Claude** — Opens the current page context in popular AI assistants.
+- **Copy page for AI** — Copies the page content as Markdown to your clipboard.
+- **View as Markdown** — Opens the raw Markdown version of the current page.
+- **Copy MCP URL** — Copies the MCP server URL (when MCP is enabled).
+
+## Hiding Ask AI on a Page
+
+You can hide the menu for a single page with `showAskAi: false` in frontmatter:
+
+```mdx
+---
+showAskAi: false
+---
+```
+
+## See Also
+
+- [llms.txt](/features/agent-support) — Machine-readable index and full-text dumps for LLMs.
+- [MCP Server](/features/mcp-server) — Programmatic access for AI clients.

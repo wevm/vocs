@@ -5,32 +5,39 @@ import type { PathsForPages } from 'waku/router'
 
 // prettier-ignore
 type Page =
-  | { path: '/guide/ai-support'; render: 'static' }
-  | { path: '/guide/asset-handling'; render: 'static' }
-  | { path: '/guide/changelog-generation'; render: 'static' }
-  | { path: '/guide/changelog'; render: 'static' }
-  | { path: '/guide/code-snippets'; render: 'static' }
-  | { path: '/guide/dynamic-og-images'; render: 'static' }
-  | { path: '/guide/feedback'; render: 'static' }
-  | { path: '/guide/frontmatter'; render: 'static' }
-  | { path: '/guide/getting-started'; render: 'static' }
-  | { path: '/guide/layouts'; render: 'static' }
-  | { path: '/guide/markdown-extensions'; render: 'static' }
-  | { path: '/guide/markdown-snippets'; render: 'static' }
-  | { path: '/guide/mcp-server'; render: 'static' }
-  | { path: '/guide/navigation'; render: 'static' }
-  | { path: '/guide/react'; render: 'static' }
-  | { path: '/guide/structure'; render: 'static' }
-  | { path: '/guide/syntax-highlighting'; render: 'static' }
-  | { path: '/guide/tailwind'; render: 'static' }
-  | { path: '/guide/theming'; render: 'static' }
-  | { path: '/guide/twoslash'; render: 'static' }
-  | { path: '/guide/what-is-vocs'; render: 'static' }
-  | { path: '/guide/writing-docs-with-ai'; render: 'static' }
+  | { path: '/changelog'; render: 'static' }
+  | { path: '/features/agent-support'; render: 'static' }
+  | { path: '/features/api-routes'; render: 'static' }
+  | { path: '/features/ask-ai'; render: 'static' }
+  | { path: '/features/changelog-generation'; render: 'static' }
+  | { path: '/features/dynamic-og-images'; render: 'static' }
+  | { path: '/features/feedback'; render: 'static' }
+  | { path: '/features/layouts'; render: 'static' }
+  | { path: '/features/mcp-server'; render: 'static' }
+  | { path: '/features/navigation'; render: 'static' }
+  | { path: '/features/redirects'; render: 'static' }
+  | { path: '/features/search'; render: 'static' }
+  | { path: '/features/slots'; render: 'static' }
+  | { path: '/features/tailwind'; render: 'static' }
+  | { path: '/features/theming'; render: 'static' }
   | { path: '/'; render: 'static' }
+  | { path: '/introduction/getting-started'; render: 'static' }
+  | { path: '/introduction/project-structure'; render: 'static' }
+  | { path: '/introduction/what-is-vocs'; render: 'static' }
+  | { path: '/introduction/writing-docs-with-ai'; render: 'static' }
   | { path: '/reference/components'; render: 'static' }
+  | { path: '/reference/frontmatter'; render: 'static' }
   | { path: '/reference/hooks'; render: 'static' }
   | { path: '/reference/site-config'; render: 'static' }
+  | { path: '/writing/assets'; render: 'static' }
+  | { path: '/writing/code-snippets'; render: 'static' }
+  | { path: '/writing/frontmatter'; render: 'static' }
+  | { path: '/writing/markdown-extensions'; render: 'static' }
+  | { path: '/writing/markdown-snippets'; render: 'static' }
+  | { path: '/writing/mermaid'; render: 'static' }
+  | { path: '/writing/react'; render: 'static' }
+  | { path: '/writing/syntax-highlighting'; render: 'static' }
+  | { path: '/writing/twoslash'; render: 'static' }
 
 // prettier-ignore
 declare module 'waku/router' {

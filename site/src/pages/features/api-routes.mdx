@@ -1,0 +1,96 @@
+# API Routes [Add server-rendered endpoints to your docs site]
+
+Vocs supports server endpoints alongside your docs pages. Files placed in `src/pages/_api/` are mounted as routes, with the `_api` prefix stripped from the URL.
+
+## File Convention
+
+```
+src/pages/
+├── _api/
+│   ├── api/
+│   │   ├── hello.ts          → GET/POST /api/hello
+│   │   └── og.tsx            → /api/og
+│   └── healthz.ts            → /healthz
+└── index.mdx                 → /
+```
+
+Vocs (via Waku) walks every file under `_api/` and registers it as a route at the matching path, minus the `_api` segment.
+
+## Exporting Handlers
+
+A handler module can either export a `default` function (handles all methods), or named exports per HTTP method.
+
+### Default handler (all methods)
+
+```ts [src/pages/_api/api/hello.ts]
+export default function handler(request: Request) {
+  const search = new URL(request.url).searchParams
+
+  return Response.json({
+    message: 'Hello from Vocs!',
+    name: search.get('name') ?? 'world',
+  })
+}
+```
+
+### Per-method handlers
+
+Export functions named after the HTTP method you want to handle:
+
+```ts [src/pages/_api/api/echo.ts]
+export const GET = async () => {
+  return new Response('I am a server!', { status: 200 })
+}
+
+export const POST = async (request: Request) => {
+  const body = await request.json()
+  return Response.json({ echoed: body })
+}
+```
+
+Valid exports are: `GET`, `HEAD`, `POST`, `PUT`, `DELETE`, `CONNECT`, `OPTIONS`, `TRACE`, `PATCH`.
+
+Any other named export will throw a build-time error.
+
+## Returning Responses
+
+Handlers return a standard [`Response`](https://developer.mozilla.org/en-US/docs/Web/API/Response). Use `Response.json()` for JSON, `new Response()` for raw bodies, or stream responses with [Web Streams](https://developer.mozilla.org/en-US/docs/Web/API/Streams_API).
+
+```ts
+return new Response('plain text', {
+  headers: { 'content-type': 'text/plain' },
+})
+```
+
+## Built-in API Routes
+
+Vocs ships with a few API routes out of the box:
+
+- `/api/og` — Dynamic Open Graph image generator (see [Dynamic OG Images](/features/dynamic-og-images))
+- `/api/mcp` — Model Context Protocol server endpoint (see [MCP Server](/features/mcp-server))
+- `/api/feedback` — Feedback adapter endpoint (see [Page Feedback](/features/feedback))
+
+You can override these by placing your own file at the same path under `_api/`.
+
+## Server Helpers
+
+The `vocs/server` module exports helpers you can compose inside handlers — including `Handler.og` for building OG endpoints and `Actions.fetchChangelog` for server components.
+
+```ts [src/pages/_api/api/og.tsx]
+import { Handler } from 'vocs/server'
+
+export default function handler(request: Request) {
+  return Handler.og(({ title, description }) => (
+    <div style={{ display: 'flex', width: '100%', height: '100%' }}>
+      <h1>{title}</h1>
+      <p>{description}</p>
+    </div>
+  )).fetch(request)
+}
+```
+
+## See Also
+
+- [Dynamic OG Images](/features/dynamic-og-images) — uses `Handler.og` from `vocs/server`.
+- [MCP Server](/features/mcp-server)
+- [Changelog Generation](/features/changelog-generation) — uses `Actions.fetchChangelog`.

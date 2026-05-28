@@ -42,7 +42,7 @@ export function NavigationActions() {
   const router = useRouter()
 
   return (
-    <button onClick={() => router.push('/guide/getting-started')}>
+    <button onClick={() => router.push('/introduction/getting-started')}>
       Get started
     </button>
   )
@@ -51,7 +51,7 @@ export function NavigationActions() {
 ```tsx [Syntax]
 const { path, query } = useRouter()
 
-router.push('/guide/getting-started')
+router.push('/introduction/getting-started')
 router.replace('/reference/components')
 router.back()
 ```

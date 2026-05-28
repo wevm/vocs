@@ -48,7 +48,7 @@ Use `Card` to create a linked card with a title, description, and optional icon.
     title="Getting Started"
   description="Create your first Vocs site."
     icon="book-open"
-    to="/guide/getting-started"
+    to="/introduction/getting-started"
   />
 </div>
 ```tsx [Code]
@@ -60,7 +60,7 @@ export function QuickLink() {
       title="Getting Started"
       description="Create your first Vocs site."
       icon="book-open"
-      to="/guide/getting-started"
+      to="/introduction/getting-started"
     />
   )
 }
@@ -77,12 +77,12 @@ Use `Cards` as a responsive grid wrapper for multiple `Card` children.
     <Card
     title="Getting Started"
     description="Create your first Vocs site."
-    to="/guide/getting-started"
+    to="/introduction/getting-started"
     />
     <Card
     title="Theming"
     description="Customize the look and feel of your docs."
-    to="/guide/theming"
+    to="/features/theming"
     />
   </Cards>
 </div>
@@ -95,12 +95,12 @@ export function QuickLinks() {
       <Card
         title="Getting Started"
         description="Create your first Vocs site."
-        to="/guide/getting-started"
+        to="/introduction/getting-started"
       />
       <Card
         title="Theming"
         description="Customize the look and feel of your docs."
-        to="/guide/theming"
+        to="/features/theming"
       />
     </Cards>
   )
@@ -122,7 +122,7 @@ export function QuickLinks() {
     </HomePage.Tagline>
     <HomePage.Description>Build a documentation site with Vocs.</HomePage.Description>
     <HomePage.Buttons>
-      <HomePage.Button href="/guide/getting-started" variant="accent">
+      <HomePage.Button href="/introduction/getting-started" variant="accent">
         Get started
       </HomePage.Button>
     </HomePage.Buttons>
@@ -141,7 +141,7 @@ export function LandingPage() {
       </HomePage.Tagline>
       <HomePage.Description>Build a documentation site with Vocs.</HomePage.Description>
       <HomePage.Buttons>
-        <HomePage.Button href="/guide/getting-started" variant="accent">
+        <HomePage.Button href="/introduction/getting-started" variant="accent">
           Get started
         </HomePage.Button>
       </HomePage.Buttons>
@@ -207,7 +207,7 @@ Use `Link` for internal navigation, hash links, and external URLs.
 :::code-group
 <div data-title="Preview">
   <div className="vocs:flex vocs:flex-wrap vocs:gap-4">
-    <Link to="/guide/getting-started">Get started</Link>
+    <Link to="/introduction/getting-started">Get started</Link>
     <Link to="#link">Jump to this section</Link>
     <Link to="https://github.com/wevm/vocs">GitHub</Link>
   </div>
@@ -216,7 +216,7 @@ Use `Link` for internal navigation, hash links, and external URLs.
 import { Link } from 'vocs'
 
 export function Navigation() {
-  return <Link to="/guide/getting-started">Get started</Link>
+  return <Link to="/introduction/getting-started">Get started</Link>
 }
 ```
 :::

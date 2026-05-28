@@ -1,0 +1,66 @@
+# Slots [Inject custom components into the docs shell]
+
+Slots let you replace specific regions of the Vocs layout — the footer, the outline footer, and the sidebar header — without writing a custom layout.
+
+## File Convention
+
+Create `src/pages/_slots.tsx` and export any of the supported slot components. Vocs picks them up at build time and renders them in place.
+
+```tsx [src/pages/_slots.tsx]
+export function Footer() {
+  return (
+    <div className="vocs:text-center vocs:text-secondary vocs:text-sm vocs:pt-6">
+      © 2025 My Project. All rights reserved.
+    </div>
+  )
+}
+
+export function OutlineFooter() {
+  return (
+    <div className="vocs:text-xs vocs:text-secondary">
+      Need help?{' '}
+      <a className="vocs:text-accent vocs:hover:underline" href="https://discord.gg/example">
+        Join our Discord
+      </a>
+    </div>
+  )
+}
+
+export function SidebarHeader() {
+  return <div className="vocs:px-4 vocs:py-2 vocs:text-sm">Custom Sidebar Header</div>
+}
+```
+
+You can export any subset of these — exports you omit fall back to the default Vocs UI.
+
+## Supported Slots
+
+### `Footer`
+
+Rendered at the bottom of every page, below the page content and pagination.
+
+Use this for site-wide attribution, copyright, or extra links.
+
+### `OutlineFooter`
+
+Rendered at the bottom of the right-hand outline (table of contents), beneath the page outline and feedback widget.
+
+Use this for short helpful pointers like a community link or contributor note.
+
+### `SidebarHeader`
+
+Rendered at the top of the left sidebar, above the navigation tree.
+
+Use this for a version switcher, environment badge, or product picker.
+
+## Tips
+
+- Slot components run in React Server Components by default. Add `'use client'` if you need browser APIs.
+- Style with the `vocs:` Tailwind prefix to stay consistent with the rest of the theme.
+- Slots are reactive to HMR — saving `_slots.tsx` updates the page immediately in dev.
+
+## See Also
+
+- [Layouts](/features/layouts)
+- [MDX Wrapper](/features/layouts#mdx-wrapper)
+- [Theming](/features/theming)
