@@ -130,6 +130,8 @@ export default defineConfig({
         { text: 'Ask AI', link: '/features/ask-ai' },
         { text: 'MCP Server', link: '/features/mcp-server' },
         { text: 'Changelog Generation', link: '/features/changelog-generation' },
+        { text: 'Rehype & Remark', link: '/features/rehype-and-remark' },
+        { text: 'Vite', link: '/features/vite' },
       ],
     },
     {

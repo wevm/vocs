@@ -1,0 +1,151 @@
+# Rehype & Remark [Customize the Markdown and HTML pipeline]
+
+Vocs compiles Markdown and MDX through the unified ecosystem. Add remark plugins when you want to transform Markdown before it becomes HTML. Add rehype plugins when you want to transform HTML before it is rendered.
+
+Use `vocs.config.ts` for Markdown behavior. You only need `vite.config.ts` when you are changing Vite itself.
+
+## Quick Prompt
+
+Ask your AI agent to add a Markdown pipeline plugin to your Vocs project:
+
+```txt
+Read https://vocs.dev/features/rehype-and-remark and add a remark or rehype plugin to my Vocs project.
+```
+
+## Steps
+
+::::steps
+
+### Install Plugins
+
+Install the remark or rehype plugins you want to use.
+
+:::code-group
+
+```bash [npm]
+npm install rehype-external-links
+```
+
+```bash [pnpm]
+pnpm add rehype-external-links
+```
+
+```bash [yarn]
+yarn add rehype-external-links
+```
+
+```bash [bun]
+bun add rehype-external-links
+```
+
+:::
+
+### Add to Vocs Config
+
+Add plugins to the `markdown` option in `vocs.config.ts`.
+
+```ts [vocs.config.ts]
+import rehypeExternalLinks from 'rehype-external-links'
+import { defineConfig } from 'vocs/config'
+
+export default defineConfig({
+  markdown: {
+    rehypePlugins: [[rehypeExternalLinks, { target: '_blank' }]]
+  }
+})
+```
+
+:::note
+
+Vocs already includes plugins for callouts, code groups, frontmatter, Mermaid, snippets, file trees, steps, syntax highlighting, heading anchors, and image sizing. Add custom plugins when your project needs behavior outside the built-in Markdown extensions.
+
+:::
+
+### Run Dev Server
+
+Start the development server and open a page that uses the affected Markdown.
+
+:::code-group
+
+```bash [npm]
+npm run dev
+```
+
+```bash [pnpm]
+pnpm dev
+```
+
+```bash [yarn]
+yarn dev
+```
+
+```bash [bun]
+bun run dev
+```
+
+:::
+
+::::
+
+## Add Remark Plugins
+
+Use `remarkPlugins` for transforms that work on Markdown syntax, such as adding custom directives, rewriting headings, or changing code block metadata before HTML is generated.
+
+```ts [vocs.config.ts]
+import remarkGemoji from 'remark-gemoji'
+import { defineConfig } from 'vocs/config'
+
+export default defineConfig({
+  markdown: {
+    remarkPlugins: [remarkGemoji]
+  }
+})
+```
+
+## Add Rehype Plugins
+
+Use `rehypePlugins` for transforms that work on HTML, such as adding attributes to links, rewriting elements, or integrating HTML-focused plugins.
+
+```ts [vocs.config.ts]
+import rehypeExternalLinks from 'rehype-external-links'
+import { defineConfig } from 'vocs/config'
+
+export default defineConfig({
+  markdown: {
+    rehypePlugins: [
+      [
+        rehypeExternalLinks,
+        {
+          rel: ['noopener', 'noreferrer'],
+          target: '_blank'
+        }
+      ]
+    ]
+  }
+})
+```
+
+## Add Recma Plugins
+
+Use `recmaPlugins` only when you need to transform the JavaScript module produced by MDX.
+
+```ts [vocs.config.ts]
+import recmaExportFilepath from 'recma-export-filepath'
+import { defineConfig } from 'vocs/config'
+
+export default defineConfig({
+  markdown: {
+    recmaPlugins: [recmaExportFilepath]
+  }
+})
+```
+
+Most projects should prefer remark or rehype plugins. Recma plugins operate later in the pipeline and are easier to make dependent on MDX internals.
+
+## Plugin Order
+
+Vocs runs its built-in Markdown plugins first, then runs plugins from your `markdown` config.
+
+Custom rehype plugins run after syntax highlighting and heading anchors, then Vocs finishes link and image processing.
+
+See also: [Markdown Extensions](/writing/markdown-extensions), [Site Configuration](/reference/site-config#markdown), [Vite](/features/vite)

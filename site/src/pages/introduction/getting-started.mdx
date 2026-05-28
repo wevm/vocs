@@ -52,11 +52,35 @@ You can also add Vocs to an existing project. The example below matches the curr
 
 ::::steps
 
-### Add Vocs to an Existing App
+### Install Dependencies
 
-If you already have a React + Vite project, you can merge these entries into your existing `package.json`.
+Install Vocs, Waku, and Vite in your project.
 
 If you are starting from scratch, prefer the CLI above.
+
+:::code-group
+
+```bash [npm]
+npm install vocs waku vite
+```
+
+```bash [pnpm]
+pnpm add vocs waku vite
+```
+
+```bash [yarn]
+yarn add vocs waku vite
+```
+
+```bash [bun]
+bun add vocs waku vite
+```
+
+:::
+
+### Add to package.json
+
+Add the Vocs scripts to your `package.json`.
 
 ```json [package.json]
 {
@@ -64,10 +88,6 @@ If you are starting from scratch, prefer the CLI above.
     "dev": "vocs dev",
     "build": "vocs build",
     "preview": "vocs preview"
-  },
-  "dependencies": {
-    "vocs": "latest",
-    "waku": "^1.0.0-beta.0"
   }
 }
 ```

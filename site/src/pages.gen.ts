@@ -16,10 +16,12 @@ type Page =
   | { path: '/features/mcp-server'; render: 'static' }
   | { path: '/features/navigation'; render: 'static' }
   | { path: '/features/redirects'; render: 'static' }
+  | { path: '/features/rehype-and-remark'; render: 'static' }
   | { path: '/features/search'; render: 'static' }
   | { path: '/features/slots'; render: 'static' }
   | { path: '/features/tailwind'; render: 'static' }
   | { path: '/features/theming'; render: 'static' }
+  | { path: '/features/vite'; render: 'static' }
   | { path: '/'; render: 'static' }
   | { path: '/introduction/getting-started'; render: 'static' }
   | { path: '/introduction/project-structure'; render: 'static' }
