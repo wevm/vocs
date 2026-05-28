@@ -21,9 +21,10 @@ export async function vocs(options: vocs.Options = {}): Promise<PluginOption[]> 
 
   const config = await Config.resolve()
   const { basePath, srcDir, outDir } = config
+  const wakuBasePath = basePath.endsWith('/') ? basePath : `${basePath}/`
 
   const wakuConfig = {
-    basePath,
+    basePath: wakuBasePath,
     srcDir,
     distDir: outDir,
     privateDir,

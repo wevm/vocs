@@ -6,9 +6,9 @@ import { trailingSlash } from './trailing-slash.js'
  * Creates a Hono app with trailing-slash middleware and a catch-all handler,
  * then sends a request to the given path.
  */
-function request(path: string) {
+function request(path: string, options?: trailingSlash.Options) {
   const app = new Hono()
-  app.use('*', trailingSlash())
+  app.use('*', trailingSlash(options))
   app.get('*', (c) => c.text('ok'))
   return app.request(path)
 }
@@ -28,6 +28,13 @@ describe('trailingSlash', () => {
 
   it('skips root path', async () => {
     const res = await request('http://localhost/')
+    expect(res.status).toBe(200)
+  })
+
+  it('skips configured base path root', async () => {
+    const res = await request('http://localhost/open-source/', {
+      basePath: '/open-source',
+    })
     expect(res.status).toBe(200)
   })
 
