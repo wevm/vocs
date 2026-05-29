@@ -1,6 +1,6 @@
-# Ask AI [Built-in AI assistant menu on every page]
+import { Card, Cards } from 'vocs'
 
-Vocs includes a built-in "Ask AI" menu (`⌘I` / `Ctrl+I`) that opens the current page in popular AI assistants or copies it as Markdown for use anywhere.
+# Ask AI [Built-in AI assistant menu on every page]
 
 ## Menu Actions
 
@@ -21,7 +21,19 @@ showAskAi: false
 ---
 ```
 
-## See Also
+## See More
 
-- [llms.txt](/features/agent-support) — Machine-readable index and full-text dumps for LLMs.
-- [MCP Server](/features/mcp-server) — Programmatic access for AI clients.
+<Cards>
+  <Card
+    title="Agent Support"
+    description="Machine-readable index and full-text dumps for LLMs via llms.txt."
+    icon="bot"
+    to="/features/agent-support"
+  />
+  <Card
+    title="MCP Server"
+    description="Programmatic access for AI clients via Model Context Protocol."
+    icon="plug"
+    to="/features/mcp-server"
+  />
+</Cards>

@@ -13,7 +13,7 @@ Use `useConfig` in client components to read the resolved Vocs site configuratio
 import { useConfig } from 'vocs'
 
 export function SiteMeta() {
-  const { title, description } = useConfig()
+  const { title, description } = useConfig() // [!code focus]
 
   return (
     <>
@@ -39,10 +39,10 @@ const config = useConfig()
 import { useRouter } from 'vocs'
 
 export function NavigationActions() {
-  const router = useRouter()
+  const router = useRouter() // [!code focus]
 
   return (
-    <button onClick={() => router.push('/introduction/getting-started')}>
+    <button onClick={() => router.push('/introduction/getting-started')}> // [!code focus]
       Get started
     </button>
   )

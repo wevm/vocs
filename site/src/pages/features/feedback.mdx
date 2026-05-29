@@ -1,15 +1,5 @@
 # Page Feedback [Collect page-level feedback from readers]
 
-import { FeedbackWidget } from 'vocs'
-
-Vocs includes a built-in feedback widget that displays "Was this helpful?" below the page outline on desktop and in the footer on mobile. When users submit feedback, Vocs sends it to your configured adapter, such as Slack.
-
-:::code-group
-<div data-title="Preview">
-<FeedbackWidget />
-</div>
-:::
-
 ## Setup
 
 Enable feedback by adding a feedback adapter to your config:
@@ -18,7 +8,7 @@ Enable feedback by adding a feedback adapter to your config:
 import { defineConfig, Feedback } from 'vocs/config'
 
 export default defineConfig({
-  feedback: Feedback.slack(),
+  feedback: Feedback.slack()
 })
 ```
 
@@ -52,8 +42,8 @@ import { defineConfig, Feedback } from 'vocs/config'
 
 export default defineConfig({
   feedback: Feedback.slack({
-    webhookUrl: process.env.MY_CUSTOM_WEBHOOK,
-  }),
+    webhookUrl: process.env.MY_CUSTOM_WEBHOOK
+  })
 })
 ```
 
@@ -85,10 +75,10 @@ export default defineConfig({
       
       await fetch('https://your-api.com/feedback', {
         method: 'POST',
-        body: JSON.stringify(data),
+        body: JSON.stringify(data)
       })
-    },
-  }),
+    }
+  })
 })
 ```
 

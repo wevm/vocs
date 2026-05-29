@@ -1,17 +1,5 @@
 # Vite [Customize the Vite config that powers Vocs]
 
-Vocs uses Vite under the hood. Most projects can use Vocs without a `vite.config.ts`, but you can switch to Vite directly when you need Vite-level control such as aliases, dev server options, build options, or extra plugins.
-
-The `vocs` CLI creates its own internal Vite config and does not load `vite.config.ts`. Keep site content, navigation, redirects, search, and theme options in `vocs.config.ts`. Use `vite.config.ts` for Vite behavior.
-
-## Quick Prompt
-
-Ask your AI agent to add a Vite config to your Vocs project:
-
-```txt
-Read https://vocs.dev/features/vite and configure Vite for my Vocs project.
-```
-
 ## Steps
 
 ::::steps
@@ -88,11 +76,11 @@ Add extra Vite plugins next to `vocs()`.
 ```ts [vite.config.ts]
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
-import Inspect from 'vite-plugin-inspect'
+import Inspect from 'vite-plugin-inspect' // [!code focus]
 import { vocs } from 'vocs/vite'
 
 export default defineConfig({
-  plugins: [react(), Inspect(), vocs()]
+  plugins: [react(), Inspect(), vocs()] // [!code focus]
 })
 ```
 

@@ -182,7 +182,8 @@ export function matchIcon(
 export function resolveIconSync(icon: string): string | undefined {
   if (icon.startsWith('<svg')) return icon
 
-  const [collection, iconName] = icon.split(':')
+  // Default to `lucide` collection when no `collection:` prefix is provided.
+  const [collection, iconName] = icon.includes(':') ? icon.split(':') : ['lucide', icon]
   if (!collection || !iconName) return undefined
 
   const iconSet = iconSets[collection]

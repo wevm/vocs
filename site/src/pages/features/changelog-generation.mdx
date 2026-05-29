@@ -1,10 +1,19 @@
+import { Card, Cards } from 'vocs'
+
 # Changelog Generation [Fetch release notes and render a changelog page]
 
-Vocs can fetch release data from a changelog adapter and render it as a changelog page in your docs.
+## Overview
 
-Out of the box, Vocs includes a GitHub releases adapter and a simple adapter interface for custom sources.
+Vocs can fetch release data from a changelog adapter and render it as a changelog page in your docs. Out of the box, Vocs includes:
 
-## Configure a Changelog Source
+- A GitHub Releases adapter (`Changelog.github`)
+- A simple adapter interface for custom sources (`Changelog.from`)
+- A built-in `::changelog` MDX directive
+- A `vocs/server` action for rendering releases in your own components
+
+## Recipes
+
+### Configure a Changelog Source
 
 Add a changelog adapter to `vocs.config.ts`:
 
@@ -12,13 +21,13 @@ Add a changelog adapter to `vocs.config.ts`:
 import { Changelog, defineConfig } from 'vocs/config'
 
 export default defineConfig({
-  changelog: Changelog.github({ repo: 'wevm/vocs' }),
+  changelog: Changelog.github({ repo: 'wevm/vocs' })
 })
 ```
 
 With this configuration, Vocs fetches releases from the GitHub Releases API.
 
-## GitHub Adapter
+### Use the GitHub Adapter
 
 Use `Changelog.github()` to read releases from a GitHub repository.
 
@@ -28,7 +37,7 @@ import { Changelog } from 'vocs/config'
 Changelog.github({
   repo: 'wevm/vocs',
   prereleases: true,
-  token: process.env['GITHUB_TOKEN'],
+  token: process.env['GITHUB_TOKEN']
 })
 ```
 
@@ -40,7 +49,7 @@ Use the options as follows:
 
 If you do not pass `token`, Vocs falls back to `GITHUB_TOKEN`.
 
-## Render the Built-in Changelog
+### Render the Built-in Changelog
 
 Use the `::changelog` directive in an MDX page to render releases from your configured adapter.
 
@@ -58,7 +67,7 @@ You can also limit the number of releases shown:
 
 This is how the [Vocs changelog page](/changelog) is rendered.
 
-## Custom Adapters
+### Write a Custom Adapter
 
 If your releases live somewhere other than GitHub, create a custom adapter with `Changelog.from()`.
 
@@ -75,11 +84,11 @@ export default defineConfig({
           title: 'v1.0.0',
           date: '2026-04-21T00:00:00.000Z',
           body: 'Initial release.',
-          url: 'https://example.com/releases/v1.0.0',
-        },
+          url: 'https://example.com/releases/v1.0.0'
+        }
       ]
-    },
-  }),
+    }
+  })
 })
 ```
 
@@ -91,15 +100,15 @@ Each release should provide:
 - `body`: Markdown release notes
 - `url`: Canonical release URL
 
-## Fetch Releases Yourself
+### Fetch Releases Yourself
 
 For custom pages or layouts, use `Actions.fetchChangelog()` in a server component and render the releases yourself.
 
 ```tsx
-import { Actions } from 'vocs/server'
+import { Actions } from 'vocs/server' // [!code focus]
 
 export default async function Page() {
-  const releases = await Actions.fetchChangelog({ limit: 10 })
+  const releases = await Actions.fetchChangelog({ limit: 10 }) // [!code focus]
 
   return (
     <div>
@@ -120,9 +129,13 @@ export default async function Page() {
 
 `fetchChangelog()` renders each release body from Markdown to HTML before returning it.
 
-## Notes
+## See More
 
-- If `changelog` is not configured, the built-in changelog renders no releases.
-- The `::changelog` directive uses your configured adapter and supports `limit`.
-- For a minimal setup, configure `changelog` in `vocs.config.ts` and create a page containing
-`::changelog`.
+<Cards>
+  <Card
+    title="changelog config"
+    description="Full reference for the changelog adapter, GitHub options, and custom adapter shape."
+    icon="settings"
+    to="/reference/site-config#changelog"
+  />
+</Cards>

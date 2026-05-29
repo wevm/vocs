@@ -1,70 +1,69 @@
+import { Card, Cards } from 'vocs'
+
 # Redirects [Preserve old URLs and route legacy paths to new locations]
+
+## Overview
 
 Use the [`redirects`](/reference/site-config#redirects) option in `vocs.config.ts` to map incoming request paths to new destinations. Redirects keep external links, search results, and bookmarks working when you move or rename pages.
 
-## Basic Usage
+## Usage
 
-```ts twoslash
-import { defineConfig } from 'vocs/config'
+### Basic Redirect
 
+Map one path to another. Defaults to HTTP `307` (temporary, preserves method).
+
+```ts [vocs.config.ts]
 export default defineConfig({
-  redirects: [
+  redirects: [ // [!code focus:4]
     { source: '/docs', destination: '/introduction/getting-started' },
     { source: '/old-page', destination: '/new-page' },
   ],
 })
 ```
 
-A request to `/docs` returns an HTTP 307 redirect to `/introduction/getting-started`.
+### Status Codes
 
-## Status Codes
-
-Set `status` to control the HTTP status. Vocs uses `307` (temporary, preserves method) by default. Use `301` or `308` for permanent moves so search engines update their indices.
+Set `status` to control the HTTP status. Use `301` or `308` for permanent moves so search engines update their indices.
 
 ```ts
 redirects: [
-  // Permanent move (cached aggressively, preserves method)
-  { source: '/v1/intro', destination: '/introduction/what-is-vocs', status: 308 },
-
-  // Permanent move (legacy clients may downgrade POST → GET)
-  { source: '/legacy', destination: '/', status: 301 },
-
-  // Temporary redirect (default)
-  { source: '/beta', destination: '/features/search' },
+  { source: '/v1/intro', destination: '/introduction', status: 308 }, // [!code focus]
+  { source: '/legacy', destination: '/', status: 301 }, // [!code focus]
+  { source: '/beta', destination: '/features/search' }, // 307 default
 ]
 ```
 
 Supported statuses: `301`, `302`, `307`, `308`.
 
-## Wildcards
+### Wildcards
 
-Use `:path*` to redirect an entire subtree, preserving the trailing path:
+Use `:path*` to redirect an entire subtree, preserving the trailing path.
 
 ```ts
 redirects: [
-  { source: '/old/:path*', destination: '/new/:path*' },
+  { source: '/old/:path*', destination: '/new/:path*' }, // [!code focus]
 ]
 ```
 
 A request to `/old/guides/installation` redirects to `/new/guides/installation`.
 
-## Named Parameters
+### Named Parameters
 
-Use `:name` for a single path segment:
+Use `:name` to capture a single path segment.
 
 ```ts
 redirects: [
-  { source: '/blog/:slug', destination: '/articles/:slug' },
+  { source: '/blog/:slug', destination: '/articles/:slug' }, // [!code focus]
 ]
 ```
 
 `/blog/hello-world` → `/articles/hello-world`.
 
-## Common Patterns
+## Recipes
 
 ### Moving a Documentation Section
 
-When restructuring docs, add a one-to-one redirect for every renamed page:
+When restructuring docs, add a one-to-one redirect for every renamed page.
 
 ```ts
 redirects: [
@@ -76,6 +75,8 @@ redirects: [
 
 ### Collapsing a Versioned Path
 
+Strip a version prefix from every URL under it.
+
 ```ts
 redirects: [
   { source: '/v1/:path*', destination: '/:path*' },
@@ -84,20 +85,40 @@ redirects: [
 
 ### Canonicalizing a Slug
 
+Send aliases to the canonical URL with a permanent status so search engines consolidate signals.
+
 ```ts
 redirects: [
   { source: '/sign-in', destination: '/login', status: 308 },
 ]
 ```
 
+## Best Practices
+
+- **Ship redirects with the move.** Add the redirect entry in the same commit that renames the page so external links never break.
+- **Use permanent statuses for permanent moves.** `301` and `308` are cached aggressively and update search index. Reserve `307`/`302` for temporary swaps.
+- **Avoid chains.** Don't redirect A → B → C. Point old paths directly at their final destination — each hop adds latency and dilutes link equity.
+- **Prefer wildcards over enumerating.** A single `:path*` rule beats dozens of one-off entries for whole-subtree moves.
+
 ## Tips
 
-- Add redirects in the **same commit** that moves a page so external links never break.
-- Use `301`/`308` for permanent moves so they get cached and indexed correctly.
-- Avoid chaining redirects (A → B → C). Always point old paths directly at their final destination.
-- Pair with [`checkDeadlinks`](/reference/site-config#checkdeadlinks) so internal links stay accurate.
+- Pair with [`checkDeadlinks`](/reference/site-config#checkdeadlinks) so internal links stay accurate after moves.
+- Wildcards only match the segment(s) they declare — combine `:slug` and `:path*` when you need both.
+- Test redirects against the production build with `vocs preview`; dev server behavior can differ at the edge.
 
-## See Also
+## See More
 
-- [Site Configuration · `redirects`](/reference/site-config#redirects)
-- [Navigation](/features/navigation)
+<Cards>
+  <Card
+    title="redirects"
+    description="Full redirects API in the Site Configuration reference."
+    icon="corner-down-right"
+    to="/reference/site-config#redirects"
+  />
+  <Card
+    title="Navigation"
+    description="Keep sidebar and top nav in sync when pages move."
+    icon="panel-left"
+    to="/features/navigation"
+  />
+</Cards>
