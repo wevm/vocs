@@ -226,6 +226,99 @@ Follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/):
 | `foo.mdx.tsx` | MDX-injected component |
 | `foo-bar.ts` | Kebab-case for multi-word modules |
 
+## Writing Docs (`site/src/pages`)
+
+### Page Structure
+
+A feature page should follow this top-level section order. The shape is a guideline, not a rule — add more top-level sections before `Recipes` when the feature warrants it (e.g. `Quick Prompt`, motivation, conceptual background).
+
+1. **`## Overview`** — what the feature is and why it exists. One or two short paragraphs.
+2. **`## Recipes`** — task-oriented `### subsections`, each a self-contained "how do I…" example. This is the body of the page.
+3. **`## See More`** — outlinks to the relevant API reference sections and related pages. **Always use `<Cards>` + `<Card>` here — never bare links or bullet lists.**
+
+### Step-by-Step Guides
+
+When a section walks the reader through an ordered sequence (a `## Setup`, `## Installation`, or any "do these in order" flow), wrap the steps in the `::::steps` directive (four colons because steps typically contain nested `:::code-group` or `:::file-tree` blocks). Each step is a `### Heading` — do **not** manually number the headings; the directive numbers them automatically.
+
+```mdx
+## Setup
+
+::::steps
+
+### Create the API route
+
+Add a file at `src/pages/_api/og.tsx`.
+
+### Implement the handler
+
+\`\`\`tsx
+// ...
+\`\`\`
+
+### Verify
+
+Run `pnpm dev` and visit the endpoint.
+
+::::
+```
+
+Use `::::steps` whenever order matters. For unordered task lists (like recipes), use plain `### Heading` subsections instead.
+
+### See More Section
+
+The See More section combines API reference outlinks and related-page links into one set of `<Cards>`. It must not duplicate the API reference — link out to it with appropriate Lucide icons:
+
+```mdx
+import { Card, Cards } from 'vocs'
+
+## See More
+
+<Cards>
+  <Card
+    title="sidebar"
+    description="Full sidebar API: items, scoping, backLink, collapsing."
+    icon="panel-left"
+    to="/reference/site-config#sidebar"
+  />
+  <Card
+    title="topNav"
+    description="Top navigation items, menus, and match logic."
+    icon="navigation"
+    to="/reference/site-config#topnav"
+  />
+  <Card
+    title="Theming"
+    description="Customize colors, typography, and the vocs: Tailwind prefix."
+    icon="palette"
+    to="/features/theming"
+  />
+</Cards>
+```
+
+Pick icons by meaning — see [lucide.dev/icons](https://lucide.dev/icons) for the catalog. Common picks: `book-open` (guides), `settings` / `sliders` (config), `panel-left` (sidebar), `navigation` (top nav), `code` (API), `palette` (theming), `search`, `file-text` (content), `puzzle` (integrations), `rocket` (deployment).
+
+### Code Examples
+
+When documenting a feature with a code example, focus the reader's attention on the lines that actually demonstrate the feature. Long examples with irrelevant boilerplate dilute the lesson.
+
+Use Vocs's Shiki transformers to highlight what matters:
+
+- `// [!code focus]` — dim every other line so only the focused lines are legible
+- `// [!code focus:N]` — focus the next N lines
+- `// [!code hl]` — highlight a line with the accent color
+- `// [!code word:foo]` — highlight a specific word/token
+- `// [!code ++]` / `// [!code --]` — diff additions/removals when showing a change
+- `// [!code collapse:N collapsed]` — fold setup/boilerplate behind a click
+
+See [`writing/syntax-highlighting.mdx`](file:///Users/jxom/git/vocs/site/src/pages/writing/syntax-highlighting.mdx) for the full set.
+
+Guidelines:
+
+- Show the smallest config diff that demonstrates the option. Trim unrelated `defineConfig` keys; if you must include them for context, mark the relevant lines with `// [!code focus]` or `// [!code hl]`.
+- When demonstrating a single option change, prefer `// [!code ++]` / `// [!code --]` over showing a full before/after pair of blocks.
+- When showing a multi-line API, focus the lines that change with `// [!code focus:N]` so the reader's eye lands on them.
+- Collapse boilerplate (imports, unrelated config) with `// [!code collapse:N collapsed]` rather than deleting it when the context is needed for copy-paste.
+
 ## Extending MDX / Docs Behavior
 
 1. Add new remark/rehype plugins in `internal/mdx.ts`

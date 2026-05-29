@@ -1,0 +1,52 @@
+---
+outline: 2
+---
+
+# Netlify [Deploy your Vocs site to Netlify]
+
+Vocs auto-detects Netlify via the `NETLIFY` environment variable and routes the build through [Waku's Netlify adapter](https://waku.gg/#netlify). No code changes required.
+
+## Deploy with the Netlify CLI
+
+Install the [Netlify CLI](https://docs.netlify.com/cli/get-started/), then build and deploy:
+
+:::code-group
+```bash [npm]
+npm i -g netlify-cli
+NETLIFY=1 npm run build
+netlify deploy
+```
+```bash [pnpm]
+pnpm add -g netlify-cli
+NETLIFY=1 pnpm build
+netlify deploy
+```
+```bash [yarn]
+yarn global add netlify-cli
+NETLIFY=1 yarn build
+netlify deploy
+```
+:::
+
+Use `netlify deploy --prod` to publish to your production URL.
+
+## Deploy from Git
+
+Import your repository from the Netlify dashboard and use these settings:
+
+| Setting | Value |
+| --- | --- |
+| Build command | `pnpm build` |
+| Publish directory | `dist/public` |
+| Functions directory | `dist/server` _(only for dynamic sites)_ |
+
+Or commit a `netlify.toml` to the project root:
+
+```toml [netlify.toml]
+[build]
+  command = "pnpm build"
+  publish = "dist/public"
+
+[build.environment]
+  NETLIFY = "1"
+```

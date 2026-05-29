@@ -1,14 +1,5 @@
 # Code Snippets [Include and reuse code in Markdown]
 
-Code snippets in Vocs come in two forms:
-
-- virtual file snippets defined in your Markdown code
-- physical file snippets loaded from your file system
-
-Use snippets when you want to reuse code across examples, keep docs examples close to source files, or compose larger examples from smaller regions.
-
-For code formatting, highlighting, annotations, terminal output, and code groups, see [Code & Syntax Highlighting](/writing/syntax-highlighting).
-
 ## Virtual File Snippets
 
 Define a virtual file with `filename="..."`, then include it in another code block.
@@ -95,7 +86,7 @@ import { mainnet } from 'viem/chains'
 
 export const client = createPublicClient({
   chain: mainnet,
-  transport: http(),
+  transport: http()
 })
 // [\!endregion setup]
 ```

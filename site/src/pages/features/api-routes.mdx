@@ -1,26 +1,31 @@
+import { Card, Cards } from 'vocs'
+
 # API Routes [Add server-rendered endpoints to your docs site]
+
+## Overview
 
 Vocs supports server endpoints alongside your docs pages. Files placed in `src/pages/_api/` are mounted as routes, with the `_api` prefix stripped from the URL.
 
-## File Convention
-
-```
-src/pages/
-├── _api/
-│   ├── api/
-│   │   ├── hello.ts          → GET/POST /api/hello
-│   │   └── og.tsx            → /api/og
-│   └── healthz.ts            → /healthz
-└── index.mdx                 → /
-```
+:::file-tree
+- +src
+  - +pages
+    - +_api
+      - +api
+        - hello.ts → /api/hello
+        - og.tsx → /api/og
+      - healthz.ts → /healthz
+    - index.mdx → /
+:::
 
 Vocs (via Waku) walks every file under `_api/` and registers it as a route at the matching path, minus the `_api` segment.
 
-## Exporting Handlers
+Each handler module either exports a `default` function (handles all methods) or named exports per HTTP method.
 
-A handler module can either export a `default` function (handles all methods), or named exports per HTTP method.
+## Recipes
 
-### Default handler (all methods)
+### Handle All Methods
+
+Export a `default` function to handle every HTTP method through one entry point.
 
 ```ts [src/pages/_api/api/hello.ts]
 export default function handler(request: Request) {
@@ -28,12 +33,12 @@ export default function handler(request: Request) {
 
   return Response.json({
     message: 'Hello from Vocs!',
-    name: search.get('name') ?? 'world',
+    name: search.get('name') ?? 'world'
   })
 }
 ```
 
-### Per-method handlers
+### Handle Specific HTTP Methods
 
 Export functions named after the HTTP method you want to handle:
 
@@ -48,31 +53,19 @@ export const POST = async (request: Request) => {
 }
 ```
 
-Valid exports are: `GET`, `HEAD`, `POST`, `PUT`, `DELETE`, `CONNECT`, `OPTIONS`, `TRACE`, `PATCH`.
+Valid method exports are `GET`, `HEAD`, `POST`, `PUT`, `DELETE`, `CONNECT`, `OPTIONS`, `TRACE`, and `PATCH`. Any other named export throws a build-time error.
 
-Any other named export will throw a build-time error.
-
-## Returning Responses
+### Return Custom Responses
 
 Handlers return a standard [`Response`](https://developer.mozilla.org/en-US/docs/Web/API/Response). Use `Response.json()` for JSON, `new Response()` for raw bodies, or stream responses with [Web Streams](https://developer.mozilla.org/en-US/docs/Web/API/Streams_API).
 
 ```ts
 return new Response('plain text', {
-  headers: { 'content-type': 'text/plain' },
+  headers: { 'content-type': 'text/plain' }
 })
 ```
 
-## Built-in API Routes
-
-Vocs ships with a few API routes out of the box:
-
-- `/api/og` — Dynamic Open Graph image generator (see [Dynamic OG Images](/features/dynamic-og-images))
-- `/api/mcp` — Model Context Protocol server endpoint (see [MCP Server](/features/mcp-server))
-- `/api/feedback` — Feedback adapter endpoint (see [Page Feedback](/features/feedback))
-
-You can override these by placing your own file at the same path under `_api/`.
-
-## Server Helpers
+### Use Server Helpers
 
 The `vocs/server` module exports helpers you can compose inside handlers — including `Handler.og` for building OG endpoints and `Actions.fetchChangelog` for server components.
 
@@ -89,8 +82,49 @@ export default function handler(request: Request) {
 }
 ```
 
-## See Also
+### Override A Built-in Route
 
-- [Dynamic OG Images](/features/dynamic-og-images) — uses `Handler.og` from `vocs/server`.
-- [MCP Server](/features/mcp-server)
-- [Changelog Generation](/features/changelog-generation) — uses `Actions.fetchChangelog`.
+Vocs ships a handful of API routes out of the box:
+
+- `/api/og` — Dynamic Open Graph image generator
+- `/api/mcp` — Model Context Protocol server endpoint
+- `/api/feedback` — Feedback adapter endpoint
+
+Override any of them by placing your own file at the matching path under `_api/`.
+
+:::file-tree
+- +src
+  - +pages
+    - +_api
+      - +api
+        - **og.tsx** ← overrides /api/og
+:::
+
+## See More
+
+<Cards>
+  <Card
+    title="Dynamic OG Images"
+    description="Generate Open Graph images per page using Handler.og."
+    icon="image"
+    to="/features/dynamic-og-images"
+  />
+  <Card
+    title="MCP Server"
+    description="Expose docs and tools to AI clients via Model Context Protocol."
+    icon="plug"
+    to="/features/mcp-server"
+  />
+  <Card
+    title="Changelog Generation"
+    description="Fetch and render release notes with Actions.fetchChangelog."
+    icon="clock"
+    to="/features/changelog-generation"
+  />
+  <Card
+    title="Page Feedback"
+    description="Customize the /api/feedback endpoint and adapter."
+    icon="message-square"
+    to="/features/feedback"
+  />
+</Cards>

@@ -1,27 +1,6 @@
+import { Card, Cards } from 'vocs'
+
 # Agent Support [Serve documentation in machine-readable form for AI agents]
-
-Vocs ships built-in support for making documentation easy for LLMs and AI agents to consume — without any configuration.
-
-## llms.txt Files
-
-Vocs automatically generates [`llms.txt`](https://llmstxt.org/) files for LLM consumption:
-
-- `/llms.txt` — A concise index of all pages with titles and descriptions.
-- `/llms-full.txt` — Complete documentation content concatenated into a single file.
-
-These files are generated at build time and served at the root of your site. No configuration is required.
-
-### Example Output
-
-```txt
-# Vocs
-
-Vocs is a library for creating documentation websites.
-
-- [What is Vocs?](/introduction/what-is-vocs): Learn about Vocs and its features
-- [Getting Started](/introduction/getting-started): Quick start guide
-- [Agent Support](/features/agent-support): Machine-readable docs for AI agents
-```
 
 ## Markdown Rendering for AI Agents
 
@@ -57,6 +36,27 @@ https://docs.example.com/index.md
 
 This is useful for copying documentation into AI conversations or for custom integrations.
 
+## llms.txt Files
+
+Vocs automatically generates [`llms.txt`](https://llmstxt.org/) files for LLM consumption:
+
+- `/llms.txt` — A concise index of all pages with titles and descriptions.
+- `/llms-full.txt` — Complete documentation content concatenated into a single file.
+
+These files are generated at build time and served at the root of your site. No configuration is required.
+
+### Example Output
+
+```txt
+# Vocs
+
+Vocs is a library for creating documentation websites.
+
+- [What is Vocs?](/introduction/what-is-vocs): Learn about Vocs and its features
+- [Getting Started](/introduction/getting-started): Quick start guide
+- [Agent Support](/features/agent-support): Machine-readable docs for AI agents
+```
+
 ## Best Practices
 
 ### Optimize for LLMs
@@ -66,8 +66,25 @@ This is useful for copying documentation into AI conversations or for custom int
 3. **Structure content.** Use headings, lists, and code blocks for easy parsing.
 4. **Keep pages focused.** Single-topic pages are easier for LLMs to retrieve and reference.
 
-## See Also
+## See More
 
-- [Ask AI](/features/ask-ai) — User-facing AI menu on every page.
-- [MCP Server](/features/mcp-server) — Expose docs to AI clients via Model Context Protocol.
-- [Writing Docs with AI](/introduction/writing-docs-with-ai) — Workflow for authoring docs with AI agents.
+<Cards>
+  <Card
+    title="Ask AI"
+    description="User-facing AI menu on every page."
+    icon="sparkles"
+    to="/features/ask-ai"
+  />
+  <Card
+    title="MCP Server"
+    description="Expose docs to AI clients via Model Context Protocol."
+    icon="plug"
+    to="/features/mcp-server"
+  />
+  <Card
+    title="Writing Docs with AI"
+    description="Workflow for authoring docs with AI agents."
+    icon="pen-tool"
+    to="/introduction/writing-docs-with-ai"
+  />
+</Cards>

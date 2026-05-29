@@ -1,4 +1,8 @@
+import { Card, Cards } from 'vocs'
+
 # Layouts [Choose and customize page shells for your docs]
+
+## Overview
 
 Vocs ships with three built-in page layouts controlled by frontmatter:
 
@@ -8,7 +12,9 @@ Vocs ships with three built-in page layouts controlled by frontmatter:
 
 Use these when you want to change the page chrome around your MDX content. For the full set of page-level options, see [Frontmatter](/writing/frontmatter).
 
-## Default Layout
+## Recipes
+
+### Default Layout
 
 Pages use `layout: full` by default.
 
@@ -28,7 +34,7 @@ layout: full
 
 Use it for most documentation pages.
 
-## Minimal Layout
+### Minimal Layout
 
 The minimal layout removes the sidebar and keeps the page focused on the content.
 
@@ -59,7 +65,7 @@ outline: true
 ---
 ```
 
-## Blank Layout
+### Blank Layout
 
 The blank layout strips the page shell down to the content area.
 
@@ -73,7 +79,7 @@ Use it when you want to provide nearly all of the page structure yourself inside
 
 By default, `blank` hides the top nav, sidebar, outline, search UI, and Ask AI button. You can enable specific pieces with frontmatter such as `showTopNav`, `showSearch`, or `showAskAi`.
 
-## Layout Overrides
+### Layout Overrides
 
 Layouts set defaults, but you can override individual parts of the shell per page with frontmatter:
 
@@ -164,7 +170,13 @@ Choose the smallest tool that solves the problem:
 
 A page can use all three: layout sets the shell, the wrapper handles in-content chrome, and slots customize global regions.
 
-## See Also
+## See More
 
-- [Frontmatter reference](/reference/frontmatter)
-- [Slots](/features/slots)
+<Cards>
+  <Card
+    title="Layout frontmatter"
+    description="layout, outline, showLogo, showSidebar, showTopNav, and other per-page toggles."
+    icon="layout-template"
+    to="/reference/frontmatter#layout"
+  />
+</Cards>

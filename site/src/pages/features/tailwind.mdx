@@ -1,18 +1,16 @@
+import { Card, Cards } from 'vocs'
+
 # Tailwind CSS [Use Tailwind utilities in Vocs pages and components]
 
-Vocs includes Tailwind's Vite plugin in its default Vite stack. Add Tailwind to your project, import it from `src/pages/_root.css`, then use utilities in MDX and React components.
+## Overview
 
-You do not need to install `@tailwindcss/vite` or edit `vite.config.ts` just to enable Tailwind.
+Vocs ships Tailwind's Vite plugin in its default Vite stack. To enable Tailwind, install the `tailwindcss` package, import it from `src/pages/_root.css`, then use utilities in MDX and React components. You do not need to install `@tailwindcss/vite` or edit `vite.config.ts`.
 
-## Quick Prompt
+## Setup
 
-Ask your AI agent to wire Tailwind into your Vocs project:
+::::steps
 
-```txt
-Read https://vocs.dev/features/tailwind and add Tailwind CSS to my Vocs project.
-```
-
-## Install Tailwind
+### Install Tailwind
 
 Add `tailwindcss` to your project.
 
@@ -36,7 +34,7 @@ bun add -D tailwindcss
 
 :::
 
-## Import Tailwind
+### Import Tailwind
 
 Create `src/pages/_root.css`, then import Tailwind from there. Vocs loads this file automatically on every page.
 
@@ -52,9 +50,13 @@ Create `src/pages/_root.css`, then import Tailwind from there. Vocs loads this f
 
 Tailwind automatically scans your Vocs pages and components, so most projects do not need a Tailwind config file.
 
-## Use Utilities
+::::
 
-Use Tailwind classes in JSX inside `.mdx` pages and React components.
+## Recipes
+
+### Using Utilities
+
+Use Tailwind classes via `className` in JSX inside `.mdx` pages and React components. Plain Markdown syntax does not accept Tailwind classes — switch to JSX when a block needs utility styling.
 
 ```mdx [src/pages/index.mdx]
 # Docs
@@ -67,27 +69,26 @@ Use Tailwind classes in JSX inside `.mdx` pages and React components.
 </div>
 ```
 
-Use `className` inside JSX. Plain Markdown syntax does not accept Tailwind classes directly, so switch to JSX when a block needs custom utility styling.
+### Supporting Dark Mode
 
-## Support Dark Mode
-
-Vocs stores the active theme on the document's `color-scheme`. If you use Tailwind's `dark:` variant and want it to follow the Vocs theme toggle, add a custom dark variant in `_root.css`.
+Vocs stores the active theme on the document's `color-scheme`. Add a custom dark variant so Tailwind's `dark:` utilities follow the Vocs theme toggle.
 
 ```css [src/pages/_root.css]
-@import 'tailwindcss';
+@import 'tailwindcss'
 
-@custom-variant dark (&:where(:root[style*='color-scheme:dark'] *, :root[style*='color-scheme: dark'] *));
+@custom-variant dark (&:where(:root[style*='color-scheme:dark'] *, :root[style*='color-scheme: dark'] *)); /* [!code focus] */
 ```
 
-This lets classes like `dark:border-zinc-800` respond to the same theme state as the built-in Vocs UI.
+Classes like `dark:border-zinc-800` now respond to the same theme state as the built-in Vocs UI.
 
-## Reuse Vocs Tokens
+### Reusing Vocs Theme Tokens
 
-Map Vocs CSS variables into Tailwind theme tokens when custom components should follow the docs theme.
+Map Vocs CSS variables into Tailwind theme tokens so custom components follow the docs theme.
 
 ```css [src/pages/_root.css]
 @import 'tailwindcss';
 
+/* [!code focus:5] */
 @theme {
   --color-vocs-accent: var(--vocs-color-accent);
   --font-sans: var(--vocs-font-family);
@@ -101,9 +102,9 @@ Map Vocs CSS variables into Tailwind theme tokens when custom components should 
 </a>
 ```
 
-## Skip Preflight
+### Skipping Preflight
 
-`@import 'tailwindcss'` enables Tailwind's full default CSS, including Preflight. If you only want Tailwind theme tokens and utilities, import those layers instead.
+`@import 'tailwindcss'` enables Tailwind's full default CSS, including Preflight. To use only Tailwind theme tokens and utilities, import those layers instead.
 
 ```css [src/pages/_root.css]
 @import 'tailwindcss/theme.css' layer(theme);
@@ -112,4 +113,25 @@ Map Vocs CSS variables into Tailwind theme tokens when custom components should 
 
 Start with the full import unless you have a specific reason to avoid Tailwind's base styles.
 
-See also: [Theming](/features/theming)
+## See More
+
+<Cards>
+  <Card
+    title="_root.css convention"
+    description="Where global styles live and how Vocs loads them."
+    icon="folder"
+    to="/introduction/project-structure"
+  />
+  <Card
+    title="Theming"
+    description="Customize colors, typography, spacing, logos, and code themes."
+    icon="palette"
+    to="/features/theming"
+  />
+  <Card
+    title="Tailwind CSS"
+    description="Official Tailwind v4 documentation."
+    icon="external-link"
+    to="https://tailwindcss.com/docs"
+  />
+</Cards>

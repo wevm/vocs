@@ -1,3 +1,5 @@
+import { Card, Cards } from 'vocs'
+
 # Frontmatter Reference [All frontmatter fields accepted by a Vocs MDX page]
 
 Vocs reads YAML frontmatter at the top of every `.mdx` page to control page metadata, layout, and UI. This page is the canonical reference for every supported field.
@@ -124,8 +126,25 @@ status: stable
 ---
 ```
 
-## See Also
+## See More
 
-- [Writing · Frontmatter](/writing/frontmatter) — tutorial-style guide.
-- [MDX Wrapper](/features/layouts#mdx-wrapper) — read custom frontmatter inside section wrappers.
-- [Site Configuration](/reference/site-config)
+<Cards>
+  <Card
+    title="Writing · Frontmatter"
+    description="Tutorial-style guide to authoring frontmatter."
+    icon="file-text"
+    to="/writing/frontmatter"
+  />
+  <Card
+    title="MDX Wrapper"
+    description="Read custom frontmatter inside section wrappers."
+    icon="layout-template"
+    to="/features/layouts#mdx-wrapper"
+  />
+  <Card
+    title="Site Configuration"
+    description="Site-wide options accepted by defineConfig."
+    icon="settings"
+    to="/reference/site-config"
+  />
+</Cards>

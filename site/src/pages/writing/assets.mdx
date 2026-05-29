@@ -1,10 +1,5 @@
 # Assets [Manage images, fonts, icons, and other docs assets]
 
-Vocs uses Vite's asset handling model. There are two main ways to work with assets:
-
-- use `public/` for files you want to serve at a fixed URL
-- import assets from source files when they belong to a page or component
-
 ## Use `public/` For Fixed URLs
 
 Use `public/` for assets that should be served as-is, such as favicons, logos, social images, and font files.
@@ -36,7 +31,7 @@ import { defineConfig } from 'vocs/config'
 
 export default defineConfig({
   logoUrl: '/logo.svg',
-  iconUrl: '/favicon.ico',
+  iconUrl: '/favicon.ico'
 })
 ```
 

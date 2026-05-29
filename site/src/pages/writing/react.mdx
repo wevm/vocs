@@ -6,11 +6,7 @@ import { Badge, Card, Cards } from 'vocs'
 
 # React in Markdown [Compose MDX pages with React components]
 
-Vocs pages are MDX, so you can mix Markdown for prose with React components for reusable UI, shared page structure, and client-side behavior.
-
-Use plain `.md` when a page is just Markdown. Switch to `.mdx` when the page needs imports, JSX, or JavaScript expressions.
-
-## Import Public Vocs Components
+## Vocs Components
 
 Vocs exports React components such as `Badge`, `Callout`, `Card`, `Cards`, `Link`, `Tab`, and `Tabs`. Import them from `vocs` like any other React module.
 
@@ -53,7 +49,7 @@ import { Badge, Card, Cards } from 'vocs'
 
 Use the [Components](/reference/components) reference for the full list of public React exports.
 
-## Import Your Own Components
+## Your Components
 
 Create site-specific components in your app, then import them into an `.mdx` page with a normal relative import.
 
@@ -80,7 +76,7 @@ import { ApiNotice } from '../../components/ApiNotice'
 
 This works well for shared notices, diagrams, pricing cards, or any other UI that you want to reuse across multiple docs pages.
 
-## Use JavaScript Expressions Inline
+## Inline Expressions
 
 MDX also supports inline expressions for small dynamic values.
 
@@ -95,7 +91,44 @@ Last updated in {new Date().getFullYear()}.
 
 Keep expressions small. If the logic starts to feel like UI, move it into a React component.
 
-## Add Interactivity with Client Components
+## Server Components
+
+Every MDX page in Vocs is a [React Server Component](https://react.dev/reference/rsc/server-components) by default. That means you can import async components, run code on the server, and fetch data at request or build time — without shipping any JavaScript to the browser.
+
+:::code-group
+```tsx [src/components/LatestRelease.tsx]
+import { Actions } from 'vocs/server'
+
+export async function LatestRelease() {
+  const [release] = await Actions.fetchChangelog({ limit: 1 })
+  if (!release) return null
+
+  return (
+    <p>
+      Latest release: <strong>{release.title}</strong>
+    </p>
+  )
+}
+```
+```mdx [src/pages/index.mdx]
+import { LatestRelease } from '../components/LatestRelease'
+
+# Welcome
+
+<LatestRelease />
+```
+:::
+
+A few rules of thumb:
+
+- **Default to server components.** Skip `'use client'` unless the component needs browser APIs, state, or event handlers.
+- **Fetch data on the server.** Read from databases, the file system, environment variables, or the `vocs/server` helpers directly inside the component.
+- **No browser-only APIs.** `window`, `document`, `localStorage`, and event handlers like `onClick` only work in client components.
+- **Server → client is a one-way boundary.** Server components can render client components, but a client component cannot import a server component.
+
+For dynamic vs. static rendering, see [Waku's Rendering guide](https://waku.gg/#rendering).
+
+## Client Components
 
 When a component needs browser APIs, local state, or event handlers, make it a client component.
 
@@ -103,7 +136,7 @@ Follow the normal React pattern: add `'use client'` at the top of the component 
 
 :::code-group
 ```tsx [src/components/Counter.client.tsx]
-'use client'
+'use client' // [!code focus]
 
 import { useState } from 'react'
 
@@ -128,7 +161,7 @@ import { Counter } from '../../components/Counter.client'
 
 The `.client.tsx` suffix is the clearest way to signal that a component is interactive.
 
-## Prefer Markdown for Docs-First Blocks
+## Prefer Markdown
 
 Not every rich block needs a React import. Vocs already includes Markdown-first syntax for callouts, badges, details, file trees, steps, and code groups.
 
@@ -149,7 +182,7 @@ Use directives when the content is mostly prose.
 
 For the full syntax, see [Markdown Extensions](/writing/markdown-extensions).
 
-## Wrap a Section with Shared React UI
+## Shared Wrappers
 
 If a whole directory of pages should share the same React chrome, create an `_mdx-wrapper.tsx` file in that directory.
 
@@ -170,7 +203,7 @@ That wrapper is applied to every Markdown and MDX page in the directory. Nested 
 
 For more on wrappers and page shells, see [Layouts](/features/layouts).
 
-## Read Frontmatter in a Component
+## Reading Frontmatter
 
 Vocs passes the current page frontmatter through MDX context, so client components can react to page metadata.
 
@@ -178,11 +211,11 @@ Vocs passes the current page frontmatter through MDX context, so client componen
 ```tsx [src/components/PageStatus.client.tsx]
 'use client'
 
-import { Badge, MdxPageContext } from 'vocs'
+import { Badge, MdxPageContext } from 'vocs' // [!code focus]
 
 export function PageStatus() {
-  const { frontmatter } = MdxPageContext.use()
-  const status = frontmatter?.status
+  const { frontmatter } = MdxPageContext.use() // [!code focus]
+  const status = frontmatter?.status // [!code focus]
 
   if (typeof status !== 'string') return null
 

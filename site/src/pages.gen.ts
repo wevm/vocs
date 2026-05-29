@@ -6,6 +6,9 @@ import type { PathsForPages } from 'waku/router'
 // prettier-ignore
 type Page =
   | { path: '/changelog'; render: 'static' }
+  | { path: '/deployment/netlify'; render: 'static' }
+  | { path: '/deployment/node'; render: 'static' }
+  | { path: '/deployment/vercel'; render: 'static' }
   | { path: '/features/agent-support'; render: 'static' }
   | { path: '/features/api-routes'; render: 'static' }
   | { path: '/features/ask-ai'; render: 'static' }
@@ -17,6 +20,7 @@ type Page =
   | { path: '/features/navigation'; render: 'static' }
   | { path: '/features/redirects'; render: 'static' }
   | { path: '/features/rehype-and-remark'; render: 'static' }
+  | { path: '/features/render-strategies'; render: 'static' }
   | { path: '/features/search'; render: 'static' }
   | { path: '/features/slots'; render: 'static' }
   | { path: '/features/tailwind'; render: 'static' }

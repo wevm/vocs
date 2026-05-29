@@ -1,0 +1,46 @@
+---
+outline: 2
+---
+
+# Vercel [Deploy your Vocs site to Vercel]
+
+Vocs auto-detects Vercel via the `VERCEL` environment variable and switches to a Vercel-optimised adapter at build time. You don't need to configure anything in `vocs.config.ts`.
+
+## Deploy with the Vercel CLI
+
+Install the [Vercel CLI](https://vercel.com/docs/cli), then deploy from your project root:
+
+:::code-group
+```bash [npm]
+npm i -g vercel
+vercel
+```
+```bash [pnpm]
+pnpm add -g vercel
+vercel
+```
+```bash [yarn]
+yarn global add vercel
+vercel
+```
+:::
+
+The first run links the project and prompts for build settings. Subsequent runs deploy to a preview URL. Use `vercel --prod` to promote to production.
+
+## One-click Deploy
+
+Use the official starter template to scaffold and deploy in one step:
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fwevm%2Fvocs%2Ftree%2Fnext%2Fcreate-vocs%2Ftemplate)
+
+## Deploy from Git
+
+When you import a Vocs repository through the Vercel dashboard, the framework preset auto-fills:
+
+| Setting | Value |
+| --- | --- |
+| Build Command | `pnpm build` (or `npm run build` / `yarn build`) |
+| Output Directory | `dist` |
+| Install Command | `pnpm install` |
+
+Push to your default branch to deploy to production; every other branch and PR gets an automatic preview URL.

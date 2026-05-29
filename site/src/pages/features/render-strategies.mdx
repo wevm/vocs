@@ -1,0 +1,112 @@
+import { Card, Cards } from 'vocs'
+
+# SSG or SSR [Choose a render strategy for your docs site]
+
+## Overview
+
+Vocs supports three render strategies via the [`renderStrategy`](/reference/site-config#renderstrategy) option — `'full-static'`, `'partial-static'`, or `'dynamic'`. The choice determines whether you ship a pure static bundle, keep a server runtime for dynamic features, or do both.
+
+```ts [vocs.config.ts]
+export default defineConfig({
+  renderStrategy: 'dynamic', // [!code focus]
+})
+```
+
+## Choosing a Strategy
+
+| Strategy | Output | Server runtime | When to use |
+| --- | --- | --- | --- |
+| `full-static` | Pure HTML/JS/CSS | ❌ none | Hosting on S3, GitHub Pages, or any static CDN. No dynamic features. |
+| `partial-static` | Pre-rendered pages + serverless functions | ✅ for `_api/*` only | Static docs that still need feedback, OG images, MCP, or other API routes. |
+| `dynamic` (default) | Server-rendered on every request | ✅ everywhere | Personalized content, edge logic, or features that depend on request data. |
+
+### Feature Compatibility
+
+These built-in features require a server runtime — they only work with `partial-static` or `dynamic`:
+
+- [Dynamic OG Images](/features/dynamic-og-images) (default `/api/og` endpoint)
+- [Page Feedback](/features/feedback) (`/api/feedback` POST handler)
+- [Ask AI](/features/ask-ai) and [MCP Server](/features/mcp-server) (`/api/mcp` endpoints)
+- [API Routes](/features/api-routes) (anything in `src/pages/_api/`)
+- [Changelog Generation](/features/changelog-generation) (server-side fetch)
+
+If you need any of these on a static host, switch to `partial-static`.
+
+## Recipes
+
+### Ship a Fully Static Site
+
+Use this when you deploy to a static-only host (S3, GitHub Pages).
+
+```ts [vocs.config.ts]
+export default defineConfig({
+  renderStrategy: 'full-static', // [!code focus]
+  ogImageUrl: '/og-default.png', // [!code focus]  // required: server-side /api/og is disabled
+})
+```
+
+`vocs build` produces a `dist/` of plain HTML files. Provide a static `ogImageUrl` (or omit OG images entirely) since the default dynamic endpoint won't exist.
+
+### Stay Static But Keep API Routes
+
+Pre-render docs as static HTML while keeping serverless functions for the features that need them.
+
+```ts [vocs.config.ts]
+export default defineConfig({
+  renderStrategy: 'partial-static', // [!code focus]
+})
+```
+
+Page navigation is instant from CDN cache, but `/api/og`, `/api/feedback`, and any custom `_api/*` routes execute on demand. Recommended for most production docs sites.
+
+### Render Everything Dynamically
+
+The default. Every request hits the server, so request data (cookies, geo, user agent) is available in page components.
+
+```ts [vocs.config.ts]
+export default defineConfig({
+  renderStrategy: 'dynamic',
+})
+```
+
+Use this when content varies per request or you need edge-side personalization.
+
+## Tips
+
+- **Default to `partial-static` for production.** You get static speed plus the dynamic features without thinking about it.
+- **Switching from `dynamic` → `full-static` will break OG images** unless you supply a static `ogImageUrl`. Test the build locally with `vocs preview` first.
+- **Deployment adapters auto-detect strategy.** Vercel and Netlify adapters configure functions only when the strategy needs them — no manual config required.
+
+## Reference
+
+<Cards>
+  <Card
+    title="renderStrategy"
+    description="Full option reference: accepted values, defaults, and build implications."
+    icon="sliders"
+    to="/reference/site-config#renderstrategy"
+  />
+</Cards>
+
+## See More
+
+<Cards>
+  <Card
+    title="Deployment"
+    description="Platform-specific guides for Vercel, Netlify, and Node.js."
+    icon="rocket"
+    to="/deployment/vercel"
+  />
+  <Card
+    title="API Routes"
+    description="Add server-rendered endpoints alongside your docs pages."
+    icon="plug"
+    to="/features/api-routes"
+  />
+  <Card
+    title="Dynamic OG Images"
+    description="Generate social preview images per page from an /api/og endpoint."
+    icon="image"
+    to="/features/dynamic-og-images"
+  />
+</Cards>

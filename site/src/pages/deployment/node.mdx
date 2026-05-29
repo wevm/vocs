@@ -1,0 +1,53 @@
+---
+outline: 2
+---
+
+# Node.js [Self-host your Vocs site on Node.js]
+
+If you need to host on your own infrastructure (Docker, a VPS, a PaaS), build and run the standard Node server.
+
+## Build and Run
+
+```bash
+pnpm build
+node dist/serve-node.js
+```
+
+The `dist/` directory is the only artefact you need to copy — everything else is bundled.
+
+## Build Output
+
+| Directory | Contents |
+| --- | --- |
+| `dist/public/` | Static assets (HTML, CSS, JS, images) |
+| `dist/server/` | Server bundle for dynamic rendering and RSC |
+| `dist/serve-node.js` | Node entrypoint that serves both |
+
+You can change the output directory via the `outDir` option in `defineConfig` (see [Site Configuration](/reference/site-config)).
+
+## Docker
+
+A minimal multi-stage `Dockerfile`:
+
+```dockerfile [Dockerfile]
+FROM node:24-alpine AS build
+WORKDIR /app
+COPY package.json pnpm-lock.yaml ./
+RUN corepack enable && pnpm install --frozen-lockfile
+COPY . .
+RUN pnpm build
+
+FROM node:24-alpine AS runtime
+WORKDIR /app
+COPY --from=build /app/dist ./dist
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/package.json ./
+EXPOSE 3000
+CMD ["node", "dist/serve-node.js"]
+```
+
+By default the server listens on port `3000`. Set `PORT` to override.
+
+## Static Sites
+
+If your site has no dynamic API routes or server-rendered RSC, you can skip the Node server entirely and serve `dist/public/` from any static host (nginx, Caddy, S3, GitHub Pages, etc.).

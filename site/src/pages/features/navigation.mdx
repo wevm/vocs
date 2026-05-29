@@ -1,14 +1,8 @@
+import { Card, Cards } from 'vocs'
+
 # Navigation [Keep docs navigation synced with routes]
 
 Vocs reads pages from `src/pages`, but your visible navigation lives in `vocs.config.ts`. When you add, move, or rename pages, update navigation in the same change.
-
-## Quick Prompt
-
-Ask your AI agent to read this guide before changing navigation:
-
-```txt
-Read https://vocs.dev/features/navigation and update the sidebar/top navigation for the docs pages in this project.
-```
 
 ## Overview
 
@@ -31,8 +25,8 @@ import { defineConfig } from 'vocs/config'
 export default defineConfig({
   sidebar: [
     { text: 'Getting Started', link: '/introduction/getting-started' },
-    { text: 'Installation', link: '/guide/install' },
-  ],
+    { text: 'Installation', link: '/guide/install' }
+  ]
 })
 ```
 
@@ -54,10 +48,10 @@ export default defineConfig({
         { text: 'Code Snippets', link: '/writing/code-snippets' },
         { text: 'Markdown Snippets', link: '/writing/markdown-snippets' },
         { text: 'Markdown Extensions', link: '/writing/markdown-extensions' },
-        { text: 'Using React', link: '/writing/react' },
-      ],
-    },
-  ],
+        { text: 'Using React', link: '/writing/react' }
+      ]
+    }
+  ]
 })
 ```
 
@@ -92,16 +86,16 @@ export default defineConfig({
   sidebar: {
     '/guide': [
       { text: 'Getting Started', link: '/introduction/getting-started' },
-      { text: 'Theming', link: '/features/theming' },
+      { text: 'Theming', link: '/features/theming' }
     ],
     '/reference': {
       backLink: true,
       items: [
         { text: 'Site Config', link: '/reference/site-config' },
-        { text: 'Components', link: '/reference/components' },
-      ],
-    },
-  },
+        { text: 'Components', link: '/reference/components' }
+      ]
+    }
+  }
 })
 ```
 
@@ -119,9 +113,9 @@ export default defineConfig({
     {
       text: 'Guide & API',
       link: '/introduction/getting-started',
-      match: (path) => Boolean(path?.startsWith('/guide') || path?.startsWith('/reference')),
-    },
-  ],
+      match: (path) => Boolean(path?.startsWith('/guide') || path?.startsWith('/reference')) // [!code focus]
+    }
+  ]
 })
 ```
 
@@ -142,51 +136,34 @@ export default defineConfig({
     {
       text: 'GitHub',
       link: 'https://github.com/wevm/vocs',
-      external: true,
-    },
+      external: true // [!code focus]
+    }
   ],
   topNav: [
     {
       text: 'Resources',
       items: [
         { text: 'Changelog', link: '/changelog' },
-        { text: 'GitHub', link: 'https://github.com/wevm/vocs' },
-      ],
-    },
-  ],
+        { text: 'GitHub', link: 'https://github.com/wevm/vocs' }
+      ]
+    }
+  ]
 })
 ```
 
-## Reference
+## See More
 
-:::note
-See the [Site Config reference](/reference/site-config#sidebar) for the full `sidebar` API.
-:::
-
-### Sidebar Fields
-
-Each sidebar item can use these fields:
-
-- `text`
-- `link`
-- `items`
-- `collapsed`
-- `disabled`
-- `external`
-
-### `backLink`
-
-Set `backLink: true` to show a `Back` link at the top of a path-scoped sidebar section.
-
-```ts [vocs.config.ts]
-import { defineConfig } from 'vocs/config'
-
-export default defineConfig({
-  sidebar: {
-    '/reference': {
-      backLink: true,
-      items: [{ text: 'Site Config', link: '/reference/site-config' }],
-    },
-  },
-})
-```
+<Cards>
+  <Card
+    title="sidebar"
+    description="Items, path scoping, backLink, collapsing, and external links."
+    icon="panel-left"
+    to="/reference/site-config#sidebar"
+  />
+  <Card
+    title="topNav"
+    description="Top navigation items, dropdown menus, and match logic."
+    icon="navigation"
+    to="/reference/site-config#topnav"
+  />
+</Cards>
