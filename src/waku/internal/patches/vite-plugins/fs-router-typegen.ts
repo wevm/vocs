@@ -6,7 +6,9 @@ import { existsSync, readFileSync } from 'node:fs'
 import { readdir, readFile, writeFile } from 'node:fs/promises'
 import type { ParseResult, Plugin } from 'vite'
 import { parse, transformWithOxc } from 'vite'
+import type * as VocsConfig from '../../../../internal/config.js'
 import { EXTENSIONS, SRC_PAGES, SRC_SERVER_ENTRY } from '../constants.js'
+import { getDefaultRouteRender, type RouteRender } from '../render-strategy.js'
 import { getGrouplessPath } from '../utils/create-pages.js'
 import { isIgnoredPath } from '../utils/fs-router.js'
 import { joinPath } from '../utils/path.js'
@@ -97,7 +99,10 @@ const getExportedName = (specifier: ExportSpecifier) =>
     ? specifier.exported.name
     : String(specifier.exported.value)
 
-export const fsRouterTypegenPlugin = (opts: { srcDir: string }): Plugin => {
+export const fsRouterTypegenPlugin = (opts: {
+  renderStrategy: VocsConfig.Config['renderStrategy']
+  srcDir: string
+}): Plugin => {
   return {
     name: 'waku:vite-plugins:fs-router-typegen',
     apply: 'serve',
@@ -115,7 +120,9 @@ export const fsRouterTypegenPlugin = (opts: { srcDir: string }): Plugin => {
         if (!existsSync(pagesDir) || !(await detectFsRouterUsage(srcDir))) {
           return
         }
-        const generation = await generateFsRouterTypes(pagesDir)
+        const generation = await generateFsRouterTypes(pagesDir, {
+          defaultRender: getDefaultRouteRender(opts.renderStrategy),
+        })
         if (!generation) {
           // skip failures
           return
@@ -183,7 +190,11 @@ export async function detectFsRouterUsage(srcDir: string): Promise<boolean> {
   }
 }
 
-export async function generateFsRouterTypes(pagesDir: string) {
+export async function generateFsRouterTypes(
+  pagesDir: string,
+  options: generateFsRouterTypes.Options = {},
+) {
+  const { defaultRender = 'dynamic' } = options
   const PAGE_EXTENSIONS = ['.tsx', '.mdx', '.md']
 
   // Recursively collect page files in the given directory
@@ -310,7 +321,7 @@ export async function generateFsRouterTypes(pagesDir: string) {
           `  | ({ path: '${file.path}' } & GetConfigResponse<typeof ${moduleName}_getConfig>)`,
         )
       } else {
-        lines.push(`  | { path: '${file.path}'; render: 'static' }`)
+        lines.push(`  | { path: '${file.path}'; render: '${defaultRender}' }`)
       }
     }
 
@@ -339,4 +350,10 @@ export async function generateFsRouterTypes(pagesDir: string) {
   }
   const generation = await generateFile(files)
   return generation
+}
+
+export declare namespace generateFsRouterTypes {
+  type Options = {
+    defaultRender?: RouteRender | undefined
+  }
 }

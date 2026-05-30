@@ -1,3 +1,4 @@
+import { config as vocsConfig } from 'virtual:vocs/config'
 import { type FunctionComponent, lazy, type ReactNode } from 'react'
 import { createPages } from 'waku/router/server'
 import * as DedupeHead from '../dedupe-head.js'
@@ -7,6 +8,7 @@ import {
   getApiHandlers,
   hasInvalidStaticApiExports,
 } from './api-routes.js'
+import { getDefaultRouteRender } from './render-strategy.js'
 import { isIgnoredPath } from './utils/fs-router.js'
 
 type Pages = ReturnType<typeof createPages>
@@ -111,6 +113,7 @@ export function router(
   }
 
   const allModules = { ...defaultPages, ...modules }
+  const defaultRender = getDefaultRouteRender(vocsConfig.renderStrategy)
 
   return wrapPages(
     createPages(
@@ -161,21 +164,21 @@ export function router(
             } else if (pathItems.at(0) === slicesDir) {
               createSlice({
                 component,
-                render: 'static',
+                render: defaultRender,
                 id: pathItems.slice(1).join('/'),
                 ...sourceFileProperty,
               } as never)
             } else if (pathItems.at(-1) === '_root') {
               createRoot({
                 component,
-                render: 'static',
+                render: defaultRender,
                 ...sourceFileProperty,
               })
             } else {
               createPage({
                 path,
                 component,
-                render: 'static',
+                render: defaultRender,
                 ...sourceFileProperty,
               } as never)
             }
@@ -184,18 +187,18 @@ export function router(
 
           const mod = (await importFn()) as RouteModule
 
-          const config = await mod.getConfig?.()
+          const routeConfig = await mod.getConfig?.()
           if (pathItems.at(0) === apiDir) {
             // Strip the apiDir prefix from the path (e.g., _api/hello.txt -> hello.txt)
             const apiPath = '/' + pathItems.slice(1).join('/')
-            if (config?.render === 'static') {
+            if (routeConfig?.render === 'static') {
               if (hasInvalidStaticApiExports(mod) || !mod.GET) {
                 console.warn(
                   `API ${path} is invalid. For static API routes, only a single GET handler is supported.`,
                 )
               }
               createApi({
-                ...config,
+                ...routeConfig,
                 path: apiPath,
                 render: 'static',
                 method: 'GET',
@@ -220,32 +223,32 @@ export function router(
           } else if (pathItems.at(0) === slicesDir) {
             createSlice({
               component: mod.default,
-              render: 'static',
+              render: defaultRender,
               id: pathItems.slice(1).join('/'),
-              ...config,
+              ...routeConfig,
               ...sourceFileProperty,
             } as never) // FIXME avoid as never
           } else if (pathItems.at(-1) === '_layout') {
             createLayout({
               path,
               component: mod.default,
-              render: 'static',
-              ...config,
+              render: defaultRender,
+              ...routeConfig,
               ...sourceFileProperty,
             })
           } else if (pathItems.at(-1) === '_root') {
             createRoot({
               component: mod.default,
-              render: 'static',
-              ...config,
+              render: defaultRender,
+              ...routeConfig,
               ...sourceFileProperty,
             })
           } else {
             createPage({
               path,
               component: mod.default,
-              render: 'static',
-              ...config,
+              render: defaultRender,
+              ...routeConfig,
               ...sourceFileProperty,
             } as never) // FIXME avoid as never
           }
