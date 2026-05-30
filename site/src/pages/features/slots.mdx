@@ -1,21 +1,41 @@
+import { Card, Cards } from 'vocs'
+
 # Slots [Inject custom components into the docs shell]
 
-Slots let you replace specific regions of the Vocs layout — the footer, the outline footer, and the sidebar header — without writing a custom layout.
+## Overview
 
-## File Convention
+Slots let you replace specific regions of the Vocs layout — the footer, the outline footer, and the sidebar header — without writing a custom layout. Define them by exporting React components from `src/pages/_slots.tsx`; Vocs picks them up at build time and renders them in place.
 
-Create `src/pages/_slots.tsx` and export any of the supported slot components. Vocs picks them up at build time and renders them in place.
+Supported slots:
+
+- **`Footer`** — bottom of every page, below the page content and pagination. Good for attribution, copyright, or extra links.
+- **`OutlineFooter`** — bottom of the right-hand outline, beneath the feedback widget. Good for community pointers like a Discord link.
+- **`SidebarHeader`** — top of the left sidebar, above the navigation tree. Good for version switchers, environment badges, or product pickers.
+
+Any subset can be exported — slots you omit fall back to the default Vocs UI.
+
+## Recipes
+
+### Adding a Site Footer
+
+Export `Footer` from `_slots.tsx` to render content beneath every page.
 
 ```tsx [src/pages/_slots.tsx]
-export function Footer() {
+export function Footer() { // [!code focus:5]
   return (
     <div className="vocs:text-center vocs:text-secondary vocs:text-sm vocs:pt-6">
       © 2025 My Project. All rights reserved.
     </div>
   )
 }
+```
 
-export function OutlineFooter() {
+### Adding an Outline Footer
+
+Export `OutlineFooter` for a short pointer below the outline (e.g. a community link).
+
+```tsx [src/pages/_slots.tsx]
+export function OutlineFooter() { // [!code focus:8]
   return (
     <div className="vocs:text-xs vocs:text-secondary">
       Need help?{' '}
@@ -25,42 +45,59 @@ export function OutlineFooter() {
     </div>
   )
 }
+```
+
+### Adding a Sidebar Header
+
+Export `SidebarHeader` to put a version switcher, badge, or product picker above the sidebar nav.
+
+```tsx [src/pages/_slots.tsx]
+export function SidebarHeader() { // [!code focus]
+  return <div className="vocs:px-4 vocs:py-2 vocs:text-sm">v2.0 · Beta</div> // [!code focus]
+} // [!code focus]
+```
+
+### Using Browser APIs in a Slot
+
+Slot components run as React Server Components by default. Add `'use client'` when you need browser APIs or state.
+
+```tsx [src/pages/_slots.tsx]
+'use client' // [!code focus]
+
+import { useEffect, useState } from 'react'
 
 export function SidebarHeader() {
-  return <div className="vocs:px-4 vocs:py-2 vocs:text-sm">Custom Sidebar Header</div>
+  const [theme, setTheme] = useState('light') // [!code focus]
+  useEffect(() => setTheme(document.documentElement.dataset.theme ?? 'light'), []) // [!code focus]
+  return <div className="vocs:px-4 vocs:py-2 vocs:text-sm">Theme: {theme}</div>
 }
 ```
 
-You can export any subset of these — exports you omit fall back to the default Vocs UI.
+## See More
 
-## Supported Slots
-
-### `Footer`
-
-Rendered at the bottom of every page, below the page content and pagination.
-
-Use this for site-wide attribution, copyright, or extra links.
-
-### `OutlineFooter`
-
-Rendered at the bottom of the right-hand outline (table of contents), beneath the page outline and feedback widget.
-
-Use this for short helpful pointers like a community link or contributor note.
-
-### `SidebarHeader`
-
-Rendered at the top of the left sidebar, above the navigation tree.
-
-Use this for a version switcher, environment badge, or product picker.
-
-## Tips
-
-- Slot components run in React Server Components by default. Add `'use client'` if you need browser APIs.
-- Style with the `vocs:` Tailwind prefix to stay consistent with the rest of the theme.
-- Slots are reactive to HMR — saving `_slots.tsx` updates the page immediately in dev.
-
-## See Also
-
-- [Layouts](/features/layouts)
-- [MDX Wrapper](/features/layouts#mdx-wrapper)
-- [Theming](/features/theming)
+<Cards>
+  <Card
+    title="_slots.tsx convention"
+    description="Project structure for slot exports and supported file location."
+    icon="folder"
+    to="/introduction/project-structure"
+  />
+  <Card
+    title="Layouts"
+    description="Choose and customize page shells for your docs."
+    icon="layout-template"
+    to="/features/layouts"
+  />
+  <Card
+    title="MDX Wrapper"
+    description="Wrap MDX content with shared chrome inside the page."
+    icon="square-stack"
+    to="/features/layouts#mdx-wrapper"
+  />
+  <Card
+    title="Theming"
+    description="Customize colors, typography, and the vocs: Tailwind prefix."
+    icon="palette"
+    to="/features/theming"
+  />
+</Cards>

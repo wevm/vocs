@@ -1,40 +1,26 @@
+import { Card, Cards } from 'vocs'
+
 # Dynamic OG Images [Generate social preview images from page metadata]
 
-Open Graph images power link previews in Slack, Discord, X, and other clients. Vocs can generate them per page by combining your page metadata with an image endpoint.
+## Overview
 
-## How It Works
-
-Vocs generates social image metadata in three steps:
+Open Graph images power link previews in Slack, Discord, X, and other clients. Vocs generates them per page in three steps:
 
 1. It reads each page's `title` and `description` from frontmatter.
-2. It resolves `ogImageUrl` for the current page.
-3. It replaces `%title`, `%description`, and `%logo`, then writes the final URL to both
-`og:image` and `twitter:image`.
+2. It resolves [`ogImageUrl`](/reference/site-config#ogimageurl) for the current page.
+3. It substitutes `%title`, `%description`, and `%logo` into that URL, then writes the result to both `og:image` and `twitter:image`.
 
-In Waku-powered Vocs sites, `/api/og` is available by default. If you want a different design, create your own route at `src/pages/_api/api/og.tsx` and point `ogImageUrl` at it.
+In Waku-powered Vocs sites, `/api/og` is available by default. If you want a different design, set up your own endpoint as below.
 
-## Configure `ogImageUrl`
+## Setup
 
-The `ogImageUrl` option controls which image URL Vocs emits for each page.
+Set up a dynamic OG image endpoint in four steps.
 
-```ts [vocs.config.ts]
-import { defineConfig } from 'vocs/config'
+::::steps
 
-export default defineConfig({
-  baseUrl: 'https://docs.example.com',
-  ogImageUrl: (_path, { baseUrl }) => {
-    return `${baseUrl ?? ''}/api/og?title=%title&description=%description`
-  },
-})
-```
+### Create the API route
 
-Using the function form is recommended because social crawlers work best with absolute URLs.
-
-If you do not set `ogImageUrl`, Vocs falls back to `/api/og?title=%title&description=%description` for non-`full-static` sites.
-
-## Build A Custom OG Route
-
-If you want to change the design of the generated card, add your own API route and render the image with `Handler.og`.
+Add a file at `src/pages/_api/api/og.tsx`. Vocs strips the `_api` prefix, so this becomes `/api/og`.
 
 :::file-tree
 - +src
@@ -44,69 +30,36 @@ If you want to change the design of the generated card, add your own API route a
         - **og.tsx**
 :::
 
+### Implement the handler
+
+Use [`Handler.og`](/reference/components) from `vocs/server` to render JSX as a PNG. It reads `title` and `description` from the query string, falls back to your site config, and passes a resolved `logo` based on `logoUrl`.
+
 ```tsx [src/pages/_api/api/og.tsx]
 import { Handler } from 'vocs/server'
 
-const colors = {
-  background: '#161616',
-  text: '#ffffff',
-  textMuted: 'rgba(255, 255, 255, 0.6)',
-}
-
 export default function handler(request: Request) {
-  return Handler.og(({ title, description, logo }) => (
+  return Handler.og(({ title, description, logo }) => ( // [!code focus:31]
     <div
       style={{
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'flex-start',
         justifyContent: 'center',
         width: '100%',
         height: '100%',
         padding: 80,
-        backgroundColor: colors.background,
-        color: colors.text,
+        backgroundColor: '#161616',
+        color: '#ffffff',
       }}
     >
       {logo && (
-        <img
-          alt=""
-          src={logo}
-          style={{
-            height: 48,
-            position: 'absolute',
-            right: 40,
-            bottom: 40,
-          }}
-        />
+        <img alt="" src={logo} style={{ height: 48, position: 'absolute', right: 40, bottom: 40 }} />
       )}
-
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 12,
-        }}
-      >
-        <div
-          style={{
-            fontSize: title.length < 15 ? 80 : 64,
-            fontWeight: 700,
-            lineHeight: 1.1,
-            color: colors.text,
-          }}
-        >
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ fontSize: title.length < 15 ? 80 : 64, fontWeight: 700, lineHeight: 1.1 }}>
           {title}
         </div>
-
         {description && (
-          <div
-            style={{
-              fontSize: 28,
-              color: colors.textMuted,
-              maxWidth: 800,
-            }}
-          >
+          <div style={{ fontSize: 28, color: 'rgba(255, 255, 255, 0.6)', maxWidth: 800 }}>
             {description}
           </div>
         )}
@@ -116,38 +69,50 @@ export default function handler(request: Request) {
 }
 ```
 
-`Handler.og` handles the image response for you. It reads `title` and `description` from the query string, falls back to your site config when they are missing, and passes a resolved `logo` based on `logoUrl`.
+### Point `ogImageUrl` at it
 
-## Vary Images By Path
-
-`ogImageUrl` can inspect the current pathname, so you can send different sections of your docs to different templates or static assets.
+Configure [`ogImageUrl`](/reference/site-config#ogimageurl) so Vocs emits absolute URLs to your new endpoint. Setting `baseUrl` is required for social crawlers.
 
 ```ts [vocs.config.ts]
-import { defineConfig } from 'vocs/config'
+export default defineConfig({
+  baseUrl: 'https://docs.example.com', // [!code focus]
+  ogImageUrl: (_path, { baseUrl }) => // [!code focus:3]
+    `${baseUrl ?? ''}/api/og?title=%title&description=%description`,
+})
+```
 
+### Verify
+
+Run `pnpm dev`, open any page, and visit the URL printed in the page source under `<meta property="og:image">`. You should see your rendered PNG. For production, paste the deployed URL into [opengraph.xyz](https://www.opengraph.xyz/) to preview how it looks in each client.
+
+::::
+
+## Recipes
+
+### Vary Images By Path
+
+`ogImageUrl` receives the current pathname, so you can send different sections of your docs to different templates or static assets.
+
+```ts [vocs.config.ts]
 export default defineConfig({
   baseUrl: 'https://docs.example.com',
-  ogImageUrl: (path, { baseUrl }) => {
+  ogImageUrl: (path, { baseUrl }) => { // [!code focus:11]
     const origin = baseUrl ?? ''
 
-    if (path.startsWith('/blog/')) {
+    if (path.startsWith('/blog/'))
       return `${origin}/api/og/blog?title=%title&description=%description`
-    }
 
-    if (path === '/introduction/getting-started') {
+    if (path === '/introduction/getting-started')
       return `${origin}/images/getting-started-og.png`
-    }
 
     return `${origin}/api/og?title=%title&description=%description`
   },
 })
 ```
 
-This is the main way to do page-specific OG customization in Vocs.
+### Use Per-Page Metadata
 
-## Per-Page Metadata
-
-Vocs uses normal page frontmatter for page-specific OG content.
+Vocs feeds normal page frontmatter into `%title` and `%description` substitutions — no separate `ogImage` field needed.
 
 ```mdx
 ---
@@ -156,23 +121,40 @@ description: Set up a production-ready Vocs site with Waku and Vite.
 ---
 ```
 
-Those values feed:
+If one page needs a completely different image, return a different URL for that page from `ogImageUrl`.
 
-- the document `<title>`
-- the page description meta tag
-- `%title` and `%description` in `ogImageUrl`
+### Tips
 
-Vocs does not use a separate `ogImage` frontmatter field. If one page needs a completely different image, return a different URL for that page from `ogImageUrl`.
+- Set `baseUrl` so generated OG image URLs are absolute — social crawlers reject relative URLs.
+- Render at `1200x630` (the default for `Handler.og`) for the broadest sharing compatibility.
+- Keep titles short and use high-contrast colors so previews stay readable at thumbnail size.
+- If you use `renderStrategy: 'full-static'`, configure `ogImageUrl` explicitly — the default dynamic `/api/og` fallback is not used.
 
-## Tips
+## See More
 
-- Set `baseUrl` so generated OG image URLs are absolute.
-- Keep generated images at `1200x630` for the broadest social sharing compatibility.
-- Use short titles and high-contrast colors so previews stay readable.
-- If you use `renderStrategy: 'full-static'`, configure `ogImageUrl` explicitly because the
-default dynamic `/api/og` fallback is not used.
-
-## Next Steps
-
-- [Site Config](/reference/site-config)
-- [Frontmatter](/writing/frontmatter)
+<Cards>
+  <Card
+    title="ogImageUrl"
+    description="Site config option that controls which image URL Vocs emits per page."
+    icon="image"
+    to="/reference/site-config#ogimageurl"
+  />
+  <Card
+    title="Handler.og"
+    description="Server helper for rendering JSX to a PNG response."
+    icon="server"
+    to="/reference/components"
+  />
+  <Card
+    title="API Routes"
+    description="How _api file-system routes work and where to put handlers."
+    icon="plug"
+    to="/features/api-routes"
+  />
+  <Card
+    title="Frontmatter"
+    description="title, description, and other per-page metadata fields."
+    icon="file-text"
+    to="/writing/frontmatter"
+  />
+</Cards>

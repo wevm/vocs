@@ -1,6 +1,6 @@
-# Search [Built-in client-side search powered by MiniSearch]
+import { Card, Cards } from 'vocs'
 
-Vocs ships a built-in search dialog. It indexes every MDX page at build time, ships the index to the client, and runs queries entirely in the browser — no third-party service required.
+# Search [Built-in client-side search powered by MiniSearch]
 
 ## Opening Search
 
@@ -27,8 +27,8 @@ export default defineConfig({
     fuzzy: 0.2,
     prefix: true,
     combineWith: 'AND',
-    boost: { title: 4, subtitle: 3, text: 2, category: 1, titles: 1 },
-  },
+    boost: { title: 4, subtitle: 3, text: 2, category: 1, titles: 1 }
+  }
 })
 ```
 
@@ -101,7 +101,19 @@ This hides the search trigger only on the affected page; the keyboard shortcut s
 
 In production, the search index file is content-hashed (`search-index-{hash}.json`) so browsers and CDNs can cache it indefinitely. When you redeploy with content changes, a new hash invalidates the cache automatically.
 
-## See Also
+## See More
 
-- [Frontmatter reference](/reference/frontmatter) — `searchPriority`, `showSearch`
-- [Site Configuration](/reference/site-config#search) — full option types
+<Cards>
+  <Card
+    title="search"
+    description="Site config options: tokenizer, boost weights, hidden routes, and defaults."
+    icon="search"
+    to="/reference/site-config#search"
+  />
+  <Card
+    title="Per-page fields"
+    description="searchPriority and showSearch frontmatter fields."
+    icon="file-text"
+    to="/reference/frontmatter"
+  />
+</Cards>

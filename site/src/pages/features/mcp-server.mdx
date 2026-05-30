@@ -1,132 +1,60 @@
+import { Card, Cards } from 'vocs'
+
 # MCP Server [Expose your docs and source code to AI assistants]
-
-Vocs includes a built-in [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server that lets AI assistants read your documentation and, optionally, browse source code you choose to expose.
-
-When enabled, Vocs serves the MCP endpoint at `/api/mcp`.
 
 ## Overview
 
-The MCP server gives AI clients a structured way to work with your docs site.
+Vocs includes a built-in [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server. When enabled, AI clients can read, search, and browse your docs — and optionally source repositories you choose to expose — from a single endpoint at `/api/mcp`.
 
-- Read documentation pages directly from your `src/pages` content
-- Search documentation content with `search_docs`
-- Expose one or more source repositories through adapters
-- Keep source access read-only
+The server is read-only. Vocs supports Streamable HTTP (`POST /api/mcp`) and the older HTTP+SSE transport (`GET /api/mcp`).
 
-If you also enable Vocs' Ask AI menu, users can copy the MCP URL directly from the UI.
+## Setup
 
-## Enable MCP
+::::steps
 
-Enable the server in `vocs.config.ts`:
+### Enable the server
 
-```ts twoslash [vocs.config.ts]
-import { defineConfig } from 'vocs/config'
-
+```ts [vocs.config.ts]
 export default defineConfig({
-  mcp: {
-    enabled: true,
-  },
+  mcp: { enabled: true }, // [!code focus]
 })
 ```
 
-Once enabled, your site exposes an MCP server at:
+### Connect your AI client
 
-- Local development: `http://localhost:5173/api/mcp`
-- Production: `https://docs.example.com/api/mcp`
-
-## Connect a Remote Client
-
-Use the deployed docs URL when your AI client runs outside your local machine. The MCP endpoint is the site origin plus `/api/mcp`.
-
-```json
-{
-  "mcpServers": {
-    "vocs": {
-      "url": "https://docs.example.com/api/mcp"
-    }
-  }
-}
-```
-
-Different MCP clients store this configuration in different places, but clients that support remote MCP servers usually accept the same `url` shape.
-
-Vocs supports Streamable HTTP transport at `POST /api/mcp` and the older HTTP+SSE transport at `GET /api/mcp` with messages posted to `/api/mcp/messages`.
-
-## Local Development
-
-For local development, point the client at your running Vocs dev server:
-
-```json
-{
-  "mcpServers": {
-    "vocs-local": {
-      "url": "http://localhost:5173/api/mcp"
-    }
-  }
-}
-```
-
-Use the actual host and port from your dev server. If your AI client runs in a remote environment, `localhost` points at the client's machine, not yours. In that case, deploy the docs site first or expose your local server with a secure tunnel.
-
-## Command-Based Clients
-
-Some MCP clients only support command-based local servers. For those clients, connect through an MCP proxy or bridge that can expose a remote HTTP MCP endpoint as a local command.
-
-Keep the Vocs URL as the upstream server:
+Ask your agent to add the MCP server. It will edit the right config file for your client (Claude Desktop, Cursor, VS Code, etc.):
 
 ```txt
+Add this MCP server to my AI client config:
+
 https://docs.example.com/api/mcp
 ```
 
-## Verify the Connection
+Use `http://localhost:5173/api/mcp` while developing locally.
 
-After connecting the client, ask your agent to verify the tools:
+### Verify
+
+Ask the agent to list and read pages. With `mcp.enabled`, you should see the tools `list_pages`, `read_page`, and `search_docs`.
 
 ```txt
-List the pages available from the Vocs MCP server.
-Read /introduction/getting-started.
-Search the docs for "sidebar".
+List the pages from the Vocs MCP server, then read /introduction/getting-started.
 ```
 
-With `mcp.enabled: true`, the agent should see these documentation tools:
+::::
 
-- `list_pages`
-- `read_page`
-- `search_docs`
+## Recipes
 
-If you configured source adapters, the agent should also see source tools such as `list_sources`, `list_source_files`, `read_source_file`, `get_file_tree`, and, when supported by the adapter, `search_source`.
+### Expose Source Code
 
-## Documentation Tools
+Add one or more `sources` to let assistants browse implementation alongside your docs.
 
-With `mcp.enabled: true`, Vocs exposes these documentation tools:
-
-| Tool | Description |
-| --- | --- |
-| `list_pages` | List available documentation routes |
-| `read_page` | Read a page by route path |
-| `search_docs` | Search page content for a query string |
-
-`search_docs` performs text matching against your Markdown and MDX files. It is useful for MCP clients that want to find likely pages before calling `read_page`.
-
-## Troubleshooting
-
-If the client does not show any Vocs tools, confirm that `mcp.enabled` is set to `true` and that the client is pointed at the full `/api/mcp` URL.
-
-If a local connection fails, check that the Vocs dev server is running and that the client can reach the same host and port.
-
-If source search fails, set `GITHUB_TOKEN` when using the GitHub adapter. GitHub's code search API may reject unauthenticated requests or enforce lower rate limits.
-
-## Expose Source Code
-
-You can also expose source repositories so AI assistants can browse implementation details alongside your docs.
-
-```ts twoslash [vocs.config.ts]
+```ts [vocs.config.ts]
 import { defineConfig, McpSource } from 'vocs/config'
 
 export default defineConfig({
   mcp: {
     enabled: true,
-    sources: [
+    sources: [ // [!code focus:4]
       McpSource.github({ name: 'vocs', repo: 'wevm/vocs' }),
       McpSource.github({ name: 'viem', repo: 'wevm/viem', paths: ['src', 'site'] }),
     ],
@@ -134,83 +62,61 @@ export default defineConfig({
 })
 ```
 
-When at least one source is configured, Vocs adds these tools:
+This adds the source tools: `list_sources`, `list_source_files`, `read_source_file`, `get_file_tree`, and `search_source` (when the adapter supports it).
 
-| Tool | Description |
-| --- | --- |
-| `list_sources` | List configured source adapters |
-| `list_source_files` | List files in a directory |
-| `read_source_file` | Read a specific source file |
-| `get_file_tree` | Return a recursive file tree |
-| `search_source` | Search source code when the adapter supports it |
+Set `GITHUB_TOKEN` for higher rate limits and to enable authenticated code search.
 
-This is useful when your docs explain an API and you want the assistant to inspect the underlying implementation without leaving the MCP session.
+### Build a Custom Adapter
 
-## GitHub Adapter
+For non-GitHub backends (internal repos, databases, remote APIs), implement an adapter with `McpSource.from()`.
 
-Vocs includes a built-in GitHub adapter for public or private repositories.
-
-```ts twoslash
-import { McpSource } from 'vocs/config'
-
-McpSource.github({
-  name: 'vocs',
-  repo: 'wevm/vocs',
-  branch: 'main',
-  paths: ['src', 'site'],
-  token: process.env['GITHUB_TOKEN'],
-})
-```
-
-Use the options as follows:
-
-- `name`: Stable identifier used by MCP tools
-- `repo`: GitHub repository in `owner/repo` format
-- `branch`: Branch or ref to read from
-- `paths`: Top-level paths you want clients to browse by default
-- `token`: Optional GitHub token for higher rate limits and authenticated code search
-
-If `search_source` is important, set `GITHUB_TOKEN`. GitHub's code search API may reject unauthenticated requests.
-
-## Custom Source Adapters
-
-For non-GitHub backends, create an adapter with `McpSource.from()`.
-
-```ts twoslash
-import { defineConfig, McpSource } from 'vocs/config'
-
-export default defineConfig({
-  mcp: {
-    enabled: true,
-    sources: [
-      McpSource.from({
-        name: 'workspace',
-        type: 'custom',
-        async listFiles(path) {
-          return [{ name: 'index.ts', path: 'src/index.ts', type: 'file' }]
-        },
-        async readFile(path) {
-          return '// file content'
-        },
-        async getTree(options) {
-          return { files: [], truncated: false }
-        },
-      }),
-    ],
+```ts
+McpSource.from({
+  name: 'workspace',
+  type: 'custom',
+  async listFiles(path) {
+    return [{ name: 'index.ts', path: 'src/index.ts', type: 'file' }]
+  },
+  async readFile(path) {
+    return '// file content'
+  },
+  async getTree(options) {
+    return { files: [], truncated: false }
   },
 })
 ```
 
-Implement the adapter methods against whatever storage system you use, such as a local index, database, remote API, or internal repository service.
+## Tips
 
-## Security & Limitations
+- The MCP server only exposes paths you explicitly configure. If your site is private, put it behind your existing auth layer.
+- `search_docs` is text search over page files, not a semantic embedding index.
+- Local URLs like `http://localhost:5173/api/mcp` only work if the client runs on the same machine. For remote clients, deploy first or expose your dev server through a secure tunnel.
 
-- The MCP server is read-only. It exposes documentation and configured sources for retrieval only.
-- Vocs only exposes the repositories and paths you explicitly configure.
-- If your docs site is private, place Vocs behind your existing authentication layer.
-- `search_docs` is content search over page files, not an embedding-based semantic index.
-- GitHub-backed source search may require `GITHUB_TOKEN` for authentication or higher limits.
+## See More
 
-## Next Steps
-
-- Learn how Vocs serves [`llms.txt` and Markdown for AI agents](/features/agent-support)
+<Cards>
+  <Card
+    title="mcp"
+    description="Full mcp.enabled, mcp.sources, and transport options."
+    icon="plug"
+    to="/reference/site-config#mcp"
+  />
+  <Card
+    title="McpSource"
+    description="Built-in GitHub adapter and the McpSource.from() factory for custom sources."
+    icon="github"
+    to="/reference/site-config#mcpsource"
+  />
+  <Card
+    title="Agent Support"
+    description="Markdown rendering and llms.txt files served to AI agents."
+    icon="bot"
+    to="/features/agent-support"
+  />
+  <Card
+    title="Ask AI"
+    description="In-page AI menu that surfaces the MCP URL for users to copy."
+    icon="sparkles"
+    to="/features/ask-ai"
+  />
+</Cards>

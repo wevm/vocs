@@ -1,6 +1,6 @@
-# Mermaid Diagrams [Render diagrams from text using Mermaid]
+import { Card, Cards } from 'vocs'
 
-Vocs renders [Mermaid](https://mermaid.js.org/) diagrams from fenced code blocks. Tag a code block with the `mermaid` language and Vocs streams the diagram into the page on the client.
+# Mermaid Diagrams [Render diagrams from text using Mermaid]
 
 ## Usage
 
@@ -147,7 +147,19 @@ Mermaid diagrams inherit Vocs's light/dark color scheme automatically. Customize
 
 The remark pipeline converts `mermaid` code blocks into a `<div data-v-mermaid-chart="...">` element. A small client-side component loads `mermaid` lazily and renders the SVG into the placeholder. The Mermaid runtime is only bundled on pages that actually use a diagram.
 
-## See Also
+## See More
 
-- [Markdown Extensions](/writing/markdown-extensions)
-- [Code & Syntax Highlighting](/writing/syntax-highlighting) — for regular code blocks
+<Cards>
+  <Card
+    title="Markdown Extensions"
+    description="Callouts, file trees, tabs, and other MDX extensions."
+    icon="file-text"
+    to="/writing/markdown-extensions"
+  />
+  <Card
+    title="Code & Syntax Highlighting"
+    description="Shiki transformers, line focus, diffs, and Twoslash for regular code blocks."
+    icon="code"
+    to="/writing/syntax-highlighting"
+  />
+</Cards>

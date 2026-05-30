@@ -34,8 +34,15 @@ describe('resolveIconSync', () => {
     expect(resolveIconSync('lucide:nonexistent-icon-xyz')).toBeUndefined()
   })
 
-  test('returns undefined for invalid format (no colon)', () => {
-    expect(resolveIconSync('nocolon')).toBeUndefined()
+  test('resolves bare icon name as lucide', () => {
+    const bare = resolveIconSync('arrow-right')
+    const prefixed = resolveIconSync('lucide:arrow-right')
+    expect(bare).toBeDefined()
+    expect(bare).toBe(prefixed)
+  })
+
+  test('returns undefined for bare name not in lucide', () => {
+    expect(resolveIconSync('nonexistent-icon-xyz')).toBeUndefined()
   })
 
   test('returns undefined for empty string parts', () => {

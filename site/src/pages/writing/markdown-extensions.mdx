@@ -6,8 +6,6 @@ import { Card, Cards, Link, Tab, Tabs } from 'vocs'
 
 # Markdown Extensions [Features and syntax of Markdown in Vocs]
 
-Vocs supports standard Markdown plus directives for docs-specific UI such as callouts, steps, code groups, and file trees.
-
 ## Badges
 
 Use the `:badge[...]` text directive for small inline status labels.
@@ -276,18 +274,6 @@ Strikethrough uses two tildes. ~~Scratch this.~~
 ```
 :::
 
-## FeedbackWidget
-
-Use `FeedbackWidget` when you want to render the configured feedback UI manually.
-
-:::code-group
-```mdx [MDX]
-import { FeedbackWidget } from 'vocs'
-
-<FeedbackWidget />
-```
-:::
-
 ## File Tree
 
 File tree with icons based on the filename, emphasis via `**filename**`, inline comments, and hoverable info tooltips via `{info="…"}`.
@@ -331,7 +317,17 @@ File tree with icons based on the filename, emphasis via `**filename**`, inline 
 ```
 ::::
 
-`{info="…"}` adds an info icon after the filename. Hovering (or focusing) the icon shows a tooltip popover with the text. It works on both files and folders, and can be combined with `**bold**` highlighting or an inline comment.
+### Syntax cheat sheet
+
+| Syntax | Meaning |
+| --- | --- |
+| `- file.ts` | File entry (icon resolved from the filename) |
+| `- +folder` | Folder entry (use `+` prefix) |
+| `- +folder` with nested `- file.ts` | Folder with children (nest via indented bullets) |
+| `- **file.ts**` | Highlighted entry |
+| `- file.ts a short comment` | Trailing text after the first space becomes a comment |
+| `- file.ts{info="…"}` | Hover tooltip on the row (works on files and folders) |
+| `- ...` | Ellipsis placeholder (no icon) |
 
 ## Footnotes
 
@@ -534,18 +530,6 @@ sequenceDiagram
     Server-->>Client: Response
 ```
 ````
-:::
-
-## Quick Prompt
-
-Ask your AI agent to read this guide before editing Markdown or MDX pages:
-
-```txt
-Read https://vocs.dev/writing/markdown-extensions and update this page using the right Vocs Markdown syntax.
-```
-
-:::tip
-Prefer built-in Vocs directives over raw HTML for callouts, code groups, steps, details, file trees, and badges. Directives keep pages consistent and easier for agents to edit.
 :::
 
 ## Steps

@@ -71,9 +71,9 @@ export default defineConfig({
   sidebar: [
     {
       text: 'Welcome',
-      link: '/',
-    },
-  ],
+      link: '/'
+    }
+  ]
 })
 ```
 
@@ -244,7 +244,7 @@ You can also export `default` as a `fetch` handler when you want a single handle
 export default {
   async fetch(request: Request) {
     return Response.json({ method: request.method })
-  },
+  }
 }
 ```
 
