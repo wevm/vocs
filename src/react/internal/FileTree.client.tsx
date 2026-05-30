@@ -8,7 +8,7 @@ const triggerBaseClassName =
   'vocs:flex vocs:items-center vocs:gap-2 vocs:whitespace-nowrap vocs:justify-self-start vocs:rounded-md vocs:px-2 vocs:py-0.5 vocs:-mx-2 vocs:-my-0.5 vocs:border vocs:border-transparent vocs:transition-colors vocs:data-[highlighted=true]:bg-surfaceTint vocs:data-[highlighted=true]:border-primary'
 
 const tooltipTriggerClassName =
-  'vocs:cursor-help vocs:hover:bg-surfaceTint vocs:hover:border-primary vocs:data-[popup-open]:bg-surfaceTint vocs:data-[popup-open]:border-primary'
+  'vocs:hover:bg-surfaceTint vocs:hover:border-primary vocs:data-[popup-open]:bg-surfaceTint vocs:data-[popup-open]:border-primary'
 
 const folderButtonClassName = 'vocs:bg-transparent vocs:m-0 vocs:not-disabled:cursor-pointer'
 
