@@ -1,7 +1,7 @@
 import LucideFile from '~icons/lucide/file'
 import LucideFolder from '~icons/lucide/folder'
 import LucideFolderOpen from '~icons/lucide/folder-open'
-import { FolderToggle } from './FileTree.client.js'
+import { FileRowTrigger, FolderToggle } from './FileTree.client.js'
 
 export function FileTree(props: FileTree.Props) {
   const items: FileTree.Item[] = JSON.parse(props['data-v-file-tree-items'] ?? '[]')
@@ -33,6 +33,7 @@ export namespace FileTree {
     comment?: string
     highlighted?: boolean
     icon?: string
+    tooltip?: string
     items?: Item[]
   }
 
@@ -90,6 +91,7 @@ export namespace FileTree {
           <FolderToggle
             name={item.name}
             comment={item.comment}
+            tooltip={item.tooltip}
             hasChildren={!!hasChildren}
             highlighted={item.highlighted}
             labelColumnOffset={depth * indentSize}
@@ -105,19 +107,36 @@ export namespace FileTree {
               className="vocs:grid vocs:items-center vocs:gap-x-4 vocs:text-primary"
               style={rowStyle}
             >
-              <span
-                className="vocs:flex vocs:items-center vocs:gap-2 vocs:whitespace-nowrap vocs:justify-self-start vocs:data-[highlighted=true]:bg-surfaceTint vocs:data-[highlighted=true]:border vocs:data-[highlighted=true]:border-primary vocs:rounded-md vocs:px-2 vocs:py-0.5 vocs:-mx-2 vocs:-my-0.5"
-                data-highlighted={item.highlighted}
-              >
-                {item.name !== '...' && (
-                  <span className="vocs:shrink-0">
-                    <FileIcon icon={item.icon} />
+              {item.tooltip ? (
+                <FileRowTrigger
+                  content={item.tooltip}
+                  label={item.name}
+                  highlighted={item.highlighted}
+                >
+                  {item.name !== '...' && (
+                    <span className="vocs:shrink-0">
+                      <FileIcon icon={item.icon} />
+                    </span>
+                  )}
+                  <span className={item.name === '...' ? 'vocs:text-muted' : undefined}>
+                    {item.name}
                   </span>
-                )}
-                <span className={item.name === '...' ? 'vocs:text-muted' : undefined}>
-                  {item.name}
+                </FileRowTrigger>
+              ) : (
+                <span
+                  className="vocs:flex vocs:items-center vocs:gap-2 vocs:whitespace-nowrap vocs:justify-self-start vocs:data-[highlighted=true]:bg-surfaceTint vocs:data-[highlighted=true]:border vocs:data-[highlighted=true]:border-primary vocs:rounded-md vocs:px-2 vocs:py-0.5 vocs:-mx-2 vocs:-my-0.5"
+                  data-highlighted={item.highlighted}
+                >
+                  {item.name !== '...' && (
+                    <span className="vocs:shrink-0">
+                      <FileIcon icon={item.icon} />
+                    </span>
+                  )}
+                  <span className={item.name === '...' ? 'vocs:text-muted' : undefined}>
+                    {item.name}
+                  </span>
                 </span>
-              </span>
+              )}
               {item.comment && (
                 <span className="vocs:text-muted vocs:whitespace-nowrap">{item.comment}</span>
               )}

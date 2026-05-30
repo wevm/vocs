@@ -276,7 +276,7 @@ Strikethrough uses two tildes. ~~Scratch this.~~
 
 ## File Tree
 
-File tree with icons based on the filename, emphasis via `**filename**`, and comments.
+File tree with icons based on the filename, emphasis via `**filename**`, inline comments, and hoverable info tooltips via `{info="…"}`.
 
 ::::code-group
 <div data-title="Preview">
@@ -287,12 +287,13 @@ File tree with icons based on the filename, emphasis via `**filename**`, and com
     - **page.txt**
   - +folder
     - page.txt
-  - layout.tsx an important file
+  - layout.tsx an important file{info="Wraps every page — add brand fonts, banner, or shared providers here."}
   - page.tsx
   - global.css
   - ...
   - main.rs lol why is this here
 - +components
+- vocs.config.ts{info="Site config: nav, theme, search, plugins."}
 - package.json
 :::
 </div>
@@ -304,12 +305,13 @@ File tree with icons based on the filename, emphasis via `**filename**`, and com
     - **page.txt**
   - +folder
     - page.txt
-  - layout.tsx an important file
+  - layout.tsx an important file{info="Wraps every page — add brand fonts, banner, or shared providers here."}
   - page.tsx
   - global.css
   - ...
   - main.rs lol why is this here
 - +components
+- vocs.config.ts{info="Site config: nav, theme, search, plugins."}
 - package.json
 :::
 ```
@@ -324,6 +326,7 @@ File tree with icons based on the filename, emphasis via `**filename**`, and com
 | `- +folder` with nested `- file.ts` | Folder with children (nest via indented bullets) |
 | `- **file.ts**` | Highlighted entry |
 | `- file.ts a short comment` | Trailing text after the first space becomes a comment |
+| `- file.ts{info="…"}` | Hover tooltip on the row (works on files and folders) |
 | `- ...` | Ellipsis placeholder (no icon) |
 
 ## Footnotes

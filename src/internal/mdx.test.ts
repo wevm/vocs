@@ -267,6 +267,129 @@ describe('remarkRestoreUnknownTextDirectives', () => {
 })
 
 describe('remarkFileTree', () => {
+  async function parse(items: { text: string }[]) {
+    const tree = {
+      type: 'root',
+      children: [
+        {
+          type: 'containerDirective',
+          name: 'file-tree',
+          children: [
+            {
+              type: 'list',
+              children: items.map((item) => ({
+                type: 'listItem',
+                children: [
+                  {
+                    type: 'paragraph',
+                    children: [{ type: 'text', value: item.text }],
+                  },
+                ],
+              })),
+            },
+          ],
+        },
+      ],
+    }
+    await remarkFileTree(Config.define({ rootDir: process.cwd() }))(tree as never)
+    const fileTree = tree.children[0] as {
+      data?: { hProperties?: Record<string, string> }
+    }
+    return JSON.parse(fileTree.data?.hProperties?.['data-v-file-tree-items'] ?? '[]')
+  }
+
+  it('extracts {info="..."} tooltip from a plain row', async () => {
+    const items = await parse([{ text: 'vocs.config.ts{info="Site config"}' }])
+    expect(items[0]).toMatchObject({
+      name: 'vocs.config.ts',
+      type: 'file',
+      tooltip: 'Site config',
+    })
+    expect(items[0].comment).toBeUndefined()
+  })
+
+  it('extracts tooltip from a row that also has an inline comment', async () => {
+    const items = await parse([{ text: 'layout.tsx the root layout{info="Wraps every page"}' }])
+    expect(items[0]).toMatchObject({
+      name: 'layout.tsx',
+      type: 'file',
+      comment: 'the root layout',
+      tooltip: 'Wraps every page',
+    })
+  })
+
+  it('extracts tooltip from a folder row', async () => {
+    const items = await parse([{ text: '+app the app dir{info="App router root"}' }])
+    expect(items[0]).toMatchObject({
+      name: 'app',
+      type: 'folder',
+      comment: 'the app dir',
+      tooltip: 'App router root',
+    })
+  })
+
+  it('supports unquoted {info=...} values', async () => {
+    const items = await parse([{ text: 'page.tsx{info=Home route}' }])
+    expect(items[0]).toMatchObject({
+      name: 'page.tsx',
+      tooltip: 'Home route',
+    })
+  })
+
+  it('omits tooltip when value is empty', async () => {
+    const items = await parse([{ text: 'page.tsx{info=""}' }])
+    expect(items[0]).toMatchObject({ name: 'page.tsx' })
+    expect(items[0].tooltip).toBeUndefined()
+  })
+
+  it('omits tooltip when no {info} present', async () => {
+    const items = await parse([{ text: 'page.tsx' }])
+    expect(items[0]).toMatchObject({ name: 'page.tsx' })
+    expect(items[0].tooltip).toBeUndefined()
+  })
+
+  it('extracts tooltip from a trailing mdxTextExpression (MDX form)', async () => {
+    // Simulate what the MDX pipeline emits for `vocs.config.ts{info="Site config"}`:
+    // a text node followed by an mdxTextExpression whose value is the contents
+    // between the braces (no braces).
+    const tree = {
+      type: 'root',
+      children: [
+        {
+          type: 'containerDirective',
+          name: 'file-tree',
+          children: [
+            {
+              type: 'list',
+              children: [
+                {
+                  type: 'listItem',
+                  children: [
+                    {
+                      type: 'paragraph',
+                      children: [
+                        { type: 'text', value: 'vocs.config.ts' },
+                        { type: 'mdxTextExpression', value: 'info="Site config: nav, theme"' },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+    await remarkFileTree(Config.define({ rootDir: process.cwd() }))(tree as never)
+    const fileTree = tree.children[0] as { data?: { hProperties?: Record<string, string> } }
+    const items = JSON.parse(fileTree.data?.hProperties?.['data-v-file-tree-items'] ?? '[]')
+    expect(items[0]).toMatchObject({
+      name: 'vocs.config.ts',
+      type: 'file',
+      tooltip: 'Site config: nav, theme',
+    })
+  })
+
   it('preserves inline code in file comments', async () => {
     const tree = {
       type: 'root',

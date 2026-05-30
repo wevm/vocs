@@ -1110,8 +1110,20 @@ export function remarkFileTree(config: Config.Config): remarkFileTree.ReturnType
     comment?: string | undefined
     highlighted?: boolean | undefined
     icon?: string | undefined
+    tooltip?: string | undefined
     items?: FileTreeItem[] | undefined
   }
+
+  // Matches a trailing `{info="..."}` or `{info=...}` (quotes optional, value
+  // may be empty) on a file-tree row.
+  //
+  // Used in two places: against a raw text node when the row is parsed as
+  // Markdown, and against the body of an `mdxTextExpression` (which contains
+  // the contents *between* the braces) when the row is parsed as MDX. MDX
+  // intercepts `{...}` as a JS expression embed, so the braces aren't part of
+  // the captured value in that case.
+  const tooltipRegex = /\s*\{info(?:=(?:"([^"]*)"|([^}]*)))?\}\s*$/
+  const tooltipBodyRegex = /^\s*info(?:=(?:"([^"]*)"|([^}]*)))?\s*$/
 
   async function resolveAllIcons(items: FileTreeItem[]): Promise<void> {
     await Promise.all(
@@ -1158,6 +1170,37 @@ export function remarkFileTree(config: Config.Config): remarkFileTree.ReturnType
               (c): c is MdAst.Paragraph => c.type === 'paragraph',
             )
             if (!paragraph) continue
+
+            // Pre-extract trailing `{info="..."}` so its (possibly space-
+            // containing) value doesn't get mis-split into name/comment below.
+            //
+            // MDX intercepts `{...}` as a JS expression embed (mdxTextExpression
+            // with body `info="..."`); plain Markdown leaves it as text. Handle
+            // both: a trailing mdxTextExpression takes precedence, otherwise
+            // look at the last text node.
+            let tooltip: string | undefined
+            const lastChild = paragraph.children[paragraph.children.length - 1]
+            if (lastChild?.type === 'mdxTextExpression') {
+              const expr = lastChild as MdAst.PhrasingContent & { value: string }
+              const match = expr.value.match(tooltipBodyRegex)
+              if (match) {
+                tooltip = (match[1] ?? match[2] ?? '').trim()
+                // Drop the expression entirely; an mdxTextExpression has no
+                // text representation in the row.
+                paragraph.children.pop()
+              }
+            } else {
+              const lastText = [...paragraph.children]
+                .reverse()
+                .find((c): c is MdAst.Text => c.type === 'text')
+              if (lastText) {
+                const match = lastText.value.match(tooltipRegex)
+                if (match) {
+                  tooltip = (match[1] ?? match[2] ?? '').trim()
+                  lastText.value = lastText.value.replace(tooltipRegex, '')
+                }
+              }
+            }
 
             let name = ''
             let comment = ''
@@ -1211,6 +1254,7 @@ export function remarkFileTree(config: Config.Config): remarkFileTree.ReturnType
               type: folder ? 'folder' : 'file',
               ...(comment && { comment }),
               ...(highlighted && { highlighted }),
+              ...(tooltip && { tooltip }),
             }
 
             // Check for nested lists (children of this list item)

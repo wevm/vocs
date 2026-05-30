@@ -5,12 +5,12 @@
 A new Vocs project created with `create-vocs` includes these files by default:
 
 :::file-tree
-- +my-project Your project's root directory.
-  - **+src** Application source files.
-    - **+pages** Documentation pages.
-      - **index.mdx** The home page.
-  - package.json Project scripts and dependencies.
-  - **vocs.config.ts** Site configuration.
+- +my-project{info="Your project's root directory."}
+  - **+src**{info="Application source files."}
+    - **+pages**{info="Documentation pages."}
+      - **index.mdx**{info="The home page."}
+  - package.json{info="Project scripts and dependencies."}
+  - **vocs.config.ts**{info="Site configuration."}
 :::
 
 By default, Vocs reads routes from `src/pages`. You can change where Vocs looks with options such as [`rootDir`](/reference/site-config#rootdir) and [`srcDir`](/reference/site-config#srcdir), but this guide covers the default scaffolded layout.
@@ -20,33 +20,33 @@ By default, Vocs reads routes from `src/pages`. You can change where Vocs looks 
 A Vocs project can include these file types. Most projects only use a subset.
 
 :::file-tree
-- +my-project Your project's root directory.
-  - +public Static assets served from `/`.
-    - logo.svg Static asset.
-  - +src Application source files.
-    - +pages Documentation routes.
-      - index.mdx MDX page.
-      - getting-started.md Markdown page.
-      - about.tsx React page.
-      - _root.css Global styles.
-      - _slots.tsx Layout slots.
-      - _mdx-wrapper.tsx MDX wrapper.
-      - _root.tsx Custom app root.
-      - _layout.tsx Custom route layout.
-      - +_api API routes.
-        - health.ts API route.
-      - +_components Page-local components.
-        - Note.tsx Ignored by routing.
-      - +_hooks Page-local hooks.
-        - useDocs.ts Ignored by routing.
-    - +middleware Waku middleware modules.
-      - auth.ts Middleware module.
-    - waku.client.tsx Custom Waku client entry.
-    - waku.server.tsx Custom Waku server entry.
-  - package.json Project scripts and dependencies.
-  - tsconfig.json TypeScript configuration.
-  - vite.config.ts Vite configuration.
-  - vocs.config.ts Site configuration.
+- +my-project{info="Your project's root directory."}
+  - +public{info="Static assets served from `/`."}
+    - logo.svg{info="Static asset."}
+  - +src{info="Application source files."}
+    - +pages{info="Documentation routes."}
+      - index.mdx{info="MDX page."}
+      - getting-started.md{info="Markdown page."}
+      - about.tsx{info="React page."}
+      - _root.css{info="Global styles."}
+      - _slots.tsx{info="Layout slots."}
+      - _mdx-wrapper.tsx{info="MDX wrapper."}
+      - _root.tsx{info="Custom app root."}
+      - _layout.tsx{info="Custom route layout."}
+      - +_api{info="API routes."}
+        - health.ts{info="API route."}
+      - +_components{info="Page-local components."}
+        - Note.tsx{info="Ignored by routing."}
+      - +_hooks{info="Page-local hooks."}
+        - useDocs.ts{info="Ignored by routing."}
+    - +middleware{info="Waku middleware modules."}
+      - auth.ts{info="Middleware module."}
+    - waku.client.tsx{info="Custom Waku client entry."}
+    - waku.server.tsx{info="Custom Waku server entry."}
+  - package.json{info="Project scripts and dependencies."}
+  - tsconfig.json{info="TypeScript configuration."}
+  - vite.config.ts{info="Vite configuration."}
+  - vocs.config.ts{info="Site configuration."}
 :::
 
 ## Configuration
@@ -55,10 +55,10 @@ A Vocs project can include these file types. Most projects only use a subset.
 
 :::file-tree
 - +my-project
-  - vocs.config.ts Site configuration.
-  - vocs.config.mts ESM TypeScript config.
-  - vocs.config.js JavaScript config.
-  - vocs.config.mjs ESM JavaScript config.
+  - vocs.config.ts{info="Site configuration."}
+  - vocs.config.mts{info="ESM TypeScript config."}
+  - vocs.config.js{info="JavaScript config."}
+  - vocs.config.mjs{info="ESM JavaScript config."}
 :::
 
 Use one Vocs config file at the project root.
@@ -88,12 +88,12 @@ Use it to configure things like your `title`, `description`, `sidebar`, `topNav`
 :::file-tree
 - +src
   - +pages
-    - index.mdx The home page.
-    - getting-started.md Markdown page.
-    - about.tsx React page.
-    - +guide Nested route segment.
-      - index.mdx Page at `/guide`.
-      - installation.mdx Page at `/guide/installation`.
+    - index.mdx{info="The home page."}
+    - getting-started.md{info="Markdown page."}
+    - about.tsx{info="React page."}
+    - +guide{info="Nested route segment."}
+      - index.mdx{info="Page at `/guide`."}
+      - installation.mdx{info="Page at `/guide/installation`."}
 :::
 
 - `src/pages/index.mdx` becomes `/`
@@ -114,10 +114,10 @@ Use the `public` directory for files that should be served as-is, such as images
 
 :::file-tree
 - +public
-  - favicon.ico Site icon.
-  - logo.svg Site logo.
-  - +fonts Font files.
-  - +images Shared images.
+  - favicon.ico{info="Site icon."}
+  - logo.svg{info="Site logo."}
+  - +fonts{info="Font files."}
+  - +images{info="Shared images."}
 :::
 
 Files in `public` are available at the site root:
@@ -141,7 +141,7 @@ Create `src/pages/_root.css` when you want to add global styles for your docs si
 :::file-tree
 - +src
   - +pages
-    - _root.css Global docs styles.
+    - _root.css{info="Global docs styles."}
 :::
 
 ```css [src/pages/_root.css]
@@ -168,11 +168,11 @@ Use layout files when you need to customize the shell around pages.
 :::file-tree
 - +src
   - +pages
-    - _root.tsx Custom app root.
-    - _layout.tsx Custom route layout.
-    - _mdx-wrapper.tsx Directory MDX wrapper.
+    - _root.tsx{info="Custom app root."}
+    - _layout.tsx{info="Custom route layout."}
+    - _mdx-wrapper.tsx{info="Directory MDX wrapper."}
     - +guide
-      - _mdx-wrapper.tsx Guide MDX wrapper.
+      - _mdx-wrapper.tsx{info="Guide MDX wrapper."}
 :::
 
 Create `_mdx-wrapper.tsx` when you want to wrap every Markdown or MDX page in a directory with shared UI.
@@ -196,7 +196,7 @@ Create `src/pages/_slots.tsx` when you want to inject React components into buil
 :::file-tree
 - +src
   - +pages
-    - _slots.tsx Layout slot components.
+    - _slots.tsx{info="Layout slot components."}
 :::
 
 Vocs currently looks for these exports:
@@ -225,9 +225,9 @@ Files in `src/pages/_api` become API routes. The `_api` prefix is stripped from 
 - +src
   - +pages
     - +_api
-      - health.ts API route at `/health`.
+      - health.ts{info="API route at `/health`."}
       - +api
-        - og.tsx API route at `/api/og`.
+        - og.tsx{info="API route at `/api/og`."}
 :::
 
 ```ts [src/pages/_api/health.ts]
@@ -257,10 +257,10 @@ Use `_components` and `_hooks` under `src/pages` for helpers that should not bec
 :::file-tree
 - +src
   - +pages
-    - +_components Page-local components.
-      - Note.tsx Ignored by routing.
-    - +_hooks Page-local hooks.
-      - useDocs.ts Ignored by routing.
+    - +_components{info="Page-local components."}
+      - Note.tsx{info="Ignored by routing."}
+    - +_hooks{info="Page-local hooks."}
+      - useDocs.ts{info="Ignored by routing."}
 :::
 
 Vocs ignores any route path containing `_components` or `_hooks`. This lets you colocate helpers near the pages that use them without adding accidental URLs.
@@ -273,8 +273,8 @@ Vocs manages Waku client and server entries for you by default. Create custom en
 
 :::file-tree
 - +src
-  - waku.client.tsx Custom Waku client entry.
-  - waku.server.tsx Custom Waku server entry.
+  - waku.client.tsx{info="Custom Waku client entry."}
+  - waku.server.tsx{info="Custom Waku server entry."}
 :::
 
 Most documentation sites should not need these files. Prefer Vocs configuration, page files, layouts, slots, and API routes before replacing the managed Waku entries.
