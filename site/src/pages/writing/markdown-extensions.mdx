@@ -290,7 +290,7 @@ import { FeedbackWidget } from 'vocs'
 
 ## File Tree
 
-File tree with icons based on the filename, emphasis via `**filename**`, and comments.
+File tree with icons based on the filename, emphasis via `**filename**`, inline comments, and hoverable info tooltips via `{info="…"}`.
 
 ::::code-group
 <div data-title="Preview">
@@ -301,12 +301,13 @@ File tree with icons based on the filename, emphasis via `**filename**`, and com
     - **page.txt**
   - +folder
     - page.txt
-  - layout.tsx an important file
+  - layout.tsx an important file{info="Wraps every page — add brand fonts, banner, or shared providers here."}
   - page.tsx
   - global.css
   - ...
   - main.rs lol why is this here
 - +components
+- vocs.config.ts{info="Site config: nav, theme, search, plugins."}
 - package.json
 :::
 </div>
@@ -318,16 +319,19 @@ File tree with icons based on the filename, emphasis via `**filename**`, and com
     - **page.txt**
   - +folder
     - page.txt
-  - layout.tsx an important file
+  - layout.tsx an important file{info="Wraps every page — add brand fonts, banner, or shared providers here."}
   - page.tsx
   - global.css
   - ...
   - main.rs lol why is this here
 - +components
+- vocs.config.ts{info="Site config: nav, theme, search, plugins."}
 - package.json
 :::
 ```
 ::::
+
+`{info="…"}` adds an info icon after the filename. Hovering (or focusing) the icon shows a tooltip popover with the text. It works on both files and folders, and can be combined with `**bold**` highlighting or an inline comment.
 
 ## Footnotes
 

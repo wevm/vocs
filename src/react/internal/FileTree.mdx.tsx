@@ -1,7 +1,7 @@
 import LucideFile from '~icons/lucide/file'
 import LucideFolder from '~icons/lucide/folder'
 import LucideFolderOpen from '~icons/lucide/folder-open'
-import { FolderToggle } from './FileTree.client.js'
+import { FolderToggle, InfoTooltip } from './FileTree.client.js'
 
 export function FileTree(props: FileTree.Props) {
   const items: FileTree.Item[] = JSON.parse(props['data-v-file-tree-items'] ?? '[]')
@@ -33,6 +33,7 @@ export namespace FileTree {
     comment?: string
     highlighted?: boolean
     icon?: string
+    tooltip?: string
     items?: Item[]
   }
 
@@ -90,6 +91,7 @@ export namespace FileTree {
           <FolderToggle
             name={item.name}
             comment={item.comment}
+            tooltip={item.tooltip}
             hasChildren={!!hasChildren}
             highlighted={item.highlighted}
             labelColumnOffset={depth * indentSize}
@@ -117,6 +119,7 @@ export namespace FileTree {
                 <span className={item.name === '...' ? 'vocs:text-muted' : undefined}>
                   {item.name}
                 </span>
+                {item.tooltip && <InfoTooltip content={item.tooltip} label={item.name} />}
               </span>
               {item.comment && (
                 <span className="vocs:text-muted vocs:whitespace-nowrap">{item.comment}</span>
