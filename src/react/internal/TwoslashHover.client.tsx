@@ -1,18 +1,49 @@
 'use client'
 
 import { Popover } from '@base-ui/react/popover'
-import type * as React from 'react'
-import { useCallback } from 'react'
+import * as React from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { CodeToHtml, highlight, prewarm } from './CodeToHtml.client.js'
 
 export function TwoslashHover(props: TwoslashHover.Props) {
   const { className = '', children, trigger } = props
 
   const { ref } = TwoslashHover.useOverflowFade()
 
-  const open = className?.includes('twoslash-query-persisted')
+  const persisted = className?.includes('twoslash-query-persisted')
+
+  // Collect the code snippets embedded in the popup so we can highlight them
+  // *before* the popover opens, avoiding a flash of unhighlighted code.
+  const snippets = useMemo(() => collectSnippets(children), [children])
+
+  const [hovered, setHovered] = useState(persisted)
+  const [ready, setReady] = useState(() => snippets.length === 0)
+
+  const ensureHighlighted = useCallback(() => {
+    if (snippets.length === 0) return
+    Promise.all(snippets.map((s) => highlight(s.code, s.lang).catch(() => {}))).then(() =>
+      setReady(true),
+    )
+  }, [snippets])
+
+  // Highlight persisted (always-open) popups on mount; warm the highlighter so
+  // the first hover is responsive.
+  useEffect(() => {
+    if (persisted) ensureHighlighted()
+    else prewarm()
+  }, [persisted, ensureHighlighted])
+
+  const open = persisted || (hovered && ready)
 
   return (
-    <Popover.Root {...(open ? { open } : {})}>
+    <Popover.Root
+      open={open}
+      onOpenChange={(next) => {
+        if (persisted) return
+        setHovered(next)
+        if (next) ensureHighlighted()
+      }}
+    >
       <Popover.Trigger data-v-twoslash-trigger openOnHover delay={0}>
         <span>{trigger}</span>
       </Popover.Trigger>
@@ -71,6 +102,22 @@ export namespace TwoslashHover {
 
     return { ref }
   }
+}
+
+/** Recursively collects the props of every `CodeToHtml` element in a tree. */
+function collectSnippets(children: React.ReactNode, acc: { code: string; lang: string }[] = []) {
+  React.Children.forEach(children, (child) => {
+    if (!React.isValidElement(child)) return
+    const props = child.props as { code?: unknown; lang?: unknown; children?: React.ReactNode }
+    if (
+      child.type === CodeToHtml &&
+      typeof props.code === 'string' &&
+      typeof props.lang === 'string'
+    )
+      acc.push({ code: props.code, lang: props.lang })
+    else if (props.children) collectSnippets(props.children, acc)
+  })
+  return acc
 }
 
 function ArrowSvg(props: React.ComponentProps<'svg'>) {

@@ -18,9 +18,13 @@ import { useEffect, useState } from 'react'
  */
 export function CodeToHtml(props: CodeToHtml.Props) {
   const { code, lang } = props
-  const [html, setHtml] = useState<string | null>(null)
+  // Initialize from the cache so a snippet that was already highlighted (e.g.
+  // pre-highlighted by the popover before opening, or shown previously) renders
+  // highlighted immediately without a plain-text flash.
+  const [html, setHtml] = useState<string | null>(() => getCached(code, lang) ?? null)
 
   useEffect(() => {
+    if (html) return
     let cancelled = false
     highlight(code, lang)
       .then((result) => {
@@ -30,7 +34,7 @@ export function CodeToHtml(props: CodeToHtml.Props) {
     return () => {
       cancelled = true
     }
-  }, [code, lang])
+  }, [code, lang, html])
 
   if (html)
     // biome-ignore lint/security/noDangerouslySetInnerHtml: highlighted by Shiki
@@ -103,9 +107,31 @@ function getHighlighter() {
   return highlighterPromise
 }
 
-async function highlight(code: string, lang: string) {
+const cache = new Map<string, string>()
+
+function cacheKey(code: string, lang: string) {
+  return `${lang}\n${code}`
+}
+
+/** Returns the highlighted HTML for a snippet if it has already been computed. */
+export function getCached(code: string, lang: string) {
+  return cache.get(cacheKey(code, lang))
+}
+
+/** Highlights a snippet (memoized), loading the Shiki bundle on first use. */
+export async function highlight(code: string, lang: string) {
+  const key = cacheKey(code, lang)
+  const cached = cache.get(key)
+  if (cached !== undefined) return cached
   const highlighter = await getHighlighter()
-  return highlighter.codeToHtml(code, lang)
+  const html = await highlighter.codeToHtml(code, lang)
+  cache.set(key, html)
+  return html
+}
+
+/** Eagerly loads the Shiki bundle so the first real highlight is fast. */
+export function prewarm() {
+  void getHighlighter()
 }
 
 function transformerShrinkIndent() {
