@@ -1,5 +1,11 @@
 # vocs
 
+## 2.0.7
+
+### Patch Changes
+
+- 3597288: Added an experimental inline Twoslash cache (`twoslash.inlineCache`) that persists results in the markdown source as `// @twoslash-cache: ...` comments so the cache travels with the repo.
+
 ## 2.0.6
 
 ### Patch Changes
