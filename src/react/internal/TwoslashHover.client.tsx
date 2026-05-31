@@ -3,7 +3,7 @@
 import { Popover } from '@base-ui/react/popover'
 import * as React from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { CodeToHtml, highlight, prewarm } from './CodeToHtml.client.js'
+import { highlight, prewarm } from './CodeToHtml.client.js'
 
 export function TwoslashHover(props: TwoslashHover.Props) {
   const { className = '', children, trigger } = props
@@ -33,7 +33,10 @@ export function TwoslashHover(props: TwoslashHover.Props) {
     else prewarm()
   }, [persisted, ensureHighlighted])
 
-  const open = persisted || (hovered && ready)
+  // Only open once highlighted. This also applies to persisted (always-open)
+  // popups so they are never server-rendered / shown as plain text before the
+  // client finishes highlighting.
+  const open = ready && (persisted || hovered)
 
   return (
     <Popover.Root
@@ -104,16 +107,18 @@ export namespace TwoslashHover {
   }
 }
 
-/** Recursively collects the props of every `CodeToHtml` element in a tree. */
+/**
+ * Recursively collects the code snippets (`CodeToHtml` elements) in a tree.
+ *
+ * `CodeToHtml` elements are identified by their `code`/`lang` props rather than
+ * by referential type equality: in the RSC client runtime these children arrive
+ * as client-reference elements, so `child.type === CodeToHtml` does not hold.
+ */
 function collectSnippets(children: React.ReactNode, acc: { code: string; lang: string }[] = []) {
   React.Children.forEach(children, (child) => {
     if (!React.isValidElement(child)) return
     const props = child.props as { code?: unknown; lang?: unknown; children?: React.ReactNode }
-    if (
-      child.type === CodeToHtml &&
-      typeof props.code === 'string' &&
-      typeof props.lang === 'string'
-    )
+    if (typeof props.code === 'string' && typeof props.lang === 'string')
       acc.push({ code: props.code, lang: props.lang })
     else if (props.children) collectSnippets(props.children, acc)
   })
