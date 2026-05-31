@@ -41,6 +41,7 @@ import { remarkVocsScope } from './remark-vocs-scope.js'
 import { remarkSandbox } from './sandbox.js'
 import * as ShikiTransformers from './shiki-transformers.js'
 import * as Snippets from './snippets.js'
+import * as InlineCache from './twoslash/inline-cache.js'
 import type { ExactPartial, UnionOmit } from './types.js'
 
 export { default as remarkFrontmatter } from 'remark-frontmatter'
@@ -119,6 +120,51 @@ export function remarkMermaid(): remarkMermaid.ReturnType {
 
 export declare namespace remarkMermaid {
   type ReturnType = (tree: MdAst.Root) => void
+}
+
+/**
+ * Remark plugin that injects an ephemeral source-map comment into the body of
+ * each `twoslash` code block. The comment carries the block's source position
+ * (`{ path, from, to }`) so the inline types cache knows where to write the
+ * `// @twoslash-cache: ...` comment back to.
+ *
+ * The injected comment is stripped again by the `extractInlineCacheSourceMap`
+ * shiki transformer before twoslash/shiki run, so it never reaches the output
+ * or the on-disk file.
+ *
+ * Only top-level (non-indented) fences are supported, which covers the
+ * overwhelming majority of twoslash blocks.
+ */
+export function remarkInlineCache(): remarkInlineCache.ReturnType {
+  return (tree: MdAst.Root, file: VFile) => {
+    const raw = typeof file.value === 'string' ? file.value : file.value?.toString()
+    const filePath = file.path
+    if (!raw || !filePath) return
+
+    UnistUtil.visit(tree, 'code', (node) => {
+      if (!node.meta?.includes('twoslash')) return
+
+      const start = node.position?.start
+      const end = node.position?.end
+      if (start?.offset == null || end?.offset == null) return
+      // Only top-level fences (not nested in lists/blockquotes) are supported.
+      if (start.column !== 1) return
+
+      const newlineIndex = raw.indexOf('\n', start.offset)
+      if (newlineIndex === -1) return
+      const bodyStart = newlineIndex + 1
+
+      node.value = InlineCache.injectSourceMapComment(node.value, {
+        path: filePath,
+        from: bodyStart,
+        to: end.offset,
+      })
+    })
+  }
+}
+
+export declare namespace remarkInlineCache {
+  type ReturnType = (tree: MdAst.Root, file: VFile) => void
 }
 
 const extensions = ['.js', '.ts', '.tsx', '.jsx', '.mjs', '.cjs', '.md', '.mdx']
@@ -247,6 +293,11 @@ export function getCompileOptions(
           remarkSubheading,
           remarkVocsScope,
           ...(markdown?.remarkPlugins ?? []),
+          // Runs after snippet/include processing so the injected source-map
+          // comment doesn't interfere with snippet detection.
+          ...(twoslash && typeof twoslash === 'object' && InlineCache.enabled(twoslash.inlineCache)
+            ? [remarkInlineCache]
+            : []),
           remarkRestoreUnknownTextDirectives,
         ],
         recmaPlugins: [recmaMdxLayout(config), ...(markdown?.recmaPlugins ?? [])],
@@ -487,6 +538,11 @@ export function rehypeShiki(
       langs: mergedLangs,
       // TODO: infer `langs` for faster cold start.
       transformers: [
+        // Must run before the twoslash transformer so `this.meta.sourceMap` is
+        // available to the inline types cache.
+        twoslash && typeof twoslash === 'object' && InlineCache.enabled(twoslash.inlineCache)
+          ? ShikiTransformers.extractInlineCacheSourceMap()
+          : undefined,
         rootDir && srcDir ? ShikiTransformers.notationInclude({ srcDir, rootDir }) : undefined,
         twoslash
           ? ShikiTransformers.twoslash({

@@ -19,6 +19,7 @@ type TransformerTwoslashIndexOptions = TransformerTwoslashOptions
 
 import * as Snippets from './snippets.js'
 import * as TwoslashChecker from './twoslash/checker.js'
+import * as InlineCache from './twoslash/inline-cache.js'
 import * as Renderer from './twoslash/renderer.js'
 import * as TypesCache from './twoslash/types-cache.js'
 
@@ -240,7 +241,7 @@ let typescript: TS | undefined
 const twoslasherResetInterval = 200
 
 export function twoslash(options: twoslash.Options): ShikiTransformer {
-  const { cacheDir } = options
+  const { cacheDir, inlineCache } = options
   const {
     checkOnly = false,
     explicitTrigger = true,
@@ -252,7 +253,9 @@ export function twoslash(options: twoslash.Options): ShikiTransformer {
     renderer = Renderer.rich(),
     throws = true,
     twoslashOptions,
-    typesCache = TypesCache.fs({ dir: cacheDir ? path.join(cacheDir, 'twoslash') : undefined }),
+    typesCache = InlineCache.enabled(inlineCache)
+      ? InlineCache.getOrCreate().typesCache
+      : TypesCache.fs({ dir: cacheDir ? path.join(cacheDir, 'twoslash') : undefined }),
   } = options
 
   const lazyTwoslasher = (
@@ -344,6 +347,34 @@ export declare namespace twoslash {
      */
     checkOnly?: boolean | undefined
     cacheDir?: string | undefined
+    /**
+     * Persist twoslash results inline in the markdown source as
+     * `// @twoslash-cache: ...` comments so the cache travels with the repo
+     * (e.g. for fresh clones and CI). Overridden by the `TWOSLASH_INLINE_CACHE`
+     * environment variable.
+     *
+     * @default false
+     */
+    inlineCache?: boolean | undefined
+  }
+}
+
+/**
+ * Shiki transformer that extracts the ephemeral source-map comment injected by
+ * the inline-cache remark plugin, exposing it on `this.meta.sourceMap` for the
+ * inline types cache and stripping it from the code before twoslash runs.
+ *
+ * Must run before the twoslash transformer.
+ */
+export function extractInlineCacheSourceMap(): ShikiTransformer {
+  return {
+    name: 'vocs:twoslash-inline-cache-source-map',
+    enforce: 'pre',
+    preprocess(code) {
+      const { code: stripped, sourceMap } = InlineCache.extractSourceMapComment(code)
+      this.meta.sourceMap = sourceMap
+      return stripped
+    },
   }
 }
 

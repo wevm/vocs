@@ -15,6 +15,7 @@ import * as Mdx from './mdx.js'
 import { SearchDocuments, SearchIndex } from './search.js'
 import * as ShikiTransformers from './shiki-transformers.js'
 import * as TaskRunner from './task-runner.js'
+import * as InlineCache from './twoslash/inline-cache.js'
 
 export { default as icons } from 'unplugin-icons/vite'
 export { default as arraybuffer } from 'vite-plugin-arraybuffer'
@@ -282,6 +283,9 @@ export function mdx(config: Config.Config): PluginOption {
 
       try {
         const result = normalizeTransformResult(await plugin.transform.call(this, code, id))
+        // Flush any inline twoslash cache write-backs queued during this
+        // file's transform (no-op when the inline cache is disabled).
+        InlineCache.flush(id)
         if (result) cache.set(id, { code, result })
         return result
       } catch (error) {

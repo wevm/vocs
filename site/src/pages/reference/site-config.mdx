@@ -558,6 +558,18 @@ export default defineConfig({
 })
 ```
 
+Set `inlineCache` to `true` to persist Twoslash results inline in your markdown source so the cache travels with your repository (see [Inline cache](/writing/twoslash#inline-cache-experimental)).
+
+```ts
+import { defineConfig } from 'vocs/config'
+
+export default defineConfig({
+  twoslash: {
+    inlineCache: true
+  }
+})
+```
+
 :::tip
 See [Twoslash](/writing/twoslash) for type-aware code examples and the Rust transformer.
 :::
