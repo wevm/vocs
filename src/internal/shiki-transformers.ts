@@ -259,6 +259,12 @@ export function twoslash(options: twoslash.Options): ShikiTransformer {
           ignoreDeprecations: Number.parseInt(tsModule.versionMajorMinor, 10) >= 6 ? '6.0' : '5.0',
           moduleResolution: 100, // bundler (default, can be overridden)
           preserveSymlinks: false, // needed for monorepo/workspace symlinks
+          // Skip checking lib + .d.ts files. Twoslash snippets aren't authoring
+          // libraries — we only care about errors inside the snippet itself.
+          // Materially reduces peak RSS on large docs sites (avoids retaining
+          // ASTs for every lib.*.d.ts and @types/* file in TS's caches).
+          skipDefaultLibCheck: true,
+          skipLibCheck: true,
           types: ['node'], // include node types by default (process.env, etc.)
           ...(twoslashOptions?.compilerOptions ?? {}),
         },
