@@ -75,6 +75,21 @@ type CachePayload = {
 
 const CODE_INLINE_CACHE_KEY = '@twoslash-cache'
 const CODE_INLINE_CACHE_REGEX = new RegExp(`// ${CODE_INLINE_CACHE_KEY}: (.*)(?:\n|$)`, 'g')
+/** Matches a cache comment anchored to the start of a code block body. */
+const CODE_INLINE_CACHE_LINE_REGEX = new RegExp(`^// ${CODE_INLINE_CACHE_KEY}: .*(?:\n|$)`)
+
+/**
+ * Remove all `// @twoslash-cache: ...` comments from a code string.
+ *
+ * Used when a virtual file's content is injected into another twoslash block
+ * (via `[!include]` or `import` resolution). Without stripping, the included
+ * file's own cache comment would be inlined ahead of the host block's code and
+ * picked up as the host's cache, causing a permanent hash mismatch (and a
+ * spurious cache comment to be re-appended on every build).
+ */
+export function stripInlineCacheComments(code: string): string {
+  return code.replace(CODE_INLINE_CACHE_REGEX, '')
+}
 
 export function createInlineTypesCache(
   options: { remove?: boolean | undefined; ignoreCache?: boolean | undefined } = {},
@@ -148,12 +163,28 @@ export function createInlineTypesCache(
     const range: { from: number; to?: number } = { from: source.from }
     let linebreak = true
 
+    let located = false
     if (search) {
       const cachePos = file.content.indexOf(search, source.from)
       if (cachePos !== -1 && cachePos < source.to) {
         range.from = cachePos
         range.to = cachePos + search.length
         linebreak = search.endsWith('\n')
+        located = true
+      }
+    }
+
+    // Fallback: if the existing cache comment wasn't located via `search` (e.g.
+    // a concurrent build environment already wrote one, or the in-memory code
+    // was stale), detect a cache comment at the block body start and replace it
+    // in place rather than appending a duplicate.
+    if (!located) {
+      const body = file.content.slice(source.from, source.to)
+      const match = body.match(CODE_INLINE_CACHE_LINE_REGEX)
+      if (match) {
+        range.from = source.from
+        range.to = source.from + match[0].length
+        linebreak = match[0].endsWith('\n')
       }
     }
 

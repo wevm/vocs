@@ -307,8 +307,13 @@ export function twoslash(options: twoslash.Options): ShikiTransformer {
           executeOptions?: Parameters<TwoslashInstance>[2],
           meta?: Parameters<NonNullable<typeof typesCache.preprocess>>[3],
         ) {
-          const preprocessed = typesCache.preprocess?.(code, lang, executeOptions, meta)
-          return Renderer.normalizeCustomTagBlocks(preprocessed ?? code)
+          // Normalize before the inner preprocess so the cache key hashed on
+          // read matches the code hashed on write (which runs against the
+          // normalized output). Without this, snippets containing consecutive
+          // custom tag lines (`@log`/`@error`/`@warn`/`@annotate`) would never
+          // hit the cache.
+          const normalized = Renderer.normalizeCustomTagBlocks(code)
+          return typesCache.preprocess?.(normalized, lang, executeOptions, meta) ?? normalized
         },
       }
     : undefined

@@ -1118,7 +1118,10 @@ function getVirtualFiles(codeNodes: MdAst.Code[]): Map<string, string> {
   for (const node of codeNodes) {
     const fileName = getCodeFileName(node)
     if (!fileName) continue
-    virtualFiles.set(fileName, node.value)
+    // Strip any inline twoslash cache comment so it isn't inlined ahead of a
+    // host block's code when this virtual file is imported/included. The
+    // original node keeps its comment for its own rendering.
+    virtualFiles.set(fileName, InlineCache.stripInlineCacheComments(node.value))
   }
   return virtualFiles
 }

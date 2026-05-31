@@ -6,6 +6,7 @@ import {
   createInlineTypesCache,
   extractSourceMapComment,
   injectSourceMapComment,
+  stripInlineCacheComments,
 } from './inline-cache.js'
 
 describe('source map codec', () => {
@@ -23,6 +24,21 @@ describe('source map codec', () => {
     const result = extractSourceMapComment('const a = 1')
     expect(result.code).toBe('const a = 1')
     expect(result.sourceMap).toBeNull()
+  })
+})
+
+describe('stripInlineCacheComments', () => {
+  it('removes all cache comments', () => {
+    const code = [
+      '// @twoslash-cache: {"v":1,"hash":"abc","data":"x"}',
+      'export const client = 1',
+    ].join('\n')
+    expect(stripInlineCacheComments(code)).toBe('export const client = 1')
+  })
+
+  it('leaves code without cache comments untouched', () => {
+    const code = 'export const client = 1\nconst a = 2'
+    expect(stripInlineCacheComments(code)).toBe(code)
   })
 })
 
@@ -85,6 +101,44 @@ describe('inline types cache', () => {
       const cached = typesCache.read(body, 'ts', {}, meta)
       expect(cached).toEqual(data)
     }
+  })
+
+  it('replaces an existing cache comment in place instead of appending a duplicate', () => {
+    const code = 'const a: string = "x"'
+    const { file, from, to } = createMarkdown(code)
+    const data = { nodes: [], code: 'compiled-output' }
+
+    // --- Pass 1: cold write ---
+    {
+      const { typesCache, patcher } = createInlineTypesCache()
+      const meta = { sourceMap: { path: file, from, to } } as never
+      typesCache.preprocess?.(code, 'ts', {}, meta)
+      typesCache.write(code, data as never, 'ts', {}, meta)
+      patcher.patch(file)
+    }
+
+    const cacheLines = () =>
+      fs
+        .readFileSync(file, 'utf-8')
+        .split('\n')
+        .filter((l) => l.includes('// @twoslash-cache:'))
+    expect(cacheLines()).toHaveLength(1)
+
+    // --- Pass 2: a writer with stale in-memory code (no cache comment, so the
+    // existing comment can't be located via `search`) must still replace the
+    // on-disk comment rather than append a second one. ---
+    {
+      const content = fs.readFileSync(file, 'utf-8')
+      const currentTo = content.lastIndexOf('\n```')
+      const { typesCache, patcher } = createInlineTypesCache()
+      const meta = { sourceMap: { path: file, from, to: currentTo } } as never
+      // Pass the original (comment-free) code to simulate a stale read.
+      typesCache.preprocess?.(code, 'ts', {}, meta)
+      typesCache.write(code, data as never, 'ts', {}, meta)
+      patcher.patch(file)
+    }
+
+    expect(cacheLines()).toHaveLength(1)
   })
 
   it('invalidates the cache when the hash no longer matches', () => {
