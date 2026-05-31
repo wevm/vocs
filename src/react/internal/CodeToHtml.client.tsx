@@ -65,14 +65,19 @@ function getHighlighter() {
       const { bundledLanguages, createHighlighter, hastToHtml } = await import('shiki/bundle/web')
       const { codeHighlight } = config
       const { langAlias = {}, themes } = codeHighlight
+      // Note: `langAlias` is intentionally not passed to the highlighter.
+      // Passing a custom `langAlias` registers languages under their alias name
+      // when lazily loaded (e.g. `loadLanguage('ts')` registers as `ts` instead
+      // of `typescript`), which then makes `codeToHast({ lang })` fail to resolve
+      // the grammar. We resolve aliases to their base language ourselves below.
       const highlighter = await createHighlighter({
         themes: Object.values(themes) as never,
         langs: [],
-        langAlias,
       })
       return {
         async codeToHtml(code: string, lang: string) {
-          const resolvedLang = lang in bundledLanguages ? lang : 'txt'
+          const base = langAlias[lang] ?? lang
+          const resolvedLang = base in bundledLanguages ? base : 'txt'
           if (!highlighter.getLoadedLanguages().includes(resolvedLang))
             await highlighter.loadLanguage(resolvedLang as never)
           const hast = highlighter.codeToHast(code, {
