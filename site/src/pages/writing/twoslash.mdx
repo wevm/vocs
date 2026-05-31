@@ -780,6 +780,59 @@ Emit ECMAScript-standard-compliant class fields.
 Type catch clause variables as 'unknown' instead of 'any'.
 ```
 
+## Caching
+
+Running Twoslash invokes the TypeScript compiler for every code block, which can make builds slow. Vocs caches the generated type information so subsequent builds are fast.
+
+By default, results are cached on the filesystem in `.vocs/cache/twoslash` (alongside other Vocs caches). This cache is shared across builds on the same machine but is typically not committed to your repository.
+
+### Inline cache [Experimental]
+
+You can instead persist Twoslash results **inline** in your markdown source, as a `// @twoslash-cache: ...` comment that is inserted automatically into each fenced code block during development and build:
+
+````md
+```ts twoslash
+// @twoslash-cache: [auto generated]
+const a: string = 'foo'
+```
+````
+
+Because the cache lives next to the snippet, it travels with your repository — fresh clones and CI runs start with a warm cache and skip the TypeScript compiler entirely for unchanged blocks.
+
+Enable it in your config:
+
+```ts
+import { defineConfig } from 'vocs/config'
+
+export default defineConfig({
+  twoslash: {
+    inlineCache: true // [!code hl]
+  }
+})
+```
+
+The cache is keyed by a hash of the snippet (and Twoslash options), so it is automatically regenerated whenever a snippet changes.
+
+#### Environment variables
+
+The inline cache can also be toggled and managed via environment variables, which take precedence over the config option:
+
+- `TWOSLASH_INLINE_CACHE=1` — enable (or `=0` to disable) the inline cache.
+- `TWOSLASH_INLINE_CACHE_IGNORE=1` — re-generate all results, ignoring (but still writing) existing cache.
+- `TWOSLASH_INLINE_CACHE_REMOVE=1` — strip all `// @twoslash-cache:` comments from your source.
+
+```bash
+# Force a full re-generation of the inline cache
+TWOSLASH_INLINE_CACHE_IGNORE=1 vocs build
+
+# Remove all inline cache comments
+TWOSLASH_INLINE_CACHE_REMOVE=1 vocs build
+```
+
+:::warning
+The inline cache modifies your markdown source files in place (adding/updating the `// @twoslash-cache:` comments). Commit these changes to share the cache with your team and CI. Only top-level (non-indented) code fences are supported.
+:::
+
 ## Rust Twoslash
 
 Rust code blocks can use Twoslash for inline type hints, powered by `rust-analyzer`.
