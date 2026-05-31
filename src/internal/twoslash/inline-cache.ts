@@ -39,10 +39,6 @@ declare module '@shikijs/types' {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Source-map comment codec (injected by remark, extracted by a shiki transformer)
-// ---------------------------------------------------------------------------
-
 /**
  * Tag used for the ephemeral source-map comment. This comment is injected into
  * the in-memory code value during compilation and stripped again before
@@ -70,10 +66,6 @@ export function extractSourceMapComment(code: string): {
   }
   return { code, sourceMap }
 }
-
-// ---------------------------------------------------------------------------
-// Inline types cache
-// ---------------------------------------------------------------------------
 
 type CachePayload = {
   v: number
@@ -233,10 +225,6 @@ function simplifyTwoslashReturn(ret: TwoslashShikiReturn): TwoslashShikiReturn {
     ...(ret.meta?.extension !== undefined ? { meta: { extension: ret.meta.extension } } : {}),
   }
 }
-
-// ---------------------------------------------------------------------------
-// Module-level singleton + env gating
-// ---------------------------------------------------------------------------
 
 function isEnabledEnv(key: string): boolean | null {
   const val = process.env?.[key]?.toLowerCase()
