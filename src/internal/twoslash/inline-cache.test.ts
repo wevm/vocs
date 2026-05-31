@@ -141,6 +141,32 @@ describe('inline types cache', () => {
     expect(cacheLines()).toHaveLength(1)
   })
 
+  it('hits regardless of twoslash options (portable across environments)', () => {
+    const code = 'const a: string = "x"'
+    const { file, from, to } = createMarkdown(code)
+    const data = { nodes: [], code: 'compiled-output' }
+
+    // Seed with one set of options (e.g. machine A, with `paths`).
+    {
+      const { typesCache, patcher } = createInlineTypesCache()
+      const meta = { sourceMap: { path: file, from, to } } as never
+      const options = { compilerOptions: { paths: { foo: ['/abs/a'] } } }
+      typesCache.preprocess?.(code, 'ts', options as never, meta)
+      typesCache.write(code, data as never, 'ts', options as never, meta)
+      patcher.patch(file)
+    }
+
+    // Read with different options (e.g. machine B / Vercel, without `paths`).
+    {
+      const { typesCache } = createInlineTypesCache()
+      const body = readBody(file, from)
+      const meta = { sourceMap: { path: file, from, to } } as never
+      const otherOptions = { compilerOptions: {} }
+      typesCache.preprocess?.(body, 'ts', otherOptions as never, meta)
+      expect(typesCache.read(body, 'ts', otherOptions as never, meta)).toEqual(data)
+    }
+  })
+
   it('invalidates the cache when the hash no longer matches', () => {
     const code = 'const a: string = "x"'
     const { file, from, to } = createMarkdown(code)
