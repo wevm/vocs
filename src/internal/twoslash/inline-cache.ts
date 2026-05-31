@@ -73,11 +73,14 @@ type CachePayload = {
 }
 
 /**
- * Cache payload format version. Bumped to `2` when the cache key changed from
- * `optionsHash:lang:code` to `lang:code` (see `cacheHash`); older `v: 1`
- * payloads are ignored and transparently re-seeded.
+ * Cache payload format version. Kept at `1` even though the cache key changed
+ * from `optionsHash:lang:code` to `lang:code` (see `cacheHash`): stale
+ * payloads from the old key naturally fail the hash check on `preprocess` and
+ * are transparently re-seeded on the next write, so a version bump (which
+ * would force a one-shot invalidation of every committed cache comment) is
+ * unnecessary.
  */
-const CACHE_VERSION = 2
+const CACHE_VERSION = 1
 
 const CODE_INLINE_CACHE_KEY = '@twoslash-cache'
 const CODE_INLINE_CACHE_REGEX = new RegExp(`// ${CODE_INLINE_CACHE_KEY}: (.*)(?:\n|$)`, 'g')
