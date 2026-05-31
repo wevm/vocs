@@ -6,6 +6,7 @@ import {
   notationBlock,
   notationInclude,
   removeNotationEscape,
+  resetTwoslasher,
   resetTwoslashSnippets,
   shellNotation,
   shellPrompt,
@@ -208,6 +209,34 @@ const element = <div />`,
     expect(twoslashErrors).toHaveLength(0)
 
     resetTwoslashSnippets()
+
+    highlighter.dispose()
+  })
+
+  it('should keep producing correct output after the singleton twoslasher is reset', async () => {
+    const highlighter = await createHighlighter({
+      themes: ['github-dark'],
+      langs: ['typescript'],
+    })
+    const transformer = twoslash({ explicitTrigger: false })
+
+    const first = highlighter.codeToHtml('const a: number = 1', {
+      lang: 'typescript',
+      theme: 'github-dark',
+      transformers: [transformer],
+    })
+
+    // Force the singleton to drop; the next call must lazily reconstruct it
+    // and still produce equivalent rendered HTML.
+    resetTwoslasher()
+
+    const second = highlighter.codeToHtml('const a: number = 1', {
+      lang: 'typescript',
+      theme: 'github-dark',
+      transformers: [transformer],
+    })
+
+    expect(second).toBe(first)
 
     highlighter.dispose()
   })
