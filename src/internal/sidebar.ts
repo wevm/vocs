@@ -1,6 +1,20 @@
 import type { Config } from './config.js'
 
+export type SidebarItemBadge =
+  | string
+  | {
+      /** Text displayed inside the badge. */
+      text: string
+      /** Visual variant. Defaults to `'info'`. */
+      variant?: 'note' | 'info' | 'warning' | 'danger' | 'tip' | 'success' | undefined
+    }
+
 export type SidebarItem<strict extends boolean = false> = {
+  /**
+   * Badge rendered to the right of the item text.
+   * Pass a string for a default `info` badge, or an object to pick a variant.
+   */
+  badge?: SidebarItemBadge | undefined
   /** Whether or not to disable the sidebar item. */
   disabled?: boolean | undefined
   /** Whether to open the link in a new tab. */

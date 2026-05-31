@@ -79,17 +79,22 @@ export default defineConfig({
   sidebar: {
     '/': [
       { text: 'Home', link: '/' },
-      { text: 'Changelog', link: '/changelog' },
+      { text: 'Changelog', link: '/changelog', badge: 'New' },
       { text: 'Kitchen Sink', link: '/kitchen-sink' },
-      { text: 'REPL', link: '/repl' },
+      { text: 'REPL', link: '/repl', badge: { text: 'Beta', variant: 'warning' } },
       { text: 'None' },
       {
         text: 'Concepts',
         collapsed: false,
+        badge: { text: 'v2', variant: 'tip' },
         items: [
           { text: 'Wallet Client', link: '/wallet-client' },
           { text: 'External Link', link: 'https://viem.sh' },
-          { text: 'Tempo Actions', link: '/tempo-actions' },
+          {
+            text: 'Tempo Actions',
+            link: '/tempo-actions',
+            badge: { text: 'Deprecated', variant: 'danger' },
+          },
         ],
       },
       // {
