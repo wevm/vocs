@@ -1,5 +1,11 @@
 # vocs
 
+## 2.0.8
+
+### Patch Changes
+
+- c94eef9: Fixed the experimental Twoslash inline cache producing permanent misses and duplicate comments for code blocks that import or `[!include]` virtual files.
+
 ## 2.0.7
 
 ### Patch Changes
