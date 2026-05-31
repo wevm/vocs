@@ -91,7 +91,13 @@ export type Config<partial extends boolean = false> = MaybePartial<
     // blogDir?: string
     /**
      * Path to the directory to store cache files, relative to `rootDir`.
-     * @default ".vocs/cache"
+     *
+     * Defaults to `node_modules/.cache/vocs` so the cache is automatically
+     * persisted between deployments by hosts like Vercel and Netlify that
+     * restore `node_modules/.cache` between builds. Falls back to
+     * `.vocs/cache` if `node_modules/` doesn't exist in `rootDir`.
+     *
+     * @default "node_modules/.cache/vocs"
      */
     cacheDir: string
     /**
@@ -457,7 +463,7 @@ export function define(config: define.Options = {}): Config {
       : undefined,
     baseUrl,
     basePath,
-    cacheDir: path.resolve(rootDir, cacheDir ?? '.vocs/cache'),
+    cacheDir: path.resolve(rootDir, cacheDir ?? resolveDefaultCacheDir(rootDir)),
     changelog,
     checkDeadlinks,
     codeHighlight: {
@@ -535,6 +541,19 @@ export function getConfigFile(options: getConfigFile.Options = {}): string | und
   const { rootDir = process.cwd() } = options
 
   return fs.globSync('vocs.config.{ts,js,mjs,mts}', { cwd: rootDir })[0]
+}
+
+/**
+ * Resolves the default cache directory.
+ *
+ * Prefers `node_modules/.cache/vocs` so deploy targets (Vercel, Netlify, etc.)
+ * that automatically restore `node_modules/.cache` between builds keep the
+ * cache warm. Falls back to `.vocs/cache` if `node_modules/` doesn't exist
+ * in `rootDir` (e.g. unusual setups, monorepos with non-standard hoisting).
+ */
+function resolveDefaultCacheDir(rootDir: string): string {
+  if (fs.existsSync(path.join(rootDir, 'node_modules'))) return 'node_modules/.cache/vocs'
+  return '.vocs/cache'
 }
 
 declare namespace getConfigFile {

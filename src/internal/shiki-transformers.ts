@@ -222,8 +222,22 @@ export const twoslashErrors: TwoslashError[] = []
 const cwd = typeof process !== 'undefined' && typeof process.cwd === 'function' ? process.cwd() : ''
 const require = createRequire(import.meta.url)
 
-let twoslasher: TwoslashInstance
+let twoslasher: TwoslashInstance | undefined
+let twoslasherCalls = 0
 let typescript: TS | undefined
+
+/**
+ * How often to recreate the singleton `twoslasher`. The underlying
+ * `LanguageService` retains every `SourceFile`/`Symbol`/`Type` it has ever
+ * resolved (including the user's full dependency graph when snippets import
+ * library types), and there's no way to evict individual entries. Without a
+ * periodic reset, peak RSS on a site with 1000+ snippets can exceed 5 GB.
+ *
+ * Recreating it costs ~1.5s of TS lib re-init per reset; with the default of
+ * 200, that's ≤ a few seconds extra on the largest sites in exchange for
+ * GB-scale memory savings.
+ */
+const twoslasherResetInterval = 200
 
 export function twoslash(options: twoslash.Options): ShikiTransformer {
   const { cacheDir } = options
@@ -259,13 +273,24 @@ export function twoslash(options: twoslash.Options): ShikiTransformer {
           ignoreDeprecations: Number.parseInt(tsModule.versionMajorMinor, 10) >= 6 ? '6.0' : '5.0',
           moduleResolution: 100, // bundler (default, can be overridden)
           preserveSymlinks: false, // needed for monorepo/workspace symlinks
+          // Skip checking lib + .d.ts files. Twoslash snippets aren't authoring
+          // libraries — we only care about errors inside the snippet itself.
+          // Materially reduces peak RSS on large docs sites (avoids retaining
+          // ASTs for every lib.*.d.ts and @types/* file in TS's caches).
+          skipDefaultLibCheck: true,
+          skipLibCheck: true,
           types: ['node'], // include node types by default (process.env, etc.)
           ...(twoslashOptions?.compilerOptions ?? {}),
         },
       })
     }
 
-    return twoslasher(code, lang, executeOptions)
+    const result = twoslasher(code, lang, executeOptions)
+
+    // Periodically drop the singleton so the underlying `LanguageService` (and
+    // its retained source-file / symbol caches) becomes GC-eligible.
+    if (++twoslasherCalls >= twoslasherResetInterval) resetTwoslasher()
+    return result
   }
   const activeTwoslasher = checkOnly
     ? checkOnlyTwoslasher({ throws, twoslashOptions })
@@ -367,6 +392,19 @@ export function checkTwoslashSnippets() {
 
 export function resetTwoslashSnippets() {
   TwoslashChecker.reset()
+}
+
+/**
+ * Drop the singleton `twoslasher` instance so its underlying `LanguageService`
+ * and the `SourceFile`/`Symbol`/`Type` caches it retains become eligible for
+ * garbage collection. The next twoslash call will lazily reconstruct it.
+ *
+ * Called automatically every `twoslasherResetInterval` snippets during a
+ * build; also safe to invoke explicitly between build phases.
+ */
+export function resetTwoslasher() {
+  twoslasher = undefined
+  twoslasherCalls = 0
 }
 
 function getTypeScript(): TS {

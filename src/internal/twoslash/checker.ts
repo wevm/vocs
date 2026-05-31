@@ -168,6 +168,11 @@ function parseSnippet(snippet: collect.Snippet, tsModule: TS, key: string): Pars
     ignoreDeprecations: Number.parseInt(tsModule.versionMajorMinor, 10) >= 6 ? '6.0' : '5.0',
     moduleResolution: 100,
     preserveSymlinks: false,
+    // Skip checking lib + .d.ts files. Twoslash snippets aren't authoring
+    // libraries — we only want errors inside the snippet itself. Avoids
+    // walking every lib.*.d.ts / @types/* AST per Program.
+    skipDefaultLibCheck: true,
+    skipLibCheck: true,
     types: ['node'],
     ...(snippet.twoslashOptions?.compilerOptions ?? {}),
   } satisfies TypeScript.CompilerOptions
