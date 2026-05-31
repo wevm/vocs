@@ -130,6 +130,34 @@ describe('flatten', () => {
       ]
     `)
   })
+
+  test('preserves badge on flattened items', () => {
+    expect(
+      flatten([
+        { text: 'A', link: '/a', badge: 'New' },
+        {
+          text: 'Group',
+          items: [{ text: 'B', link: '/b', badge: { text: 'Beta', variant: 'warning' } }],
+        },
+      ]),
+    ).toMatchInlineSnapshot(`
+      [
+        {
+          "badge": "New",
+          "link": "/a",
+          "text": "A",
+        },
+        {
+          "badge": {
+            "text": "Beta",
+            "variant": "warning",
+          },
+          "link": "/b",
+          "text": "B",
+        },
+      ]
+    `)
+  })
 })
 
 describe('fromConfig', () => {

@@ -8,6 +8,7 @@ import LucideArrowUpRight from '~icons/lucide/arrow-up-right'
 import LucideChevronRight from '~icons/lucide/chevron-right'
 import * as Path from '../../internal/path.js'
 import * as Sidebar_core from '../../internal/sidebar.js'
+import { Badge } from '../Badge.js'
 import { Link } from '../Link.js'
 import { useSidebar } from '../useSidebar.js'
 
@@ -68,9 +69,24 @@ export declare namespace Sidebar {
 }
 
 /** @internal */
+function ItemBadge(props: { badge: Sidebar_core.SidebarItemBadge }) {
+  const badge = typeof props.badge === 'string' ? { text: props.badge } : props.badge
+  return (
+    <Badge
+      className="vocs:shrink-0 vocs:ml-2"
+      data-v-sidebar-item-badge
+      variant={badge.variant ?? 'info'}
+    >
+      {badge.text}
+    </Badge>
+  )
+}
+
+/** @internal */
 // biome-ignore lint/correctness/noUnusedVariables: _
 function Item(props: Item.Props) {
   const {
+    badge,
     condensed = false,
     depth = 0,
     disabled,
@@ -133,10 +149,11 @@ function Item(props: Item.Props) {
           rel="noopener noreferrer"
           onClick={onNavigate}
         >
-          <span className="vocs:inline-flex vocs:items-center vocs:gap-1">
+          <span className="vocs:inline-flex vocs:items-center vocs:gap-1 vocs:min-w-0 vocs:truncate">
             {text}
-            <LucideArrowUpRight className="vocs:size-3" />
+            <LucideArrowUpRight className="vocs:size-3 vocs:shrink-0" />
           </span>
+          {badge && <ItemBadge badge={badge} />}
         </a>
       )
     return (
@@ -150,7 +167,8 @@ function Item(props: Item.Props) {
         onClick={onNavigate}
         {...(active && { 'data-active': true })}
       >
-        {text}
+        <span className="vocs:min-w-0 vocs:truncate">{text}</span>
+        {badge && <ItemBadge badge={badge} />}
       </Link>
     )
   }
@@ -163,7 +181,8 @@ function Item(props: Item.Props) {
       data-v-sidebar-item
       ref={itemRef as never}
     >
-      {text}
+      <span className="vocs:min-w-0 vocs:truncate">{text}</span>
+      {badge && <ItemBadge badge={badge} />}
     </div>
   )
 }
@@ -183,7 +202,7 @@ namespace Item {
 /** @internal */
 // biome-ignore lint/correctness/noUnusedVariables: _
 function Section(props: Section.Props) {
-  const { condensed = false, depth = 0, link, items, onNavigate, scrollRef, text } = props
+  const { badge, condensed = false, depth = 0, link, items, onNavigate, scrollRef, text } = props
 
   const { path } = useRouter()
   const groupLinkIsExternal = link ? Path.isExternal(link) : false
@@ -250,6 +269,8 @@ function Section(props: Section.Props) {
                   </span>
                 </Link>
 
+                {badge && <ItemBadge badge={badge} />}
+
                 {collapsable && (
                   <button
                     aria-expanded={!collapsed}
@@ -285,7 +306,10 @@ function Section(props: Section.Props) {
                     }
                   : {})}
               >
-                {text}
+                <span className="vocs:inline-flex vocs:items-center vocs:min-w-0">
+                  <span className="vocs:truncate">{text}</span>
+                  {badge && <ItemBadge badge={badge} />}
+                </span>
 
                 {collapsable && (
                   <div className="vocs:text-secondary/80">

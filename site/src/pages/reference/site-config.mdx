@@ -318,6 +318,13 @@ type SidebarItem = {
   disabled?: boolean
   /** Mark the link as external (opens in a new tab with an icon). */
   external?: boolean
+  /**
+   * Badge rendered to the right of the item text.
+   * Pass a string for a default `info` badge, or an object to pick a variant.
+   */
+  badge?:
+    | string
+    | { text: string; variant?: 'note' | 'info' | 'warning' | 'danger' | 'tip' | 'success' }
 }
 ```
 
@@ -325,6 +332,7 @@ type SidebarItem = {
 export default defineConfig({
   sidebar: [
     { text: 'Getting Started', link: '/introduction/getting-started' },
+    { text: 'Agents SDK', link: '/agents', badge: 'New' }, // [!code hl]
     {
       text: 'Writing',
       collapsed: false,
@@ -333,7 +341,7 @@ export default defineConfig({
         { text: 'Code Snippets', link: '/writing/code-snippets' },
         { text: 'Markdown Snippets', link: '/writing/markdown-snippets' },
         { text: 'Markdown Extensions', link: '/writing/markdown-extensions' },
-        { text: 'Twoslash', link: '/writing/twoslash' }
+        { text: 'Twoslash', link: '/writing/twoslash', badge: { text: 'Beta', variant: 'warning' } } // [!code hl]
       ]
     }
   ]
