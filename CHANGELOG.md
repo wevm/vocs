@@ -1,5 +1,11 @@
 # vocs
 
+## 2.0.5
+
+### Patch Changes
+
+- e25757c: Reduced peak build-time memory and improved twoslash cache reuse on large docs sites.
+
 ## 2.0.4
 
 ### Patch Changes
