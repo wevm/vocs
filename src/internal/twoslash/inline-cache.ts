@@ -1,7 +1,6 @@
 import * as crypto from 'node:crypto'
 import type { TwoslashShikiReturn, TwoslashTypesCache } from '@shikijs/twoslash'
 import LZString from 'lz-string'
-import { getObjectHash, type TwoslashExecuteOptions } from 'twoslash/core'
 import { FilePatcher } from './file-patcher.js'
 
 /**
@@ -73,6 +72,16 @@ type CachePayload = {
   data: string
 }
 
+/**
+ * Cache payload format version. Kept at `1` even though the cache key changed
+ * from `optionsHash:lang:code` to `lang:code` (see `cacheHash`): stale
+ * payloads from the old key naturally fail the hash check on `preprocess` and
+ * are transparently re-seeded on the next write, so a version bump (which
+ * would force a one-shot invalidation of every committed cache comment) is
+ * unnecessary.
+ */
+const CACHE_VERSION = 1
+
 const CODE_INLINE_CACHE_KEY = '@twoslash-cache'
 const CODE_INLINE_CACHE_REGEX = new RegExp(`// ${CODE_INLINE_CACHE_KEY}: (.*)(?:\n|$)`, 'g')
 /** Matches a cache comment anchored to the start of a code block body. */
@@ -97,32 +106,25 @@ export function createInlineTypesCache(
   const { remove, ignoreCache } = options
   const patcher = new FilePatcher()
 
-  const optionsHashCache = new WeakMap<TwoslashExecuteOptions, string>()
-  function getOptionsHash(options: TwoslashExecuteOptions = {}): string {
-    let hash = optionsHashCache.get(options)
-    if (!hash) {
-      hash = getObjectHash(options)
-      optionsHashCache.set(options, hash)
-    }
-    return hash
-  }
-
-  function cacheHash(code: string, lang?: string, options?: TwoslashExecuteOptions): string {
+  // Key the cache on the (already fully-composed) snippet code and language
+  // only — deliberately NOT on the twoslash options. The whole point of the
+  // inline cache is to travel with the repo across machines and CI, but
+  // `twoslashOptions` frequently contain environment-specific or volatile
+  // values (absolute paths, config that branches on whether built `.d.ts`
+  // files exist, etc). Hashing them in makes the committed cache miss on any
+  // machine other than the one that seeded it. This matches the filesystem
+  // types cache, which also keys on code alone.
+  function cacheHash(code: string, lang?: string): string {
     return crypto
       .createHash('sha256')
-      .update(`${getOptionsHash(options)}:${lang ?? ''}:${code}`)
+      .update(`${lang ?? ''}:${code}`)
       .digest('hex')
   }
 
-  function stringifyCachePayload(
-    data: TwoslashShikiReturn,
-    code: string,
-    lang?: string,
-    options?: TwoslashExecuteOptions,
-  ): string {
+  function stringifyCachePayload(data: TwoslashShikiReturn, code: string, lang?: string): string {
     const payload: CachePayload = {
-      v: 1,
-      hash: cacheHash(code, lang, options),
+      v: CACHE_VERSION,
+      hash: cacheHash(code, lang),
       data: LZString.compressToBase64(JSON.stringify(data)),
     }
     return JSON.stringify(payload)
@@ -135,7 +137,7 @@ export function createInlineTypesCache(
     if (!cache) return null
     try {
       const payload = JSON.parse(cache) as CachePayload
-      if (payload.v === 1) {
+      if (payload.v === CACHE_VERSION) {
         return {
           payload,
           twoslash: () => {
@@ -200,7 +202,7 @@ export function createInlineTypesCache(
   }
 
   const typesCache: TwoslashTypesCache = {
-    preprocess(code, lang, options, meta) {
+    preprocess(code, lang, _options, meta) {
       if (!meta) return
 
       let rawCache = ''
@@ -218,7 +220,7 @@ export function createInlineTypesCache(
       const shouldLoadCache = !ignoreCache && !remove
       if (shouldLoadCache) {
         const cache = resolveCachePayload(cacheString)
-        if (cache?.payload.hash === cacheHash(code, lang, options)) {
+        if (cache?.payload.hash === cacheHash(code, lang)) {
           const twoslash = cache.twoslash()
           if (twoslash) meta.__cache = twoslash
         }
@@ -234,13 +236,13 @@ export function createInlineTypesCache(
     read(_code, _lang, _options, meta) {
       return meta?.__cache ?? null
     },
-    write(code, data, lang, options, meta) {
+    write(code, data, lang, _options, meta) {
       if (remove) {
         meta?.__patch?.('')
         return
       }
       const twoslashShiki = simplifyTwoslashReturn(data)
-      const cacheStr = `// ${CODE_INLINE_CACHE_KEY}: ${stringifyCachePayload(twoslashShiki, code, lang, options)}`
+      const cacheStr = `// ${CODE_INLINE_CACHE_KEY}: ${stringifyCachePayload(twoslashShiki, code, lang)}`
       meta?.__patch?.(cacheStr)
     },
   }
