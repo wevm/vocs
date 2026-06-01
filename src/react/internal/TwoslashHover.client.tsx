@@ -2,7 +2,8 @@
 
 import { Popover } from '@base-ui/react/popover'
 import type * as React from 'react'
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
+import { prewarm } from './CodeToHtml.client.js'
 
 export function TwoslashHover(props: TwoslashHover.Props) {
   const { className = '', children, trigger } = props
@@ -10,6 +11,12 @@ export function TwoslashHover(props: TwoslashHover.Props) {
   const { ref } = TwoslashHover.useOverflowFade()
 
   const open = className?.includes('twoslash-query-persisted')
+
+  // Warm the highlighter so the code inside the popup highlights as quickly as
+  // possible (the popup shows a skeleton placeholder until then).
+  useEffect(() => {
+    prewarm()
+  }, [])
 
   return (
     <Popover.Root {...(open ? { open } : {})}>
