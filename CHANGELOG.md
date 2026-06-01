@@ -1,5 +1,11 @@
 # vocs
 
+## 2.0.9
+
+### Patch Changes
+
+- 13af527: Fixed the experimental Twoslash inline cache to stay portable across environments with differing local Twoslash options.
+
 ## 2.0.8
 
 ### Patch Changes
