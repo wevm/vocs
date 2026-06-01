@@ -49,7 +49,9 @@ function Skeleton(props: { code: string }) {
   const lines = props.code.split('\n')
   return (
     <div data-v-code-skeleton aria-hidden="true">
-      <pre data-v-overflow-fade>
+      {/* `shiki` class mirrors the real highlighted markup so shared styles
+          (e.g. code padding) apply identically and there is no layout shift. */}
+      <pre className="shiki" data-v-overflow-fade>
         <code>
           {lines.map((line, index) => {
             const indent = line.length - line.trimStart().length
