@@ -40,10 +40,36 @@ export function CodeToHtml(props: CodeToHtml.Props) {
     // biome-ignore lint/security/noDangerouslySetInnerHtml: highlighted by Shiki
     return <div dangerouslySetInnerHTML={{ __html: html }} />
 
+  // While highlighting, render a skeleton that mirrors the snippet's line
+  // structure so the popup is shown immediately without a layout shift.
+  return <Skeleton code={code} />
+}
+
+function Skeleton(props: { code: string }) {
+  const lines = props.code.split('\n')
   return (
-    <div>
+    <div data-v-code-skeleton aria-hidden="true">
       <pre data-v-overflow-fade>
-        <code>{code}</code>
+        <code>
+          {lines.map((line, index) => {
+            const indent = line.length - line.trimStart().length
+            const length = line.trim().length
+            return (
+              // biome-ignore lint/suspicious/noArrayIndexKey: static, never reordered
+              <span className="line" key={index}>
+                {length > 0 && (
+                  <span
+                    data-v-skeleton-bar
+                    style={{
+                      marginLeft: `${indent}ch`,
+                      width: `${Math.min(length, 48)}ch`,
+                    }}
+                  />
+                )}
+              </span>
+            )
+          })}
+        </code>
         <div data-v-overflow-sentinel />
       </pre>
     </div>

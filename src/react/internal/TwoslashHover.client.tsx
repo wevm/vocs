@@ -1,52 +1,25 @@
 'use client'
 
 import { Popover } from '@base-ui/react/popover'
-import * as React from 'react'
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { highlight, prewarm } from './CodeToHtml.client.js'
+import type * as React from 'react'
+import { useCallback, useEffect } from 'react'
+import { prewarm } from './CodeToHtml.client.js'
 
 export function TwoslashHover(props: TwoslashHover.Props) {
   const { className = '', children, trigger } = props
 
   const { ref } = TwoslashHover.useOverflowFade()
 
-  const persisted = className?.includes('twoslash-query-persisted')
+  const open = className?.includes('twoslash-query-persisted')
 
-  // Collect the code snippets embedded in the popup so we can highlight them
-  // *before* the popover opens, avoiding a flash of unhighlighted code.
-  const snippets = useMemo(() => collectSnippets(children), [children])
-
-  const [hovered, setHovered] = useState(persisted)
-  const [ready, setReady] = useState(() => snippets.length === 0)
-
-  const ensureHighlighted = useCallback(() => {
-    if (snippets.length === 0) return
-    Promise.all(snippets.map((s) => highlight(s.code, s.lang).catch(() => {}))).then(() =>
-      setReady(true),
-    )
-  }, [snippets])
-
-  // Highlight persisted (always-open) popups on mount; warm the highlighter so
-  // the first hover is responsive.
+  // Warm the highlighter so the code inside the popup highlights as quickly as
+  // possible (the popup shows a skeleton placeholder until then).
   useEffect(() => {
-    if (persisted) ensureHighlighted()
-    else prewarm()
-  }, [persisted, ensureHighlighted])
-
-  // Only open once highlighted. This also applies to persisted (always-open)
-  // popups so they are never server-rendered / shown as plain text before the
-  // client finishes highlighting.
-  const open = ready && (persisted || hovered)
+    prewarm()
+  }, [])
 
   return (
-    <Popover.Root
-      open={open}
-      onOpenChange={(next) => {
-        if (persisted) return
-        setHovered(next)
-        if (next) ensureHighlighted()
-      }}
-    >
+    <Popover.Root {...(open ? { open } : {})}>
       <Popover.Trigger data-v-twoslash-trigger openOnHover delay={0}>
         <span>{trigger}</span>
       </Popover.Trigger>
@@ -105,24 +78,6 @@ export namespace TwoslashHover {
 
     return { ref }
   }
-}
-
-/**
- * Recursively collects the code snippets (`CodeToHtml` elements) in a tree.
- *
- * `CodeToHtml` elements are identified by their `code`/`lang` props rather than
- * by referential type equality: in the RSC client runtime these children arrive
- * as client-reference elements, so `child.type === CodeToHtml` does not hold.
- */
-function collectSnippets(children: React.ReactNode, acc: { code: string; lang: string }[] = []) {
-  React.Children.forEach(children, (child) => {
-    if (!React.isValidElement(child)) return
-    const props = child.props as { code?: unknown; lang?: unknown; children?: React.ReactNode }
-    if (typeof props.code === 'string' && typeof props.lang === 'string')
-      acc.push({ code: props.code, lang: props.lang })
-    else if (props.children) collectSnippets(props.children, acc)
-  })
-  return acc
 }
 
 function ArrowSvg(props: React.ComponentProps<'svg'>) {

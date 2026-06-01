@@ -63,6 +63,38 @@
   }
 }
 
+[data-v-code-skeleton] [data-v-skeleton-bar] {
+  display: inline-block;
+  height: 0.72em;
+  vertical-align: middle;
+  border-radius: 0.1875rem;
+  background-color: var(--vocs-background-color-surfaceTint);
+  background-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--vocs-color-gray10) 22%, transparent) 50%,
+    transparent 100%
+  );
+  background-repeat: no-repeat;
+  background-size: 200% 100%;
+  animation: vocs-skeleton-shimmer 1.25s ease-in-out infinite;
+}
+
+@keyframes vocs-skeleton-shimmer {
+  from {
+    background-position: 180% 0;
+  }
+  to {
+    background-position: -80% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-v-code-skeleton] [data-v-skeleton-bar] {
+    animation: none;
+  }
+}
+
 .twoslash-popup-docs {
   @apply vocs:max-h-40 vocs:overflow-y-scroll;
 
