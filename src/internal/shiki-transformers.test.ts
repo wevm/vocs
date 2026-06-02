@@ -241,6 +241,28 @@ const element = <div />`,
     highlighter.dispose()
   })
 
+  it('should hide committed inline cache comments when inline cache is disabled', async () => {
+    const highlighter = await createHighlighter({
+      themes: ['github-dark'],
+      langs: ['typescript'],
+    })
+
+    const html = highlighter.codeToHtml(
+      `// @twoslash-cache: {"v":1,"hash":"old","data":"x"}
+const value = 1`,
+      {
+        lang: 'typescript',
+        theme: 'github-dark',
+        transformers: [twoslash({ explicitTrigger: false })],
+      },
+    )
+
+    expect(html).toContain('const')
+    expect(html).not.toContain('twoslash-cache')
+
+    highlighter.dispose()
+  })
+
   it('should typecheck virtual json files in check-only mode', async () => {
     const highlighter = await createHighlighter({
       themes: ['github-dark'],
