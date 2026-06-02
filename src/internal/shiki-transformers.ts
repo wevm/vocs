@@ -253,16 +253,22 @@ export function twoslash(options: twoslash.Options): ShikiTransformer {
     renderer = Renderer.rich(),
     throws = true,
     twoslashOptions,
-    typesCache = InlineCache.enabled(inlineCache)
-      ? InlineCache.getOrCreate().typesCache
-      : TypesCache.fs({ dir: cacheDir ? path.join(cacheDir, 'twoslash') : undefined }),
+    typesCache: configuredTypesCache,
   } = options
+  const inlineCacheStore = InlineCache.enabled(inlineCache) ? InlineCache.getOrCreate() : undefined
+  const typesCache =
+    configuredTypesCache ??
+    inlineCacheStore?.typesCache ??
+    TypesCache.fs({ dir: cacheDir ? path.join(cacheDir, 'twoslash') : undefined })
+  const shouldStripInlineCache = typesCache !== inlineCacheStore?.typesCache
 
   const lazyTwoslasher = (
     code: string,
     lang?: string,
     executeOptions?: Parameters<TwoslashInstance>[2],
   ) => {
+    code = InlineCache.stripInlineCacheComments(code)
+
     if (!twoslasher) {
       const tsModule = twoslashOptions?.tsModule ?? getTypeScript()
 
@@ -312,7 +318,10 @@ export function twoslash(options: twoslash.Options): ShikiTransformer {
           // normalized output). Without this, snippets containing consecutive
           // custom tag lines (`@log`/`@error`/`@warn`/`@annotate`) would never
           // hit the cache.
-          const normalized = Renderer.normalizeCustomTagBlocks(code)
+          const stripped = shouldStripInlineCache
+            ? InlineCache.stripInlineCacheComments(code)
+            : code
+          const normalized = Renderer.normalizeCustomTagBlocks(stripped)
           return typesCache.preprocess?.(normalized, lang, executeOptions, meta) ?? normalized
         },
       }
@@ -393,6 +402,8 @@ function checkOnlyTwoslasher(options: {
     executeOptions?: Parameters<TwoslashInstance>[2],
     meta?: { __raw?: string | undefined },
   ) => {
+    code = InlineCache.stripInlineCacheComments(code)
+
     const twoslashOptions = {
       ...options.twoslashOptions,
       ...executeOptions,

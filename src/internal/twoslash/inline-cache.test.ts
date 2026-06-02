@@ -36,6 +36,14 @@ describe('stripInlineCacheComments', () => {
     expect(stripInlineCacheComments(code)).toBe('export const client = 1')
   })
 
+  it('removes cache comments without a space after the colon', () => {
+    const code = [
+      '// @twoslash-cache:{"v":1,"hash":"abc","data":"x"}',
+      'export const client = 1',
+    ].join('\n')
+    expect(stripInlineCacheComments(code)).toBe('export const client = 1')
+  })
+
   it('leaves code without cache comments untouched', () => {
     const code = 'export const client = 1\nconst a = 2'
     expect(stripInlineCacheComments(code)).toBe(code)
@@ -187,6 +195,38 @@ describe('inline types cache', () => {
       const meta = { sourceMap: { path: file, from, to } } as never
       // The body still has the old cache line, but we validate against new code.
       typesCache.preprocess?.(`${body}\nconst b = 2`, 'ts', {}, meta)
+      expect(typesCache.read(body, 'ts', {}, meta)).toBeNull()
+    }
+  })
+
+  it('invalidates cached results that would render the cache comment', () => {
+    const code = 'const a: string = "x"'
+    const { file, from, to } = createMarkdown(code)
+
+    {
+      const { typesCache, patcher } = createInlineTypesCache()
+      const meta = { sourceMap: { path: file, from, to } } as never
+      typesCache.preprocess?.(code, 'ts', {}, meta)
+      typesCache.write(
+        code,
+        {
+          nodes: [],
+          code: `// @twoslash-cache: {"v":1,"hash":"old","data":"x"}\n${code}`,
+        } as never,
+        'ts',
+        {},
+        meta,
+      )
+      patcher.patch(file)
+    }
+
+    {
+      const { typesCache } = createInlineTypesCache()
+      const body = readBody(file, from)
+      const meta = { sourceMap: { path: file, from, to } } as never
+
+      const preprocessed = typesCache.preprocess?.(body, 'ts', {}, meta)
+      expect(preprocessed).toBe(code)
       expect(typesCache.read(body, 'ts', {}, meta)).toBeNull()
     }
   })

@@ -83,9 +83,14 @@ type CachePayload = {
 const CACHE_VERSION = 1
 
 const CODE_INLINE_CACHE_KEY = '@twoslash-cache'
-const CODE_INLINE_CACHE_REGEX = new RegExp(`// ${CODE_INLINE_CACHE_KEY}: (.*)(?:\n|$)`, 'g')
+const CODE_INLINE_CACHE_REGEX = new RegExp(
+  `^// ${CODE_INLINE_CACHE_KEY}:[ \\t]*([^\\r\\n]*)(?:\\r?\\n|$)`,
+  'gm',
+)
 /** Matches a cache comment anchored to the start of a code block body. */
-const CODE_INLINE_CACHE_LINE_REGEX = new RegExp(`^// ${CODE_INLINE_CACHE_KEY}: .*(?:\n|$)`)
+const CODE_INLINE_CACHE_LINE_REGEX = new RegExp(
+  `^// ${CODE_INLINE_CACHE_KEY}:[ \\t]*[^\\r\\n]*(?:\\r?\\n|$)`,
+)
 
 /**
  * Remove all `// @twoslash-cache: ...` comments from a code string.
@@ -142,7 +147,15 @@ export function createInlineTypesCache(
           payload,
           twoslash: () => {
             try {
-              return JSON.parse(LZString.decompressFromBase64(payload.data))
+              const twoslash = JSON.parse(
+                LZString.decompressFromBase64(payload.data),
+              ) as TwoslashShikiReturn
+              if (
+                typeof twoslash.code === 'string' &&
+                stripInlineCacheComments(twoslash.code) !== twoslash.code
+              )
+                return null
+              return twoslash
             } catch {
               return null
             }
