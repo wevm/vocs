@@ -1,5 +1,11 @@
 # vocs
 
+## 2.0.11
+
+### Patch Changes
+
+- c7dcfd0: Fixed inline Twoslash cache comments leaking into rendered code snippets.
+
 ## 2.0.10
 
 ### Patch Changes
