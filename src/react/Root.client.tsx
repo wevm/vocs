@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react'
 import { ErrorBoundary } from './internal/ErrorBoundary.client.js'
+import { HeadingAnchors } from './internal/HeadingAnchors.client.js'
 import { NuqsAdapter } from './internal/NuqsAdapter.js'
 import { useConfig } from './useConfig.js'
 
@@ -76,6 +77,7 @@ export function Root_client({ children }: { children: React.ReactNode }) {
 
   return (
     <NuqsAdapter>
+      <HeadingAnchors />
       <ErrorBoundary>{children}</ErrorBoundary>
     </NuqsAdapter>
   )

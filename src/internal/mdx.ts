@@ -224,8 +224,9 @@ export function getCompileOptions(
               behavior: 'append' as const,
               test: ['h2', 'h3', 'h4', 'h5', 'h6'],
               properties: {
-                ariaLabel: 'Link to this section',
+                ariaLabel: 'Copy link and go to this section',
                 className: ['heading-anchor'],
+                title: 'Copy link and go to this section',
               },
               // TODO: use iconify icon data instead of hardcoded paths
               content: {

@@ -56,6 +56,10 @@ h6[data-v] {
   @apply vocs:text-accent7;
 }
 
+.heading-anchor[data-copied="true"] .heading-anchor-icon {
+  @apply vocs:text-success;
+}
+
 strong[data-v] {
   @apply vocs:font-semibold;
 }
