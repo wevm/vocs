@@ -1,5 +1,11 @@
 # vocs
 
+## 2.0.12
+
+### Patch Changes
+
+- 23ca0df: Added copy-to-clipboard behavior for heading anchor links.
+
 ## 2.0.11
 
 ### Patch Changes
