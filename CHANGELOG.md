@@ -1,5 +1,11 @@
 # vocs
 
+## 2.0.13
+
+### Patch Changes
+
+- 90c536d: Stripped inline Twoslash cache comments and the sitemap from markdown (`.md`/llms) pages.
+
 ## 2.0.12
 
 ### Patch Changes
