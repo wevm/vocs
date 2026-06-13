@@ -212,6 +212,7 @@ export function getCompileOptions(
           remarkExtractFrontmatter,
           remarkStripFrontmatter,
           remarkStripJs,
+          remarkStripInlineCache,
         ],
       }
     if (type === 'react')
@@ -1002,6 +1003,19 @@ export function remarkStripJs() {
     })
     UnistUtil.visit(tree, 'mdxFlowExpression', (node) => {
       tree.children.splice(tree.children.indexOf(node), 1)
+    })
+  }
+}
+
+/**
+ * Remark plugin that strips inline twoslash cache comments
+ * (`// @twoslash-cache: ...`) from code blocks. Used for the markdown
+ * (`.md`/llms) output so the persisted cache never leaks into rendered pages.
+ */
+export function remarkStripInlineCache() {
+  return (tree: MdAst.Root) => {
+    UnistUtil.visit(tree, 'code', (node) => {
+      node.value = InlineCache.stripInlineCacheComments(node.value)
     })
   }
 }

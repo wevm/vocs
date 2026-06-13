@@ -5,6 +5,7 @@ import {
   remarkExtractFrontmatter,
   remarkFrontmatter,
   remarkStripFrontmatter,
+  remarkStripInlineCache,
   remarkStripJs,
 } from './mdx.js'
 
@@ -16,6 +17,7 @@ const plugins = {
     remarkExtractFrontmatter,
     remarkStripFrontmatter,
     remarkStripJs,
+    remarkStripInlineCache,
   ],
 }
 
@@ -335,12 +337,7 @@ This is the home page.`,
       "
     `)
     expect(result.results[0]?.content).toMatchInlineSnapshot(`
-      "<!--
-      Sitemap:
-      - [Page](/page)
-      -->
-
-      Content.
+      "Content.
       "
     `)
   })
@@ -405,6 +402,33 @@ title: Component
       -->
 
       <Component />
+      "
+    `)
+  })
+
+  test('strips inline twoslash cache comments from code blocks', async () => {
+    const result = await buildLlmsContent({
+      pages: [
+        {
+          path: '/code',
+          content: `---
+title: Code
+---
+
+\`\`\`ts
+// @twoslash-cache: {"v":1,"hash":"abc","data":"xyz"}
+const a = 1
+\`\`\``,
+        },
+      ],
+      title: 'My Docs',
+      ...plugins,
+    })
+
+    expect(result.results[0]?.content).toMatchInlineSnapshot(`
+      "\`\`\`ts
+      const a = 1
+      \`\`\`
       "
     `)
   })
