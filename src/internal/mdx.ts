@@ -127,6 +127,78 @@ const logger = createLogger(undefined, { allowClearScreen: false, prefix: '[vocs
 /** Collection of dead links across files. */
 export const deadLinks = new Map<string, string[]>()
 
+/** Collection of heading and explicit id anchors across files. */
+export const anchors = new Map<string, Set<string>>()
+
+/** Collection of anchor links across files. */
+export const anchorLinks = new Map<string, AnchorLink[]>()
+
+export type AnchorLink = {
+  anchor: string
+  href: string
+  targetFile: string
+}
+
+export function remarkAnchorLinks(config: Config.Config) {
+  const { checkDeadAnchors, rootDir, srcDir, pagesDir } = config
+  const pagesDirPath = path.join(rootDir, srcDir, pagesDir)
+
+  return () => (tree: MdAst.Root, vfile: VFile) => {
+    if (checkDeadAnchors === false) return
+
+    const file = vfile.path ?? 'unknown'
+    const links: AnchorLink[] = []
+
+    UnistUtil.visit(tree, (node) => {
+      if (!('attributes' in node) || !Array.isArray(node.attributes)) return
+
+      for (const attribute of node.attributes) {
+        if (
+          !attribute ||
+          typeof attribute !== 'object' ||
+          !('type' in attribute) ||
+          attribute.type !== 'mdxJsxAttribute' ||
+          !('name' in attribute) ||
+          (attribute.name !== 'href' && attribute.name !== 'to') ||
+          !('value' in attribute) ||
+          typeof attribute.value !== 'string'
+        )
+          continue
+
+        const anchorLink = createAnchorLink({
+          currentDir: vfile.dirname ?? pagesDirPath,
+          file,
+          href: attribute.value,
+          pagesDirPath,
+        })
+        if (anchorLink) links.push(anchorLink)
+      }
+    })
+
+    if (links.length > 0) {
+      anchorLinks.set(file, links)
+    } else {
+      anchorLinks.delete(file)
+    }
+  }
+}
+
+export function getDeadAnchorLinks() {
+  const deadAnchors = new Map<string, AnchorLink[]>()
+
+  for (const [file, links] of anchorLinks) {
+    const deadLinks = links.filter((link) => {
+      const targetAnchors = anchors.get(link.targetFile)
+      if (!targetAnchors) return false
+      return !targetAnchors.has(link.anchor)
+    })
+
+    if (deadLinks.length > 0) deadAnchors.set(file, deadLinks)
+  }
+
+  return deadAnchors
+}
+
 export function getCompileOptions(
   type: 'txt' | 'react',
   config: Config.Config,
@@ -245,6 +317,7 @@ export function getCompileOptions(
           remarkSteps,
           remarkTerminal,
           remarkSubheading,
+          [remarkAnchorLinks, config] as Pluggable,
           remarkVocsScope,
           ...(markdown?.remarkPlugins ?? []),
         ],
@@ -368,11 +441,20 @@ export function rehypeCodeInLink() {
  * - Collects dead links for reporting at build end
  */
 export function rehypeLinks(config: Config.Config) {
-  const { checkDeadlinks, rootDir, srcDir, pagesDir } = config
+  const { checkDeadAnchors, checkDeadlinks, rootDir, srcDir, pagesDir } = config
   const pagesDirPath = path.join(rootDir, srcDir, pagesDir)
 
   return () => (tree: HAst.Root, vfile: VFile) => {
     const links: string[] = []
+    const file = vfile.path ?? 'unknown'
+    const ids = new Set<string>()
+    const linksToAnchors: AnchorLink[] = []
+
+    UnistUtil.visit(tree, 'element', (node) => {
+      const element = node as HAst.Element
+      const id = element.properties?.['id']
+      if (typeof id === 'string') ids.add(id)
+    })
 
     UnistUtil.visit(tree, 'element', (node) => {
       const element = node as HAst.Element
@@ -381,38 +463,43 @@ export function rehypeLinks(config: Config.Config) {
       const href = element.properties?.['href']
       if (typeof href !== 'string') return
 
-      // Skip external links and hash-only links
-      if (href.match(/^(https?:\/\/|mailto:|tel:|#)/)) return
+      // Skip external links
+      if (href.match(/^(https?:\/\/|mailto:|tel:)/)) return
 
       // Skip URL-encoded backtick paths (e.g., %60Context%60 from Rust Twoslash type hints)
       if (href.includes('%60')) return
 
+      const currentDir = vfile.dirname ?? pagesDirPath
+      const [linkPath = '', hash] = href.split('#')
+      if (checkDeadAnchors !== false) {
+        const anchorLink = createAnchorLink({
+          currentDir,
+          file,
+          href,
+          pagesDirPath,
+        })
+        if (anchorLink) linksToAnchors.push(anchorLink)
+      }
+
+      // Skip hash-only links after collecting anchor links
+      if (href.startsWith('#')) return
+
       // Check if link has .md/.mdx extension to process
-      const hasExtension = extensions.some((ext) => href.endsWith(ext))
+      const hasExtension = extensions.some((ext) => linkPath.endsWith(ext))
 
       // Strip extension and /index
       if (hasExtension) {
         const extPattern = extensions.map((ext) => ext.slice(1)).join('|')
-        const cleanHref = href
+        const cleanLinkPath = linkPath
           .replace(new RegExp(`\\.(${extPattern})$`), '') // remove extension
           .replace(/\/index$/, '') // remove /index
-        element.properties['href'] = cleanHref
+        element.properties['href'] = hash ? `${cleanLinkPath}#${hash}` : cleanLinkPath
       }
 
-      // Check if internal link exists in filesystem
-      const currentDir = vfile.dirname ?? pagesDirPath
-      const [linkPath] = href.split('#')
-      // For absolute paths (starting with /), resolve from pagesDirPath
-      // For relative paths, resolve from current file's directory
-      const resolvedPath = linkPath?.startsWith('/')
-        ? path.join(pagesDirPath, linkPath)
-        : path.resolve(currentDir, linkPath ?? '')
-
       // Check for file existence (try with extensions if not present)
-      const exists =
-        fs.existsSync(resolvedPath) ||
-        extensions.some((ext) => fs.existsSync(`${resolvedPath}${ext}`)) ||
-        extensions.some((ext) => fs.existsSync(`${resolvedPath}/index${ext}`))
+      const resolvedPath = resolveLinkPath(linkPath, currentDir, pagesDirPath)
+      const existingPath = getExistingPath(resolvedPath)
+      const exists = Boolean(existingPath)
 
       // Allow /TODO links but still style them with squiggly underline
       const isTodoLink = linkPath === '/TODO'
@@ -438,10 +525,80 @@ export function rehypeLinks(config: Config.Config) {
       }
     })
 
-    if (links.length > 0) {
-      const file = vfile.path ?? 'unknown'
-      deadLinks.set(file, links)
+    anchors.set(file, ids)
+
+    const allLinksToAnchors = [...(anchorLinks.get(file) ?? []), ...linksToAnchors]
+    if (allLinksToAnchors.length > 0) {
+      anchorLinks.set(file, allLinksToAnchors)
+    } else {
+      anchorLinks.delete(file)
     }
+
+    if (links.length > 0) {
+      deadLinks.set(file, links)
+    } else {
+      deadLinks.delete(file)
+    }
+  }
+}
+
+function createAnchorLink({
+  currentDir,
+  file,
+  href,
+  pagesDirPath,
+}: {
+  currentDir: string
+  file: string
+  href: string
+  pagesDirPath: string
+}) {
+  if (href.match(/^(https?:\/\/|mailto:|tel:)/)) return undefined
+  if (href.includes('%60')) return undefined
+
+  const [linkPath = '', hash] = href.split('#')
+  if (!hash) return undefined
+
+  const resolvedPath = resolveLinkPath(linkPath, currentDir, pagesDirPath)
+  const targetFile = linkPath ? getExistingPath(resolvedPath) : file
+  if (!targetFile) return undefined
+
+  return {
+    anchor: decodeAnchor(hash),
+    href,
+    targetFile,
+  }
+}
+
+function resolveLinkPath(linkPath: string, currentDir: string, pagesDirPath: string) {
+  if (!linkPath) return currentDir
+  return linkPath.startsWith('/')
+    ? path.join(pagesDirPath, linkPath)
+    : path.resolve(currentDir, linkPath)
+}
+
+function getExistingPath(resolvedPath: string) {
+  if (fs.existsSync(resolvedPath) && fs.statSync(resolvedPath).isFile()) return resolvedPath
+
+  for (const ext of extensions) {
+    const pathWithExtension = `${resolvedPath}${ext}`
+    if (fs.existsSync(pathWithExtension) && fs.statSync(pathWithExtension).isFile())
+      return pathWithExtension
+  }
+
+  for (const ext of extensions) {
+    const indexPath = path.join(resolvedPath, `index${ext}`)
+    if (fs.existsSync(indexPath) && fs.statSync(indexPath).isFile()) return indexPath
+  }
+
+  return undefined
+}
+
+function decodeAnchor(anchor: string) {
+  try {
+    return decodeURIComponent(anchor)
+  } catch {
+    return anchor
   }
 }
 

@@ -105,6 +105,16 @@ export type Config<partial extends boolean = false> = MaybePartial<
      */
     checkDeadlinks: boolean | 'warn'
     /**
+     * Whether or not to check for dead anchor links in the documentation.
+     *
+     * - `true`: Enable dead anchor checking and throw errors on dead anchors.
+     * - `false`: Disable dead anchor checking.
+     * - `"warn"`: Enable dead anchor checking but only warn instead of throwing errors.
+     *
+     * @default false
+     */
+    checkDeadAnchors: boolean | 'warn'
+    /**
      * Code highlight configuration.
      */
     codeHighlight: MaybePartial<partial, UnionOmit<Mdx.rehypeShiki.Options, 'twoslash'>>
@@ -407,6 +417,7 @@ export function define(config: define.Options = {}): Config {
     basePath = '/',
     cacheDir,
     changelog,
+    checkDeadAnchors = false,
     checkDeadlinks = true,
     codeHighlight,
     colorScheme = 'light dark',
@@ -454,6 +465,7 @@ export function define(config: define.Options = {}): Config {
     basePath,
     cacheDir: path.resolve(rootDir, cacheDir ?? '.vocs/cache'),
     changelog,
+    checkDeadAnchors,
     checkDeadlinks,
     codeHighlight: {
       ...codeHighlight,

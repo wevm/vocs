@@ -163,6 +163,25 @@ Controls dead link validation.
 - `false` disables checking.
 - `'warn'` reports dead links without failing the build.
 
+### `checkDeadAnchors`
+
+- **Type:** `boolean | 'warn'`
+- **Default:** `false`
+
+Controls dead anchor validation for internal fragment links.
+
+- `true` throws when an internal link points to a missing anchor.
+- `false` disables checking.
+- `'warn'` reports dead anchors without failing the build.
+
+Vocs checks anchors generated from headings and explicit `id` attributes in MDX pages. It validates Markdown links, rendered `<a href>` links, and MDX JSX `href`/`to` props such as cards that link to sections.
+
+```ts
+export default defineConfig({
+  checkDeadAnchors: true,
+})
+```
+
 ## Branding And Theme
 
 ### `logoUrl`
