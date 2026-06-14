@@ -240,7 +240,7 @@ export function llms(config: Config.Config): PluginOption {
  * @returns Plugin.
  */
 export function mdx(config: Config.Config): PluginOption {
-  const { checkDeadlinks } = config
+  const { checkDeadAnchors, checkDeadlinks } = config
   const plugin = mdxPlugin(Mdx.getCompileOptions('react', config))
 
   let mode: 'development' | 'production' = 'development'
@@ -301,14 +301,31 @@ export function mdx(config: Config.Config): PluginOption {
       }
 
       // Check for dead links
-      if (Mdx.deadLinks.size === 0) return
-      if (checkDeadlinks === 'warn' || checkDeadlinks === false) return
+      if (Mdx.deadLinks.size > 0 && checkDeadlinks !== 'warn' && checkDeadlinks !== false) {
+        const errors: string[] = []
+        for (const [file, links] of Mdx.deadLinks)
+          errors.push(`${file}:\n${links.map((link) => `  - ${link}`).join('\n')}`)
+
+        throw new Error(`Found dead links:\n\n${errors.join('\n\n')}`)
+      }
+
+      // Check for dead anchors
+      if (checkDeadAnchors === false) return
+
+      const deadAnchorLinks = Mdx.getDeadAnchorLinks()
+      if (deadAnchorLinks.size === 0) return
 
       const errors: string[] = []
-      for (const [file, links] of Mdx.deadLinks)
-        errors.push(`${file}:\n${links.map((link) => `  - ${link}`).join('\n')}`)
+      for (const [file, links] of deadAnchorLinks)
+        errors.push(`${file}:\n${links.map((link) => `  - ${link.href}`).join('\n')}`)
 
-      throw new Error(`Found dead links:\n\n${errors.join('\n\n')}`)
+      const message = `Found dead anchors:\n\n${errors.join('\n\n')}`
+      if (checkDeadAnchors === 'warn') {
+        logger.warn(message, { timestamp: true })
+        return
+      }
+
+      throw new Error(message)
     },
   }
 }
