@@ -746,6 +746,26 @@ Some content.
     `)
   })
 
+  it('handles title descriptions with inline code', () => {
+    const content = `
+# Common Package [How \`packages/common\` is structured, why it exists]
+
+Some content.
+`
+    expect(Search.extract(content, config).sections).toMatchInlineSnapshot(`
+      [
+        {
+          "anchor": "common-package",
+          "isPage": true,
+          "subtitle": "How packages/common is structured, why it exists",
+          "text": " Some content.",
+          "title": "Common Package",
+          "titles": [],
+        },
+      ]
+    `)
+  })
+
   it('includes JSX text content', () => {
     const content = `
 # Title

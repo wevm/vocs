@@ -1,13 +1,19 @@
+import type * as MdAst from 'mdast'
+import remarkFrontmatter from 'remark-frontmatter'
+import remarkParse from 'remark-parse'
 import ruby from 'shiki/langs/ruby.mjs'
+import { unified } from 'unified'
 import { describe, expect, it } from 'vitest'
 import * as Config from './config.js'
 import {
   getCompileOptions,
   remarkCodeTitle,
+  remarkDefaultFrontmatter,
   remarkFilename,
   remarkFileTree,
   remarkLangCommaAttrs,
   remarkRestoreUnknownTextDirectives,
+  remarkSubheading,
 } from './mdx.js'
 
 type CodeNode = {
@@ -60,6 +66,72 @@ function transformCodeNode(
   remarkCodeTitle(getCodeTitlePlugin(config))(tree as never)
 
   return tree.children[0] as CodeNode
+}
+
+describe('remarkDefaultFrontmatter', () => {
+  it('infers title and description from heading subtext with inline code', async () => {
+    const tree = await runRemark(
+      '# Common Package [How `packages/common` is structured, why it exists]',
+      [remarkDefaultFrontmatter],
+    )
+    const frontmatter = tree.children[0]
+
+    expect(frontmatter).toMatchObject({
+      type: 'yaml',
+      value:
+        'title: "Common Package"\ndescription: "How packages/common is structured, why it exists"',
+    })
+  })
+})
+
+describe('remarkSubheading', () => {
+  it('extracts heading subtext with inline markdown nodes', async () => {
+    const tree = await runRemark(
+      [
+        '---',
+        'title: Test',
+        '---',
+        '',
+        '# **Common** Package [How `packages/common` is *structured*]',
+      ].join('\n'),
+      [remarkFrontmatter, remarkSubheading],
+    )
+    const hgroup = tree.children[1] as MdAst.Paragraph
+    const heading = hgroup.children[0] as unknown as MdAst.Heading
+    const subheading = hgroup.children[1] as unknown as MdAst.Paragraph
+
+    expect(stripPositions(heading.children)).toEqual([
+      {
+        type: 'strong',
+        children: [{ type: 'text', value: 'Common' }],
+      },
+      { type: 'text', value: ' Package' },
+    ])
+    expect(stripPositions(subheading.children)).toEqual([
+      { type: 'text', value: 'How ' },
+      { type: 'inlineCode', value: 'packages/common' },
+      { type: 'text', value: ' is ' },
+      {
+        type: 'emphasis',
+        children: [{ type: 'text', value: 'structured' }],
+      },
+    ])
+  })
+})
+
+async function runRemark(markdown: string, plugins: unknown[]) {
+  const processor = unified().use(remarkParse)
+  for (const plugin of plugins) processor.use(plugin as never)
+  const tree = processor.parse(markdown) as MdAst.Root
+  await processor.run(tree)
+  return tree
+}
+
+function stripPositions(children: MdAst.PhrasingContent[]): unknown[] {
+  return children.map(({ position: _, ...child }) => {
+    if ('children' in child) return { ...child, children: stripPositions(child.children) }
+    return child
+  })
 }
 
 describe('remarkFilename', () => {
