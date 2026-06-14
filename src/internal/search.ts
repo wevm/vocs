@@ -14,6 +14,7 @@ import { unified } from 'unified'
 import * as UnistUtil from 'unist-util-visit'
 import * as yaml from 'yaml'
 import type * as Config from './config.js'
+import { extractSubheading, getPhrasingContentText } from './mdx.js'
 import * as Path from './path.js'
 import { searchFields, storeFields, tokenize } from './search.client.js'
 import * as Sidebar from './sidebar.js'
@@ -337,14 +338,17 @@ export function extract(source: string, _config: Config.Config): extract.ReturnT
   const headingPositions = tree.children
     .filter((node): node is MdAst.Heading => node.type === 'heading')
     .map((heading) => {
-      const rawTitle = mdastToString(heading).trim()
-      const subtitleMatch = rawTitle.match(/ \[(.+)\]$/)
+      const subheading = extractSubheading(heading.children)
+      const title = getPhrasingContentText(subheading?.headingChildren ?? heading.children).trim()
+      const subtitle = subheading
+        ? getPhrasingContentText(subheading.subheadingChildren).trim()
+        : ''
       return {
         depth: heading.depth,
         endOffset: heading.position?.end.offset ?? 0,
         startOffset: heading.position?.start.offset ?? 0,
-        subtitle: subtitleMatch?.[1] ?? '',
-        title: subtitleMatch ? rawTitle.replace(/ \[.+\]$/, '') : rawTitle,
+        subtitle,
+        title,
       }
     })
 
