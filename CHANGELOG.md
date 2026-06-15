@@ -1,5 +1,11 @@
 # vocs
 
+## 2.0.14
+
+### Patch Changes
+
+- c47b871: Fixed heading subtext breaking when its description contained inline markdown such as inline code or emphasis.
+
 ## 2.0.13
 
 ### Patch Changes
