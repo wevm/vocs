@@ -295,6 +295,17 @@ describe('getCompileOptions', () => {
     expect(codeNode.lang).toBe('ts')
     expect(codeNode.meta).toBe('[example.ts]')
   })
+
+  it('threads user-configured remark plugins into the txt profile', () => {
+    function userRemarkPlugin() {}
+    const config = Config.define({
+      markdown: { remarkPlugins: [userRemarkPlugin] },
+      rootDir: process.cwd(),
+    })
+
+    expect(getCompileOptions('txt', config).remarkPlugins).toContain(userRemarkPlugin)
+    expect(getCompileOptions('react', config).remarkPlugins).toContain(userRemarkPlugin)
+  })
 })
 
 describe('remarkRestoreUnknownTextDirectives', () => {

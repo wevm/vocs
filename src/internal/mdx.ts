@@ -213,6 +213,9 @@ export function getCompileOptions(
           remarkStripFrontmatter,
           remarkStripJs,
           remarkStripInlineCache,
+          // User plugins extend the parser (e.g. `remark-math`) so syntax
+          // recognized in the React build also parses for llms/search.
+          ...(markdown?.remarkPlugins ?? []),
         ],
       }
     if (type === 'react')

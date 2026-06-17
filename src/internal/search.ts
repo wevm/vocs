@@ -311,13 +311,16 @@ type Section = {
  * - `content`: raw markdown (sliced from source) for rendering in search UI
  * - `text`: stripped plain text (directives/JSX removed) for search indexing
  */
-export function extract(source: string, _config: Config.Config): extract.ReturnType {
+export function extract(source: string, config: Config.Config): extract.ReturnType {
   const remarkPlugins = [
     remarkFrontmatter,
     remarkDirective,
     remarkGfm,
     remarkStripJsx,
     remarkStripDirectives,
+    // User plugins extend the parser (e.g. `remark-math`) so syntax
+    // recognized in the React build also parses during indexing.
+    ...(config.markdown?.remarkPlugins ?? []),
   ]
 
   // Extract frontmatter with regex (avoids extra parse)
