@@ -137,4 +137,89 @@ describe('middleware', () => {
     expect(await response.text()).toBe('# Hello from disk')
     expect(readFile).toHaveBeenCalledOnce()
   })
+
+  it('passes static assets through for AI agents without resolving a twin', async () => {
+    process.env['NODE_ENV'] = 'production'
+
+    const { readFile } = await import('node:fs/promises')
+    const fetchSpy = vi.fn()
+    globalThis.fetch = fetchSpy
+
+    const response = await request('http://localhost/specs/v0.1/openapi.json', {
+      'user-agent': 'Mozilla/5.0 (compatible; ClaudeBot/1.0; +claudebot@anthropic.com)',
+    })
+
+    expect(response.status).toBe(200)
+    expect(response.headers.get('content-type')).toContain('text/html')
+    expect(await response.text()).toBe('<p>ok</p>')
+    expect(readFile).not.toHaveBeenCalled()
+    expect(fetchSpy).not.toHaveBeenCalled()
+  })
+
+  it('passes static assets through for terminal user-agents', async () => {
+    process.env['NODE_ENV'] = 'production'
+
+    const { readFile } = await import('node:fs/promises')
+    const fetchSpy = vi.fn()
+    globalThis.fetch = fetchSpy
+
+    const response = await request('http://localhost/specs/v0.1/openapi.json', {
+      'user-agent': 'curl/8.7.1',
+    })
+
+    expect(response.status).toBe(200)
+    expect(await response.text()).toBe('<p>ok</p>')
+    expect(readFile).not.toHaveBeenCalled()
+    expect(fetchSpy).not.toHaveBeenCalled()
+  })
+
+  it('passes static assets through even when text/markdown is accepted', async () => {
+    process.env['NODE_ENV'] = 'production'
+
+    const { readFile } = await import('node:fs/promises')
+    const fetchSpy = vi.fn()
+    globalThis.fetch = fetchSpy
+
+    const response = await request('http://localhost/specs/openapi.json', {
+      accept: 'text/markdown',
+    })
+
+    expect(response.status).toBe(200)
+    expect(await response.text()).toBe('<p>ok</p>')
+    expect(readFile).not.toHaveBeenCalled()
+    expect(fetchSpy).not.toHaveBeenCalled()
+  })
+
+  it('passes generated markdown twins through without re-resolving', async () => {
+    process.env['NODE_ENV'] = 'production'
+
+    const { readFile } = await import('node:fs/promises')
+    const fetchSpy = vi.fn()
+    globalThis.fetch = fetchSpy
+
+    const response = await request('http://localhost/assets/md/docs.md', {
+      'user-agent': 'Mozilla/5.0 (compatible; GPTBot/1.0; +https://openai.com/gptbot)',
+    })
+
+    expect(response.status).toBe(200)
+    expect(await response.text()).toBe('<p>ok</p>')
+    expect(readFile).not.toHaveBeenCalled()
+    expect(fetchSpy).not.toHaveBeenCalled()
+  })
+
+  it('serves markdown for clean routes whose parent segments contain dots', async () => {
+    process.env['NODE_ENV'] = 'production'
+
+    const { readFile } = await import('node:fs/promises')
+    vi.mocked(readFile).mockResolvedValue('# Hello from disk')
+
+    const response = await request('http://localhost/docs/v2.0/intro', {
+      'user-agent': 'Mozilla/5.0 (compatible; GPTBot/1.0; +https://openai.com/gptbot)',
+    })
+
+    expect(response.status).toBe(200)
+    expect(response.headers.get('content-type')).toBe('text/markdown; charset=utf-8')
+    expect(await response.text()).toBe('# Hello from disk')
+    expect(readFile).toHaveBeenCalledOnce()
+  })
 })
