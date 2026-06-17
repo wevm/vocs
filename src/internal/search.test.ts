@@ -1,3 +1,4 @@
+import type * as MdAst from 'mdast'
 import { describe, expect, it } from 'vitest'
 import * as Config from './config.js'
 import * as Search from './search.js'
@@ -836,6 +837,25 @@ Some content here.
         },
       ]
     `)
+  })
+
+  it('applies user-configured remark plugins from config', () => {
+    function remarkUppercaseHeadings() {
+      return (tree: MdAst.Root) => {
+        for (const node of tree.children) {
+          if (node.type !== 'heading') continue
+          for (const child of node.children)
+            if (child.type === 'text') child.value = child.value.toUpperCase()
+        }
+      }
+    }
+
+    const customConfig = Config.define({
+      markdown: { remarkPlugins: [remarkUppercaseHeadings] },
+    })
+
+    const { sections } = Search.extract('# hello world\n\nSome text.', customConfig)
+    expect(sections[0]?.title).toBe('HELLO WORLD')
   })
 })
 
