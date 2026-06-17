@@ -2,6 +2,7 @@ import path from 'node:path'
 import { serve } from '@hono/node-server'
 import { serveStatic } from '@hono/node-server/serve-static'
 import type { MiddlewareHandler } from 'hono'
+import { bodyLimit } from 'hono/body-limit'
 import { Hono } from 'hono/tiny'
 import { unstable_createServerEntryAdapter as createServerEntryAdapter } from 'waku/adapter-builders'
 import {
@@ -10,13 +11,22 @@ import {
 } from 'waku/internals'
 
 const { DIST_PUBLIC } = constants
-const { contextMiddleware, rscMiddleware, middlewareRunner } = honoMiddleware
+const { rscMiddleware, middlewareRunner } = honoMiddleware
 
-type MiddlewareModules = Record<string, () => Promise<{ default: () => MiddlewareHandler }>>
+const DEFAULT_BODY_LIMIT_MAX_SIZE = 100 * 1024 * 1024
+
+type MiddlewareModules = Record<
+  string,
+  () => Promise<{ default: (opts: { app: Hono }) => MiddlewareHandler }>
+>
 
 const adapter: typeof import('waku/adapters/node').default = createServerEntryAdapter(
   ({ processRequest, processBuild, config, isBuild, notFoundHtml }, options) => {
-    const { middlewareFns = [], middlewareModules = {} } = options || {}
+    const {
+      bodyLimit: bodyLimitOptions,
+      middlewareFns = [],
+      middlewareModules = {},
+    } = options || {}
     const typedMiddlewareModules = middlewareModules as MiddlewareModules
     const app = new Hono()
 
@@ -29,9 +39,12 @@ const adapter: typeof import('waku/adapters/node').default = createServerEntryAd
     // output before middleware in build mode, but Vocs needs mdRouter to run first
     // for partial-static clean URLs that negotiate `text/markdown`.
     if (isBuild && typedMiddlewareModules['mdRouter']) {
-      const mdRouterMiddleware = middlewareRunner({
-        mdRouter: typedMiddlewareModules['mdRouter'],
-      })
+      const mdRouterMiddleware = middlewareRunner(
+        {
+          mdRouter: typedMiddlewareModules['mdRouter'],
+        },
+        { app },
+      )
       app.use(`${config.basePath}*`, (context, next) => {
         const url = new URL(context.req.url)
         // Generated markdown assets are already static output. Passing them through
@@ -50,9 +63,10 @@ const adapter: typeof import('waku/adapters/node').default = createServerEntryAd
         }),
       )
 
-    app.use(contextMiddleware())
-    for (const middlewareFn of middlewareFns) app.use(middlewareFn())
-    app.use(middlewareRunner(typedMiddlewareModules))
+    if (bodyLimitOptions !== false)
+      app.use(bodyLimit(bodyLimitOptions ?? { maxSize: DEFAULT_BODY_LIMIT_MAX_SIZE }))
+    for (const middlewareFn of middlewareFns) app.use(middlewareFn({ app }))
+    app.use(middlewareRunner(typedMiddlewareModules, { app }))
     app.use(rscMiddleware({ processRequest }))
 
     return {
