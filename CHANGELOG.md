@@ -1,5 +1,15 @@
 # vocs
 
+## 2.0.15
+
+### Patch Changes
+
+- 0bc3859: Fixed the MCP Streamable HTTP endpoint hanging on JSON-RPC notifications (e.g. `notifications/initialized`) by acking payloads that contain no requests with `202 Accepted`.
+- 75eaf10: Fixed user-configured `remarkPlugins` (e.g. `remark-math`) not being applied during llms and search compilation.
+- d9ee887: Fixed multi-second latency when CLI and AI-agent user-agents request static assets (`.json`, `.svg`, etc.) by skipping markdown twin resolution for non-page requests.
+- 93c0441: Fixed `vocs dev` crashing on fresh npm/bun installs with a missing `react-server` condition error by keeping `react-server-dom-webpack` bundled in the RSC server environments.
+- 699e6b3: Upgraded to `waku@1.0.0-beta.3` and removed the router prefetch patches now fixed upstream.
+
 ## 2.0.14
 
 ### Patch Changes
