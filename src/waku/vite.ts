@@ -35,6 +35,7 @@ export async function vocs(options: vocs.Options = {}): Promise<PluginOption[]> 
 
   return [
     vocs_core(),
+    Plugins.rsdwNoExternal(),
     Plugins.allowServer(),
     PluginRsc({
       serverHandler: false,
