@@ -45,6 +45,27 @@ export function buildId(): Plugin {
 }
 
 /**
+ * Keeps `react-server-dom-webpack` bundled in the server environments so Waku's rsdw
+ * patch can redirect it to plugin-rsc's vendored build. npm and bun auto-install the
+ * peer, which would otherwise load natively with `react` missing the `react-server`
+ * condition and crash the dev server.
+ */
+export function rsdwNoExternal(): Plugin {
+  const rsdw = 'react-server-dom-webpack'
+  return {
+    name: 'vocs:rsdw-no-external',
+    config() {
+      return {
+        environments: {
+          rsc: { resolve: { noExternal: [rsdw] } },
+          ssr: { resolve: { noExternal: [rsdw] } },
+        },
+      }
+    },
+  }
+}
+
+/**
  * Builds a script to preview the build output.
  */
 export function preview(): Plugin {
