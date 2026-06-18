@@ -215,6 +215,12 @@ export type Config<partial extends boolean = false> = MaybePartial<
       | {
           /** Enable MCP server endpoint at `/api/mcp`. */
           enabled?: boolean | undefined
+          /**
+           * MCP server URL copied by the Ask AI menu.
+           *
+           * Defaults to the same-origin `/api/mcp` endpoint.
+           */
+          url?: string | undefined
           /** Source code adapters for navigating codebases. */
           sources?: readonly McpSource.Adapter[] | undefined
         }

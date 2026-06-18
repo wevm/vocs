@@ -10,6 +10,7 @@ import SimpleIconsClaude from '~icons/simple-icons/claude'
 import SimpleIconsModelcontextprotocol from '~icons/simple-icons/modelcontextprotocol'
 import SimpleIconsOpenai from '~icons/simple-icons/openai'
 import { useConfig } from '../useConfig.js'
+import { resolveMcpUrl } from './resolveMcpUrl.js'
 
 export function AskAi(props: AskAi.Props) {
   const { className } = props
@@ -100,8 +101,8 @@ export function AskAi(props: AskAi.Props) {
 
   const mcpUrl = React.useMemo(() => {
     if (typeof window === 'undefined') return ''
-    return `${window.location.origin}/api/mcp`
-  }, [])
+    return resolveMcpUrl(mcp, window.location.origin)
+  }, [mcp])
 
   return (
     <Menu.Root open={menuOpen} onOpenChange={setMenuOpen}>

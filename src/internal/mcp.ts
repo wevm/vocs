@@ -17,6 +17,12 @@ export type McpConfig = {
    */
   enabled?: boolean | undefined
   /**
+   * MCP server URL copied by the Ask AI menu.
+   *
+   * Defaults to the same-origin `/api/mcp` endpoint.
+   */
+  url?: string | undefined
+  /**
    * Source code adapters for navigating codebases.
    * Use `McpSource.github()` to fetch from GitHub.
    *
