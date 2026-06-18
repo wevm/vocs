@@ -61,68 +61,63 @@ export default function Page() {
 
 ### Add a Tag to Every Page
 
-Create a root [MDX wrapper](/features/layouts#mdx-wrapper) at `src/pages/_mdx-wrapper.tsx`. It wraps every Markdown and MDX page, so any tag you render there lands in `<head>` site-wide.
+Create a root [route layout](/introduction/project-structure#layout) at `src/pages/_layout.tsx`. It wraps every page — Markdown, MDX, and `.tsx` — so any tag you render there lands in `<head>` site-wide.
 
-```tsx [src/pages/_mdx-wrapper.tsx]
+```tsx [src/pages/_layout.tsx]
 import type { ReactNode } from 'react'
-import { Layout } from 'vocs'
 
-export default function Wrapper({ children }: { children: ReactNode }) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <Layout>
+    <>
       <meta name="theme-color" content="#161616" /> // [!code focus:2]
       <link rel="preconnect" href="https://rsms.me" />
       {children}
-    </Layout>
+    </>
   )
 }
 ```
 
-:::warning
-A wrapper **replaces** the built-in page shell. Render [`Layout`](/reference/components#layout) (imported from `vocs`) inside it so pages keep their sidebar, top navigation, and outline.
-:::
+Unlike an [`_mdx-wrapper.tsx`](/features/layouts#mdx-wrapper), a route layout wraps the page without replacing it — the sidebar, top navigation, and outline stay intact. Just remember to render `{children}`.
 
 ### Scope Tags to a Section
 
-The nearest wrapper wins, so a `_mdx-wrapper.tsx` deeper in the tree applies to just that subtree. Use it to emit tags for one section — for example, mark everything under `/blog` as an article:
+A `_layout.tsx` deeper in the tree wraps just that subtree and nests inside the root layout. Use it to emit tags for one section — for example, mark everything under `/blog` as an article:
 
-```tsx [src/pages/blog/_mdx-wrapper.tsx]
+```tsx [src/pages/blog/_layout.tsx]
 import type { ReactNode } from 'react'
-import { Layout } from 'vocs'
 
-export default function BlogWrapper({ children }: { children: ReactNode }) {
+export default function BlogLayout({ children }: { children: ReactNode }) {
   return (
-    <Layout>
+    <>
       <meta property="og:type" content="article" /> // [!code focus]
       {children}
-    </Layout>
+    </>
   )
 }
 ```
 
 ### Load a Third-Party Script
 
-React 19 hoists `<script async>` into `<head>` and de-duplicates it across pages, so an analytics snippet is just an element. Put it on a single page, or in the root wrapper to load it everywhere:
+React 19 hoists `<script async>` into `<head>` and de-duplicates it across pages, so an analytics snippet is just an element. Put it on a single page, or in the root layout to load it everywhere:
 
-```tsx [src/pages/_mdx-wrapper.tsx]
+```tsx [src/pages/_layout.tsx]
 import type { ReactNode } from 'react'
-import { Layout } from 'vocs'
 
-export default function Wrapper({ children }: { children: ReactNode }) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <Layout>
+    <>
       <script // [!code focus:5]
         async
         src="https://analytics.example.com/script.js"
         data-site="ABC123"
       />
       {children}
-    </Layout>
+    </>
   )
 }
 ```
 
-Only `async` scripts are hoisted. An inline blocking script — e.g. one that must run before first paint — is not hoisted; render it from a custom root instead.
+Only `async` scripts are hoisted. An inline blocking script — e.g. one that must run before first paint — is not hoisted; render it from a custom [`_root.tsx`](/introduction/project-structure#layout) instead.
 
 ## See More
 
@@ -146,9 +141,9 @@ Only `async` scripts are hoisted. An inline blocking script — e.g. one that mu
     to="/features/dynamic-og-images"
   />
   <Card
-    title="MDX Wrapper"
-    description="How _mdx-wrapper.tsx scoping and the Layout shell work."
+    title="Route Layouts"
+    description="_layout.tsx and _root.tsx for wrapping every page or a section."
     icon="layout-template"
-    to="/features/layouts#mdx-wrapper"
+    to="/introduction/project-structure#layout"
   />
 </Cards>
