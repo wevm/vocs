@@ -1,5 +1,11 @@
 # create-vocs
 
+## 2.0.1
+
+### Patch Changes
+
+- 84ada0b: Updated `@clack/prompts` to v1.
+
 ## 2.0.0
 
 ### Major Changes
