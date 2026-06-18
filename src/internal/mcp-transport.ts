@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto'
-import type { JSONRPCMessage } from '@modelcontextprotocol/sdk/types.js'
+import { isJSONRPCRequest, type JSONRPCMessage } from '@modelcontextprotocol/sdk/types.js'
 
 /**
  * SSE Server Transport for Web APIs (Request/Response).
@@ -67,31 +67,20 @@ export class WebSSEServerTransport {
    * Returns the response to send back.
    */
   async handlePostMessage(body: unknown): Promise<Response> {
-    console.log('[MCP:SSE] handlePostMessage', JSON.stringify(body))
-    if (!this._writer) {
-      console.log('[MCP:SSE] No writer - SSE connection not established')
-      return new Response('SSE connection not established', { status: 500 })
-    }
+    if (!this._writer) return new Response('SSE connection not established', { status: 500 })
 
     try {
-      const message = body as JSONRPCMessage
-      this.onmessage?.(message)
-      console.log('[MCP:SSE] Message dispatched, returning 202')
+      this.onmessage?.(body as JSONRPCMessage)
       return new Response('Accepted', { status: 202 })
     } catch (error) {
-      console.error('[MCP:SSE] Error handling message:', error)
       this.onerror?.(error as Error)
       return new Response(`Invalid message: ${String(error)}`, { status: 400 })
     }
   }
 
   async send(message: JSONRPCMessage): Promise<void> {
-    console.log('[MCP:SSE] send', JSON.stringify(message).slice(0, 200))
-    if (!this._writer) {
-      throw new Error('Not connected')
-    }
+    if (!this._writer) throw new Error('Not connected')
     await this._write(`event: message\ndata: ${JSON.stringify(message)}\n\n`)
-    console.log('[MCP:SSE] Message sent to SSE stream')
   }
 
   async close(): Promise<void> {
@@ -136,33 +125,37 @@ export class WebStreamableHTTPServerTransport {
    * Handle a POST request. Returns a Response (either SSE stream or JSON).
    */
   async handleRequest(body: unknown, useSSE = true): Promise<Response> {
-    console.log('[MCP:HTTP] handleRequest', { useSSE, body: JSON.stringify(body).slice(0, 200) })
-    const message = body as JSONRPCMessage
+    const messages = Array.isArray(body) ? (body as JSONRPCMessage[]) : [body as JSONRPCMessage]
 
-    if (!this.sessionId && 'method' in message && message.method === 'initialize') {
+    const isInitialize = messages.some(
+      (message) => 'method' in message && message.method === 'initialize',
+    )
+    if (!this.sessionId && isInitialize) {
       this.sessionId = this._options.sessionIdGenerator?.() ?? randomUUID()
-      console.log('[MCP:HTTP] Session initialized:', this.sessionId)
       this._options.onsessioninitialized?.(this.sessionId)
     }
 
+    // Notifications/responses get no JSON-RPC reply -- ack with 202 instead of hanging.
+    if (!messages.some(isJSONRPCRequest)) {
+      for (const message of messages) this.onmessage?.(message)
+      return new Response(null, {
+        status: 202,
+        headers: this.sessionId ? { 'mcp-session-id': this.sessionId } : {},
+      })
+    }
+
     if (useSSE) {
-      console.log('[MCP:HTTP] Using SSE response mode')
       const { readable, writable } = new TransformStream<Uint8Array, Uint8Array>()
       this._responseWriter = writable.getWriter()
 
       this._pendingResponse = async (response) => {
-        console.log(
-          '[MCP:HTTP] SSE pending response received',
-          JSON.stringify(response).slice(0, 200),
-        )
         await this._write(`event: message\ndata: ${JSON.stringify(response)}\n\n`)
         try {
           await this._responseWriter?.close()
         } catch {}
       }
 
-      this.onmessage?.(message)
-      console.log('[MCP:HTTP] Message dispatched, returning SSE stream')
+      for (const message of messages) this.onmessage?.(message)
 
       return new Response(readable, {
         headers: {
@@ -173,21 +166,15 @@ export class WebStreamableHTTPServerTransport {
       })
     }
 
-    console.log('[MCP:HTTP] Using JSON response mode')
     return new Promise((resolve) => {
       this._pendingResponse = (response) => {
-        console.log(
-          '[MCP:HTTP] JSON pending response received',
-          JSON.stringify(response).slice(0, 200),
-        )
         resolve(
           Response.json(response, {
             headers: this.sessionId ? { 'mcp-session-id': this.sessionId } : {},
           }),
         )
       }
-      this.onmessage?.(message)
-      console.log('[MCP:HTTP] Message dispatched, waiting for response')
+      for (const message of messages) this.onmessage?.(message)
     })
   }
 
