@@ -326,13 +326,18 @@ export function getCompileOptions(
  */
 export function recmaMdxLayout(config: Config.Config) {
   const { rootDir, srcDir, pagesDir } = config
-  const pagesDirPath = path.join(rootDir, srcDir, pagesDir)
+  const pagesDirPath = path.resolve(rootDir, srcDir, pagesDir)
 
   const layoutPaths = new Map<string, string>()
 
   return () => (tree: Estree.Program, vfile: VFile) => {
     const fileName = vfile.basename ?? ''
     if (!fileName.endsWith('.mdx') && !fileName.endsWith('.md')) return
+    if (!vfile.path) return
+
+    const sourcePath = path.resolve(vfile.path)
+    const filePath = path.relative(pagesDirPath, sourcePath)
+    if (filePath.startsWith('..') || path.isAbsolute(filePath)) return
 
     const defaultExportIndex = tree.body.findIndex(
       (node) => node.type === 'ExportDefaultDeclaration',
@@ -349,8 +354,7 @@ export function recmaMdxLayout(config: Config.Config) {
       return `import _Layout from '${layoutPath}';`
     }
 
-    const lastModified = vfile.path ? Git.getLastModified(vfile.path) : undefined
-    const filePath = vfile.path ? path.relative(pagesDirPath, vfile.path) : undefined
+    const lastModified = Git.getLastModified(sourcePath)
 
     const importAst = EstreeUtil.fromJs(
       `import { MdxPageContext as _MdxPageContext } from 'vocs';
@@ -364,7 +368,7 @@ export function recmaMdxLayout(config: Config.Config) {
       `export function Page(props = {}) {
         const _frontmatter = { 
           ...frontmatter, 
-          filePath: ${filePath ? `"${filePath}"` : 'undefined'},
+          filePath: "${filePath}",
           lastModified: ${lastModified ? `"${lastModified}"` : 'undefined'},
         };
         return _createElement(

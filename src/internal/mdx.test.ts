@@ -1,3 +1,5 @@
+import * as path from 'node:path'
+import type * as Estree from 'estree'
 import type * as MdAst from 'mdast'
 import remarkFrontmatter from 'remark-frontmatter'
 import remarkParse from 'remark-parse'
@@ -7,6 +9,7 @@ import { describe, expect, it } from 'vitest'
 import * as Config from './config.js'
 import {
   getCompileOptions,
+  recmaMdxLayout,
   remarkCodeTitle,
   remarkDefaultFrontmatter,
   remarkFilename,
@@ -133,6 +136,35 @@ function stripPositions(children: MdAst.PhrasingContent[]): unknown[] {
     return child
   })
 }
+
+function createMdxProgram(): Estree.Program {
+  return {
+    type: 'Program',
+    sourceType: 'module',
+    body: [
+      {
+        type: 'ExportDefaultDeclaration',
+        declaration: { type: 'Identifier', name: 'MDXContent' },
+      },
+    ],
+  }
+}
+
+describe('recmaMdxLayout', () => {
+  it('skips page layout injection for markdown outside the pages directory', () => {
+    const rootDir = path.join(process.cwd(), 'playground')
+    const tree = createMdxProgram()
+    const transform = recmaMdxLayout(Config.define({ rootDir }))()
+
+    transform(tree, {
+      basename: 'notes.md',
+      dirname: rootDir,
+      path: path.join(rootDir, 'notes.md'),
+    } as never)
+
+    expect(tree).toEqual(createMdxProgram())
+  })
+})
 
 describe('remarkFilename', () => {
   it('scopes duplicate code-group filenames to their group', () => {
