@@ -1,0 +1,154 @@
+import { Card, Cards } from 'vocs'
+
+# Head Tags [Add metadata and custom tags to the document head]
+
+## Overview
+
+Every Vocs page ships with a complete `<head>` — title, description, favicon, canonical URL, and Open Graph / Twitter tags — derived from your [site config](/reference/site-config) and per-page [frontmatter](/writing/frontmatter). You rarely write these by hand.
+
+When you need a tag Vocs doesn't emit — a verification `<meta>`, a `<link rel="preconnect">`, an analytics script — you render it yourself. Vocs runs on React 19, which hoists `<title>`, `<meta>`, `<link>`, and `<script async>` elements into `<head>` no matter where in the tree they render. A custom head tag is just an element on a page or in a wrapper.
+
+## Built-in Metadata
+
+Set the common tags through config and frontmatter rather than writing raw elements — Vocs keeps the `<title>`, Open Graph, Twitter, and `llms.txt` variants in sync for you. They are emitted by the [`Head`](/reference/components#head) component in the document root.
+
+| Tag | Source |
+| --- | --- |
+| `<title>` | frontmatter `title` (falls back to config `title` + `titleTemplate`) |
+| `<meta name="description">` | frontmatter `description` (falls back to config `description`) |
+| `<meta name="author">` | frontmatter `author` |
+| `<meta name="robots">` | frontmatter `robots` |
+| `<link rel="icon">` | config [`iconUrl`](/reference/site-config#iconurl) |
+| `<link rel="canonical">` and `<base>` | config [`baseUrl`](/reference/site-config#baseurl) |
+| `<meta property="og:image">` and `<meta name="twitter:image">` | config [`ogImageUrl`](/reference/site-config#ogimageurl) |
+| Open Graph and Twitter title + description | derived from the resolved title and description |
+
+## Recipes
+
+### Add a Tag to a Single Page
+
+Render the element anywhere in an `.mdx` page. React hoists it into `<head>`:
+
+```mdx
+---
+title: Pricing
+---
+
+# Pricing
+
+<link rel="alternate" type="application/rss+xml" href="/feed.xml" /> // [!code focus]
+<meta name="x-handle" content="@wevm_dev" /> // [!code focus]
+
+Our plans and pricing.
+```
+
+Reach for [frontmatter](/writing/frontmatter) (`title`, `description`, `author`, `robots`) for the standard metadata — it keeps the Open Graph, Twitter, and `llms.txt` variants consistent. Use raw tags for everything else.
+
+For a `.tsx` page, render the tags inside [`Layout`](/reference/components#layout):
+
+```tsx [src/pages/pricing.tsx]
+import { Layout } from 'vocs'
+
+export default function Page() {
+  return (
+    <Layout>
+      <meta name="x-handle" content="@wevm_dev" /> // [!code focus]
+      <h1>Pricing</h1>
+    </Layout>
+  )
+}
+```
+
+### Add a Tag to Every Page
+
+Create a root [MDX wrapper](/features/layouts#mdx-wrapper) at `src/pages/_mdx-wrapper.tsx`. It wraps every Markdown and MDX page, so any tag you render there lands in `<head>` site-wide.
+
+```tsx [src/pages/_mdx-wrapper.tsx]
+import type { ReactNode } from 'react'
+import { Layout } from 'vocs'
+
+export default function Wrapper({ children }: { children: ReactNode }) {
+  return (
+    <Layout>
+      <meta name="theme-color" content="#161616" /> // [!code focus:2]
+      <link rel="preconnect" href="https://rsms.me" />
+      {children}
+    </Layout>
+  )
+}
+```
+
+:::warning
+A wrapper **replaces** the built-in page shell. Render [`Layout`](/reference/components#layout) (imported from `vocs`) inside it so pages keep their sidebar, top navigation, and outline.
+:::
+
+### Scope Tags to a Section
+
+The nearest wrapper wins, so a `_mdx-wrapper.tsx` deeper in the tree applies to just that subtree. Use it to emit tags for one section — for example, mark everything under `/blog` as an article:
+
+```tsx [src/pages/blog/_mdx-wrapper.tsx]
+import type { ReactNode } from 'react'
+import { Layout } from 'vocs'
+
+export default function BlogWrapper({ children }: { children: ReactNode }) {
+  return (
+    <Layout>
+      <meta property="og:type" content="article" /> // [!code focus]
+      {children}
+    </Layout>
+  )
+}
+```
+
+### Load a Third-Party Script
+
+React 19 hoists `<script async>` into `<head>` and de-duplicates it across pages, so an analytics snippet is just an element. Put it on a single page, or in the root wrapper to load it everywhere:
+
+```tsx [src/pages/_mdx-wrapper.tsx]
+import type { ReactNode } from 'react'
+import { Layout } from 'vocs'
+
+export default function Wrapper({ children }: { children: ReactNode }) {
+  return (
+    <Layout>
+      <script // [!code focus:5]
+        async
+        src="https://analytics.example.com/script.js"
+        data-site="ABC123"
+      />
+      {children}
+    </Layout>
+  )
+}
+```
+
+Only `async` scripts are hoisted. An inline blocking script — e.g. one that must run before first paint — is not hoisted; render it from a custom root instead.
+
+## See More
+
+<Cards>
+  <Card
+    title="Site Configuration"
+    description="title, description, iconUrl, baseUrl, and ogImageUrl that drive the built-in tags."
+    icon="settings"
+    to="/reference/site-config"
+  />
+  <Card
+    title="Frontmatter"
+    description="Per-page title, description, author, and robots metadata."
+    icon="file-text"
+    to="/writing/frontmatter"
+  />
+  <Card
+    title="Dynamic OG Images"
+    description="Generate per-page social preview images for og:image and twitter:image."
+    icon="image"
+    to="/features/dynamic-og-images"
+  />
+  <Card
+    title="MDX Wrapper"
+    description="How _mdx-wrapper.tsx scoping and the Layout shell work."
+    icon="layout-template"
+    to="/features/layouts#mdx-wrapper"
+  />
+</Cards>
