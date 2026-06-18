@@ -1,5 +1,11 @@
 # vocs
 
+## 2.0.16
+
+### Patch Changes
+
+- 766f960: Fixed production builds for pages that imported Markdown files from outside `src/pages`.
+
 ## 2.0.15
 
 ### Patch Changes
