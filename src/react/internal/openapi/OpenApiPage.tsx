@@ -17,9 +17,11 @@ import { PlaygroundProvider } from './Playground.client.js'
  * contents) via frontmatter context, since the sidebar already exposes every
  * operation as an anchor.
  */
-function OpenApiLayout(props: { children: React.ReactNode }) {
+function OpenApiLayout(props: { children: React.ReactNode; width?: 'default' | 'full' }) {
   return (
-    <MdxPageContext.Provider frontmatter={{ outline: false, content: { width: 'full' } }}>
+    <MdxPageContext.Provider
+      frontmatter={{ outline: false, content: { width: props.width ?? 'full' } }}
+    >
       <Layout>{props.children}</Layout>
     </MdxPageContext.Provider>
   )
@@ -86,16 +88,14 @@ export function OpenApiPage(props: OpenApiPage.Props) {
     )
   }
 
-  // Overview / landing page listing every category.
+  // Overview / landing page listing every category. Centered (content width)
+  // rather than full-bleed — it has no two-column playground to fill the page.
   return (
-    <OpenApiLayout>
+    <OpenApiLayout width="default">
       <title>{ir.info.title}</title>
       <div data-v-openapi>
         <Header ir={ir} />
         <div data-v-openapi-group>
-          <h2 data-v data-v-openapi-h2>
-            Domains
-          </h2>
           <div data-v-openapi-overview>
             {ir.groups.map((category) => (
               <div key={category.id} data-v-openapi-overview-category>

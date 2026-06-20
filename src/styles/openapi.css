@@ -26,9 +26,11 @@
   @apply vocs:flex vocs:flex-col vocs:gap-2 vocs:pt-6;
 }
 
-/* Spec / category header. */
+/* Spec / category header. Mirrors the markdown `hgroup` page header: `text-h1`
+   on the container scopes the `0.75em` bottom padding to the heading size, and
+   the description uses the same subtitle styling as a markdown page subtitle. */
 [data-v-openapi-header] {
-  @apply vocs:flex vocs:flex-col vocs:gap-3 vocs:max-w-content vocs:border-b vocs:border-primary vocs:pb-6;
+  @apply vocs:flex vocs:flex-col vocs:max-w-content vocs:text-h1 vocs:border-b vocs:border-primary vocs:pb-[0.75em];
 }
 [data-v-openapi-h1],
 [data-v-openapi-h2] {
@@ -38,12 +40,14 @@
   @apply vocs:!mt-0;
 }
 [data-v-openapi-description] {
-  @apply vocs:text-secondary;
+  @apply vocs:text-secondary vocs:text-subtitle vocs:font-[450] vocs:leading-base vocs:mt-[0.25em];
 }
 /* Overview landing page: categories as accordions whose panels list every
-   endpoint as a GET-badge + path row (primary background, not surface). */
+   endpoint as a GET-badge + path row (primary background, not surface). The
+   whole list is encapsulated in a card-styled pane (matching the `Card`
+   component); row dividers inset via the horizontal padding. */
 [data-v-openapi-overview] {
-  @apply vocs:flex vocs:flex-col;
+  @apply vocs:flex vocs:flex-col vocs:rounded-md vocs:border vocs:border-primary vocs:bg-surfaceTint/70 vocs:px-4;
 }
 [data-v-openapi-overview-category] {
   @apply vocs:border-t vocs:border-primary;
@@ -52,7 +56,15 @@
   @apply vocs:border-t-0;
 }
 [data-v-openapi-overview] [data-v-openapi-disclosure-trigger] {
-  @apply vocs:flex vocs:items-center vocs:gap-2 vocs:w-full vocs:py-3 vocs:text-left vocs:cursor-pointer;
+  @apply vocs:flex vocs:items-center vocs:gap-2 vocs:py-3 vocs:text-left vocs:cursor-pointer;
+  /* Bleed into the card's `px-4` padding so the hover highlight spans the full
+     width (edge to edge), inset only by the card border. The width must grow by
+     the bleed on both sides (`100% + 2rem`) so it also reaches the right edge —
+     a negative margin alone shifts the box without widening it. */
+  @apply vocs:-mx-4 vocs:w-[calc(100%+2rem)] vocs:px-4 vocs:transition-colors;
+}
+[data-v-openapi-overview] [data-v-openapi-disclosure-trigger]:hover {
+  background-color: light-dark(var(--vocs-color-gray12), var(--vocs-color-gray4));
 }
 [data-v-openapi-overview-chevron] {
   @apply vocs:size-4 vocs:shrink-0 vocs:text-secondary vocs:transition-transform;
@@ -70,7 +82,7 @@
   @apply vocs:text-[13px] vocs:text-secondary;
 }
 [data-v-openapi-overview] [data-v-openapi-disclosure-panel] {
-  @apply vocs:pb-3;
+  @apply vocs:pt-1 vocs:pb-3;
 }
 [data-v-openapi-overview-endpoints] {
   @apply vocs:flex vocs:flex-col vocs:gap-2;
