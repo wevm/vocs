@@ -8,8 +8,7 @@ export function Badge(props: Badge.Props) {
 }
 
 export declare namespace Badge {
-  export type Props = React.PropsWithChildren<{
-    className?: string | undefined
+  export type Props = React.ComponentPropsWithoutRef<'span'> & {
     variant?: 'note' | 'info' | 'warning' | 'danger' | 'tip' | 'success'
-  }>
+  }
 }

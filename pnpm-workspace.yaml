@@ -25,3 +25,8 @@ catalog:
 overrides:
   '@vocs/twoslash-rust': workspace:*
   create-vocs: workspace:*
+  # Pin a single `yaml` version. `yaml` is an optional peer dep of vite, so
+  # multiple versions fork vite/waku/plugin-rsc into separate peer-resolved
+  # instances, which breaks `instanceof RunnableDevEnvironment` checks
+  # (manifests as "[vite-rsc] environment 'ssr' is not runnable").
+  yaml: 2.9.0

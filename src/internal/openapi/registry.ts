@@ -1,0 +1,76 @@
+import type { Config } from '../config.js'
+import type { SidebarItem } from '../sidebar.js'
+import { type Ir, parse } from './parser.js'
+import * as Sidebar from './sidebar.js'
+
+type Specs = Record<string, Ir>
+
+let cache: Specs | null = null
+let building: Promise<Specs> | null = null
+
+/**
+ * Parses all configured OpenAPI specs into IRs, memoized across plugins and
+ * Vite environments. Call {@link invalidate} to force a re-parse (e.g. when a
+ * local spec file changes).
+ */
+export async function build(config: Config): Promise<Specs> {
+  if (cache) return cache
+  if (building) return building
+
+  building = (async () => {
+    const next: Specs = {}
+    for (const entry of config.openapi ?? [])
+      next[entry.path] = await parse(entry, { rootDir: config.rootDir })
+    cache = next
+    building = null
+    return next
+  })()
+
+  return building
+}
+
+/** Returns the cached specs, or `null` if not yet built. */
+export function peek(): Specs | null {
+  return cache
+}
+
+/** Clears the cache so the next {@link build} re-parses. */
+export function invalidate(): void {
+  cache = null
+  building = null
+}
+
+/**
+ * Returns the OpenAPI-generated sidebars keyed by mount path, derived from the
+ * cached IRs. Empty if specs haven't been built yet or none are configured.
+ */
+export function sidebars(): Record<string, { backLink: boolean; items: SidebarItem<true>[] }> {
+  const result: Record<string, { backLink: boolean; items: SidebarItem<true>[] }> = {}
+  if (!cache) return result
+  for (const [path, ir] of Object.entries(cache))
+    result[path] = { backLink: true, items: Sidebar.toSidebar(ir) }
+  return result
+}
+
+/**
+ * Merges OpenAPI-generated sidebars into a user's `sidebar` config.
+ *
+ * Returns the original config unchanged when no OpenAPI sidebars exist.
+ * Array-form sidebars are converted to path-keyed form (under `/`) so the
+ * OpenAPI section can be scoped to its own mount path. Never mutates inputs.
+ */
+export function mergeSidebar(config: Config): Config {
+  const generated = sidebars()
+  if (Object.keys(generated).length === 0) return config
+
+  const userSidebar = config.sidebar
+
+  let merged: Record<string, unknown>
+  if (!userSidebar) merged = {}
+  else if (Array.isArray(userSidebar)) merged = { '/': userSidebar }
+  else merged = { ...userSidebar }
+
+  for (const [path, sidebar] of Object.entries(generated)) merged[path] = sidebar
+
+  return { ...config, sidebar: merged as Config['sidebar'] }
+}

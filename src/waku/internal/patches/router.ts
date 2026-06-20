@@ -1,4 +1,4 @@
-import { type FunctionComponent, lazy, type ReactNode } from 'react'
+import { createElement, type FunctionComponent, lazy, type ReactNode } from 'react'
 import { createPages } from 'waku/router/server'
 import * as DedupeHead from '../dedupe-head.js'
 import {
@@ -250,6 +250,36 @@ export function router(
             } as never) // FIXME avoid as never
           }
         }
+
+        // Mount OpenAPI sections programmatically from config (no source files).
+        // Imported lazily inside the RSC-only callback so the client-component
+        // chain (Layout) is never pulled into the shared/SSR module graph.
+        const { config } = await import('virtual:vocs/config')
+        if (config.openapi?.length) {
+          const { OpenApiPage } = await import('../../../react/internal/openapi/OpenApiPage.js')
+          const { specs } = await import('virtual:vocs/openapi')
+          for (const entry of config.openapi) {
+            const normalized = entry.path.replace(/^\//, '')
+            if (consumerPaths.has(normalized)) continue
+
+            // Section root: overview listing every category.
+            createPage({
+              path: entry.path,
+              component: () => createElement(OpenApiPage, { mount: entry.path }),
+              render: 'static',
+            } as never)
+
+            // Mount one page per category at `${path}/${group}`.
+            const ir = specs[entry.path]
+            for (const group of ir?.groups ?? [])
+              createPage({
+                path: `${entry.path}/${group.id}`,
+                component: () => createElement(OpenApiPage, { mount: entry.path, group: group.id }),
+                render: 'static',
+              } as never)
+          }
+        }
+
         // HACK: to satisfy the return type, unused at runtime
         return null as never
       },

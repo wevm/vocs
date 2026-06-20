@@ -8,4 +8,5 @@ export {
 } from './internal/config.js'
 export * as Feedback from './internal/feedback.js'
 export * as McpSource from './internal/mcp-source.js'
+export * as OpenApi from './internal/openapi/index.js'
 export * as Twoslash from './internal/twoslash/index.js'
