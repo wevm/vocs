@@ -57,7 +57,11 @@ export function sidebars(): Record<string, { backLink: boolean; items: SidebarIt
  *
  * Returns the original config unchanged when no OpenAPI sidebars exist.
  * Array-form sidebars are converted to path-keyed form (under `/`) so the
- * OpenAPI section can be scoped to its own mount path. Never mutates inputs.
+ * OpenAPI section can be scoped to its own mount path.
+ *
+ * Per-entry `sidebar.top` / `sidebar.bottom` items (links to consumer guide
+ * pages mounted under the same path) are prepended/appended around the
+ * generated items. Never mutates inputs.
  */
 export function mergeSidebar(config: Config): Config {
   const generated = sidebars()
@@ -70,7 +74,12 @@ export function mergeSidebar(config: Config): Config {
   else if (Array.isArray(userSidebar)) merged = { '/': userSidebar }
   else merged = { ...userSidebar }
 
-  for (const [path, sidebar] of Object.entries(generated)) merged[path] = sidebar
+  for (const [path, sidebar] of Object.entries(generated)) {
+    const entry = config.openapi?.find((candidate) => candidate.path === path)
+    const top = entry?.sidebar?.top ?? []
+    const bottom = entry?.sidebar?.bottom ?? []
+    merged[path] = { ...sidebar, items: [...top, ...sidebar.items, ...bottom] }
+  }
 
   return { ...config, sidebar: merged as Config['sidebar'] }
 }

@@ -2,7 +2,15 @@ import { Changelog, defineConfig, McpSource, Twoslash } from 'vocs/config'
 
 export default defineConfig({
   changelog: Changelog.github({ prereleases: true, repo: 'tempoxyz/tempo' }),
-  openapi: [{ spec: 'https://cadent.tempo.xyz/openapi.json', path: '/api' }],
+  openapi: [
+    {
+      spec: 'https://cadent.tempo.xyz/openapi.json',
+      path: '/api',
+      sidebar: {
+        top: [{ text: 'Authentication', link: '/api/auth' }],
+      },
+    },
+  ],
   mcp: {
     enabled: true,
     sources: [

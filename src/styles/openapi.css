@@ -17,8 +17,15 @@
 
 /* #region Page layout */
 
+/* Both the landing and group pages use the full-bleed layout (left gutter
+   collapsed to the sidebar so content sits flush after it). Group pages span the
+   full available width to give the two-column operation layout (docs + sticky
+   playground) room; the landing page caps itself to content width below. */
 [data-v-openapi] {
   @apply vocs:flex vocs:flex-col vocs:gap-6;
+}
+[data-v-openapi-landing] {
+  @apply vocs:max-w-content;
 }
 
 /* A category section (single-page layout) / categories list (overview). */
@@ -45,9 +52,10 @@
 /* Overview landing page: categories as accordions whose panels list every
    endpoint as a GET-badge + path row (primary background, not surface). The
    whole list is encapsulated in a card-styled pane (matching the `Card`
-   component); row dividers inset via the horizontal padding. */
+   component); row dividers inset via the horizontal padding. (Width is capped
+   to content width by the shared `[data-v-openapi]` rule.) */
 [data-v-openapi-overview] {
-  @apply vocs:flex vocs:flex-col vocs:rounded-md vocs:border vocs:border-primary vocs:bg-surfaceTint/70 vocs:px-4;
+  @apply vocs:flex vocs:flex-col vocs:overflow-hidden vocs:rounded-md vocs:border vocs:border-primary vocs:bg-surfaceTint/70 vocs:px-4;
 }
 [data-v-openapi-overview-category] {
   @apply vocs:border-t vocs:border-primary;
@@ -109,6 +117,18 @@
 [data-v-openapi] [data-v-content] {
   margin-left: unset;
   margin-right: unset;
+}
+
+/* Consumer "override" intro: render authored MDX exactly like a regular page.
+   The page article supplies its block rhythm via a `space-y-6` className that
+   the nested intro doesn't inherit, so reapply it here; the heading treatment
+   (h1 border, h2/h3 spacing) comes from the shared `article[data-v-content]`
+   rules in markdown.css, which are extended to match `[data-v-openapi-intro]`.
+   Cap to content width to match the auto-generated header (`data-v-openapi-header`)
+   — on group pages the markdown intro reads at content width while the
+   operations below span the full page. */
+[data-v-openapi-intro] {
+  @apply vocs:space-y-6 vocs:max-w-content;
 }
 
 /* #endregion */
@@ -323,8 +343,8 @@ button[data-v-openapi-property-example-value]:hover {
 /* The rounded "Show/Hide" pill: the EnumValues toggle button and the
    CollapsibleChildren disclosure trigger share one look. */
 [data-v-openapi-pill],
-[data-v-openapi-collapse] [data-v-openapi-disclosure-trigger] {
-  @apply vocs:inline-flex vocs:items-center vocs:gap-1.5 vocs:w-fit vocs:rounded-full vocs:border vocs:border-primary vocs:px-3 vocs:py-1 vocs:text-[13px] vocs:font-medium vocs:text-secondary vocs:transition-colors;
+[data-v-openapi-collapse] [data-v-openapi-disclosure-header] [data-v-openapi-disclosure-trigger] {
+  @apply vocs:inline-flex vocs:items-center vocs:gap-1.5 vocs:w-fit vocs:rounded-md vocs:border vocs:border-primary vocs:px-2 vocs:py-0.5 vocs:text-[12px] vocs:font-medium vocs:text-secondary vocs:transition-colors;
 }
 [data-v-openapi-pill]:hover,
 [data-v-openapi-collapse] [data-v-openapi-disclosure-trigger]:hover {
@@ -336,7 +356,7 @@ button[data-v-openapi-property-example-value]:hover {
 [data-v-openapi-pill-icon],
 [data-v-openapi-collapse-icon-show],
 [data-v-openapi-collapse-icon-hide] {
-  @apply vocs:size-3.5;
+  @apply vocs:size-3;
 }
 [data-v-openapi-collapse] [data-v-openapi-disclosure-panel] {
   @apply vocs:mt-2;
@@ -362,6 +382,9 @@ button[data-v-openapi-property-example-value]:hover {
 
 [data-v-openapi-response] {
   @apply vocs:border-t vocs:border-primary;
+}
+[data-v-openapi-response]:first-child {
+  @apply vocs:border-t-0;
 }
 [data-v-openapi-response][data-static] {
   @apply vocs:flex vocs:items-center vocs:gap-2 vocs:py-2;

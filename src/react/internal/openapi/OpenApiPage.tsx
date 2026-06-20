@@ -1,13 +1,9 @@
 import { specs } from 'virtual:vocs/openapi'
-import LucideChevronRight from '~icons/lucide/chevron-right'
+import type { ReactNode } from 'react'
 import * as Markdown from '../../../internal/markdown.js'
 import type { Ir } from '../../../internal/openapi/parser.js'
-import { methodVariant } from '../../../internal/openapi/sidebar.js'
-import { Badge } from '../../Badge.js'
 import { Layout } from '../../Layout.js'
-import { Link } from '../../Link.js'
 import * as MdxPageContext from '../../MdxPageContext.js'
-import { Disclosure } from './Disclosure.client.js'
 import { HeadingAnchor } from './HeadingAnchor.js'
 import { Operation } from './Operation.js'
 import { PlaygroundProvider } from './Playground.client.js'
@@ -28,6 +24,34 @@ function OpenApiLayout(props: { children: React.ReactNode; width?: 'default' | '
 }
 
 /**
+ * Renders a consumer-authored "guide" page (a normal MDX page mounted under an
+ * OpenAPI section path, e.g. `pages/api/auth.mdx`) with the same layout as the
+ * generated section: full-bleed (left gutter collapsed), no right gutter/TOC,
+ * and content-width markdown — matching the section landing/intro pages.
+ */
+export function OpenApiGuide(props: OpenApiGuide.Props) {
+  return (
+    <OpenApiLayout width="full">
+      {props.title ? <title>{props.title}</title> : null}
+      <div data-v-openapi data-v-openapi-landing>
+        <div data-v-openapi-intro data-v-content>
+          {props.children}
+        </div>
+      </div>
+    </OpenApiLayout>
+  )
+}
+
+export declare namespace OpenApiGuide {
+  type Props = {
+    /** Authored MDX content. */
+    children?: ReactNode | undefined
+    /** Document `<title>` (from the page's frontmatter). */
+    title?: string | undefined
+  }
+}
+
+/**
  * Renders an isolated, auto-generated OpenAPI reference section.
  *
  * Behavior depends on the optional `group` prop:
@@ -35,6 +59,11 @@ function OpenApiLayout(props: { children: React.ReactNode; width?: 'default' | '
  * - with `group`: renders a single category page (category name is `<h1>`,
  *   operations are `<h2>`).
  * - without `group`: renders an overview/landing page listing the categories.
+ *
+ * An optional `intro` (a consumer-authored MDX "override" page mounted at the
+ * same route) replaces the auto-generated header (spec title/description) while
+ * the generated body — the category accordion (overview) or the operations list
+ * (group) — still renders below it automatically.
  */
 export function OpenApiPage(props: OpenApiPage.Props) {
   const ir = specs[props.mount]
@@ -63,16 +92,27 @@ export function OpenApiPage(props: OpenApiPage.Props) {
 
     return (
       <OpenApiLayout>
-        <title>{`${group.name} · ${ir.info.title}`}</title>
+        <title>{props.title ?? `${group.name} · ${ir.info.title}`}</title>
         <PlaygroundProvider client={ir.client}>
           <div data-v-openapi>
-            <header data-v-openapi-header>
-              <h1 data-v data-v-openapi-h1 id={group.id}>
-                {group.name}
-                <HeadingAnchor id={group.id} />
-              </h1>
-              {group.description && <Prose markdown={group.description} />}
-            </header>
+            {props.intro ? (
+              // The override keeps the `group.id` anchor so the sidebar
+              // "Overview" link and scroll-spy still resolve to this page. It
+              // intentionally omits `data-v-openapi-header` (which sets
+              // `text-h1` on the container for the auto title) — the authored
+              // MDX supplies its own headings and body text.
+              <div data-v-openapi-intro data-v-content id={group.id}>
+                {props.intro}
+              </div>
+            ) : (
+              <header data-v-openapi-header>
+                <h1 data-v data-v-openapi-h1 id={group.id}>
+                  {group.name}
+                  <HeadingAnchor id={group.id} />
+                </h1>
+                {group.description && <Prose markdown={group.description} />}
+              </header>
+            )}
             {group.operations.map((operation, index) => (
               <Operation
                 key={operation.id}
@@ -88,55 +128,22 @@ export function OpenApiPage(props: OpenApiPage.Props) {
     )
   }
 
-  // Overview / landing page listing every category. Centered (content width)
-  // rather than full-bleed — it has no two-column playground to fill the page.
+  // Overview / landing page. Renders only the consumer override (or the
+  // auto-generated spec header). The domain/endpoint list is no longer rendered
+  // automatically — consumers opt in by dropping `<Endpoints />` into an
+  // override page. Uses the same gutter collapse as group pages (no left
+  // gutter) but caps its own width to content width.
   return (
-    <OpenApiLayout width="default">
-      <title>{ir.info.title}</title>
-      <div data-v-openapi>
-        <Header ir={ir} />
-        <div data-v-openapi-group>
-          <div data-v-openapi-overview>
-            {ir.groups.map((category) => (
-              <div key={category.id} data-v-openapi-overview-category>
-                <Disclosure
-                  trigger={
-                    <>
-                      <LucideChevronRight data-v-openapi-overview-chevron />
-                      <span data-v-openapi-overview-category-head>
-                        <span data-v-openapi-overview-category-name>{category.name}</span>
-                        {category.description && (
-                          <span data-v-openapi-overview-category-description>
-                            {category.description}
-                          </span>
-                        )}
-                      </span>
-                    </>
-                  }
-                >
-                  <ul data-v-openapi-overview-endpoints>
-                    {category.operations.map((operation) => (
-                      <li key={operation.id}>
-                        <Link
-                          to={`${ir.path}/${category.id}#${operation.id}`}
-                          data-v-openapi-overview-endpoint
-                        >
-                          <Badge variant={methodVariant(operation.method)}>
-                            {operation.method}
-                          </Badge>
-                          <span data-v-openapi-overview-endpoint-title>
-                            {operation.summary || operation.path}
-                          </span>
-                          <LucideChevronRight data-v-openapi-overview-endpoint-chevron />
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </Disclosure>
-              </div>
-            ))}
+    <OpenApiLayout width="full">
+      <title>{props.title ?? ir.info.title}</title>
+      <div data-v-openapi data-v-openapi-landing>
+        {props.intro ? (
+          <div data-v-openapi-intro data-v-content>
+            {props.intro}
           </div>
-        </div>
+        ) : (
+          <Header ir={ir} />
+        )}
       </div>
     </OpenApiLayout>
   )
@@ -151,6 +158,13 @@ export declare namespace OpenApiPage {
      * every category.
      */
     group?: string | undefined
+    /**
+     * Consumer-authored override content rendered in place of the auto-generated
+     * header (spec title/description). The generated body still renders below.
+     */
+    intro?: ReactNode | undefined
+    /** Document `<title>` override (e.g. from the override page's frontmatter). */
+    title?: string | undefined
   }
 }
 

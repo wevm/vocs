@@ -12,9 +12,9 @@ const spec = {
   },
 }
 
-function config(sidebar?: Config.Config['sidebar']): Config.Config {
+function config(sidebar?: Config.Config['sidebar'], extras?: OpenApi.SidebarExtras): Config.Config {
   return Config.define({
-    openapi: [OpenApi.from({ spec, path: '/api' })],
+    openapi: [OpenApi.from({ spec, path: '/api', sidebar: extras })],
     sidebar,
   })
 }
@@ -61,6 +61,22 @@ describe('mergeSidebar', () => {
 
     const sidebar = Registry.mergeSidebar(cfg).sidebar as Record<string, unknown>
     expect(Object.keys(sidebar).sort()).toEqual(['/api', '/guide'])
+  })
+
+  test('prepends `sidebar.top` and appends `sidebar.bottom` items', async () => {
+    const cfg = config(undefined, {
+      top: [{ text: 'Authentication', link: '/api/auth' }],
+      bottom: [{ text: 'Errors', link: '/api/errors' }],
+    })
+    await Registry.build(cfg)
+
+    const sidebar = Registry.mergeSidebar(cfg).sidebar as Record<string, { items: SidebarItem[] }>
+    const items = sidebar['/api']?.items ?? []
+    // Top item comes before the generated "Introduction".
+    expect(items[0]).toEqual({ text: 'Authentication', link: '/api/auth' })
+    expect(items[1]).toEqual({ text: 'Introduction', link: '/api' })
+    // Bottom item comes after the generated categories.
+    expect(items.at(-1)).toEqual({ text: 'Errors', link: '/api/errors' })
   })
 
   test('does not mutate the input config', async () => {

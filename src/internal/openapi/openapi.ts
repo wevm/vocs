@@ -5,6 +5,8 @@
  * OpenAPI spec. Use {@link from} to define an entry in `vocs.config.ts`.
  */
 
+import type { SidebarItem } from '../sidebar.js'
+
 /**
  * Spec source.
  *
@@ -14,6 +16,19 @@
  * - An inline OpenAPI document object.
  */
 export type Spec = string | Record<string, unknown>
+
+/**
+ * Extra sidebar items to add around the auto-generated section.
+ *
+ * These are typically links to consumer-authored override/guide pages mounted
+ * under the same `path` (e.g. `pages/api/auth.mdx`).
+ */
+export type SidebarExtras = {
+  /** Items prepended above the generated `Introduction`/categories. */
+  top?: SidebarItem[] | undefined
+  /** Items appended below the generated categories. */
+  bottom?: SidebarItem[] | undefined
+}
 
 export type Config = {
   /**
@@ -28,6 +43,19 @@ export type Config = {
    * @example "/api"
    */
   path: string
+  /**
+   * Extra sidebar items to add around the auto-generated section (e.g. links to
+   * consumer-authored guide pages mounted under `path`).
+   *
+   * @example
+   * ```ts
+   * sidebar: {
+   *   top: [{ text: 'Authentication', link: '/api/auth' }],
+   *   bottom: [{ text: 'Errors', link: '/api/errors' }],
+   * }
+   * ```
+   */
+  sidebar?: SidebarExtras | undefined
 }
 
 /**
@@ -45,7 +73,7 @@ export type Config = {
  * ```
  */
 export function from(config: from.Options): Config {
-  const { spec, path } = config
+  const { spec, path, sidebar } = config
 
   if (!spec) throw new Error('[vocs] `openapi` entry is missing a `spec`.')
   if (!path) throw new Error('[vocs] `openapi` entry is missing a `path`.')
@@ -58,6 +86,7 @@ export function from(config: from.Options): Config {
   return {
     spec,
     path: normalizedPath,
+    ...(sidebar ? { sidebar } : {}),
   }
 }
 
