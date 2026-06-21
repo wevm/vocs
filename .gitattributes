@@ -9,3 +9,4 @@ deno.lock linguist-language=JSON-with-Comments
 .vscode/*.json linguist-language=JSON-with-Comments
 
 pages.gen.ts linguist-generated=true
+src/server/openapi/assets.generated.ts linguist-generated=true

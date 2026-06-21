@@ -57,6 +57,16 @@ declare module '*.css?url' {
   export default url
 }
 
+declare module '*.wasm?url' {
+  const url: string
+  export default url
+}
+
+declare module '*?arraybuffer' {
+  const data: ArrayBuffer
+  export default data
+}
+
 declare module 'virtual:vocs/slots' {
   import type { ComponentType } from 'react'
   export const Footer: ComponentType | undefined

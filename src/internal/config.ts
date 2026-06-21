@@ -251,7 +251,7 @@ export type Config<partial extends boolean = false> = MaybePartial<
      * })
      * ```
      */
-    openapi?: readonly OpenApi.Config[] | undefined
+    openapi?: readonly OpenApi.SiteConfig[] | undefined
     /**
      * The output directory relative to root.
      * @default "dist"

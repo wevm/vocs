@@ -1,5 +1,3 @@
-import * as fs from 'node:fs/promises'
-import * as path from 'node:path'
 import { dereference, upgrade } from '@scalar/openapi-parser'
 import GithubSlugger from 'github-slugger'
 import type * as OpenApi from './openapi.js'
@@ -197,7 +195,7 @@ type RawHeader = {
  * categories (by tag) for the sidebar and per-category pages.
  */
 export async function parse(config: OpenApi.Config, options: parse.Options = {}): Promise<Ir> {
-  const { rootDir = process.cwd() } = options
+  const { rootDir = typeof process !== 'undefined' ? process.cwd() : '.' } = options
 
   const raw = await load(config.spec, rootDir)
   const { specification } = upgrade(raw as never)
@@ -223,7 +221,7 @@ export async function parse(config: OpenApi.Config, options: parse.Options = {})
     : { content: specification as Record<string, unknown> }
 
   return {
-    path: config.path,
+    path: config.path ?? '/',
     client,
     info: {
       title: document.info?.title ?? 'API Reference',
@@ -278,13 +276,35 @@ async function load(
     return response.text()
   }
 
-  // Treat as a file path relative to rootDir; fall back to raw content.
+  // Raw JSON/YAML content passed inline as a string — no filesystem needed.
+  // (Avoids importing `node:*` in non-Node runtimes like Cloudflare Workers,
+  // where local-file specs are unsupported anyway.)
+  if (looksLikeRawContent(spec)) return spec
+
+  // Treat as a file path relative to rootDir; fall back to raw content. `node:*`
+  // is imported dynamically so URL/inline specs stay runtime-portable.
   try {
+    const [{ default: fs }, path] = await Promise.all([
+      import('node:fs/promises').then((module) => ({ default: module })),
+      import('node:path'),
+    ])
     const filePath = path.isAbsolute(spec) ? spec : path.resolve(rootDir, spec)
     return await fs.readFile(filePath, 'utf-8')
   } catch {
     return spec
   }
+}
+
+/**
+ * Heuristic for raw inline spec content (vs. a file path): JSON starts with `{`,
+ * and a YAML document typically contains a newline or an `openapi:`/`swagger:`
+ * key. File paths are single-line and do not.
+ */
+function looksLikeRawContent(spec: string): boolean {
+  const trimmed = spec.trimStart()
+  if (trimmed.startsWith('{')) return true
+  if (/\n/.test(spec) && /(^|\n)\s*(openapi|swagger)\s*:/.test(spec)) return true
+  return false
 }
 
 /** Groups operations by their first tag. */

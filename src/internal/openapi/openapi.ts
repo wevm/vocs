@@ -5,6 +5,7 @@
  * OpenAPI spec. Use {@link from} to define an entry in `vocs.config.ts`.
  */
 
+import type * as VocsConfig from '../config.js'
 import type { SidebarItem } from '../sidebar.js'
 
 /**
@@ -30,6 +31,26 @@ export type SidebarExtras = {
   bottom?: SidebarItem[] | undefined
 }
 
+/**
+ * A consumer-authored `.md`/`.mdx` page mounted into an OpenAPI section.
+ *
+ * In the Vite/site integration these are discovered automatically by the file
+ * router (e.g. `pages/api/auth.mdx`). In the standalone server handler
+ * ({@link file://./../../server/handlers.ts `Handler.openApi`}) — which has no
+ * filesystem router — they are supplied explicitly so override/guide content can
+ * still be rendered.
+ *
+ * - `path` is the route relative to the section mount (e.g. `/` overrides the
+ *   landing intro, `/auth` is a guide page, `/<group>` overrides a category
+ *   header).
+ * - `file` is the path to the `.md`/`.mdx` source, resolved against the handler
+ *   `rootDir` (default `process.cwd()`).
+ */
+export type Page = {
+  path: string
+  file: string
+}
+
 export type Config = {
   /**
    * OpenAPI spec source: file path, URL, raw content, or inline object.
@@ -40,9 +61,14 @@ export type Config = {
    *
    * The section gets its own isolated sidebar scoped to this path.
    *
+   * Required for the Vite/site integration. Optional for the standalone
+   * {@link file://./../../server/handlers.ts `Handler.openApi`} handler (the
+   * Hono mount provides the location; `path` only seeds generated link bases and
+   * defaults to `/`).
+   *
    * @example "/api"
    */
-  path: string
+  path?: string | undefined
   /**
    * Extra sidebar items to add around the auto-generated section (e.g. links to
    * consumer-authored guide pages mounted under `path`).
@@ -56,6 +82,34 @@ export type Config = {
    * ```
    */
   sidebar?: SidebarExtras | undefined
+  /**
+   * Consumer-authored `.md`/`.mdx` override/guide pages.
+   *
+   * Only used by the standalone {@link file://./../../server/handlers.ts
+   * `Handler.openApi`} handler — the Vite/site integration discovers these via
+   * the file router instead.
+   */
+  pages?: Page[] | undefined
+  /**
+   * Vocs config passthrough for the standalone {@link
+   * file://./../../server/handlers.ts `Handler.openApi`} handler.
+   *
+   * The handler renders the real Vocs layout, so these options customize the
+   * chrome (theme, top navigation, logo, socials, …) exactly like a
+   * `vocs.config.ts`. `title`, `description`, and `sidebar` are derived from the
+   * spec and sidebar config and cannot be set here.
+   */
+  vocs?:
+    | Omit<VocsConfig.define.Options, 'sidebar' | 'title' | 'description' | 'openapi'>
+    | undefined
+}
+
+/**
+ * Config for the Vite/site integration, where `path` is required (it scopes the
+ * generated sidebar and routes).
+ */
+export type SiteConfig = Config & {
+  path: string
 }
 
 /**
@@ -72,24 +126,30 @@ export type Config = {
  * })
  * ```
  */
-export function from(config: from.Options): Config {
-  const { spec, path, sidebar } = config
+export function from(config: from.Options): SiteConfig {
+  const { spec, path, sidebar, pages } = config
 
   if (!spec) throw new Error('[vocs] `openapi` entry is missing a `spec`.')
   if (!path) throw new Error('[vocs] `openapi` entry is missing a `path`.')
 
-  // Normalize mount path: ensure leading slash, strip trailing slash.
-  let normalizedPath = path.startsWith('/') ? path : `/${path}`
-  if (normalizedPath.length > 1 && normalizedPath.endsWith('/'))
-    normalizedPath = normalizedPath.slice(0, -1)
-
   return {
     spec,
-    path: normalizedPath,
+    path: normalizePath(path),
     ...(sidebar ? { sidebar } : {}),
+    ...(pages ? { pages } : {}),
   }
 }
 
 export declare namespace from {
-  type Options = Config
+  type Options = SiteConfig
+}
+
+/**
+ * Normalizes a mount path: ensures a leading slash and strips any trailing
+ * slash (except for the root `/`).
+ */
+export function normalizePath(path: string): string {
+  let normalized = path.startsWith('/') ? path : `/${path}`
+  if (normalized.length > 1 && normalized.endsWith('/')) normalized = normalized.slice(0, -1)
+  return normalized
 }

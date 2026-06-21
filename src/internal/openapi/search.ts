@@ -19,6 +19,8 @@ import type { Ir, IrOperation } from './parser.js'
 export function toSearchDocuments(ir: Ir): SearchDocuments.Document[] {
   const category = ir.info.title
   const documents: SearchDocuments.Document[] = []
+  // Strip a trailing slash so a root mount (`/`) doesn't yield `//group` hrefs.
+  const base = ir.path === '/' ? '' : ir.path.replace(/\/$/, '')
 
   // Section landing page (`/api`).
   documents.push({
@@ -34,7 +36,7 @@ export function toSearchDocuments(ir: Ir): SearchDocuments.Document[] {
   })
 
   for (const group of ir.groups) {
-    const groupHref = `${ir.path}/${group.id}`
+    const groupHref = `${base}/${group.id}`
 
     // Category page (`/api/<group>`).
     documents.push({

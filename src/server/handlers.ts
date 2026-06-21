@@ -1,10 +1,6 @@
-import { ImageResponse } from '@takumi-rs/image-response/wasm'
-// @ts-expect-error
-import wasm from '@takumi-rs/wasm/takumi_wasm_bg.wasm?url'
-
 import * as Config from '../internal/config.js'
-// @ts-expect-error
-import font from './fonts/geist.woff2?arraybuffer'
+
+export { compose, openApi } from './openapi/handler.js'
 
 type Handler = {
   fetch: (request: Request) => Promise<Response>
@@ -35,6 +31,15 @@ type Handler = {
 export function og(render: (props: og.Props) => React.JSX.Element): Handler {
   return {
     fetch: async (request) => {
+      // Imported lazily (these specifiers are Vite-only transforms) so plain
+      // Node consumers of `vocs/server` — e.g. `Handler.openApi` — can import
+      // the namespace without evaluating the takumi/font assets.
+      const [{ ImageResponse }, { default: wasm }, { default: font }] = await Promise.all([
+        import('@takumi-rs/image-response/wasm'),
+        import('@takumi-rs/wasm/takumi_wasm_bg.wasm?url'),
+        import('./fonts/geist.woff2?arraybuffer'),
+      ])
+
       const url = new URL(request.url)
       const config = await Config.resolve({ server: true })
 

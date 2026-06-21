@@ -31,10 +31,12 @@ export function methodVariant(method: string): BadgeVariant {
  * page (`/api/{group}#{operation}`).
  */
 export function toSidebar(ir: Ir): SidebarItem<true>[] {
+  // Strip a trailing slash so a root mount (`/`) doesn't yield `//group`.
+  const base = ir.path === '/' ? '' : ir.path.replace(/\/$/, '')
   const operationLink = (operation: IrOperation, groupId: string) =>
-    `${ir.path}/${groupId}#${operation.id}`
+    `${base}/${groupId}#${operation.id}`
 
-  const groupLink = (groupId: string) => `${ir.path}/${groupId}`
+  const groupLink = (groupId: string) => `${base}/${groupId}`
 
   return [
     // A root "Introduction" item links to the section landing page (`/api`).
