@@ -99,7 +99,12 @@ export function inferMount(pathname: string, routes: string[]): string {
       }
     }
   }
-  return best === -1 ? path : mount
+  // No group/page route matched: we're on the intro/landing page, so the whole
+  // pathname is the mount. A root mount (`/`) has no prefix, though — return ''
+  // so callers build `/group` rather than `//group` (a protocol-relative URL the
+  // browser reads as `http://group/`).
+  if (best === -1) return path === '/' ? '' : path
+  return mount
 }
 
 function stripTrailingSlash(value: string): string {

@@ -56,6 +56,15 @@ describe('createRouter (base /)', () => {
     expect(router.href('/')).toBe('/')
   })
 
+  test('mounted at root, on the landing page', () => {
+    const router = createRouter(payload('/'), '/')
+    expect(router.mount).toBe('')
+    // Links must not become protocol-relative (`//pets` → `http://pets/`).
+    expect(router.href('/pets')).toBe('/pets')
+    expect(router.href('/pets#listPets')).toBe('/pets#listPets')
+    expect(router.href('/')).toBe('/')
+  })
+
   test('resolves a guide page route', () => {
     const router = createRouter(payload('/'), '/docs/auth')
     expect(router.mount).toBe('/docs')
