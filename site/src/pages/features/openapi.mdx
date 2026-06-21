@@ -4,14 +4,14 @@ import { Card, Cards } from 'vocs'
 
 ## Overview
 
-Vocs can turn an [OpenAPI](https://www.openapis.org/) specification into a fully interactive API reference — a Scalar/Mintlify-style section with its own sidebar, parameter and response documentation, request examples, and an in-browser request playground.
+Vocs can turn an [OpenAPI](https://www.openapis.org/) specification into a fully interactive API reference: an isolated section with its own sidebar, parameter and response documentation, request examples, and an in-browser request playground.
 
 Each category (tag/group) in your spec becomes its own page, and every operation within that category is rendered as an anchored section on that page. The sidebar is generated automatically from the spec, with each operation linking to its section.
 
 There are two ways to add an API reference:
 
-- **Site integration** — add an `openapi` entry to `vocs.config.ts` to mount a reference section inside your Vocs site.
-- **Server integration** — use `Handler.openApi` from `vocs/server` to mount a standalone, self-contained reference onto any [Hono](https://hono.dev/) or fetch-based server.
+- **Site integration**: add an `openapi` entry to `vocs.config.ts` to mount a reference section inside your Vocs site.
+- **Server integration**: use `Handler.openApi` from `vocs/server` to mount a standalone, self-contained reference onto any [Hono](https://hono.dev/) or fetch-based server.
 
 ## Recipes
 
@@ -42,7 +42,7 @@ Visit `/api` to see the generated reference.
 
 ### Add Guide Pages to the Section
 
-Use `sidebar.top` / `sidebar.bottom` to add links around the auto-generated operations — typically to consumer-authored guide pages mounted under the same `path`.
+Use `sidebar.top` / `sidebar.bottom` to add links around the auto-generated operations, typically to consumer-authored guide pages mounted under the same `path`.
 
 ```ts [vocs.config.ts]
 import { defineConfig } from 'vocs/config'
@@ -64,7 +64,7 @@ Then author the page in your pages directory at the matching route (e.g. `src/pa
 
 ### List Endpoints in a Page
 
-The `<OpenApi.Endpoints />` component renders the landing/domain accordion of operations anywhere in your MDX — useful for an introduction or overview page.
+The `<OpenApi.Endpoints />` component renders the landing/domain accordion of operations anywhere in your MDX, useful for an introduction or overview page.
 
 ```mdx [src/pages/api/index.mdx]
 import { OpenApi } from 'vocs'
@@ -78,7 +78,7 @@ import { OpenApi } from 'vocs'
 
 ### Mount a Reference on a Server
 
-`Handler.openApi` from `vocs/server` builds a standalone reference — rendered entirely client-side by a prebuilt bundle shipped inside Vocs — that mounts onto any Hono server. It accepts the same config as a `vocs.config.ts` `openapi` entry, except `path` is optional (the host server provides the mount location).
+`Handler.openApi` from `vocs/server` builds a standalone reference, rendered entirely client-side by a prebuilt bundle shipped inside Vocs, that mounts onto any Hono server. It accepts the same config as a `vocs.config.ts` `openapi` entry, except `path` is optional (the host server provides the mount location).
 
 ```ts [server.ts]
 import { Hono } from 'hono'
@@ -95,21 +95,9 @@ export default app
 
 The reference is now served at `/docs`. Its Introduction page lists every endpoint by default.
 
-### Run on Node.js
-
-The handler is fetch-isomorphic. It also exposes a Node.js `listener`, so you can serve it with `node:http` directly.
-
-```ts [server.ts]
-import * as http from 'node:http'
-import { Handler } from 'vocs/server'
-
-const ref = Handler.openApi({ spec: './openapi.yaml' }) // [!code focus]
-http.createServer(ref.listener).listen(3000) // [!code focus]
-```
-
 ### Customize the Server Reference
 
-The `vocs` option mirrors `vocs.config.ts` — customize the title, theme, logo, top nav, and other chrome. `title` and `description` default to the spec's `info`, but can be overridden.
+The `vocs` option mirrors `vocs.config.ts`, letting you customize the title, theme, logo, top nav, and other chrome. `title` and `description` default to the spec's `info`, but can be overridden.
 
 Add `pages` to mount `.md`/`.mdx` override or guide content into the sidebar. A page at path `/` overrides the Introduction; a page at `/<group>` overrides a category page; any other path adds a standalone guide.
 
@@ -158,8 +146,8 @@ export default app
   />
   <Card
     title="Site Configuration"
-    description="Full reference for the options accepted by defineConfig."
+    description="Reference for the openapi config option."
     icon="settings"
-    to="/reference/site-config"
+    to="/reference/site-config#openapi"
   />
 </Cards>
