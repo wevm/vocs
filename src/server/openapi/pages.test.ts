@@ -15,6 +15,14 @@ describe('compile', () => {
     expect(pages[0]?.title).toBe('Custom')
   })
 
+  test('applies title and description overrides', async () => {
+    const pages = await compile([
+      { path: '/auth', content: 'Body.', title: 'Authentication', description: 'Use a token.' },
+    ])
+    expect(pages[0]?.title).toBe('Authentication')
+    expect(pages[0]?.description).toBe('Use a token.')
+  })
+
   test('throws when a page has neither file nor content', async () => {
     await expect(compile([{ path: '/auth' }])).rejects.toThrow(/either `file` or `content`/)
   })
@@ -34,6 +42,15 @@ describe('compileSource', () => {
     const page = compileSource('/', '---\ntitle: Overview\n---\n\nHello.')
     expect(page.title).toBe('Overview')
     expect(page.blocks).toHaveLength(1)
+  })
+
+  test('reads title and description from frontmatter', () => {
+    const page = compileSource(
+      '/auth',
+      '---\ntitle: Authentication\ndescription: How auth works.\n---\n\nHello.',
+    )
+    expect(page.title).toBe('Authentication')
+    expect(page.description).toBe('How auth works.')
   })
 
   test('splits around <OpenApi.Endpoints /> into blocks', () => {

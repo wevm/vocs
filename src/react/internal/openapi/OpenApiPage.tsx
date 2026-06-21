@@ -4,7 +4,7 @@ import { Layout } from '../../Layout.js'
 import * as MdxPageContext from '../../MdxPageContext.js'
 import { Endpoints } from './Endpoints.js'
 import { PlaygroundProvider } from './Playground.client.js'
-import { ReferenceGroup, ReferenceOverview } from './Reference.js'
+import { Prose, ReferenceGroup, ReferenceOverview } from './Reference.js'
 
 /**
  * Layout for OpenAPI pages. Disables the page outline (right gutter / table of
@@ -32,6 +32,16 @@ export function OpenApiGuide(props: OpenApiGuide.Props) {
     <OpenApiLayout width="full">
       {props.title ? <title>{props.title}</title> : null}
       <div data-v-openapi data-v-openapi-landing>
+        {props.title || props.description ? (
+          <header data-v-openapi-header>
+            {props.title ? (
+              <h1 data-v data-v-openapi-h1>
+                {props.title}
+              </h1>
+            ) : null}
+            {props.description ? <Prose markdown={props.description} attr="description" /> : null}
+          </header>
+        ) : null}
         <div data-v-openapi-intro data-v-content>
           {props.children}
         </div>
@@ -44,8 +54,10 @@ export declare namespace OpenApiGuide {
   type Props = {
     /** Authored MDX content. */
     children?: ReactNode | undefined
-    /** Document `<title>` (from the page's frontmatter). */
+    /** Document `<title>` and page heading (from the page's frontmatter). */
     title?: string | undefined
+    /** Subtitle Markdown rendered below the heading. */
+    description?: string | undefined
   }
 }
 

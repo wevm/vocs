@@ -33,6 +33,8 @@ export type CompiledPage = {
   path: string
   /** Document title (frontmatter `title` or first `# heading`). */
   title?: string | undefined
+  /** Subtitle Markdown rendered below the title on guide pages. */
+  description?: string | undefined
   /** Ordered content blocks. */
   blocks: PageBlock[]
 }

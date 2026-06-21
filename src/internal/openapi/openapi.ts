@@ -75,13 +75,17 @@ export type SidebarExtras = {
  * - `content` is the `.md`/`.mdx` source inline, an alternative to `file` that
  *   needs no filesystem access. Exactly one of `file`/`content` is required.
  * - `title` overrides the document title otherwise taken from frontmatter or the
- *   first `# heading`.
+ *   first `# heading`, and renders as the page's heading on standalone guide
+ *   pages.
+ * - `description` renders as a subtitle below the title on standalone guide
+ *   pages (Markdown). Also taken from frontmatter `description` when omitted.
  */
 export type Page = {
   path: string
   file?: string | undefined
   content?: string | undefined
   title?: string | undefined
+  description?: string | undefined
 }
 
 export type Config = {

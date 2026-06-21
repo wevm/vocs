@@ -19,7 +19,7 @@ import { Operation } from './Operation.js'
  * Renders trusted markdown from the spec (info/category descriptions) with the
  * same typography as MDX content.
  */
-function Prose(props: { markdown: string; attr?: string }) {
+export function Prose(props: { markdown: string; attr?: string }) {
   return (
     <div
       data-v-openapi-description={props.attr === 'description' ? '' : undefined}

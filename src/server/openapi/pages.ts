@@ -45,7 +45,9 @@ export async function compile(
     } else throw new Error(`[vocs] Page "${page.path}" must define either \`file\` or \`content\`.`)
 
     const result = compileSource(page.path, source)
-    compiled.push(page.title ? { ...result, title: page.title } : result)
+    if (page.title) result.title = page.title
+    if (page.description) result.description = page.description
+    compiled.push(result)
   }
   return compiled
 }
@@ -66,7 +68,7 @@ const frontmatterRe = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?/
 
 /** Compiles a single page source string into a {@link CompiledPage}. */
 export function compileSource(routePath: string, source: string): CompiledPage {
-  const { body, title } = stripFrontmatter(source)
+  const { body, title, description } = stripFrontmatter(source)
 
   const blocks: PageBlock[] = []
   let lastIndex = 0
@@ -82,6 +84,7 @@ export function compileSource(routePath: string, source: string): CompiledPage {
   return {
     path: normalizePath(routePath),
     title: title ?? firstHeading(body),
+    description,
     blocks,
   }
 }
@@ -99,15 +102,25 @@ function parsePath(attrs: string): string | undefined {
   return match?.[1]
 }
 
-/** Splits a leading YAML frontmatter block, returning the body and `title`. */
-function stripFrontmatter(source: string): { body: string; title?: string | undefined } {
+/** Splits a leading YAML frontmatter block, returning the body, `title`, and `description`. */
+function stripFrontmatter(source: string): {
+  body: string
+  title?: string | undefined
+  description?: string | undefined
+} {
   const match = source.match(frontmatterRe)
   if (!match) return { body: source }
-  const title = match[1]
-    ?.match(/^title\s*:\s*(.+)$/m)?.[1]
+  const title = readField(match[1], 'title')
+  const description = readField(match[1], 'description')
+  return { body: source.slice(match[0].length), title, description }
+}
+
+/** Reads a scalar `key: value` field from a YAML frontmatter block. */
+function readField(frontmatter: string | undefined, key: string): string | undefined {
+  return frontmatter
+    ?.match(new RegExp(`^${key}\\s*:\\s*(.+)$`, 'm'))?.[1]
     ?.trim()
     .replace(/^["']|["']$/g, '')
-  return { body: source.slice(match[0].length), title }
 }
 
 /** Finds the first `# heading` in a Markdown body. */
