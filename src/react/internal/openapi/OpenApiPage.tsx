@@ -23,29 +23,30 @@ function OpenApiLayout(props: { children: React.ReactNode; width?: 'default' | '
 
 /**
  * Renders a consumer-authored "guide" page (a normal MDX page mounted under an
- * OpenAPI section path, e.g. `pages/api/auth.mdx`) with the same layout as the
- * generated section: full-bleed (left gutter collapsed), no right gutter/TOC,
- * and content-width markdown — matching the section landing/intro pages.
+ * OpenAPI section path, e.g. `pages/api/auth.mdx`) as a standard Vocs content
+ * page: the shared `Layout` `<article>` is the content container, so it owns the
+ * page padding and content-width cap exactly like a regular markdown page (no
+ * right gutter/TOC, via the `outline: false` frontmatter above).
+ *
+ * Unlike the section landing/group pages — which are full-bleed so their
+ * two-column operation layout has room — a guide is pure prose, so it uses the
+ * default (padded, content-width) article rather than a full-bleed wrapper.
  */
 export function OpenApiGuide(props: OpenApiGuide.Props) {
   return (
-    <OpenApiLayout width="full">
+    <OpenApiLayout width="default">
       {props.title ? <title>{props.title}</title> : null}
-      <div data-v-openapi data-v-openapi-landing>
-        {props.title || props.description ? (
-          <header data-v-openapi-header>
-            {props.title ? (
-              <h1 data-v data-v-openapi-h1>
-                {props.title}
-              </h1>
-            ) : null}
-            {props.description ? <Prose markdown={props.description} attr="description" /> : null}
-          </header>
-        ) : null}
-        <div data-v-openapi-intro data-v-content>
-          {props.children}
-        </div>
-      </div>
+      {props.title || props.description ? (
+        <header data-v-openapi-header>
+          {props.title ? (
+            <h1 data-v data-v-openapi-h1>
+              {props.title}
+            </h1>
+          ) : null}
+          {props.description ? <Prose markdown={props.description} attr="description" /> : null}
+        </header>
+      ) : null}
+      {props.children}
     </OpenApiLayout>
   )
 }
