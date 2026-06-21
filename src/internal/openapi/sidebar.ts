@@ -30,7 +30,7 @@ export function methodVariant(method: string): BadgeVariant {
  * Each category is its own page; operation links are in-page anchors on that
  * page (`/api/{group}#{operation}`).
  */
-export function toSidebar(ir: Ir): SidebarItem<true>[] {
+export function toSidebar(ir: Ir, options: toSidebar.Options = {}): SidebarItem<true>[] {
   // Strip a trailing slash so a root mount (`/`) doesn't yield `//group`.
   const base = ir.path === '/' ? '' : ir.path.replace(/\/$/, '')
   const operationLink = (operation: IrOperation, groupId: string) =>
@@ -38,9 +38,21 @@ export function toSidebar(ir: Ir): SidebarItem<true>[] {
 
   const groupLink = (groupId: string) => `${base}/${groupId}`
 
+  // When `intro` items are supplied, the "Introduction" leaf becomes a
+  // collapsible group: an "Overview" link to the landing page followed by the
+  // extra items (e.g. authentication/versioning guide pages).
+  const intro = options.intro ?? []
+  const introduction: SidebarItem<true> =
+    intro.length > 0
+      ? {
+          text: 'Introduction',
+          collapsed: false,
+          items: [{ text: 'Overview', link: ir.path }, ...intro] as SidebarItem<true>[],
+        }
+      : { text: 'Introduction', link: ir.path }
+
   return [
-    // A root "Introduction" item links to the section landing page (`/api`).
-    { text: 'Introduction', link: ir.path },
+    introduction,
     ...ir.groups.map((group) => ({
       text: group.name,
       collapsed: false,
@@ -56,4 +68,11 @@ export function toSidebar(ir: Ir): SidebarItem<true>[] {
       ],
     })),
   ]
+}
+
+export declare namespace toSidebar {
+  type Options = {
+    /** Items nested under the generated `Introduction` entry. */
+    intro?: SidebarItem[] | undefined
+  }
 }

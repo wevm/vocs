@@ -28,7 +28,8 @@ export async function prepare(
 
   const top = config.sidebar?.top ?? []
   const bottom = config.sidebar?.bottom ?? []
-  const sidebar = [...top, ...Sidebar.toSidebar(ir), ...bottom]
+  const intro = config.sidebar?.intro
+  const sidebar = [...top, ...Sidebar.toSidebar(ir, { intro }), ...bottom]
 
   // A real Vocs config so the browser bundle renders the genuine layout/chrome.
   // `sidebar` is an array (covers the whole section, no path-scoping needed).

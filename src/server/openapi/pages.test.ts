@@ -1,5 +1,24 @@
 import { describe, expect, test } from 'vitest'
-import { compileSource } from './pages.js'
+import { compile, compileSource } from './pages.js'
+
+describe('compile', () => {
+  test('compiles inline content without filesystem access', async () => {
+    const pages = await compile([{ path: '/auth', content: '# Authentication\n\nUse a token.' }])
+    expect(pages).toHaveLength(1)
+    expect(pages[0]?.path).toBe('/auth')
+    expect(pages[0]?.title).toBe('Authentication')
+    expect(pages[0]?.blocks[0]).toMatchObject({ type: 'html' })
+  })
+
+  test('applies a title override', async () => {
+    const pages = await compile([{ path: '/auth', content: '# Heading', title: 'Custom' }])
+    expect(pages[0]?.title).toBe('Custom')
+  })
+
+  test('throws when a page has neither file nor content', async () => {
+    await expect(compile([{ path: '/auth' }])).rejects.toThrow(/either `file` or `content`/)
+  })
+})
 
 describe('compileSource', () => {
   test('compiles markdown to an html block', () => {

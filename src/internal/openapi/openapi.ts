@@ -46,6 +46,14 @@ export type SidebarExtras = {
   top?: SidebarItem[] | undefined
   /** Items appended below the generated categories. */
   bottom?: SidebarItem[] | undefined
+  /**
+   * Items nested under the generated `Introduction` entry. When provided, the
+   * `Introduction` leaf becomes a collapsible group whose first child is an
+   * `Overview` link to the landing page, followed by these items (typically
+   * links to guide `pages` mounted under the section, e.g. authentication or
+   * versioning).
+   */
+  intro?: SidebarItem[] | undefined
 }
 
 /**
@@ -61,11 +69,19 @@ export type SidebarExtras = {
  *   landing intro, `/auth` is a guide page, `/<group>` overrides a category
  *   header).
  * - `file` is the path to the `.md`/`.mdx` source, resolved against the handler
- *   `rootDir` (default `process.cwd()`).
+ *   `rootDir` (default `process.cwd()`). Reading a file requires `node:fs`, so
+ *   on filesystem-less runtimes (e.g. Cloudflare Workers) supply `content`
+ *   instead.
+ * - `content` is the `.md`/`.mdx` source inline, an alternative to `file` that
+ *   needs no filesystem access. Exactly one of `file`/`content` is required.
+ * - `title` overrides the document title otherwise taken from frontmatter or the
+ *   first `# heading`.
  */
 export type Page = {
   path: string
-  file: string
+  file?: string | undefined
+  content?: string | undefined
+  title?: string | undefined
 }
 
 export type Config = {

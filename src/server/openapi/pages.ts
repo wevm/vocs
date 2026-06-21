@@ -24,16 +24,28 @@ export async function compile(
   if (!pages || pages.length === 0) return []
   const { rootDir = typeof process !== 'undefined' ? process.cwd() : '.' } = options
 
-  const [{ default: fs }, path] = await Promise.all([
-    import('node:fs/promises').then((module) => ({ default: module })),
-    import('node:path'),
-  ])
+  // Only touch the filesystem when a page actually needs a file read, so inline
+  // `content` pages work on runtimes without `node:fs` (e.g. Cloudflare Workers).
+  const needsFs = pages.some((page) => page.content === undefined && page.file !== undefined)
+  const fsModule = needsFs
+    ? await Promise.all([
+        import('node:fs/promises').then((module) => ({ default: module })),
+        import('node:path'),
+      ])
+    : undefined
 
   const compiled: CompiledPage[] = []
   for (const page of pages) {
-    const filePath = path.isAbsolute(page.file) ? page.file : path.resolve(rootDir, page.file)
-    const source = await fs.readFile(filePath, 'utf-8')
-    compiled.push(compileSource(page.path, source))
+    let source: string
+    if (page.content !== undefined) source = page.content
+    else if (page.file !== undefined && fsModule) {
+      const [{ default: fs }, path] = fsModule
+      const filePath = path.isAbsolute(page.file) ? page.file : path.resolve(rootDir, page.file)
+      source = await fs.readFile(filePath, 'utf-8')
+    } else throw new Error(`[vocs] Page "${page.path}" must define either \`file\` or \`content\`.`)
+
+    const result = compileSource(page.path, source)
+    compiled.push(page.title ? { ...result, title: page.title } : result)
   }
   return compiled
 }

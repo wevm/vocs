@@ -63,6 +63,24 @@ describe('toSidebar', () => {
       },
     ])
   })
+
+  test('nests intro items under the Introduction group', () => {
+    const sidebar = toSidebar(ir, {
+      intro: [
+        { text: 'Authentication', link: '/api/authentication' },
+        { text: 'Versioning', link: '/api/versioning' },
+      ],
+    })
+    expect(sidebar[0]).toEqual({
+      text: 'Introduction',
+      collapsed: false,
+      items: [
+        { text: 'Overview', link: '/api' },
+        { text: 'Authentication', link: '/api/authentication' },
+        { text: 'Versioning', link: '/api/versioning' },
+      ],
+    })
+  })
 })
 
 describe('methodVariant', () => {
