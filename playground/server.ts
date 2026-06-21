@@ -16,6 +16,16 @@ app.route(
   '/docs',
   Handler.openApi({
     spec: 'https://cadent.tempo.xyz/openapi.json',
+    pages: [{ path: '/guides/auth', file: './pages/guides/auth.md' }],
+    sidebar: {
+      top: [{ text: 'Authentication', link: '/guides/auth' }],
+    },
+    // Customize the Vocs chrome (title, theme, nav, logo, …). `title` and
+    // `description` default to the spec's info; everything else mirrors
+    // `vocs.config.ts`.
+    vocs: {
+      title: 'Tempo Docs',
+    },
   }),
 )
 

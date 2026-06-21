@@ -10,10 +10,12 @@ import { init } from './waku.js'
 const payload = read()
 init(payload)
 
-const container = document.getElementById('vocs-openapi-root')
-if (!container) throw new Error('[vocs] Missing #vocs-openapi-root container.')
-
-createRoot(container).render(
+// Render straight into `<body>` — exactly where a normal Vocs app mounts its
+// layout (see `react/Root.tsx`: `<body><Root_client>{children}</Root_client>`).
+// No bespoke wrapper element; the layout's root becomes a direct child of body
+// so the DOM matches a genuine Vocs site 1:1. The render-blocking stylesheet
+// stays in the server-sent `<head>`, so there is no flash of unstyled content.
+createRoot(document.body).render(
   <StrictMode>
     <Root_client>
       <App payload={payload} />

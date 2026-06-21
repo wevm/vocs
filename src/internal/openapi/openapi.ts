@@ -96,12 +96,23 @@ export type Config = {
    *
    * The handler renders the real Vocs layout, so these options customize the
    * chrome (theme, top navigation, logo, socials, …) exactly like a
-   * `vocs.config.ts`. `title`, `description`, and `sidebar` are derived from the
-   * spec and sidebar config and cannot be set here.
+   * `vocs.config.ts`.
+   *
+   * `title` and `description` default to the spec's `info.title`/`info.description`
+   * but can be overridden here. `sidebar` is derived from the generated section
+   * (plus the `sidebar` config above) and cannot be set here.
+   *
+   * @example
+   * ```ts
+   * vocs: {
+   *   title: 'Acme Docs',
+   *   logoUrl: '/logo.svg',
+   *   theme: { accentColor: '#7c3aed' },
+   *   topNav: [{ text: 'Home', link: 'https://acme.com' }],
+   * }
+   * ```
    */
-  vocs?:
-    | Omit<VocsConfig.define.Options, 'sidebar' | 'title' | 'description' | 'openapi'>
-    | undefined
+  vocs?: Omit<VocsConfig.define.Options, 'sidebar' | 'openapi'> | undefined
 }
 
 /**

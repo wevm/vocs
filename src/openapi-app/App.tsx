@@ -32,9 +32,10 @@ export function App(props: App.Props) {
   const group = ir.groups.find((candidate) => join(base, `/${candidate.id}`) === route)
   if (group) return <OpenApiPage mount={base} group={group.id} intro={intro} title={page?.title} />
 
-  // Landing / overview page.
+  // Landing / overview page. Without an override the standalone Introduction
+  // lists every endpoint by default (consumers can override `/` to customize).
   if (route === base || route === '/')
-    return <OpenApiPage mount={base} intro={intro} title={page?.title} />
+    return <OpenApiPage mount={base} intro={intro} title={page?.title} endpoints={!page} />
 
   // Standalone guide page.
   if (page)

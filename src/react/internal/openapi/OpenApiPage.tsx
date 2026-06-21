@@ -2,6 +2,7 @@ import { specs } from 'virtual:vocs/openapi'
 import type { ReactNode } from 'react'
 import { Layout } from '../../Layout.js'
 import * as MdxPageContext from '../../MdxPageContext.js'
+import { Endpoints } from './Endpoints.js'
 import { PlaygroundProvider } from './Playground.client.js'
 import { ReferenceGroup, ReferenceOverview } from './Reference.js'
 
@@ -100,7 +101,11 @@ export function OpenApiPage(props: OpenApiPage.Props) {
   return (
     <OpenApiLayout width="full">
       <title>{props.title ?? ir.info.title}</title>
-      <ReferenceOverview ir={ir} intro={props.intro} />
+      <ReferenceOverview
+        ir={ir}
+        intro={props.intro}
+        endpoints={props.endpoints ? <Endpoints path={ir.path || undefined} /> : undefined}
+      />
     </OpenApiLayout>
   )
 }
@@ -121,5 +126,11 @@ export declare namespace OpenApiPage {
     intro?: ReactNode | undefined
     /** Document `<title>` override (e.g. from the override page's frontmatter). */
     title?: string | undefined
+    /**
+     * Render the domain/endpoint list on the overview page (ignored when `group`
+     * or `intro` is set). The standalone handler enables this so its
+     * Introduction lists every endpoint by default.
+     */
+    endpoints?: boolean | undefined
   }
 }

@@ -17,6 +17,9 @@ import { Disclosure } from './Disclosure.client.js'
  */
 export function EndpointsView(props: EndpointsView.Props) {
   const { ir, href, Link = DefaultLink } = props
+  // Root-mounted specs have `ir.path === '/'`; collapse it to '' so links read
+  // `/group#op` instead of `//group#op` (which the browser treats as a host).
+  const base = ir.path === '/' ? '' : ir.path.replace(/\/$/, '')
   return (
     <div data-v-openapi-overview>
       {ir.groups.map((category) => (
@@ -38,7 +41,7 @@ export function EndpointsView(props: EndpointsView.Props) {
               {category.operations.map((operation) => (
                 <li key={operation.id}>
                   <Link
-                    href={href(`${ir.path}/${category.id}#${operation.id}`)}
+                    href={href(`${base}/${category.id}#${operation.id}`)}
                     data-v-openapi-overview-endpoint
                   >
                     <Badge variant={methodVariant(operation.method)}>{operation.method}</Badge>

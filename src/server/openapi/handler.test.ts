@@ -26,7 +26,6 @@ describe('Handler.openApi', () => {
     expect(response.headers.get('content-type')).toContain('text/html')
 
     const html = await response.text()
-    expect(html).toContain('id="vocs-openapi-root"')
     expect(html).toContain('id="vocs-openapi-data"')
     expect(html).toContain('Demo API')
     // Asset references are absolute, prefixed by the inferred mount (root here).

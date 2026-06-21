@@ -32,7 +32,6 @@ export function render(payload: Payload, assets: Assets, mount: string): string 
     ${styles}
   </head>
   <body data-version="1.0">
-    <div id="vocs-openapi-root"></div>
     <script id="vocs-openapi-data" type="application/json">${data}</script>
     <script type="module" src="${base}${assets.entry}"></script>
   </body>

@@ -42,7 +42,8 @@ export async function prepare(
 
   return {
     ir,
-    title: ir.info.title,
+    // `vocs.title` overrides the spec title (used for the HTML shell `<title>`).
+    title: vocsConfig.title ?? ir.info.title,
     sidebar,
     pages,
     // Serialize functions (e.g. search/feedback adapters) so they survive the

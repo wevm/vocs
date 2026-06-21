@@ -36,7 +36,7 @@ function Prose(props: { markdown: string; attr?: string }) {
  * `<OpenApi.Endpoints />`.
  */
 export function ReferenceOverview(props: ReferenceOverview.Props) {
-  const { ir, intro } = props
+  const { ir, intro, endpoints } = props
   return (
     <div data-v-openapi data-v-openapi-landing>
       {intro ? (
@@ -44,12 +44,15 @@ export function ReferenceOverview(props: ReferenceOverview.Props) {
           {intro}
         </div>
       ) : (
-        <header data-v-openapi-header>
-          <h1 data-v data-v-openapi-info-title>
-            {ir.info.title}
-          </h1>
-          {ir.info.description && <Prose markdown={ir.info.description} attr="description" />}
-        </header>
+        <>
+          <header data-v-openapi-header>
+            <h1 data-v data-v-openapi-info-title>
+              {ir.info.title}
+            </h1>
+            {ir.info.description && <Prose markdown={ir.info.description} attr="description" />}
+          </header>
+          {endpoints}
+        </>
       )}
     </div>
   )
@@ -60,6 +63,13 @@ export declare namespace ReferenceOverview {
     ir: Ir
     /** Consumer override rendered in place of the auto-generated header. */
     intro?: ReactNode | undefined
+    /**
+     * Domain/endpoint list rendered below the auto-generated header (ignored
+     * when `intro` is set — overrides control their own content). The caller
+     * supplies the framework-specific list; the standalone handler passes it so
+     * its Introduction lists every endpoint by default.
+     */
+    endpoints?: ReactNode | undefined
   }
 }
 

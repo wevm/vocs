@@ -74,7 +74,12 @@ export function openApi(config: OpenApi.Config, options: openApi.Options = {}): 
     // Infer the host mount prefix so asset URLs route back to this handler
     // regardless of where it is mounted (and independent of a trailing slash).
     const mount = inferMount(pathname, knownRoutes(payload))
-    return c.html(Html.render(payload, manifest, mount))
+    // The shell references content-hashed assets, so it must never be cached:
+    // a stale shell would point at an old hash (404 after a rebuild), leaving
+    // the page rendered but unstyled. Assets themselves stay `immutable`.
+    return c.html(Html.render(payload, manifest, mount), 200, {
+      'cache-control': 'no-store, must-revalidate',
+    })
   })
 
   return withListener(app)

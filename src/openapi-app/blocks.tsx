@@ -18,8 +18,14 @@ function Block(props: { block: PageBlock }) {
   // `<OpenApi.Endpoints />` blocks rehydrate as the real component (resolves the
   // spec from `virtual:vocs/openapi`); everything else is server-compiled HTML.
   if (block.type === 'endpoints') return <Endpoints path={block.path} />
+  // Render as a genuine Vocs content article so the compiled markdown elements
+  // are direct children of `[data-v-content]` — this is what the markdown
+  // typography rules (heading borders/padding, `space-y-6` base rhythm) target.
+  // Mirrors `Layout`'s content article 1:1.
   return (
-    <div
+    <article
+      className="vocs:space-y-6"
+      data-v-content
       // biome-ignore lint/security/noDangerouslySetInnerHtml: server-compiled trusted page content
       dangerouslySetInnerHTML={{ __html: block.html }}
     />

@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "build": "pnpm --filter create-vocs build && pnpm --filter @vocs/twoslash-rust build && pnpm --filter @vocs/twoslash-rust build:npm && node scripts/build-openapi-standalone.mjs && zile",
+    "build": "pnpm --filter create-vocs build && pnpm --filter @vocs/twoslash-rust build && pnpm --filter @vocs/twoslash-rust build:npm && node scripts/build-openapi-standalone.ts && zile",
     "clean": "tsc -b --clean && rm -rf dist",
     "changeset:publish": "pnpm build && zile publish:prepare && changeset publish && zile publish:post",
     "changeset:version": "changeset version",
