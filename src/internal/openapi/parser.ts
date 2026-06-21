@@ -64,6 +64,13 @@ export type IrTrait = {
   description?: string | undefined
   /** Optional subtitle rendered under the title (`x-subtitle`). */
   subtitle?: string | undefined
+  /**
+   * Sidebar group to nest the page under (`x-parent`, a tag/group name). When
+   * omitted, the page nests under `Introduction`. When it names an existing
+   * operation group, the page joins that group; otherwise a new sidebar group
+   * with that name is created.
+   */
+  parent?: string | undefined
 }
 
 export type IrServer = {
@@ -163,6 +170,7 @@ type Document = {
     description?: string
     'x-traitTag'?: boolean
     'x-subtitle'?: string
+    'x-parent'?: string
   }[]
   paths?: Record<string, PathItem>
   components?: { securitySchemes?: Record<string, IrSecurityScheme> }
@@ -272,6 +280,7 @@ function buildTraits(document: Document): IrTrait[] {
       name: tag.name,
       description: tag.description,
       subtitle: tag['x-subtitle'],
+      parent: tag['x-parent'],
     })
   }
   return traits

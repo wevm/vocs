@@ -51,6 +51,10 @@ export function toSidebar(ir: Ir, options: toSidebar.Options = {}): SidebarItem<
         }
       : { text: 'Introduction', link: ir.path }
 
+  // Extra items (e.g. `x-parent` guide pages) injected into a group, keyed by
+  // group id, rendered after the group's "Overview" link.
+  const groupExtras = options.groupExtras ?? new Map<string, SidebarItem[]>()
+
   return [
     introduction,
     ...ir.groups.map((group) => ({
@@ -60,6 +64,7 @@ export function toSidebar(ir: Ir, options: toSidebar.Options = {}): SidebarItem<
         // An "Overview" entry links to the category itself; the top-level item
         // is a non-link header so its label doesn't compete with the operations.
         { text: 'Overview', link: groupLink(group.id) },
+        ...((groupExtras.get(group.id) ?? []) as SidebarItem<true>[]),
         ...group.operations.map((operation) => ({
           text: operation.summary || `${operation.method} ${operation.path}`,
           link: operationLink(operation, group.id),
@@ -74,5 +79,7 @@ export declare namespace toSidebar {
   type Options = {
     /** Items nested under the generated `Introduction` entry. */
     intro?: SidebarItem[] | undefined
+    /** Extra items injected into a generated group, keyed by group id. */
+    groupExtras?: Map<string, SidebarItem[]> | undefined
   }
 }

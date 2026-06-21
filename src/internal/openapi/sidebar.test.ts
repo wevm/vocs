@@ -82,6 +82,30 @@ describe('toSidebar', () => {
       ],
     })
   })
+
+  test('injects groupExtras after a group Overview link', () => {
+    const sidebar = toSidebar(ir, {
+      groupExtras: new Map([['pets', [{ text: 'Rate limits', link: '/api/rate-limits' }]]]),
+    })
+    expect(sidebar[1]).toEqual({
+      text: 'pets',
+      collapsed: false,
+      items: [
+        { text: 'Overview', link: '/api/pets' },
+        { text: 'Rate limits', link: '/api/rate-limits' },
+        {
+          text: 'List pets',
+          link: '/api/pets#listpets',
+          badge: { text: 'GET', variant: 'info' },
+        },
+        {
+          text: 'POST /pets',
+          link: '/api/pets#createpet',
+          badge: { text: 'POST', variant: 'success' },
+        },
+      ],
+    })
+  })
 })
 
 describe('methodVariant', () => {

@@ -92,6 +92,12 @@ describe('parse', () => {
           'x-traitTag': true,
           'x-subtitle': 'How auth works.',
         },
+        {
+          name: 'Rate limits',
+          description: 'Per-tag guide.',
+          'x-traitTag': true,
+          'x-parent': 'pets',
+        },
         { name: 'pets', description: 'Pet operations' },
       ],
       paths: {
@@ -106,9 +112,17 @@ describe('parse', () => {
         name: 'Authentication',
         description: 'Use a token.',
         subtitle: 'How auth works.',
+        parent: undefined,
+      },
+      {
+        id: 'rate-limits',
+        name: 'Rate limits',
+        description: 'Per-tag guide.',
+        subtitle: undefined,
+        parent: 'pets',
       },
     ])
-    // The trait tag is not rendered as an operation group.
+    // Trait tags are not rendered as operation groups.
     expect(ir.groups.map((group) => group.name)).toEqual(['pets'])
   })
 

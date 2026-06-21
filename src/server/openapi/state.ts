@@ -26,21 +26,47 @@ export async function prepare(
     Pages.compile(config.pages, { rootDir }),
   ])
 
-  // Doc-only `x-traitTag` tags become guide pages auto-nested under
-  // `Introduction`, so the sidebar structure matches manually-listed pages.
+  // Doc-only `x-traitTag` tags become guide pages. By default they nest under
+  // `Introduction`; an `x-parent` (group name) places them under that operation
+  // group instead, or under a new sidebar group when the name has no operations.
   const traitPages = Pages.compileTraits(ir.traits)
   const pages = [...traitPages, ...configPages]
 
   const base = ir.path === '/' ? '' : ir.path.replace(/\/$/, '')
-  const traitIntro = ir.traits.map((trait) => ({
+  const item = (trait: (typeof ir.traits)[number]) => ({
     text: trait.name,
     link: `${base}/${trait.id}`,
-  }))
+  })
+
+  const groupIdByName = new Map(ir.groups.map((group) => [group.name, group.id]))
+  const traitIntro: { text: string; link: string }[] = []
+  const groupExtras = new Map<string, { text: string; link: string }[]>()
+  const extraGroups = new Map<string, { text: string; link: string }[]>()
+  for (const trait of ir.traits) {
+    if (!trait.parent) {
+      traitIntro.push(item(trait))
+      continue
+    }
+    const groupId = groupIdByName.get(trait.parent)
+    const bucket = groupId ? groupExtras : extraGroups
+    const key = groupId ?? trait.parent
+    bucket.set(key, [...(bucket.get(key) ?? []), item(trait)])
+  }
 
   const top = config.sidebar?.top ?? []
   const bottom = config.sidebar?.bottom ?? []
   const intro = [...traitIntro, ...(config.sidebar?.intro ?? [])]
-  const sidebar = [...top, ...Sidebar.toSidebar(ir, { intro }), ...bottom]
+  const newGroups = [...extraGroups].map(([name, items]) => ({
+    text: name,
+    collapsed: false,
+    items,
+  }))
+  const sidebar = [
+    ...top,
+    ...Sidebar.toSidebar(ir, { intro, groupExtras }),
+    ...newGroups,
+    ...bottom,
+  ]
 
   // A real Vocs config so the browser bundle renders the genuine layout/chrome.
   // `sidebar` is an array (covers the whole section, no path-scoping needed).
