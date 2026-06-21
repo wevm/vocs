@@ -133,8 +133,8 @@ importers:
         specifier: workspace:*
         version: link:twoslash-rust
       '@yoch/frozenminisearch':
-        specifier: file:/home/yoch/minisearch
-        version: file:../../home/yoch/minisearch
+        specifier: ^1.3.0
+        version: 1.3.0
       cac:
         specifier: ^6.7.14
         version: 6.7.14
@@ -1910,8 +1910,8 @@ packages:
   '@xtuc/long@4.2.2':
     resolution: {integrity: sha512-NuHqBY1PB/D8xU6s/thBgOAiAP7HOYDQ32+BFZILJ8ivkUkAHQnWfn6WhL79Owj1qmUnoN/YPhktdIoucipkAQ==}
 
-  '@yoch/frozenminisearch@file:../../home/yoch/minisearch':
-    resolution: {directory: ../../home/yoch/minisearch, type: directory}
+  '@yoch/frozenminisearch@1.3.0':
+    resolution: {integrity: sha512-6jRQO9KpZvlXVfxyWR4fOSxn6dBRs9Pqyy+Bu5EBcECZLSd7mjnGuQWrHBB37Yre9x1mxEbKbSnvoWtd5nIQYA==}
     engines: {node: '>=20'}
 
   abitype@1.2.3:
@@ -6032,7 +6032,7 @@ snapshots:
 
   '@xtuc/long@4.2.2': {}
 
-  '@yoch/frozenminisearch@file:../../home/yoch/minisearch': {}
+  '@yoch/frozenminisearch@1.3.0': {}
 
   abitype@1.2.3(typescript@6.0.2)(zod@4.3.6):
     optionalDependencies:
