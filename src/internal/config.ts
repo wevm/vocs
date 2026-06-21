@@ -275,7 +275,7 @@ export type Config<partial extends boolean = false> = MaybePartial<
     rootDir: string
     /**
      * Configuration for docs search.
-     * Accepts MiniSearch options for customizing search behavior.
+     * Accepts MiniSearch-compatible search options for customizing search behavior.
      */
     search: MaybePartial<
       partial,

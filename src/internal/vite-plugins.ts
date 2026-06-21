@@ -604,24 +604,13 @@ export function search(config: Config.Config): PluginOption {
   let indexHash: string | undefined
   let server: ViteDevServer | undefined
   let mode: 'development' | 'production' = 'development'
-  const fileIds = new Map<string, string[]>()
   let indexUpdatePromise = Promise.resolve()
   let indexUpdateTimer: ReturnType<typeof setTimeout> | undefined
-  const pendingIndexUpdateFiles = new Set<string>()
 
   async function buildIndex(): Promise<SearchIndex.SearchIndex> {
     logger.info('Building search index...', { timestamp: true })
     const docs = await SearchDocuments.fromConfig(config)
     const index = SearchIndex.fromSearchDocuments(docs)
-
-    // Populate fileIds map for HMR
-    for (const doc of docs) {
-      const filePath = doc.id.split('#')[0]
-      if (!filePath) continue
-      const ids = fileIds.get(filePath) ?? []
-      ids.push(doc.id)
-      fileIds.set(filePath, ids)
-    }
 
     logger.info('Search index built.', { timestamp: true })
     return index
@@ -638,38 +627,26 @@ export function search(config: Config.Config): PluginOption {
     })
   }
 
-  function updateIndex(file: string): void {
+  function rebuildIndex(): void {
     indexUpdatePromise = indexUpdatePromise
       .then(async () => {
-        const index = await indexPromise
-        if (!index) return
-
-        const previousIds = fileIds.get(file) ?? []
-        const newIds = SearchIndex.updateFile(index, file, {
-          pagesDir: pagesDirPath,
-          config,
-          previousIds,
-        })
-        fileIds.set(file, newIds)
-
+        indexPromise = buildIndex()
+        await indexPromise
         invalidateModule()
-        logger.info(`Search index updated: ${path.relative(rootDir, file)}`, { timestamp: true })
+        logger.info('Search index rebuilt.', { timestamp: true })
       })
       .catch((error) => {
         logger.error(
-          `Failed to update search index: ${error instanceof Error ? error.message : String(error)}`,
+          `Failed to rebuild search index: ${error instanceof Error ? error.message : String(error)}`,
         )
       })
   }
 
-  function scheduleIndexUpdate(file: string): void {
-    pendingIndexUpdateFiles.add(file)
+  function scheduleIndexRebuild(): void {
     if (indexUpdateTimer) clearTimeout(indexUpdateTimer)
     indexUpdateTimer = setTimeout(() => {
       indexUpdateTimer = undefined
-      const files = [...pendingIndexUpdateFiles]
-      pendingIndexUpdateFiles.clear()
-      for (const file of files) updateIndex(file)
+      rebuildIndex()
     }, 250)
   }
 
@@ -678,7 +655,7 @@ export function search(config: Config.Config): PluginOption {
     config() {
       return {
         optimizeDeps: {
-          include: ['vocs > minisearch'],
+          include: ['vocs > @yoch/frozenminisearch'],
         },
       }
     },
@@ -726,7 +703,7 @@ export function search(config: Config.Config): PluginOption {
       if (!file.endsWith('.md') && !file.endsWith('.mdx')) return
       if (!file.startsWith(pagesDirPath)) return
 
-      scheduleIndexUpdate(file)
+      scheduleIndexRebuild()
     },
   }
 }

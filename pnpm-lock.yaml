@@ -132,6 +132,9 @@ importers:
       '@vocs/twoslash-rust':
         specifier: workspace:*
         version: link:twoslash-rust
+      '@yoch/frozenminisearch':
+        specifier: file:/home/yoch/minisearch
+        version: file:../../home/yoch/minisearch
       cac:
         specifier: ^6.7.14
         version: 6.7.14
@@ -189,9 +192,6 @@ importers:
       micromark-extension-gfm:
         specifier: ^3.0.0
         version: 3.0.0
-      minisearch:
-        specifier: ^7.2.0
-        version: 7.2.0
       nuqs:
         specifier: ^2.4.3
         version: 2.8.8(react@19.2.4)
@@ -1910,6 +1910,10 @@ packages:
   '@xtuc/long@4.2.2':
     resolution: {integrity: sha512-NuHqBY1PB/D8xU6s/thBgOAiAP7HOYDQ32+BFZILJ8ivkUkAHQnWfn6WhL79Owj1qmUnoN/YPhktdIoucipkAQ==}
 
+  '@yoch/frozenminisearch@file:../../home/yoch/minisearch':
+    resolution: {directory: ../../home/yoch/minisearch, type: directory}
+    engines: {node: '>=20'}
+
   abitype@1.2.3:
     resolution: {integrity: sha512-Ofer5QUnuUdTFsBRwARMoWKOH1ND5ehwYhJ3OJ/BQO+StkwQjHw0XyVh4vDttzHB7QOFhPHa/o413PJ82gU/Tg==}
     peerDependencies:
@@ -3293,9 +3297,6 @@ packages:
     resolution: {integrity: sha512-Lbgzdk0h4juoQ9fCKXW4by0UJqj+nOOrI9MJ1sSj4nI8aI2eo1qmvQEie4VD1glsS250n15LsWsYtCugiStS5A==}
     engines: {node: '>=18'}
 
-  minisearch@7.2.0:
-    resolution: {integrity: sha512-dqT2XBYUOZOiC5t2HRnwADjhNS2cecp9u+TJRiJ1Qp/f5qjkeT5APcGPjHw+bz89Ms8Jp+cG4AlE+QZ/QnDglg==}
-
   mlly@1.8.0:
     resolution: {integrity: sha512-l8D9ODSRWLe2KHJSifWGwBqpTZXIXTeo8mlKjY+E2HAakaTeNpqAyBZ8GSqLzHgw4XmHmC8whvpjJNMbFZN7/g==}
 
@@ -4049,6 +4050,7 @@ packages:
   tsconfck@3.1.6:
     resolution: {integrity: sha512-ks6Vjr/jEw0P1gmOVwutM3B7fWxoWBL2KRDb1JfqGVawBmO5UsvmWOQFGHBPl5yxYz4eERr19E6L7NMv+Fej4w==}
     engines: {node: ^18 || >=20}
+    deprecated: unmaintained
     hasBin: true
     peerDependencies:
       typescript: ^5.0.0
@@ -6030,6 +6032,8 @@ snapshots:
 
   '@xtuc/long@4.2.2': {}
 
+  '@yoch/frozenminisearch@file:../../home/yoch/minisearch': {}
+
   abitype@1.2.3(typescript@6.0.2)(zod@4.3.6):
     optionalDependencies:
       typescript: 6.0.2
@@ -7772,8 +7776,6 @@ snapshots:
   mime-types@3.0.2:
     dependencies:
       mime-db: 1.54.0
-
-  minisearch@7.2.0: {}
 
   mlly@1.8.0:
     dependencies:

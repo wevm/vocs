@@ -4,7 +4,7 @@ import * as path from 'node:path'
 import GithubSlugger from 'github-slugger'
 import type * as MdAst from 'mdast'
 import { toString as mdastToString } from 'mdast-util-to-string'
-import MiniSearch from 'minisearch'
+import FrozenMiniSearch from '@yoch/frozenminisearch'
 import remarkDirective from 'remark-directive'
 import remarkFrontmatter from 'remark-frontmatter'
 import remarkGfm from 'remark-gfm'
@@ -180,20 +180,21 @@ export namespace SearchDocuments {
   }
 }
 
+const indexOptions = {
+  idField: 'id',
+  fields: [...searchFields],
+  storeFields: [...storeFields],
+  tokenize,
+}
+
 export namespace SearchIndex {
-  export type SearchIndex = MiniSearch<SearchDocuments.Document>
+  export type SearchIndex = FrozenMiniSearch<SearchDocuments.Document>
 
   /**
    * Create a search index from documents.
    */
   export function fromSearchDocuments(documents: SearchDocuments.Document[]): SearchIndex {
-    const index = new MiniSearch<SearchDocuments.Document>({
-      fields: [...searchFields],
-      storeFields: [...storeFields],
-      tokenize,
-    })
-    index.addAll(documents)
-    return index
+    return FrozenMiniSearch.fromDocuments(documents, indexOptions)
   }
 
   /**
@@ -202,11 +203,8 @@ export namespace SearchIndex {
   export function loadFromFile(options: loadFromFile.Options): SearchIndex {
     const { filePath } = options
 
-    const json = JSON.parse(fs.readFileSync(filePath, 'utf-8'))
-    return MiniSearch.loadJSON(json, {
-      fields: [...searchFields],
-      storeFields: [...storeFields],
-    })
+    const json = fs.readFileSync(filePath, 'utf-8')
+    return FrozenMiniSearch.fromJson(json, indexOptions)
   }
 
   export declare namespace loadFromFile {
@@ -227,63 +225,6 @@ export namespace SearchIndex {
     fs.writeFileSync(path.join(dir, `search-index-${hash}.json`), JSON.stringify(json), 'utf-8')
 
     return hash
-  }
-
-  /**
-   * Update a single file in an existing index (for HMR).
-   * Returns the new document IDs added.
-   */
-  export function updateFile(
-    index: SearchIndex,
-    filePath: string,
-    options: updateFile.Options,
-  ): string[] {
-    const { pagesDir, previousIds = [], config } = options
-
-    const content = fs.readFileSync(filePath, 'utf-8')
-    const { searchPriority, sections } = extract(content, config)
-
-    // Remove old entries for this file
-    for (const id of previousIds) {
-      if (index.has(id)) index.discard(id)
-    }
-
-    if (sections.length === 0) return []
-
-    const relativePath = path.relative(pagesDir, filePath)
-    const href = `/${relativePath}`
-      .replace(/\.(md|mdx)$/, '')
-      .replace(/\/index$/, '')
-      .replace(/^\//, '/')
-
-    const category = SearchDocuments.findCategory(href, config.topNav)
-    const newIds: string[] = []
-
-    for (const section of sections) {
-      const id = `${filePath}#${section.anchor}`
-      newIds.push(id)
-      index.add({
-        category,
-        href: section.anchor ? `${href}#${section.anchor}` : href,
-        id,
-        searchPriority,
-        subtitle: section.subtitle,
-        text: section.text,
-        title: section.title,
-        titles: section.titles,
-        type: section.isPage ? 'page' : 'section',
-      })
-    }
-
-    return newIds
-  }
-
-  export declare namespace updateFile {
-    type Options = {
-      config: Config.Config
-      pagesDir: string
-      previousIds?: string[]
-    }
   }
 }
 

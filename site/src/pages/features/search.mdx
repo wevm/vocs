@@ -1,6 +1,6 @@
 import { Card, Cards } from 'vocs'
 
-# Search [Built-in client-side search powered by MiniSearch]
+# Search [Built-in client-side search]
 
 ## Opening Search
 
@@ -11,7 +11,7 @@ Search supports keyboard navigation (`↑` `↓` `Enter`), fuzzy matching, "Jump
 
 ## How It Works
 
-At build time, Vocs walks `src/pages/`, splits each MDX page into title/subtitle/text/category fields, and builds a [MiniSearch](https://lucaong.github.io/minisearch/) index. The index is written to `.vocs/search-index-{hash}.json` for production and served as a virtual module in dev with HMR.
+At build time, Vocs walks `src/pages/`, splits each MDX page into title/subtitle/text/category fields, and builds a frozen full-text index ([FrozenMiniSearch](https://github.com/yoch/frozenminisearch)). The index is written to `assets/search-index-{hash}.json` for production and served as a virtual module in dev (rebuilt on MDX changes).
 
 At runtime, the index is fetched once on first search and stays in memory for the session.
 

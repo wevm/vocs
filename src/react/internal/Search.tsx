@@ -2,7 +2,7 @@
 
 import { Dialog } from '@base-ui/react/dialog'
 import { cx } from 'cva'
-import MiniSearch from 'minisearch'
+import FrozenMiniSearch from '@yoch/frozenminisearch/browser'
 import { useQueryState } from 'nuqs'
 import * as React from 'react'
 import { useRouter } from 'waku'
@@ -61,7 +61,7 @@ export function Search(props: Search.Props) {
     if (query.trim()) setOpen(true)
   }, [query, disableKeyboardShortcut])
   const [recentSearches, setRecentSearches] = React.useState<SearchResult[]>([])
-  const [index, setIndex] = React.useState<MiniSearch<SearchResult> | null>(null)
+  const [index, setIndex] = React.useState<FrozenMiniSearch | null>(null)
 
   const listRef = React.useRef<HTMLUListElement>(null)
   const router = useRouter()
@@ -85,7 +85,7 @@ export function Search(props: Search.Props) {
       .then(async ({ getSearchIndex }) => {
         const json = await getSearchIndex()
         setIndex(
-          MiniSearch.loadJSON<SearchResult>(json, {
+          FrozenMiniSearch.fromJson(json, {
             fields: [...searchFields],
             storeFields: [...storeFields],
             tokenize,
