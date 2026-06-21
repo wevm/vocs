@@ -607,7 +607,13 @@ export async function resolve(options: resolve.Options = {}): Promise<Config> {
   const configFile = getConfigFile({ rootDir })
   if (!configFile) return define({})
 
-  const vite = await import('vite')
+  // Resolved via a non-literal specifier so bundlers (esbuild/Wrangler) don't
+  // statically pull Vite (and its esbuild/lightningcss/rollup deps) into edge
+  // consumers that only import `Config.define` through `vocs/server`. This branch
+  // only ever runs in Node (dev/CLI/config loading), where the runtime import
+  // resolves normally.
+  const viteSpecifier = 'vite'
+  const vite = await import(/* @vite-ignore */ viteSpecifier)
   const result = await vite.loadConfigFromFile(
     { command: 'build', mode: 'development' },
     configFile,

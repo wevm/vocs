@@ -197,15 +197,19 @@ type RawHeader = {
 export async function parse(config: OpenApi.Config, options: parse.Options = {}): Promise<Ir> {
   const { rootDir = typeof process !== 'undefined' ? process.cwd() : '.' } = options
 
-  const raw = await load(config.spec, rootDir)
+  // Resolve a lazy provider or an already-started promise (e.g. a
+  // runtime-generated spec) to its value.
+  const input = typeof config.spec === 'function' ? config.spec() : config.spec
+  const spec = await input
+
+  const raw = await load(spec, rootDir)
   const { specification } = upgrade(raw as never)
   const { schema } = dereference(specification as never)
   const document = (schema ?? specification) as Document
 
   const isUrl =
-    typeof config.spec === 'string' &&
-    (config.spec.startsWith('http://') || config.spec.startsWith('https://'))
-  const specUrl = isUrl ? (config.spec as string) : undefined
+    typeof spec === 'string' && (spec.startsWith('http://') || spec.startsWith('https://'))
+  const specUrl = isUrl ? spec : undefined
 
   const servers = (document.servers ?? [])
     .map((server) => ({
@@ -217,7 +221,7 @@ export async function parse(config: OpenApi.Config, options: parse.Options = {})
   const securitySchemes = document.components?.securitySchemes ?? {}
 
   const client = isUrl
-    ? { url: config.spec as string }
+    ? { url: spec as string }
     : { content: specification as Record<string, unknown> }
 
   return {

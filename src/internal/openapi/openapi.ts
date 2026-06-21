@@ -19,6 +19,23 @@ import type { SidebarItem } from '../sidebar.js'
 export type Spec = string | Record<string, unknown>
 
 /**
+ * A spec source, an already-started promise resolving to one, or a (lazy)
+ * provider that returns one. Promises/providers are awaited once when the
+ * reference is first rendered (and the result reused), so specs generated at
+ * runtime — e.g. from a server framework like `hono-openapi` — can be passed
+ * without resolving them up front. This lets `Handler.openApi` be constructed
+ * synchronously (and mounted via `app.route(...)`) even when the spec is
+ * produced asynchronously: build it eagerly and pass the promise directly.
+ *
+ * @example
+ * ```ts
+ * const spec = generateSpecs(app) // Promise<Spec>, started eagerly
+ * app.route('/', Handler.openApi({ spec }, { fallback: 'next' }))
+ * ```
+ */
+export type SpecInput = Spec | Promise<Spec> | (() => Spec | Promise<Spec>)
+
+/**
  * Extra sidebar items to add around the auto-generated section.
  *
  * These are typically links to consumer-authored override/guide pages mounted
@@ -53,9 +70,10 @@ export type Page = {
 
 export type Config = {
   /**
-   * OpenAPI spec source: file path, URL, raw content, or inline object.
+   * OpenAPI spec source: file path, URL, raw content, inline object, or a (lazy)
+   * provider function returning any of those.
    */
-  spec: Spec
+  spec: SpecInput
   /**
    * Mount path for the generated API reference section.
    *
