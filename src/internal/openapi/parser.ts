@@ -45,8 +45,25 @@ export type Ir = {
   servers: IrServer[]
   /** Operations grouped by category (tag or path segment). */
   groups: IrGroup[]
+  /**
+   * Doc-only "trait" pages: tags marked `x-traitTag: true` (Redoc convention),
+   * which carry Markdown `description` content but no operations. The standalone
+   * handler renders each as a guide page nested under `Introduction`.
+   */
+  traits: IrTrait[]
   /** Named security schemes from `components.securitySchemes`. */
   securitySchemes: Record<string, IrSecurityScheme>
+}
+
+export type IrTrait = {
+  /** Stable slug used as the page route segment. */
+  id: string
+  /** Display name (the page title fallback). */
+  name: string
+  /** Page body (Markdown). */
+  description?: string | undefined
+  /** Optional subtitle rendered under the title (`x-subtitle`). */
+  subtitle?: string | undefined
 }
 
 export type IrServer = {
@@ -141,7 +158,12 @@ export type IrSecurityScheme = Record<string, unknown> & {
 type Document = {
   info?: { title?: string; version?: string; description?: string }
   servers?: { url?: string; description?: string }[]
-  tags?: { name?: string; description?: string }[]
+  tags?: {
+    name?: string
+    description?: string
+    'x-traitTag'?: boolean
+    'x-subtitle'?: string
+  }[]
   paths?: Record<string, PathItem>
   components?: { securitySchemes?: Record<string, IrSecurityScheme> }
   security?: Record<string, string[]>[]
@@ -234,8 +256,25 @@ export async function parse(config: OpenApi.Config, options: parse.Options = {})
     },
     servers,
     groups: buildGroups(document),
+    traits: buildTraits(document),
     securitySchemes,
   }
+}
+
+/** Builds doc-only "trait" pages from tags marked `x-traitTag: true`. */
+function buildTraits(document: Document): IrTrait[] {
+  const slugger = new GithubSlugger()
+  const traits: IrTrait[] = []
+  for (const tag of document.tags ?? []) {
+    if (!tag.name || !tag['x-traitTag']) continue
+    traits.push({
+      id: slugger.slug(tag.name),
+      name: tag.name,
+      description: tag.description,
+      subtitle: tag['x-subtitle'],
+    })
+  }
+  return traits
 }
 
 export declare namespace parse {
@@ -319,8 +358,9 @@ function buildGroups(document: Document): IrGroup[] {
   const descriptions = new Map<string, string | undefined>()
 
   // Seed group order from document-level `tags` so authoring order is preserved.
+  // Skip `x-traitTag` tags — they're doc-only pages, not operation categories.
   for (const tag of document.tags ?? []) {
-    if (!tag.name) continue
+    if (!tag.name || tag['x-traitTag']) continue
     if (!byName.has(tag.name)) {
       byName.set(tag.name, [])
       order.push(tag.name)

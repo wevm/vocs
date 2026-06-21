@@ -13,6 +13,7 @@ function payload(path: string): Payload {
         { id: 'pets', name: 'Pets', operations: [] },
         { id: 'store', name: 'Store', operations: [] },
       ],
+      traits: [],
       securitySchemes: {},
     },
     title: 'API',

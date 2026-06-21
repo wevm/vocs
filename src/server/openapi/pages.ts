@@ -2,6 +2,7 @@ import * as Markdown from '../../internal/markdown.js'
 import type { CompiledPage, PageBlock } from '../../internal/openapi/app.js'
 import type * as OpenApi from '../../internal/openapi/openapi.js'
 import { normalizePath } from '../../internal/openapi/openapi.js'
+import type { IrTrait } from '../../internal/openapi/parser.js'
 
 /**
  * Reads and compiles consumer-authored `.md`/`.mdx` override/guide pages for the
@@ -57,6 +58,22 @@ export declare namespace compile {
     /** Directory `file` paths are resolved against. @default process.cwd() */
     rootDir?: string | undefined
   }
+}
+
+/**
+ * Compiles doc-only "trait" tags (`x-traitTag: true`) into guide
+ * {@link CompiledPage}s. The tag `name` is the title and `x-subtitle` the
+ * subtitle, unless overridden by Markdown frontmatter in the description.
+ */
+export function compileTraits(traits: readonly IrTrait[]): CompiledPage[] {
+  return traits.map((trait) => {
+    const result = compileSource(`/${trait.id}`, trait.description ?? '')
+    return {
+      ...result,
+      title: result.title ?? trait.name,
+      description: result.description ?? trait.subtitle,
+    }
+  })
 }
 
 /** Matches a self-closing `<OpenApi.Endpoints ... />` or `<Endpoints ... />`. */

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { compile, compileSource } from './pages.js'
+import { compile, compileSource, compileTraits } from './pages.js'
 
 describe('compile', () => {
   test('compiles inline content without filesystem access', async () => {
@@ -71,5 +71,31 @@ describe('compileSource', () => {
 
   test('normalizes the route path', () => {
     expect(compileSource('auth/', 'x').path).toBe('/auth')
+  })
+})
+
+describe('compileTraits', () => {
+  test('uses tag name as title and x-subtitle as description', () => {
+    const pages = compileTraits([
+      { id: 'authentication', name: 'Authentication', description: 'Body.', subtitle: 'How auth.' },
+    ])
+    expect(pages).toHaveLength(1)
+    expect(pages[0]?.path).toBe('/authentication')
+    expect(pages[0]?.title).toBe('Authentication')
+    expect(pages[0]?.description).toBe('How auth.')
+    expect(pages[0]?.blocks[0]).toMatchObject({ type: 'html' })
+  })
+
+  test('frontmatter overrides tag name and subtitle', () => {
+    const pages = compileTraits([
+      {
+        id: 'auth',
+        name: 'Auth',
+        subtitle: 'Tag subtitle.',
+        description: '---\ntitle: Custom\ndescription: FM subtitle.\n---\n\nBody.',
+      },
+    ])
+    expect(pages[0]?.title).toBe('Custom')
+    expect(pages[0]?.description).toBe('FM subtitle.')
   })
 })

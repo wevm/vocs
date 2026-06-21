@@ -81,6 +81,37 @@ describe('parse', () => {
     expect(ir.groups.map((group) => group.id)).toEqual(['pets', 'store', 'default'])
   })
 
+  test('extracts `x-traitTag` tags as doc-only traits, excluded from groups', async () => {
+    const traitSpec = {
+      openapi: '3.1.0',
+      info: { title: 'Petstore', version: '1.0.0' },
+      tags: [
+        {
+          name: 'Authentication',
+          description: 'Use a token.',
+          'x-traitTag': true,
+          'x-subtitle': 'How auth works.',
+        },
+        { name: 'pets', description: 'Pet operations' },
+      ],
+      paths: {
+        '/pets': { get: { operationId: 'listPets', tags: ['pets'], responses: { '200': {} } } },
+      },
+    }
+    const ir = await parse(OpenApi.from({ spec: traitSpec, path: '/' }))
+
+    expect(ir.traits).toEqual([
+      {
+        id: 'authentication',
+        name: 'Authentication',
+        description: 'Use a token.',
+        subtitle: 'How auth works.',
+      },
+    ])
+    // The trait tag is not rendered as an operation group.
+    expect(ir.groups.map((group) => group.name)).toEqual(['pets'])
+  })
+
   test('merges path-level and operation-level parameters', async () => {
     const ir = await parse(OpenApi.from({ spec, path: '/api' }))
     const pets = ir.groups.find((group) => group.name === 'pets')

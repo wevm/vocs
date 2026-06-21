@@ -21,14 +21,25 @@ export async function prepare(
 ): Promise<Payload> {
   const { rootDir } = options
 
-  const [ir, pages] = await Promise.all([
+  const [ir, configPages] = await Promise.all([
     parse(config, { rootDir }),
     Pages.compile(config.pages, { rootDir }),
   ])
 
+  // Doc-only `x-traitTag` tags become guide pages auto-nested under
+  // `Introduction`, so the sidebar structure matches manually-listed pages.
+  const traitPages = Pages.compileTraits(ir.traits)
+  const pages = [...traitPages, ...configPages]
+
+  const base = ir.path === '/' ? '' : ir.path.replace(/\/$/, '')
+  const traitIntro = ir.traits.map((trait) => ({
+    text: trait.name,
+    link: `${base}/${trait.id}`,
+  }))
+
   const top = config.sidebar?.top ?? []
   const bottom = config.sidebar?.bottom ?? []
-  const intro = config.sidebar?.intro
+  const intro = [...traitIntro, ...(config.sidebar?.intro ?? [])]
   const sidebar = [...top, ...Sidebar.toSidebar(ir, { intro }), ...bottom]
 
   // A real Vocs config so the browser bundle renders the genuine layout/chrome.

@@ -8,6 +8,7 @@ const ir: Ir = {
   info: { title: 'Petstore', description: 'The **best** pet [API](https://x).' },
   servers: [],
   securitySchemes: {},
+  traits: [],
   groups: [
     {
       id: 'pets',

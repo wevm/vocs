@@ -8,6 +8,7 @@ const ir: Ir = {
   info: { title: 'Petstore' },
   servers: [],
   securitySchemes: {},
+  traits: [],
   groups: [
     {
       id: 'pets',
