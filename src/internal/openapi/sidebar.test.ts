@@ -83,6 +83,17 @@ describe('toSidebar', () => {
     })
   })
 
+  test('collapses generated category groups but not Introduction', () => {
+    const sidebar = toSidebar(ir, {
+      intro: [{ text: 'Authentication', link: '/api/authentication' }],
+      collapsed: true,
+    })
+    // Introduction stays expanded.
+    expect((sidebar[0] as { collapsed: boolean }).collapsed).toBe(false)
+    // Category groups start collapsed.
+    expect((sidebar[1] as { collapsed: boolean }).collapsed).toBe(true)
+  })
+
   test('injects groupExtras after a group Overview link', () => {
     const sidebar = toSidebar(ir, {
       groupExtras: new Map([['pets', [{ text: 'Rate limits', link: '/api/rate-limits' }]]]),

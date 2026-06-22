@@ -55,11 +55,15 @@ export function toSidebar(ir: Ir, options: toSidebar.Options = {}): SidebarItem<
   // group id, rendered after the group's "Overview" link.
   const groupExtras = options.groupExtras ?? new Map<string, SidebarItem[]>()
 
+  // Generated category groups start collapsed when `collapsed` is set (the
+  // active group still auto-expands at render). `Introduction` is unaffected.
+  const groupCollapsed = options.collapsed ?? false
+
   return [
     introduction,
     ...ir.groups.map((group) => ({
       text: group.name,
-      collapsed: false,
+      collapsed: groupCollapsed,
       items: [
         // An "Overview" entry links to the category itself; the top-level item
         // is a non-link header so its label doesn't compete with the operations.
@@ -81,5 +85,10 @@ export declare namespace toSidebar {
     intro?: SidebarItem[] | undefined
     /** Extra items injected into a generated group, keyed by group id. */
     groupExtras?: Map<string, SidebarItem[]> | undefined
+    /**
+     * Collapse the generated category groups by default (the active group still
+     * auto-expands). `Introduction` is unaffected. @default false
+     */
+    collapsed?: boolean | undefined
   }
 }

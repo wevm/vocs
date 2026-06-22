@@ -44,11 +44,15 @@ export function invalidate(): void {
  * Returns the OpenAPI-generated sidebars keyed by mount path, derived from the
  * cached IRs. Empty if specs haven't been built yet or none are configured.
  */
-export function sidebars(): Record<string, { backLink: boolean; items: SidebarItem<true>[] }> {
+export function sidebars(
+  config?: Config,
+): Record<string, { backLink: boolean; items: SidebarItem<true>[] }> {
   const result: Record<string, { backLink: boolean; items: SidebarItem<true>[] }> = {}
   if (!cache) return result
-  for (const [path, ir] of Object.entries(cache))
-    result[path] = { backLink: true, items: Sidebar.toSidebar(ir) }
+  for (const [path, ir] of Object.entries(cache)) {
+    const collapsed = config?.openapi?.find((entry) => entry.path === path)?.sidebar?.collapsed
+    result[path] = { backLink: true, items: Sidebar.toSidebar(ir, { collapsed }) }
+  }
   return result
 }
 
@@ -64,7 +68,7 @@ export function sidebars(): Record<string, { backLink: boolean; items: SidebarIt
  * generated items. Never mutates inputs.
  */
 export function mergeSidebar(config: Config): Config {
-  const generated = sidebars()
+  const generated = sidebars(config)
   if (Object.keys(generated).length === 0) return config
 
   const userSidebar = config.sidebar
