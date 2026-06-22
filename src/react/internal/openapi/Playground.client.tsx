@@ -33,8 +33,6 @@ export function PlaygroundProvider(props: PlaygroundProvider.Props) {
   const containerRef = React.useRef<HTMLDivElement>(null)
   // biome-ignore lint/suspicious/noExplicitAny: Scalar's modal type lives in a client-only module.
   const modalRef = React.useRef<any>(null)
-  // biome-ignore lint/suspicious/noExplicitAny: Scalar's workspace store type lives in a client-only module.
-  const storeRef = React.useRef<any>(null)
   const [ready, setReady] = React.useState(false)
 
   React.useEffect(() => {
@@ -56,14 +54,12 @@ export function PlaygroundProvider(props: PlaygroundProvider.Props) {
         })
         if (cancelled) return
 
-        storeRef.current = store
-        // Seed the global auth the consumer entered in the Authentication panel
-        // (persisted in localStorage) so every "Try" request is pre-authed.
-        applyAuth(store, specMount, schemes)
-
         modal = createApiClientModal({
           el: containerRef.current,
           workspaceStore: store,
+          // Seed the global auth the consumer entered in the Authentication panel
+          // (persisted in localStorage) so every "Try" request is pre-authed.
+          options: authOptions(specMount, schemes),
         })
         modalRef.current = modal
         setReady(true)
@@ -80,16 +76,15 @@ export function PlaygroundProvider(props: PlaygroundProvider.Props) {
         modal?.app?.unmount()
       } catch {}
       modalRef.current = null
-      storeRef.current = null
     }
   }, [client, specMount, schemes])
 
-  // Re-seed auth whenever the consumer updates credentials in the panel while
+  // Re-apply auth whenever the consumer updates credentials in the panel while
   // this page is mounted (no need to reopen the modal to pick up the change).
   React.useEffect(
     () =>
       Auth.subscribe(specMount, () => {
-        if (storeRef.current) applyAuth(storeRef.current, specMount, schemes)
+        modalRef.current?.updateOptions(authOptions(specMount, schemes))
       }),
     [specMount, schemes],
   )
@@ -153,36 +148,44 @@ export declare namespace PlaygroundProvider {
 }
 
 /**
- * Pushes the consumer's persisted global credentials into Scalar's auth store so
- * pre-selected security schemes resolve a token without opening the modal's auth
- * UI. Scalar reads `x-scalar-secret-*` keys when building each request.
+ * Builds Scalar's `authentication` client options from the consumer's persisted
+ * global credentials so pre-selected security schemes resolve a token without
+ * opening the modal's auth UI.
+ *
+ * This is Scalar's documented preset API (`authentication.securitySchemes`
+ * override values keyed by scheme name + `preferredSecurityScheme` to pick the
+ * active one). Per-type value keys: apiKey → `value`, http `bearer` → `token`,
+ * http `basic` → `username`/`password`.
  */
-function applyAuth(
-  // biome-ignore lint/suspicious/noExplicitAny: Scalar's workspace store type lives in a client-only module.
-  store: any,
-  mount: string,
-  schemes: Record<string, IrSecurityScheme> | undefined,
-) {
-  if (!schemes) return
+function authOptions(mount: string, schemes: Record<string, IrSecurityScheme> | undefined) {
+  // biome-ignore lint/suspicious/noExplicitAny: Scalar's override-value shape is loosely typed.
+  const securitySchemes: Record<string, any> = {}
+  const preferred: string[] = []
+
   const values = Auth.read(mount)
-  for (const [name, scheme] of Object.entries(schemes)) {
-    const value = values[name]
+  for (const [name, scheme] of Object.entries(schemes ?? {})) {
     const kind = Auth.authKind(scheme)
     if (!kind) continue
-    try {
-      if (kind === 'basic') {
-        store.auth.setAuthSecrets('default', name, {
-          type: 'http',
-          'x-scalar-secret-username': value?.username ?? '',
-          'x-scalar-secret-password': value?.password ?? '',
-        })
-      } else {
-        store.auth.setAuthSecrets('default', name, {
-          type: scheme.type,
-          'x-scalar-secret-token': value?.token ?? '',
-        })
-      }
-    } catch {}
+    const value = values[name]
+    if (kind === 'basic') {
+      if (!value?.username && !value?.password) continue
+      securitySchemes[name] = { username: value.username ?? '', password: value.password ?? '' }
+      preferred.push(name)
+    } else {
+      if (!value?.token) continue
+      // apiKey overrides via `value`; http (bearer) via `token`.
+      securitySchemes[name] =
+        scheme.type === 'apiKey' ? { value: value.token } : { token: value.token }
+      preferred.push(name)
+    }
+  }
+
+  return {
+    authentication: {
+      securitySchemes,
+      // Select a configured scheme so its value is actually applied to requests.
+      ...(preferred.length > 0 ? { preferredSecurityScheme: preferred[0] } : {}),
+    },
   }
 }
 
