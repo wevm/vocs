@@ -7,8 +7,10 @@
 // for static client imports, unlike dynamic `import('*.css')`.
 import '@scalar/api-client/style.css'
 // Maps Scalar's theme variables onto Vocs tokens (loaded after Scalar's CSS so
-// the overrides win).
-import './playground.css'
+// the overrides win). Lives under `src/styles` so the build emits it to
+// `dist/styles` (zile only copies CSS assets reachable from the `./styles/*`
+// export glob; a colocated `./playground.css` would not be emitted).
+import '../../../styles/openapi-playground.css'
 import * as React from 'react'
 import { createPortal } from 'react-dom'
 import LucidePlay from '~icons/lucide/play'
