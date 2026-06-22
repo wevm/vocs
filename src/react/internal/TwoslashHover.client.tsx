@@ -2,7 +2,7 @@
 
 import { Popover } from '@base-ui/react/popover'
 import type * as React from 'react'
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { prewarm } from './CodeToHtml.client.js'
 
 export function TwoslashHover(props: TwoslashHover.Props) {
@@ -10,7 +10,8 @@ export function TwoslashHover(props: TwoslashHover.Props) {
 
   const { ref } = TwoslashHover.useOverflowFade()
 
-  const open = className?.includes('twoslash-query-persisted')
+  const persisted = className?.includes('twoslash-query-persisted')
+  const [persistedPopup, setPersistedPopup] = useState<HTMLSpanElement | null>(null)
 
   // Warm the highlighter so the code inside the popup highlights as quickly as
   // possible (the popup shows a skeleton placeholder until then).
@@ -18,8 +19,47 @@ export function TwoslashHover(props: TwoslashHover.Props) {
     prewarm()
   }, [])
 
+  useEffect(() => {
+    if (!persistedPopup) return
+    const line = persistedPopup.closest('.line')
+    if (!(line instanceof HTMLElement)) return
+
+    const update = () => {
+      const lineHeight = Number.parseFloat(getComputedStyle(line).lineHeight)
+      const lineTop = line.getBoundingClientRect().top
+      const popupBottom = persistedPopup.getBoundingClientRect().bottom
+      const padding = Math.max(0, popupBottom - lineTop - lineHeight)
+      line.style.setProperty('--vocs-twoslash-popup-height', `${padding}px`)
+    }
+    update()
+
+    const observer = new ResizeObserver(update)
+    observer.observe(persistedPopup)
+    return () => {
+      observer.disconnect()
+      line.style.removeProperty('--vocs-twoslash-popup-height')
+    }
+  }, [persistedPopup])
+
+  if (persisted)
+    return (
+      <span data-v-twoslash-persisted>
+        <span data-v-twoslash-trigger>
+          <span>{trigger}</span>
+        </span>
+        <span className={className} data-v-twoslash-inline-popup ref={setPersistedPopup}>
+          <span data-v-twoslash-inline-arrow>
+            <ArrowSvg />
+          </span>
+          <div data-v-content ref={ref}>
+            {children}
+          </div>
+        </span>
+      </span>
+    )
+
   return (
-    <Popover.Root {...(open ? { open } : {})}>
+    <Popover.Root>
       <Popover.Trigger data-v-twoslash-trigger openOnHover delay={0}>
         <span>{trigger}</span>
       </Popover.Trigger>
@@ -48,7 +88,6 @@ export namespace TwoslashHover {
   export type Props = {
     className?: string | undefined
     children: React.ReactNode
-    open?: boolean | undefined
     trigger: React.ReactNode
   }
 
