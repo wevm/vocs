@@ -822,24 +822,28 @@ export function virtualLangs(config: Config.Config): PluginOption {
           return 'export const langs = []'
         }
 
-        const imports: string[] = []
-        const langExports: string[] = []
+        const langIds = new Set<string>()
 
         for (let i = 0; i < transformers.length; i++) {
           const t = transformers[i]
           if (t && 'langs' in t && Array.isArray(t.langs) && t.langs.length > 0) {
-            const langIds = t.langs
-              .map((l: { name?: string }) => l.name)
-              .filter(Boolean) as string[]
-            for (const langId of langIds) {
-              imports.push(`import ${langId}Lang from 'shiki/langs/${langId}.mjs'`)
-              langExports.push(`...${langId}Lang`)
+            for (const lang of t.langs) {
+              if (lang.name) langIds.add(lang.name)
             }
           }
         }
 
-        if (!imports.length) {
+        if (!langIds.size) {
           return 'export const langs = []'
+        }
+
+        const imports: string[] = []
+        const langExports: string[] = []
+        let index = 0
+        for (const langId of langIds) {
+          const importName = `lang${index++}`
+          imports.push(`import ${importName} from 'shiki/langs/${langId}.mjs'`)
+          langExports.push(`...${importName}`)
         }
 
         return `${imports.join('\n')}\nexport const langs = [${langExports.join(', ')}]`
