@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react'
 import * as Markdown from '../../../internal/markdown.js'
 import type { Ir, IrGroup } from '../../../internal/openapi/parser.js'
-import { Authentication } from './Authentication.client.js'
 import { HeadingAnchor } from './HeadingAnchor.js'
 import { Operation } from './Operation.js'
 
@@ -41,12 +40,9 @@ export function ReferenceOverview(props: ReferenceOverview.Props) {
   return (
     <div data-v-openapi data-v-openapi-landing>
       {intro ? (
-        <>
-          <div data-v-openapi-intro data-v-content>
-            {intro}
-          </div>
-          <Authentication mount={ir.path} schemes={ir.securitySchemes} />
-        </>
+        <div data-v-openapi-intro data-v-content>
+          {intro}
+        </div>
       ) : (
         <>
           <header data-v-openapi-header>
@@ -55,7 +51,6 @@ export function ReferenceOverview(props: ReferenceOverview.Props) {
             </h1>
             {ir.info.description && <Prose markdown={ir.info.description} attr="description" />}
           </header>
-          <Authentication mount={ir.path} schemes={ir.securitySchemes} />
           {endpoints}
         </>
       )}
@@ -102,7 +97,6 @@ export function ReferenceGroup(props: ReferenceGroup.Props) {
           {group.description && <Prose markdown={group.description} attr="description" />}
         </header>
       )}
-      <Authentication mount={ir.path} schemes={ir.securitySchemes} />
       {group.operations.map((operation, index) => (
         <Operation
           key={operation.id}

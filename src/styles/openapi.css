@@ -28,41 +28,6 @@
   @apply vocs:max-w-content;
 }
 
-/* #region Authentication panel */
-
-/* Inline global auth card: title + description with a single labeled API key
-   input underneath, capped to the readable content width. */
-[data-v-openapi-auth] {
-  @apply vocs:flex vocs:flex-col vocs:gap-3 vocs:max-w-content vocs:rounded-lg vocs:border vocs:border-primary vocs:bg-surfaceTint/70 vocs:p-4;
-}
-[data-v-openapi-auth-header] {
-  @apply vocs:flex vocs:flex-col vocs:gap-0.5;
-}
-[data-v-openapi-auth-title] {
-  @apply vocs:text-[16px] vocs:font-medium vocs:text-heading;
-}
-[data-v-openapi-auth-description] {
-  @apply vocs:text-[12px] vocs:leading-[1.4] vocs:text-muted;
-}
-[data-v-openapi-auth-field] {
-  @apply vocs:flex vocs:flex-col vocs:gap-1;
-}
-[data-v-openapi-auth-label] {
-  @apply vocs:text-[12px] vocs:font-medium vocs:text-secondary;
-}
-[data-v-openapi-auth-input] {
-  @apply vocs:w-full vocs:rounded-md vocs:border vocs:border-primary vocs:bg-surface vocs:px-3 vocs:py-2 vocs:text-[13px] vocs:text-heading;
-  @apply vocs:outline-none vocs:transition-colors;
-}
-[data-v-openapi-auth-input]:focus {
-  @apply vocs:border-accent;
-}
-[data-v-openapi-auth-input]::placeholder {
-  @apply vocs:text-muted;
-}
-
-/* #endregion */
-
 /* A category section (single-page layout) / categories list (overview). */
 [data-v-openapi-group] {
   @apply vocs:flex vocs:flex-col vocs:gap-2 vocs:pt-6;

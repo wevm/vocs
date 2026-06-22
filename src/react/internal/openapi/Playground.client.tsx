@@ -14,7 +14,7 @@ import '../../../styles/openapi-playground.css'
 import * as React from 'react'
 import { createPortal } from 'react-dom'
 import LucidePlay from '~icons/lucide/play'
-import type { Ir, IrSecurityScheme } from '../../../internal/openapi/parser.js'
+import type { Ir } from '../../../internal/openapi/parser.js'
 import { useColorScheme } from '../../useColorScheme.js'
 import * as Auth from './auth.js'
 
@@ -29,10 +29,14 @@ const PlaygroundContext = React.createContext<{ open: OpenFn; ready: boolean } |
  * server rendering.
  */
 export function PlaygroundProvider(props: PlaygroundProvider.Props) {
-  const { client, children, mount: specMount = '/', schemes } = props
+  const { client, children, mount: specMount = '/' } = props
   const containerRef = React.useRef<HTMLDivElement>(null)
   // biome-ignore lint/suspicious/noExplicitAny: Scalar's modal type lives in a client-only module.
   const modalRef = React.useRef<any>(null)
+  // The Scalar workspace store backing the modal; kept so cross-page auth
+  // updates can be loaded into the live store without reopening the modal.
+  // biome-ignore lint/suspicious/noExplicitAny: client-only Scalar store instance.
+  const storeRef = React.useRef<any>(null)
   const [ready, setReady] = React.useState(false)
 
   React.useEffect(() => {
@@ -47,19 +51,41 @@ export function PlaygroundProvider(props: PlaygroundProvider.Props) {
           import('@scalar/api-client/modal'),
         ])
 
-        const store = createWorkspaceStore()
+        // Register a plugin so we're notified whenever the consumer edits
+        // credentials in Scalar's "Try" auth UI. We mirror Scalar's exported
+        // auth state into localStorage so every other playground instance
+        // (other pages, future reloads) picks it up.
+        const store = createWorkspaceStore({
+          plugins: [
+            {
+              hooks: {
+                onWorkspaceStateChanges(event) {
+                  if (event.type !== 'auth') return
+                  const next = serializeAuth(store)
+                  // Skip writes that match what's already stored — including the
+                  // change fired by our own `auth.load()` below — to avoid a
+                  // persist → subscribe → load → persist feedback loop.
+                  if (next === Auth.read(specMount)) return
+                  Auth.write(specMount, next)
+                },
+              },
+            },
+          ],
+        })
+        storeRef.current = store
         await store.addDocument({
           name: 'default',
           ...('url' in client ? { url: client.url } : { document: client.content }),
         })
         if (cancelled) return
 
+        // Seed credentials captured from a previous "Try" session (this page's
+        // first mount, another page, or a prior visit).
+        loadStoredAuth(store, specMount)
+
         modal = createApiClientModal({
           el: containerRef.current,
           workspaceStore: store,
-          // Seed the global auth the consumer entered in the Authentication panel
-          // (persisted in localStorage) so every "Try" request is pre-authed.
-          options: authOptions(specMount, schemes),
         })
         modalRef.current = modal
         setReady(true)
@@ -76,17 +102,20 @@ export function PlaygroundProvider(props: PlaygroundProvider.Props) {
         modal?.app?.unmount()
       } catch {}
       modalRef.current = null
+      storeRef.current = null
     }
-  }, [client, specMount, schemes])
+  }, [client, specMount])
 
-  // Re-apply auth whenever the consumer updates credentials in the panel while
-  // this page is mounted (no need to reopen the modal to pick up the change).
+  // When another playground instance (another page/tab) persists new
+  // credentials, load them into this live store so its "Try" stays in sync
+  // without reopening the modal.
   React.useEffect(
     () =>
       Auth.subscribe(specMount, () => {
-        modalRef.current?.updateOptions(authOptions(specMount, schemes))
+        const store = storeRef.current
+        if (store) loadStoredAuth(store, specMount)
       }),
-    [specMount, schemes],
+    [specMount],
   )
 
   const open = React.useCallback<OpenFn>((operation) => {
@@ -140,35 +169,37 @@ export declare namespace PlaygroundProvider {
   type Props = {
     client: Ir['client']
     children: React.ReactNode
-    /** Spec mount path; scopes the persisted global auth (e.g. `/api`). */
+    /** Spec mount path; scopes the persisted auth (e.g. `/api`). */
     mount?: string | undefined
-    /** Named security schemes from the spec, used to shape auth secrets. */
-    schemes?: Record<string, IrSecurityScheme> | undefined
   }
 }
 
 /**
- * Builds Scalar's `authentication` client options from the consumer's persisted
- * global API key so the active security scheme resolves a token without opening
- * the modal's auth UI.
- *
- * This is Scalar's documented preset API (`authentication.securitySchemes`
- * override values keyed by scheme name + `preferredSecurityScheme` to pick the
- * active one). The single key drives one scheme (see {@link Auth.primaryScheme}):
- * apiKey overrides via `value`, http (bearer) via `token`.
+ * Serializes Scalar's exported auth state to a JSON string for persistence,
+ * or `null` when the store holds no credentials.
  */
-function authOptions(mount: string, schemes: Record<string, IrSecurityScheme> | undefined) {
-  const primary = Auth.primaryScheme(schemes)
-  const token = Auth.read(mount)
-  if (!primary || !token) return { authentication: { securitySchemes: {} } }
-
-  const value = primary.scheme.type === 'apiKey' ? { value: token } : { token }
-  return {
-    authentication: {
-      securitySchemes: { [primary.name]: value },
-      preferredSecurityScheme: primary.name,
-    },
+// biome-ignore lint/suspicious/noExplicitAny: client-only Scalar store instance.
+function serializeAuth(store: any): string | null {
+  try {
+    const data = store.auth.export()
+    return data && Object.keys(data).length > 0 ? JSON.stringify(data) : null
+  } catch {
+    return null
   }
+}
+
+/**
+ * Loads the persisted auth blob for a mount into a Scalar store. Skips the load
+ * when the store already matches what's stored, so the change `auth.load()`
+ * fires doesn't churn or feed back into a persist loop.
+ */
+// biome-ignore lint/suspicious/noExplicitAny: client-only Scalar store instance.
+function loadStoredAuth(store: any, mount: string): void {
+  const saved = Auth.read(mount)
+  if (!saved || saved === serializeAuth(store)) return
+  try {
+    store.auth.load(JSON.parse(saved))
+  } catch {}
 }
 
 /**
