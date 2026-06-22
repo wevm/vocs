@@ -52,10 +52,13 @@ export type Handler<app extends Hono = Hono> = app & {
 export function openApi(config: OpenApi.Config, options: openApi.Options = {}): Handler {
   const app = new Hono()
 
-  // Parse the spec + compile pages once, lazily, and memoize.
+  // Parse the spec + compile pages once, lazily, and memoize. The first
+  // request's origin seeds `baseUrl` so a relative `x-openrpc` URL (e.g.
+  // `/openrpc.json`) can be fetched at runtime; the OpenRPC document is
+  // host-independent, so reusing the first origin across requests is correct.
   let state: Promise<Payload> | undefined
-  const prepare = () => {
-    if (!state) state = State.prepare(config, { rootDir: options.rootDir })
+  const prepare = (baseUrl?: string) => {
+    if (!state) state = State.prepare(config, { rootDir: options.rootDir, baseUrl })
     return state
   }
 
@@ -68,13 +71,13 @@ export function openApi(config: OpenApi.Config, options: openApi.Options = {}): 
   }
 
   app.get('*', async (c, next) => {
-    const { pathname } = new URL(c.req.url)
+    const { pathname, origin } = new URL(c.req.url)
 
     // Serve a bundled asset if the path targets the asset root.
     const asset = Assets.match(pathname)
     if (asset) return Assets.response(asset)
 
-    const payload = await prepare()
+    const payload = await prepare(origin)
     const routes = knownRoutes(payload)
 
     // Serve the Markdown / agent-facing version of a route: `<route>.md`, any

@@ -19,10 +19,10 @@ export async function prepare(
   config: OpenApi.Config,
   options: prepare.Options = {},
 ): Promise<Payload> {
-  const { rootDir } = options
+  const { rootDir, baseUrl } = options
 
   const [ir, configPages] = await Promise.all([
-    parse(config, { rootDir }),
+    parse(config, { rootDir, baseUrl }),
     Pages.compile(config.pages, { rootDir }),
   ])
 
@@ -95,6 +95,12 @@ export declare namespace prepare {
   type Options = {
     /** Directory file-path specs/pages are resolved against. */
     rootDir?: string | undefined
+    /**
+     * Base URL relative `x-openrpc` URLs (e.g. `/openrpc.json`) resolve against
+     * — the request origin, so the renderer can fetch a host-relative OpenRPC
+     * document at runtime.
+     */
+    baseUrl?: string | undefined
   }
 }
 

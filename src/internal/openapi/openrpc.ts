@@ -62,8 +62,9 @@ type Example = {
 export async function expand(
   host: IrOperation,
   document: Document | string,
+  options: expand.Options = {},
 ): Promise<expand.Result> {
-  const resolved = await resolve(document)
+  const resolved = await resolve(document, options)
   const methods = resolved.methods ?? []
   const slugger = new GithubSlugger()
 
@@ -153,6 +154,14 @@ export async function expand(
 }
 
 export declare namespace expand {
+  type Options = {
+    /**
+     * Base URL relative `x-openrpc` URLs (e.g. `/openrpc.json`) resolve against:
+     * the spec URL when the spec was loaded from a URL, or the request origin in
+     * the standalone server handler.
+     */
+    baseUrl?: string | undefined
+  }
   /** A named JSON-RPC request example to inject onto the host operation. */
   type RpcExample = { summary?: string | undefined; value: unknown }
   type Result = {
@@ -163,18 +172,37 @@ export declare namespace expand {
   }
 }
 
-/** Resolves an OpenRPC source (URL, raw JSON, or object) to a dereferenced doc. */
-async function resolve(document: Document | string): Promise<Document> {
+/**
+ * Resolves an OpenRPC source (URL, raw JSON, or object) to a dereferenced doc.
+ *
+ * A string is treated as raw JSON when it begins with `{`; otherwise it's a
+ * URL. Absolute (`http(s)://`) URLs are fetched directly. Relative URLs (e.g.
+ * `/openrpc.json`, the host-relative link an OpenAPI document commonly uses) are
+ * resolved against `baseUrl` — the spec URL when the spec was loaded from a URL,
+ * or the request origin in the standalone server handler — then fetched.
+ */
+async function resolve(
+  document: Document | string,
+  options: expand.Options = {},
+): Promise<Document> {
   let raw: unknown = document
   if (typeof document === 'string') {
     const trimmed = document.trimStart()
-    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
-      const response = await fetch(document)
-      if (!response.ok)
-        throw new Error(`Failed to fetch OpenRPC document from ${document}: ${response.statusText}`)
-      raw = await response.json()
+    if (trimmed.startsWith('{')) {
+      raw = JSON.parse(trimmed)
     } else {
-      raw = JSON.parse(document)
+      const url =
+        trimmed.startsWith('http://') || trimmed.startsWith('https://')
+          ? trimmed
+          : options.baseUrl
+            ? new URL(trimmed, options.baseUrl).toString()
+            : undefined
+      if (!url)
+        throw new Error(`Cannot resolve relative OpenRPC document "${trimmed}" without a base URL.`)
+      const response = await fetch(url)
+      if (!response.ok)
+        throw new Error(`Failed to fetch OpenRPC document from ${url}: ${response.statusText}`)
+      raw = await response.json()
     }
   }
   // Dereference internal `$ref`s (`#/components/schemas/...`) so the renderer

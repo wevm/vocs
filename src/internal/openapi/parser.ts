@@ -265,6 +265,11 @@ export async function parse(config: OpenApi.Config, options: parse.Options = {})
     typeof spec === 'string' && (spec.startsWith('http://') || spec.startsWith('https://'))
   const specUrl = isUrl ? spec : undefined
 
+  // Base for resolving relative `x-openrpc` URLs (e.g. `/openrpc.json`): the
+  // spec URL when the spec was loaded from a URL, else the caller-provided base
+  // (the request origin in the standalone server handler).
+  const openrpcBaseUrl = specUrl ?? options.baseUrl
+
   const servers = (document.servers ?? [])
     .map((server) => ({
       url: resolveServerUrl(server.url ?? '', specUrl),
@@ -274,7 +279,7 @@ export async function parse(config: OpenApi.Config, options: parse.Options = {})
 
   const securitySchemes = document.components?.securitySchemes ?? {}
 
-  const { groups, injections } = await buildGroups(document)
+  const { groups, injections } = await buildGroups(document, { baseUrl: openrpcBaseUrl })
 
   // Inject JSON-RPC examples onto the host operation in the spec the
   // interactive client loads, so each "Try" can preselect its method's
@@ -352,6 +357,12 @@ export declare namespace parse {
   type Options = {
     /** Directory file-path specs are resolved against. @default process.cwd() */
     rootDir?: string | undefined
+    /**
+     * Base URL relative `x-openrpc` URLs (e.g. `/openrpc.json`) resolve against
+     * when the spec itself wasn't loaded from a URL — the request origin in the
+     * standalone server handler.
+     */
+    baseUrl?: string | undefined
   }
 }
 
@@ -431,7 +442,10 @@ type RpcInjection = {
 type BuildGroupsResult = { groups: IrGroup[]; injections: RpcInjection[] }
 
 /** Groups operations by their first tag. */
-async function buildGroups(document: Document): Promise<BuildGroupsResult> {
+async function buildGroups(
+  document: Document,
+  options: { baseUrl?: string | undefined } = {},
+): Promise<BuildGroupsResult> {
   const slugger = new GithubSlugger()
   const order: string[] = []
   const byName = new Map<string, IrOperation[]>()
@@ -478,14 +492,24 @@ async function buildGroups(document: Document): Promise<BuildGroupsResult> {
       // single host operation so the docs still render.
       if (operation['x-openrpc']) {
         try {
-          const { operations, examples } = await OpenRpc.expand(built, operation['x-openrpc'])
+          const { operations, examples } = await OpenRpc.expand(built, operation['x-openrpc'], {
+            baseUrl: options.baseUrl,
+          })
           byName.get(groupName)?.push(...(operations.length > 0 ? operations : [built]))
           // Record the named JSON-RPC examples so the caller can inject them
           // onto the host operation in the spec handed to the interactive
           // client (Scalar selects the right one per "Try" click).
           if (operations.length > 0 && Object.keys(examples).length > 0)
             injections.push({ path: pathname, method, examples })
-        } catch {
+        } catch (error) {
+          // Fall back to the single host operation so the docs still render, but
+          // surface why the JSON-RPC methods are missing (e.g. a relative
+          // `x-openrpc` URL with no base, or an unreachable document).
+          console.warn(
+            `[vocs] Failed to expand x-openrpc for ${method.toUpperCase()} ${pathname}: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          )
           byName.get(groupName)?.push(built)
         }
       } else {

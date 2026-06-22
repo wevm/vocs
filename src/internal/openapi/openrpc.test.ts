@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest'
+import { afterEach, describe, expect, test, vi } from 'vitest'
 import * as OpenApi from './openapi.js'
 import { expand } from './openrpc.js'
 import { parse } from './parser.js'
@@ -121,6 +121,10 @@ describe('expand', () => {
 })
 
 describe('parse with x-openrpc', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
   const spec = {
     openapi: '3.1.0',
     info: { title: 'API', version: '1.0.0' },
@@ -145,6 +149,64 @@ describe('parse with x-openrpc', () => {
       'eth_blockNumber',
       'eth_getBalance',
     ])
+  })
+
+  test('resolves a relative x-openrpc URL against baseUrl', async () => {
+    const relativeSpec = {
+      ...spec,
+      paths: {
+        '/v1/rpc': {
+          post: {
+            operationId: 'rpcRequest',
+            summary: 'Query RPC',
+            tags: ['RPC'],
+            'x-openrpc': '/openrpc.json',
+            responses: { '200': { description: 'ok' } },
+          },
+        },
+      },
+    }
+
+    const fetchMock = vi
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValue(
+        new Response(JSON.stringify(openrpc), { headers: { 'content-type': 'application/json' } }),
+      )
+
+    const ir = await parse(OpenApi.from({ spec: relativeSpec, path: '/api' }), {
+      baseUrl: 'https://cadent.tempo.xyz',
+    })
+
+    expect(fetchMock).toHaveBeenCalledWith('https://cadent.tempo.xyz/openrpc.json')
+    const group = ir.groups.find((candidate) => candidate.name === 'RPC')
+    expect(group?.operations.map((operation) => operation.summary)).toEqual([
+      'eth_blockNumber',
+      'eth_getBalance',
+    ])
+  })
+
+  test('falls back to the host operation when a relative x-openrpc has no base', async () => {
+    const relativeSpec = {
+      ...spec,
+      paths: {
+        '/v1/rpc': {
+          post: {
+            operationId: 'rpcRequest',
+            summary: 'Query RPC',
+            tags: ['RPC'],
+            'x-openrpc': '/openrpc.json',
+            responses: { '200': { description: 'ok' } },
+          },
+        },
+      },
+    }
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+    const ir = await parse(OpenApi.from({ spec: relativeSpec, path: '/api' }))
+
+    const group = ir.groups.find((candidate) => candidate.name === 'RPC')
+    expect(group?.operations.map((operation) => operation.summary)).toEqual(['Query RPC'])
+    expect(warn).toHaveBeenCalled()
   })
 
   test('injects per-method request examples into the client document', async () => {
