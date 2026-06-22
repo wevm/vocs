@@ -19,6 +19,16 @@
     position: relative;
     z-index: 50;
   }
+
+  & .line:has([data-v-twoslash-inline-popup]) {
+    @apply vocs:relative;
+    padding-bottom: var(--vocs-twoslash-popup-height, 2.1875rem);
+  }
+
+  & .line:has([data-v-twoslash-completion-popup]) {
+    @apply vocs:relative;
+    padding-bottom: var(--vocs-twoslash-popup-height, 5rem);
+  }
 }
 
 .twoslash-popup-container {
@@ -61,6 +71,31 @@
   & [data-v-content] > *:not(:last-child) {
     @apply vocs:border-b vocs:border-primary;
   }
+}
+
+[data-v-twoslash-persisted] {
+  @apply vocs:relative vocs:inline-block;
+}
+
+.twoslash-query-persisted.twoslash-popup-container[data-v-twoslash-inline-popup] {
+  @apply vocs:absolute vocs:top-[calc(100%+0.25rem)] vocs:left-0 vocs:block vocs:w-max;
+  font-size: 1rem;
+}
+
+[data-v-twoslash-inline-arrow] {
+  @apply vocs:absolute vocs:top-[-9px] vocs:left-3 vocs:block vocs:leading-none;
+}
+
+[data-v-twoslash-inline-arrow] svg {
+  @apply vocs:block;
+}
+
+[data-v-twoslash-completion] {
+  @apply vocs:relative vocs:inline-block;
+}
+
+[data-v-twoslash-completion-popup] {
+  @apply vocs:absolute vocs:top-[calc(100%+0.25rem)] vocs:left-0 vocs:block;
 }
 
 [data-v-code-skeleton] [data-v-skeleton-bar] {
