@@ -54,12 +54,26 @@ const host = {
 
 describe('expand', () => {
   test('expands one operation per JSON-RPC method', async () => {
-    const operations = await expand(host, openrpc)
+    const { operations, examples } = await expand(host, openrpc)
 
     expect(operations.map((operation) => operation.summary)).toEqual([
       'eth_blockNumber',
       'eth_getBalance',
     ])
+
+    // Each operation tags the host request example to preselect when trying it,
+    // and a matching named example is emitted for injection onto the host.
+    expect(operations.map((operation) => operation.rpcExample)).toEqual([
+      'eth_blockNumber',
+      'eth_getBalance',
+    ])
+    expect(Object.keys(examples)).toEqual(['eth_blockNumber', 'eth_getBalance'])
+    expect(examples['eth_getBalance']?.value).toEqual({
+      jsonrpc: '2.0',
+      id: 1,
+      method: 'eth_getBalance',
+      params: ['0xabc', 'latest'],
+    })
 
     const balance = operations[1]
     if (!balance) throw new Error('expected eth_getBalance operation')
@@ -95,7 +109,8 @@ describe('expand', () => {
   })
 
   test('generates an accurate JSON-RPC request code sample', async () => {
-    const [, balance] = await expand(host, openrpc)
+    const { operations } = await expand(host, openrpc)
+    const balance = operations[1]
     if (!balance) throw new Error('expected eth_getBalance operation')
     const samples = codeSamples(balance, 'https://api.example.com')
     const curl = samples.find((sample) => sample.id === 'shell/curl')
@@ -130,5 +145,33 @@ describe('parse with x-openrpc', () => {
       'eth_blockNumber',
       'eth_getBalance',
     ])
+  })
+
+  test('injects per-method request examples into the client document', async () => {
+    const ir = await parse(OpenApi.from({ spec, path: '/api' }))
+    // The interactive client must receive the augmented document (not a bare
+    // URL) so it can select each method's example.
+    if (!('content' in ir.client)) throw new Error('expected inline client content')
+    const content = ir.client.content as {
+      paths: Record<
+        string,
+        {
+          post: {
+            requestBody: {
+              content: Record<string, { examples: Record<string, { value: unknown }> }>
+            }
+          }
+        }
+      >
+    }
+    const media = content.paths['/v1/rpc']?.post.requestBody.content['application/json']
+    const examples = media?.examples ?? {}
+    expect(Object.keys(examples)).toEqual(['eth_blockNumber', 'eth_getBalance'])
+    expect(examples['eth_getBalance']?.value).toEqual({
+      jsonrpc: '2.0',
+      id: 1,
+      method: 'eth_getBalance',
+      params: ['0xabc', 'latest'],
+    })
   })
 })

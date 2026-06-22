@@ -97,6 +97,13 @@ export type IrOperation = {
   method: string
   /** Templated path (e.g. `/pets/{petId}`). */
   path: string
+  /**
+   * Name of the host operation's request example to preselect in the
+   * interactive client. Set for JSON-RPC operations expanded from an OpenRPC
+   * document (the JSON-RPC method name); lets "Try" prefill the right envelope
+   * even though every method shares the same path + verb.
+   */
+  rpcExample?: string | undefined
   summary?: string | undefined
   description?: string | undefined
   deprecated?: boolean | undefined
@@ -267,9 +274,20 @@ export async function parse(config: OpenApi.Config, options: parse.Options = {})
 
   const securitySchemes = document.components?.securitySchemes ?? {}
 
-  const client = isUrl
-    ? { url: spec as string }
-    : { content: specification as Record<string, unknown> }
+  const { groups, injections } = await buildGroups(document)
+
+  // Inject JSON-RPC examples onto the host operation in the spec the
+  // interactive client loads, so each "Try" can preselect its method's
+  // envelope. The examples must live in the document Scalar reads; when the
+  // spec was a URL it would otherwise fetch the un-augmented version, so fall
+  // back to handing it the augmented `content` instead.
+  for (const injection of injections)
+    injectRpcExamples(specification as Record<string, unknown>, injection)
+
+  const client =
+    isUrl && injections.length === 0
+      ? { url: spec as string }
+      : { content: specification as Record<string, unknown> }
 
   return {
     path: config.path ?? '/',
@@ -280,10 +298,37 @@ export async function parse(config: OpenApi.Config, options: parse.Options = {})
       description: document.info?.description,
     },
     servers,
-    groups: await buildGroups(document),
+    groups,
     traits: buildTraits(document),
     securitySchemes,
   }
+}
+
+/**
+ * Adds named JSON-RPC request examples to a host operation's
+ * `application/json` request body in the (upgraded) spec document. Scalar
+ * builds one selectable request example per key, which the "Try" button
+ * navigates to via the operation's `rpcExample`.
+ */
+function injectRpcExamples(specification: Record<string, unknown>, injection: RpcInjection): void {
+  const paths = specification['paths'] as Record<string, Record<string, unknown>> | undefined
+  const operation = paths?.[injection.path]?.[injection.method] as
+    | Record<string, unknown>
+    | undefined
+  if (!operation) return
+
+  let requestBody = operation['requestBody'] as Record<string, unknown> | undefined
+  // A `$ref`'d or absent body can't be merged in place; replace with an inline
+  // one carrying just the examples (the params already render in the docs).
+  if (!requestBody || typeof requestBody !== 'object' || '$ref' in requestBody) {
+    requestBody = {}
+    operation['requestBody'] = requestBody
+  }
+  if (!requestBody['content']) requestBody['content'] = {}
+  const content = requestBody['content'] as Record<string, Record<string, unknown>>
+  if (!content['application/json']) content['application/json'] = {}
+  const media = content['application/json']
+  media['examples'] = { ...(media['examples'] as Record<string, unknown>), ...injection.examples }
 }
 
 /** Builds doc-only "trait" pages from tags marked `x-traitTag: true`. */
@@ -376,12 +421,22 @@ function looksLikeRawContent(spec: string): boolean {
   return false
 }
 
+/** A set of named JSON-RPC examples to inject onto a host spec operation. */
+type RpcInjection = {
+  path: string
+  method: Method
+  examples: Record<string, OpenRpc.expand.RpcExample>
+}
+
+type BuildGroupsResult = { groups: IrGroup[]; injections: RpcInjection[] }
+
 /** Groups operations by their first tag. */
-async function buildGroups(document: Document): Promise<IrGroup[]> {
+async function buildGroups(document: Document): Promise<BuildGroupsResult> {
   const slugger = new GithubSlugger()
   const order: string[] = []
   const byName = new Map<string, IrOperation[]>()
   const descriptions = new Map<string, string | undefined>()
+  const injections: RpcInjection[] = []
 
   // Seed group order from document-level `tags` so authoring order is preserved.
   // Skip `x-traitTag` tags — they're doc-only pages, not operation categories.
@@ -423,8 +478,13 @@ async function buildGroups(document: Document): Promise<IrGroup[]> {
       // single host operation so the docs still render.
       if (operation['x-openrpc']) {
         try {
-          const expanded = await OpenRpc.expand(built, operation['x-openrpc'])
-          byName.get(groupName)?.push(...(expanded.length > 0 ? expanded : [built]))
+          const { operations, examples } = await OpenRpc.expand(built, operation['x-openrpc'])
+          byName.get(groupName)?.push(...(operations.length > 0 ? operations : [built]))
+          // Record the named JSON-RPC examples so the caller can inject them
+          // onto the host operation in the spec handed to the interactive
+          // client (Scalar selects the right one per "Try" click).
+          if (operations.length > 0 && Object.keys(examples).length > 0)
+            injections.push({ path: pathname, method, examples })
         } catch {
           byName.get(groupName)?.push(built)
         }
@@ -434,7 +494,7 @@ async function buildGroups(document: Document): Promise<IrGroup[]> {
     }
   }
 
-  return order
+  const groups = order
     .map((name) => ({
       id: slugger.slug(name),
       name,
@@ -442,6 +502,8 @@ async function buildGroups(document: Document): Promise<IrGroup[]> {
       operations: byName.get(name) ?? [],
     }))
     .filter((group) => group.operations.length > 0)
+
+  return { groups, injections }
 }
 
 function buildOperation(options: {

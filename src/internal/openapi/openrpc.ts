@@ -62,12 +62,18 @@ type Example = {
 export async function expand(
   host: IrOperation,
   document: Document | string,
-): Promise<IrOperation[]> {
+): Promise<expand.Result> {
   const resolved = await resolve(document)
   const methods = resolved.methods ?? []
   const slugger = new GithubSlugger()
 
-  return methods.map((method) => {
+  // Named request examples (keyed by method name) injected onto the host
+  // operation so the interactive client (Scalar) can prefill the JSON-RPC
+  // envelope for each method. JSON-RPC methods all share one path+verb, so the
+  // client distinguishes them by selecting the matching named example.
+  const examples: Record<string, expand.RpcExample> = {}
+
+  const operations = methods.map((method) => {
     const example = method.examples?.[0]
 
     const parameters: IrParameter[] = (method.params ?? []).map((param, index) => ({
@@ -92,6 +98,7 @@ export async function expand(
       method: method.name,
       params: paramValues,
     }
+    examples[method.name] = { summary: method.summary, value: requestExample }
 
     const resultSchema = method.result?.schema
     const resultValue =
@@ -104,6 +111,9 @@ export async function expand(
       id: slugger.slug(method.name),
       method: host.method,
       path: host.path,
+      // Name of the host operation's request example to select in the
+      // interactive client (matches the key added to `examples` above).
+      rpcExample: method.name,
       summary: method.name,
       description: description || undefined,
       deprecated: method.deprecated,
@@ -138,6 +148,19 @@ export async function expand(
       ],
     } satisfies IrOperation
   })
+
+  return { operations, examples }
+}
+
+export declare namespace expand {
+  /** A named JSON-RPC request example to inject onto the host operation. */
+  type RpcExample = { summary?: string | undefined; value: unknown }
+  type Result = {
+    /** One IR operation per JSON-RPC method. */
+    operations: IrOperation[]
+    /** Request examples keyed by method name, for the host operation. */
+    examples: Record<string, RpcExample>
+  }
 }
 
 /** Resolves an OpenRPC source (URL, raw JSON, or object) to a dereferenced doc. */

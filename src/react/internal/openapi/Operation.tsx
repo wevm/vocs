@@ -104,7 +104,13 @@ export function Operation(props: Operation.Props) {
           <CodeSample
             samples={samples}
             responses={responses}
-            action={<TestRequestButton method={operation.method} path={operation.path} />}
+            action={
+              <TestRequestButton
+                method={operation.method}
+                path={operation.path}
+                example={operation.rpcExample}
+              />
+            }
           />
         </div>
       )}

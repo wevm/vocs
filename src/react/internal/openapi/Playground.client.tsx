@@ -17,7 +17,7 @@ import LucidePlay from '~icons/lucide/play'
 import type { Ir } from '../../../internal/openapi/parser.js'
 import { useColorScheme } from '../../useColorScheme.js'
 
-type OpenFn = (operation: { method: string; path: string }) => void
+type OpenFn = (operation: { method: string; path: string; example?: string | undefined }) => void
 
 const PlaygroundContext = React.createContext<{ open: OpenFn; ready: boolean } | null>(null)
 
@@ -79,6 +79,9 @@ export function PlaygroundProvider(props: PlaygroundProvider.Props) {
     modalRef.current?.open({
       method: operation.method.toLowerCase(),
       path: operation.path,
+      // Preselect the JSON-RPC method's request example (expanded OpenRPC
+      // operations all share one path + verb, so the example disambiguates).
+      ...(operation.example ? { example: operation.example } : {}),
     })
   }, [])
 
@@ -131,7 +134,7 @@ export declare namespace PlaygroundProvider {
  * a disabled placeholder until the modal finishes loading on the client.
  */
 export function TestRequestButton(props: TestRequestButton.Props) {
-  const { method, path } = props
+  const { method, path, example } = props
   const context = React.useContext(PlaygroundContext)
 
   return (
@@ -140,7 +143,7 @@ export function TestRequestButton(props: TestRequestButton.Props) {
       data-v-openapi-action
       data-v-openapi-test-request
       disabled={!context?.ready}
-      onClick={() => context?.open({ method, path })}
+      onClick={() => context?.open({ method, path, example })}
     >
       <LucidePlay data-v-openapi-action-icon />
       Try
@@ -152,5 +155,7 @@ export declare namespace TestRequestButton {
   type Props = {
     method: string
     path: string
+    /** Name of the request example to preselect (JSON-RPC method name). */
+    example?: string | undefined
   }
 }
