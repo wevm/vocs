@@ -15,6 +15,8 @@ import * as UnistUtil from 'unist-util-visit'
 import * as yaml from 'yaml'
 import type * as Config from './config.js'
 import { extractSubheading, getPhrasingContentText } from './mdx.js'
+import * as OpenApiRegistry from './openapi/registry.js'
+import * as OpenApiSearch from './openapi/search.js'
 import * as Path from './path.js'
 import { searchFields, storeFields, tokenize } from './search.client.js'
 import * as Sidebar from './sidebar.js'
@@ -92,7 +94,25 @@ export namespace SearchDocuments {
     const externalLinks = extractExternalLinks(config)
     allDocuments.push(...externalLinks)
 
+    const openapiDocuments = await fromOpenApi(config)
+    allDocuments.push(...openapiDocuments)
+
     return allDocuments
+  }
+
+  /**
+   * Builds search documents for every configured OpenAPI section from its parsed
+   * IR, so the auto-generated reference is indexed alongside MDX pages. Failures
+   * are swallowed so a broken/unreachable spec can't break the whole index.
+   */
+  async function fromOpenApi(config: Config.Config): Promise<Document[]> {
+    if (!config.openapi || config.openapi.length === 0) return []
+    try {
+      const specs = await OpenApiRegistry.build(config)
+      return Object.values(specs).flatMap((ir) => OpenApiSearch.toSearchDocuments(ir))
+    } catch {
+      return []
+    }
   }
 
   export function extractExternalLinks(config: Config.Config): Document[] {

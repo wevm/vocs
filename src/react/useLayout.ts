@@ -5,6 +5,8 @@ import { useSidebar } from './useSidebar.js'
 
 export type LayoutState = {
   layout: 'full' | 'minimal' | 'blank'
+  /** Content width: `default` (centered, readable) or `full` (full-bleed). */
+  contentWidth: 'default' | 'full'
   showAskAi: boolean
   showLogo: boolean
   showOutline: boolean
@@ -21,9 +23,11 @@ export function useLayout(): LayoutState {
 
   const layout = frontmatter?.layout ?? 'full'
   const outline = frontmatter?.outline
+  const contentWidth = frontmatter?.content?.width ?? 'default'
 
   return {
     layout,
+    contentWidth,
     get showSidebar() {
       if (frontmatter?.showSidebar !== undefined) return frontmatter.showSidebar
       if (sidebar.items.length === 0) return false

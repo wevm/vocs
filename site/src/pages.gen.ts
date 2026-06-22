@@ -18,6 +18,7 @@ type Page =
   | { path: '/features/layouts'; render: 'static' }
   | { path: '/features/mcp-server'; render: 'static' }
   | { path: '/features/navigation'; render: 'static' }
+  | { path: '/features/openapi'; render: 'static' }
   | { path: '/features/redirects'; render: 'static' }
   | { path: '/features/rehype-and-remark'; render: 'static' }
   | { path: '/features/render-strategies'; render: 'static' }

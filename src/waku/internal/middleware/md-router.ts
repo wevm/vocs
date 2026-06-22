@@ -1,55 +1,10 @@
 import type { MiddlewareHandler } from 'hono'
-
-export const aiUserAgents = [
-  'GPTBot',
-  'OAI-SearchBot',
-  'ChatGPT-User',
-  'ChatGPT-User/2.0',
-  'anthropic-ai',
-  'ClaudeBot',
-  'claude-web',
-  'PerplexityBot',
-  'Perplexity-User',
-  'Google-Extended',
-  'FacebookBot',
-  'meta-externalagent',
-  'Bytespider',
-  'cohere-ai',
-  'AI2Bot',
-  'CCBot',
-  'Diffbot',
-  'omgili',
-  'Timpibot',
-  'MistralAI-User',
-  'GoogleAgent-Mariner',
-]
-
-export const searchEngineUserAgents = [
-  'Googlebot',
-  'Bingbot',
-  'Amazonbot',
-  'Applebot',
-  'Applebot-Extended',
-  'DuckAssistBot',
-  'YouBot',
-]
-
-export const terminalUserAgents = ['curl/', 'Wget/', 'HTTPie/', 'httpie-go/', 'xh/']
-
-export const ogBotUserAgents = [
-  'Discordbot',
-  'Embedly',
-  'Facebot',
-  'Iframely',
-  'LinkedInBot',
-  'Pinterestbot',
-  'Slackbot',
-  'Slurp',
-  'TelegramBot',
-  'Twitterbot',
-  'WhatsApp',
-  'facebookexternalhit',
-]
+import {
+  aiUserAgents,
+  ogBotUserAgents,
+  searchEngineUserAgents,
+  terminalUserAgents,
+} from '../../../internal/markdown-negotiation.js'
 
 const isDev = process.env['NODE_ENV'] !== 'production'
 
@@ -63,8 +18,9 @@ async function resolveContent() {
   const { rehypePlugins, remarkPlugins } = Mdx.getCompileOptions('txt', config)
   const pagesDir = path.resolve(config.rootDir, config.srcDir, config.pagesDir)
   const pages = await Llms.getPagesFromDir(pagesDir)
+  const openapiPages = await Llms.getOpenApiPages(config)
   return Llms.buildLlmsContent({
-    pages,
+    pages: [...openapiPages, ...pages],
     title: config.title,
     description: config.description,
     rehypePlugins,

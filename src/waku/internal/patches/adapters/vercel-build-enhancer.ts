@@ -1,6 +1,6 @@
 import { cpSync, existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
-import { aiUserAgents, terminalUserAgents } from '../../middleware/md-router.js'
+import { aiUserAgents, terminalUserAgents } from '../../../../internal/markdown-negotiation.js'
 
 export type BuildOptions = {
   assetsDir: string

@@ -14,6 +14,76 @@ import { useSidebar } from '../useSidebar.js'
 
 const maxDepth = 5
 
+/** Active in-page anchor id, for hash-link sidebar items (e.g. OpenAPI). */
+const ActiveAnchorContext = React.createContext<string | null>(null)
+
+/** Whether any sidebar item links to an in-page anchor. */
+function hasHashLink(items: Sidebar_core.SidebarItem[]): boolean {
+  return items.some((item) => item.link?.includes('#') || (item.items && hasHashLink(item.items)))
+}
+
+/**
+ * Tracks the in-page section currently in view, so hash-link sidebar items
+ * (used by the OpenAPI section) can show active state. Mirrors the Outline's
+ * IntersectionObserver approach.
+ */
+function useActiveAnchor(enabled: boolean, path: string): string | null {
+  const [activeId, setActiveId] = React.useState<string | null>(null)
+
+  React.useEffect(() => {
+    if (!enabled || typeof window === 'undefined') return
+
+    // Reset on every client-side navigation: derive the active section from the
+    // hash of the destination `path` (landing pages like the OpenAPI section
+    // root have none, so they start with no active section). Reading `path`
+    // here — rather than only `window.location` — keeps it a genuine effect
+    // dependency so navigation reliably re-runs this.
+    const hashFromPath = path.includes('#') ? path.slice(path.indexOf('#') + 1) : ''
+    const hash = hashFromPath || (window.location.hash ? window.location.hash.slice(1) : '')
+    setActiveId(hash || null)
+
+    // OpenAPI pages render inside `article[data-v-content]` too, so the generic
+    // markdown selector would also match operation sub-headings (Parameters,
+    // Responses, schema anchors, …) whose ids have no sidebar entry — hijacking
+    // the active anchor as you scroll through a section. On those pages observe
+    // only the group header (`<h1>`) and per-operation titles, which back the
+    // hash-link sidebar items, so the active item persists across the section.
+    const isOpenApi = document.querySelector('[data-v-openapi]') !== null
+    const selector = isOpenApi
+      ? '[data-v-openapi-h1][id], [data-v-openapi-operation-title][id]'
+      : 'article[data-v-content] :is(h2, h3, h4, h5, h6)[id]'
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries)
+          if (entry.isIntersecting) {
+            setActiveId(entry.target.id)
+            break
+          }
+      },
+      { rootMargin: '0px 0px -80% 0px' },
+    )
+
+    const observeAll = () => {
+      observer.disconnect()
+      for (const element of document.querySelectorAll(selector)) observer.observe(element)
+    }
+    observeAll()
+
+    const content =
+      document.querySelector('article[data-v-content]') ??
+      document.querySelector('[data-v-openapi]')
+    const mutation = content ? new MutationObserver(observeAll) : null
+    if (content && mutation) mutation.observe(content, { childList: true, subtree: true })
+
+    return () => {
+      observer.disconnect()
+      mutation?.disconnect()
+    }
+  }, [enabled, path])
+
+  return activeId
+}
+
 export function Sidebar(props: Sidebar.Props) {
   const { className, onNavigate, scrollRef } = props
 
@@ -22,26 +92,31 @@ export function Sidebar(props: Sidebar.Props) {
     () => Sidebar_core.length(sidebar.items, { startDepth: 2 }) > 25,
     [sidebar.items],
   )
+  const hashLinks = React.useMemo(() => hasHashLink(sidebar.items), [sidebar.items])
+  const { path } = useRouter()
+  const activeAnchor = useActiveAnchor(hashLinks, path)
 
   return (
-    <nav
-      className={cx(
-        "vocs:flex-1 vocs:flex vocs:flex-col vocs:text-sm vocs:font-[450] vocs:[&>*:not(:last-child)[data-collapsed='false']]:mb-4",
-        className,
-      )}
-      data-v-sidebar
-    >
-      {sidebar.backLink && <BackLink onNavigate={onNavigate} />}
-      {sidebar.items.map((item, i) => (
-        <Section
-          key={`${item.text}-${i}`}
-          {...item}
-          condensed={condenseSidebar}
-          onNavigate={onNavigate}
-          scrollRef={scrollRef}
-        />
-      ))}
-    </nav>
+    <ActiveAnchorContext.Provider value={activeAnchor}>
+      <nav
+        className={cx(
+          "vocs:flex-1 vocs:flex vocs:flex-col vocs:text-sm vocs:font-[450] vocs:[&>*:not(:last-child)[data-collapsed='false']]:mb-4",
+          className,
+        )}
+        data-v-sidebar
+      >
+        {sidebar.backLink && <BackLink onNavigate={onNavigate} />}
+        {sidebar.items.map((item, i) => (
+          <Section
+            key={`${item.text}-${i}`}
+            {...item}
+            condensed={condenseSidebar}
+            onNavigate={onNavigate}
+            scrollRef={scrollRef}
+          />
+        ))}
+      </nav>
+    </ActiveAnchorContext.Provider>
   )
 }
 
@@ -99,10 +174,21 @@ function Item(props: Item.Props) {
 
   const { path } = useRouter()
   const isExternal = external ?? Path.isExternal(link)
-  const active = React.useMemo(
-    () => (isExternal ? false : Path.matches(path, link)),
-    [path, link, isExternal],
-  )
+  const activeAnchor = React.useContext(ActiveAnchorContext)
+  const hashId = link?.includes('#') ? link.split('#')[1] : undefined
+  const active = React.useMemo(() => {
+    if (isExternal) return false
+    if (hashId) return hashId === activeAnchor
+    if (!Path.matches(path, link)) return false
+    // Page-level item (e.g. the OpenAPI "Overview"). When in-page anchor
+    // tracking is active, only highlight it while viewing the top of the page —
+    // i.e. when the active section is the page's top heading (whose id matches
+    // the last path segment) or no section is active yet. Otherwise the matching
+    // anchor item below it is highlighted instead.
+    if (activeAnchor == null) return true
+    const topId = (link?.split('#')[0] ?? '').split('/').filter(Boolean).pop()
+    return activeAnchor === topId
+  }, [path, link, isExternal, hashId, activeAnchor])
 
   const itemRef = React.useRef<HTMLElement>(null)
   const prevPath = React.useRef(path)
@@ -134,6 +220,24 @@ function Item(props: Item.Props) {
       })
     })
   }, [link, path, scrollRef])
+
+  // Keep the active in-page anchor item (OpenAPI endpoints) visible as the page
+  // scrolls, since `path` doesn't change between same-page anchors.
+  React.useEffect(() => {
+    if (!active || !hashId) return
+    const item = itemRef.current
+    const container = scrollRef?.current
+    if (!item || !container) return
+
+    const itemTop = item.offsetTop
+    const itemBottom = itemTop + item.offsetHeight
+    const containerScrollTop = container.scrollTop
+    const containerHeight = container.clientHeight
+
+    if (itemTop >= containerScrollTop && itemBottom <= containerScrollTop + containerHeight) return
+
+    container.scrollTo({ behavior: 'smooth', top: itemTop - 100 })
+  }, [active, hashId, scrollRef])
 
   if (link && !disabled) {
     if (isExternal)

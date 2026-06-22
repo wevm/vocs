@@ -20,6 +20,10 @@ declare module 'virtual:vocs/langs' {
   export const langs: import('shiki').LanguageRegistration[]
 }
 
+declare module 'virtual:vocs/openapi' {
+  export const specs: Record<string, import('./internal/openapi/index.js').Ir>
+}
+
 declare module 'virtual:vocs/search-index' {
   export function getSearchIndex(): Promise<string>
 }
@@ -46,9 +50,21 @@ declare module 'virtual:vocs/user-styles?inline' {
   export default css
 }
 
+declare module '*.css' {}
+
 declare module '*.css?url' {
   const url: string
   export default url
+}
+
+declare module '*.wasm?url' {
+  const url: string
+  export default url
+}
+
+declare module '*?arraybuffer' {
+  const data: ArrayBuffer
+  export default data
 }
 
 declare module 'virtual:vocs/slots' {

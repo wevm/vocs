@@ -81,7 +81,7 @@ hgroup[data-v] {
 }
 
 hgroup[data-v],
-article[data-v-content] > h1[data-v] {
+:is(article[data-v-content], [data-v-openapi-intro], [data-v-openapi-guide]) > h1[data-v] {
   @apply vocs:border-b vocs:border-primary vocs:pb-[0.75em];
 }
 
@@ -90,7 +90,7 @@ hgroup[data-v] p {
 }
 
 hgroup[data-v]:not(:last-child),
-article[data-v-content] > h1[data-v]:not(:last-child) {
+:is(article[data-v-content], [data-v-openapi-intro], [data-v-openapi-guide]) > h1[data-v]:not(:last-child) {
   margin-block-end: calc(calc(var(--vocs-spacing) * 8) * calc(1 - var(--tw-space-y-reverse))) !important;
 }
 
@@ -98,17 +98,19 @@ article[data-v-content] > h1[data-v]:not(:last-child) {
 
 /* #region Secondary Headings (h2, h3, h4, h5, h6) */
 
-article[data-v-content] > :not(:is(hgroup[data-v], h1[data-v])) + h2:not(:only-child) {
+:is(article[data-v-content], [data-v-openapi-intro], [data-v-openapi-guide])
+  > :not(:is(hgroup[data-v], h1[data-v]))
+  + h2:not(:only-child) {
   @apply vocs:pt-8 vocs:mt-10! vocs:border-t vocs:border-primary;
 }
 
-article[data-v-content] > h3:not(:only-child) {
+:is(article[data-v-content], [data-v-openapi-intro], [data-v-openapi-guide]) > h3:not(:only-child) {
   @apply vocs:pt-4;
 }
 
-article[data-v-content] > h4:not(:only-child),
-article[data-v-content] > h5:not(:only-child),
-article[data-v-content] > h6:not(:only-child) {
+:is(article[data-v-content], [data-v-openapi-intro], [data-v-openapi-guide]) > h4:not(:only-child),
+:is(article[data-v-content], [data-v-openapi-intro], [data-v-openapi-guide]) > h5:not(:only-child),
+:is(article[data-v-content], [data-v-openapi-intro], [data-v-openapi-guide]) > h6:not(:only-child) {
   @apply vocs:pt-4;
 }
 

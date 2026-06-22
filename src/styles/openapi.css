@@ -1,0 +1,660 @@
+/* Styling for the auto-generated OpenAPI reference.
+
+   Every visually-styled element in `src/react/internal/openapi/` carries a
+   stable `data-v-openapi-*` attribute instead of inline Tailwind classes, and
+   all styling lives here via `@apply`. This keeps the markup declarative and
+   lets consumers override any part of the reference UI by targeting the same
+   attributes from their own CSS. State is expressed with attribute selectors
+   (`[data-active]`, `[data-selected]`, `[data-static]`, `[data-separator]`,
+   `[data-visible]`, `[data-copied]`) and the Base UI `[data-panel-open]`
+   attribute set on disclosure triggers. */
+
+/* Sidebar method badges (GET/POST/…) are a touch smaller than the default
+   badge so they sit more compactly beside endpoint labels. */
+[data-v-sidebar-item-badge] {
+  @apply vocs:text-[10px] vocs:px-1.5 vocs:py-0.5;
+}
+
+/* #region Page layout */
+
+/* Both the landing and group pages use the full-bleed layout (left gutter
+   collapsed to the sidebar so content sits flush after it). Group pages span the
+   full available width to give the two-column operation layout (docs + sticky
+   playground) room; the landing page caps itself to content width below. */
+[data-v-openapi] {
+  @apply vocs:flex vocs:flex-col vocs:gap-6;
+}
+[data-v-openapi-landing] {
+  @apply vocs:max-w-content;
+}
+
+/* A category section (single-page layout) / categories list (overview). */
+[data-v-openapi-group] {
+  @apply vocs:flex vocs:flex-col vocs:gap-2 vocs:pt-6;
+}
+
+/* Spec / category header. Mirrors the markdown `hgroup` page header: `text-h1`
+   on the container scopes the `0.75em` bottom padding to the heading size, and
+   the description uses the same subtitle styling as a markdown page subtitle. */
+[data-v-openapi-header] {
+  @apply vocs:flex vocs:flex-col vocs:max-w-content vocs:text-h1 vocs:border-b vocs:border-primary vocs:pb-[0.75em];
+}
+[data-v-openapi-h1],
+[data-v-openapi-h2] {
+  @apply vocs:!mt-0;
+}
+[data-v-openapi-info-title] {
+  @apply vocs:!mt-0;
+}
+[data-v-openapi-description] {
+  @apply vocs:text-secondary vocs:text-subtitle vocs:font-[450] vocs:leading-base vocs:mt-[0.25em];
+}
+/* Overview landing page: categories as accordions whose panels list every
+   endpoint as a GET-badge + path row (primary background, not surface). The
+   whole list is encapsulated in a card-styled pane (matching the `Card`
+   component); row dividers inset via the horizontal padding. (Width is capped
+   to content width by the shared `[data-v-openapi]` rule.) */
+[data-v-openapi-overview] {
+  @apply vocs:flex vocs:flex-col vocs:overflow-hidden vocs:rounded-md vocs:border vocs:border-primary vocs:bg-surfaceTint/70 vocs:px-4;
+}
+[data-v-openapi-overview-category] {
+  @apply vocs:border-t vocs:border-primary;
+}
+[data-v-openapi-overview-category]:first-child {
+  @apply vocs:border-t-0;
+}
+[data-v-openapi-overview] [data-v-openapi-disclosure-trigger] {
+  @apply vocs:flex vocs:items-center vocs:gap-2 vocs:py-3 vocs:text-left vocs:cursor-pointer;
+  /* Bleed into the card's `px-4` padding so the hover highlight spans the full
+     width (edge to edge), inset only by the card border. The width must grow by
+     the bleed on both sides (`100% + 2rem`) so it also reaches the right edge —
+     a negative margin alone shifts the box without widening it. */
+  @apply vocs:-mx-4 vocs:w-[calc(100%+2rem)] vocs:px-4 vocs:transition-colors;
+}
+[data-v-openapi-overview] [data-v-openapi-disclosure-trigger]:hover {
+  background-color: light-dark(var(--vocs-color-gray12), var(--vocs-color-gray4));
+}
+[data-v-openapi-overview-chevron] {
+  @apply vocs:size-4 vocs:shrink-0 vocs:text-secondary vocs:transition-transform;
+}
+[data-v-openapi-disclosure-trigger][data-panel-open] [data-v-openapi-overview-chevron] {
+  @apply vocs:rotate-90;
+}
+[data-v-openapi-overview-category-head] {
+  @apply vocs:flex vocs:flex-col vocs:gap-0.5 vocs:min-w-0 vocs:flex-1;
+}
+[data-v-openapi-overview-category-name] {
+  @apply vocs:text-primary vocs:font-medium;
+}
+[data-v-openapi-overview-category-description] {
+  @apply vocs:text-[13px] vocs:text-secondary;
+}
+[data-v-openapi-overview] [data-v-openapi-disclosure-panel] {
+  @apply vocs:pt-1 vocs:pb-3;
+}
+[data-v-openapi-overview-endpoints] {
+  @apply vocs:flex vocs:flex-col vocs:gap-2;
+}
+[data-v-openapi-overview-endpoint] {
+  @apply vocs:flex vocs:items-center vocs:gap-3 vocs:bg-primary vocs:border vocs:border-primary vocs:rounded-lg vocs:px-3 vocs:py-2;
+}
+[data-v-openapi-overview-endpoint]:hover {
+  background-color: light-dark(var(--vocs-color-gray12), var(--vocs-color-gray4));
+}
+[data-v-openapi-overview-endpoint-title] {
+  @apply vocs:text-[14px] vocs:text-primary vocs:truncate vocs:min-w-0 vocs:flex-1;
+}
+[data-v-openapi-overview-endpoint-chevron] {
+  @apply vocs:size-4 vocs:shrink-0 vocs:text-secondary;
+}
+
+/* Nested markdown containers (property descriptions, prose) reuse
+   `data-v-content` purely for typography. The top-level article's
+   `data-v-content` centering rule (`margin-inline: auto`) must not leak into
+   them: on the flex-column parents used here, auto cross-axis margins make the
+   flex item shrink-to-content and center instead of stretching, which shows up
+   as stray left padding below the `lg` breakpoint. Reset the margins. */
+[data-v-openapi] [data-v-content] {
+  margin-left: unset;
+  margin-right: unset;
+}
+
+/* Consumer "override" intro: render authored MDX exactly like a regular page.
+   The page article supplies its block rhythm via a `space-y-6` className that
+   the nested intro doesn't inherit, so reapply it here; the heading treatment
+   (h1 border, h2/h3 spacing) comes from the shared `article[data-v-content]`
+   rules in markdown.css, which are extended to match `[data-v-openapi-intro]`.
+   Cap to content width to match the auto-generated header (`data-v-openapi-header`)
+   — on group pages the markdown intro reads at content width while the
+   operations below span the full page. */
+[data-v-openapi-intro] {
+  @apply vocs:space-y-6 vocs:max-w-content;
+}
+
+/* Consumer-authored guide page (e.g. `pages/api/auth.mdx`). Rendered inside the
+   full-bleed article (gutter collapsed to the sidebar, like the rest of the
+   section) but capped to content width so it reads like a regular markdown page.
+   Block rhythm + heading treatment come from the shared `article[data-v-content]`
+   markdown rules, which are extended to match `[data-v-openapi-guide]`. */
+[data-v-openapi-guide] {
+  @apply vocs:space-y-6 vocs:max-w-content;
+}
+
+/* #endregion */
+
+/* #region Operation layout
+   On small screens the operation stacks header → playground → body, so the
+   interactive sample sits directly under the title. On large screens it becomes
+   two columns with the playground sticky on the right, spanning the header and
+   body rows. */
+
+[data-v-openapi-operation] {
+  display: grid;
+  row-gap: 2rem;
+  column-gap: 4rem;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    "header"
+    "aside"
+    "body";
+}
+[data-v-openapi-operation][data-separator] {
+  @apply vocs:border-t vocs:border-primary vocs:mt-20 vocs:pt-20;
+}
+[data-v-openapi-operation]:not([data-separator]) {
+  @apply vocs:pt-8;
+}
+[data-v-openapi-operation-header] {
+  grid-area: header;
+  @apply vocs:flex vocs:flex-col vocs:gap-3 vocs:min-w-0;
+}
+[data-v-openapi-operation-body] {
+  grid-area: body;
+  @apply vocs:flex vocs:flex-col vocs:gap-8 vocs:min-w-0;
+}
+[data-v-openapi-operation-aside] {
+  grid-area: aside;
+  top: calc(var(--vocs-spacing-topNav) + var(--vocs-spacing-banner) + 1rem);
+  @apply vocs:flex vocs:flex-col vocs:min-w-0 vocs:self-start vocs:lg:sticky vocs:lg:max-h-[calc(100dvh-var(--vocs-spacing-topNav)-var(--vocs-spacing-banner)-2rem)] vocs:lg:overflow-hidden;
+}
+@media (min-width: 64rem) {
+  [data-v-openapi-operation] {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas:
+      "header aside"
+      "body aside";
+    align-items: start;
+  }
+}
+
+[data-v-openapi-operation-title] {
+  @apply vocs:!mt-0 vocs:flex vocs:items-center vocs:gap-2 vocs:scroll-mt-0!;
+}
+[data-v-openapi-endpoint] {
+  @apply vocs:flex vocs:items-center vocs:gap-3 vocs:bg-code-block vocs:border vocs:border-primary vocs:rounded-lg vocs:px-3 vocs:py-2;
+}
+[data-v-openapi-endpoint-path] {
+  @apply vocs:!px-0 vocs:text-[13px] vocs:text-secondary vocs:break-all;
+}
+[data-v-openapi-prose] {
+  @apply vocs:text-[15px] vocs:text-secondary;
+}
+
+/* #endregion */
+
+/* #region Sections, parameters & schema */
+
+[data-v-openapi-section] {
+  @apply vocs:flex vocs:flex-col vocs:gap-3;
+}
+[data-v-openapi-section-title] {
+  @apply vocs:flex vocs:items-center vocs:gap-2;
+}
+[data-v-openapi-params],
+[data-v-openapi-schema],
+[data-v-openapi-responses] {
+  @apply vocs:flex vocs:flex-col;
+}
+[data-v-openapi-children] {
+  @apply vocs:border-l vocs:border-primary vocs:pl-4;
+}
+[data-v-openapi-content] {
+  @apply vocs:flex vocs:flex-col vocs:gap-3;
+}
+[data-v-openapi-media] {
+  @apply vocs:flex vocs:flex-col vocs:gap-2;
+}
+[data-v-openapi-media-type] {
+  @apply vocs:text-[12px] vocs:text-secondary;
+}
+[data-v-openapi-variant] {
+  @apply vocs:flex vocs:flex-col vocs:gap-2;
+}
+
+/* A single parameter/property row. */
+[data-v-openapi-property] {
+  @apply vocs:flex vocs:flex-col vocs:gap-1.5 vocs:py-3;
+}
+[data-v-openapi-property-head] {
+  @apply vocs:flex vocs:items-center vocs:gap-2 vocs:flex-wrap;
+}
+[data-v-openapi-property-name] {
+  @apply vocs:font-mono vocs:text-[13px];
+}
+[data-v-openapi-property-prefix] {
+  @apply vocs:font-normal vocs:text-secondary;
+}
+[data-v-openapi-property-label] {
+  @apply vocs:font-semibold vocs:text-primary;
+}
+[data-v-openapi-property-required] {
+  @apply vocs:!text-[10px] vocs:!px-1.5 vocs:!py-0.5;
+}
+[data-v-openapi-property-head] .heading-anchor {
+  @apply vocs:!ml-0;
+}
+/* Reveal the copy-link anchor when hovering a property row. Property labels are
+   spans (not headings), so the shared heading hover rule in markdown.css does
+   not apply — mirror it here, scoped to the property container. */
+[data-v-openapi-property]:hover .heading-anchor {
+  @apply vocs:opacity-100;
+}
+[data-v-openapi-property-meta] {
+  @apply vocs:flex vocs:flex-wrap vocs:items-center vocs:gap-x-2 vocs:gap-y-0.5 vocs:font-mono vocs:text-[12px];
+}
+[data-v-openapi-type] {
+  @apply vocs:!text-[12px];
+}
+[data-v-openapi-meta-label],
+[data-v-openapi-meta-sep] {
+  @apply vocs:text-secondary;
+}
+[data-v-openapi-meta-value] {
+  @apply vocs:text-primary;
+}
+[data-v-openapi-property-description] {
+  @apply vocs:text-[13px] vocs:text-secondary;
+}
+[data-v-openapi-property-example] {
+  @apply vocs:flex vocs:flex-col vocs:text-[12px];
+}
+[data-v-openapi-property-example-label] {
+  @apply vocs:text-secondary;
+}
+[data-v-openapi-property-example-value] {
+  @apply vocs:font-mono vocs:text-primary vocs:break-all vocs:text-left;
+}
+/* When the sibling code sample renders a matching response example line, the
+   example value becomes a button that reveals/flashes that line on click. */
+button[data-v-openapi-property-example-value] {
+  @apply vocs:cursor-pointer vocs:underline vocs:decoration-dotted vocs:underline-offset-2 vocs:transition-colors;
+  text-decoration-color: var(--vocs-text-color-secondary);
+}
+button[data-v-openapi-property-example-value]:hover {
+  text-decoration-color: var(--vocs-text-color-primary);
+}
+
+/* Briefly highlight a property row when navigated to via an anchor link
+   (`:target`) or programmatically from a response example line / union reveal
+   (`data-v-openapi-flash`, toggled by `revealAnchor`). */
+[data-v-openapi-property]:target,
+[data-v-openapi-property][data-v-openapi-flash] {
+  @apply vocs:rounded-xs;
+  animation: vocs-openapi-target-flash 1.6s ease-out;
+}
+/* Shared "shimmer" color for anchor/example flashes: a prominent gray that
+   stands out against both the page (light) and code-block (dark) backgrounds. */
+:root {
+  --vocs-openapi-flash-bg: light-dark(var(--vocs-color-gray10), var(--vocs-color-gray7));
+}
+/* The box-shadow spread bleeds the highlight a few pixels past the row so it
+   reads as a padded, rounded region rather than a flush background fill. */
+@keyframes vocs-openapi-target-flash {
+  0%,
+  30% {
+    background-color: var(--vocs-openapi-flash-bg);
+    box-shadow: 0 0 0 8px var(--vocs-openapi-flash-bg);
+  }
+  100% {
+    background-color: transparent;
+    box-shadow: 0 0 0 8px transparent;
+  }
+}
+
+/* #endregion */
+
+/* #region Enum values */
+
+[data-v-openapi-values] {
+  @apply vocs:flex vocs:flex-col;
+}
+[data-v-openapi-values-label] {
+  @apply vocs:text-[12px] vocs:text-secondary;
+}
+[data-v-openapi-values-list] {
+  @apply vocs:flex vocs:flex-col vocs:border-l vocs:border-primary vocs:pl-3;
+}
+[data-v-openapi-values-item] {
+  @apply vocs:font-mono vocs:!px-0 vocs:text-[12.5px] vocs:text-primary vocs:break-all;
+}
+
+/* #endregion */
+
+/* #region Disclosure & pill toggles */
+
+[data-v-openapi-disclosure] {
+  @apply vocs:w-full;
+}
+[data-v-openapi-disclosure-header] {
+  @apply vocs:!m-0 vocs:!p-0;
+}
+
+/* The rounded "Show/Hide" pill: the EnumValues toggle button and the
+   CollapsibleChildren disclosure trigger share one look. */
+[data-v-openapi-pill],
+[data-v-openapi-collapse] [data-v-openapi-disclosure-header] [data-v-openapi-disclosure-trigger] {
+  @apply vocs:inline-flex vocs:items-center vocs:gap-1.5 vocs:w-fit vocs:rounded-md vocs:border vocs:border-primary vocs:px-2 vocs:py-0.5 vocs:text-[12px] vocs:font-medium vocs:text-secondary vocs:transition-colors;
+}
+[data-v-openapi-pill]:hover,
+[data-v-openapi-collapse] [data-v-openapi-disclosure-trigger]:hover {
+  @apply vocs:text-primary vocs:bg-surfaceTint;
+}
+[data-v-openapi-values] [data-v-openapi-pill] {
+  @apply vocs:mt-2;
+}
+[data-v-openapi-pill-icon],
+[data-v-openapi-collapse-icon-show],
+[data-v-openapi-collapse-icon-hide] {
+  @apply vocs:size-3;
+}
+[data-v-openapi-collapse] [data-v-openapi-disclosure-panel] {
+  @apply vocs:mt-2;
+}
+
+/* Show/Hide label + icon swap, driven by the trigger's open state. */
+[data-v-openapi-collapse-icon-hide],
+[data-v-openapi-collapse-label-hide] {
+  @apply vocs:hidden;
+}
+[data-v-openapi-disclosure-trigger][data-panel-open] [data-v-openapi-collapse-icon-show],
+[data-v-openapi-disclosure-trigger][data-panel-open] [data-v-openapi-collapse-label-show] {
+  @apply vocs:hidden;
+}
+[data-v-openapi-disclosure-trigger][data-panel-open] [data-v-openapi-collapse-icon-hide],
+[data-v-openapi-disclosure-trigger][data-panel-open] [data-v-openapi-collapse-label-hide] {
+  @apply vocs:inline;
+}
+
+/* #endregion */
+
+/* #region Responses */
+
+[data-v-openapi-response] {
+  @apply vocs:border-t vocs:border-primary;
+}
+[data-v-openapi-response]:first-child {
+  @apply vocs:border-t-0;
+}
+[data-v-openapi-response][data-static] {
+  @apply vocs:flex vocs:items-center vocs:gap-2 vocs:py-2;
+}
+[data-v-openapi-response] [data-v-openapi-disclosure-trigger] {
+  @apply vocs:flex vocs:items-center vocs:gap-2 vocs:w-full vocs:py-2 vocs:text-left vocs:cursor-pointer;
+}
+[data-v-openapi-response] [data-v-openapi-disclosure-panel] {
+  @apply vocs:pb-3;
+}
+[data-v-openapi-response-chevron] {
+  @apply vocs:size-4 vocs:shrink-0 vocs:text-secondary vocs:transition-transform;
+}
+[data-v-openapi-disclosure-trigger][data-panel-open] [data-v-openapi-response-chevron] {
+  @apply vocs:rotate-90;
+}
+[data-v-openapi-response-spacer] {
+  @apply vocs:size-4 vocs:shrink-0;
+}
+[data-v-openapi-response-status] {
+  @apply vocs:shrink-0;
+}
+[data-v-openapi-response-description] {
+  @apply vocs:text-[13px] vocs:text-secondary vocs:truncate vocs:min-w-0;
+}
+[data-v-openapi-response-content] {
+  @apply vocs:flex vocs:flex-col vocs:gap-3;
+}
+[data-v-openapi-example] {
+  @apply vocs:text-[12px] vocs:overflow-auto vocs:rounded-lg vocs:border vocs:border-primary vocs:p-3;
+}
+
+/* #endregion */
+
+/* #region Code sample (sticky request/response panel) */
+
+[data-v-openapi-sample] {
+  @apply vocs:flex vocs:flex-col vocs:min-h-0 vocs:max-h-full vocs:rounded-lg vocs:border vocs:border-primary vocs:overflow-hidden;
+}
+[data-v-openapi-sample-request] {
+  @apply vocs:flex vocs:flex-col vocs:shrink-0;
+}
+[data-v-openapi-sample-header] {
+  @apply vocs:flex vocs:items-center vocs:h-10 vocs:bg-surface vocs:px-3 vocs:border-b vocs:border-primary;
+}
+[data-v-openapi-sample-actions] {
+  @apply vocs:ml-auto vocs:flex vocs:items-center vocs:gap-1.5;
+}
+[data-v-openapi-sample-response] {
+  @apply vocs:flex vocs:flex-col vocs:min-h-0 vocs:flex-1 vocs:border-t vocs:border-primary;
+}
+[data-v-openapi-sample-tabs] {
+  @apply vocs:flex vocs:items-stretch vocs:flex-wrap vocs:shrink-0 vocs:bg-surface vocs:px-3 vocs:border-b vocs:border-primary;
+}
+[data-v-openapi-sample-response-body] {
+  @apply vocs:min-h-0 vocs:flex-1 vocs:overflow-y-auto;
+}
+
+/* Make the OpenAPI request/response code samples match Vocs code blocks.
+   The Shiki `pre.shiki` emitted for these samples lacks the `data-v` marker
+   that markdown code blocks carry, so the shared `pre[data-v]` rules don't
+   apply — mirror the essentials here, scoped to the sample container. */
+[data-v-openapi-sample] pre.shiki {
+  @apply vocs:bg-code-block vocs:py-4 vocs:overflow-x-auto;
+}
+[data-v-openapi-sample] pre.shiki > code {
+  @apply vocs:grid vocs:text-code-block;
+}
+[data-v-openapi-sample] pre.shiki > code > .line {
+  @apply vocs:leading-code vocs:px-code-block-px;
+}
+/* Synthesized placeholder values in a response example (no authored example)
+   are dimmed so real example values stand out. */
+[data-v-openapi-sample] [data-v-openapi-placeholder] {
+  @apply vocs:opacity-45;
+}
+/* Response example lines that link to a schema row are clickable. */
+[data-v-openapi-sample] pre.shiki > code > .line[data-anchor] {
+  @apply vocs:cursor-pointer;
+}
+[data-v-openapi-sample] pre.shiki > code > .line[data-anchor]:hover {
+  @apply vocs:bg-code-highlighted;
+}
+/* Flash a sample line/span when revealed from a left-hand "Example" click
+   (`data-v-openapi-flash`, toggled by `revealSampleLine`) — the reverse of the
+   left-row flash. Covers response example lines and request path-param spans. */
+[data-v-openapi-sample] pre.shiki > code > .line[data-v-openapi-flash],
+[data-v-openapi-sample] [data-v-openapi-anchor][data-v-openapi-flash] {
+  animation: vocs-openapi-line-flash 1.6s ease-out;
+}
+[data-v-openapi-sample] [data-v-openapi-anchor][data-v-openapi-flash] {
+  @apply vocs:rounded-xs;
+}
+@keyframes vocs-openapi-line-flash {
+  0%,
+  30% {
+    background-color: var(--vocs-openapi-flash-bg);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+/* Recolor request-sample query/path parameter names and values so the URL reads
+   exactly like the JSON response example: names use the theme's JSON property-name
+   color, values its number color. The `light-dark()` values are captured from
+   the active Shiki theme at runtime (see CodeToHtml.client.tsx), so both color
+   schemes match the response example; the vocs tokens are only a fallback. */
+[data-v-openapi-sample] [data-v-openapi-token="key"] {
+  color: var(--vocs-openapi-token-key, var(--vocs-color-green)) !important;
+}
+[data-v-openapi-sample] [data-v-openapi-token="value"] {
+  color: var(--vocs-openapi-token-value, var(--vocs-color-blue)) !important;
+}
+/* Path/query parameter spans in the request sample link to their schema row. */
+[data-v-openapi-sample] [data-v-openapi-anchor] {
+  @apply vocs:cursor-pointer vocs:rounded-xs;
+}
+[data-v-openapi-sample] [data-v-openapi-anchor]:hover {
+  @apply vocs:bg-code-highlighted;
+}
+/* "Show more/less" toggle for the collapsed query parameters of a request. */
+[data-v-openapi-sample-more] {
+  @apply vocs:flex vocs:items-center vocs:gap-1.5 vocs:w-full vocs:bg-code-block vocs:px-code-block-px vocs:-mt-2 vocs:pb-3 vocs:text-[12px] vocs:font-medium vocs:text-secondary vocs:cursor-pointer;
+}
+[data-v-openapi-sample-more]:hover {
+  @apply vocs:text-primary;
+}
+[data-v-openapi-sample-more-icon] {
+  @apply vocs:size-3.5;
+}
+
+/* Request/response action buttons (Copy, Try). */
+[data-v-openapi-action] {
+  @apply vocs:inline-flex vocs:items-center vocs:gap-1.5 vocs:rounded-md vocs:border vocs:border-primary vocs:px-2 vocs:py-0.5 vocs:text-[12px] vocs:font-medium vocs:cursor-pointer;
+}
+[data-v-openapi-action]:disabled {
+  @apply vocs:opacity-50 vocs:cursor-default;
+}
+[data-v-openapi-action-icon] {
+  @apply vocs:size-3 vocs:text-muted;
+}
+[data-v-openapi-action-icon][data-copied] {
+  @apply vocs:text-accent;
+}
+
+/* Response status tabs. */
+[data-v-openapi-tab] {
+  @apply vocs:flex vocs:items-center vocs:h-10 vocs:text-[13px] vocs:font-medium vocs:tracking-tight vocs:px-3 vocs:-mb-[1.5px] vocs:border-b-[1.5px] vocs:border-b-transparent vocs:transition-colors vocs:cursor-pointer;
+}
+[data-v-openapi-tab]:not([data-active]) {
+  @apply vocs:text-secondary;
+}
+[data-v-openapi-tab]:not([data-active]):hover {
+  @apply vocs:text-heading;
+}
+[data-v-openapi-tab][data-active] {
+  @apply vocs:text-heading vocs:border-b-tab-active;
+}
+
+/* #endregion */
+
+/* #region Dropdowns (language selector & union variant picker) */
+
+[data-v-openapi-lang-label] {
+  @apply vocs:text-[13px] vocs:font-medium vocs:text-heading vocs:tracking-tight;
+}
+[data-v-openapi-lang] {
+  @apply vocs:relative;
+}
+[data-v-openapi-lang-trigger] {
+  @apply vocs:flex vocs:items-center vocs:gap-1 vocs:text-[13px] vocs:font-medium vocs:text-heading vocs:tracking-tight vocs:cursor-pointer;
+}
+[data-v-openapi-lang-chevron],
+[data-v-openapi-union-chevron] {
+  @apply vocs:size-4 vocs:text-secondary;
+}
+[data-v-openapi-dropdown-backdrop] {
+  @apply vocs:fixed vocs:inset-0 vocs:z-10 vocs:cursor-default;
+}
+[data-v-openapi-lang-menu] {
+  @apply vocs:absolute vocs:left-0 vocs:top-full vocs:z-20 vocs:mt-1 vocs:min-w-36 vocs:overflow-auto vocs:rounded-md vocs:border vocs:border-primary vocs:bg-surface vocs:py-1 vocs:shadow-lg;
+}
+[data-v-openapi-lang-option],
+[data-v-openapi-union-option] {
+  @apply vocs:flex vocs:w-full vocs:items-center vocs:gap-2 vocs:px-3 vocs:py-1.5 vocs:text-left vocs:text-[13px] vocs:cursor-pointer;
+}
+[data-v-openapi-lang-option]:hover,
+[data-v-openapi-union-option]:hover {
+  @apply vocs:bg-surfaceTint;
+}
+[data-v-openapi-lang-option-check] {
+  @apply vocs:size-3.5 vocs:shrink-0 vocs:opacity-0;
+}
+[data-v-openapi-lang-option][data-selected] [data-v-openapi-lang-option-check] {
+  @apply vocs:text-accent vocs:opacity-100;
+}
+[data-v-openapi-lang-option-label],
+[data-v-openapi-union-option-label] {
+  @apply vocs:text-secondary;
+}
+[data-v-openapi-lang-option][data-selected] [data-v-openapi-lang-option-label],
+[data-v-openapi-union-option][data-selected] [data-v-openapi-union-option-label] {
+  @apply vocs:text-primary;
+}
+
+[data-v-openapi-union] {
+  @apply vocs:flex vocs:flex-col vocs:rounded-md vocs:border vocs:border-primary;
+}
+[data-v-openapi-union-head] {
+  @apply vocs:relative;
+}
+[data-v-openapi-union-trigger] {
+  @apply vocs:flex vocs:w-full vocs:items-center vocs:gap-1.5 vocs:px-3 vocs:py-2 vocs:text-[13px] vocs:cursor-pointer;
+}
+[data-v-openapi-union-kind] {
+  @apply vocs:text-secondary;
+}
+[data-v-openapi-union-value] {
+  @apply vocs:font-medium vocs:text-primary;
+}
+[data-v-openapi-union-menu] {
+  @apply vocs:absolute vocs:left-0 vocs:top-full vocs:z-20 vocs:mt-1 vocs:max-h-80 vocs:w-full vocs:overflow-auto vocs:rounded-md vocs:border vocs:border-primary vocs:bg-surface vocs:py-1 vocs:shadow-lg;
+}
+[data-v-openapi-union-radio] {
+  @apply vocs:flex vocs:size-4 vocs:shrink-0 vocs:items-center vocs:justify-center vocs:rounded-full vocs:border vocs:border-primary;
+}
+[data-v-openapi-union-option][data-selected] [data-v-openapi-union-radio] {
+  @apply vocs:border-accent;
+}
+[data-v-openapi-union-radio-dot] {
+  @apply vocs:size-2 vocs:rounded-full vocs:bg-accent;
+}
+[data-v-openapi-union-panel][data-visible] {
+  @apply vocs:border-t vocs:border-primary vocs:px-3 vocs:py-2;
+}
+
+/* #endregion */
+
+/* #region One-column page outline + footer */
+
+/* The overview and guide pages are single-column: they keep the section's
+   full-bleed gutter (content sits flush after the sidebar) but, unlike the
+   two-column operation pages, render the normal right-gutter outline. Since
+   their content is capped to `max-w-content` and left-aligned, the default
+   `right-0` outline would be pinned to the far viewport edge, so dock it
+   immediately to the right of the content. The `!important` is required because
+   the outline's `right-0` utility sits in a later cascade layer. */
+@media (width >= 1376px) {
+  [data-v-content-width="full"]:has([data-v-openapi-landing], [data-v-openapi-guide]) [data-v-gutter-right] {
+    right: auto !important;
+    left: calc(var(--vocs-spacing-sidebar) + var(--vocs-spacing-content-px) + var(--vocs-spacing-content) + 2rem);
+  }
+}
+
+/* Cap the page footer to the content width so it lines up with the content
+   above it instead of spanning the full-bleed width. */
+[data-v-content-width="full"]:has([data-v-openapi-landing], [data-v-openapi-guide]) [data-v-content-footer] {
+  @apply vocs:max-w-content;
+}
+[data-v-content-width="full"]:has([data-v-openapi-landing], [data-v-openapi-guide]) [data-v-footer] {
+  @apply vocs:max-w-content!;
+}
+
+/* #endregion */

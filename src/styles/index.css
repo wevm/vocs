@@ -7,6 +7,7 @@
 @import "./theme.css" layer(vocs_theme);
 @import "./markdown.css" layer(vocs_components);
 @import "./twoslash.css" layer(vocs_components);
+@import "./openapi.css" layer(vocs_components);
 
 @custom-variant dark (&:where([style*=":dark"], [style*=":dark"] *, [style*=": dark"], [style*=": dark"] *));
 
@@ -146,6 +147,21 @@
     @media (width >= theme(--breakpoint-lg)) {
       margin-left: unset;
       margin-right: unset;
+    }
+  }
+
+  /* Full-bleed content (e.g. OpenAPI reference): span the full available width.
+     Collapsing the centering gutter to the sidebar width re-flows the sidebar,
+     logo, top nav, surface background, and main margin together (they all derive
+     from `--vocs-spacing-gutter`), so content starts flush after the sidebar.
+     The article/footer max-width and the operation grid columns are set via
+     Tailwind utilities on the elements so they cascade in the utilities layer
+     rather than being overridden by it. */
+  [data-v-content-width="full"] {
+    /* biome-ignore lint/correctness/noUnknownFunction: _ */
+    @media (width >= theme(--breakpoint-lg)) {
+      --vocs-spacing-gutter: var(--vocs-spacing-sidebar);
+      --vocs-spacing-logo: var(--vocs-spacing-sidebar);
     }
   }
 

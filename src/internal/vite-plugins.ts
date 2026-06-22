@@ -12,6 +12,8 @@ import * as Icons from './icons.js'
 import * as Langs from './langs.js'
 import * as Llms from './llms.js'
 import * as Mdx from './mdx.js'
+import type * as OpenApi from './openapi/index.js'
+import * as OpenApiRegistry from './openapi/registry.js'
 import { SearchDocuments, SearchIndex } from './search.js'
 import * as ShikiTransformers from './shiki-transformers.js'
 import * as TaskRunner from './task-runner.js'
@@ -174,8 +176,12 @@ export function llms(config: Config.Config): PluginOption {
   async function buildLlmsContent() {
     const pagesDir = path.resolve(viteConfig.root, config.srcDir, config.pagesDir)
     const pages = await Llms.getPagesFromDir(pagesDir)
+    const openapiPages = await Llms.getOpenApiPages(config)
+    // Generated OpenAPI pages first so they win over any consumer override at the
+    // same generated route (`.md` serves the full reference); authored-only guide
+    // pages under the section keep their own content.
     return Llms.buildLlmsContent({
-      pages,
+      pages: [...openapiPages, ...pages],
       title,
       description,
       rehypePlugins,
@@ -777,7 +783,7 @@ export function virtualConfig(config: Config.Config): PluginOption {
     },
     load(id) {
       if (id === resolvedVirtualModuleId) {
-        const currentConfig = Config.getGlobal() ?? config
+        const currentConfig = OpenApiRegistry.mergeSidebar(Config.getGlobal() ?? config)
         const serializedConfig =
           mode === 'development' ? { ...currentConfig, baseUrl: undefined } : currentConfig
         return `export const config = ${ConfigSerializer.serialize(serializedConfig)}`
@@ -1083,6 +1089,91 @@ export async function getFileIconSvg(filename) {
 
 export { matchIcon, resolveIcon, resolveIconSync } from './icons.js'
 `
+    },
+  }
+}
+
+/**
+ * Vite plugin that parses configured OpenAPI specs and exposes them as a
+ * virtual module (`virtual:vocs/openapi`).
+ *
+ * The module exports `specs`, a map of mount path to parsed
+ * {@link OpenApi.Ir | intermediate representation}, consumed by the OpenAPI
+ * route component and sidebar generator.
+ *
+ * Local spec files are watched in dev: changes invalidate the module and
+ * trigger a full reload so the section regenerates.
+ */
+export function openapi(config: Config.Config): PluginOption {
+  const virtualModuleId = 'virtual:vocs/openapi'
+  const resolvedVirtualModuleId = `\0${virtualModuleId}`
+
+  /** Resolve absolute paths of local file specs for dev watching. */
+  function specFilePaths(currentConfig: Config.Config): string[] {
+    const paths: string[] = []
+    for (const entry of currentConfig.openapi ?? []) {
+      const { spec } = entry
+      if (typeof spec !== 'string') continue
+      if (spec.startsWith('http://') || spec.startsWith('https://')) continue
+      paths.push(path.isAbsolute(spec) ? spec : path.resolve(currentConfig.rootDir, spec))
+    }
+    return paths
+  }
+
+  return {
+    name: 'vocs:openapi',
+    enforce: 'pre',
+    async buildStart() {
+      // Parse specs up front so generated sidebars are available when the
+      // `virtual:vocs/config` module is serialized.
+      try {
+        await OpenApiRegistry.build(Config.getGlobal() ?? config)
+      } catch (error) {
+        this.error(
+          `Failed to parse OpenAPI spec: ${error instanceof Error ? error.message : String(error)}`,
+        )
+      }
+    },
+    resolveId(id) {
+      if (id === virtualModuleId) return resolvedVirtualModuleId
+      return
+    },
+    configureServer(server) {
+      server.watcher.on('change', async (changedPath) => {
+        const currentConfig = Config.getGlobal() ?? config
+        if (!specFilePaths(currentConfig).includes(changedPath)) return
+
+        // Re-parse before reloading so the new sidebar + page are ready.
+        OpenApiRegistry.invalidate()
+        try {
+          await OpenApiRegistry.build(currentConfig)
+        } catch {}
+
+        for (const moduleId of [resolvedVirtualModuleId, '\0virtual:vocs/config']) {
+          const mod = server.moduleGraph.getModuleById(moduleId)
+          if (mod) server.moduleGraph.invalidateModule(mod)
+        }
+        server.ws.send({ type: 'full-reload' })
+      })
+    },
+    async load(id) {
+      if (id !== resolvedVirtualModuleId) return
+
+      const currentConfig = Config.getGlobal() ?? config
+
+      // Watch local spec files so the build re-runs when they change.
+      for (const filePath of specFilePaths(currentConfig)) this.addWatchFile(filePath)
+
+      let specs: Record<string, OpenApi.Ir> = {}
+      try {
+        specs = await OpenApiRegistry.build(currentConfig)
+      } catch (error) {
+        this.error(
+          `Failed to parse OpenAPI spec: ${error instanceof Error ? error.message : String(error)}`,
+        )
+      }
+
+      return `export const specs = ${JSON.stringify(specs)}`
     },
   }
 }

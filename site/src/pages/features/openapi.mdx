@@ -1,0 +1,171 @@
+import { Card, Cards } from 'vocs'
+
+# OpenAPI [Generate an interactive API reference from an OpenAPI spec]
+
+## Overview
+
+Vocs can turn an [OpenAPI](https://www.openapis.org/) specification into a fully interactive API reference: an isolated section with its own sidebar, parameter and response documentation, request examples, and an in-browser request playground.
+
+Each category (tag/group) in your spec becomes its own page, and every operation within that category is rendered as an anchored section on that page. The sidebar is generated automatically from the spec, with each operation linking to its section.
+
+There are two ways to add an API reference:
+
+- **Site integration**: add an `openapi` entry to `vocs.config.ts` to mount a reference section inside your Vocs site.
+- **Server integration**: use `Handler.openApi` from `vocs/server` to mount a standalone, self-contained reference onto any [Hono](https://hono.dev/) or fetch-based server.
+
+## Recipes
+
+### Add a Reference to Your Site
+
+Add an `openapi` entry to your config. Each entry needs a `spec` (the OpenAPI source) and a `path` (where the section mounts). The section gets its own isolated sidebar scoped to that path.
+
+```ts [vocs.config.ts]
+import { defineConfig } from 'vocs/config'
+
+export default defineConfig({
+  openapi: [
+    {
+      spec: './openapi.yaml', // [!code focus]
+      path: '/api', // [!code focus]
+    },
+  ],
+})
+```
+
+The `spec` can be:
+
+- a file path relative to the project root (e.g. `./openapi.yaml` or `./openapi.json`),
+- a URL (e.g. `https://example.com/openapi.json`),
+- or an inline object.
+
+Visit `/api` to see the generated reference.
+
+### Add Guide Pages to the Section
+
+Use `sidebar.top` / `sidebar.bottom` to add links around the auto-generated operations, typically to consumer-authored guide pages mounted under the same `path`.
+
+```ts [vocs.config.ts]
+import { defineConfig } from 'vocs/config'
+
+export default defineConfig({
+  openapi: [
+    {
+      spec: './openapi.yaml',
+      path: '/api',
+      sidebar: { // [!code focus]
+        top: [{ text: 'Authentication', link: '/api/auth' }], // [!code focus]
+      }, // [!code focus]
+    },
+  ],
+})
+```
+
+Then author the page in your pages directory at the matching route (e.g. `src/pages/api/auth.mdx`).
+
+### List Endpoints in a Page
+
+The `<OpenApi.Endpoints />` component renders the landing/domain accordion of operations anywhere in your MDX, useful for an introduction or overview page.
+
+```mdx [src/pages/api/index.mdx]
+import { OpenApi } from 'vocs'
+
+# API Reference
+
+<OpenApi.Endpoints path="/api" />
+```
+
+`path` identifies which spec to render. It can be omitted when only one `openapi` entry is configured.
+
+### Mount a Reference on a Server
+
+`Handler.openApi` from `vocs/server` builds a standalone reference, rendered entirely client-side by a prebuilt bundle shipped inside Vocs, that mounts onto any Hono server. It accepts the same config as a `vocs.config.ts` `openapi` entry, except `path` is optional (the host server provides the mount location).
+
+```ts [server.ts]
+import { Hono } from 'hono'
+import { Handler } from 'vocs/server'
+
+const app = new Hono()
+
+app.route('/docs', Handler.openApi({ // [!code focus]
+  spec: 'https://example.com/openapi.json', // [!code focus]
+})) // [!code focus]
+
+export default app
+```
+
+The reference is now served at `/docs`. Its Introduction page lists every endpoint by default.
+
+### Customize the Server Reference
+
+The `vocs` option mirrors `vocs.config.ts`, letting you customize the title, theme, logo, top nav, and other chrome. `title` and `description` default to the spec's `info`, but can be overridden.
+
+Add `pages` to mount `.md`/`.mdx` override or guide content into the sidebar. A page at path `/` overrides the Introduction; a page at `/<group>` overrides a category page; any other path adds a standalone guide.
+
+```ts [server.ts]
+import { Hono } from 'hono'
+import { Handler } from 'vocs/server'
+
+const app = new Hono()
+
+app.route('/docs', Handler.openApi({
+  spec: 'https://example.com/openapi.json',
+  pages: [ // [!code focus]
+    { path: '/guides/auth', file: './pages/guides/auth.md' }, // [!code focus]
+  ], // [!code focus]
+  sidebar: { // [!code focus]
+    top: [{ text: 'Authentication', link: '/guides/auth' }], // [!code focus]
+  }, // [!code focus]
+  vocs: { // [!code focus]
+    title: 'Acme Docs', // [!code focus]
+  }, // [!code focus]
+}))
+
+export default app
+```
+
+### Inject Custom CSS into the Server Reference
+
+The standalone bundle is prebuilt, so it can't read a `_root.css` from your pages directory. To tweak its theme, pass `css` in the handler's second options argument — it's injected as an inline `<style>` after the design-system styles, so it overrides them. Pass a string, or `{ file }` to read a `.css` file (Node only) relative to `rootDir`.
+
+```ts [server.ts]
+import { Hono } from 'hono'
+import { Handler } from 'vocs/server'
+
+const app = new Hono()
+
+app.route('/docs', Handler.openApi(
+  { spec: 'https://example.com/openapi.json' },
+  { css: ':root { --vocs-color-accent: #7c3aed }' }, // [!code focus]
+))
+
+export default app
+```
+
+## See More
+
+<Cards>
+  <Card
+    title="API Routes"
+    description="Add server-rendered endpoints alongside your docs pages."
+    icon="server"
+    to="/features/api-routes"
+  />
+  <Card
+    title="Navigation"
+    description="Configure the sidebar and top navigation."
+    icon="navigation"
+    to="/features/navigation"
+  />
+  <Card
+    title="Theming"
+    description="Customize colors, typography, and the vocs: Tailwind prefix."
+    icon="palette"
+    to="/features/theming"
+  />
+  <Card
+    title="Site Configuration"
+    description="Reference for the openapi config option."
+    icon="settings"
+    to="/reference/site-config#openapi"
+  />
+</Cards>

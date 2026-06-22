@@ -728,6 +728,40 @@ Use `Changelog.github()` to read GitHub releases or `Changelog.from()` to provid
 See [Changelog Generation](/features/changelog-generation) for the full guide.
 :::
 
+### `openapi`
+
+- **Type:**
+
+```ts
+readonly {
+  spec: string | Record<string, unknown>
+  path: string
+  sidebar?: { top?: SidebarItem[]; bottom?: SidebarItem[] }
+  pages?: { path: string; file: string }[]
+}[]
+```
+
+Mounts one or more interactive API reference sections generated from OpenAPI specs. Each entry needs a `spec` (file path, URL, or inline object) and a `path` where the section mounts with its own isolated sidebar.
+
+```ts
+import { defineConfig } from 'vocs/config'
+
+export default defineConfig({
+  openapi: [
+    {
+      spec: './openapi.yaml',
+      path: '/api'
+    }
+  ]
+})
+```
+
+Use `sidebar` to add links around the generated operations, and `pages` to mount `.md`/`.mdx` override or guide pages into the section.
+
+:::tip
+See [OpenAPI](/features/openapi) for the full guide on generating an interactive API reference.
+:::
+
 ### `ogImageUrl`
 
 - **Type:** `string | ((path: string, context: { baseUrl?: string }) => string)`

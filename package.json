@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "build": "pnpm --filter create-vocs build && pnpm --filter @vocs/twoslash-rust build && pnpm --filter @vocs/twoslash-rust build:npm && zile",
+    "build": "pnpm --filter create-vocs build && pnpm --filter @vocs/twoslash-rust build && pnpm --filter @vocs/twoslash-rust build:npm && node scripts/build-openapi-standalone.ts && zile",
     "clean": "tsc -b --clean && rm -rf dist",
     "changeset:publish": "pnpm build && zile publish:prepare && changeset publish && zile publish:post",
     "changeset:version": "changeset version",
@@ -54,7 +54,7 @@
   "[!start-pkg]": "",
   "name": "vocs",
   "type": "module",
-  "version": "2.0.16",
+  "version": "2.0.17",
   "main": "./dist/index.js",
   "license": "MIT",
   "repository": {
@@ -79,6 +79,10 @@
     "@mdx-js/rollup": "^3.1.1",
     "@modelcontextprotocol/sdk": "^1.25.2",
     "@remix-run/node-fetch-server": "^0.13.0",
+    "@scalar/api-client": "^3.10.4",
+    "@scalar/openapi-parser": "^0.28.7",
+    "@scalar/snippetz": "^0.9.17",
+    "@scalar/workspace-store": "^0.54.4",
     "@shikijs/rehype": "^3.20.0",
     "@shikijs/transformers": "^3.20.0",
     "@shikijs/twoslash": "^3.20.0",

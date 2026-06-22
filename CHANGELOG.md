@@ -1,5 +1,11 @@
 # vocs
 
+## 2.0.17
+
+### Patch Changes
+
+- e878574: Fixed persisted Twoslash hovers and completions overlapping following documentation content.
+
 ## 2.0.16
 
 ### Patch Changes
