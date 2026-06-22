@@ -123,6 +123,24 @@ app.route('/docs', Handler.openApi({
 export default app
 ```
 
+### Inject Custom CSS into the Server Reference
+
+The standalone bundle is prebuilt, so it can't read a `_root.css` from your pages directory. To tweak its theme, pass `css` in the handler's second options argument — it's injected as an inline `<style>` after the design-system styles, so it overrides them. Pass a string, or `{ file }` to read a `.css` file (Node only) relative to `rootDir`.
+
+```ts [server.ts]
+import { Hono } from 'hono'
+import { Handler } from 'vocs/server'
+
+const app = new Hono()
+
+app.route('/docs', Handler.openApi(
+  { spec: 'https://example.com/openapi.json' },
+  { css: ':root { --vocs-color-accent: #7c3aed }' }, // [!code focus]
+))
+
+export default app
+```
+
 ## See More
 
 <Cards>

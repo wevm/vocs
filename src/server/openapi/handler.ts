@@ -59,6 +59,14 @@ export function openApi(config: OpenApi.Config, options: openApi.Options = {}): 
     return state
   }
 
+  // Resolve custom CSS once, lazily, and memoize (a `file` read needs `node:fs`,
+  // so only touch it when a file is actually configured).
+  let css: Promise<string | undefined> | undefined
+  const resolveCss = () => {
+    if (!css) css = State.resolveCss(options.css, { rootDir: options.rootDir })
+    return css
+  }
+
   app.get('*', async (c, next) => {
     const { pathname } = new URL(c.req.url)
 
@@ -119,10 +127,11 @@ export function openApi(config: OpenApi.Config, options: openApi.Options = {}): 
       options.fallback === 'next'
         ? mountFromRoutePath(c.req.routePath)
         : inferMount(pathname, routes)
+    const customCss = await resolveCss()
     // The shell references content-hashed assets, so it must never be cached:
     // a stale shell would point at an old hash (404 after a rebuild), leaving
     // the page rendered but unstyled. Assets themselves stay `immutable`.
-    return c.html(Html.render(payload, manifest, mount), 200, {
+    return c.html(Html.render(payload, manifest, mount, customCss), 200, {
       'cache-control': 'no-store, must-revalidate',
     })
   })
@@ -137,6 +146,26 @@ export declare namespace openApi {
      * @default process.cwd()
      */
     rootDir?: string | undefined
+    /**
+     * Custom CSS injected into the shell `<head>` as an inline `<style>`, after
+     * the design-system stylesheets so it overrides them. Use it to tweak the
+     * standalone reference's theme without rebuilding the bundle.
+     *
+     * - A string of CSS.
+     * - `{ file }`: a path to a `.css` file, resolved against `rootDir` and read
+     *   with `node:fs` (Node only; pass a string on filesystem-less runtimes).
+     *
+     * @example
+     * ```ts
+     * Handler.openApi({ spec }, { css: ':root { --vocs-color-accent: #7c3aed }' })
+     * ```
+     *
+     * @example
+     * ```ts
+     * Handler.openApi({ spec }, { css: { file: './api-theme.css' } })
+     * ```
+     */
+    css?: string | { file: string } | undefined
     /**
      * How to handle requests that don't target one of the reference's own
      * routes (the intro/landing, a group/page, or the asset root).

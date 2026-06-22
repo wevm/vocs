@@ -9,12 +9,16 @@ import { type Assets, assetRoot } from './assets.js'
  * Assets are referenced with absolute URLs prefixed by the inferred `mount`, so
  * they route back to the handler regardless of where it is mounted (and
  * independent of a trailing slash on the current URL).
+ *
+ * `css` is consumer-supplied custom CSS injected as an inline `<style>` after
+ * the design-system stylesheets so it overrides them.
  */
-export function render(payload: Payload, assets: Assets, mount: string): string {
+export function render(payload: Payload, assets: Assets, mount: string, css?: string): string {
   const base = `${mount === '/' ? '' : mount}${assetRoot}`
   const styles = assets.styles
     .map((href) => `<link rel="stylesheet" href="${base}${href}">`)
     .join('\n    ')
+  const userStyles = css ? `\n    <style>${escapeStyle(css)}</style>` : ''
   const data = escapeJson(payload)
 
   const colorScheme = (payload.config?.colorScheme as string | undefined) ?? 'light dark'
@@ -29,7 +33,7 @@ export function render(payload: Payload, assets: Assets, mount: string): string 
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>${escapeHtml(payload.title)}</title>
     <script>${themeBootstrap(colorScheme)}</script>
-    ${styles}
+    ${styles}${userStyles}
   </head>
   <body data-version="1.0">
     <script id="vocs-openapi-data" type="application/json">${data}</script>
@@ -68,4 +72,13 @@ function escapeHtml(value: string): string {
 /** Escapes a value for safe embedding inside a double-quoted HTML attribute. */
 function escapeAttr(value: string): string {
   return value.replace(/&/g, '&amp;').replace(/"/g, '&quot;')
+}
+
+/**
+ * Neutralizes sequences that would prematurely close the inline `<style>` block
+ * (or smuggle in a `<script>`). CSS itself is left untouched — full HTML
+ * escaping would corrupt valid CSS like `>` child combinators.
+ */
+function escapeStyle(value: string): string {
+  return value.replace(/<\/(style|script)/gi, '<\\/$1')
 }

@@ -1,3 +1,6 @@
+import * as fs from 'node:fs/promises'
+import * as os from 'node:os'
+import * as path from 'node:path'
 import { Hono } from 'hono'
 import { describe, expect, test } from 'vitest'
 import { openApi } from './handler.js'
@@ -63,6 +66,46 @@ describe('Handler.openApi', () => {
     const response = await ref.fetch(new Request('http://localhost/'))
     expect(response.status).toBe(200)
     expect(await response.text()).toContain('listPets')
+  })
+
+  describe('custom css', () => {
+    test('injects an inline CSS string into the shell head, after the bundle styles', async () => {
+      const ref = openApi({ spec }, { css: ':root { --vocs-color-accent: #7c3aed }' })
+      const html = await (await ref.fetch(new Request('http://localhost/'))).text()
+      expect(html).toContain('<style>:root { --vocs-color-accent: #7c3aed }</style>')
+      // Custom CSS comes after the design-system stylesheets so it wins.
+      expect(html.indexOf('rel="stylesheet"')).toBeLessThan(html.indexOf('<style>'))
+    })
+
+    test('omits the inline <style> when no css is configured', async () => {
+      const ref = openApi({ spec })
+      const html = await (await ref.fetch(new Request('http://localhost/'))).text()
+      expect(html).not.toContain('<style>')
+    })
+
+    test('reads css from a { file }', async () => {
+      const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'vocs-openapi-css-'))
+      await fs.writeFile(path.join(dir, 'theme.css'), '.body { color: red }')
+      const ref = openApi({ spec }, { css: { file: 'theme.css' }, rootDir: dir })
+      const html = await (await ref.fetch(new Request('http://localhost/'))).text()
+      expect(html).toContain('<style>.body { color: red }</style>')
+      await fs.rm(dir, { recursive: true, force: true })
+    })
+
+    test('neutralizes a closing </style> tag without corrupting CSS', async () => {
+      const ref = openApi(
+        { spec },
+        { css: 'a > b { color: red } /* </style><script>x</script> */' },
+      )
+      const html = await (await ref.fetch(new Request('http://localhost/'))).text()
+      // `>` combinators are preserved. The closing tags are escaped so they
+      // can't break out of the `<style>` block (the opening `<script>` is inert
+      // as CSS text once `</style>` can't terminate the block).
+      expect(html).toContain('a > b { color: red }')
+      expect(html).toContain('<\\/style>')
+      expect(html).toContain('<\\/script>')
+      expect(html).not.toContain('</style><script>')
+    })
   })
 
   describe("fallback: 'next'", () => {

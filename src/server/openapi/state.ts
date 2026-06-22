@@ -96,3 +96,34 @@ export declare namespace prepare {
     rootDir?: string | undefined
   }
 }
+
+/**
+ * Resolves consumer-supplied custom CSS for the shell `<head>`: an inline
+ * string is returned as-is, while `{ file }` is read once from disk (resolved
+ * against `rootDir`). Returns `undefined` when no CSS is configured.
+ *
+ * Only touches the filesystem when a `file` is configured, so inline-string CSS
+ * works on runtimes without `node:fs` (e.g. Cloudflare Workers).
+ */
+export async function resolveCss(
+  css: string | { file: string } | undefined,
+  options: resolveCss.Options = {},
+): Promise<string | undefined> {
+  if (css === undefined) return undefined
+  if (typeof css === 'string') return css
+
+  const { rootDir = typeof process !== 'undefined' ? process.cwd() : '.' } = options
+  const [{ default: fs }, path] = await Promise.all([
+    import('node:fs/promises').then((module) => ({ default: module })),
+    import('node:path'),
+  ])
+  const filePath = path.isAbsolute(css.file) ? css.file : path.resolve(rootDir, css.file)
+  return fs.readFile(filePath, 'utf-8')
+}
+
+export declare namespace resolveCss {
+  type Options = {
+    /** Directory `file` paths are resolved against. @default process.cwd() */
+    rootDir?: string | undefined
+  }
+}
