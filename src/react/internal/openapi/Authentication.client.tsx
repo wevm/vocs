@@ -8,9 +8,10 @@ import * as Auth from './auth.js'
 /**
  * Global authentication control for an OpenAPI section.
  *
- * A compact, single API key input rendered inline below a page header. The key
- * persists to `localStorage` (see {@link file://./auth.js}) and is read back by
- * the {@link file://./Playground.client.tsx playground provider} so every "Try"
+ * A small card with a title/description and a single labeled API key input,
+ * rendered inline below a page header. The key persists to `localStorage` (see
+ * {@link file://./auth.js}) and is read back by the
+ * {@link file://./Playground.client.tsx playground provider} so every "Try"
  * request across the section is pre-authenticated — even on pages (Introduction
  * / domain overview) that don't mount the playground modal.
  *
@@ -39,18 +40,29 @@ export function Authentication(props: Authentication.Props) {
   }
 
   return (
-    <label data-v-openapi-auth aria-label="API key">
-      <LucideKeyRound data-v-openapi-auth-icon />
-      <input
-        data-v-openapi-auth-input
-        type="password"
-        autoComplete="off"
-        spellCheck={false}
-        placeholder="API key"
-        value={token}
-        onChange={(event) => update(event.target.value)}
-      />
-    </label>
+    <section data-v-openapi-auth aria-label="Authentication">
+      <div data-v-openapi-auth-header>
+        <span data-v-openapi-auth-title>
+          <LucideKeyRound data-v-openapi-auth-title-icon />
+          Authentication
+        </span>
+        <p data-v-openapi-auth-description>
+          Stored in your browser and applied to every “Try” request.
+        </p>
+      </div>
+      <label data-v-openapi-auth-field>
+        <span data-v-openapi-auth-label>API Key</span>
+        <input
+          data-v-openapi-auth-input
+          type="password"
+          autoComplete="off"
+          spellCheck={false}
+          placeholder="Enter your API key"
+          value={token}
+          onChange={(event) => update(event.target.value)}
+        />
+      </label>
+    </section>
   )
 }
 

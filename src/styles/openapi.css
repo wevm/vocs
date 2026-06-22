@@ -30,19 +30,35 @@
 
 /* #region Authentication panel */
 
-/* Compact inline auth control: a single API key input with a leading key icon,
-   capped to the readable content width and placed below the section header. */
+/* Inline global auth card: title + description with a single labeled API key
+   input underneath, capped to the readable content width. */
 [data-v-openapi-auth] {
-  @apply vocs:flex vocs:items-center vocs:gap-2 vocs:max-w-content vocs:rounded-md vocs:border vocs:border-primary vocs:bg-surfaceTint/70 vocs:px-2.5 vocs:py-1.5 vocs:transition-colors;
+  @apply vocs:flex vocs:flex-col vocs:gap-3 vocs:max-w-content vocs:rounded-lg vocs:border vocs:border-primary vocs:bg-surfaceTint/70 vocs:p-4;
 }
-[data-v-openapi-auth]:focus-within {
-  @apply vocs:border-accent;
+[data-v-openapi-auth-header] {
+  @apply vocs:flex vocs:flex-col vocs:gap-0.5;
 }
-[data-v-openapi-auth-icon] {
-  @apply vocs:size-3.5 vocs:shrink-0 vocs:text-muted;
+[data-v-openapi-auth-title] {
+  @apply vocs:flex vocs:items-center vocs:gap-1.5 vocs:text-[13px] vocs:font-semibold vocs:text-heading;
+}
+[data-v-openapi-auth-title-icon] {
+  @apply vocs:size-3.5 vocs:text-muted;
+}
+[data-v-openapi-auth-description] {
+  @apply vocs:text-[12px] vocs:leading-[1.4] vocs:text-muted;
+}
+[data-v-openapi-auth-field] {
+  @apply vocs:flex vocs:flex-col vocs:gap-1;
+}
+[data-v-openapi-auth-label] {
+  @apply vocs:text-[12px] vocs:font-medium vocs:text-secondary;
 }
 [data-v-openapi-auth-input] {
-  @apply vocs:w-full vocs:bg-transparent vocs:text-[13px] vocs:text-heading vocs:outline-none;
+  @apply vocs:w-full vocs:rounded-md vocs:border vocs:border-primary vocs:bg-surface vocs:px-2 vocs:py-1 vocs:text-[13px] vocs:text-heading;
+  @apply vocs:outline-none vocs:transition-colors;
+}
+[data-v-openapi-auth-input]:focus {
+  @apply vocs:border-accent;
 }
 [data-v-openapi-auth-input]::placeholder {
   @apply vocs:text-muted;
