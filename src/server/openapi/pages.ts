@@ -72,6 +72,8 @@ export function compileTraits(traits: readonly IrTrait[]): CompiledPage[] {
       ...result,
       title: result.title ?? trait.name,
       description: result.description ?? trait.subtitle,
+      // The tag name/subtitle are the page header (the body has no heading).
+      header: true,
     }
   })
 }

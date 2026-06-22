@@ -137,7 +137,11 @@ export function Link(props: Link.Props) {
     unstable_prefetchOnView: _view,
     ...rest
   } = props
-  const href = router ? router.href(to) : to
+  // Resolve a bare in-page hash (`#id`, e.g. from the outline) against the
+  // current section route so it targets this page, not the section root.
+  const { path } = useRouter()
+  const target = to.startsWith('#') ? `${path}${to}` : to
+  const href = router ? router.href(target) : target
   return <a {...rest} href={href} />
 }
 

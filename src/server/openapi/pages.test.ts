@@ -44,6 +44,13 @@ describe('compileSource', () => {
     expect(page.blocks).toHaveLength(1)
   })
 
+  test('adds slug ids to body headings (for the outline + anchors)', () => {
+    const page = compileSource('/auth', 'Intro.\n\n## Getting a key\n\n### Header format')
+    const html = page.blocks[0]?.type === 'html' ? page.blocks[0].html : ''
+    expect(html).toContain('id="getting-a-key"')
+    expect(html).toContain('id="header-format"')
+  })
+
   test('reads title and description from frontmatter', () => {
     const page = compileSource(
       '/auth',
@@ -84,6 +91,9 @@ describe('compileTraits', () => {
     expect(pages[0]?.title).toBe('Authentication')
     expect(pages[0]?.description).toBe('How auth.')
     expect(pages[0]?.blocks[0]).toMatchObject({ type: 'html' })
+    // Trait pages render their title/subtitle as an on-page header (the body
+    // has no heading of its own).
+    expect(pages[0]?.header).toBe(true)
   })
 
   test('frontmatter overrides tag name and subtitle', () => {

@@ -40,7 +40,12 @@ export function App(props: App.Props) {
   // Standalone guide page.
   if (page)
     return (
-      <OpenApiGuide title={page.title} description={page.description}>
+      <OpenApiGuide
+        title={page.title}
+        description={page.description}
+        header={page.header}
+        id={page.path.split('/').filter(Boolean).pop()}
+      >
         <Blocks page={page} />
       </OpenApiGuide>
     )

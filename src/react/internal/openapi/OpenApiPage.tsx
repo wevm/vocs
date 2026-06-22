@@ -3,8 +3,9 @@ import type { ReactNode } from 'react'
 import { Layout } from '../../Layout.js'
 import * as MdxPageContext from '../../MdxPageContext.js'
 import { Endpoints } from './Endpoints.js'
+import { HeadingAnchor } from './HeadingAnchor.js'
 import { PlaygroundProvider } from './Playground.client.js'
-import { ReferenceGroup, ReferenceOverview } from './Reference.js'
+import { Prose, ReferenceGroup, ReferenceOverview } from './Reference.js'
 
 /**
  * Layout for OpenAPI pages.
@@ -42,14 +43,27 @@ function OpenApiLayout(props: {
  * regular page's article width and padding while matching the gutter layout of
  * the rest of the section.
  *
- * The frontmatter `title`/`description` are intentionally not rendered as an
- * on-page header; the authored MDX owns its own headings (like a normal page).
+ * For authored guide pages the frontmatter `title`/`description` are
+ * intentionally not rendered as an on-page header; the authored MDX owns its own
+ * headings (like a normal page). Trait pages (`x-traitTag`) opt in via `header`,
+ * since their title/subtitle come from the spec tag and the body has no heading.
  */
 export function OpenApiGuide(props: OpenApiGuide.Props) {
   return (
     <OpenApiLayout width="full">
       {props.title ? <title>{props.title}</title> : null}
-      <div data-v-openapi-guide>{props.children}</div>
+      <div data-v-openapi-guide>
+        {props.header && props.title ? (
+          <header data-v-openapi-header>
+            <h1 data-v data-v-openapi-h1 id={props.id}>
+              {props.title}
+              {props.id ? <HeadingAnchor id={props.id} /> : null}
+            </h1>
+            {props.description ? <Prose markdown={props.description} attr="description" /> : null}
+          </header>
+        ) : null}
+        {props.children}
+      </div>
     </OpenApiLayout>
   )
 }
@@ -62,6 +76,13 @@ export declare namespace OpenApiGuide {
     title?: string | undefined
     /** Subtitle Markdown rendered below the heading. */
     description?: string | undefined
+    /**
+     * Render `title`/`description` as an on-page header above the content (used
+     * by trait pages, whose Markdown body has no heading of its own).
+     */
+    header?: boolean | undefined
+    /** Anchor id for the rendered header heading (enables a copy-link anchor). */
+    id?: string | undefined
   }
 }
 

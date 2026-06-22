@@ -35,6 +35,13 @@ export type CompiledPage = {
   title?: string | undefined
   /** Subtitle Markdown rendered below the title on guide pages. */
   description?: string | undefined
+  /**
+   * Render `title`/`description` as an on-page header above the content. Set for
+   * trait pages (`x-traitTag`), whose title comes from the tag name and subtitle
+   * from `x-subtitle` (their Markdown body has no heading). Authored guide pages
+   * leave this unset because their MDX owns its own headings.
+   */
+  header?: boolean | undefined
   /** Ordered content blocks. */
   blocks: PageBlock[]
   /**

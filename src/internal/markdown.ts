@@ -1,5 +1,6 @@
 import type * as Hast from 'hast'
 import type * as Mdast from 'mdast'
+import rehypeSlug from 'rehype-slug'
 import rehypeStringify from 'rehype-stringify'
 import remarkGfm from 'remark-gfm'
 import remarkParse from 'remark-parse'
@@ -160,6 +161,10 @@ const processor = unified()
   .use(remarkGfm)
   .use(remarkGitHubCallouts)
   .use(remarkRehype, { allowDangerousHtml: true })
+  // Add `id`s to headings so the outline (which scans `[data-v-content]
+  // :is(h2..h6)[id]`) and heading anchors work on guide/trait pages and on
+  // rendered spec descriptions, matching the MDX pipeline.
+  .use(rehypeSlug)
   .use(rehypeVocsAttrs)
   .use(rehypeTableWrapper)
   .use(rehypeCalloutIcons)
