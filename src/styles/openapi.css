@@ -39,7 +39,7 @@
   @apply vocs:flex vocs:flex-col vocs:gap-0.5;
 }
 [data-v-openapi-auth-title] {
-  @apply vocs:text-[16px] vocs:font-semibold vocs:text-heading;
+  @apply vocs:text-[16px] vocs:font-medium vocs:text-heading;
 }
 [data-v-openapi-auth-description] {
   @apply vocs:text-[12px] vocs:leading-[1.4] vocs:text-muted;
