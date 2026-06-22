@@ -1,6 +1,7 @@
 import { dereference, upgrade } from '@scalar/openapi-parser'
 import GithubSlugger from 'github-slugger'
 import type * as OpenApi from './openapi.js'
+import * as OpenRpc from './openrpc.js'
 
 /**
  * HTTP methods recognized on an OpenAPI path item, in canonical display order.
@@ -111,7 +112,12 @@ export type IrOperation = {
 
 export type IrParameter = {
   name: string
-  in: 'path' | 'query' | 'header' | 'cookie'
+  /**
+   * Where the parameter is supplied. `rpc` is a Vocs extension for JSON-RPC
+   * method params expanded from an OpenRPC document (rendered like query/path
+   * params but carried in the request body envelope).
+   */
+  in: 'path' | 'query' | 'header' | 'cookie' | 'rpc'
   required?: boolean | undefined
   deprecated?: boolean | undefined
   description?: string | undefined
@@ -124,6 +130,12 @@ export type IrParameter = {
 export type IrBody = {
   required?: boolean | undefined
   description?: string | undefined
+  /**
+   * Suppress the rendered "Request Body" section while still using the body to
+   * generate request code samples. Set for JSON-RPC operations expanded from an
+   * OpenRPC document, whose params are shown in a "Parameters" section instead.
+   */
+  hidden?: boolean | undefined
   /** Content keyed by media type (e.g. `application/json`). */
   content: IrMediaType[]
 }
@@ -189,6 +201,11 @@ type Operation = {
   requestBody?: RawBody
   responses?: Record<string, RawResponse>
   security?: Record<string, string[]>[]
+  /**
+   * Vocs extension: a path/URL to (or inline) OpenRPC document. When present,
+   * this single operation is expanded into one operation per JSON-RPC method.
+   */
+  'x-openrpc'?: string | OpenRpc.Document
 }
 type RawParameter = {
   name?: string
@@ -263,7 +280,7 @@ export async function parse(config: OpenApi.Config, options: parse.Options = {})
       description: document.info?.description,
     },
     servers,
-    groups: buildGroups(document),
+    groups: await buildGroups(document),
     traits: buildTraits(document),
     securitySchemes,
   }
@@ -360,7 +377,7 @@ function looksLikeRawContent(spec: string): boolean {
 }
 
 /** Groups operations by their first tag. */
-function buildGroups(document: Document): IrGroup[] {
+async function buildGroups(document: Document): Promise<IrGroup[]> {
   const slugger = new GithubSlugger()
   const order: string[] = []
   const byName = new Map<string, IrOperation[]>()
@@ -393,15 +410,27 @@ function buildGroups(document: Document): IrGroup[] {
         order.push(groupName)
       }
 
-      byName.get(groupName)?.push(
-        buildOperation({
-          method,
-          pathname,
-          operation,
-          pathParameters,
-          slugger,
-        }),
-      )
+      const built = buildOperation({
+        method,
+        pathname,
+        operation,
+        pathParameters,
+        slugger,
+      })
+
+      // `x-openrpc` expands one operation into one operation per JSON-RPC method
+      // (each its own sidebar entry/section). On failure, fall back to the
+      // single host operation so the docs still render.
+      if (operation['x-openrpc']) {
+        try {
+          const expanded = await OpenRpc.expand(built, operation['x-openrpc'])
+          byName.get(groupName)?.push(...(expanded.length > 0 ? expanded : [built]))
+        } catch {
+          byName.get(groupName)?.push(built)
+        }
+      } else {
+        byName.get(groupName)?.push(built)
+      }
     }
   }
 

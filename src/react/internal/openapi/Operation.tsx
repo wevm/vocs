@@ -31,6 +31,8 @@ const parameterGroups: { in: OpenApi.IrParameter['in']; title: string }[] = [
   { in: 'query', title: 'Query Parameters' },
   { in: 'header', title: 'Header Parameters' },
   { in: 'cookie', title: 'Cookie Parameters' },
+  // JSON-RPC method params (expanded from an OpenRPC document).
+  { in: 'rpc', title: 'Parameters' },
 ]
 
 export function Operation(props: Operation.Props) {
@@ -73,7 +75,7 @@ export function Operation(props: Operation.Props) {
           )
         })}
 
-        {operation.requestBody && (
+        {operation.requestBody && !operation.requestBody.hidden && (
           <Section id={`${operation.id}-request-body`} title="Request Body">
             <Content
               content={operation.requestBody.content}

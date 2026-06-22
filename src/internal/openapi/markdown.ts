@@ -125,6 +125,7 @@ function operationLines(operation: IrOperation, server?: string): string[] {
     ['path', 'Path parameters'],
     ['query', 'Query parameters'],
     ['header', 'Header parameters'],
+    ['rpc', 'Parameters'],
   ] as const) {
     const params = byLocation(location)
     if (params.length === 0) continue
@@ -133,7 +134,7 @@ function operationLines(operation: IrOperation, server?: string): string[] {
     lines.push('')
   }
 
-  if (operation.requestBody) {
+  if (operation.requestBody && !operation.requestBody.hidden) {
     const body = operation.requestBody
     const media = body.content[0]
     const mediaType = media ? ` (\`${media.mediaType}\`)` : ''
