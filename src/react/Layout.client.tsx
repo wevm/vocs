@@ -27,8 +27,16 @@ import { useTopGutterRef } from './useTopGutterOffset.js'
 export function Main(props: Main.Props) {
   const { children } = props
 
-  const { layout, showAskAi, showSearch, showSidebar, showTopNav, showLogo, showOutline } =
-    useLayout()
+  const {
+    layout,
+    contentWidth,
+    showAskAi,
+    showSearch,
+    showSidebar,
+    showTopNav,
+    showLogo,
+    showOutline,
+  } = useLayout()
   const { colorScheme } = useConfig()
   const { Footer, OutlineFooter, SidebarHeader } = useSlots()
 
@@ -40,6 +48,7 @@ export function Main(props: Main.Props) {
   return (
     <div
       data-layout={layout}
+      data-v-content-width={contentWidth === 'full' ? 'full' : undefined}
       data-v-sidebar={showSidebar || undefined}
       data-v-topnav={showTopNav || undefined}
     >
@@ -165,7 +174,9 @@ export function Main(props: Main.Props) {
         {showOutline && <Outline.Outline footer={OutlineFooter} />}
 
         <article
-          className="vocs:px-content-px vocs:py-content-py vocs:relative vocs:w-full vocs:max-w-content vocs:space-y-6 vocs:max-md:overflow-x-hidden"
+          className={`vocs:px-content-px vocs:py-content-py vocs:relative vocs:w-full vocs:space-y-6 vocs:max-md:overflow-x-hidden ${
+            contentWidth === 'full' ? 'vocs:max-w-none' : 'vocs:max-w-content'
+          }`}
           data-v-content
         >
           {children}
@@ -190,7 +201,9 @@ export function Main(props: Main.Props) {
 
         {Footer && (
           <footer
-            className="vocs:px-content-px vocs:pb-12 vocs:w-full vocs:max-w-content"
+            className={`vocs:px-content-px vocs:pb-12 vocs:w-full ${
+              contentWidth === 'full' ? 'vocs:max-w-none' : 'vocs:max-w-content'
+            }`}
             data-v-footer
           >
             <Footer />

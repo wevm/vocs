@@ -6,6 +6,8 @@ import type * as Feedback from './feedback.js'
 import * as Langs from './langs.js'
 import type * as McpSource from './mcp-source.js'
 import type * as Mdx from './mdx.js'
+import type * as OpenApi from './openapi/index.js'
+import { from as resolveOpenApi } from './openapi/openapi.js'
 import type * as Redirects from './redirects.js'
 import type * as Sidebar from './sidebar.js'
 import type * as TopNav from './topNav.js'
@@ -237,6 +239,20 @@ export type Config<partial extends boolean = false> = MaybePartial<
       | ((path: string, context: { baseUrl?: string | undefined }) => string)
       | undefined
     /**
+     * OpenAPI integrations. Each entry mounts an isolated, auto-generated API
+     * reference section (with its own sidebar) at the given `path`.
+     *
+     * @example
+     * ```ts
+     * export default defineConfig({
+     *   openapi: [
+     *     { spec: './openapi.yaml', path: '/api' },
+     *   ],
+     * })
+     * ```
+     */
+    openapi?: readonly OpenApi.SiteConfig[] | undefined
+    /**
      * The output directory relative to root.
      * @default "dist"
      */
@@ -365,6 +381,21 @@ export type Frontmatter = {
    */
   layout?: Layout | undefined
   /**
+   * Content layout options.
+   */
+  content?:
+    | {
+        /**
+         * Content width.
+         * - `default`: centered and constrained to the readable measure (default)
+         * - `full`: spans the full available width (no centering gutter); used by
+         *   full-bleed pages such as the OpenAPI reference.
+         * @default "default"
+         */
+        width?: 'default' | 'full' | undefined
+      }
+    | undefined
+  /**
    * Whether to show the outline, or the depth of headings to show.
    * Set to `false` to hide the outline, or a number to limit depth.
    * @default true
@@ -427,6 +458,7 @@ export function define(config: define.Options = {}): Config {
     markdown,
     mcp,
     ogImageUrl,
+    openapi,
     outDir = 'dist',
     redirects,
     renderStrategy = 'dynamic',
@@ -492,6 +524,7 @@ export function define(config: define.Options = {}): Config {
     markdown,
     mcp,
     ogImageUrl,
+    openapi: openapi?.map((entry) => resolveOpenApi(entry)),
     outDir,
     pagesDir,
     redirects,
@@ -574,7 +607,13 @@ export async function resolve(options: resolve.Options = {}): Promise<Config> {
   const configFile = getConfigFile({ rootDir })
   if (!configFile) return define({})
 
-  const vite = await import('vite')
+  // Resolved via a non-literal specifier so bundlers (esbuild/Wrangler) don't
+  // statically pull Vite (and its esbuild/lightningcss/rollup deps) into edge
+  // consumers that only import `Config.define` through `vocs/server`. This branch
+  // only ever runs in Node (dev/CLI/config loading), where the runtime import
+  // resolves normally.
+  const viteSpecifier = 'vite'
+  const vite = await import(/* @vite-ignore */ viteSpecifier)
   const result = await vite.loadConfigFromFile(
     { command: 'build', mode: 'development' },
     configFile,

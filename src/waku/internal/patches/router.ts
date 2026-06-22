@@ -1,4 +1,4 @@
-import { type FunctionComponent, lazy, type ReactNode } from 'react'
+import { createElement, type FunctionComponent, lazy, type ReactNode } from 'react'
 import { createPages } from 'waku/router/server'
 import * as DedupeHead from '../dedupe-head.js'
 import {
@@ -105,9 +105,30 @@ export function router(
   )
 
   const consumerPaths = new Set<string>()
+  // Consumer page modules keyed by their final route path (e.g.
+  // `/api/activities`). Used to compose OpenAPI "override" pages: a consumer
+  // page mounted at an OpenAPI route supplies the intro content while the
+  // generated reference body still renders below it.
+  const consumerModules = new Map<string, () => Promise<unknown>>()
   for (const file in modules) {
     const srcPath = toSrcPath(file)
     consumerPaths.add(srcPath.slice(pagesDirPrefix.length).replace(/\.\w+$/, ''))
+    const importFn = modules[file]
+    if (importFn) {
+      const items = srcPath
+        .slice(pagesDirPrefix.length)
+        .replace(/\.\w+$/, '')
+        .split('/')
+        .filter(Boolean)
+      const last = items.at(-1)
+      const route =
+        '/' +
+        (last && (['_layout', 'index', '_root'].includes(last) || last.startsWith('_part'))
+          ? items.slice(0, -1)
+          : items
+        ).join('/')
+      consumerModules.set(route, importFn)
+    }
   }
 
   const allModules = { ...defaultPages, ...modules }
@@ -115,6 +136,27 @@ export function router(
   return wrapPages(
     createPages(
       async ({ createPage, createLayout, createRoot, createApi, createSlice }) => {
+        // OpenAPI config/specs (data-only virtual modules, safe to import
+        // eagerly). The set of OpenAPI route paths lets the page loop below skip
+        // creating a standalone page for any consumer override mounted at one of
+        // them — the OpenAPI loop owns that route and renders the override as the
+        // page intro.
+        const { config } = await import('virtual:vocs/config')
+        const { specs } = await import('virtual:vocs/openapi')
+        const openapiRoutePaths = new Set<string>()
+        for (const entry of config.openapi ?? []) {
+          openapiRoutePaths.add(entry.path)
+          for (const group of specs[entry.path]?.groups ?? [])
+            openapiRoutePaths.add(`${entry.path}/${group.id}`)
+        }
+
+        // A consumer page mounted under a section path (e.g. `/api/auth`) that
+        // isn't a generated route — a "guide" page rendered with the section
+        // layout (see the OpenAPI loop below).
+        const isOpenApiGuidePath = (path: string) =>
+          !openapiRoutePaths.has(path) &&
+          (config.openapi ?? []).some((entry) => path.startsWith(`${entry.path}/`))
+
         for (const file in allModules) {
           const importFn = allModules[file]
           if (!importFn) continue
@@ -142,6 +184,18 @@ export function router(
               ? pathItems.slice(0, -1)
               : pathItems
             ).join('/')
+
+          // A consumer page mounted at an OpenAPI route is an "override": skip
+          // creating a standalone page here so the OpenAPI loop can mount it
+          // with the generated reference body (it reads the same module as the
+          // page intro).
+          if (openapiRoutePaths.has(path)) continue
+
+          // A consumer page mounted *under* an OpenAPI section path (e.g.
+          // `/api/auth`) but not at a generated route is a "guide" page. Skip it
+          // here so the OpenAPI loop can mount it with the section layout.
+          if (isOpenApiGuidePath(path)) continue
+
           const sourceFile = isBuiltIn ? undefined : srcPath
           const sourceFileProperty = sourceFile ? { unstable_sourceFile: sourceFile } : {}
 
@@ -250,6 +304,77 @@ export function router(
             } as never) // FIXME avoid as never
           }
         }
+
+        // Mount OpenAPI sections programmatically from config (no source files).
+        // `OpenApiPage` is imported lazily inside this RSC-only callback so the
+        // client-component chain (Layout) is never pulled into the shared/SSR
+        // module graph.
+        if (config.openapi?.length) {
+          const { OpenApiGuide, OpenApiPage } = await import(
+            '../../../react/internal/openapi/OpenApiPage.js'
+          )
+
+          // Resolves a consumer "override" page mounted at `routePath` into the
+          // props (`intro` content + frontmatter `title`) layered onto the
+          // generated `OpenApiPage`. Returns empty props when there is no
+          // override. Uses the MDX `default` export (raw content) — not `Page` —
+          // so the override is not wrapped in its own Layout.
+          const overrideProps = async (routePath: string) => {
+            const importFn = consumerModules.get(routePath)
+            if (!importFn) return {}
+            const mod = (await importFn()) as {
+              default?: FunctionComponent
+              frontmatter?: { title?: string }
+            }
+            if (!mod.default) return {}
+            const Content = mod.default
+            return { intro: createElement(Content), title: mod.frontmatter?.title }
+          }
+
+          for (const entry of config.openapi) {
+            // Section root: overview listing every category.
+            const rootProps = await overrideProps(entry.path)
+            createPage({
+              path: entry.path,
+              component: () => createElement(OpenApiPage, { mount: entry.path, ...rootProps }),
+              render: 'static',
+            } as never)
+
+            // Mount one page per category at `${path}/${group}`.
+            const ir = specs[entry.path]
+            for (const group of ir?.groups ?? []) {
+              const groupRoute = `${entry.path}/${group.id}`
+              const groupProps = await overrideProps(groupRoute)
+              createPage({
+                path: groupRoute,
+                component: () =>
+                  createElement(OpenApiPage, { mount: entry.path, group: group.id, ...groupProps }),
+                render: 'static',
+              } as never)
+            }
+
+            // Mount consumer "guide" pages under the section (e.g. `/api/auth`)
+            // with the section layout: a normal MDX page rendered full-bleed,
+            // content-width, and without the right gutter/TOC.
+            for (const [routePath, importFn] of consumerModules) {
+              if (!routePath.startsWith(`${entry.path}/`)) continue
+              if (openapiRoutePaths.has(routePath)) continue
+              const mod = (await importFn()) as {
+                default?: FunctionComponent
+                frontmatter?: { title?: string }
+              }
+              if (!mod.default) continue
+              const Content = mod.default
+              const title = mod.frontmatter?.title
+              createPage({
+                path: routePath,
+                component: () => createElement(OpenApiGuide, { title }, createElement(Content)),
+                render: 'static',
+              } as never)
+            }
+          }
+        }
+
         // HACK: to satisfy the return type, unused at runtime
         return null as never
       },

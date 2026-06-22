@@ -1,10 +1,29 @@
-import { ImageResponse } from '@takumi-rs/image-response/wasm'
-// @ts-expect-error
-import wasm from '@takumi-rs/wasm/takumi_wasm_bg.wasm?url'
-
+/// <reference types="vite/client" />
 import * as Config from '../internal/config.js'
-// @ts-expect-error
-import font from './fonts/geist.woff2?arraybuffer'
+
+export { compose, openApi } from './openapi/handler.js'
+
+/**
+ * Loads the Vite-only OG assets (takumi wasm + font) via a Vite
+ * `import.meta.glob` trampoline.
+ *
+ * Vite implements `import.meta.glob` and rewrites it into a dynamic import of
+ * `./og-assets`, processing its `?url`/`?arraybuffer` asset imports normally.
+ * Bundlers that don't implement the macro (esbuild/Wrangler) leave the call
+ * untouched and never follow `./og-assets`, so importing the `vocs/server`
+ * barrel for `Handler.openApi` stays edge-safe. The glob is only evaluated when
+ * `og().fetch` actually runs, so the indirection costs non-Vite consumers
+ * nothing unless they call `Handler.og`.
+ */
+async function loadOgAssets(): Promise<typeof import('./og-assets.js')> {
+  const modules = import.meta.glob('./og-assets.{js,ts}')
+  const load = modules['./og-assets.js'] ?? modules['./og-assets.ts']
+  if (!load)
+    throw new Error(
+      '[vocs] `Handler.og` requires the Vocs/Vite build pipeline (the OG image assets are Vite transforms).',
+    )
+  return (await load()) as typeof import('./og-assets.js')
+}
 
 type Handler = {
   fetch: (request: Request) => Promise<Response>
@@ -35,6 +54,12 @@ type Handler = {
 export function og(render: (props: og.Props) => React.JSX.Element): Handler {
   return {
     fetch: async (request) => {
+      // Loaded lazily via a Vite glob trampoline (see `loadOgAssets`) so plain
+      // Node/edge consumers of `vocs/server` — e.g. `Handler.openApi` — can
+      // import the namespace without their bundler following the Vite-only
+      // takumi/font asset imports.
+      const { ImageResponse, wasm, font } = await loadOgAssets()
+
       const url = new URL(request.url)
       const config = await Config.resolve({ server: true })
 

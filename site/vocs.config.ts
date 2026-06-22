@@ -126,6 +126,7 @@ export default defineConfig({
         { text: 'Layouts', link: '/features/layouts' },
         { text: 'MCP Server', link: '/features/mcp-server' },
         { text: 'Navigation', link: '/features/navigation' },
+        { text: 'OpenAPI', link: '/features/openapi' },
         { text: 'Page Feedback', link: '/features/feedback' },
         { text: 'Redirects', link: '/features/redirects' },
         { text: 'Rehype & Remark', link: '/features/rehype-and-remark' },

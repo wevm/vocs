@@ -1,0 +1,80 @@
+/*
+ * Maps Scalar API client theme variables onto Vocs theme tokens so the modal
+ * matches the surrounding docs. Scoped to our Scalar host and given extra
+ * specificity (`.scalar-app[data-...]`) so it wins over Scalar's own
+ * `.light-mode`/`.dark-mode` definitions. Vocs tokens use `light-dark()`, which
+ * resolves from the inherited `color-scheme`, so a single value covers both
+ * modes. Variables with no clean Vocs equivalent (radius, shadows, brightness)
+ * are intentionally left at Scalar's defaults.
+ */
+.scalar-app[data-v-openapi-playground-root],
+.scalar-app[data-v-openapi-playground-root] .light-mode,
+.scalar-app[data-v-openapi-playground-root] .dark-mode {
+  /* Surfaces & text.
+   * Scalar has four elevation levels; Vocs's `--vocs-color-gray*` tokens are
+   * absolute (not theme-adaptive), so map each level with an explicit
+   * `light-dark()` to keep elevation monotonic in both modes:
+   *   light: white -> 13 -> 12 -> 11 (progressively darker)
+   *   dark:    2   ->  3 ->  4 ->  5 (progressively lighter) */
+  --scalar-background-1: light-dark(white, var(--vocs-color-gray2));
+  --scalar-background-2: light-dark(var(--vocs-color-gray13), var(--vocs-color-gray3));
+  --scalar-background-3: light-dark(var(--vocs-color-gray12), var(--vocs-color-gray4));
+  --scalar-background-4: light-dark(var(--vocs-color-gray11), var(--vocs-color-gray5));
+  --scalar-background-accent: var(--vocs-color-accenta3);
+  --scalar-color-1: var(--vocs-text-color-primary);
+  --scalar-color-2: var(--vocs-text-color-secondary);
+  --scalar-color-3: var(--vocs-text-color-muted);
+  --scalar-color-accent: var(--vocs-color-accent);
+  --scalar-border-color: var(--vocs-border-color-primary);
+
+  /* Links */
+  --scalar-link-color: var(--vocs-text-color-link);
+  --scalar-link-color-hover: var(--vocs-text-color-link-hover);
+  --scalar-link-color-visited: var(--vocs-text-color-link);
+
+  /* Semantic colors */
+  --scalar-color-red: var(--vocs-color-red);
+  --scalar-color-danger: var(--vocs-color-red);
+  --scalar-color-green: var(--vocs-color-green);
+  --scalar-color-blue: var(--vocs-color-blue);
+  --scalar-color-yellow: var(--vocs-color-yellow);
+  --scalar-color-orange: var(--vocs-color-yellow); /* no Vocs orange */
+  --scalar-color-alert: var(--vocs-color-yellow); /* no Vocs orange */
+  --scalar-color-purple: var(--vocs-color-iris);
+  --scalar-background-danger: var(--vocs-color-destructive-tint);
+
+  /* Buttons */
+  --scalar-button-1: var(--vocs-text-color-heading);
+  --scalar-button-1-color: var(--vocs-background-color-surface);
+  --scalar-button-1-hover: var(--vocs-text-color-primary);
+
+  /* Modal sidebar */
+  --scalar-sidebar-background-1: var(--vocs-background-color-surface);
+  --scalar-sidebar-color-1: var(--vocs-text-color-primary);
+  --scalar-sidebar-color-2: var(--vocs-text-color-secondary);
+  --scalar-sidebar-border-color: var(--vocs-border-color-primary);
+  --scalar-sidebar-item-hover-background: var(--vocs-background-color-primary);
+  --scalar-sidebar-item-active-background: var(--vocs-background-color-primary);
+  --scalar-sidebar-color-active: var(--vocs-color-accent);
+  --scalar-sidebar-search-background: var(--vocs-background-color-primary);
+  --scalar-sidebar-search-border-color: var(--vocs-border-color-primary);
+  --scalar-sidebar-search-color: var(--vocs-text-color-muted);
+
+  /* Fonts */
+  --scalar-font: var(--vocs-font-sans);
+  --scalar-font-code: var(--vocs-font-mono);
+}
+
+/*
+ * DataTable enable/disable checkbox (e.g. query/header parameter rows).
+ * Scalar always renders the checkmark glyph and only swaps its color: a faint
+ * `--scalar-background-2` ghost when unchecked, `--scalar-color-1` when checked.
+ * Against Vocs surfaces that ghost reads as a solid (near-black) check, so
+ * disabled params look identical to enabled ones. Hide the glyph entirely when
+ * the checkbox is unchecked; the checked state keeps Scalar's `text-c-1`. The
+ * hover affordance box is a separate `<div>` and is left untouched.
+ */
+.scalar-app input[type="checkbox"].peer:not(:checked) ~ div .scalar-icon,
+.scalar-app input[type="checkbox"].peer:not(:checked) ~ div svg {
+  color: transparent;
+}
