@@ -1,19 +1,10 @@
 import { Changelog, defineConfig, McpSource, Twoslash } from 'vocs/config'
 
-// Resolve the live Tempo spec at config load and inject an `x-openrpc`
-// reference on the `/v1/rpc` operation, so Vocs expands each JSON-RPC method
-// into its own page/sidebar entry under the RPC group (the deployed spec
-// doesn't carry it yet). Resolved to a concrete object (not a function) so it
-// serializes across Waku's RSC environments. Mirrors what tempo-api2 will emit.
-const tempoSpec = await fetch('https://cadent.tempo.xyz/openapi.json').then((r) => r.json())
-const rpcOperation = tempoSpec?.paths?.['/v1/rpc']?.post
-if (rpcOperation) rpcOperation['x-openrpc'] = 'https://cadent.tempo.xyz/openrpc.json'
-
 export default defineConfig({
   changelog: Changelog.github({ prereleases: true, repo: 'tempoxyz/tempo' }),
   openapi: [
     {
-      spec: tempoSpec,
+      spec: 'https://cadent.tempo.xyz/openapi.json',
       path: '/api',
       sidebar: {
         top: [
