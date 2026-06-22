@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import * as Markdown from '../../../internal/markdown.js'
 import type { Ir, IrGroup } from '../../../internal/openapi/parser.js'
+import { Authentication } from './Authentication.client.js'
 import { HeadingAnchor } from './HeadingAnchor.js'
 import { Operation } from './Operation.js'
 
@@ -39,6 +40,7 @@ export function ReferenceOverview(props: ReferenceOverview.Props) {
   const { ir, intro, endpoints } = props
   return (
     <div data-v-openapi data-v-openapi-landing>
+      <Authentication mount={ir.path} schemes={ir.securitySchemes} />
       {intro ? (
         <div data-v-openapi-intro data-v-content>
           {intro}
@@ -82,6 +84,7 @@ export function ReferenceGroup(props: ReferenceGroup.Props) {
   const { ir, group, intro } = props
   return (
     <div data-v-openapi>
+      <Authentication mount={ir.path} schemes={ir.securitySchemes} />
       {intro ? (
         // The override keeps the `group.id` anchor so the sidebar "Overview"
         // link and scroll-spy still resolve to this page.

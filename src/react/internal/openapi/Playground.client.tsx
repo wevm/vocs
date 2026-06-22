@@ -14,8 +14,9 @@ import '../../../styles/openapi-playground.css'
 import * as React from 'react'
 import { createPortal } from 'react-dom'
 import LucidePlay from '~icons/lucide/play'
-import type { Ir } from '../../../internal/openapi/parser.js'
+import type { Ir, IrSecurityScheme } from '../../../internal/openapi/parser.js'
 import { useColorScheme } from '../../useColorScheme.js'
+import * as Auth from './auth.js'
 
 type OpenFn = (operation: { method: string; path: string; example?: string | undefined }) => void
 
@@ -28,10 +29,12 @@ const PlaygroundContext = React.createContext<{ open: OpenFn; ready: boolean } |
  * server rendering.
  */
 export function PlaygroundProvider(props: PlaygroundProvider.Props) {
-  const { client, children } = props
+  const { client, children, mount: specMount = '/', schemes } = props
   const containerRef = React.useRef<HTMLDivElement>(null)
   // biome-ignore lint/suspicious/noExplicitAny: Scalar's modal type lives in a client-only module.
   const modalRef = React.useRef<any>(null)
+  // biome-ignore lint/suspicious/noExplicitAny: Scalar's workspace store type lives in a client-only module.
+  const storeRef = React.useRef<any>(null)
   const [ready, setReady] = React.useState(false)
 
   React.useEffect(() => {
@@ -53,6 +56,11 @@ export function PlaygroundProvider(props: PlaygroundProvider.Props) {
         })
         if (cancelled) return
 
+        storeRef.current = store
+        // Seed the global auth the consumer entered in the Authentication panel
+        // (persisted in localStorage) so every "Try" request is pre-authed.
+        applyAuth(store, specMount, schemes)
+
         modal = createApiClientModal({
           el: containerRef.current,
           workspaceStore: store,
@@ -72,8 +80,19 @@ export function PlaygroundProvider(props: PlaygroundProvider.Props) {
         modal?.app?.unmount()
       } catch {}
       modalRef.current = null
+      storeRef.current = null
     }
-  }, [client])
+  }, [client, specMount, schemes])
+
+  // Re-seed auth whenever the consumer updates credentials in the panel while
+  // this page is mounted (no need to reopen the modal to pick up the change).
+  React.useEffect(
+    () =>
+      Auth.subscribe(specMount, () => {
+        if (storeRef.current) applyAuth(storeRef.current, specMount, schemes)
+      }),
+    [specMount, schemes],
+  )
 
   const open = React.useCallback<OpenFn>((operation) => {
     modalRef.current?.open({
@@ -126,6 +145,44 @@ export declare namespace PlaygroundProvider {
   type Props = {
     client: Ir['client']
     children: React.ReactNode
+    /** Spec mount path; scopes the persisted global auth (e.g. `/api`). */
+    mount?: string | undefined
+    /** Named security schemes from the spec, used to shape auth secrets. */
+    schemes?: Record<string, IrSecurityScheme> | undefined
+  }
+}
+
+/**
+ * Pushes the consumer's persisted global credentials into Scalar's auth store so
+ * pre-selected security schemes resolve a token without opening the modal's auth
+ * UI. Scalar reads `x-scalar-secret-*` keys when building each request.
+ */
+function applyAuth(
+  // biome-ignore lint/suspicious/noExplicitAny: Scalar's workspace store type lives in a client-only module.
+  store: any,
+  mount: string,
+  schemes: Record<string, IrSecurityScheme> | undefined,
+) {
+  if (!schemes) return
+  const values = Auth.read(mount)
+  for (const [name, scheme] of Object.entries(schemes)) {
+    const value = values[name]
+    const kind = Auth.authKind(scheme)
+    if (!kind) continue
+    try {
+      if (kind === 'basic') {
+        store.auth.setAuthSecrets('default', name, {
+          type: 'http',
+          'x-scalar-secret-username': value?.username ?? '',
+          'x-scalar-secret-password': value?.password ?? '',
+        })
+      } else {
+        store.auth.setAuthSecrets('default', name, {
+          type: scheme.type,
+          'x-scalar-secret-token': value?.token ?? '',
+        })
+      }
+    } catch {}
   }
 }
 

@@ -22,11 +22,74 @@
    full available width to give the two-column operation layout (docs + sticky
    playground) room; the landing page caps itself to content width below. */
 [data-v-openapi] {
-  @apply vocs:flex vocs:flex-col vocs:gap-6;
+  @apply vocs:relative vocs:flex vocs:flex-col vocs:gap-6;
 }
 [data-v-openapi-landing] {
   @apply vocs:max-w-content;
 }
+
+/* #region Authentication panel */
+
+/* Global auth control, pinned to the top-right of the section header so it sits
+   beside the page title without disturbing the header's bottom border. */
+[data-v-openapi-auth] {
+  @apply vocs:absolute vocs:top-0 vocs:right-0 vocs:z-10;
+}
+[data-v-openapi-auth-trigger] {
+  @apply vocs:relative;
+}
+[data-v-openapi-auth-trigger][data-configured] [data-v-openapi-action-icon] {
+  @apply vocs:text-accent;
+}
+[data-v-openapi-auth-dot] {
+  @apply vocs:size-1.5 vocs:rounded-full vocs:bg-accent;
+}
+[data-v-openapi-auth-panel] {
+  @apply vocs:absolute vocs:right-0 vocs:top-[calc(100%+0.375rem)] vocs:w-80 vocs:max-w-[calc(100vw-2rem)];
+  @apply vocs:flex vocs:flex-col vocs:gap-2 vocs:rounded-lg vocs:border vocs:border-primary vocs:bg-primary vocs:p-3 vocs:shadow-lg;
+}
+[data-v-openapi-auth-panel-header] {
+  @apply vocs:flex vocs:items-center vocs:justify-between;
+}
+[data-v-openapi-auth-panel-title] {
+  @apply vocs:text-[13px] vocs:font-semibold vocs:text-heading;
+}
+[data-v-openapi-auth-clear] {
+  @apply vocs:text-[12px] vocs:text-secondary vocs:cursor-pointer vocs:transition-colors;
+}
+[data-v-openapi-auth-clear]:hover {
+  @apply vocs:text-heading;
+}
+[data-v-openapi-auth-hint] {
+  @apply vocs:text-[12px] vocs:leading-[1.4] vocs:text-muted;
+}
+[data-v-openapi-auth-fields] {
+  @apply vocs:flex vocs:flex-col vocs:gap-3 vocs:pt-1;
+}
+[data-v-openapi-auth-field] {
+  @apply vocs:flex vocs:flex-col vocs:gap-1;
+}
+[data-v-openapi-auth-field-label] {
+  @apply vocs:flex vocs:items-center vocs:gap-1 vocs:text-[12px] vocs:font-medium vocs:text-heading;
+}
+[data-v-openapi-auth-field-check] {
+  @apply vocs:size-3 vocs:text-accent;
+}
+[data-v-openapi-auth-field-desc] {
+  @apply vocs:text-[11px] vocs:leading-[1.4] vocs:text-muted;
+}
+[data-v-openapi-auth-input] {
+  @apply vocs:w-full vocs:rounded-md vocs:border vocs:border-primary vocs:bg-surface vocs:px-2 vocs:py-1 vocs:text-[13px] vocs:text-heading;
+  @apply vocs:outline-none vocs:transition-colors;
+}
+[data-v-openapi-auth-input]:focus {
+  @apply vocs:border-accent;
+}
+[data-v-openapi-auth-input]::placeholder {
+  @apply vocs:text-muted;
+}
+
+/* #endregion */
 
 /* A category section (single-page layout) / categories list (overview). */
 [data-v-openapi-group] {

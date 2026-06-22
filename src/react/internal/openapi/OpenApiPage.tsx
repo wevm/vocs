@@ -127,7 +127,7 @@ export function OpenApiPage(props: OpenApiPage.Props) {
     return (
       <OpenApiLayout outline={false}>
         <title>{props.title ?? `${group.name} · ${ir.info.title}`}</title>
-        <PlaygroundProvider client={ir.client}>
+        <PlaygroundProvider client={ir.client} mount={ir.path} schemes={ir.securitySchemes}>
           <ReferenceGroup ir={ir} group={group} intro={props.intro} />
         </PlaygroundProvider>
       </OpenApiLayout>
