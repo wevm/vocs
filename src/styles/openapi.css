@@ -39,10 +39,7 @@
   @apply vocs:flex vocs:flex-col vocs:gap-0.5;
 }
 [data-v-openapi-auth-title] {
-  @apply vocs:flex vocs:items-center vocs:gap-1.5 vocs:text-[13px] vocs:font-semibold vocs:text-heading;
-}
-[data-v-openapi-auth-title-icon] {
-  @apply vocs:size-3.5 vocs:text-muted;
+  @apply vocs:text-[16px] vocs:font-semibold vocs:text-heading;
 }
 [data-v-openapi-auth-description] {
   @apply vocs:text-[12px] vocs:leading-[1.4] vocs:text-muted;
@@ -54,7 +51,7 @@
   @apply vocs:text-[12px] vocs:font-medium vocs:text-secondary;
 }
 [data-v-openapi-auth-input] {
-  @apply vocs:w-full vocs:rounded-md vocs:border vocs:border-primary vocs:bg-surface vocs:px-2 vocs:py-1 vocs:text-[13px] vocs:text-heading;
+  @apply vocs:w-full vocs:rounded-md vocs:border vocs:border-primary vocs:bg-surface vocs:px-3 vocs:py-2 vocs:text-[13px] vocs:text-heading;
   @apply vocs:outline-none vocs:transition-colors;
 }
 [data-v-openapi-auth-input]:focus {

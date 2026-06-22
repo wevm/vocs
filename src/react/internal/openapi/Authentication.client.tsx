@@ -1,7 +1,6 @@
 'use client'
 
 import * as React from 'react'
-import LucideKeyRound from '~icons/lucide/key-round'
 import type { IrSecurityScheme } from '../../../internal/openapi/parser.js'
 import * as Auth from './auth.js'
 
@@ -42,10 +41,7 @@ export function Authentication(props: Authentication.Props) {
   return (
     <section data-v-openapi-auth aria-label="Authentication">
       <div data-v-openapi-auth-header>
-        <span data-v-openapi-auth-title>
-          <LucideKeyRound data-v-openapi-auth-title-icon />
-          Authentication
-        </span>
+        <span data-v-openapi-auth-title>Authentication</span>
         <p data-v-openapi-auth-description>
           Stored in your browser and applied to every “Try” request.
         </p>
