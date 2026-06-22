@@ -94,9 +94,15 @@ let highlighterPromise:
 function getHighlighter() {
   if (!highlighterPromise)
     highlighterPromise = (async () => {
-      const { bundledLanguages, createHighlighter, hastToHtml } = await import('shiki/bundle/web')
+      const [{ bundledLanguages, createHighlighter, hastToHtml }, { langs }] = await Promise.all([
+        import('shiki/bundle/web'),
+        import('virtual:vocs/langs'),
+      ])
       const { codeHighlight } = config
       const { langAlias = {}, themes } = codeHighlight
+      const extraLanguages = new Map(
+        langs.flatMap((lang) => [lang.name, ...(lang.aliases ?? [])].map((name) => [name, lang])),
+      )
       // Note: `langAlias` is intentionally not passed to the highlighter.
       // Passing a custom `langAlias` registers languages under their alias name
       // when lazily loaded (e.g. `loadLanguage('ts')` registers as `ts` instead
@@ -109,9 +115,12 @@ function getHighlighter() {
       return {
         async codeToHtml(code: string, lang: string) {
           const base = langAlias[lang] ?? lang
-          const resolvedLang = base in bundledLanguages ? base : 'txt'
-          if (!highlighter.getLoadedLanguages().includes(resolvedLang))
-            await highlighter.loadLanguage(resolvedLang as never)
+          const extraLanguage = extraLanguages.get(base)
+          const resolvedLang = base in bundledLanguages ? base : (extraLanguage?.name ?? 'txt')
+          if (!highlighter.getLoadedLanguages().includes(resolvedLang)) {
+            if (extraLanguage) await highlighter.loadLanguage(extraLanguage)
+            else await highlighter.loadLanguage(resolvedLang as never)
+          }
           const hast = highlighter.codeToHast(code, {
             defaultColor: 'light-dark()',
             lang: resolvedLang,

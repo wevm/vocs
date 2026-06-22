@@ -8,6 +8,7 @@ export default defineConfig({
       : process.env.VERCEL_URL
         ? `https://${process.env.VERCEL_URL}`
         : 'https://vocs.dev',
+  cacheDir: '.vocs/cache',
   changelog: Changelog.github({ repo: 'wevm/vocs' }),
   checkDeadlinks: true,
   feedback: Feedback.slack(),
