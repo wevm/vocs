@@ -44,3 +44,31 @@ export function unionVariantSchemas(schema: SchemaObject | undefined): SchemaObj
 export function unionVariantSegment(index: number): string {
   return `variant-${index}`
 }
+
+/**
+ * Returns the sole non-`null` member of a `oneOf`/`anyOf` union when the union
+ * has exactly one non-`null` member — the ubiquitous "nullable"/optional
+ * pattern, e.g. `oneOf: [{ type: 'null' }, { ...object }]`.
+ *
+ * Such a union is never shown as a variant picker (see
+ * {@link unionVariantSchemas}, which needs ≥2 non-null members), so without
+ * unwrapping it renders as a bare `null | object` type label with no expandable
+ * children. Callers resolve a schema through this first so the single member's
+ * type and nested properties surface instead. The wrapper's `description` wins
+ * over the member's so field-level docs are preserved.
+ *
+ * Returns `undefined` for non-unions or unions with 0 or ≥2 non-null members.
+ */
+export function unwrapSingleVariant(schema: SchemaObject | undefined): SchemaObject | undefined {
+  if (!schema) return undefined
+  const members = (schema['oneOf'] ?? schema['anyOf']) as SchemaObject[] | undefined
+  if (!Array.isArray(members)) return undefined
+  const nonNull = members.filter(
+    (member) => member && typeof member === 'object' && member['type'] !== 'null',
+  )
+  if (nonNull.length !== 1) return undefined
+  // biome-ignore lint/style/noNonNullAssertion: length checked above
+  const member = nonNull[0]!
+  const description = schema['description'] ?? member['description']
+  return description === undefined ? member : { ...member, description }
+}

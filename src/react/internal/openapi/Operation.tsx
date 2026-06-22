@@ -9,6 +9,7 @@ import {
 import type * as OpenApi from '../../../internal/openapi/index.js'
 import { codeSamples, responseSamples } from '../../../internal/openapi/sample.js'
 import { methodVariant } from '../../../internal/openapi/sidebar.js'
+import { unwrapSingleVariant } from '../../../internal/openapi/union.js'
 import { Badge } from '../../Badge.js'
 import { CodeSample } from './CodeSample.client.js'
 import { CollapsibleChildren } from './CollapsibleChildren.client.js'
@@ -150,15 +151,20 @@ function ParameterList(props: { parameters: OpenApi.IrParameter[]; idPrefix: str
   return (
     <div data-v-openapi-params>
       {props.parameters.map((parameter) => {
-        const union = unionVariants(parameter.schema)
+        // Unwrap a nullable single-variant union (e.g. `oneOf: [null, X]`) so X's
+        // type and nested properties render instead of a bare `null | object`.
+        const schema = parameter.schema
+          ? (unwrapSingleVariant(parameter.schema) ?? parameter.schema)
+          : parameter.schema
+        const union = unionVariants(schema)
         return (
           <PropertyRow
             key={parameter.name}
             id={`${props.idPrefix}-${slug(parameter.name)}`}
             name={parameter.name}
-            type={union ? undefined : typeLabel(parameter.schema)}
-            values={union ? undefined : enumValues(parameter.schema)}
-            meta={union ? [] : schemaMeta(parameter.schema)}
+            type={union ? undefined : typeLabel(schema)}
+            values={union ? undefined : enumValues(schema)}
+            meta={union ? [] : schemaMeta(schema)}
             example={union ? undefined : parameterExample(parameter)}
             required={parameter.required}
             deprecated={parameter.deprecated}
@@ -167,14 +173,14 @@ function ParameterList(props: { parameters: OpenApi.IrParameter[]; idPrefix: str
             {union ? (
               <UnionView union={union} depth={1} prefix={`${parameter.name}.`} />
             ) : (
-              parameter.schema &&
-              hasChildSchema(parameter.schema) && (
+              schema &&
+              hasChildSchema(schema) && (
                 <CollapsibleChildren>
                   <div data-v-openapi-children>
                     <Schema
-                      schema={parameter.schema}
+                      schema={schema}
                       depth={1}
-                      prefix={`${parameter.name}${parameter.schema['type'] === 'array' ? '[]' : ''}.`}
+                      prefix={`${parameter.name}${schema['type'] === 'array' ? '[]' : ''}.`}
                     />
                   </div>
                 </CollapsibleChildren>

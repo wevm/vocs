@@ -2,6 +2,7 @@ import type { Config } from '../config.js'
 import type { Ir, IrGroup, IrOperation, IrParameter, IrResponse } from './parser.js'
 import * as Registry from './registry.js'
 import { codeSamples } from './sample.js'
+import { unwrapSingleVariant } from './union.js'
 
 /**
  * A generated Markdown page for an OpenAPI route, ready to be served verbatim by
@@ -130,7 +131,7 @@ function operationLines(operation: IrOperation, server?: string): string[] {
     const params = byLocation(location)
     if (params.length === 0) continue
     lines.push(`### ${heading}`, '')
-    for (const parameter of params) lines.push(parameterLine(parameter))
+    for (const parameter of params) lines.push(...parameterLines(parameter))
     lines.push('')
   }
 
@@ -162,11 +163,16 @@ function operationLines(operation: IrOperation, server?: string): string[] {
   return lines
 }
 
-function parameterLine(parameter: IrParameter): string {
+function parameterLines(parameter: IrParameter): string[] {
+  // Unwrap a nullable single-variant union so an object param's member type and
+  // nested properties surface (e.g. an RPC `Transaction` object's fields).
+  const schema = parameter.schema
+    ? (unwrapSingleVariant(parameter.schema) ?? parameter.schema)
+    : parameter.schema
   const required = parameter.required ? ' _(required)_' : ''
-  const type = `\`${typeLabel(parameter.schema)}\``
+  const type = `\`${typeLabel(schema)}\``
   const description = parameter.description ? `: ${oneLine(parameter.description)}` : ''
-  return `- \`${parameter.name}\` ${type}${required}${description}`
+  return [`- \`${parameter.name}\` ${type}${required}${description}`, ...schemaLines(schema, 1)]
 }
 
 function responseLines(response: IrResponse): string[] {
@@ -204,9 +210,12 @@ const maxDepth = 4
  * recursing into nested objects (and array-of-object items) up to {@link
  * maxDepth}. Returns an empty array for non-object schemas.
  */
-function schemaLines(schema: SchemaObject | undefined, depth: number): string[] {
-  if (!schema || depth > maxDepth) return []
+function schemaLines(rawSchema: SchemaObject | undefined, depth: number): string[] {
+  if (!rawSchema || depth > maxDepth) return []
 
+  // Unwrap a nullable single-variant union (e.g. `oneOf: [null, X]`) so the
+  // member's properties are listed instead of nothing.
+  const schema = unwrapSingleVariant(rawSchema) ?? rawSchema
   const target = schema['type'] === 'array' ? (schema['items'] as SchemaObject) : schema
   const properties = target?.['properties'] as Record<string, SchemaObject> | undefined
   if (!properties) return []
@@ -215,7 +224,8 @@ function schemaLines(schema: SchemaObject | undefined, depth: number): string[] 
   const indent = '  '.repeat(depth)
   const lines: string[] = []
 
-  for (const [name, property] of Object.entries(properties)) {
+  for (const [name, rawProperty] of Object.entries(properties)) {
+    const property = unwrapSingleVariant(rawProperty) ?? rawProperty
     const requiredFlag = required.has(name) ? ' _(required)_' : ''
     const description = property['description']
       ? `: ${oneLine(String(property['description']))}`

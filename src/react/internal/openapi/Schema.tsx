@@ -1,7 +1,11 @@
 import { Fragment } from 'react'
 import * as Markdown from '../../../internal/markdown.js'
 import { type SchemaPath, schemaPropertyId } from '../../../internal/openapi/anchors.js'
-import { unionVariantSchemas, unionVariantSegment } from '../../../internal/openapi/union.js'
+import {
+  unionVariantSchemas,
+  unionVariantSegment,
+  unwrapSingleVariant,
+} from '../../../internal/openapi/union.js'
 import { Badge } from '../../Badge.js'
 import { CollapsibleChildren } from './CollapsibleChildren.client.js'
 import { EnumValues } from './EnumValues.client.js'
@@ -254,8 +258,12 @@ export declare namespace PropertyRow {
  * object/array properties are indented beneath their parent.
  */
 export function Schema(props: Schema.Props) {
-  const { schema, depth = 0, prefix = '', idBase, path = [] } = props
-  if (!schema || depth > maxDepth) return null
+  const { schema: rawSchema, depth = 0, prefix = '', idBase, path = [] } = props
+  if (!rawSchema || depth > maxDepth) return null
+
+  // Unwrap a nullable/optional single-variant union (e.g. `oneOf: [null, X]`) to
+  // its sole member so X's type and properties render instead of nothing.
+  const schema = unwrapSingleVariant(rawSchema) ?? rawSchema
 
   // Render oneOf/anyOf unions as a variant picker rather than a type string.
   const union = unionVariants(schema)
@@ -289,7 +297,10 @@ export function Schema(props: Schema.Props) {
 
   return (
     <div data-v-openapi-schema>
-      {Object.entries(properties).map(([name, property]) => {
+      {Object.entries(properties).map(([name, rawProperty]) => {
+        // Unwrap a nullable single-variant union so the member's type label and
+        // nested properties surface (e.g. an optional object's children).
+        const property = unwrapSingleVariant(rawProperty) ?? rawProperty
         const childPrefix = `${prefix}${name}${property['type'] === 'array' ? '[]' : ''}.`
         const childPath = [...path, name]
         const id = idBase ? schemaPropertyId(idBase, childPath) : undefined
