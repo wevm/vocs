@@ -38,6 +38,8 @@ export function Authentication(props: Authentication.Props) {
     Auth.write(mount, next)
   }
 
+  const placeholder = schemePlaceholder(primary.scheme)
+
   return (
     <section data-v-openapi-auth aria-label="Authentication">
       <div data-v-openapi-auth-header>
@@ -53,7 +55,7 @@ export function Authentication(props: Authentication.Props) {
           type="password"
           autoComplete="off"
           spellCheck={false}
-          placeholder="Enter your API key"
+          placeholder={placeholder}
           value={token}
           onChange={(event) => update(event.target.value)}
         />
@@ -69,4 +71,16 @@ export declare namespace Authentication {
     /** Named security schemes from the spec (`components.securitySchemes`). */
     schemes: Record<string, IrSecurityScheme>
   }
+}
+
+/**
+ * Placeholder hinting at the expected key format. Sourced from the security
+ * scheme's `example` (OpenAPI vendor extensions `x-example`/`x-default` are also
+ * honored) so consumers can advertise their key shape (e.g. `tempo:sk:…`);
+ * falls back to a generic prompt.
+ */
+function schemePlaceholder(scheme: IrSecurityScheme): string {
+  const candidate = scheme.example ?? scheme['x-example'] ?? scheme['x-default']
+  if (typeof candidate === 'string' && candidate) return candidate
+  return 'Enter your API key'
 }
