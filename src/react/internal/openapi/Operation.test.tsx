@@ -59,8 +59,8 @@ describe('Operation', () => {
   })
 
   test('renders parameters grouped by location', () => {
-    expect(html).toContain('Path parameters')
-    expect(html).toContain('Query parameters')
+    expect(html).toContain('Path Parameters')
+    expect(html).toContain('Query Parameters')
     expect(html).toContain('petId')
     expect(html).toContain('The id of the pet')
     expect(html).toContain('required')
