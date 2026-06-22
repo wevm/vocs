@@ -37,6 +37,12 @@ export type CompiledPage = {
   description?: string | undefined
   /** Ordered content blocks. */
   blocks: PageBlock[]
+  /**
+   * Raw authored Markdown (frontmatter + ESM import/export lines stripped), used
+   * to serve the page's `.md` / agent-facing version. Absent for trait pages
+   * compiled from a description that is already the body.
+   */
+  markdown?: string | undefined
 }
 
 /**

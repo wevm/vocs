@@ -7,7 +7,10 @@ export default defineConfig({
       spec: 'https://cadent.tempo.xyz/openapi.json',
       path: '/api',
       sidebar: {
-        top: [{ text: 'Authentication', link: '/api/auth' }],
+        top: [
+          { text: 'Authentication', link: '/api/auth' },
+          { text: 'Outline Test', link: '/api/outline-test' },
+        ],
       },
     },
   ],

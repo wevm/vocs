@@ -5,13 +5,41 @@ import remarkStringify from 'remark-stringify'
 import type { PluggableList } from 'unified'
 import { unified } from 'unified'
 import type * as Config from './config.js'
+import * as OpenApiMarkdown from './openapi/markdown.js'
 import type * as Sidebar from './sidebar.js'
 
 export async function buildLlmsContent(options: buildLlmsContent.Options) {
-  const { pages, title, description, rehypePlugins, remarkPlugins, sidebar } = options
+  const { title, description, rehypePlugins, remarkPlugins, sidebar } = options
+
+  // Dedupe by path (first occurrence wins), so consumer-authored source pages
+  // take precedence over generated pages (e.g. OpenAPI) mounted at the same path.
+  const seen = new Set<string>()
+  const pages = options.pages.filter((page) => {
+    const key = normalizePath(page.path)
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
 
   const results = await Promise.all(
     pages.map(async (page) => {
+      // Pre-rendered pages (e.g. generated OpenAPI references) carry their own
+      // title and final Markdown, so they bypass the MDX reprocessing and the
+      // frontmatter-title requirement and are used verbatim.
+      if (page.title) {
+        const content =
+          typeof page.content === 'string'
+            ? page.content
+            : await fs.readFile(page.content.path, 'utf-8')
+        return {
+          content,
+          file: undefined,
+          title: page.title,
+          description: page.description,
+          path: page.path,
+        }
+      }
+
       const content =
         typeof page.content === 'string'
           ? page.content
@@ -70,7 +98,29 @@ export declare namespace buildLlmsContent {
   type Page = {
     path: string
     content: string | { path: string }
+    /**
+     * When provided, `content` is treated as final Markdown and used verbatim
+     * (the MDX reprocessing and frontmatter-title requirement are skipped). Used
+     * for generated pages such as OpenAPI references.
+     */
+    title?: string | undefined
+    description?: string | undefined
   }
+}
+
+/**
+ * Generated Markdown pages for every configured OpenAPI section, in the
+ * {@link buildLlmsContent.Page} shape (pre-rendered, so they're served verbatim).
+ * Empty when no OpenAPI specs are configured.
+ */
+export async function getOpenApiPages(config: Config.Config): Promise<buildLlmsContent.Page[]> {
+  const pages = await OpenApiMarkdown.toPages(config)
+  return pages.map((page) => ({
+    path: page.path,
+    content: page.content,
+    title: page.title,
+    description: page.description,
+  }))
 }
 
 function sortResults<result extends { path: string }>(

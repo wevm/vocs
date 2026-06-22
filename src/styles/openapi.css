@@ -131,6 +131,15 @@
   @apply vocs:space-y-6 vocs:max-w-content;
 }
 
+/* Consumer-authored guide page (e.g. `pages/api/auth.mdx`). Rendered inside the
+   full-bleed article (gutter collapsed to the sidebar, like the rest of the
+   section) but capped to content width so it reads like a regular markdown page.
+   Block rhythm + heading treatment come from the shared `article[data-v-content]`
+   markdown rules, which are extended to match `[data-v-openapi-guide]`. */
+[data-v-openapi-guide] {
+  @apply vocs:space-y-6 vocs:max-w-content;
+}
+
 /* #endregion */
 
 /* #region Operation layout
@@ -619,6 +628,33 @@ button[data-v-openapi-property-example-value]:hover {
 }
 [data-v-openapi-union-panel][data-visible] {
   @apply vocs:border-t vocs:border-primary vocs:px-3 vocs:py-2;
+}
+
+/* #endregion */
+
+/* #region One-column page outline + footer */
+
+/* The overview and guide pages are single-column: they keep the section's
+   full-bleed gutter (content sits flush after the sidebar) but, unlike the
+   two-column operation pages, render the normal right-gutter outline. Since
+   their content is capped to `max-w-content` and left-aligned, the default
+   `right-0` outline would be pinned to the far viewport edge, so dock it
+   immediately to the right of the content. The `!important` is required because
+   the outline's `right-0` utility sits in a later cascade layer. */
+@media (width >= 1376px) {
+  [data-v-content-width="full"]:has([data-v-openapi-landing], [data-v-openapi-guide]) [data-v-gutter-right] {
+    right: auto !important;
+    left: calc(var(--vocs-spacing-sidebar) + var(--vocs-spacing-content-px) + var(--vocs-spacing-content) + 2rem);
+  }
+}
+
+/* Cap the page footer to the content width so it lines up with the content
+   above it instead of spanning the full-bleed width. */
+[data-v-content-width="full"]:has([data-v-openapi-landing], [data-v-openapi-guide]) [data-v-content-footer] {
+  @apply vocs:max-w-content;
+}
+[data-v-content-width="full"]:has([data-v-openapi-landing], [data-v-openapi-guide]) [data-v-footer] {
+  @apply vocs:max-w-content!;
 }
 
 /* #endregion */

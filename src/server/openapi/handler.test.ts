@@ -113,4 +113,89 @@ describe('Handler.openApi', () => {
       expect(asset.status).toBe(200)
     })
   })
+
+  describe('markdown', () => {
+    test('serves the generated overview at `<intro>.md`', async () => {
+      const ref = openApi({ spec, path: '/api' })
+      const response = await ref.fetch(new Request('http://localhost/api.md'))
+      expect(response.status).toBe(200)
+      expect(response.headers.get('content-type')).toContain('text/markdown')
+
+      const md = await response.text()
+      expect(md).toContain('# Demo API')
+      expect(md).toContain('## Endpoints')
+      expect(md).toContain('- [`GET /pets`](/api/pets#listpets): List pets')
+    })
+
+    test('serves a generated category at `<group>.md`', async () => {
+      const ref = openApi({ spec, path: '/api' })
+      const response = await ref.fetch(new Request('http://localhost/api/pets.md'))
+      expect(response.status).toBe(200)
+      expect(response.headers.get('content-type')).toContain('text/markdown')
+
+      const md = await response.text()
+      expect(md).toContain('## List pets')
+      expect(md).toContain('`GET /pets`')
+    })
+
+    test('honors `Accept: text/markdown` without a `.md` suffix', async () => {
+      const ref = openApi({ spec, path: '/api' })
+      const response = await ref.fetch(
+        new Request('http://localhost/api', { headers: { accept: 'text/markdown' } }),
+      )
+      expect(response.status).toBe(200)
+      expect(response.headers.get('content-type')).toContain('text/markdown')
+      expect(await response.text()).toContain('# Demo API')
+    })
+
+    test('serves an authored guide page as its own Markdown', async () => {
+      const ref = openApi({
+        spec,
+        path: '/api',
+        pages: [{ path: '/guide', content: '---\ntitle: Guide\n---\n# Guide\n\nHello there.' }],
+      })
+      const response = await ref.fetch(new Request('http://localhost/api/guide.md'))
+      expect(response.status).toBe(200)
+      expect(response.headers.get('content-type')).toContain('text/markdown')
+      const md = await response.text()
+      expect(md).toContain('# Guide')
+      expect(md).toContain('Hello there.')
+    })
+
+    test('serves Markdown to terminal clients (curl) without a `.md` suffix', async () => {
+      const ref = openApi({ spec, path: '/api' })
+      const response = await ref.fetch(
+        new Request('http://localhost/api', { headers: { 'user-agent': 'curl/8.4.0' } }),
+      )
+      expect(response.status).toBe(200)
+      expect(response.headers.get('content-type')).toContain('text/markdown')
+      expect(await response.text()).toContain('# Demo API')
+    })
+
+    test('serves Markdown to AI agents without a `.md` suffix', async () => {
+      const ref = openApi({ spec, path: '/api' })
+      const response = await ref.fetch(
+        new Request('http://localhost/api', { headers: { 'user-agent': 'ChatGPT-User/2.0' } }),
+      )
+      expect(response.status).toBe(200)
+      expect(response.headers.get('content-type')).toContain('text/markdown')
+    })
+
+    test('does not serve Markdown to search engines without a `.md` suffix', async () => {
+      const ref = openApi({ spec, path: '/api' })
+      const response = await ref.fetch(
+        new Request('http://localhost/api', { headers: { 'user-agent': 'Googlebot/2.1' } }),
+      )
+      expect(response.headers.get('content-type') ?? '').not.toContain('text/markdown')
+    })
+
+    test('prefixes overview links with the live host mount', async () => {
+      const app = new Hono().basePath('/docs')
+      app.route('/', openApi({ spec, path: '/api' }, { fallback: 'next' }))
+
+      const response = await app.request('http://localhost/docs/api.md')
+      expect(response.status).toBe(200)
+      expect(await response.text()).toContain('](/docs/api/pets#listpets)')
+    })
+  })
 })

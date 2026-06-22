@@ -4,17 +4,25 @@ import { Layout } from '../../Layout.js'
 import * as MdxPageContext from '../../MdxPageContext.js'
 import { Endpoints } from './Endpoints.js'
 import { PlaygroundProvider } from './Playground.client.js'
-import { Prose, ReferenceGroup, ReferenceOverview } from './Reference.js'
+import { ReferenceGroup, ReferenceOverview } from './Reference.js'
 
 /**
- * Layout for OpenAPI pages. Disables the page outline (right gutter / table of
- * contents) via frontmatter context, since the sidebar already exposes every
- * operation as an anchor.
+ * Layout for OpenAPI pages.
+ *
+ * Single-column pages (the overview and consumer guide pages) show the normal
+ * outline (the regular Vocs right gutter) — this is the default. The two-column
+ * operation (category) pages opt out (`outline={false}`), since the sidebar
+ * already exposes every operation as an anchor and the sticky playground
+ * occupies the right column.
  */
-function OpenApiLayout(props: { children: React.ReactNode; width?: 'default' | 'full' }) {
+function OpenApiLayout(props: {
+  children: React.ReactNode
+  outline?: boolean | undefined
+  width?: 'default' | 'full'
+}) {
   return (
     <MdxPageContext.Provider
-      frontmatter={{ outline: false, content: { width: props.width ?? 'full' } }}
+      frontmatter={{ outline: props.outline ?? true, content: { width: props.width ?? 'full' } }}
     >
       <Layout>{props.children}</Layout>
     </MdxPageContext.Provider>
@@ -23,30 +31,25 @@ function OpenApiLayout(props: { children: React.ReactNode; width?: 'default' | '
 
 /**
  * Renders a consumer-authored "guide" page (a normal MDX page mounted under an
- * OpenAPI section path, e.g. `pages/api/auth.mdx`) as a standard Vocs content
- * page: the shared `Layout` `<article>` is the content container, so it owns the
- * page padding and content-width cap exactly like a regular markdown page (no
- * right gutter/TOC, via the `outline: false` frontmatter above).
+ * OpenAPI section path, e.g. `pages/api/auth.mdx`).
  *
- * Unlike the section landing/group pages — which are full-bleed so their
- * two-column operation layout has room — a guide is pure prose, so it uses the
- * default (padded, content-width) article rather than a full-bleed wrapper.
+ * Uses the same full-bleed layout as the section landing page (the left
+ * centering gutter collapses to the sidebar, so content sits flush after it).
+ * Like the landing page it is single-column, so it keeps the normal right
+ * gutter/TOC outline (the default). The authored prose is wrapped in
+ * `[data-v-openapi-guide]`, which caps it to the readable content width and
+ * reapplies markdown block rhythm/heading treatment, so the guide keeps a
+ * regular page's article width and padding while matching the gutter layout of
+ * the rest of the section.
+ *
+ * The frontmatter `title`/`description` are intentionally not rendered as an
+ * on-page header; the authored MDX owns its own headings (like a normal page).
  */
 export function OpenApiGuide(props: OpenApiGuide.Props) {
   return (
-    <OpenApiLayout width="default">
+    <OpenApiLayout width="full">
       {props.title ? <title>{props.title}</title> : null}
-      {props.title || props.description ? (
-        <header data-v-openapi-header>
-          {props.title ? (
-            <h1 data-v data-v-openapi-h1>
-              {props.title}
-            </h1>
-          ) : null}
-          {props.description ? <Prose markdown={props.description} attr="description" /> : null}
-        </header>
-      ) : null}
-      {props.children}
+      <div data-v-openapi-guide>{props.children}</div>
     </OpenApiLayout>
   )
 }
@@ -101,7 +104,7 @@ export function OpenApiPage(props: OpenApiPage.Props) {
       )
 
     return (
-      <OpenApiLayout>
+      <OpenApiLayout outline={false}>
         <title>{props.title ?? `${group.name} · ${ir.info.title}`}</title>
         <PlaygroundProvider client={ir.client}>
           <ReferenceGroup ir={ir} group={group} intro={props.intro} />

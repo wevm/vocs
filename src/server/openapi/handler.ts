@@ -1,8 +1,11 @@
 import { getRequestListener } from '@hono/node-server'
 import { Hono } from 'hono'
+import { prefersMarkdown } from '../../internal/markdown-negotiation.js'
 import type { Payload } from '../../internal/openapi/app.js'
-import { inferMount, knownRoutes } from '../../internal/openapi/app.js'
+import { inferMount, join, knownRoutes } from '../../internal/openapi/app.js'
+import * as Markdown from '../../internal/openapi/markdown.js'
 import type * as OpenApi from '../../internal/openapi/openapi.js'
+import { normalizePath } from '../../internal/openapi/openapi.js'
 import * as Assets from './assets.js'
 import * as Html from './html.js'
 import * as State from './state.js'
@@ -65,6 +68,29 @@ export function openApi(config: OpenApi.Config, options: openApi.Options = {}): 
 
     const payload = await prepare()
     const routes = knownRoutes(payload)
+
+    // Serve the Markdown / agent-facing version of a route: `<route>.md`, any
+    // route requested with `Accept: text/markdown`, or an AI/terminal client.
+    // Shares the exact negotiation rules of the site `.md` router (Open Graph
+    // bots and search engines stay on HTML). Generated routes (overview +
+    // categories) win over overrides, and authored guide pages serve their own
+    // Markdown.
+    const wantsMarkdown = prefersMarkdown({
+      pathname,
+      userAgent: c.req.header('user-agent'),
+      accept: c.req.header('accept'),
+    })
+    if (wantsMarkdown) {
+      const basePathname = pathname.endsWith('.md') ? pathname.slice(0, -3) : pathname
+      const mount =
+        options.fallback === 'next'
+          ? mountFromRoutePath(c.req.routePath)
+          : inferMount(basePathname, routes)
+      const markdown = resolveMarkdown(payload, relativeRoute(basePathname, mount), mount)
+      if (markdown) return c.text(markdown, 200, { 'content-type': 'text/markdown; charset=utf-8' })
+      // Explicit `.md` for an unknown route falls through to the normal handling
+      // below (renders the shell, or `next()` in fallback mode).
+    }
 
     // Fallthrough mode: only own the reference's own routes (the intro/landing,
     // each group/page, and the asset root above) and defer everything else to
@@ -141,6 +167,31 @@ function mountFromRoutePath(routePath: string | undefined): string {
 function isKnownRoute(relativePath: string, routes: readonly string[]): boolean {
   const path = stripTrailingSlash(relativePath) || '/'
   return routes.some((route) => (stripTrailingSlash(route) || '/') === path)
+}
+
+/** Strips the host mount prefix from a pathname, yielding a section route. */
+function relativeRoute(pathname: string, mount: string): string {
+  const path = pathname.startsWith(mount) ? pathname.slice(mount.length) : pathname
+  return stripTrailingSlash(path) || '/'
+}
+
+/**
+ * Resolves the Markdown for a section route: the generated overview (intro), a
+ * generated category page, or an authored guide page's own Markdown. Returns
+ * `null` for unknown routes. `mount` is the live host prefix, prepended to the
+ * overview's endpoint links so they resolve back to this handler.
+ */
+function resolveMarkdown(payload: Payload, relative: string, mount: string): string | null {
+  const base = payload.ir.path || '/'
+  const linkBase = `${mount}${base === '/' ? '' : base}`
+  const introRoute = base === '/' ? '/' : normalizePath(base)
+
+  if (relative === introRoute) return Markdown.renderOverview(payload.ir, linkBase)
+  for (const group of payload.ir.groups)
+    if (relative === join(base, `/${group.id}`)) return Markdown.renderGroup(payload.ir, group)
+  for (const page of payload.pages)
+    if (page.markdown && relative === join(base, page.path)) return page.markdown
+  return null
 }
 
 function stripTrailingSlash(value: string): string {

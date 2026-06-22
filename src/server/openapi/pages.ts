@@ -98,11 +98,16 @@ export function compileSource(routePath: string, source: string): CompiledPage {
   }
   pushHtml(blocks, body.slice(lastIndex))
 
+  // Raw Markdown for the page's `.md` / agent-facing version: drop ESM lines and
+  // the `<OpenApi.Endpoints />` component (it has no Markdown representation).
+  const markdown = body.replace(esmLineRe, '').replace(endpointsRe, '').trim() || undefined
+
   return {
     path: normalizePath(routePath),
     title: title ?? firstHeading(body),
     description,
     blocks,
+    markdown,
   }
 }
 
