@@ -15,8 +15,7 @@ import { getSingletonHighlighterCore } from 'shiki/core'
 import { createOnigurumaEngine } from 'shiki/engine/oniguruma'
 
 const shiki = await getSingletonHighlighterCore({
-//    ^?
-
+  //  ^?
   engine: createOnigurumaEngine(import('shiki/wasm'))
 })
 ```
