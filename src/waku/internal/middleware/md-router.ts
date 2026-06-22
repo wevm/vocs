@@ -53,6 +53,10 @@ export function middleware(): MiddlewareHandler {
   return async (context, next) => {
     const url = new URL(context.req.url)
 
+    // Generated markdown twins are static output; routing them back through
+    // twin resolution would trigger a recursive self-fetch.
+    if (url.pathname.startsWith('/assets/md/')) return next()
+
     const userAgent = context.req.header('user-agent') ?? ''
     const isOgBot = ogBotUserAgents.some((agent) => userAgent.includes(agent))
     if (isOgBot) return next()
@@ -82,6 +86,12 @@ export function middleware(): MiddlewareHandler {
     }
 
     const isMarkdownRequest = url.pathname.endsWith('.md')
+
+    // Static assets (`.json`, `.svg`, `.png`, ...) have no markdown twin. Skip
+    // twin resolution so a disk miss never falls back to a slow self-fetch.
+    const filename = url.pathname.split('/').pop() ?? ''
+    if (!isMarkdownRequest && filename.includes('.')) return next()
+
     if (!isMarkdownRequest && (isSearchEngine || (!isAiAgent && !isTerminal && !acceptsMarkdown)))
       return next()
 
@@ -104,7 +114,7 @@ export function middleware(): MiddlewareHandler {
 
     context.res = new Response(text, {
       headers: {
-        'Content-Type': `${url.pathname.endsWith('.txt') ? 'text/plain' : 'text/markdown'}; charset=utf-8`,
+        'Content-Type': 'text/markdown; charset=utf-8',
       },
     })
     return

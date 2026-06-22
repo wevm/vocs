@@ -1,5 +1,39 @@
 # vocs
 
+## 2.0.17
+
+### Patch Changes
+
+- e878574: Fixed persisted Twoslash hovers and completions overlapping following documentation content.
+
+## 2.0.16
+
+### Patch Changes
+
+- 766f960: Fixed production builds for pages that imported Markdown files from outside `src/pages`.
+
+## 2.0.15
+
+### Patch Changes
+
+- 0bc3859: Fixed the MCP Streamable HTTP endpoint hanging on JSON-RPC notifications (e.g. `notifications/initialized`) by acking payloads that contain no requests with `202 Accepted`.
+- 75eaf10: Fixed user-configured `remarkPlugins` (e.g. `remark-math`) not being applied during llms and search compilation.
+- d9ee887: Fixed multi-second latency when CLI and AI-agent user-agents request static assets (`.json`, `.svg`, etc.) by skipping markdown twin resolution for non-page requests.
+- 93c0441: Fixed `vocs dev` crashing on fresh npm/bun installs with a missing `react-server` condition error by keeping `react-server-dom-webpack` bundled in the RSC server environments.
+- 699e6b3: Upgraded to `waku@1.0.0-beta.3` and removed the router prefetch patches now fixed upstream.
+
+## 2.0.14
+
+### Patch Changes
+
+- c47b871: Fixed heading subtext breaking when its description contained inline markdown such as inline code or emphasis.
+
+## 2.0.13
+
+### Patch Changes
+
+- 90c536d: Stripped inline Twoslash cache comments and the sitemap from markdown (`.md`/llms) pages.
+
 ## 2.0.12
 
 ### Patch Changes

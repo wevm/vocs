@@ -45,6 +45,27 @@ export function buildId(): Plugin {
 }
 
 /**
+ * Keeps `react-server-dom-webpack` bundled in the server environments so Waku's rsdw
+ * patch can redirect it to plugin-rsc's vendored build. npm and bun auto-install the
+ * peer, which would otherwise load natively with `react` missing the `react-server`
+ * condition and crash the dev server.
+ */
+export function rsdwNoExternal(): Plugin {
+  const rsdw = 'react-server-dom-webpack'
+  return {
+    name: 'vocs:rsdw-no-external',
+    config() {
+      return {
+        environments: {
+          rsc: { resolve: { noExternal: [rsdw] } },
+          ssr: { resolve: { noExternal: [rsdw] } },
+        },
+      }
+    },
+  }
+}
+
+/**
  * Builds a script to preview the build output.
  */
 export function preview(): Plugin {
@@ -94,124 +115,6 @@ await import('./serve-node.js');
       const previewPath = path.join(outDir, 'preview.js')
       if (!existsSync(outDir)) await fs.mkdir(outDir, { recursive: true })
       await fs.writeFile(previewPath, previewScript, { encoding: 'utf-8' })
-    },
-  }
-}
-
-const wakuDefineRouterRegex = /[/\\]waku[/\\]dist[/\\]router[/\\]define-router\.js(?:\?.*)?$/
-const wakuRouterClientRegex = /[/\\]waku[/\\]dist[/\\]router[/\\]client\.js(?:\?.*)?$/
-const wakuMinimalClientRegex = /[/\\]waku[/\\]dist[/\\]minimal[/\\]client\.js(?:\?.*)?$/
-
-// TODO: Remove these Waku prefetch patches once https://github.com/wakujs/waku/issues/2099 is fixed.
-const wakuRouterPrefetchCodeRegex =
-  /Object\.entries\(path2moduleIds\)\.forEach\(\(\[path,\s*ids\]\)=>\{\s*path2idxs\[path\]\s*=\s*ids\.map\(\(id\)=>ids\.indexOf\(id\)\);\s*\}\);/
-
-const wakuRouterHmrRefetchCode = `        const refetchRoute = ()=>{
-            staticPathSetRef.current.clear();
-            cachedIdSetRef.current.clear();
-            const rscPath = encodeRoutePath(route.path);
-            const rscParams = createRscParams(route.query);
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            refetch(rscPath, rscParams);
-        };`
-const wakuRouterHmrRefetchPatchedCode = `        const refetchRoute = ()=>{
-            staticPathSetRef.current.clear();
-            cachedIdSetRef.current.clear();
-            const rscPath = encodeRoutePath(route.path);
-            const rscParams = createRscParams(route.query);
-            const hmrRefetchEnhancer = (fetchFn)=>(input, init = {})=>{
-                init.cache = 'no-store';
-                return fetchFn(input, init);
-            };
-            delete globalThis.__WAKU_PREFETCHED__?.[rscPath];
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            refetch(rscPath, rscParams, (store)=>withEnhanceFetchFn(hmrRefetchEnhancer)(store));
-        };`
-
-const wakuClientPrefetchKeysCode = `const KEY_RESPONSE = 'r';
-const KEY_CLOSE = 'x';`
-const wakuClientPrefetchKeysPatchedCode = `const KEY_RESPONSE = 'r';
-const KEY_ELEMENTS = 'e';
-const KEY_CLOSE = 'x';`
-
-const wakuClientPrefetchElementsCode = `    if (prefetchOnly) {
-        prefetched[rscPath] = {
-            [KEY_RESPONSE]: responsePromise,
-            [KEY_CLIENT_PREFETCHED]: true,
-            [KEY_RSC_PARAMS]: rscParams,
-            [KEY_TEMPORARY_REFERENCES]: temporaryReferences
-        };
-        return undefined;
-    }
-    const elements = createFromFetch(checkStatus(responsePromise), {
-        callServer: (funcId, args)=>unstable_callServerRsc(funcId, args, ()=>fetchRscStore),
-        debugChannel: debug?.debugChannel,
-        temporaryReferences
-    });`
-const wakuClientPrefetchElementsPatchedCode = `    const createElements = ()=>createFromFetch(checkStatus(responsePromise), {
-        callServer: (funcId, args)=>unstable_callServerRsc(funcId, args, ()=>fetchRscStore),
-        debugChannel: debug?.debugChannel,
-        temporaryReferences
-    });
-    if (prefetchOnly) {
-        const elements = createElements();
-        Promise.resolve(elements).catch(()=>{});
-        prefetched[rscPath] = {
-            [KEY_RESPONSE]: responsePromise,
-            [KEY_ELEMENTS]: elements,
-            [KEY_CLIENT_PREFETCHED]: true,
-            [KEY_RSC_PARAMS]: rscParams,
-            [KEY_TEMPORARY_REFERENCES]: temporaryReferences
-        };
-        return undefined;
-    }
-    const elements = prefetchedEntry?.[KEY_ELEMENTS] || createElements();`
-
-export function patchRouterPrefetchCode(code: string, id: string) {
-  if (!wakuDefineRouterRegex.test(id)) return
-  const patched = code.replace(
-    wakuRouterPrefetchCodeRegex,
-    `Object.entries(path2moduleIds).forEach(([path, pathIds])=>{
-        path2idxs[path] = pathIds.map((id)=>ids.indexOf(id));
-    });`,
-  )
-  if (patched === code) return
-  return patched
-}
-
-export function patchRouterHmrRefetchCode(code: string, id: string) {
-  if (!wakuRouterClientRegex.test(id)) return
-  const patched = code.replace(wakuRouterHmrRefetchCode, wakuRouterHmrRefetchPatchedCode)
-  if (patched === code) return
-  return patched
-}
-
-export function patchClientRscPrefetchCode(code: string, id: string) {
-  if (!wakuMinimalClientRegex.test(id)) return
-  if (!code.includes(wakuClientPrefetchKeysCode) || !code.includes(wakuClientPrefetchElementsCode))
-    return
-  const patched = code
-    .replace(wakuClientPrefetchKeysCode, wakuClientPrefetchKeysPatchedCode)
-    .replace(wakuClientPrefetchElementsCode, wakuClientPrefetchElementsPatchedCode)
-  return patched
-}
-
-export function patchWakuPrefetchCode(code: string, id: string) {
-  return (
-    patchRouterPrefetchCode(code, id) ??
-    patchRouterHmrRefetchCode(code, id) ??
-    patchClientRscPrefetchCode(code, id)
-  )
-}
-
-export function patchRouterPrefetch(): Plugin {
-  return {
-    name: 'vocs:patch-router-prefetch',
-    enforce: 'pre',
-    transform(code, id) {
-      const patched = patchWakuPrefetchCode(code, id)
-      if (!patched) return null
-      return { code: patched, map: null }
     },
   }
 }

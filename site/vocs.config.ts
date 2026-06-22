@@ -122,6 +122,7 @@ export default defineConfig({
         { text: 'Ask AI', link: '/features/ask-ai' },
         { text: 'Changelog Generation', link: '/features/changelog-generation' },
         { text: 'Dynamic OG Images', link: '/features/dynamic-og-images' },
+        { text: 'Head Tags', link: '/features/head' },
         { text: 'Layouts', link: '/features/layouts' },
         { text: 'MCP Server', link: '/features/mcp-server' },
         { text: 'Navigation', link: '/features/navigation' },

@@ -1,13 +1,22 @@
+import * as path from 'node:path'
+import type * as Estree from 'estree'
+import type * as MdAst from 'mdast'
+import remarkFrontmatter from 'remark-frontmatter'
+import remarkParse from 'remark-parse'
 import ruby from 'shiki/langs/ruby.mjs'
+import { unified } from 'unified'
 import { describe, expect, it } from 'vitest'
 import * as Config from './config.js'
 import {
   getCompileOptions,
+  recmaMdxLayout,
   remarkCodeTitle,
+  remarkDefaultFrontmatter,
   remarkFilename,
   remarkFileTree,
   remarkLangCommaAttrs,
   remarkRestoreUnknownTextDirectives,
+  remarkSubheading,
 } from './mdx.js'
 
 type CodeNode = {
@@ -61,6 +70,101 @@ function transformCodeNode(
 
   return tree.children[0] as CodeNode
 }
+
+describe('remarkDefaultFrontmatter', () => {
+  it('infers title and description from heading subtext with inline code', async () => {
+    const tree = await runRemark(
+      '# Common Package [How `packages/common` is structured, why it exists]',
+      [remarkDefaultFrontmatter],
+    )
+    const frontmatter = tree.children[0]
+
+    expect(frontmatter).toMatchObject({
+      type: 'yaml',
+      value:
+        'title: "Common Package"\ndescription: "How packages/common is structured, why it exists"',
+    })
+  })
+})
+
+describe('remarkSubheading', () => {
+  it('extracts heading subtext with inline markdown nodes', async () => {
+    const tree = await runRemark(
+      [
+        '---',
+        'title: Test',
+        '---',
+        '',
+        '# **Common** Package [How `packages/common` is *structured*]',
+      ].join('\n'),
+      [remarkFrontmatter, remarkSubheading],
+    )
+    const hgroup = tree.children[1] as MdAst.Paragraph
+    const heading = hgroup.children[0] as unknown as MdAst.Heading
+    const subheading = hgroup.children[1] as unknown as MdAst.Paragraph
+
+    expect(stripPositions(heading.children)).toEqual([
+      {
+        type: 'strong',
+        children: [{ type: 'text', value: 'Common' }],
+      },
+      { type: 'text', value: ' Package' },
+    ])
+    expect(stripPositions(subheading.children)).toEqual([
+      { type: 'text', value: 'How ' },
+      { type: 'inlineCode', value: 'packages/common' },
+      { type: 'text', value: ' is ' },
+      {
+        type: 'emphasis',
+        children: [{ type: 'text', value: 'structured' }],
+      },
+    ])
+  })
+})
+
+async function runRemark(markdown: string, plugins: unknown[]) {
+  const processor = unified().use(remarkParse)
+  for (const plugin of plugins) processor.use(plugin as never)
+  const tree = processor.parse(markdown) as MdAst.Root
+  await processor.run(tree)
+  return tree
+}
+
+function stripPositions(children: MdAst.PhrasingContent[]): unknown[] {
+  return children.map(({ position: _, ...child }) => {
+    if ('children' in child) return { ...child, children: stripPositions(child.children) }
+    return child
+  })
+}
+
+function createMdxProgram(): Estree.Program {
+  return {
+    type: 'Program',
+    sourceType: 'module',
+    body: [
+      {
+        type: 'ExportDefaultDeclaration',
+        declaration: { type: 'Identifier', name: 'MDXContent' },
+      },
+    ],
+  }
+}
+
+describe('recmaMdxLayout', () => {
+  it('skips page layout injection for markdown outside the pages directory', () => {
+    const rootDir = path.join(process.cwd(), 'playground')
+    const tree = createMdxProgram()
+    const transform = recmaMdxLayout(Config.define({ rootDir }))()
+
+    transform(tree, {
+      basename: 'notes.md',
+      dirname: rootDir,
+      path: path.join(rootDir, 'notes.md'),
+    } as never)
+
+    expect(tree).toEqual(createMdxProgram())
+  })
+})
 
 describe('remarkFilename', () => {
   it('scopes duplicate code-group filenames to their group', () => {
@@ -222,6 +326,17 @@ describe('getCompileOptions', () => {
 
     expect(codeNode.lang).toBe('ts')
     expect(codeNode.meta).toBe('[example.ts]')
+  })
+
+  it('threads user-configured remark plugins into the txt profile', () => {
+    function userRemarkPlugin() {}
+    const config = Config.define({
+      markdown: { remarkPlugins: [userRemarkPlugin] },
+      rootDir: process.cwd(),
+    })
+
+    expect(getCompileOptions('txt', config).remarkPlugins).toContain(userRemarkPlugin)
+    expect(getCompileOptions('react', config).remarkPlugins).toContain(userRemarkPlugin)
   })
 })
 

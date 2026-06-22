@@ -1,3 +1,4 @@
+import type * as MdAst from 'mdast'
 import { describe, expect, it } from 'vitest'
 import * as Config from './config.js'
 import * as Search from './search.js'
@@ -746,6 +747,26 @@ Some content.
     `)
   })
 
+  it('handles title descriptions with inline code', () => {
+    const content = `
+# Common Package [How \`packages/common\` is structured, why it exists]
+
+Some content.
+`
+    expect(Search.extract(content, config).sections).toMatchInlineSnapshot(`
+      [
+        {
+          "anchor": "common-package",
+          "isPage": true,
+          "subtitle": "How packages/common is structured, why it exists",
+          "text": " Some content.",
+          "title": "Common Package",
+          "titles": [],
+        },
+      ]
+    `)
+  })
+
   it('includes JSX text content', () => {
     const content = `
 # Title
@@ -816,6 +837,25 @@ Some content here.
         },
       ]
     `)
+  })
+
+  it('applies user-configured remark plugins from config', () => {
+    function remarkUppercaseHeadings() {
+      return (tree: MdAst.Root) => {
+        for (const node of tree.children) {
+          if (node.type !== 'heading') continue
+          for (const child of node.children)
+            if (child.type === 'text') child.value = child.value.toUpperCase()
+        }
+      }
+    }
+
+    const customConfig = Config.define({
+      markdown: { remarkPlugins: [remarkUppercaseHeadings] },
+    })
+
+    const { sections } = Search.extract('# hello world\n\nSome text.', customConfig)
+    expect(sections[0]?.title).toBe('HELLO WORLD')
   })
 })
 

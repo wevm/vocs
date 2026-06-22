@@ -212,6 +212,10 @@ export function getCompileOptions(
           remarkExtractFrontmatter,
           remarkStripFrontmatter,
           remarkStripJs,
+          remarkStripInlineCache,
+          // User plugins extend the parser (e.g. `remark-math`) so syntax
+          // recognized in the React build also parses for llms/search.
+          ...(markdown?.remarkPlugins ?? []),
         ],
       }
     if (type === 'react')
@@ -322,13 +326,18 @@ export function getCompileOptions(
  */
 export function recmaMdxLayout(config: Config.Config) {
   const { rootDir, srcDir, pagesDir } = config
-  const pagesDirPath = path.join(rootDir, srcDir, pagesDir)
+  const pagesDirPath = path.resolve(rootDir, srcDir, pagesDir)
 
   const layoutPaths = new Map<string, string>()
 
   return () => (tree: Estree.Program, vfile: VFile) => {
     const fileName = vfile.basename ?? ''
     if (!fileName.endsWith('.mdx') && !fileName.endsWith('.md')) return
+    if (!vfile.path) return
+
+    const sourcePath = path.resolve(vfile.path)
+    const filePath = path.relative(pagesDirPath, sourcePath)
+    if (filePath.startsWith('..') || path.isAbsolute(filePath)) return
 
     const defaultExportIndex = tree.body.findIndex(
       (node) => node.type === 'ExportDefaultDeclaration',
@@ -345,8 +354,7 @@ export function recmaMdxLayout(config: Config.Config) {
       return `import _Layout from '${layoutPath}';`
     }
 
-    const lastModified = vfile.path ? Git.getLastModified(vfile.path) : undefined
-    const filePath = vfile.path ? path.relative(pagesDirPath, vfile.path) : undefined
+    const lastModified = Git.getLastModified(sourcePath)
 
     const importAst = EstreeUtil.fromJs(
       `import { MdxPageContext as _MdxPageContext } from 'vocs';
@@ -360,7 +368,7 @@ export function recmaMdxLayout(config: Config.Config) {
       `export function Page(props = {}) {
         const _frontmatter = { 
           ...frontmatter, 
-          filePath: ${filePath ? `"${filePath}"` : 'undefined'},
+          filePath: "${filePath}",
           lastModified: ${lastModified ? `"${lastModified}"` : 'undefined'},
         };
         return _createElement(
@@ -808,17 +816,15 @@ export function remarkDefaultFrontmatter() {
     const heading = (tree.children.find(
       (node) => node.type === 'heading' && (node as { depth: number }).depth === 1,
     ) ?? tree.children.find((node) => node.type === 'heading')) as
-      | { type: 'heading'; children: { type: string; value?: string }[] }
+      | { type: 'heading'; children: MdAst.PhrasingContent[] }
       | undefined
     if (!heading) return
 
-    // Extract text content
-    const textContent = heading.children.map((child) => child.value ?? '').join('')
-
-    // Parse title and description: "My Title [Description here]"
-    const match = textContent.match(/^(.+?)\s*\[(.+)\]$/)
-    const title = match?.[1]?.trim() ?? textContent.trim()
-    const description = match?.[2]?.trim()
+    const subheading = extractSubheading(heading.children)
+    const title = getPhrasingContentText(subheading?.headingChildren ?? heading.children).trim()
+    const description = subheading
+      ? getPhrasingContentText(subheading.subheadingChildren).trim()
+      : undefined
 
     // Build new frontmatter
     const newLines: string[] = []
@@ -1007,6 +1013,19 @@ export function remarkStripJs() {
 }
 
 /**
+ * Remark plugin that strips inline twoslash cache comments
+ * (`// @twoslash-cache: ...`) from code blocks. Used for the markdown
+ * (`.md`/llms) output so the persisted cache never leaks into rendered pages.
+ */
+export function remarkStripInlineCache() {
+  return (tree: MdAst.Root) => {
+    UnistUtil.visit(tree, 'code', (node) => {
+      node.value = InlineCache.stripInlineCacheComments(node.value)
+    })
+  }
+}
+
+/**
  * Remark plugin that strips the frontmatter from the document.
  */
 export function remarkStripFrontmatter() {
@@ -1021,25 +1040,15 @@ export function remarkStripFrontmatter() {
  * Converts `# Title [Subheading text]` into a `<header>` with both title and subtitle.
  */
 export function remarkSubheading() {
-  const subheadingRegex = / \[(.*)\]$/
-
   return (tree: MdAst.Root) => {
     UnistUtil.visit(tree, 'heading', (node, index, parent) => {
       if (index === undefined || !parent) return
       if (node.depth !== 1) return
       if (node.children.length === 0) return
 
-      // Find child with subheading pattern
-      const textChild = node.children.find(
-        (child): child is MdAst.Text => child.type === 'text' && subheadingRegex.test(child.value),
-      )
-      if (!textChild) return
-
-      // Extract and remove subheading from text
-      const match = textChild.value.match(subheadingRegex)
-      if (!match) return
-      const subheading = match[1]
-      textChild.value = textChild.value.replace(match[0], '')
+      const subheading = extractSubheading(node.children)
+      if (!subheading) return
+      node.children = subheading.headingChildren
 
       // Build hgroup wrapper with h1 and optional subtitle (p)
       const hgroup = {
@@ -1047,12 +1056,12 @@ export function remarkSubheading() {
         data: { hName: 'hgroup' },
         children: [
           node as unknown as MdAst.PhrasingContent,
-          ...(subheading
+          ...(subheading.subheadingChildren.length > 0
             ? [
                 {
                   type: 'paragraph',
                   data: { hName: 'p' },
-                  children: [{ type: 'text', value: subheading }],
+                  children: subheading.subheadingChildren,
                 } as unknown as MdAst.PhrasingContent,
               ]
             : []),
@@ -1064,6 +1073,64 @@ export function remarkSubheading() {
       return UnistUtil.SKIP
     })
   }
+}
+
+type Subheading = {
+  headingChildren: MdAst.PhrasingContent[]
+  subheadingChildren: MdAst.PhrasingContent[]
+}
+
+export function extractSubheading(children: MdAst.PhrasingContent[]): Subheading | undefined {
+  const lastChild = children[children.length - 1]
+  if (!isText(lastChild) || !lastChild.value.endsWith(']')) return
+
+  for (let index = children.length - 1; index >= 0; index--) {
+    const child = children[index]
+    if (!isText(child)) continue
+
+    const openIndex = child.value.lastIndexOf(' [')
+    if (openIndex === -1) continue
+
+    const headingChildren = clonePhrasingContent(children.slice(0, index))
+    const headingText = child.value.slice(0, openIndex)
+    if (headingText) headingChildren.push({ ...child, value: headingText })
+
+    const subheadingChildren = clonePhrasingContent(children.slice(index + 1))
+    const subheadingText = child.value.slice(openIndex + 2)
+    if (subheadingText) subheadingChildren.unshift({ ...child, value: subheadingText })
+
+    const finalChild = subheadingChildren[subheadingChildren.length - 1]
+    if (!isText(finalChild)) return
+    finalChild.value = finalChild.value.slice(0, -1)
+
+    return {
+      headingChildren,
+      subheadingChildren: subheadingChildren.filter(
+        (child) => !isText(child) || child.value.length > 0,
+      ),
+    }
+  }
+
+  return undefined
+}
+
+export function getPhrasingContentText(children: MdAst.PhrasingContent[]): string {
+  return children.map(getPhrasingNodeText).join('')
+}
+
+function clonePhrasingContent(children: MdAst.PhrasingContent[]) {
+  return children.map((child) => structuredClone(child))
+}
+
+function getPhrasingNodeText(child: MdAst.PhrasingContent): string {
+  if ('value' in child && typeof child.value === 'string') return child.value
+  if ('children' in child) return getPhrasingContentText(child.children)
+  if ('alt' in child && typeof child.alt === 'string') return child.alt
+  return ''
+}
+
+function isText(child: MdAst.PhrasingContent | undefined): child is MdAst.Text {
+  return child?.type === 'text'
 }
 
 const filenameRegex = /filename=["']([^"']+)["']/

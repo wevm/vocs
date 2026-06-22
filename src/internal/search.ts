@@ -14,6 +14,7 @@ import { unified } from 'unified'
 import * as UnistUtil from 'unist-util-visit'
 import * as yaml from 'yaml'
 import type * as Config from './config.js'
+import { extractSubheading, getPhrasingContentText } from './mdx.js'
 import * as OpenApiRegistry from './openapi/registry.js'
 import * as OpenApiSearch from './openapi/search.js'
 import * as Path from './path.js'
@@ -330,13 +331,16 @@ type Section = {
  * - `content`: raw markdown (sliced from source) for rendering in search UI
  * - `text`: stripped plain text (directives/JSX removed) for search indexing
  */
-export function extract(source: string, _config: Config.Config): extract.ReturnType {
+export function extract(source: string, config: Config.Config): extract.ReturnType {
   const remarkPlugins = [
     remarkFrontmatter,
     remarkDirective,
     remarkGfm,
     remarkStripJsx,
     remarkStripDirectives,
+    // User plugins extend the parser (e.g. `remark-math`) so syntax
+    // recognized in the React build also parses during indexing.
+    ...(config.markdown?.remarkPlugins ?? []),
   ]
 
   // Extract frontmatter with regex (avoids extra parse)
@@ -357,14 +361,17 @@ export function extract(source: string, _config: Config.Config): extract.ReturnT
   const headingPositions = tree.children
     .filter((node): node is MdAst.Heading => node.type === 'heading')
     .map((heading) => {
-      const rawTitle = mdastToString(heading).trim()
-      const subtitleMatch = rawTitle.match(/ \[(.+)\]$/)
+      const subheading = extractSubheading(heading.children)
+      const title = getPhrasingContentText(subheading?.headingChildren ?? heading.children).trim()
+      const subtitle = subheading
+        ? getPhrasingContentText(subheading.subheadingChildren).trim()
+        : ''
       return {
         depth: heading.depth,
         endOffset: heading.position?.end.offset ?? 0,
         startOffset: heading.position?.start.offset ?? 0,
-        subtitle: subtitleMatch?.[1] ?? '',
-        title: subtitleMatch ? rawTitle.replace(/ \[.+\]$/, '') : rawTitle,
+        subtitle,
+        title,
       }
     })
 
