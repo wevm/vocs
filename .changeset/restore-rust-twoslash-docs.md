@@ -2,4 +2,4 @@
 "vocs": patch
 ---
 
-Fixed Rust Twoslash docs rendering by using the committed docs cache and loading extra Shiki languages for Twoslash popovers.
+Fixed Rust Twoslash rendering by loading the required Shiki languages for Twoslash popovers.
