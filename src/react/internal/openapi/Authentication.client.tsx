@@ -9,9 +9,9 @@ import * as Auth from './auth.js'
 /**
  * Global authentication control for an OpenAPI section.
  *
- * Renders a compact button (typically top-right of a page header) that opens a
- * popover where the consumer enters their credentials once. The values persist
- * to `localStorage` (see {@link file://./auth.js}) and are read back by the
+ * Renders an inline panel (typically below a page header) where the consumer
+ * enters their credentials once. The values persist to `localStorage` (see
+ * {@link file://./auth.js}) and are read back by the
  * {@link file://./Playground.client.tsx playground provider} so every "Try"
  * request across the section is pre-authenticated — even though this panel
  * itself renders on pages (Introduction / domain overview) that don't mount the
@@ -32,9 +32,7 @@ export function Authentication(props: Authentication.Props) {
     [schemes],
   )
 
-  const [open, setOpen] = React.useState(false)
   const [values, setValues] = React.useState<Auth.AuthValues>({})
-  const rootRef = React.useRef<HTMLDivElement>(null)
 
   // Hydrate from storage on mount (client-only, avoids SSR mismatch) and keep in
   // sync with writes from other instances of this panel / other tabs.
@@ -42,23 +40,6 @@ export function Authentication(props: Authentication.Props) {
     setValues(Auth.read(mount))
     return Auth.subscribe(mount, () => setValues(Auth.read(mount)))
   }, [mount])
-
-  // Close on outside click / Escape.
-  React.useEffect(() => {
-    if (!open) return
-    const onPointerDown = (event: PointerEvent) => {
-      if (!rootRef.current?.contains(event.target as Node)) setOpen(false)
-    }
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setOpen(false)
-    }
-    document.addEventListener('pointerdown', onPointerDown)
-    document.addEventListener('keydown', onKeyDown)
-    return () => {
-      document.removeEventListener('pointerdown', onPointerDown)
-      document.removeEventListener('keydown', onKeyDown)
-    }
-  }, [open])
 
   if (entries.length === 0) return null
 
@@ -78,46 +59,32 @@ export function Authentication(props: Authentication.Props) {
   }
 
   return (
-    <div ref={rootRef} data-v-openapi-auth>
-      <button
-        type="button"
-        data-v-openapi-action
-        data-v-openapi-auth-trigger
-        data-configured={configured || undefined}
-        aria-expanded={open}
-        onClick={() => setOpen((value) => !value)}
-      >
-        <LucideKeyRound data-v-openapi-action-icon />
-        Authentication
-        {configured ? <span data-v-openapi-auth-dot aria-hidden /> : null}
-      </button>
-
-      {open ? (
-        <div data-v-openapi-auth-panel role="dialog" aria-label="Authentication">
-          <div data-v-openapi-auth-panel-header>
-            <span data-v-openapi-auth-panel-title>Authentication</span>
-            {configured ? (
-              <button type="button" data-v-openapi-auth-clear onClick={clearAll}>
-                Clear
-              </button>
-            ) : null}
-          </div>
-          <p data-v-openapi-auth-hint>
-            Credentials are stored in your browser and applied to every “Try” request.
-          </p>
-          <div data-v-openapi-auth-fields>
-            {entries.map((entry) => (
-              <Field
-                key={entry.name}
-                entry={entry}
-                value={values[entry.name]}
-                onChange={(patch) => update(entry.name, patch)}
-              />
-            ))}
-          </div>
-        </div>
-      ) : null}
-    </div>
+    <section data-v-openapi-auth aria-label="Authentication">
+      <div data-v-openapi-auth-header>
+        <span data-v-openapi-auth-title>
+          <LucideKeyRound data-v-openapi-auth-title-icon />
+          Authentication
+        </span>
+        {configured ? (
+          <button type="button" data-v-openapi-auth-clear onClick={clearAll}>
+            Clear
+          </button>
+        ) : null}
+      </div>
+      <p data-v-openapi-auth-hint>
+        Credentials are stored in your browser and applied to every “Try” request.
+      </p>
+      <div data-v-openapi-auth-fields>
+        {entries.map((entry) => (
+          <Field
+            key={entry.name}
+            entry={entry}
+            value={values[entry.name]}
+            onChange={(patch) => update(entry.name, patch)}
+          />
+        ))}
+      </div>
+    </section>
   )
 }
 

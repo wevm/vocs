@@ -40,11 +40,13 @@ export function ReferenceOverview(props: ReferenceOverview.Props) {
   const { ir, intro, endpoints } = props
   return (
     <div data-v-openapi data-v-openapi-landing>
-      <Authentication mount={ir.path} schemes={ir.securitySchemes} />
       {intro ? (
-        <div data-v-openapi-intro data-v-content>
-          {intro}
-        </div>
+        <>
+          <div data-v-openapi-intro data-v-content>
+            {intro}
+          </div>
+          <Authentication mount={ir.path} schemes={ir.securitySchemes} />
+        </>
       ) : (
         <>
           <header data-v-openapi-header>
@@ -53,6 +55,7 @@ export function ReferenceOverview(props: ReferenceOverview.Props) {
             </h1>
             {ir.info.description && <Prose markdown={ir.info.description} attr="description" />}
           </header>
+          <Authentication mount={ir.path} schemes={ir.securitySchemes} />
           {endpoints}
         </>
       )}
@@ -84,7 +87,6 @@ export function ReferenceGroup(props: ReferenceGroup.Props) {
   const { ir, group, intro } = props
   return (
     <div data-v-openapi>
-      <Authentication mount={ir.path} schemes={ir.securitySchemes} />
       {intro ? (
         // The override keeps the `group.id` anchor so the sidebar "Overview"
         // link and scroll-spy still resolve to this page.
@@ -100,6 +102,7 @@ export function ReferenceGroup(props: ReferenceGroup.Props) {
           {group.description && <Prose markdown={group.description} attr="description" />}
         </header>
       )}
+      <Authentication mount={ir.path} schemes={ir.securitySchemes} />
       {group.operations.map((operation, index) => (
         <Operation
           key={operation.id}
