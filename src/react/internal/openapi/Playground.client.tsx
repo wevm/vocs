@@ -149,42 +149,24 @@ export declare namespace PlaygroundProvider {
 
 /**
  * Builds Scalar's `authentication` client options from the consumer's persisted
- * global credentials so pre-selected security schemes resolve a token without
- * opening the modal's auth UI.
+ * global API key so the active security scheme resolves a token without opening
+ * the modal's auth UI.
  *
  * This is Scalar's documented preset API (`authentication.securitySchemes`
  * override values keyed by scheme name + `preferredSecurityScheme` to pick the
- * active one). Per-type value keys: apiKey → `value`, http `bearer` → `token`,
- * http `basic` → `username`/`password`.
+ * active one). The single key drives one scheme (see {@link Auth.primaryScheme}):
+ * apiKey overrides via `value`, http (bearer) via `token`.
  */
 function authOptions(mount: string, schemes: Record<string, IrSecurityScheme> | undefined) {
-  // biome-ignore lint/suspicious/noExplicitAny: Scalar's override-value shape is loosely typed.
-  const securitySchemes: Record<string, any> = {}
-  const preferred: string[] = []
+  const primary = Auth.primaryScheme(schemes)
+  const token = Auth.read(mount)
+  if (!primary || !token) return { authentication: { securitySchemes: {} } }
 
-  const values = Auth.read(mount)
-  for (const [name, scheme] of Object.entries(schemes ?? {})) {
-    const kind = Auth.authKind(scheme)
-    if (!kind) continue
-    const value = values[name]
-    if (kind === 'basic') {
-      if (!value?.username && !value?.password) continue
-      securitySchemes[name] = { username: value.username ?? '', password: value.password ?? '' }
-      preferred.push(name)
-    } else {
-      if (!value?.token) continue
-      // apiKey overrides via `value`; http (bearer) via `token`.
-      securitySchemes[name] =
-        scheme.type === 'apiKey' ? { value: value.token } : { token: value.token }
-      preferred.push(name)
-    }
-  }
-
+  const value = primary.scheme.type === 'apiKey' ? { value: token } : { token }
   return {
     authentication: {
-      securitySchemes,
-      // Select a configured scheme so its value is actually applied to requests.
-      ...(preferred.length > 0 ? { preferredSecurityScheme: preferred[0] } : {}),
+      securitySchemes: { [primary.name]: value },
+      preferredSecurityScheme: primary.name,
     },
   }
 }

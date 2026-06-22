@@ -3,33 +3,19 @@ import type { IrSecurityScheme } from '../../../internal/openapi/parser.js'
 /**
  * Client-side persistence for the OpenAPI playground's global authentication.
  *
- * The {@link file://./Authentication.client.tsx authentication panel} writes the
- * consumer's credentials here (keyed per spec mount) and the
- * {@link file://./Playground.client.tsx playground provider} reads them back to
- * seed Scalar's API client, so a token entered once applies to every "Try"
+ * The {@link file://./Authentication.client.tsx authentication panel} writes a
+ * single API key here (keyed per spec mount) and the
+ * {@link file://./Playground.client.tsx playground provider} reads it back to
+ * seed Scalar's API client, so a key entered once applies to every "Try"
  * request across the section — including on pages (Introduction/overview) that
  * never mount the playground modal themselves.
  *
- * Values live in `localStorage` so they survive reloads. Everything is guarded
- * for SSR (no `window`) and degrades to an in-memory no-op when storage is
- * unavailable (private mode, blocked cookies).
+ * We are intentionally opinionated: a single token is captured and sent as a
+ * bearer credential (falling back to an apiKey scheme when the spec has no
+ * bearer scheme). The value lives in `localStorage` so it survives reloads, and
+ * everything is guarded for SSR (no `window`) and degrades to a no-op when
+ * storage is unavailable (private mode, blocked cookies).
  */
-
-/** Per-scheme credentials the consumer has entered. */
-export type AuthValue = {
-  /** Bearer token / API key (apiKey + http `bearer`). */
-  token?: string | undefined
-  /** Username (http `basic`). */
-  username?: string | undefined
-  /** Password (http `basic`). */
-  password?: string | undefined
-}
-
-/** All credentials for a single spec mount, keyed by security scheme name. */
-export type AuthValues = Record<string, AuthValue>
-
-/** Auth "kind" we surface a field set for. Other types are ignored. */
-export type AuthKind = 'token' | 'basic'
 
 const prefix = 'vocs:openapi-auth:'
 const eventName = 'vocs:openapi-auth-change'
@@ -38,39 +24,44 @@ function storageKey(mount: string) {
   return prefix + (mount || '/')
 }
 
-/** Classify a security scheme into the field set we render, or `null` to skip. */
-export function authKind(scheme: IrSecurityScheme): AuthKind | null {
-  if (scheme.type === 'apiKey') return 'token'
-  if (scheme.type === 'http') {
-    const httpScheme = String((scheme as { scheme?: string }).scheme ?? '').toLowerCase()
-    if (httpScheme === 'basic') return 'basic'
-    // `bearer` (and any other single-token http scheme) → token field.
-    return 'token'
-  }
-  // oauth2 / openIdConnect are not supported by the simple global panel.
+/**
+ * The security scheme the global API key applies to. Opinionated preference:
+ * an `http` `bearer` scheme first, then an `apiKey` scheme, then any other
+ * single-token `http` scheme. Returns `null` when the spec has no scheme we can
+ * drive with a single token (e.g. only `oauth2`/`openIdConnect`).
+ */
+export function primaryScheme(
+  schemes: Record<string, IrSecurityScheme> | undefined,
+): { name: string; scheme: IrSecurityScheme } | null {
+  const entries = Object.entries(schemes ?? {})
+  const isHttp = (scheme: IrSecurityScheme, want: string) =>
+    scheme.type === 'http' &&
+    String((scheme as { scheme?: string }).scheme ?? '').toLowerCase() === want
+  const bearer = entries.find(([, scheme]) => isHttp(scheme, 'bearer'))
+  if (bearer) return { name: bearer[0], scheme: bearer[1] }
+  const apiKey = entries.find(([, scheme]) => scheme.type === 'apiKey')
+  if (apiKey) return { name: apiKey[0], scheme: apiKey[1] }
+  const http = entries.find(([, scheme]) => scheme.type === 'http')
+  if (http) return { name: http[0], scheme: http[1] }
   return null
 }
 
-/** Read persisted credentials for a mount (empty object when none/SSR). */
-export function read(mount: string): AuthValues {
-  if (typeof window === 'undefined') return {}
+/** Read the persisted API key for a mount (empty string when none/SSR). */
+export function read(mount: string): string {
+  if (typeof window === 'undefined') return ''
   try {
-    const raw = window.localStorage.getItem(storageKey(mount))
-    if (!raw) return {}
-    const parsed = JSON.parse(raw)
-    return parsed && typeof parsed === 'object' ? (parsed as AuthValues) : {}
+    return window.localStorage.getItem(storageKey(mount)) ?? ''
   } catch {
-    return {}
+    return ''
   }
 }
 
-/** Persist credentials for a mount and notify listeners (this tab + others). */
-export function write(mount: string, values: AuthValues): void {
+/** Persist the API key for a mount and notify listeners (this tab + others). */
+export function write(mount: string, token: string): void {
   if (typeof window === 'undefined') return
   try {
-    const pruned = prune(values)
-    if (Object.keys(pruned).length === 0) window.localStorage.removeItem(storageKey(mount))
-    else window.localStorage.setItem(storageKey(mount), JSON.stringify(pruned))
+    if (token) window.localStorage.setItem(storageKey(mount), token)
+    else window.localStorage.removeItem(storageKey(mount))
   } catch {}
   // `storage` events only fire in *other* tabs, so dispatch our own for the
   // current document (the panel and the playground provider both listen).
@@ -80,7 +71,7 @@ export function write(mount: string, values: AuthValues): void {
 }
 
 /**
- * Subscribe to credential changes for a mount. Fires on same-tab writes (via the
+ * Subscribe to API key changes for a mount. Fires on same-tab writes (via the
  * custom event) and cross-tab writes (via the native `storage` event). Returns
  * an unsubscribe function.
  */
@@ -98,22 +89,4 @@ export function subscribe(mount: string, callback: () => void): () => void {
     window.removeEventListener(eventName, onCustom)
     window.removeEventListener('storage', onStorage)
   }
-}
-
-/** Drop empty fields/schemes so storage only holds meaningful values. */
-function prune(values: AuthValues): AuthValues {
-  const out: AuthValues = {}
-  for (const [name, value] of Object.entries(values)) {
-    const entry: AuthValue = {}
-    if (value.token) entry.token = value.token
-    if (value.username) entry.username = value.username
-    if (value.password) entry.password = value.password
-    if (Object.keys(entry).length > 0) out[name] = entry
-  }
-  return out
-}
-
-/** True when a scheme has any credential filled in. */
-export function isFilled(value: AuthValue | undefined): boolean {
-  return Boolean(value && (value.token || value.username || value.password))
 }
