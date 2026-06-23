@@ -76,6 +76,12 @@ describe('compileSource', () => {
     expect(page.blocks.some((b) => b.type === 'html' && b.html.includes('import'))).toBe(false)
   })
 
+  test('parses an Endpoints resource attribute', () => {
+    const page = compileSource('/', '<OpenApi.Endpoints path="/api" resource="rpc" />')
+    const endpoints = page.blocks.find((block) => block.type === 'endpoints')
+    expect(endpoints).toMatchObject({ type: 'endpoints', path: '/api', resource: 'rpc' })
+  })
+
   test('normalizes the route path', () => {
     expect(compileSource('auth/', 'x').path).toBe('/auth')
   })

@@ -95,7 +95,11 @@ export function compileSource(routePath: string, source: string): CompiledPage {
     const index = match.index ?? 0
     const before = body.slice(lastIndex, index)
     pushHtml(blocks, before)
-    blocks.push({ type: 'endpoints', path: parsePath(match[1] ?? '') })
+    blocks.push({
+      type: 'endpoints',
+      path: parseAttr(match[1] ?? '', 'path'),
+      resource: parseAttr(match[1] ?? '', 'resource'),
+    })
     lastIndex = index + match[0].length
   }
   pushHtml(blocks, body.slice(lastIndex))
@@ -120,9 +124,9 @@ function pushHtml(blocks: PageBlock[], markdown: string): void {
   blocks.push({ type: 'html', html: Markdown.toHtml(cleaned) })
 }
 
-/** Extracts the `path="..."` attribute from an `<Endpoints>` tag, if present. */
-function parsePath(attrs: string): string | undefined {
-  const match = attrs.match(/\bpath\s*=\s*["']([^"']*)["']/)
+/** Extracts a named string attribute from an `<Endpoints>` tag, if present. */
+function parseAttr(attrs: string, name: string): string | undefined {
+  const match = attrs.match(new RegExp(`\\b${name}\\s*=\\s*["']([^"']*)["']`))
   return match?.[1]
 }
 

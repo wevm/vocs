@@ -17,7 +17,7 @@ function Block(props: { block: PageBlock }) {
   const { block } = props
   // `<OpenApi.Endpoints />` blocks rehydrate as the real component (resolves the
   // spec from `virtual:vocs/openapi`); everything else is server-compiled HTML.
-  if (block.type === 'endpoints') return <Endpoints path={block.path} />
+  if (block.type === 'endpoints') return <Endpoints path={block.path} resource={block.resource} />
   // Render as a genuine Vocs content article so the compiled markdown elements
   // are direct children of `[data-v-content]` — this is what the markdown
   // typography rules (heading borders/padding, `space-y-6` base rhythm) target.

@@ -37,6 +37,7 @@ export function Endpoints(props: Endpoints.Props) {
   return (
     <EndpointsView
       ir={ir}
+      resource={props.resource}
       href={(to) => to}
       Link={({ href, children, ...rest }) => (
         <Link to={href ?? ''} {...rest}>
@@ -54,5 +55,11 @@ export declare namespace Endpoints {
      * Optional when only one spec is configured.
      */
     path?: string | undefined
+    /**
+     * Renders a flat list of all operations for a single resource (category)
+     * instead of the full accordion. Matches a category by its `id`, or
+     * case-insensitively by `name` (e.g. `resource="rpc"`).
+     */
+    resource?: string | undefined
   }
 }

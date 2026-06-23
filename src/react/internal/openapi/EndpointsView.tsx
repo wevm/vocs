@@ -16,10 +16,37 @@ import { Disclosure } from './Disclosure.client.js'
  * client).
  */
 export function EndpointsView(props: EndpointsView.Props) {
-  const { ir, href, Link = DefaultLink } = props
+  const { ir, href, Link = DefaultLink, resource } = props
   // Root-mounted specs have `ir.path === '/'`; collapse it to '' so links read
   // `/group#op` instead of `//group#op` (which the browser treats as a host).
   const base = ir.path === '/' ? '' : ir.path.replace(/\/$/, '')
+
+  // `resource` renders a single category's operations as a flat list (no
+  // accordion). Match by stable `id` first, then case-insensitively by `name`.
+  if (resource !== undefined) {
+    const category = ir.groups.find(
+      (group) => group.id === resource || group.name.toLowerCase() === resource.toLowerCase(),
+    )
+    if (!category)
+      return (
+        <p>
+          No resource named <code>{resource}</code> found.
+        </p>
+      )
+    return (
+      <ul data-v-openapi-overview-endpoints data-v-openapi-overview-resource>
+        {category.operations.map((operation) => (
+          <EndpointItem
+            key={operation.id}
+            Link={Link}
+            href={href(`${base}/${category.id}#${operation.id}`)}
+            operation={operation}
+          />
+        ))}
+      </ul>
+    )
+  }
+
   return (
     <div data-v-openapi-overview>
       {ir.groups.map((category) => (
@@ -39,24 +66,35 @@ export function EndpointsView(props: EndpointsView.Props) {
           >
             <ul data-v-openapi-overview-endpoints>
               {category.operations.map((operation) => (
-                <li key={operation.id}>
-                  <Link
-                    href={href(`${base}/${category.id}#${operation.id}`)}
-                    data-v-openapi-overview-endpoint
-                  >
-                    <Badge variant={methodVariant(operation.method)}>{operation.method}</Badge>
-                    <span data-v-openapi-overview-endpoint-title>
-                      {operation.summary || operation.path}
-                    </span>
-                    <LucideChevronRight data-v-openapi-overview-endpoint-chevron />
-                  </Link>
-                </li>
+                <EndpointItem
+                  key={operation.id}
+                  Link={Link}
+                  href={href(`${base}/${category.id}#${operation.id}`)}
+                  operation={operation}
+                />
               ))}
             </ul>
           </Disclosure>
         </div>
       ))}
     </div>
+  )
+}
+
+function EndpointItem(props: {
+  Link: ComponentType<React.ComponentProps<'a'>>
+  href: string
+  operation: Ir['groups'][number]['operations'][number]
+}) {
+  const { Link, href, operation } = props
+  return (
+    <li>
+      <Link href={href} data-v-openapi-overview-endpoint>
+        <Badge variant={methodVariant(operation.method)}>{operation.method}</Badge>
+        <span data-v-openapi-overview-endpoint-title>{operation.summary || operation.path}</span>
+        <LucideChevronRight data-v-openapi-overview-endpoint-chevron />
+      </Link>
+    </li>
   )
 }
 
@@ -72,5 +110,10 @@ export declare namespace EndpointsView {
     href: (to: string) => string
     /** Link component. Defaults to a plain anchor. */
     Link?: ComponentType<React.ComponentProps<'a'>> | undefined
+    /**
+     * Renders a single category's operations as a flat list (no accordion).
+     * Matches a category by its `id`, or case-insensitively by `name`.
+     */
+    resource?: string | undefined
   }
 }

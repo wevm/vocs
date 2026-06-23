@@ -95,6 +95,15 @@
 [data-v-openapi-overview-endpoints] {
   @apply vocs:flex vocs:flex-col vocs:gap-2;
 }
+/* Flat `resource` variant renders the endpoint list on its own (no enclosing
+   accordion card), so reset the default list inset/marker it would otherwise
+   inherit from markdown typography. */
+[data-v-openapi-overview-resource] {
+  @apply vocs:list-none vocs:p-0 vocs:m-0;
+}
+[data-v-openapi-overview-resource] > li {
+  @apply vocs:p-0 vocs:m-0;
+}
 [data-v-openapi-overview-endpoint] {
   @apply vocs:flex vocs:items-center vocs:gap-3 vocs:bg-primary vocs:border vocs:border-primary vocs:rounded-lg vocs:px-3 vocs:py-2;
 }
