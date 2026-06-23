@@ -1,5 +1,11 @@
 # vocs
 
+## 2.1.5
+
+### Patch Changes
+
+- 85f6a38: Added a `resource` prop to `<OpenApi.Endpoints />` that renders a flat list of all endpoints for a single resource (e.g. `<OpenApi.Endpoints resource="rpc" />`).
+
 ## 2.1.4
 
 ### Patch Changes
