@@ -17,9 +17,30 @@ const maxDepth = 5
 /** Active in-page anchor id, for hash-link sidebar items (e.g. OpenAPI). */
 const ActiveAnchorContext = React.createContext<string | null>(null)
 
+/**
+ * The set of in-page anchor ids that the sidebar actually links to (the `#frag`
+ * of every hash-link item). Used so page-level items only defer their active
+ * state to anchors that have a corresponding sidebar item — not to arbitrary
+ * headings on a standalone guide page that happens to live under a section
+ * whose sidebar uses hash links elsewhere.
+ */
+const HashIdsContext = React.createContext<ReadonlySet<string>>(new Set())
+
 /** Whether any sidebar item links to an in-page anchor. */
 function hasHashLink(items: Sidebar_core.SidebarItem[]): boolean {
   return items.some((item) => item.link?.includes('#') || (item.items && hasHashLink(item.items)))
+}
+
+/** Collects the `#fragment` ids of every hash-link sidebar item. */
+function collectHashIds(items: Sidebar_core.SidebarItem[], ids = new Set<string>()): Set<string> {
+  for (const item of items) {
+    if (item.link?.includes('#')) {
+      const id = item.link.split('#')[1]
+      if (id) ids.add(id)
+    }
+    if (item.items) collectHashIds(item.items, ids)
+  }
+  return ids
 }
 
 /**
@@ -93,30 +114,33 @@ export function Sidebar(props: Sidebar.Props) {
     [sidebar.items],
   )
   const hashLinks = React.useMemo(() => hasHashLink(sidebar.items), [sidebar.items])
+  const hashIds = React.useMemo(() => collectHashIds(sidebar.items), [sidebar.items])
   const { path } = useRouter()
   const activeAnchor = useActiveAnchor(hashLinks, path)
 
   return (
-    <ActiveAnchorContext.Provider value={activeAnchor}>
-      <nav
-        className={cx(
-          "vocs:flex-1 vocs:flex vocs:flex-col vocs:text-sm vocs:font-[450] vocs:[&>*:not(:last-child)[data-collapsed='false']]:mb-4",
-          className,
-        )}
-        data-v-sidebar
-      >
-        {sidebar.backLink && <BackLink onNavigate={onNavigate} />}
-        {sidebar.items.map((item, i) => (
-          <Section
-            key={`${item.text}-${i}`}
-            {...item}
-            condensed={condenseSidebar}
-            onNavigate={onNavigate}
-            scrollRef={scrollRef}
-          />
-        ))}
-      </nav>
-    </ActiveAnchorContext.Provider>
+    <HashIdsContext.Provider value={hashIds}>
+      <ActiveAnchorContext.Provider value={activeAnchor}>
+        <nav
+          className={cx(
+            "vocs:flex-1 vocs:flex vocs:flex-col vocs:text-sm vocs:font-[450] vocs:[&>*:not(:last-child)[data-collapsed='false']]:mb-4",
+            className,
+          )}
+          data-v-sidebar
+        >
+          {sidebar.backLink && <BackLink onNavigate={onNavigate} />}
+          {sidebar.items.map((item, i) => (
+            <Section
+              key={`${item.text}-${i}`}
+              {...item}
+              condensed={condenseSidebar}
+              onNavigate={onNavigate}
+              scrollRef={scrollRef}
+            />
+          ))}
+        </nav>
+      </ActiveAnchorContext.Provider>
+    </HashIdsContext.Provider>
   )
 }
 
@@ -175,6 +199,7 @@ function Item(props: Item.Props) {
   const { path } = useRouter()
   const isExternal = external ?? Path.isExternal(link)
   const activeAnchor = React.useContext(ActiveAnchorContext)
+  const hashIds = React.useContext(HashIdsContext)
   const hashId = link?.includes('#') ? link.split('#')[1] : undefined
   const active = React.useMemo(() => {
     if (isExternal) return false
@@ -187,8 +212,13 @@ function Item(props: Item.Props) {
     // anchor item below it is highlighted instead.
     if (activeAnchor == null) return true
     const topId = (link?.split('#')[0] ?? '').split('/').filter(Boolean).pop()
-    return activeAnchor === topId
-  }, [path, link, isExternal, hashId, activeAnchor])
+    if (activeAnchor === topId) return true
+    // Only defer to the active anchor when it corresponds to an actual hash-link
+    // sidebar item (a sibling section on this same page). Otherwise the anchor is
+    // just an in-page heading on a standalone guide page that lives under a
+    // section whose sidebar uses hash links elsewhere — keep this item active.
+    return !hashIds.has(activeAnchor)
+  }, [path, link, isExternal, hashId, activeAnchor, hashIds])
 
   const itemRef = React.useRef<HTMLElement>(null)
   const prevPath = React.useRef(path)
