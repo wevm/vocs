@@ -1,5 +1,11 @@
 # vocs
 
+## 2.1.3
+
+### Patch Changes
+
+- 73cad45: Fixed OpenAPI playground requests for remote specs with relative server URLs.
+
 ## 2.1.2
 
 ### Patch Changes
