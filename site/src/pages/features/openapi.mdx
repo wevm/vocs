@@ -76,6 +76,28 @@ import { OpenApi } from 'vocs'
 
 `path` identifies which spec to render. It can be omitted when only one `openapi` entry is configured.
 
+### Embed a Single Operation in a Page
+
+The `<OpenApi.Operation />` component renders one endpoint inline — the same block used on the generated reference pages, including the sticky request/response code sample and its interactive "Try" playground. Use it to document a single endpoint inside a guide.
+
+Target the operation by `operationId`:
+
+```mdx [src/pages/api/auth.mdx]
+import { OpenApi } from 'vocs'
+
+# Authentication
+
+<OpenApi.Operation operationId="createSession" /> // [!code focus]
+```
+
+…or by `method` + `path`:
+
+```mdx
+<OpenApi.Operation method="POST" path="/v1/sessions" />
+```
+
+`operationId` matches the operation's anchor id (the slugified `operationId` from the spec). Pass `spec` to select a spec when multiple `openapi` entries are configured, and `headingLevel` (`2` or `3`) to fit the title into your page's heading hierarchy.
+
 ### Mount a Reference on a Server
 
 `Handler.openApi` from `vocs/server` builds a standalone reference, rendered entirely client-side by a prebuilt bundle shipped inside Vocs, that mounts onto any Hono server. It accepts the same config as a `vocs.config.ts` `openapi` entry, except `path` is optional (the host server provides the mount location).

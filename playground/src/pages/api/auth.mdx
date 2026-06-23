@@ -2,6 +2,8 @@
 title: Authentication
 ---
 
+import { OpenApi } from 'vocs'
+
 # Authentication
 
 This is a **consumer-authored guide page** mounted at `/api/auth`, linked from
@@ -9,3 +11,15 @@ the OpenAPI section sidebar via the `openapi[].sidebar.top` config option.
 
 Use it for content that isn't generated from the spec — authentication,
 rate limits, errors, changelogs, etc.
+
+## Embedded operation
+
+A single endpoint embedded inline via `<OpenApi.Operation />`, including the
+sticky request/response code sample and its interactive "Try" playground —
+targeted by `operationId`:
+
+<OpenApi.Operation operationId="getBlocks" />
+
+And the same component targeted by `method` + `path`:
+
+<OpenApi.Operation method="GET" path="/v1/transactions/{transaction}" />

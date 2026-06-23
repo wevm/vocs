@@ -3,3 +3,4 @@
  * `<OpenApi.Endpoints />`).
  */
 export { Endpoints } from './internal/openapi/Endpoints.js'
+export { Operation } from './internal/openapi/OperationStandalone.js'
