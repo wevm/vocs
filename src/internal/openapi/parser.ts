@@ -270,7 +270,13 @@ export async function parse(config: OpenApi.Config, options: parse.Options = {})
   // (the request origin in the standalone server handler).
   const openrpcBaseUrl = specUrl ?? options.baseUrl
 
-  const servers = (document.servers ?? [])
+  const serverEntries =
+    document.servers && document.servers.length > 0
+      ? document.servers
+      : specUrl
+        ? [{ url: '/' }]
+        : []
+  const servers = serverEntries
     .map((server) => ({
       url: resolveServerUrl(server.url ?? '', specUrl),
       description: server.description,
@@ -289,8 +295,12 @@ export async function parse(config: OpenApi.Config, options: parse.Options = {})
   for (const injection of injections)
     injectRpcExamples(specification as Record<string, unknown>, injection)
 
+  const shouldInlineClientSpec =
+    injections.length > 0 || (isUrl && shouldNormalizeClientServers(document, servers))
+  if (shouldInlineClientSpec) setClientServers(specification as Record<string, unknown>, servers)
+
   const client =
-    isUrl && injections.length === 0
+    isUrl && !shouldInlineClientSpec
       ? { url: spec as string }
       : { content: specification as Record<string, unknown> }
 
@@ -385,6 +395,29 @@ function resolveServerUrl(url: string, specUrl: string | undefined): string {
   } catch {
     return url
   }
+}
+
+/**
+ * Scalar resolves relative server URLs against the docs app origin when it
+ * fetches a remote spec by URL. Inline the normalized spec instead so `Try`
+ * targets the host that served the OpenAPI document.
+ */
+function shouldNormalizeClientServers(document: Document, servers: IrServer[]): boolean {
+  if (servers.length === 0) return false
+  if (!document.servers || document.servers.length === 0) return true
+  return document.servers.some((server) => {
+    const url = server.url ?? ''
+    return !url || !/^https?:\/\//.test(url)
+  })
+}
+
+/** Writes resolved server URLs into the spec handed to the API client. */
+function setClientServers(specification: Record<string, unknown>, servers: IrServer[]): void {
+  if (servers.length === 0) return
+  specification['servers'] = servers.map((server) => ({
+    url: server.url,
+    ...(server.description ? { description: server.description } : {}),
+  }))
 }
 
 /** Resolves a spec input to a raw definition (object or string content). */

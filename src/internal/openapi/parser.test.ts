@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest'
+import { describe, expect, test, vi } from 'vitest'
 import * as OpenApi from './openapi.js'
 import { parse } from './parser.js'
 
@@ -186,6 +186,45 @@ describe('parse', () => {
     const ir = await parse(OpenApi.from({ spec, path: '/api' }))
     const fallback = ir.groups.find((group) => group.name === 'default')
     expect(fallback?.operations.map((op) => op.id)).toEqual(['health'])
+  })
+
+  test('inlines remote specs with relative servers for the API client', async () => {
+    const fetch_ = globalThis.fetch
+    const remoteSpec = {
+      openapi: '3.1.0',
+      info: { title: 'Remote API', version: '1.0.0' },
+      servers: [{ url: '/', description: 'Relative to the spec host' }],
+      paths: {
+        '/health': {
+          get: { operationId: 'health', summary: 'Health check', responses: { '200': {} } },
+        },
+      },
+    }
+    globalThis.fetch = vi.fn(async () => new Response(JSON.stringify(remoteSpec))) as never
+    try {
+      const ir = await parse(
+        OpenApi.from({ spec: 'https://api.example.com/openapi.json', path: '/api' }),
+      )
+
+      expect(ir.servers).toEqual([
+        {
+          url: 'https://api.example.com',
+          description: 'Relative to the spec host',
+        },
+      ])
+      expect(ir.client).toEqual({
+        content: expect.objectContaining({
+          servers: [
+            {
+              url: 'https://api.example.com',
+              description: 'Relative to the spec host',
+            },
+          ],
+        }),
+      })
+    } finally {
+      globalThis.fetch = fetch_
+    }
   })
 })
 
