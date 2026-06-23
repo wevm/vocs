@@ -78,3 +78,14 @@
 .scalar-app input[type="checkbox"].peer:not(:checked) ~ div svg {
   color: transparent;
 }
+
+/*
+ * Disabled request parameters keep their value visible, but they should recede
+ * from active rows. Scalar renders the checkbox inside the first cell and the
+ * value inside the third cell.
+ */
+.scalar-app[data-v-openapi-playground-root] tr:has(input[type="checkbox"].peer:not(:checked))
+  > td:nth-child(3)
+  :is(.code-input-lite__editor, [data-testid="code-input-lite-disabled"], .text-c-1) {
+  color: var(--scalar-color-3);
+}
