@@ -19,7 +19,7 @@ import type { Ir } from './parser.js'
  */
 export type PageBlock =
   | { type: 'html'; html: string }
-  | { type: 'endpoints'; path?: string | undefined }
+  | { type: 'endpoints'; path?: string | undefined; resource?: string | undefined }
 
 /**
  * A compiled consumer-authored page, keyed by its section-relative route.
