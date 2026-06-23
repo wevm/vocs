@@ -1,5 +1,11 @@
 # vocs
 
+## 2.1.4
+
+### Patch Changes
+
+- bbf3a4f: Muted disabled Scalar modal request values.
+
 ## 2.1.3
 
 ### Patch Changes
