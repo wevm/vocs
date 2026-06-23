@@ -98,6 +98,18 @@ import { OpenApi } from 'vocs'
 
 `operationId` matches the operation's anchor id (the slugified `operationId` from the spec). Pass `spec` to select a spec when multiple `openapi` entries are configured, and `headingLevel` (`2` or `3`) to fit the title into your page's heading hierarchy.
 
+### Embed Just the Playground
+
+The `<OpenApi.Playground />` component renders only the interactive request/response code sample box — Copy, "Try", and per-status tabs — with none of the surrounding documentation. Use it when you want the live endpoint sample inline in your own prose.
+
+```mdx
+import { OpenApi } from 'vocs'
+
+<OpenApi.Playground operationId="getBlocks" /> // [!code focus]
+```
+
+It takes the same targeting props as `<OpenApi.Operation />` (`operationId`, or `method` + `path`, plus `spec`).
+
 ### Mount a Reference on a Server
 
 `Handler.openApi` from `vocs/server` builds a standalone reference, rendered entirely client-side by a prebuilt bundle shipped inside Vocs, that mounts onto any Hono server. It accepts the same config as a `vocs.config.ts` `openapi` entry, except `path` is optional (the host server provides the mount location).
