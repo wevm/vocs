@@ -1,5 +1,11 @@
 # vocs
 
+## 2.1.0
+
+### Minor Changes
+
+- 645e182: Added OpenAPI integration.
+
 ## 2.0.17
 
 ### Patch Changes
