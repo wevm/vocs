@@ -1,5 +1,11 @@
 # vocs
 
+## 2.1.1
+
+### Patch Changes
+
+- 9940d95: Fixed Rust Twoslash rendering by loading the required Shiki languages for Twoslash popovers.
+
 ## 2.1.0
 
 ### Minor Changes
