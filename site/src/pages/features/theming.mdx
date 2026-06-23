@@ -123,7 +123,8 @@ Load fonts in `_root.css`, then point the Vocs font variables at them.
 }
 ```
 
-Put the font files in `public/fonts` or another static asset path. See also: [Asset Handling](/writing/assets).
+Put the font files in `public/fonts` or another static asset path. For package-based
+font loading with Vite's CSS processing, see [Fonts](/features/fonts).
 
 ### Pick Code Block Themes
 
@@ -257,5 +258,11 @@ Vocs exposes the following user-overridable CSS variables. Set them in `_root.cs
     description="Shiki themes, language aliases, and syntax highlighting options."
     icon="code"
     to="/reference/site-config#codehighlight"
+  />
+  <Card
+    title="Fonts"
+    description="Load custom fonts with Vite and Vocs CSS variables."
+    icon="type"
+    to="/features/fonts"
   />
 </Cards>

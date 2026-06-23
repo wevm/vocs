@@ -15,6 +15,7 @@ type Page =
   | { path: '/features/changelog-generation'; render: 'static' }
   | { path: '/features/dynamic-og-images'; render: 'static' }
   | { path: '/features/feedback'; render: 'static' }
+  | { path: '/features/fonts'; render: 'static' }
   | { path: '/features/layouts'; render: 'static' }
   | { path: '/features/mcp-server'; render: 'static' }
   | { path: '/features/navigation'; render: 'static' }

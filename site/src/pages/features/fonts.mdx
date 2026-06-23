@@ -1,0 +1,170 @@
+import { Card, Cards } from 'vocs'
+
+# Fonts [Load custom fonts with Vite and Vocs CSS variables]
+
+## Overview
+
+Vocs reads global styles from `src/pages/_root.css`, which makes it the right place
+to load fonts and set the typography tokens used by the built-in UI.
+
+You can load fonts from npm packages with Vite's CSS processing or reference font
+files from `public/`. After the font is loaded, point `--vocs-font-family` and
+`--vocs-font-family-mono` at the family names you want Vocs to use.
+
+## Setup
+
+::::steps
+
+### Install Font Packages
+
+Add the font packages to your project. This example uses `@fontsource/inter` for
+body text and `@fontsource/jetbrains-mono` for code.
+
+:::code-group
+
+```bash [npm]
+npm install @fontsource/inter @fontsource/jetbrains-mono
+```
+
+```bash [pnpm]
+pnpm add @fontsource/inter @fontsource/jetbrains-mono
+```
+
+```bash [yarn]
+yarn add @fontsource/inter @fontsource/jetbrains-mono
+```
+
+```bash [bun]
+bun add @fontsource/inter @fontsource/jetbrains-mono
+```
+
+:::
+
+### Import Fonts
+
+Create `src/pages/_root.css`, then import the font weights you use. Vite resolves
+CSS imports from npm packages and bundles the font files with your site.
+
+```css [src/pages/_root.css]
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/inter/600.css';
+@import '@fontsource/inter/700.css';
+@import '@fontsource/jetbrains-mono/400.css';
+@import '@fontsource/jetbrains-mono/500.css';
+@import '@fontsource/jetbrains-mono/600.css';
+```
+
+### Set Font Variables
+
+Map the loaded families to Vocs CSS variables.
+
+```css [src/pages/_root.css]
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/inter/600.css';
+@import '@fontsource/inter/700.css';
+@import '@fontsource/jetbrains-mono/400.css';
+@import '@fontsource/jetbrains-mono/500.css';
+@import '@fontsource/jetbrains-mono/600.css';
+
+:root {
+  --vocs-font-family: 'Inter', sans-serif; /* [!code focus:2] */
+  --vocs-font-family-mono: 'JetBrains Mono', monospace;
+}
+```
+
+::::
+
+## Recipes
+
+### Loading Files From `public/`
+
+Use `@font-face` when you have your own font files. Put them in `public/fonts`,
+then reference them by URL from `_root.css`.
+
+:::file-tree
+- +public
+  - +fonts
+    - **soehne-buch.woff2**
+    - **ibm-plex-mono.woff2**
+- +src
+  - +pages
+    - **_root.css**
+:::
+
+```css [src/pages/_root.css]
+@font-face {
+  font-family: 'Soehne';
+  src: url('/fonts/soehne-buch.woff2') format('woff2');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'IBM Plex Mono';
+  src: url('/fonts/ibm-plex-mono.woff2') format('woff2');
+  font-display: swap;
+}
+
+:root {
+  --vocs-font-family: 'Soehne', sans-serif;
+  --vocs-font-family-mono: 'IBM Plex Mono', monospace;
+}
+```
+
+### Using One Font Family
+
+Set only the family you want to change. Unset variables continue using the Vocs
+default.
+
+```css [src/pages/_root.css]
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/600.css';
+
+:root {
+  --vocs-font-family: 'Inter', sans-serif;
+}
+```
+
+### Tuning Tailwind
+
+If you use Tailwind for custom page UI, map Vocs font variables into Tailwind
+theme tokens so your MDX and React components share the same typography.
+
+```css [src/pages/_root.css]
+@import 'tailwindcss';
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/600.css';
+
+:root {
+  --vocs-font-family: 'Inter', sans-serif;
+}
+
+@theme {
+  --font-sans: var(--vocs-font-family);
+  --font-mono: var(--vocs-font-family-mono);
+}
+```
+
+## See More
+
+<Cards>
+  <Card
+    title="Theming"
+    description="Customize colors, typography, spacing, logos, and code themes."
+    icon="palette"
+    to="/features/theming"
+  />
+  <Card
+    title="Assets"
+    description="Manage images, fonts, icons, and other docs assets."
+    icon="folder"
+    to="/writing/assets"
+  />
+  <Card
+    title="Tailwind CSS"
+    description="Use Tailwind utilities in Vocs pages and components."
+    icon="wind"
+    to="/features/tailwind"
+  />
+</Cards>
