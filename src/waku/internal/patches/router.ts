@@ -336,7 +336,12 @@ export function router(
             const rootProps = await overrideProps(entry.path)
             createPage({
               path: entry.path,
-              component: () => createElement(OpenApiPage, { mount: entry.path, ...rootProps }),
+              component: () =>
+                createElement(OpenApiPage, {
+                  mount: entry.path,
+                  endpoints: !rootProps.intro,
+                  ...rootProps,
+                }),
               render: 'static',
             } as never)
 
