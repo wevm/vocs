@@ -1,5 +1,11 @@
 # vocs
 
+## 2.1.2
+
+### Patch Changes
+
+- 6a1630c: Fixed generated OpenAPI root pages to render endpoint overviews when no custom intro page was provided.
+
 ## 2.1.1
 
 ### Patch Changes
