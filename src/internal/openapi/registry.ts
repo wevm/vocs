@@ -50,8 +50,11 @@ export function sidebars(
   const result: Record<string, { backLink: boolean; items: SidebarItem<true>[] }> = {}
   if (!cache) return result
   for (const [path, ir] of Object.entries(cache)) {
-    const collapsed = config?.openapi?.find((entry) => entry.path === path)?.sidebar?.collapsed
-    result[path] = { backLink: true, items: Sidebar.toSidebar(ir, { collapsed }) }
+    const entry = config?.openapi?.find((entry) => entry.path === path)
+    const collapsed = entry?.sidebar?.collapsed
+    const intro = entry?.sidebar?.intro
+    const backLink = entry?.sidebar?.backLink ?? true
+    result[path] = { backLink, items: Sidebar.toSidebar(ir, { collapsed, intro }) }
   }
   return result
 }

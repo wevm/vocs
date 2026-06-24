@@ -79,6 +79,28 @@ describe('mergeSidebar', () => {
     expect(items.at(-1)).toEqual({ text: 'Errors', link: '/api/errors' })
   })
 
+  test('omits the back link when `sidebar.backLink` is false', async () => {
+    const cfg = config(undefined, { backLink: false })
+    await Registry.build(cfg)
+
+    const sidebar = Registry.mergeSidebar(cfg).sidebar as Record<string, { backLink: boolean }>
+    expect(sidebar['/api']?.backLink).toBe(false)
+  })
+
+  test('forwards `sidebar.intro` items into the generated Introduction group', async () => {
+    const cfg = config(undefined, {
+      intro: [{ text: 'Authentication', link: '/api/auth' }],
+    })
+    await Registry.build(cfg)
+
+    const sidebar = Registry.mergeSidebar(cfg).sidebar as Record<string, { items: SidebarItem[] }>
+    const introduction = sidebar['/api']?.items[0]
+    expect(introduction?.items).toEqual([
+      { text: 'Overview', link: '/api' },
+      { text: 'Authentication', link: '/api/auth' },
+    ])
+  })
+
   test('does not mutate the input config', async () => {
     const cfg = config([{ text: 'Home', link: '/' }])
     await Registry.build(cfg)
