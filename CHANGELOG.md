@@ -1,5 +1,11 @@
 # vocs
 
+## 2.1.10
+
+### Patch Changes
+
+- c166f6c: Fixed sitemap generation overwriting user-provided `public/robots.txt` and `public/sitemap.xml` files.
+
 ## 2.1.9
 
 ### Patch Changes
