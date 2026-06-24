@@ -1,5 +1,11 @@
 # vocs
 
+## 2.1.7
+
+### Patch Changes
+
+- 47d40a4: Added `<OpenApi.Operation />` and `<OpenApi.Playground />` components.
+
 ## 2.1.6
 
 ### Patch Changes
