@@ -96,6 +96,19 @@ describe('codeSamples', () => {
     expect(values).toContain('true')
   })
 
+  test('omits query parameters when hideQueryParams is set', () => {
+    const samples = codeSamples(operation, 'https://api.example.com', { hideQueryParams: true })
+    const curl = samples.find((sample) => sample.id === 'shell/curl')
+    // Bare URL: no query string, no per-line query anchors, no "Show more".
+    expect(curl?.code).toContain('https://api.example.com/pets/string')
+    expect(curl?.code).not.toContain('?limit')
+    expect(curl?.code).not.toContain('dryRun')
+    expect(curl?.display).not.toContain('?limit')
+    expect((curl?.lineAnchors ?? []).filter(Boolean)).toEqual([])
+    expect(curl?.collapsed).toBeUndefined()
+    expect(curl?.hiddenQueryCount).toBeUndefined()
+  })
+
   test('places each query parameter on its own line', () => {
     const samples = codeSamples(operation, 'https://api.example.com')
     const curl = samples.find((sample) => sample.id === 'shell/curl')

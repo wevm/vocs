@@ -37,11 +37,18 @@ const parameterGroups: { in: OpenApi.IrParameter['in']; title: string }[] = [
 ]
 
 export function Operation(props: Operation.Props) {
-  const { operation, server, headingLevel = 3, separator = false } = props
+  const {
+    operation,
+    server,
+    headingLevel = 3,
+    separator = false,
+    anchors = true,
+    hideQueryParams = false,
+  } = props
   const title = operation.summary || `${operation.method} ${operation.path}`
   const Heading = `h${headingLevel}` as 'h2' | 'h3'
 
-  const samples = codeSamples(operation, server)
+  const samples = codeSamples(operation, server, { hideQueryParams })
   const responses = responseSamples(operation)
 
   return (
@@ -104,6 +111,7 @@ export function Operation(props: Operation.Props) {
           <CodeSample
             samples={samples}
             responses={responses}
+            anchors={anchors}
             action={
               <TestRequestButton
                 method={operation.method}
@@ -138,6 +146,19 @@ export declare namespace Operation {
      * @default false
      */
     separator?: boolean | undefined
+    /**
+     * Render the clickable schema cross-links in the request/response code
+     * samples. Set `false` for static, non-interactive samples.
+     *
+     * @default true
+     */
+    anchors?: boolean | undefined
+    /**
+     * Omit query parameters from the generated request code sample.
+     *
+     * @default false
+     */
+    hideQueryParams?: boolean | undefined
   }
 }
 

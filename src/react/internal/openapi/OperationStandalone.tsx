@@ -55,6 +55,8 @@ export function Operation(props: Operation.Props) {
           operation={operation}
           server={ir.servers[0]?.url}
           headingLevel={props.headingLevel ?? 2}
+          anchors={props.anchors}
+          hideQueryParams={props.hideQueryParams}
         />
       </PlaygroundProvider>
     </div>
@@ -80,5 +82,19 @@ export declare namespace Operation {
     path?: string | undefined
     /** Heading level for the operation title (`2` or `3`). Defaults to `2`. */
     headingLevel?: 2 | 3 | undefined
+    /**
+     * Render the clickable schema cross-links in the request/response code
+     * samples (the hover-highlighted spans/lines that jump to a parameter or
+     * property row). Set `false` for static, non-interactive samples.
+     *
+     * @default true
+     */
+    anchors?: boolean | undefined
+    /**
+     * Omit query parameters from the generated request code sample.
+     *
+     * @default false
+     */
+    hideQueryParams?: boolean | undefined
   }
 }

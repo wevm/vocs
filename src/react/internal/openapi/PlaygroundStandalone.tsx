@@ -50,7 +50,9 @@ export function Playground(props: Playground.Props) {
       </p>
     )
 
-  const samples = codeSamples(operation, ir.servers[0]?.url)
+  const samples = codeSamples(operation, ir.servers[0]?.url, {
+    hideQueryParams: props.hideQueryParams,
+  })
   if (samples.length === 0) return null
   const responses = responseSamples(operation)
 
@@ -60,6 +62,7 @@ export function Playground(props: Playground.Props) {
         <CodeSample
           samples={samples}
           responses={responses}
+          anchors={props.anchors}
           action={
             <TestRequestButton
               method={operation.method}
@@ -90,5 +93,19 @@ export declare namespace Playground {
     method?: string | undefined
     /** Templated path of the target operation (e.g. `/v1/blocks`). Pairs with `method`. */
     path?: string | undefined
+    /**
+     * Render the clickable schema cross-links in the request/response sample
+     * (the hover-highlighted spans/lines that jump to a parameter or property
+     * row). Set `false` for a static, non-interactive sample.
+     *
+     * @default true
+     */
+    anchors?: boolean | undefined
+    /**
+     * Omit query parameters from the generated request sample.
+     *
+     * @default false
+     */
+    hideQueryParams?: boolean | undefined
   }
 }

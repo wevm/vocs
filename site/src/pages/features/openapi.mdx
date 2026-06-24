@@ -110,6 +110,15 @@ import { OpenApi } from 'vocs'
 
 It takes the same targeting props as `<OpenApi.Operation />` (`operationId`, or `method` + `path`, plus `spec`).
 
+Both `<OpenApi.Operation />` and `<OpenApi.Playground />` also accept:
+
+- `anchors={false}` — render a static sample, disabling the hover-highlighted cross-links that jump to a parameter/property row.
+- `hideQueryParams` — omit query parameters from the request sample.
+
+```mdx
+<OpenApi.Playground operationId="getBlocks" anchors={false} hideQueryParams /> // [!code focus]
+```
+
 ### Mount a Reference on a Server
 
 `Handler.openApi` from `vocs/server` builds a standalone reference, rendered entirely client-side by a prebuilt bundle shipped inside Vocs, that mounts onto any Hono server. It accepts the same config as a `vocs.config.ts` `openapi` entry, except `path` is optional (the host server provides the mount location).

@@ -79,8 +79,16 @@ const clients = [
  * Builds request code samples for an operation using `@scalar/snippetz` — the
  * same snippet generator Scalar uses. Returns one entry per supported client.
  */
-export function codeSamples(operation: IrOperation, server?: string): CodeSample[] {
+export function codeSamples(
+  operation: IrOperation,
+  server?: string,
+  options?: codeSamples.Options,
+): CodeSample[] {
   const request = harRequest(operation, server)
+  // Drop query parameters from the request sample when requested (the
+  // collapse/"Show more" logic below then sees zero, and `splitQueryLines`
+  // leaves the bare URL untouched).
+  if (options?.hideQueryParams) request.queryString = []
   const generator = snippetz()
   const queryCount = request.queryString?.length ?? 0
   // When there are many query params, also prepare a request limited to the
@@ -121,6 +129,13 @@ export function codeSamples(operation: IrOperation, server?: string): CodeSample
     samples.push(sample)
   }
   return samples
+}
+
+export declare namespace codeSamples {
+  type Options = {
+    /** Omit query parameters from the generated request sample. */
+    hideQueryParams?: boolean | undefined
+  }
 }
 
 /**

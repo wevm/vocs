@@ -21,7 +21,7 @@ import { registerSampleAnchors, revealAnchor } from './anchor-navigation.client.
  * `data-v-openapi-sample*` attributes below.
  */
 export function CodeSample(props: CodeSample.Props) {
-  const { samples, responses, action } = props
+  const { samples, responses, action, anchors = true } = props
   const [sampleId, setSampleId] = useState(samples[0]?.id)
   const [status, setStatus] = useState(responses[0]?.status)
   // When a request has many query params, the extras collapse by default.
@@ -70,22 +70,20 @@ export function CodeSample(props: CodeSample.Props) {
     return { ids, hiddenIds }
   }, [samples])
 
-  useEffect(
-    () =>
-      registerSampleAnchors({
-        has: (id) =>
-          requestAnchors.ids.has(id) || responseAnchors.some((entry) => entry.ids.has(id)),
-        select: (id) => {
-          const match = responseAnchors.find((entry) => entry.ids.has(id))
-          if (match) {
-            setStatus(match.status)
-            return
-          }
-          if (requestAnchors.hiddenIds.has(id)) setQueryExpanded(true)
-        },
-      }),
-    [responseAnchors, requestAnchors],
-  )
+  useEffect(() => {
+    if (!anchors) return
+    return registerSampleAnchors({
+      has: (id) => requestAnchors.ids.has(id) || responseAnchors.some((entry) => entry.ids.has(id)),
+      select: (id) => {
+        const match = responseAnchors.find((entry) => entry.ids.has(id))
+        if (match) {
+          setStatus(match.status)
+          return
+        }
+        if (requestAnchors.hiddenIds.has(id)) setQueryExpanded(true)
+      },
+    })
+  }, [anchors, responseAnchors, requestAnchors])
 
   // Use the collapsed snippet variant (first few query params) unless expanded.
   const view = sample?.collapsed && !queryExpanded ? sample.collapsed : sample
@@ -107,14 +105,14 @@ export function CodeSample(props: CodeSample.Props) {
           </div>
           {/* biome-ignore lint/a11y/useKeyWithClickEvents: param spans are also reachable via copyable property anchors */}
           {/* biome-ignore lint/a11y/noStaticElementInteractions: progressive enhancement over already-linkable property anchors */}
-          <div data-v-openapi-sample-request-body onClick={onAnchorClick}>
+          <div data-v-openapi-sample-request-body onClick={anchors ? onAnchorClick : undefined}>
             <CodeToHtml
               code={view.display}
               lang={sample.lang}
               shrinkIndent={false}
-              anchorRanges={view.anchors}
+              anchorRanges={anchors ? view.anchors : undefined}
               colorRanges={view.colorRanges}
-              lineAnchors={view.lineAnchors}
+              lineAnchors={anchors ? view.lineAnchors : undefined}
             />
           </div>
           {sample.collapsed && (
@@ -154,15 +152,19 @@ export function CodeSample(props: CodeSample.Props) {
           </div>
           {/* biome-ignore lint/a11y/useKeyWithClickEvents: rows are also reachable via copyable property anchors */}
           {/* biome-ignore lint/a11y/noStaticElementInteractions: progressive enhancement over already-linkable property anchors */}
-          <div data-v-openapi-sample-response-body onClick={onAnchorClick}>
+          <div data-v-openapi-sample-response-body onClick={anchors ? onAnchorClick : undefined}>
             <CodeToHtml
               code={response.code}
               lang={response.lang}
               shrinkIndent={false}
               dimRanges={response.placeholders}
-              lineAnchors={response.linePaths.map((path) =>
-                path ? schemaPropertyId(response.idBase, path) : undefined,
-              )}
+              lineAnchors={
+                anchors
+                  ? response.linePaths.map((path) =>
+                      path ? schemaPropertyId(response.idBase, path) : undefined,
+                    )
+                  : undefined
+              }
             />
           </div>
         </div>
@@ -290,5 +292,13 @@ export declare namespace CodeSample {
     responses: OpenApi.ResponseSample[]
     /** Action slot rendered between the request and response (the test button). */
     action?: React.ReactNode
+    /**
+     * Render the clickable schema cross-links in the request/response samples
+     * (the hover-highlighted spans/lines that jump to a parameter or property
+     * row). Set `false` for a static, non-interactive sample.
+     *
+     * @default true
+     */
+    anchors?: boolean | undefined
   }
 }
