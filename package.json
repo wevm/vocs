@@ -54,7 +54,7 @@
   "[!start-pkg]": "",
   "name": "vocs",
   "type": "module",
-  "version": "2.1.8",
+  "version": "2.1.9",
   "main": "./dist/index.js",
   "license": "MIT",
   "repository": {
