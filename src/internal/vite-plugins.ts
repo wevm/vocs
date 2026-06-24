@@ -371,6 +371,16 @@ export function sitemap(config: Config.Config): PluginOption {
     ].join('\n')
   }
 
+  async function hasPublicFile(fileName: string): Promise<boolean> {
+    if (!viteConfig.publicDir) return false
+    try {
+      await fs.access(path.join(viteConfig.publicDir, fileName))
+      return true
+    } catch {
+      return false
+    }
+  }
+
   async function buildSitemapContent(): Promise<string | null> {
     const siteUrl = getSiteUrl()
     if (!siteUrl) {
@@ -482,12 +492,20 @@ export function sitemap(config: Config.Config): PluginOption {
       const sitemapContent = await buildSitemapContent()
       if (!sitemapContent || !siteUrl) return
 
-      await Promise.all([
-        fs.writeFile(path.join(options.dir, 'sitemap.xml'), sitemapContent, { encoding: 'utf-8' }),
-        fs.writeFile(path.join(options.dir, 'robots.txt'), buildRobotsTxt(siteUrl), {
-          encoding: 'utf-8',
-        }),
-      ])
+      const writes: Promise<void>[] = []
+      if (!(await hasPublicFile('sitemap.xml')))
+        writes.push(
+          fs.writeFile(path.join(options.dir, 'sitemap.xml'), sitemapContent, {
+            encoding: 'utf-8',
+          }),
+        )
+      if (!(await hasPublicFile('robots.txt')))
+        writes.push(
+          fs.writeFile(path.join(options.dir, 'robots.txt'), buildRobotsTxt(siteUrl), {
+            encoding: 'utf-8',
+          }),
+        )
+      await Promise.all(writes)
     },
   }
 }
