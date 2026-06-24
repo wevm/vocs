@@ -62,6 +62,13 @@ export type SidebarExtras = {
    * @default false
    */
   collapsed?: boolean | undefined
+  /**
+   * Render a "back" link at the top of the generated section sidebar. Set to
+   * `false` to omit it (e.g. when the section is the site's primary navigation).
+   *
+   * @default true
+   */
+  backLink?: boolean | undefined
 }
 
 /**

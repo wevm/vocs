@@ -127,7 +127,9 @@ export function router(
           ? items.slice(0, -1)
           : items
         ).join('/')
-      consumerModules.set(route, importFn)
+      // `_layout` files are layouts, not pages: never register them as a
+      // consumer page route.
+      if (last !== '_layout') consumerModules.set(route, importFn)
     }
   }
 
@@ -189,12 +191,14 @@ export function router(
           // creating a standalone page here so the OpenAPI loop can mount it
           // with the generated reference body (it reads the same module as the
           // page intro).
-          if (openapiRoutePaths.has(path)) continue
+          // `_layout` files are skipped so the OpenAPI loop can mount the
+          // section layout itself, rather than being treated as an override.
+          if (openapiRoutePaths.has(path) && pathItems.at(-1) !== '_layout') continue
 
           // A consumer page mounted *under* an OpenAPI section path (e.g.
           // `/api/auth`) but not at a generated route is a "guide" page. Skip it
           // here so the OpenAPI loop can mount it with the section layout.
-          if (isOpenApiGuidePath(path)) continue
+          if (isOpenApiGuidePath(path) && pathItems.at(-1) !== '_layout') continue
 
           const sourceFile = isBuiltIn ? undefined : srcPath
           const sourceFileProperty = sourceFile ? { unstable_sourceFile: sourceFile } : {}
