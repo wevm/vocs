@@ -5,6 +5,7 @@ import mdxPlugin from '@mdx-js/rollup'
 import tailwindcss, { type PluginOptions as TailwindOptions } from '@tailwindcss/vite'
 import type { PluginOption, ResolvedConfig, Rolldown, ViteDevServer } from 'vite'
 import { createLogger } from 'vite'
+import * as Agent from './agent.js'
 import * as Config from './config.js'
 import * as ConfigSerializer from './config-serializer.js'
 import * as Git from './git.js'
@@ -488,6 +489,78 @@ export function sitemap(config: Config.Config): PluginOption {
           encoding: 'utf-8',
         }),
       ])
+    },
+  }
+}
+
+/**
+ * Generates `/.well-known/agent.json`, a discovery manifest for AI agents.
+ *
+ * Ties together the machine-readable surfaces Vocs already emits (`llms.txt`,
+ * `llms-full.txt`, `sitemap.xml`) behind a single predictable well-known path,
+ * so agents can discover the docs corpus without guessing at conventional URLs.
+ * Requires `baseUrl` to be configured for absolute resource URLs in production.
+ *
+ * @param config - Vocs configuration.
+ * @returns Plugin.
+ */
+export function agentManifest(config: Config.Config): PluginOption {
+  const { baseUrl, description, title } = config
+  const manifestPath = '.well-known/agent.json'
+
+  let built = false
+  let viteConfig: ResolvedConfig
+
+  function getSiteUrl(): string | null {
+    return baseUrl ?? (viteConfig.command === 'serve' ? 'http://localhost:5173' : null)
+  }
+
+  function buildManifestContent(): string | null {
+    const siteUrl = getSiteUrl()
+    if (!siteUrl) {
+      logger.warn('Agent manifest generation skipped: baseUrl is not configured', {
+        timestamp: true,
+      })
+      return null
+    }
+    const manifest = Agent.buildAgentManifest({ title, description, siteUrl })
+    return `${JSON.stringify(manifest, null, 2)}\n`
+  }
+
+  return {
+    name: 'vocs:agent-manifest',
+    enforce: 'post',
+    configResolved(resolvedConfig) {
+      viteConfig = resolvedConfig
+    },
+    configureServer(server) {
+      server.middlewares.use(async (req, res, next) => {
+        if (req.url === `/${manifestPath}`) {
+          const content = buildManifestContent()
+          if (!content) {
+            res.statusCode = 404
+            res.end('agent.json not available: baseUrl is not configured')
+            return
+          }
+          res.setHeader('Content-Type', 'application/json')
+          res.end(content)
+          return
+        }
+
+        next()
+      })
+    },
+    async writeBundle(options) {
+      if (!options.dir?.endsWith('/public')) return
+      if (built) return
+      built = true
+
+      const content = buildManifestContent()
+      if (!content) return
+
+      const outPath = path.join(options.dir, manifestPath)
+      await fs.mkdir(path.dirname(outPath), { recursive: true })
+      await fs.writeFile(outPath, content, { encoding: 'utf-8' })
     },
   }
 }
