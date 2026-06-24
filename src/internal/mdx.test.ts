@@ -8,8 +8,10 @@ import { unified } from 'unified'
 import { describe, expect, it } from 'vitest'
 import * as Config from './config.js'
 import {
+  deadLinks,
   getCompileOptions,
   recmaMdxLayout,
+  rehypeLinks,
   remarkCodeTitle,
   remarkDefaultFrontmatter,
   remarkFilename,
@@ -18,6 +20,7 @@ import {
   remarkRestoreUnknownTextDirectives,
   remarkSubheading,
 } from './mdx.js'
+import * as OpenApiRegistry from './openapi/registry.js'
 
 type CodeNode = {
   type: 'code'
@@ -553,5 +556,64 @@ describe('remarkFileTree', () => {
       comment: 'A page at /guide/getting-started.',
       highlighted: true,
     })
+  })
+})
+
+describe('rehypeLinks', () => {
+  function anchor(href: string) {
+    return {
+      type: 'element' as const,
+      tagName: 'a',
+      properties: { href } as Record<string, unknown>,
+      children: [],
+    }
+  }
+
+  it('allows OpenAPI-generated routes and flags genuinely dead links', async () => {
+    OpenApiRegistry.invalidate()
+    const config = Config.define({
+      rootDir: process.cwd(),
+      openapi: [
+        {
+          path: '/api',
+          spec: {
+            openapi: '3.1.0',
+            info: { title: 'Test', version: '1.0.0' },
+            tags: [{ name: 'Indexer' }],
+            paths: {
+              '/v1/indexer/query': {
+                get: {
+                  tags: ['Indexer'],
+                  operationId: 'indexerQuery',
+                  responses: { '200': { description: 'ok' } },
+                },
+              },
+            },
+          },
+        },
+      ],
+    })
+    await OpenApiRegistry.build(config)
+
+    const overview = anchor('/api')
+    const generated = anchor('/api/indexer')
+    const trailing = anchor('/api/indexer/')
+    const dead = anchor('/api/does-not-exist')
+    const tree = {
+      type: 'root' as const,
+      children: [overview, generated, trailing, dead],
+    }
+    const vfile = { path: path.join(process.cwd(), 'src/pages/api/indexer-api.mdx') }
+
+    rehypeLinks(config)()(tree as never, vfile as never)
+
+    expect(overview.properties['data-v-dead-link']).toBeUndefined()
+    expect(generated.properties['data-v-dead-link']).toBeUndefined()
+    expect(trailing.properties['data-v-dead-link']).toBeUndefined()
+    expect(dead.properties['data-v-dead-link']).toBe('')
+    expect(deadLinks.get(vfile.path)).toEqual(['/api/does-not-exist'])
+
+    deadLinks.delete(vfile.path)
+    OpenApiRegistry.invalidate()
   })
 })
