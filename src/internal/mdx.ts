@@ -36,6 +36,7 @@ import * as yaml from 'yaml'
 import type * as Config from './config.js'
 import * as Git from './git.js'
 import * as Icons from './icons.js'
+import * as OpenApiRegistry from './openapi/registry.js'
 import { rehypeImageSize } from './rehype-image-size.js'
 import { remarkVocsScope } from './remark-vocs-scope.js'
 import { remarkSandbox } from './sandbox.js'
@@ -435,6 +436,19 @@ export function rehypeLinks(config: Config.Config) {
   return () => (tree: HAst.Root, vfile: VFile) => {
     const links: string[] = []
 
+    // OpenAPI specs generate routes (the mount overview and one page per
+    // category group) that have no backing file in `pages/`, so links to them
+    // would otherwise be flagged as dead. Collect the valid routes from the
+    // parsed specs to allow them through.
+    const openapiRoutes = new Set<string>()
+    const specs = OpenApiRegistry.peek()
+    if (specs)
+      for (const [mount, ir] of Object.entries(specs)) {
+        const base = mount === '/' ? '' : mount.replace(/\/$/, '')
+        openapiRoutes.add(base || '/')
+        for (const group of ir.groups) openapiRoutes.add(`${base}/${group.id}`)
+      }
+
     UnistUtil.visit(tree, 'element', (node) => {
       const element = node as HAst.Element
       if (element.tagName !== 'a') return
@@ -469,8 +483,16 @@ export function rehypeLinks(config: Config.Config) {
         ? path.join(pagesDirPath, linkPath)
         : path.resolve(currentDir, linkPath ?? '')
 
+      // Allow OpenAPI-generated routes (no backing file) by matching the link's
+      // absolute path against the routes collected from the parsed specs.
+      const isOpenapiRoute =
+        linkPath !== undefined &&
+        linkPath.startsWith('/') &&
+        openapiRoutes.has(linkPath.replace(/\/$/, '') || '/')
+
       // Check for file existence (try with extensions if not present)
       const exists =
+        isOpenapiRoute ||
         fs.existsSync(resolvedPath) ||
         extensions.some((ext) => fs.existsSync(`${resolvedPath}${ext}`)) ||
         extensions.some((ext) => fs.existsSync(`${resolvedPath}/index${ext}`))
