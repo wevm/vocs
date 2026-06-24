@@ -1,5 +1,11 @@
 # vocs
 
+## 2.1.9
+
+### Patch Changes
+
+- 246fdd0: Stopped flagging OpenAPI-generated routes (the mount overview and per-category pages) as dead links.
+
 ## 2.1.8
 
 ### Patch Changes
