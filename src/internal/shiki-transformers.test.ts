@@ -2,6 +2,7 @@ import { type BundledLanguage, createHighlighter } from 'shiki'
 import { describe, expect, it } from 'vitest'
 import {
   checkTwoslashSnippets,
+  customTag,
   inlineLanguage,
   notationBlock,
   notationInclude,
@@ -291,6 +292,93 @@ appSettings.version`,
     expect(twoslashErrors).toHaveLength(0)
 
     resetTwoslashSnippets()
+
+    highlighter.dispose()
+  })
+
+  it('should render custom tag comments in check-only mode', async () => {
+    const highlighter = await createHighlighter({
+      themes: ['github-dark'],
+      langs: ['typescript'],
+    })
+
+    const html = highlighter.codeToHtml(
+      `const value = 1
+// @log: value: 10500000n
+// @log: formatted: '10.5'`,
+      {
+        lang: 'typescript',
+        theme: 'github-dark',
+        transformers: [
+          twoslash({ checkOnly: true, explicitTrigger: false, throws: false }),
+          customTag(),
+        ],
+      },
+    )
+
+    // Check-only mode emits no twoslash tag nodes, so the downstream
+    // `customTag()` transformer must render the `@log` lines instead of them
+    // being stripped entirely.
+    expect(html).toContain('twoslash-tag-log-line')
+    expect(html).toContain('value: 10500000n')
+    expect(html).toContain("formatted: '10.5'")
+    expect(html).not.toContain('@log')
+
+    // Adjacent tags must keep their source order.
+    expect(html.indexOf('value: 10500000n')).toBeLessThan(html.indexOf("formatted: '10.5'"))
+
+    highlighter.dispose()
+  })
+})
+
+describe('customTag', () => {
+  it('should render custom tags as styled tag lines', async () => {
+    const highlighter = await createHighlighter({
+      themes: ['github-dark'],
+      langs: ['typescript'],
+    })
+
+    const html = highlighter.codeToHtml(
+      `const value = 1
+// @log: hello
+// @error: boom`,
+      {
+        lang: 'typescript',
+        theme: 'github-dark',
+        transformers: [customTag()],
+      },
+    )
+
+    expect(html).toContain('twoslash-tag-log-line')
+    expect(html).toContain('twoslash-tag-error-line')
+    expect(html).toContain('hello')
+    expect(html).toContain('boom')
+    expect(html).not.toContain('@log')
+    expect(html).not.toContain('@error')
+
+    highlighter.dispose()
+  })
+
+  it('should preserve source order for consecutive tags', async () => {
+    const highlighter = await createHighlighter({
+      themes: ['github-dark'],
+      langs: ['typescript'],
+    })
+
+    const html = highlighter.codeToHtml(
+      `const value = 1
+// @log: one
+// @log: two
+// @log: three`,
+      {
+        lang: 'typescript',
+        theme: 'github-dark',
+        transformers: [customTag()],
+      },
+    )
+
+    const order = [...html.matchAll(/twoslash-tag-log-line[^>]*>([^<]*)</g)].map((m) => m[1])
+    expect(order).toEqual(['one', 'two', 'three'])
 
     highlighter.dispose()
   })
