@@ -1,5 +1,11 @@
 # vocs
 
+## 2.1.11
+
+### Patch Changes
+
+- 89ee8ca: Fixed custom display tags (`@log`/`@error`/`@warn`/`@annotate`) being stripped instead of rendered in Twoslash `checkOnly` mode, and fixed runs of consecutive tags rendering in reverse order.
+
 ## 2.1.10
 
 ### Patch Changes
