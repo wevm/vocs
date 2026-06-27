@@ -423,7 +423,13 @@ function checkOnlyTwoslasher(options: {
     })
 
     return {
-      code: removeTwoslashNotations(code, twoslashOptions.customTags),
+      // Keep custom display tags (`@log`/`@error`/`@warn`/`@annotate`) in the
+      // emitted code so the downstream `customTag()` transformer can render
+      // them. In check-only mode we don't emit twoslash tag nodes (so the
+      // renderer's `lineCustomTag` never runs); passing `customTags` here would
+      // strip those lines entirely and they'd never be displayed. Other
+      // twoslash notations (compiler flags, `^?` markers) are still removed.
+      code: removeTwoslashNotations(code),
       nodes: [],
     }
   }
@@ -1023,7 +1029,6 @@ export function customTag(): ShikiTransformer {
   const tagPattern = new RegExp(`@(${customTags.join('|')}):\\s*(.+)`)
 
   type Element = import('hast').Element
-  type Text = import('hast').Text
 
   function getTextContent(element: Element): string {
     let text = ''
@@ -1036,88 +1041,32 @@ export function customTag(): ShikiTransformer {
 
   return {
     name: 'vocs:custom-tag',
-    preprocess(code, options) {
-      const meta = options.meta?.__raw || ''
-      if (meta.includes('twoslash')) return code
-      return code
-    },
     code(code) {
       const lines = code.children.filter((x) => x.type === 'element') as Element[]
-      const tagsToInsert: Array<{ afterIndex: number; type: string; message: string }> = []
-      const linesToRemove: Element[] = []
 
-      lines.forEach((line, index) => {
+      for (const line of lines) {
         const lineText = getTextContent(line)
         const match = lineText.match(tagPattern)
-        if (!match) return
+        if (!match) continue
 
         const [, tagType, message] = match as [string, string, string]
-        tagsToInsert.push({
-          afterIndex: index,
-          type: tagType,
-          message: message.trim(),
-        })
-        linesToRemove.push(line)
-      })
 
-      // remove lines with tags
-      for (const line of linesToRemove) {
-        const index = code.children.indexOf(line)
-        if (index === -1) continue
-        const nextLine = code.children[index + 1]
-        let removeLength = 1
-        // also remove the newline after the line
-        if (nextLine?.type === 'text' && nextLine.value === '\n') removeLength = 2
-        code.children.splice(index, removeLength)
-      }
-
-      // adjust indices for removed lines
-      const adjustedTags = tagsToInsert.map((tag) => {
-        let adjustedIndex = tag.afterIndex
-        for (const removedLine of linesToRemove) {
-          const removedIndex = lines.indexOf(removedLine)
-          if (removedIndex !== -1 && removedIndex <= tag.afterIndex) adjustedIndex--
-        }
-        return { ...tag, afterIndex: adjustedIndex }
-      })
-
-      // insert tag divs (in reverse order to maintain indices)
-      const sortedTags = adjustedTags.sort((a, b) => b.afterIndex - a.afterIndex)
-
-      for (const tag of sortedTags) {
-        const currentLines = code.children.filter((x) => x.type === 'element') as Element[]
-        const targetLine = currentLines[tag.afterIndex]
-        if (!targetLine) continue
-
-        const targetIndex = code.children.indexOf(targetLine)
-        if (targetIndex === -1) continue
-
-        const targetClasses = targetLine.properties?.['class']
-        const existingClasses = Array.isArray(targetClasses)
-          ? targetClasses.filter((x) => typeof x === 'string' && x && !x.startsWith('tag-'))
-          : typeof targetClasses === 'string'
-            ? targetClasses.split(' ').filter((x) => x && !x.startsWith('tag-'))
+        // Rewrite the comment line in place. Removing the line and reinserting
+        // a new node would reverse runs of adjacent tags (e.g. consecutive
+        // `// @log:` lines), so we keep the existing line element and swap its
+        // class + content instead — preserving source order and position.
+        const classes = line.properties?.['class']
+        const existingClasses = Array.isArray(classes)
+          ? classes.filter((x) => typeof x === 'string' && x && !x.startsWith('tag-'))
+          : typeof classes === 'string'
+            ? classes.split(' ').filter((x) => x && !x.startsWith('tag-'))
             : []
 
-        const tagLine: Element = {
-          type: 'element',
-          tagName: 'span',
-          properties: {
-            class: [
-              ...existingClasses,
-              'line',
-              'twoslash-tag-line',
-              `twoslash-tag-${tag.type}-line`,
-            ],
-          },
-          children: [{ type: 'text', value: tag.message }],
+        line.properties = {
+          ...line.properties,
+          class: [...existingClasses, 'twoslash-tag-line', `twoslash-tag-${tagType}-line`],
         }
-
-        // insert after the target line + its newline
-        const nextIndex = targetIndex + 1
-        if (code.children[nextIndex]?.type === 'text' && code.children[nextIndex]?.value === '\n')
-          code.children.splice(nextIndex + 1, 0, tagLine, { type: 'text', value: '\n' } as Text)
-        else code.children.splice(nextIndex, 0, tagLine, { type: 'text', value: '\n' } as Text)
+        line.children = [{ type: 'text', value: message.trim() }]
       }
     },
   }
