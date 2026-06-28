@@ -10,6 +10,7 @@ import SimpleIconsClaude from '~icons/simple-icons/claude'
 import SimpleIconsModelcontextprotocol from '~icons/simple-icons/modelcontextprotocol'
 import SimpleIconsOpenai from '~icons/simple-icons/openai'
 import { useConfig } from '../useConfig.js'
+import { getMarkdownAssetPath } from './markdown-url.js'
 
 export function AskAi(props: AskAi.Props) {
   const { className } = props
@@ -77,14 +78,13 @@ export function AskAi(props: AskAi.Props) {
   )
 
   const markdownUrl = React.useMemo(() => {
-    if (path === '/') return `${pageUrl}index.md`
-    const url = pageUrl.endsWith('/') ? pageUrl.slice(0, -1) : pageUrl
-    return `${url}.md`
-  }, [pageUrl, path])
+    return getMarkdownAssetPath(path)
+  }, [path])
 
   const copyPageForAi = React.useCallback(async () => {
     try {
       const response = await fetch(markdownUrl)
+      if (!response.ok) throw new Error('Failed to fetch markdown')
       const text = await response.text()
       await navigator.clipboard.writeText(text)
       setCopied(true)
