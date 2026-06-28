@@ -1026,7 +1026,9 @@ export function shellNotation(): ShikiTransformer {
  */
 export function customTag(): ShikiTransformer {
   const customTags = ['error', 'log', 'warn', 'annotate'] as const
-  const tagPattern = new RegExp(`@(${customTags.join('|')}):\\s*(.+)`)
+  // Consume only the single separator space/tab after the colon so any further
+  // leading whitespace (indentation in multi-line `@log` blocks) is preserved.
+  const tagPattern = new RegExp(`@(${customTags.join('|')}):[ \\t]?(.+)`)
 
   type Element = import('hast').Element
 
@@ -1066,7 +1068,7 @@ export function customTag(): ShikiTransformer {
           ...line.properties,
           class: [...existingClasses, 'twoslash-tag-line', `twoslash-tag-${tagType}-line`],
         }
-        line.children = [{ type: 'text', value: message.trim() }]
+        line.children = [{ type: 'text', value: message.trimEnd() }]
       }
     },
   }
