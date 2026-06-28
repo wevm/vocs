@@ -5,6 +5,7 @@ import * as React from 'react'
 import { useRouter } from 'waku'
 import LucideCheck from '~icons/lucide/check'
 import LucideClipboard from '~icons/lucide/clipboard'
+import { getMarkdownAssetPath } from './markdown-url.js'
 
 type CopyState = 'idle' | 'copying' | 'copied' | 'error'
 
@@ -19,11 +20,7 @@ export function CopyForAi(props: CopyForAi.Props) {
 
     setState('copying')
     try {
-      let pagePath = router.path
-      if (pagePath === '/') pagePath = '/index'
-      else pagePath = pagePath.replace(/\/$/, '')
-
-      const response = await fetch(`/assets/md${pagePath}.md`)
+      const response = await fetch(getMarkdownAssetPath(router.path))
       if (!response.ok) throw new Error('Failed to fetch markdown')
 
       const markdown = await response.text()
