@@ -1,5 +1,12 @@
 # vocs
 
+## 2.1.12
+
+### Patch Changes
+
+- ae03b22: Fixed Ask AI markdown actions to use generated markdown assets in static builds.
+- a84d8c4: Preserved leading indentation in custom display tags (`@log`/`@error`/`@warn`/`@annotate`), so multi-line blocks (e.g. logged objects) keep their indentation instead of being flattened to the left margin.
+
 ## 2.1.11
 
 ### Patch Changes
