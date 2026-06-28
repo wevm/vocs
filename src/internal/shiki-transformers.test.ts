@@ -382,6 +382,31 @@ describe('customTag', () => {
 
     highlighter.dispose()
   })
+
+  it('should preserve leading indentation in tag content', async () => {
+    const highlighter = await createHighlighter({
+      themes: ['github-dark'],
+      langs: ['typescript'],
+    })
+
+    const html = highlighter.codeToHtml(
+      `const value = 1
+// @log: {
+// @log:   from: '0x',
+// @log:   value: 1n,
+// @log: }`,
+      {
+        lang: 'typescript',
+        theme: 'github-dark',
+        transformers: [customTag()],
+      },
+    )
+
+    const lines = [...html.matchAll(/twoslash-tag-log-line[^>]*>([^<]*)</g)].map((m) => m[1])
+    expect(lines).toEqual(['{', "  from: '0x',", '  value: 1n,', '}'])
+
+    highlighter.dispose()
+  })
 })
 
 describe('notationBlock', () => {
