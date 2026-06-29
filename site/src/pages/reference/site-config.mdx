@@ -597,60 +597,165 @@ See [Code & Syntax Highlighting](/writing/syntax-highlighting) for code group ic
 
 ### `search`
 
-- **Type:**
+- **Type:** `SearchOptions`
 
-```ts
-type Search = {
-  /**
-   * Per-field weight multipliers applied during scoring. Higher values rank
-   * matches in that field higher.
-   *
-   * Defaults to `{ title: 4, subtitle: 3, text: 2, category: 1, titles: 1 }`.
-   */
-  boost?: Record<string, number>
-  /**
-   * Per-document boost function. Return a multiplier to amplify or suppress
-   * results from specific pages (pair with the page-level `searchPriority`
-   * frontmatter field).
-   */
-  boostDocument?: (
-    id: string,
-    term: string,
-    storedFields?: Record<string, unknown>,
-  ) => number
-  /**
-   * How multi-term queries are combined. `'AND'` requires every term to
-   * match, `'OR'` matches any. Defaults to `'AND'`.
-   */
-  combineWith?: 'AND' | 'OR'
-  /**
-   * Fuzzy matching tolerance. A number between `0` and `1` is the fraction
-   * of edit distance allowed; `true` is `0.2`; `false` disables fuzziness.
-   * Defaults to `0.2`.
-   */
-  fuzzy?: number | boolean
-  /**
-   * Match queries against the start of indexed terms (so typing "comp"
-   * matches "component"). Defaults to `true`.
-   */
-  prefix?: boolean
-}
-```
+Customizes built-in documentation search. `search.index` controls MiniSearch index build/load
+behavior. `search.query` controls runtime matching and ranking in the browser search dialog.
 
-Customizes built-in documentation search.
+Custom functions must be serializable because Vocs sends search config to the browser.
 
 ```ts
 export default defineConfig({
   search: {
-    combineWith: 'OR',
-    fuzzy: 0.1,
-    boost: {
-      title: 6,
-      text: 1
+    index: {
+      fields: ['title', 'text', 'path'],
+      storeFields: ['path'],
+      extractField(document, fieldName) {
+        if (fieldName === 'path') return document.href
+        return document[fieldName as keyof typeof document]
+      }
+    },
+    query: {
+      fields: ['title', 'text'],
+      boost: { title: 6, text: 1 },
+      fuzzy: false,
+      prefix: false,
+      processTerm: (term) => term.toLowerCase()
     }
   }
 })
 ```
+
+#### `search.index.fields`
+
+- **Type:** `string[]`
+- **Default:** `['category', 'subtitle', 'text', 'title', 'titles']`
+
+MiniSearch document fields to index. Replaces the Vocs default indexed fields.
+
+#### `search.index.storeFields`
+
+- **Type:** `string[]`
+- **Default:** required Vocs result fields
+
+MiniSearch document fields to include on results. Extends Vocs required fields:
+`category`, `href`, `searchPriority`, `subtitle`, `text`, `title`, `titles`, and `type`.
+
+#### `search.index.idField`
+
+- **Type:** `string`
+- **Default:** `'id'`
+
+MiniSearch document id field. Advanced; Vocs expects stable result ids for search UI and HMR.
+
+#### `search.index.extractField`
+
+- **Type:** `(document, fieldName) => unknown`
+
+Reads field values during index build/load. Use this for virtual fields.
+
+#### `search.index.stringifyField`
+
+- **Type:** `(fieldValue, fieldName) => string`
+
+Converts extracted field values to strings before indexing.
+
+#### `search.index.tokenize`
+
+- **Type:** `(text, fieldName?) => string[]`
+- **Default:** Vocs tokenizer
+
+Splits indexed field values into terms. Replaces the default camelCase/path-aware tokenizer.
+
+#### `search.index.processTerm`
+
+- **Type:** `(term, fieldName?) => string | string[] | null | undefined | false`
+
+Normalizes or expands terms during indexing.
+
+#### `search.index.autoVacuum`
+
+- **Type:** `boolean | AutoVacuumOptions`
+
+Controls MiniSearch automatic vacuuming after documents are discarded.
+
+#### `search.index.searchOptions`
+
+- **Type:** `SearchOptions`
+
+MiniSearch default search options stored on the index. Prefer `search.query` for the built-in
+search dialog.
+
+#### `search.index.autoSuggestOptions`
+
+- **Type:** `SearchOptions`
+
+MiniSearch default auto-suggest options. Vocs does not currently call MiniSearch auto-suggest in
+the built-in search UI.
+
+#### `search.query.fields`
+
+- **Type:** `string[]`
+
+Restricts which indexed fields are searched at runtime.
+
+#### `search.query.filter`
+
+- **Type:** `(result) => boolean`
+
+Filters scored results in the browser before display.
+
+#### `search.query.boost`
+
+- **Type:** `Record<string, number>`
+- **Default:** `{ title: 4, subtitle: 3, text: 2, category: 1, titles: 1 }`
+
+Per-field runtime score boosts. Merges with Vocs defaults.
+
+#### `search.query.boostDocument`
+
+- **Type:** `(id, term, storedFields?) => number`
+
+Per-document runtime score boost. Defaults to Vocs search priority and path-depth boosting.
+
+#### `search.query.combineWith`
+
+- **Type:** `'AND' | 'OR' | 'AND_NOT'`
+- **Default:** `'AND'`
+
+Controls how query terms are combined.
+
+#### `search.query.fuzzy`
+
+- **Type:** `boolean | number | ((term, index, terms) => boolean | number)`
+- **Default:** `0.2`
+
+Controls fuzzy matching.
+
+#### `search.query.prefix`
+
+- **Type:** `boolean | ((term, index, terms) => boolean)`
+- **Default:** `true`
+
+Controls prefix matching.
+
+#### `search.query.weights`
+
+- **Type:** `{ fuzzy: number; prefix: number }`
+
+Relative score weights for fuzzy and prefix matches.
+
+#### `search.query.tokenize`
+
+- **Type:** `(text) => string[]`
+
+Splits search queries into terms at runtime.
+
+#### `search.query.processTerm`
+
+- **Type:** `(term) => string | string[] | null | undefined | false`
+
+Normalizes or expands search query terms at runtime.
 
 :::tip
 See [Search](/features/search) for recipes covering fuzzy matching, prefix matching, and field weighting.

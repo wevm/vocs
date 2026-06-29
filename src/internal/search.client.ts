@@ -1,3 +1,9 @@
+import type {
+  Options as MiniSearchOptions,
+  SearchOptions as MiniSearchSearchOptions,
+} from 'minisearch'
+import type * as Config from './config.js'
+
 export const searchFields = ['category', 'subtitle', 'text', 'title', 'titles'] as const
 export const storeFields = [
   'category',
@@ -39,4 +45,27 @@ export function tokenize(text: string): string[] {
   }
 
   return tokens.filter((w) => w.length > 0)
+}
+
+export namespace SearchConfig {
+  export function getIndexOptions(config?: Config.Config): MiniSearchOptions {
+    const index = config?.search.index ?? {}
+    return {
+      ...index,
+      fields: index.fields ? [...index.fields] : [...searchFields],
+      storeFields: mergeStoreFields(index.storeFields),
+      tokenize: index.tokenize ?? tokenize,
+    }
+  }
+
+  export function getQueryOptions(config: Config.Config): MiniSearchSearchOptions {
+    return {
+      ...config.search.query,
+      tokenize: config.search.query?.tokenize ?? config.search.index?.tokenize ?? tokenize,
+    }
+  }
+
+  function mergeStoreFields(fields: readonly string[] | undefined): string[] {
+    return [...new Set([...storeFields, ...(fields ?? [])])]
+  }
 }
