@@ -1,3 +1,6 @@
+import * as fs from 'node:fs'
+import * as os from 'node:os'
+import * as path from 'node:path'
 import type * as MdAst from 'mdast'
 import { describe, expect, it } from 'vitest'
 import * as Config from './config.js'
@@ -856,6 +859,40 @@ Some content here.
 
     const { sections } = Search.extract('# hello world\n\nSome text.', customConfig)
     expect(sections[0]?.title).toBe('HELLO WORLD')
+  })
+})
+
+describe('SearchDocuments.fromConfig', () => {
+  it('indexes imported markdown content from file-backed pages', async () => {
+    const rootDir = fs.mkdtempSync(path.join(os.tmpdir(), 'vocs-search-'))
+    const pagesDir = path.join(rootDir, 'src/pages')
+    fs.mkdirSync(pagesDir, { recursive: true })
+
+    fs.writeFileSync(
+      path.join(rootDir, 'notes.md'),
+      '# Notes\n\nSome indexable prose about widgets and links.',
+    )
+    fs.writeFileSync(
+      path.join(pagesDir, 'notes.mdx'),
+      `---
+title: Notes
+---
+
+import Notes from '../../notes.md'
+
+<Notes />`,
+    )
+
+    const documents = await Search.SearchDocuments.fromConfig(Config.define({ rootDir }))
+
+    expect(documents).toContainEqual(
+      expect.objectContaining({
+        href: '/notes#notes',
+        text: ' Some indexable prose about widgets and links.',
+        title: 'Notes',
+        type: 'page',
+      }),
+    )
   })
 })
 

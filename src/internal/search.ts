@@ -14,6 +14,7 @@ import { unified } from 'unified'
 import * as UnistUtil from 'unist-util-visit'
 import * as yaml from 'yaml'
 import type * as Config from './config.js'
+import * as MarkdownImports from './markdown-imports.js'
 import { extractSubheading, getPhrasingContentText } from './mdx.js'
 import * as OpenApiRegistry from './openapi/registry.js'
 import * as OpenApiSearch from './openapi/search.js'
@@ -61,7 +62,8 @@ export namespace SearchDocuments {
     for (const page of mdxPages)
       taskRunner.run(async () => {
         const filePath = path.join(pagesDirPath, page)
-        const content = await fs.promises.readFile(filePath, 'utf-8')
+        const rawContent = await fs.promises.readFile(filePath, 'utf-8')
+        const content = MarkdownImports.inlineMarkdownImports(rawContent, filePath)
 
         const { searchPriority, sections } = extract(content, config)
         if (sections.length === 0) return
@@ -260,7 +262,8 @@ export namespace SearchIndex {
   ): string[] {
     const { pagesDir, previousIds = [], config } = options
 
-    const content = fs.readFileSync(filePath, 'utf-8')
+    const rawContent = fs.readFileSync(filePath, 'utf-8')
+    const content = MarkdownImports.inlineMarkdownImports(rawContent, filePath)
     const { searchPriority, sections } = extract(content, config)
 
     // Remove old entries for this file
