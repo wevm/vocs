@@ -5,6 +5,7 @@ import remarkStringify from 'remark-stringify'
 import type { PluggableList } from 'unified'
 import { unified } from 'unified'
 import type * as Config from './config.js'
+import * as MarkdownImports from './markdown-imports.js'
 import * as OpenApiMarkdown from './openapi/markdown.js'
 import type * as Sidebar from './sidebar.js'
 
@@ -40,10 +41,14 @@ export async function buildLlmsContent(options: buildLlmsContent.Options) {
         }
       }
 
-      const content =
+      const rawContent =
         typeof page.content === 'string'
           ? page.content
           : await fs.readFile(page.content.path, 'utf-8')
+      const content =
+        typeof page.content === 'string'
+          ? rawContent
+          : MarkdownImports.inlineMarkdownImports(rawContent, page.content.path)
       const file = await unified()
         .use(remarkParse)
         .use(remarkMdx)

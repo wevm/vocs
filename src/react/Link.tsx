@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useRouter, Link as WakuLink } from 'waku'
+import { useContext, useEffect, useState } from 'react'
+import { Link as WakuLink } from 'waku'
+import { unstable_RouterContext as WakuRouterContext } from 'waku/router/client'
 import * as Path from '../internal/path.js'
 
 const viewportPrefetchDelayMs = 2_000
@@ -57,14 +58,18 @@ function useViewportPrefetchReady(enabled: boolean) {
 
 export function Link(props: Link.Props) {
   const { to, unstable_prefetchOnEnter = true, unstable_prefetchOnView = true, ...rest } = props
-  const { path } = useRouter()
-  const prefetchOnView = useViewportPrefetchReady(Boolean(unstable_prefetchOnView))
+  const router = useContext(WakuRouterContext)
+  const routerPath = router?.route.path
+  const isExternal = Path.isExternal(props.to)
+  const prefetchOnView = useViewportPrefetchReady(
+    Boolean(unstable_prefetchOnView) && !isExternal && routerPath !== undefined,
+  )
 
-  if (Path.isExternal(props.to))
-    return <a {...rest} href={props.to} rel="noopener noreferrer" target="_blank" />
+  if (isExternal) return <a {...rest} href={props.to} rel="noopener noreferrer" target="_blank" />
 
   const [before, after] = (props.to || '').split('#')
-  const resolvedTo = `${before ? before : path}${after ? `#${after}` : ''}`
+  const resolvedTo = `${before ? before : (routerPath ?? '')}${after ? `#${after}` : ''}`
+  if (routerPath === undefined) return <a {...rest} href={resolvedTo || props.to} />
   return (
     <WakuLink
       {...rest}

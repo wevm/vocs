@@ -1,3 +1,6 @@
+import * as fs from 'node:fs'
+import * as os from 'node:os'
+import * as path from 'node:path'
 import { describe, expect, test } from 'vitest'
 import { buildLlmsContent } from './llms.js'
 import {
@@ -431,5 +434,37 @@ const a = 1
       \`\`\`
       "
     `)
+  })
+
+  test('includes imported markdown content for file-backed pages', async () => {
+    const rootDir = fs.mkdtempSync(path.join(os.tmpdir(), 'vocs-llms-'))
+    const pagesDir = path.join(rootDir, 'src/pages')
+    fs.mkdirSync(pagesDir, { recursive: true })
+
+    const externalPath = path.join(rootDir, 'notes.md')
+    const pagePath = path.join(pagesDir, 'notes.mdx')
+    fs.writeFileSync(
+      externalPath,
+      '# Notes\n\nSome indexable prose about widgets. See [the docs](https://example.com).',
+    )
+    fs.writeFileSync(
+      pagePath,
+      `---
+title: Notes
+---
+
+import Notes from '../../notes.md'
+
+<Notes />`,
+    )
+
+    const result = await buildLlmsContent({
+      pages: [{ path: '/notes', content: { path: pagePath } }],
+      title: 'My Docs',
+      ...plugins,
+    })
+
+    expect(result.results[0]?.content).toContain('Some indexable prose about widgets.')
+    expect(result.full).toContain('Some indexable prose about widgets.')
   })
 })
