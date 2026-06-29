@@ -11,7 +11,7 @@ import LucideFile from '~icons/lucide/file'
 import LucideHash from '~icons/lucide/hash'
 import LucideSearch from '~icons/lucide/search'
 import * as Path from '../../internal/path.js'
-import { searchFields, storeFields, tokenize } from '../../internal/search.client.js'
+import { SearchConfig } from '../../internal/search.client.js'
 import { Link } from '../Link.js'
 import { useConfig } from '../useConfig.js'
 import { DialogTrigger } from './DialogTrigger.js'
@@ -86,14 +86,12 @@ export function Search(props: Search.Props) {
         const json = await getSearchIndex()
         setIndex(
           MiniSearch.loadJSON<SearchResult>(json, {
-            fields: [...searchFields],
-            storeFields: [...storeFields],
-            tokenize,
+            ...SearchConfig.getIndexOptions(config),
           }),
         )
       })
       .catch((error) => console.error('Failed to load search index:', error))
-  }, [open, index])
+  }, [open, index, config])
 
   React.useEffect(() => {
     try {
@@ -108,12 +106,11 @@ export function Search(props: Search.Props) {
       return
     }
 
-    const results = (index.search(query, { ...config.search, tokenize }) as SearchResult[]).slice(
-      0,
-      20,
-    )
+    const results = (
+      index.search(query, SearchConfig.getQueryOptions(config)) as SearchResult[]
+    ).slice(0, 20)
     setSearch((s) => ({ ...s, results, selectedIndex: 0 }))
-  }, [query, index, config.search])
+  }, [query, index, config])
 
   React.useEffect(() => {
     if (disableKeyboardShortcut) return

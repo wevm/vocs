@@ -16,7 +16,7 @@ import * as yaml from 'yaml'
 import type * as Config from './config.js'
 import { extractSubheading, getPhrasingContentText } from './mdx.js'
 import * as Path from './path.js'
-import { searchFields, storeFields, tokenize } from './search.client.js'
+import { SearchConfig } from './search.client.js'
 import * as Sidebar from './sidebar.js'
 import * as TaskRunner from './task-runner.js'
 import * as TopNav from './topNav.js'
@@ -186,12 +186,11 @@ export namespace SearchIndex {
   /**
    * Create a search index from documents.
    */
-  export function fromSearchDocuments(documents: SearchDocuments.Document[]): SearchIndex {
-    const index = new MiniSearch<SearchDocuments.Document>({
-      fields: [...searchFields],
-      storeFields: [...storeFields],
-      tokenize,
-    })
+  export function fromSearchDocuments(
+    documents: SearchDocuments.Document[],
+    config?: Config.Config,
+  ): SearchIndex {
+    const index = new MiniSearch<SearchDocuments.Document>(SearchConfig.getIndexOptions(config))
     index.addAll(documents)
     return index
   }
@@ -200,17 +199,15 @@ export namespace SearchIndex {
    * Load a search index from a JSON file.
    */
   export function loadFromFile(options: loadFromFile.Options): SearchIndex {
-    const { filePath } = options
+    const { config, filePath } = options
 
     const json = JSON.parse(fs.readFileSync(filePath, 'utf-8'))
-    return MiniSearch.loadJSON(json, {
-      fields: [...searchFields],
-      storeFields: [...storeFields],
-    })
+    return MiniSearch.loadJSON(json, SearchConfig.getIndexOptions(config))
   }
 
   export declare namespace loadFromFile {
     type Options = {
+      config?: Config.Config
       filePath: string
     }
   }

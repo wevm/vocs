@@ -612,7 +612,7 @@ export function search(config: Config.Config): PluginOption {
   async function buildIndex(): Promise<SearchIndex.SearchIndex> {
     logger.info('Building search index...', { timestamp: true })
     const docs = await SearchDocuments.fromConfig(config)
-    const index = SearchIndex.fromSearchDocuments(docs)
+    const index = SearchIndex.fromSearchDocuments(docs, config)
 
     // Populate fileIds map for HMR
     for (const doc of docs) {

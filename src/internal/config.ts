@@ -1,6 +1,10 @@
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import type * as MdxRollup from '@mdx-js/rollup'
+import type {
+  Options as MiniSearchOptions,
+  SearchOptions as MiniSearchSearchOptions,
+} from 'minisearch'
 import type * as Changelog from './changelog.js'
 import type * as Feedback from './feedback.js'
 import * as Langs from './langs.js'
@@ -12,6 +16,218 @@ import type * as TopNav from './topNav.js'
 import type { MaybePartial, UnionOmit } from './types.js'
 
 export type ThemeValue<value> = { light: value; dark: value }
+
+type SearchDocument = {
+  category: string
+  href: string
+  id: string
+  searchPriority: number | undefined
+  subtitle: string
+  text: string
+  title: string
+  titles: string[]
+  type: 'page' | 'section' | 'nav'
+}
+
+export type SearchIndexOptions = Omit<MiniSearchOptions<SearchDocument>, 'fields'> & {
+  /**
+   * Document fields to index during MiniSearch build and load.
+   *
+   * Replaces the Vocs default indexed fields: `category`, `subtitle`, `text`, `title`, and
+   * `titles`. Runs on the server when Vocs builds the index, and is reused in the browser when
+   * loading the serialized index.
+   */
+  fields?: string[]
+  /**
+   * Document fields to store on search results during MiniSearch build and load.
+   *
+   * Extends the required Vocs UI fields. Required fields are always stored even when omitted:
+   * `category`, `href`, `searchPriority`, `subtitle`, `text`, `title`, `titles`, and `type`.
+   * Runs on the server when Vocs builds the index, and is reused in the browser when loading the
+   * serialized index.
+   */
+  storeFields?: string[]
+  /**
+   * Document field used as the unique MiniSearch id.
+   *
+   * Defaults to `id`. Replaces the MiniSearch id field during server index build and browser index
+   * load. Changing this is advanced because Vocs HMR and UI behavior expect stable document ids.
+   */
+  idField?: string
+  /**
+   * Reads a field value from a Vocs search document during MiniSearch indexing and storage.
+   *
+   * Defaults to MiniSearch object property access. Replaces that behavior on the server during
+   * index build, and in the browser when loading the index. Use this to provide virtual fields.
+   * The function must be serializable because Vocs sends search config to the browser.
+   */
+  extractField?: (document: SearchDocument, fieldName: string) => unknown
+  /**
+   * Converts extracted field values to strings during MiniSearch indexing.
+   *
+   * Defaults to MiniSearch stringification. Replaces that behavior on the server during index
+   * build, and in the browser when loading the index. The function must be serializable because
+   * Vocs sends search config to the browser.
+   */
+  stringifyField?: (fieldValue: unknown, fieldName: string) => string
+  /**
+   * Splits indexed document field values into terms.
+   *
+   * Defaults to the Vocs tokenizer, which handles whitespace, punctuation, paths, and camelCase.
+   * Replaces the index tokenizer on the server during build and in the browser when loading the
+   * serialized index. The function must be serializable because Vocs sends search config to the
+   * browser.
+   */
+  tokenize?: (text: string, fieldName?: string) => string[]
+  /**
+   * Normalizes or expands terms while MiniSearch indexes document fields.
+   *
+   * Defaults to MiniSearch lowercase processing. Replaces index-time term processing on the server
+   * and in the browser when loading the serialized index. The function must be serializable because
+   * Vocs sends search config to the browser.
+   */
+  processTerm?:
+    | ((term: string, fieldName?: string) => string | string[] | null | undefined | false)
+    | undefined
+  /**
+   * Controls MiniSearch automatic vacuuming after discarded documents.
+   *
+   * Passed through to MiniSearch during server index build and browser index load. Defaults to
+   * MiniSearch behavior.
+   */
+  autoVacuum?: MiniSearchOptions<SearchDocument>['autoVacuum']
+  /**
+   * Default MiniSearch query options stored on the index.
+   *
+   * Merges with MiniSearch defaults during index build/load. Vocs still applies `search.query`
+   * at runtime, so prefer `search.query` for docs search dialog behavior.
+   */
+  searchOptions?: MiniSearchSearchOptions
+  /**
+   * Default MiniSearch auto-suggest options stored on the index.
+   *
+   * Merges with MiniSearch defaults during index build/load. Vocs does not currently call
+   * MiniSearch auto-suggest in its built-in search UI.
+   */
+  autoSuggestOptions?: MiniSearchSearchOptions
+}
+
+export type SearchQueryOptions = MiniSearchSearchOptions & {
+  /**
+   * Restricts which indexed fields are searched at query runtime.
+   *
+   * Defaults to every indexed field. Replaces the runtime field set in the browser search dialog.
+   */
+  fields?: string[]
+  /**
+   * Filters MiniSearch results at query runtime.
+   *
+   * Runs in the browser after scoring and before results are shown. The function must be
+   * serializable because Vocs sends search config to the browser.
+   */
+  filter?: MiniSearchSearchOptions['filter']
+  /**
+   * Per-field score boosts used at query runtime.
+   *
+   * Merges with the Vocs defaults: `title: 4`, `subtitle: 3`, `text: 2`, `category: 1`,
+   * `titles: 1`.
+   */
+  boost?: MiniSearchSearchOptions['boost']
+  /**
+   * Per-document score boost used at query runtime.
+   *
+   * Defaults to Vocs search priority and path-depth boosting. Runs in the browser search dialog.
+   * The function must be serializable because Vocs sends search config to the browser.
+   */
+  boostDocument?: MiniSearchSearchOptions['boostDocument']
+  /**
+   * Controls whether query terms are combined with `AND` or `OR` at runtime.
+   *
+   * Defaults to `AND`. Replaces the Vocs default in the browser search dialog.
+   */
+  combineWith?: MiniSearchSearchOptions['combineWith']
+  /**
+   * Controls fuzzy matching at query runtime.
+   *
+   * Defaults to `0.2`. Replaces the Vocs default in the browser search dialog.
+   */
+  fuzzy?: MiniSearchSearchOptions['fuzzy']
+  /**
+   * Controls prefix matching at query runtime.
+   *
+   * Defaults to `true`. Replaces the Vocs default in the browser search dialog.
+   */
+  prefix?: MiniSearchSearchOptions['prefix']
+  /**
+   * Relative score weights for fuzzy and prefix matches at query runtime.
+   *
+   * Uses MiniSearch defaults unless provided. Replaces MiniSearch runtime weights in the browser
+   * search dialog.
+   */
+  weights?: MiniSearchSearchOptions['weights']
+  /**
+   * Splits search queries into terms at runtime.
+   *
+   * Defaults to the index tokenizer, which is the Vocs tokenizer unless `search.index.tokenize`
+   * overrides it. Runs in the browser search dialog. The function must be serializable because
+   * Vocs sends search config to the browser.
+   */
+  tokenize?: MiniSearchSearchOptions['tokenize']
+  /**
+   * Normalizes or expands query terms at runtime.
+   *
+   * Defaults to the index term processor. Runs in the browser search dialog. The function must be
+   * serializable because Vocs sends search config to the browser.
+   */
+  processTerm?: MiniSearchSearchOptions['processTerm']
+}
+
+export type SearchOptions = {
+  /**
+   * MiniSearch constructor/load options for index build and index load.
+   *
+   * Use this for changing what gets indexed or stored. Function options run during server index
+   * build and browser index load, so they must be serializable.
+   */
+  index?: SearchIndexOptions
+  /**
+   * MiniSearch search options for runtime queries.
+   *
+   * Use this for changing how the built-in search dialog matches, ranks, and filters results.
+   * Function options run in the browser and must be serializable.
+   */
+  query?: SearchQueryOptions
+  /**
+   * Legacy alias for `search.query.boost`.
+   *
+   * Merges with Vocs default query boosts.
+   */
+  boost: NonNullable<MiniSearchSearchOptions['boost']>
+  /**
+   * Legacy alias for `search.query.boostDocument`.
+   *
+   * Defaults to Vocs search priority and path-depth boosting.
+   */
+  boostDocument: NonNullable<MiniSearchSearchOptions['boostDocument']>
+  /**
+   * Legacy alias for `search.query.combineWith`.
+   *
+   * Defaults to `AND`.
+   */
+  combineWith: NonNullable<MiniSearchSearchOptions['combineWith']>
+  /**
+   * Legacy alias for `search.query.fuzzy`.
+   *
+   * Defaults to `0.2`.
+   */
+  fuzzy: NonNullable<MiniSearchSearchOptions['fuzzy']>
+  /**
+   * Legacy alias for `search.query.prefix`.
+   *
+   * Defaults to `true`.
+   */
+  prefix: NonNullable<MiniSearchSearchOptions['prefix']>
+}
 
 export type Config<partial extends boolean = false> = MaybePartial<
   partial,
@@ -275,18 +491,45 @@ export type Config<partial extends boolean = false> = MaybePartial<
     rootDir: string
     /**
      * Configuration for docs search.
-     * Accepts MiniSearch options for customizing search behavior.
+     *
+     * `search.index` customizes MiniSearch index construction/loading. `search.query`
+     * customizes runtime searches in the browser. Legacy top-level query options such as
+     * `boost`, `fuzzy`, `prefix`, `combineWith`, and `boostDocument` remain supported.
+     *
+     * Custom functions must be serializable because Vocs sends search config to the client.
+     *
+     * @example
+     * ```ts
+     * export default defineConfig({
+     *   search: {
+     *     index: {
+     *       fields: ['title', 'text', 'path'],
+     *       extractField(document, fieldName) {
+     *         if (fieldName === 'path') return document.href
+     *         return document[fieldName as keyof typeof document]
+     *       },
+     *     },
+     *   },
+     * })
+     * ```
+     *
+     * @example
+     * ```ts
+     * export default defineConfig({
+     *   search: {
+     *     index: { storeFields: ['href'] },
+     *     query: {
+     *       fields: ['title', 'text'],
+     *       boost: { title: 6, text: 1 },
+     *       fuzzy: false,
+     *       prefix: false,
+     *       processTerm: (term) => term.toLowerCase(),
+     *     },
+     *   },
+     * })
+     * ```
      */
-    search: MaybePartial<
-      partial,
-      {
-        boost: Record<string, number>
-        boostDocument: (id: string, term: string, storedFields?: Record<string, unknown>) => number
-        combineWith: 'AND' | 'OR'
-        fuzzy: number | boolean
-        prefix: boolean
-      }
-    >
+    search: MaybePartial<partial, SearchOptions>
     /**
      * Navigation displayed on the sidebar.
      */
@@ -497,9 +740,10 @@ export function define(config: define.Options = {}): Config {
     redirects,
     renderStrategy,
     rootDir,
-    search: {
-      ...search,
-      boostDocument:
+    search: (() => {
+      const query = search?.query ?? {}
+      const boostDocument =
+        query.boostDocument ??
         search?.boostDocument ??
         ((_id, _term, storedFields) => {
           const priority = (storedFields?.['searchPriority'] as number | undefined) ?? 1
@@ -511,12 +755,41 @@ export function define(config: define.Options = {}): Config {
           const depthBoost = 1 / Math.max(depth, 1)
           const docsBoost = isDocsPath ? 1.5 : 1
           return priority * depthBoost * docsBoost
-        }),
-      combineWith: search?.combineWith ?? 'AND',
-      fuzzy: search?.fuzzy ?? 0.2,
-      prefix: search?.prefix ?? true,
-      boost: { title: 4, subtitle: 3, text: 2, category: 1, titles: 1, ...search?.boost },
-    },
+        })
+
+      return {
+        ...search,
+        query: {
+          ...query,
+          boostDocument,
+          combineWith: query.combineWith ?? search?.combineWith ?? 'AND',
+          fuzzy: query.fuzzy ?? search?.fuzzy ?? 0.2,
+          prefix: query.prefix ?? search?.prefix ?? true,
+          boost: {
+            title: 4,
+            subtitle: 3,
+            text: 2,
+            category: 1,
+            titles: 1,
+            ...search?.boost,
+            ...query.boost,
+          },
+        },
+        boostDocument,
+        combineWith: query.combineWith ?? search?.combineWith ?? 'AND',
+        fuzzy: query.fuzzy ?? search?.fuzzy ?? 0.2,
+        prefix: query.prefix ?? search?.prefix ?? true,
+        boost: {
+          title: 4,
+          subtitle: 3,
+          text: 2,
+          category: 1,
+          titles: 1,
+          ...search?.boost,
+          ...query.boost,
+        },
+      }
+    })(),
     sidebar,
     socials,
     srcDir,

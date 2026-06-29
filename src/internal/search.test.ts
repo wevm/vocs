@@ -882,6 +882,65 @@ describe('Config.search defaults', () => {
     expect(config.search.fuzzy).toBe(0.2)
     expect(config.search.prefix).toBe(true)
     expect(typeof config.search.boostDocument).toBe('function')
+    expect(config.search.query?.boost).toEqual(config.search.boost)
+    expect(config.search.query?.fuzzy).toBe(0.2)
+    expect(config.search.query?.prefix).toBe(true)
+  })
+
+  it('normalizes legacy search options into query options', () => {
+    const config = Config.define({
+      search: {
+        boost: { text: 10 },
+        combineWith: 'OR',
+        fuzzy: false,
+        prefix: false,
+      },
+    })
+
+    expect(config.search.query?.boost).toMatchObject({ title: 4, text: 10 })
+    expect(config.search.query?.combineWith).toBe('OR')
+    expect(config.search.query?.fuzzy).toBe(false)
+    expect(config.search.query?.prefix).toBe(false)
+  })
+})
+
+describe('SearchConfig', () => {
+  it('returns default index options', () => {
+    expect(Search.SearchConfig.getIndexOptions(config)).toMatchObject({
+      fields: ['category', 'subtitle', 'text', 'title', 'titles'],
+      storeFields: [
+        'category',
+        'href',
+        'searchPriority',
+        'subtitle',
+        'text',
+        'title',
+        'titles',
+        'type',
+      ],
+    })
+  })
+
+  it('keeps required store fields when custom store fields are configured', () => {
+    const config = Config.define({
+      search: {
+        index: {
+          storeFields: ['href', 'custom'],
+        },
+      },
+    })
+
+    expect(Search.SearchConfig.getIndexOptions(config).storeFields).toEqual([
+      'category',
+      'href',
+      'searchPriority',
+      'subtitle',
+      'text',
+      'title',
+      'titles',
+      'type',
+      'custom',
+    ])
   })
 })
 
@@ -984,6 +1043,105 @@ describe('SearchIndex.fromSearchDocuments', () => {
     expect(results[1]?.id).toBe('/docs/config.mdx#configuration')
     // Score should be 10x higher for the high priority doc
     expect(results[0]?.score).toBeGreaterThan(results[1]?.score ?? 0)
+  })
+
+  it('indexes custom virtual fields', () => {
+    const docs: SearchDocuments.Document[] = [
+      {
+        category: '',
+        href: '/docs/runtime-api',
+        id: '/docs/runtime-api.mdx#runtime-api',
+        searchPriority: undefined,
+        subtitle: '',
+        text: 'Reference content.',
+        title: 'Runtime API',
+        titles: [],
+        type: 'page',
+      },
+    ]
+    const config = Config.define({
+      search: {
+        index: {
+          fields: ['path'],
+          extractField(document, fieldName) {
+            if (fieldName === 'path') return document.href
+            return document[fieldName as keyof typeof document]
+          },
+        },
+      },
+    })
+
+    const index = SearchIndex.fromSearchDocuments(docs, config)
+
+    expect(index.search('runtime', Search.SearchConfig.getQueryOptions(config))[0]?.id).toBe(
+      '/docs/runtime-api.mdx#runtime-api',
+    )
+  })
+
+  it('stores custom fields', () => {
+    const docs: SearchDocuments.Document[] = [
+      {
+        category: 'Docs',
+        href: '/guide',
+        id: '/docs/guide.mdx#guide',
+        searchPriority: undefined,
+        subtitle: '',
+        text: 'Install instructions.',
+        title: 'Guide',
+        titles: [],
+        type: 'page',
+      },
+    ]
+    const config = Config.define({
+      search: {
+        index: {
+          storeFields: ['path'],
+          extractField(document, fieldName) {
+            if (fieldName === 'path') return document.href
+            return document[fieldName as keyof typeof document]
+          },
+        },
+      },
+    })
+
+    const index = SearchIndex.fromSearchDocuments(docs, config)
+    const result = index.search('guide', Search.SearchConfig.getQueryOptions(config))[0]
+
+    expect(result).toMatchObject({ href: '/guide', path: '/guide', title: 'Guide' })
+  })
+
+  it('applies query fields, weights, and filter at runtime', () => {
+    const docs = [
+      ...buildDoc(
+        '/docs/title.mdx',
+        '/title',
+        `# Alpha
+
+No keyword.
+`,
+      ),
+      ...buildDoc(
+        '/docs/text.mdx',
+        '/text',
+        `# Other
+
+Alpha keyword.
+`,
+      ),
+    ]
+    const config = Config.define({
+      search: {
+        query: {
+          fields: ['text'],
+          filter: (result) => result.id !== '/docs/text.mdx#other',
+          weights: { fuzzy: 0.5, prefix: 0.5 },
+        },
+      },
+    })
+
+    const index = SearchIndex.fromSearchDocuments(docs, config)
+
+    expect(index.search('alpha', Search.SearchConfig.getQueryOptions(config))).toEqual([])
   })
 
   it('boosts shallow paths over deep paths', () => {
