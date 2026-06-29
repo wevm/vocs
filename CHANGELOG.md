@@ -1,5 +1,11 @@
 # vocs
 
+## 2.2.0
+
+### Minor Changes
+
+- f881797: Exposed MiniSearch index and query configuration for docs search.
+
 ## 2.1.12
 
 ### Patch Changes
