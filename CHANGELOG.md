@@ -1,5 +1,12 @@
 # vocs
 
+## 2.2.1
+
+### Patch Changes
+
+- 44fb8b0: Fixed standalone OpenAPI bundle builds when Vocs components import Waku router subpaths.
+- 3f1418d: Preserved visual indentation in Twoslash custom tag output.
+
 ## 2.2.0
 
 ### Minor Changes
