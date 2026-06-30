@@ -1,5 +1,12 @@
 # vocs
 
+## 2.2.3
+
+### Patch Changes
+
+- b0ea6e7: Excluded changelog release-body headings from the page outline and sidebar active-section tracking, fixing the overlapping/duplicated "On this page" entries on changelog pages and the stale entries that leaked onto subsequent pages.
+- a1dd6ba: Fixed the Twoslash hover popup being covered by page content on `minimal` and `blank` layouts by giving its portaled positioner a z-index.
+
 ## 2.2.2
 
 ### Patch Changes
