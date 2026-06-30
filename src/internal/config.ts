@@ -611,6 +611,18 @@ export type Config<partial extends boolean = false> = MaybePartial<
      */
     topNav?: readonly TopNav.Item[] | undefined
     /**
+     * Whether Vocs redirects trailing-slash page URLs to their no-slash form
+     * (e.g. `/about/` → `/about` via a 308).
+     *
+     * Disable this when an upstream host (e.g. a reverse proxy or CDN) owns
+     * trailing-slash canonicalization. When disabled, Vocs internally
+     * normalizes `/foo/` to `/foo` for routing instead of emitting a redirect,
+     * which avoids redirect loops when the upstream adds trailing slashes.
+     *
+     * @default true
+     */
+    trailingSlashRedirect: boolean
+    /**
      * TwoSlash configuration. Set to `false` to disable.
      */
     twoslash?: Mdx.rehypeShiki.Options['twoslash'] | undefined
@@ -737,6 +749,7 @@ export function define(config: define.Options = {}): Config {
     title = 'Docs',
     titleTemplate = `%s – ${title}`,
     topNav,
+    trailingSlashRedirect = true,
     twoslash,
   } = config
 
@@ -863,6 +876,7 @@ export function define(config: define.Options = {}): Config {
     title,
     titleTemplate,
     topNav,
+    trailingSlashRedirect,
     twoslash,
   }
 }
