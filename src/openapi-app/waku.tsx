@@ -129,6 +129,27 @@ export function useRouter() {
   }
 }
 
+/**
+ * Shim for `waku/router/client`'s `unstable_RouterContext`. The genuine Vocs
+ * `react/Link` reads `router?.route.path` from this context to resolve bare
+ * `#hash` links against the current page. Aliasing `waku/router/client` to this
+ * module keeps the real `react-server-dom-webpack`-backed Waku client out of the
+ * standalone browser bundle (importing it leaks `__webpack_require__`).
+ */
+export const unstable_RouterContext = React.createContext<{
+  route: { path: string }
+} | null>(null)
+
+/** Feeds {@link unstable_RouterContext} the live section route for `react/Link`. */
+export function RouterProvider(props: { children: React.ReactNode }) {
+  const { path } = useRouter()
+  return (
+    <unstable_RouterContext.Provider value={{ route: { path } }}>
+      {props.children}
+    </unstable_RouterContext.Provider>
+  )
+}
+
 /** Waku-compatible `Link`. Renders a real, mount-prefixed `<a>`. */
 export function Link(props: Link.Props) {
   const {
