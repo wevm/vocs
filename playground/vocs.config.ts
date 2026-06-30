@@ -91,7 +91,6 @@ export default defineConfig({
   search: {
     rag: {
       embedding: Embedding.openrouter(),
-      retrieval: { hybrid: true },
     },
   },
   sidebar: {
