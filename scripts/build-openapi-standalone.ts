@@ -71,6 +71,11 @@ await build({
       // The real Vocs layout/chrome only touches Waku via `useRouter`/`Link`;
       // swap it for the SPA history shim so genuine components render here.
       { find: /^waku$/, replacement: path.resolve(appDir, 'waku.tsx') },
+      // `react/Link` imports `unstable_RouterContext` from `waku/router/client`;
+      // alias it to the same shim so the real Waku client (which pulls in
+      // `react-server-dom-webpack` and leaks `__webpack_require__` into the
+      // browser bundle) stays out of the standalone build.
+      { find: /^waku\/router\/client$/, replacement: path.resolve(appDir, 'waku.tsx') },
     ],
   },
   plugins: [

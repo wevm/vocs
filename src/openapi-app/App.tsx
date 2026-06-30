@@ -4,7 +4,7 @@ import type { Payload } from '../internal/openapi/app.js'
 import { OpenApiGuide, OpenApiPage } from '../react/internal/openapi/OpenApiPage.js'
 import { Blocks } from './blocks.js'
 import { join } from './links.js'
-import { useRouter } from './waku.js'
+import { RouterProvider, useRouter } from './waku.js'
 
 /**
  * Resolves the active section route to real Vocs page content:
@@ -19,6 +19,16 @@ import { useRouter } from './waku.js'
  * still renders below.
  */
 export function App(props: App.Props) {
+  // The genuine `react/Link` reads the active route from `unstable_RouterContext`
+  // (shimmed in `waku.tsx`); provide it so links resolve relative `#hash`s.
+  return (
+    <RouterProvider>
+      <Content {...props} />
+    </RouterProvider>
+  )
+}
+
+function Content(props: App.Props) {
   const { payload } = props
   const { ir, pages } = payload
   const base = ir.path || '/'
