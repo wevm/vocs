@@ -184,7 +184,7 @@
 }
 
 .twoslash-tag-line {
-  @apply vocs:py-0.5 vocs:my-0.5 vocs:border-solid;
+  @apply vocs:py-0.5 vocs:my-0.5 vocs:border-solid vocs:whitespace-pre;
 }
 
 .twoslash-tag-multiline-line {
