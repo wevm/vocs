@@ -1,5 +1,11 @@
 # vocs
 
+## 2.2.5
+
+### Patch Changes
+
+- 26cec40: Added `trailingSlashRedirect` config option (default `true`).
+
 ## 2.2.4
 
 ### Patch Changes
