@@ -86,7 +86,12 @@ function useActiveAnchor(enabled: boolean, path: string): string | null {
 
     const observeAll = () => {
       observer.disconnect()
-      for (const element of document.querySelectorAll(selector)) observer.observe(element)
+      for (const element of document.querySelectorAll(selector)) {
+        // Skip changelog release-body headings — they have no sidebar entry and
+        // would hijack the active section as you scroll through the changelog.
+        if (element.closest('[data-v-changelog]')) continue
+        observer.observe(element)
+      }
     }
     observeAll()
 
