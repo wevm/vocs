@@ -1,5 +1,9 @@
+import { resolveIconSync } from '../icons.js'
 import type { SidebarItem } from '../sidebar.js'
 import type { Ir, IrOperation } from './parser.js'
+
+/** Inline SVG for the webhook badge, resolved once at module load (server-side). */
+const webhookIcon = resolveIconSync('lucide:webhook')
 
 export type Badge = NonNullable<SidebarItem['badge']>
 export type BadgeVariant = NonNullable<Exclude<Badge, string>['variant']>
@@ -72,7 +76,12 @@ export function toSidebar(ir: Ir, options: toSidebar.Options = {}): SidebarItem<
         ...group.operations.map((operation) => ({
           text: operation.summary || `${operation.method} ${operation.path}`,
           link: operationLink(operation, group.id),
-          badge: { text: operation.method, variant: methodVariant(operation.method) },
+          // Webhooks are inbound deliveries, not callable endpoints — show a
+          // webhook glyph instead of the HTTP method (which is always POST).
+          badge:
+            operation.isWebhook && webhookIcon
+              ? { icon: webhookIcon, variant: methodVariant(operation.method) }
+              : { text: operation.method, variant: methodVariant(operation.method) },
         })),
       ],
     })),

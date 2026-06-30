@@ -226,6 +226,45 @@ describe('parse', () => {
       globalThis.fetch = fetch_
     }
   })
+
+  test('parses OpenAPI 3.1 top-level `webhooks` as non-callable operations', async () => {
+    const webhookSpec = {
+      openapi: '3.1.0',
+      info: { title: 'Petstore', version: '1.0.0' },
+      tags: [{ name: 'Webhooks', description: 'Outbound deliveries.' }],
+      paths: {
+        '/pets': { get: { operationId: 'listPets', tags: ['pets'], responses: { '200': {} } } },
+      },
+      webhooks: {
+        event: {
+          post: {
+            summary: 'Webhook event delivery',
+            tags: ['Webhooks'],
+            parameters: [
+              { name: 'x-signature', in: 'header', required: true, schema: { type: 'string' } },
+            ],
+            requestBody: {
+              required: true,
+              content: { 'application/json': { schema: { type: 'object' } } },
+            },
+            responses: { '2xx': { description: 'Delivery acknowledged.' } },
+          },
+        },
+      },
+    }
+    const ir = await parse(OpenApi.from({ spec: webhookSpec, path: '/api' }))
+
+    const webhooks = ir.groups.find((group) => group.name === 'Webhooks')
+    expect(webhooks?.operations).toHaveLength(1)
+    const event = webhooks?.operations[0]
+    expect(event?.method).toBe('POST')
+    expect(event?.path).toBe('event')
+    expect(event?.isWebhook).toBe(true)
+    expect(event?.summary).toBe('Webhook event delivery')
+    expect(event?.requestBody?.content[0]?.schema).toEqual({ type: 'object' })
+    // Webhook ids are prefixed so they can't collide with real path operations.
+    expect(event?.id).toBe('webhook-post-event')
+  })
 })
 
 describe('from', () => {

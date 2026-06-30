@@ -95,8 +95,14 @@ export type IrOperation = {
   id: string
   /** HTTP method (uppercased for display, e.g. `GET`). */
   method: string
-  /** Templated path (e.g. `/pets/{petId}`). */
+  /** Templated path (e.g. `/pets/{petId}`), or the event name for webhooks. */
   path: string
+  /**
+   * `true` for an OpenAPI 3.1 outbound webhook delivery (from the document's
+   * top-level `webhooks`). The renderer omits the interactive client and code
+   * samples for these, since there's no endpoint to call.
+   */
+  isWebhook?: boolean | undefined
   /**
    * Name of the host operation's request example to preselect in the
    * interactive client. Set for JSON-RPC operations expanded from an OpenRPC
@@ -192,6 +198,12 @@ type Document = {
     'x-parent'?: string
   }[]
   paths?: Record<string, PathItem>
+  /**
+   * OpenAPI 3.1 outbound webhook deliveries. Keyed by event name (an arbitrary
+   * label, not a URL); each value is a Path Item with the same operation shape
+   * as `paths`. Rendered as non-callable operations (no server endpoint).
+   */
+  webhooks?: Record<string, PathItem>
   components?: { securitySchemes?: Record<string, IrSecurityScheme> }
   security?: Record<string, string[]>[]
 }
@@ -551,6 +563,35 @@ async function buildGroups(
     }
   }
 
+  // OpenAPI 3.1 outbound webhooks: same Path Item shape as `paths`, but keyed by
+  // event name and rendered as non-callable operations.
+  for (const [name, item] of Object.entries(document.webhooks ?? {})) {
+    if (!item || typeof item !== 'object') continue
+    const pathParameters = item.parameters ?? []
+
+    for (const method of methods) {
+      const operation = item[method]
+      if (!operation) continue
+
+      const groupName = operation.tags?.[0] ?? 'Webhooks'
+      if (!byName.has(groupName)) {
+        byName.set(groupName, [])
+        order.push(groupName)
+      }
+
+      byName.get(groupName)?.push(
+        buildOperation({
+          method,
+          pathname: name,
+          operation,
+          pathParameters,
+          slugger,
+          isWebhook: true,
+        }),
+      )
+    }
+  }
+
   const groups = order
     .map((name) => ({
       id: slugger.slug(name),
@@ -569,10 +610,13 @@ function buildOperation(options: {
   operation: Operation
   pathParameters: RawParameter[]
   slugger: GithubSlugger
+  isWebhook?: boolean
 }): IrOperation {
-  const { method, pathname, operation, pathParameters, slugger } = options
+  const { method, pathname, operation, pathParameters, slugger, isWebhook = false } = options
 
-  const idSource = operation.operationId || `${method}-${pathname}`
+  // Webhook keys are arbitrary labels (not URLs) and can collide with real
+  // paths, so prefix the id source to keep anchors unique.
+  const idSource = operation.operationId || `${isWebhook ? 'webhook-' : ''}${method}-${pathname}`
 
   // Merge path-level parameters with operation-level (operation wins on conflict).
   const merged = new Map<string, RawParameter>()
@@ -585,6 +629,7 @@ function buildOperation(options: {
     id: slugger.slug(idSource),
     method: method.toUpperCase(),
     path: pathname,
+    ...(isWebhook ? { isWebhook: true } : {}),
     summary: operation.summary,
     description: operation.description,
     deprecated: operation.deprecated,

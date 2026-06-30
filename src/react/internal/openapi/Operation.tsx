@@ -48,7 +48,9 @@ export function Operation(props: Operation.Props) {
   const title = operation.summary || `${operation.method} ${operation.path}`
   const Heading = `h${headingLevel}` as 'h2' | 'h3'
 
-  const samples = codeSamples(operation, server, { hideQueryParams })
+  // Webhooks are inbound deliveries to the consumer's URL, not callable
+  // endpoints — so skip the "Try" client and the request code samples.
+  const samples = operation.isWebhook ? [] : codeSamples(operation, server, { hideQueryParams })
   const responses = responseSamples(operation)
 
   return (
@@ -65,6 +67,7 @@ export function Operation(props: Operation.Props) {
           <HeadingAnchor id={operation.id} />
         </Heading>
         <div data-v-openapi-endpoint>
+          {operation.isWebhook && <Badge variant="note">Webhook</Badge>}
           <Badge variant={methodVariant(operation.method)}>{operation.method}</Badge>
           <code data-v-openapi-endpoint-path>{operation.path}</code>
         </div>
