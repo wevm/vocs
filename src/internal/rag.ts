@@ -494,21 +494,50 @@ type ServerIndex = {
   chunks: ChunkMetadata[]
 }
 
-const serverIndexCache = new Map<string, Promise<ServerIndex>>()
+type ServerIndexEntry = {
+  /** Resolves to the built in-process index. */
+  promise: Promise<ServerIndex>
+  /** `true` once the build has finished (so callers can avoid blocking). */
+  ready: boolean
+}
 
-/** Lazily builds and memoizes the in-process server index. */
-export async function getServerIndex(config: Config.Config): Promise<ServerIndex> {
+const serverIndexCache = new Map<string, ServerIndexEntry>()
+
+function indexCacheKey(config: Config.Config, priv: PrivateConfig): string {
+  return `${config.rootDir}:${priv.embedding.type}:${priv.embedding.model}`
+}
+
+/**
+ * Starts (or reuses) the background build of the in-process server index and
+ * returns its tracking entry. Never blocks: inspect `entry.ready` to decide
+ * whether to await `entry.promise` or respond immediately.
+ *
+ * On failure the entry is evicted so the next request retries the build.
+ */
+export function ensureServerIndex(config: Config.Config): ServerIndexEntry {
   const priv = requirePrivate(config)
-  const cacheKey = `${config.rootDir}:${priv.embedding.type}:${priv.embedding.model}`
-  let promise = serverIndexCache.get(cacheKey)
-  if (!promise) {
-    promise = buildIndex(config).then((manifest) => ({
-      store: VectorStore.load(manifest.vectors),
-      chunks: manifest.chunks,
-    }))
-    serverIndexCache.set(cacheKey, promise)
+  const cacheKey = indexCacheKey(config, priv)
+  let entry = serverIndexCache.get(cacheKey)
+  if (!entry) {
+    const created: ServerIndexEntry = { ready: false, promise: undefined as never }
+    created.promise = buildIndex(config)
+      .then((manifest) => {
+        created.ready = true
+        return { store: VectorStore.load(manifest.vectors), chunks: manifest.chunks }
+      })
+      .catch((error) => {
+        serverIndexCache.delete(cacheKey)
+        throw error
+      })
+    entry = created
+    serverIndexCache.set(cacheKey, entry)
   }
-  return promise
+  return entry
+}
+
+/** Lazily builds and memoizes the in-process server index (awaits the build). */
+export async function getServerIndex(config: Config.Config): Promise<ServerIndex> {
+  return ensureServerIndex(config).promise
 }
 
 /** Embeds the query, searches the local store, dedupes by href. */
@@ -585,12 +614,22 @@ export async function handleSearchRequest(
   const limit =
     typeof body.limit === 'number' ? Math.max(1, Math.min(20, Math.floor(body.limit))) : undefined
 
+  // Kick off (or reuse) the index build. The first cold build embeds every
+  // chunk and can take a while, so we never block the request on it: if the
+  // index isn't ready, respond immediately with `indexing: true` and let the
+  // client keep showing keyword results (and retry shortly).
+  const index = ensureServerIndex(config)
+  if (!index.ready) {
+    index.promise.catch(() => {}) // avoid unhandled rejection on the background build
+    return json({ results: [], indexing: true }, 202, { 'Cache-Control': 'no-store' })
+  }
+
   try {
     const t0 = Date.now()
     const results = await retrieve(config, { query, limit })
     const searchMs = Date.now() - t0
 
-    return json({ results, timings: { searchMs } }, 200, {
+    return json({ results, indexing: false, timings: { searchMs } }, 200, {
       'Cache-Control': 'no-store',
     })
   } catch (error) {

@@ -124,28 +124,42 @@ export function Search(props: Search.Props) {
     }
     const controller = new AbortController()
     const debounce = ragConfig.ui?.debounceMs ?? 250
-    const timer = setTimeout(async () => {
+    let retryTimer: ReturnType<typeof setTimeout> | undefined
+
+    const run = async (): Promise<void> => {
+      const response = await fetch(ragConfig.endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query }),
+        signal: controller.signal,
+      })
+      if (!response.ok) throw new Error(`Semantic search failed: ${response.status}`)
+      const data = (await response.json()) as { results: RagResult[]; indexing?: boolean }
+      // The server builds the vector index on first use. While it's still
+      // indexing we keep showing keyword results and poll until it's ready,
+      // rather than blocking the request or surfacing an error.
+      if (data.indexing) {
+        retryTimer = setTimeout(() => {
+          run().catch(() => {})
+        }, 1500)
+        return
+      }
+      setRagResults(data.results.map(toSearchResult))
+      setRagLoading(false)
+    }
+
+    const timer = setTimeout(() => {
       setRagLoading(true)
-      try {
-        const response = await fetch(ragConfig.endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ query }),
-          signal: controller.signal,
-        })
-        if (!response.ok) throw new Error(`Semantic search failed: ${response.status}`)
-        const data = (await response.json()) as { results: RagResult[] }
-        setRagResults(data.results.map(toSearchResult))
-        setRagLoading(false)
-      } catch (error) {
+      run().catch((error) => {
         if ((error as Error).name === 'AbortError') return
         setRagResults([])
         setRagLoading(false)
-      }
+      })
     }, debounce)
     return () => {
       controller.abort()
       clearTimeout(timer)
+      if (retryTimer) clearTimeout(retryTimer)
     }
   }, [ragEnabled, open, query, ragConfig?.endpoint, ragConfig?.ui?.debounceMs])
 

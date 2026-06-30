@@ -152,19 +152,31 @@ describe('end-to-end (mock embedder)', () => {
     expect(results.some((r) => r.href.includes('/search'))).toBe(true)
   })
 
-  it('handles POST requests (200 with results)', async () => {
+  it('returns 202 (indexing) on the first request, then 200 once built', async () => {
     const config = Config.define({
       rootDir: dir,
       search: { rag: { embedding: Embedding.mock(), cache: false } },
     })
-    const request = new Request('http://localhost/api/search/rag', {
-      method: 'POST',
-      body: JSON.stringify({ query: 'installation' }),
-    })
-    const response = await Rag.handleSearchRequest(request, config)
-    expect(response.status).toBe(200)
-    const json = (await response.json()) as { results: Rag.Result[] }
-    expect(Array.isArray(json.results)).toBe(true)
+    const makeRequest = () =>
+      new Request('http://localhost/api/search/rag', {
+        method: 'POST',
+        body: JSON.stringify({ query: 'installation' }),
+      })
+
+    // First request returns immediately while the index builds in the background.
+    const first = await Rag.handleSearchRequest(makeRequest(), config)
+    expect(first.status).toBe(202)
+    const firstJson = (await first.json()) as { results: Rag.Result[]; indexing: boolean }
+    expect(firstJson.indexing).toBe(true)
+    expect(firstJson.results).toEqual([])
+
+    // Wait for the background build to finish, then a subsequent request resolves.
+    await Rag.getServerIndex(config)
+    const second = await Rag.handleSearchRequest(makeRequest(), config)
+    expect(second.status).toBe(200)
+    const secondJson = (await second.json()) as { results: Rag.Result[]; indexing: boolean }
+    expect(secondJson.indexing).toBe(false)
+    expect(Array.isArray(secondJson.results)).toBe(true)
   })
 
   it('returns 404 when RAG is disabled', async () => {
