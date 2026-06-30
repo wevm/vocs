@@ -20,38 +20,44 @@ import type { Payload } from '../internal/openapi/app.js'
 import { createRouter, type Router } from './links.js'
 
 type Snapshot = { path: string; hash: string }
+type Route = Snapshot & { query: string }
 
 let router: Router | undefined
 let snapshot: Snapshot = { path: '/', hash: '' }
 
 const listeners = new Set<() => void>()
-const eventHandlers: Record<string, Set<() => void>> = {}
+const eventHandlers: Record<string, Map<(route: Route) => void, () => void>> = {}
 
 function notify() {
   for (const listener of listeners) listener()
 }
 
 function emit(type: string) {
-  for (const handler of eventHandlers[type] ?? []) handler()
+  for (const handler of eventHandlers[type]?.values() ?? []) handler()
 }
 
 const events = {
-  on(type: string, handler: () => void) {
-    let set = eventHandlers[type]
-    if (!set) {
-      set = new Set()
-      eventHandlers[type] = set
+  on(type: string, handler: (route: Route) => void) {
+    let map = eventHandlers[type]
+    if (!map) {
+      map = new Map()
+      eventHandlers[type] = map
     }
-    set.add(handler)
+    map.set(handler, () => handler(getRoute()))
   },
-  off(type: string, handler: () => void) {
+  off(type: string, handler: (route: Route) => void) {
     eventHandlers[type]?.delete(handler)
   },
+}
+
+function getRoute(): Route {
+  return { ...snapshot, query: '' }
 }
 
 function setSnapshot(path: string, hash: string) {
   snapshot = { path, hash }
   notify()
+  emit('complete')
 }
 
 /** Navigates to a section-space route, updating history + router state. */
@@ -115,6 +121,36 @@ function subscribe(listener: () => void) {
 
 function getSnapshot() {
   return snapshot
+}
+
+export const unstable_RouterContext = React.createContext<{
+  route: Route
+  changeRoute: (route: Route, options: { mode?: 'push' | 'replace' | undefined }) => Promise<void>
+  prefetchRoute: () => void
+  routeChangeEvents: typeof events
+  fetchingSlices: Set<string>
+} | null>(null)
+
+export function RouterProvider(props: { children: React.ReactNode }) {
+  const snap = React.useSyncExternalStore(subscribe, getSnapshot, getSnapshot)
+  const value = React.useMemo(
+    () => ({
+      route: { ...snap, query: '' },
+      async changeRoute(route: Route, options: { mode?: 'push' | 'replace' | undefined }) {
+        const query = route.query ? `?${route.query}` : ''
+        push(`${route.path}${query}${route.hash}`, { push: options.mode !== 'replace' })
+      },
+      prefetchRoute() {},
+      routeChangeEvents: events,
+      fetchingSlices: new Set<string>(),
+    }),
+    [snap],
+  )
+  return (
+    <unstable_RouterContext.Provider value={value}>
+      {props.children}
+    </unstable_RouterContext.Provider>
+  )
 }
 
 /** Waku-compatible `useRouter()`. Returns section-space `path`/`hash`. */

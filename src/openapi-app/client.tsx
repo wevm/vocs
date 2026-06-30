@@ -5,7 +5,7 @@ import { Root_client } from '../react/Root.client.js'
 import { ScrollRestoration } from '../react/ScrollRestoration.js'
 import { App } from './App.js'
 import { read } from './payload.js'
-import { init } from './waku.js'
+import { init, RouterProvider } from './waku.js'
 
 const payload = read()
 init(payload)
@@ -17,9 +17,11 @@ init(payload)
 // stays in the server-sent `<head>`, so there is no flash of unstyled content.
 createRoot(document.body).render(
   <StrictMode>
-    <Root_client>
-      <App payload={payload} />
-      <ScrollRestoration />
-    </Root_client>
+    <RouterProvider>
+      <Root_client>
+        <App payload={payload} />
+        <ScrollRestoration />
+      </Root_client>
+    </RouterProvider>
   </StrictMode>,
 )
