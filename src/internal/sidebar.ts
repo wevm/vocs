@@ -3,8 +3,14 @@ import type { Config } from './config.js'
 export type SidebarItemBadge =
   | string
   | {
-      /** Text displayed inside the badge. */
-      text: string
+      /**
+       * Inline SVG markup rendered before the badge text. Used for icon badges
+       * (e.g. the generated OpenAPI webhook badge). Resolve an icon name to SVG
+       * server-side (via the icon helpers) before assigning.
+       */
+      icon?: string | undefined
+      /** Text displayed inside the badge. Optional when an `icon` is provided. */
+      text?: string | undefined
       /** Visual variant. Defaults to `'info'`. */
       variant?: 'note' | 'info' | 'warning' | 'danger' | 'tip' | 'success' | undefined
     }

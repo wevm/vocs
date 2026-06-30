@@ -169,13 +169,23 @@ export declare namespace Sidebar {
 
 /** @internal */
 function ItemBadge(props: { badge: Sidebar_core.SidebarItemBadge }) {
-  const badge = typeof props.badge === 'string' ? { text: props.badge } : props.badge
+  const badge =
+    typeof props.badge === 'string' ? { text: props.badge, icon: undefined } : props.badge
   return (
     <Badge
       className="vocs:shrink-0 vocs:ml-2"
       data-v-sidebar-item-badge
+      data-v-icon={badge.icon ? '' : undefined}
       variant={badge.variant ?? 'info'}
     >
+      {badge.icon && (
+        <span
+          aria-hidden
+          data-v-sidebar-item-badge-icon
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: server-resolved SVG markup
+          dangerouslySetInnerHTML={{ __html: badge.icon }}
+        />
+      )}
       {badge.text}
     </Badge>
   )
