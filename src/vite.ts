@@ -31,6 +31,7 @@ export async function vocs(): Promise<PluginOption[]> {
     Plugins.llms(config),
     Plugins.mdx(config),
     Plugins.openapi(config),
+    Plugins.ragSearch(config),
     Plugins.routeWatcher(config),
     Plugins.search(config),
     Plugins.sitemap(config),

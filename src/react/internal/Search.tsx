@@ -9,9 +9,11 @@ import { useRouter } from 'waku'
 import LucideArrowRight from '~icons/lucide/arrow-right'
 import LucideFile from '~icons/lucide/file'
 import LucideHash from '~icons/lucide/hash'
+import LucideLoaderCircle from '~icons/lucide/loader-circle'
 import LucideSearch from '~icons/lucide/search'
 import * as Path from '../../internal/path.js'
 import { SearchConfig } from '../../internal/search.client.js'
+import { fuse } from '../../internal/search-fusion.js'
 import { Link } from '../Link.js'
 import { useConfig } from '../useConfig.js'
 import { DialogTrigger } from './DialogTrigger.js'
@@ -36,6 +38,44 @@ type SearchResult = {
 type SearchState = {
   results: SearchResult[]
   selectedIndex: number
+}
+
+/** Public RAG config shape (subset) carried on `config.search.rag`. */
+type RagConfig = {
+  enabled: boolean
+  runtime: 'server' | 'client'
+  endpoint: string
+  hybrid?: { enabled: boolean; semanticWeight: number; keywordWeight: number } | undefined
+  ui?: { debounceMs?: number } | undefined
+}
+
+/** Result shape returned by the `/api/search/rag` endpoint. */
+type RagResult = {
+  id: string
+  href: string
+  title: string
+  titles: string[]
+  category: string
+  type: 'page' | 'section' | 'nav'
+  snippet: string
+  score: number
+}
+
+/** Adapts a RAG endpoint result to the keyword `SearchResult` shape for reuse. */
+function toSearchResult(result: RagResult): SearchResult {
+  return {
+    category: result.category,
+    href: result.href,
+    id: result.id,
+    match: {},
+    queryTerms: [],
+    score: result.score,
+    terms: [],
+    text: result.snippet,
+    title: result.title,
+    titles: result.titles,
+    type: result.type,
+  }
 }
 
 const initialSearchState: SearchState = {
@@ -66,7 +106,60 @@ export function Search(props: Search.Props) {
   const listRef = React.useRef<HTMLUListElement>(null)
   const router = useRouter()
 
-  const displayedResults = query.trim() ? search.results : recentSearches
+  // Hybrid semantic search. When RAG is enabled, we fetch semantic (vector)
+  // results in the background and fuse them with the instant MiniSearch keyword
+  // results into one similarity-ranked list. Keyword results render immediately;
+  // the list re-ranks once embeddings return, so the UI never blocks on the
+  // network.
+  const ragConfig = (config.search as { rag?: RagConfig } | undefined)?.rag
+  const ragEnabled = Boolean(ragConfig?.enabled && ragConfig.runtime === 'server')
+  const [ragResults, setRagResults] = React.useState<SearchResult[]>([])
+  const [ragLoading, setRagLoading] = React.useState(false)
+
+  React.useEffect(() => {
+    if (!ragEnabled || !open || !query.trim() || !ragConfig?.endpoint) {
+      setRagResults([])
+      setRagLoading(false)
+      return
+    }
+    const controller = new AbortController()
+    const debounce = ragConfig.ui?.debounceMs ?? 250
+    const timer = setTimeout(async () => {
+      setRagLoading(true)
+      try {
+        const response = await fetch(ragConfig.endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query }),
+          signal: controller.signal,
+        })
+        if (!response.ok) throw new Error(`Semantic search failed: ${response.status}`)
+        const data = (await response.json()) as { results: RagResult[] }
+        setRagResults(data.results.map(toSearchResult))
+        setRagLoading(false)
+      } catch (error) {
+        if ((error as Error).name === 'AbortError') return
+        setRagResults([])
+        setRagLoading(false)
+      }
+    }, debounce)
+    return () => {
+      controller.abort()
+      clearTimeout(timer)
+    }
+  }, [ragEnabled, open, query, ragConfig?.endpoint, ragConfig?.ui?.debounceMs])
+
+  const displayedResults = React.useMemo(() => {
+    if (!query.trim()) return recentSearches
+    if (!ragEnabled || ragResults.length === 0) return search.results
+    return fuse({
+      keyword: search.results,
+      semantic: ragResults,
+      keywordWeight: ragConfig?.hybrid?.keywordWeight,
+      semanticWeight: ragConfig?.hybrid?.semanticWeight,
+      limit: 20,
+    })
+  }, [query, ragEnabled, ragResults, search.results, recentSearches, ragConfig?.hybrid])
 
   const jumpToResult = React.useMemo(() => {
     if (!query.trim() || search.results.length === 0) return null
@@ -245,6 +338,12 @@ export function Search(props: Search.Props) {
               type="text"
               value={query}
             />
+            {ragLoading && (
+              <LucideLoaderCircle
+                aria-label="Searching"
+                className="vocs:size-4 vocs:shrink-0 vocs:text-secondary vocs:animate-spin"
+              />
+            )}
           </div>
 
           <div className="vocs:flex-1 vocs:overflow-y-auto vocs:py-2">
@@ -272,12 +371,13 @@ export function Search(props: Search.Props) {
                   )}
                   {displayedResults.map((result, i) => {
                     const index = jumpToResult ? i + 1 : i
+                    const queryTerms = !query.trim() ? [] : query.trim().split(/\s+/)
                     if (result.type === 'nav')
                       return (
                         <JumpTo
                           key={result.id}
                           onClick={() => handleResultClick(result)}
-                          queryTerms={query.trim() ? query.trim().split(/\s+/) : []}
+                          queryTerms={queryTerms}
                           result={result}
                           selected={index === search.selectedIndex}
                         />
@@ -285,7 +385,7 @@ export function Search(props: Search.Props) {
                     return (
                       <Result
                         key={result.id}
-                        queryTerms={query.trim() ? query.trim().split(/\s+/) : []}
+                        queryTerms={queryTerms}
                         onClick={() => handleResultClick(result)}
                         result={result}
                         selected={index === search.selectedIndex}
@@ -294,9 +394,11 @@ export function Search(props: Search.Props) {
                   })}
                 </ul>
               </>
+            ) : query.trim() && ragLoading ? (
+              <ResultSkeleton />
             ) : (
               <div className="vocs:px-4 vocs:py-8 vocs:text-center vocs:text-secondary">
-                {query.trim() ? 'No results found' : 'Start typing to search...'}
+                {!query.trim() ? 'Start typing to search...' : 'No results found'}
               </div>
             )}
           </div>
@@ -391,6 +493,27 @@ declare namespace Result {
     result: SearchResult
     selected: boolean
   }
+}
+
+/** Placeholder rows shown while semantic results are loading. */
+function ResultSkeleton() {
+  return (
+    <div aria-hidden className="vocs:flex vocs:flex-col">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <div
+          // biome-ignore lint/suspicious/noArrayIndexKey: static placeholder list
+          key={i}
+          className="vocs:flex vocs:items-start vocs:gap-3 vocs:px-4 vocs:py-2"
+        >
+          <div className="vocs:size-4 vocs:mt-0.5 vocs:shrink-0 vocs:rounded vocs:bg-surfaceTint vocs:animate-pulse" />
+          <div className="vocs:flex vocs:flex-col vocs:gap-1.5 vocs:flex-1">
+            <div className="vocs:h-3 vocs:w-1/3 vocs:rounded vocs:bg-surfaceTint vocs:animate-pulse" />
+            <div className="vocs:h-3 vocs:w-3/4 vocs:rounded vocs:bg-surfaceTint vocs:animate-pulse" />
+          </div>
+        </div>
+      ))}
+    </div>
+  )
 }
 
 // biome-ignore lint/correctness/noUnusedVariables: _

@@ -307,9 +307,6 @@ export namespace SearchIndex {
   }
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// Internal
-
 type Frontmatter = {
   searchPriority?: number
   [key: string]: unknown

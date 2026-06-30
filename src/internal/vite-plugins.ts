@@ -14,6 +14,7 @@ import * as Llms from './llms.js'
 import * as Mdx from './mdx.js'
 import type * as OpenApi from './openapi/index.js'
 import * as OpenApiRegistry from './openapi/registry.js'
+import * as Rag from './rag.js'
 import { SearchDocuments, SearchIndex } from './search.js'
 import * as ShikiTransformers from './shiki-transformers.js'
 import * as TaskRunner from './task-runner.js'
@@ -756,6 +757,113 @@ export function search(config: Config.Config): PluginOption {
 }
 
 /**
+ * Vite plugin for RAG (semantic) search.
+ *
+ * When `search.rag` is enabled it builds the static vector index at build/dev
+ * start (warming the embedding cache), and — for `runtime: 'client'` or
+ * `vectorStore.expose` — emits a public browser artifact and serves it via the
+ * `virtual:vocs/rag-index` module. Server-runtime search is handled at runtime
+ * by the `/api/search/rag` endpoint (which builds an in-memory index), so this
+ * plugin's main job there is cache warming.
+ *
+ * @param config - Vocs configuration.
+ * @returns Plugin.
+ */
+export function ragSearch(config: Config.Config): PluginOption {
+  const rag = Rag.fromConfig(config)
+  if (!rag) return []
+
+  const virtualModuleId = 'virtual:vocs/rag-index'
+  const resolvedVirtualModuleId = `\0${virtualModuleId}`
+  const { rootDir, basePath } = config
+  const exposePublic = rag.runtime === 'client' || config._rag?.vectorStore.expose === true
+
+  let mode: 'development' | 'production' = 'development'
+  let manifestPromise: Promise<Rag.IndexManifest> | undefined
+  let publicHash: string | undefined
+
+  function toPublicManifest(manifest: Rag.IndexManifest): Rag.IndexManifest {
+    // Strip full chunk text — the browser artifact only needs snippets.
+    return {
+      ...manifest,
+      chunks: manifest.chunks.map(({ text: _text, ...rest }) => rest),
+    }
+  }
+
+  function buildManifest(): Promise<Rag.IndexManifest> {
+    if (!manifestPromise) {
+      logger.info('Building RAG index...', { timestamp: true })
+      manifestPromise = Rag.buildIndex(config)
+        .then((manifest) => {
+          if (exposePublic) {
+            const json = JSON.stringify(toPublicManifest(manifest))
+            publicHash = crypto.createHash('md5').update(json).digest('hex').slice(0, 12)
+          }
+          logger.info(
+            `RAG index built (${manifest.vectorStore.count} chunks, ${manifest.vectorStore.format}).`,
+            { timestamp: true },
+          )
+          return manifest
+        })
+        .catch((error) => {
+          logger.error(
+            `Failed to build RAG index: ${error instanceof Error ? error.message : String(error)}`,
+          )
+          throw error
+        })
+    }
+    return manifestPromise
+  }
+
+  return {
+    name: 'vocs:rag-search',
+    configResolved(resolvedConfig) {
+      mode = resolvedConfig.command === 'build' ? 'production' : 'development'
+    },
+    buildStart() {
+      // Warm the embedding cache (and prepare the public artifact) once.
+      if (mode === 'production') void buildManifest()
+    },
+    configureServer() {
+      void buildManifest().catch(() => {})
+    },
+    resolveId(id) {
+      if (id === virtualModuleId) return resolvedVirtualModuleId
+      return
+    },
+    async load(id) {
+      if (id !== resolvedVirtualModuleId) return
+      if (!exposePublic)
+        return `export const getRagIndex = async () => { throw new Error('[vocs] RAG client index is not exposed (server runtime).') }`
+
+      const manifest = toPublicManifest(await buildManifest())
+      if (mode === 'development')
+        return `export const getRagIndex = async () => ${JSON.stringify(JSON.stringify(manifest))}`
+
+      const base = basePath.endsWith('/') ? basePath : `${basePath}/`
+      return `export const getRagIndex = async () => await (await fetch("${base}assets/rag-index-${publicHash}.json")).text()`
+    },
+    async writeBundle(options) {
+      if (!exposePublic) return
+      const manifest = toPublicManifest(await buildManifest())
+      const json = JSON.stringify(manifest)
+      const outDir = options.dir ?? path.resolve(rootDir, config.outDir)
+      const dir = path.resolve(outDir, 'assets')
+      await fs.mkdir(dir, { recursive: true })
+      await fs.writeFile(path.join(dir, `rag-index-${publicHash}.json`), json, 'utf-8')
+
+      const bytes = Buffer.byteLength(json)
+      const max = config._rag?.vectorStore.maxClientBytes
+      if (max && bytes > max)
+        logger.warn(
+          `RAG client index is ${(bytes / 1e6).toFixed(1)}MB, exceeds maxClientBytes (${(max / 1e6).toFixed(1)}MB). Consider int8 format or fewer chunks.`,
+          { timestamp: true },
+        )
+    },
+  }
+}
+
+/**
  * Vite plugin that provides the Vocs configuration as a virtual module and
  * serializes it to a JSON file at build time.
  *
@@ -789,7 +897,14 @@ export function virtualConfig(config: Config.Config): PluginOption {
           const mod = server.moduleGraph.getModuleById(resolvedVirtualModuleId)
           if (mod) server.moduleGraph.invalidateModule(mod)
           Config.setGlobal(newConfig)
-          server.ws.send({ type: 'custom', event: 'vocs:config', data: newConfig })
+          // Send the serialized (public) config only — `serializeFunctions`
+          // strips `_`-prefixed fields (e.g. `_feedback`, `_rag`) so secrets in
+          // server-only adapters never reach the browser over the HMR channel.
+          server.ws.send({
+            type: 'custom',
+            event: 'vocs:config',
+            data: ConfigSerializer.serializeFunctions(newConfig),
+          })
           // Force full reload to ensure CSS is properly reprocessed
           server.ws.send({ type: 'full-reload' })
         } catch {}

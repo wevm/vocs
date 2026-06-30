@@ -28,6 +28,10 @@ declare module 'virtual:vocs/search-index' {
   export function getSearchIndex(): Promise<string>
 }
 
+declare module 'virtual:vocs/rag-index' {
+  export function getRagIndex(): Promise<string>
+}
+
 declare module 'virtual:vocs/group-icons.css' {}
 
 declare module 'virtual:vocs/group-icons.css?inline' {

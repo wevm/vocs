@@ -1,4 +1,4 @@
-import { Changelog, defineConfig, McpSource, Twoslash } from 'vocs/config'
+import { Changelog, defineConfig, Embedding, McpSource, Twoslash } from 'vocs/config'
 
 export default defineConfig({
   changelog: Changelog.github({ prereleases: true, repo: 'tempoxyz/tempo' }),
@@ -88,6 +88,12 @@ export default defineConfig({
   ],
   title: 'Vocs',
   titleTemplate: '%s – Vocs',
+  search: {
+    rag: {
+      embedding: Embedding.openrouter(),
+      retrieval: { hybrid: true },
+    },
+  },
   sidebar: {
     '/': [
       { text: 'Home', link: '/' },

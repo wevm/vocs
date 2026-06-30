@@ -12,6 +12,7 @@ import type * as McpSource from './mcp-source.js'
 import type * as Mdx from './mdx.js'
 import type * as OpenApi from './openapi/index.js'
 import { from as resolveOpenApi } from './openapi/openapi.js'
+import * as Rag from './rag.js'
 import type * as Redirects from './redirects.js'
 import type * as Sidebar from './sidebar.js'
 import type * as TopNav from './topNav.js'
@@ -200,6 +201,24 @@ export type SearchOptions = {
    */
   query?: SearchQueryOptions
   /**
+   * Retrieval-augmented (semantic/AI) search.
+   *
+   * Additive to the default MiniSearch keyword search. Build-time embeddings are
+   * packed into a built-in static vector store and queried at runtime via the
+   * `/api/search/rag` endpoint. Embedding/LLM adapters hold secrets and are kept
+   * server-side only (never serialized to the browser).
+   *
+   * @example
+   * ```ts
+   * import { defineConfig, Embedding } from 'vocs/config'
+   *
+   * export default defineConfig({
+   *   search: { rag: { embedding: Embedding.openai() } },
+   * })
+   * ```
+   */
+  rag?: Rag.Input | undefined
+  /**
    * Legacy alias for `search.query.boost`.
    *
    * Merges with Vocs default query boosts.
@@ -385,6 +404,11 @@ export type Config<partial extends boolean = false> = MaybePartial<
      * ```
      */
     _feedback?: Feedback.Adapter | undefined
+    /**
+     * Private (server-only) RAG config, derived from `search.rag`. Holds the
+     * embedding/LLM/vector-store adapters and is never serialized to the client.
+     */
+    _rag?: Rag.PrivateConfig | undefined
     /**
      * Group icons configuration for code block labels.
      * Displays icons next to code block titles based on file extensions and tools.
@@ -727,6 +751,14 @@ export function define(config: define.Options = {}): Config {
     return url
   })()
 
+  // RAG resolution must be idempotent: `define` can run twice (once via
+  // `defineConfig` in the user's config, then again in `Config.resolve`). On
+  // the second pass `config._rag` already holds the private config and
+  // `search.rag` is already the public config, so we skip re-resolving (which
+  // would otherwise see no `embedding` adapter and disable RAG).
+  const existingRag = (config as { _rag?: Rag.PrivateConfig })._rag
+  const ragResolved = existingRag ? undefined : Rag.resolve(search?.rag, { basePath })
+
   return {
     accentColor,
     banner: banner
@@ -761,6 +793,7 @@ export function define(config: define.Options = {}): Config {
       : undefined,
     feedback: !!(config.feedback || (config as { _feedback?: unknown })._feedback),
     _feedback: (config as { _feedback?: Feedback.Adapter })._feedback ?? config.feedback,
+    _rag: existingRag ?? ragResolved?.private,
     groupIcons: config.groupIcons,
     iconUrl,
     logoUrl,
@@ -792,6 +825,7 @@ export function define(config: define.Options = {}): Config {
 
       return {
         ...search,
+        rag: (existingRag ? search?.rag : ragResolved?.public) as unknown as Rag.Input | undefined,
         query: {
           ...query,
           boostDocument,
@@ -834,7 +868,7 @@ export function define(config: define.Options = {}): Config {
 }
 
 export declare namespace define {
-  export type Options = UnionOmit<Config<true>, 'pagesDir' | 'feedback' | '_feedback'> & {
+  export type Options = UnionOmit<Config<true>, 'pagesDir' | 'feedback' | '_feedback' | '_rag'> & {
     /**
      * Feedback adapter configuration.
      * Displays a "Was this helpful?" widget below the page outline.
