@@ -71,7 +71,6 @@ await build({
       // The real Vocs layout/chrome only touches Waku via `useRouter`/`Link`;
       // swap it for the SPA history shim so genuine components render here.
       { find: /^waku$/, replacement: path.resolve(appDir, 'waku.tsx') },
-      { find: 'waku/router/client', replacement: path.resolve(appDir, 'waku.tsx') },
     ],
   },
   plugins: [
