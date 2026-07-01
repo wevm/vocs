@@ -486,9 +486,7 @@ export function rehypeLinks(config: Config.Config) {
       // Allow OpenAPI-generated routes (no backing file) by matching the link's
       // absolute path against the routes collected from the parsed specs.
       const isOpenapiRoute =
-        linkPath !== undefined &&
-        linkPath.startsWith('/') &&
-        openapiRoutes.has(linkPath.replace(/\/$/, '') || '/')
+        linkPath?.startsWith('/') && openapiRoutes.has(linkPath.replace(/\/$/, '') || '/')
 
       // Check for file existence (try with extensions if not present)
       const exists =

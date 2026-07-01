@@ -794,11 +794,12 @@ export function ragSearch(config: Config.Config): PluginOption {
     if (!manifestPromise) {
       logger.info('Building RAG index...', { timestamp: true })
       manifestPromise = Rag.buildIndex(config)
-        .then((manifest) => {
+        .then(async (manifest) => {
           if (exposePublic) {
             const json = JSON.stringify(toPublicManifest(manifest))
             publicHash = crypto.createHash('md5').update(json).digest('hex').slice(0, 12)
           }
+          await Rag.saveIndex(config, manifest)
           logger.info(
             `RAG index built (${manifest.vectorStore.count} chunks, ${manifest.vectorStore.format}).`,
             { timestamp: true },
@@ -815,17 +816,41 @@ export function ragSearch(config: Config.Config): PluginOption {
     return manifestPromise
   }
 
+  /**
+   * Whether to skip build-time embedding seeding (`VOCS_SKIP_SEARCH_INDEX=1` or
+   * `vocs build --no-search-index`). Only honored for server runtime: client
+   * runtime needs the index artifact emitted at build time, so skipping there
+   * would ship a broken (empty) search — we warn and build anyway.
+   */
+  function skipSeeding(): boolean {
+    if (process.env['VOCS_SKIP_SEARCH_INDEX'] !== 'true') return false
+    if (exposePublic) {
+      logger.warn(
+        'VOCS_SKIP_SEARCH_INDEX ignored: client-runtime RAG (exposed vector store) needs the index built at build time. Building it anyway.',
+        { timestamp: true },
+      )
+      return false
+    }
+    return true
+  }
+
   return {
     name: 'vocs:rag-search',
     configResolved(resolvedConfig) {
       mode = resolvedConfig.command === 'build' ? 'production' : 'development'
     },
     buildStart() {
-      // Warm the embedding cache (and prepare the public artifact) once.
-      if (mode === 'production') void buildManifest()
-    },
-    configureServer() {
-      void buildManifest().catch(() => {})
+      // Warm the embedding cache (and prepare the public artifact) once, at
+      // build time only. In dev we never build the index: server-runtime search
+      // loads the prebuilt manifest written by `vocs embeddings generate` /
+      // `vocs build` (falling back to keyword search if absent), and
+      // client-runtime search builds it lazily when the virtual module loads.
+      if (mode !== 'production') return
+      if (skipSeeding()) {
+        logger.info('Skipping RAG index build (VOCS_SKIP_SEARCH_INDEX).', { timestamp: true })
+        return
+      }
+      void buildManifest()
     },
     resolveId(id) {
       if (id === virtualModuleId) return resolvedVirtualModuleId

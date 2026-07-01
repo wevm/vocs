@@ -110,6 +110,18 @@ describe('Rag.chunk', () => {
     expect(chunks[0]?.embeddingText).toContain('Short intro text.')
   })
 
+  it('carries a document `weight` onto its chunks', () => {
+    const weighted = [{ ...(docs[0] as (typeof docs)[number]), weight: 0.5 }]
+    const chunks = Rag.chunk(weighted, {
+      maxCharacters: 1200,
+      overlapCharacters: 160,
+      includeHeadings: true,
+      includeBreadcrumbs: true,
+      includeNav: false,
+    })
+    expect(chunks[0]?.weight).toBe(0.5)
+  })
+
   it('skips nav docs unless includeNav', () => {
     const navDocs = [{ ...(docs[0] as (typeof docs)[number]), type: 'nav' as const, text: '' }]
     expect(
@@ -177,6 +189,43 @@ describe('end-to-end (mock embedder)', () => {
     const secondJson = (await second.json()) as { results: Rag.Result[]; indexing: boolean }
     expect(secondJson.indexing).toBe(false)
     expect(Array.isArray(secondJson.results)).toBe(true)
+  })
+
+  it('dev (NODE_ENV=development) loads the prebuilt index instead of building', async () => {
+    const prev = process.env['NODE_ENV']
+    process.env['NODE_ENV'] = 'development'
+    try {
+      const config = Config.define({
+        rootDir: dir,
+        search: { rag: { embedding: Embedding.mock({ dimensions: 64 }), cache: false } },
+      })
+      // No prebuilt index yet → dev falls back to empty (keyword-only) results.
+      expect(await Rag.retrieve(config, { query: 'embeddings' })).toEqual([])
+
+      // Persist a prebuilt index (as `vocs embeddings generate` would), reset the
+      // in-process cache, then dev serves semantic results from disk.
+      const manifest = await Rag.buildIndex(config)
+      await Rag.saveIndex(config, manifest)
+      Rag._resetServerIndexCache()
+
+      const results = await Rag.retrieve(config, { query: 'embeddings cache build time' })
+      expect(results.length).toBeGreaterThan(0)
+    } finally {
+      if (prev === undefined) delete process.env['NODE_ENV']
+      else process.env['NODE_ENV'] = prev
+    }
+  })
+
+  it('saveIndex/loadIndex round-trips the manifest', async () => {
+    const config = Config.define({
+      rootDir: dir,
+      search: { rag: { embedding: Embedding.mock({ dimensions: 64 }), cache: false } },
+    })
+    const manifest = await Rag.buildIndex(config)
+    await Rag.saveIndex(config, manifest)
+    const loaded = await Rag.loadIndex(config)
+    expect(loaded?.vectorStore.count).toBe(manifest.vectorStore.count)
+    expect(loaded?.embedding.type).toBe(manifest.embedding.type)
   })
 
   it('returns 404 when RAG is disabled', async () => {

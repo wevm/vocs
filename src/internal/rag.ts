@@ -13,6 +13,7 @@
 
 import type * as Config from './config.js'
 import * as Embedding from './embedding.js'
+import * as RagSource from './rag-source.js'
 import * as VectorStore from './vector-store.js'
 
 export type ChunkingOptions = {
@@ -77,6 +78,13 @@ export type Input =
       retrieval?: RetrievalOptions | undefined
       /** Where retrieval runs. `'auto'` → `'server'`. @default 'server' */
       runtime?: 'auto' | 'server' | 'client' | undefined
+      /**
+       * External source URLs to embed alongside local docs. Each URL is fetched
+       * at build time and auto-expanded: a `sitemap.xml` → every page it lists,
+       * an `llms.txt` → every page it links, anything else → the page itself.
+       * Results link out to their absolute URL.
+       */
+      sources?: readonly (string | RagSource.Source)[] | undefined
       /** Search dialog UI behavior. */
       ui?: UiOptions | undefined
       /** Vector store. @default VectorStore.static() */
@@ -133,6 +141,8 @@ export type PrivateConfig = {
   retrieval: ResolvedRetrieval
   /** Where retrieval runs. */
   runtime: 'server' | 'client'
+  /** External sources embedded alongside local docs. */
+  sources: readonly (string | RagSource.Source)[]
   /** Vector store implementation backing the index. */
   vectorStore: VectorStore.Adapter
 }
@@ -191,6 +201,7 @@ export function resolve(input: Input | undefined, ctx: resolve.Context): resolve
   const privateConfig: PrivateConfig = {
     runtime,
     embedding,
+    sources: options.sources ?? [],
     vectorStore,
     chunking: {
       maxCharacters: options.chunking?.maxCharacters ?? 1200,
@@ -247,6 +258,8 @@ export type Chunk = {
   titles: string[]
   /** Kind of source document. */
   type: 'page' | 'section' | 'nav'
+  /** Score multiplier applied at ranking time. @default 1 */
+  weight?: number | undefined
 }
 
 type Document = {
@@ -259,6 +272,7 @@ type Document = {
   title: string
   titles: string[]
   type: 'page' | 'section' | 'nav'
+  weight?: number | undefined
 }
 
 /** Splits search documents into embeddable chunks. */
@@ -288,6 +302,7 @@ export function chunk(documents: readonly Document[], options: ResolvedChunking)
         category: doc.category,
         type: doc.type,
         searchPriority: doc.searchPriority,
+        weight: doc.weight,
         text,
         embeddingText: prefix ? `${prefix}\n\n${text}` : text,
       })
@@ -344,6 +359,8 @@ export type ChunkMetadata = {
   titles: string[]
   /** Kind of source document. */
   type: 'page' | 'section' | 'nav'
+  /** Score multiplier applied at ranking time (omitted when `1`). */
+  weight?: number | undefined
 }
 
 export type IndexManifest = {
@@ -376,10 +393,66 @@ export type IndexManifest = {
 }
 
 /**
+ * A build-progress event emitted by {@link buildIndex}, in pipeline order:
+ * `documents` → (`sources:start` → `sources:progress`* → `sources:done`) →
+ * `chunked` → `embed:start` → `embed:progress`* → `packed`.
+ */
+export type ProgressEvent =
+  | { type: 'documents'; local: number }
+  | { type: 'sources:start'; sources: number }
+  | { type: 'sources:progress'; done: number; total: number }
+  | { type: 'sources:done'; pages: number }
+  | { type: 'chunked'; chunks: number }
+  | { type: 'embed:start'; cached: number; toEmbed: number; total: number }
+  | { type: 'embed:progress'; embedded: number; toEmbed: number }
+  | { type: 'packed'; dimensions: number; format: VectorStore.Format }
+
+export declare namespace buildIndex {
+  type Options = {
+    /** Called with build-progress events for logging/introspection. */
+    onProgress?: ((event: ProgressEvent) => void) | undefined
+  }
+}
+
+/**
+ * Fetches external source URLs and maps them to the local {@link Document} shape
+ * so they can be chunked and embedded alongside the site's own docs. URLs are
+ * auto-expanded (sitemap / llms.txt / page) at build time and never recurse into
+ * in-page links; failures on individual pages are skipped, not fatal.
+ */
+async function loadExternalDocuments(
+  sources: readonly (string | RagSource.Source)[],
+  onProgress?: ((event: ProgressEvent) => void) | undefined,
+): Promise<Document[]> {
+  if (sources.length === 0) return []
+  const external = await RagSource.load(sources, {
+    onProgress: (done, total) => onProgress?.({ type: 'sources:progress', done, total }),
+  })
+  return external.map((doc) => ({
+    id: doc.href,
+    href: doc.href,
+    title: doc.title,
+    titles: [],
+    // The source's `label` (empty → the search UI falls back to the hostname).
+    category: doc.label ?? '',
+    subtitle: '',
+    searchPriority: undefined,
+    // External sources are slightly de-prioritized vs. local docs by default.
+    weight: doc.weight ?? 0.9,
+    text: doc.text,
+    type: 'page',
+  }))
+}
+
+/**
  * Builds the static vector index from a resolved config. Uses the embedding
  * cache so unchanged chunks are not re-embedded.
  */
-export async function buildIndex(config: Config.Config): Promise<IndexManifest> {
+export async function buildIndex(
+  config: Config.Config,
+  options: buildIndex.Options = {},
+): Promise<IndexManifest> {
+  const { onProgress } = options
   const priv = requirePrivate(config)
   const [Search, RagCache, nodePath] = await Promise.all([
     import('./search.js'),
@@ -388,17 +461,25 @@ export async function buildIndex(config: Config.Config): Promise<IndexManifest> 
   ])
 
   const documents = (await Search.SearchDocuments.fromConfig(config)) as Document[]
-  const chunks = chunk(documents, priv.chunking)
+  onProgress?.({ type: 'documents', local: documents.length })
+
+  if (priv.sources.length > 0) onProgress?.({ type: 'sources:start', sources: priv.sources.length })
+  const external = await loadExternalDocuments(priv.sources, onProgress)
+  if (priv.sources.length > 0) onProgress?.({ type: 'sources:done', pages: external.length })
+
+  const chunks = chunk([...documents, ...external], priv.chunking)
+  onProgress?.({ type: 'chunked', chunks: chunks.length })
 
   const cacheDir = priv.cache.dir ?? nodePath.join(config.cacheDir, 'rag')
   const cache = RagCache.load({ dir: cacheDir, ignore: priv.cache.ignore || !priv.cache.enabled })
 
-  const vectors = await embedChunks(chunks, priv, cache, RagCache)
+  const vectors = await embedChunks(chunks, priv, cache, RagCache, onProgress)
   cache.save()
 
   const dimensions = vectors[0]?.length ?? priv.embedding.dimensions ?? 0
   const format = VectorStore.resolveFormat(priv.vectorStore.format, priv.runtime)
   const packed = VectorStore.pack(vectors, format)
+  onProgress?.({ type: 'packed', format, dimensions })
 
   return {
     version: 1,
@@ -419,9 +500,78 @@ export async function buildIndex(config: Config.Config): Promise<IndexManifest> 
       searchPriority: c.searchPriority,
       snippet: c.text.slice(0, 240),
       text: c.text,
+      ...(c.weight !== undefined && c.weight !== 1 ? { weight: c.weight } : {}),
     })),
     vectors: packed,
   }
+}
+
+/** Canonical on-disk path for the prebuilt server index manifest. */
+async function indexFilePath(config: Config.Config): Promise<string> {
+  const nodePath = await import('node:path')
+  return nodePath.join(config.cacheDir, 'rag', 'index.json')
+}
+
+/**
+ * Persists a built manifest to the canonical cache path so `vocs dev` can load
+ * it without rebuilding. Written by `vocs embeddings generate` and `vocs build`.
+ */
+export async function saveIndex(config: Config.Config, manifest: IndexManifest): Promise<string> {
+  const [fs, nodePath] = await Promise.all([import('node:fs/promises'), import('node:path')])
+  const file = await indexFilePath(config)
+  await fs.mkdir(nodePath.dirname(file), { recursive: true })
+  await fs.writeFile(file, JSON.stringify(manifest), 'utf-8')
+  return file
+}
+
+/** Reads the raw prebuilt manifest from the canonical cache path, if present. */
+export async function loadIndex(config: Config.Config): Promise<IndexManifest | undefined> {
+  const fs = await import('node:fs/promises')
+  const file = await indexFilePath(config)
+  try {
+    return JSON.parse(await fs.readFile(file, 'utf-8')) as IndexManifest
+  } catch {
+    return undefined
+  }
+}
+
+/**
+ * Loads the prebuilt manifest and validates it against the current embedding
+ * config. Returns `undefined` (and warns once) when it is missing or stale, so
+ * dev can fall back to keyword search and tell the user to regenerate.
+ */
+async function loadPrebuiltIndex(
+  config: Config.Config,
+  priv: PrivateConfig,
+): Promise<IndexManifest | undefined> {
+  const manifest = await loadIndex(config)
+  if (!manifest) {
+    warnOnce(
+      indexCacheKey(config, priv),
+      '[vocs] No prebuilt RAG index found. Run `vocs embeddings generate` to enable semantic search in dev. Falling back to keyword search.',
+    )
+    return undefined
+  }
+  const stale =
+    manifest.embedding.type !== priv.embedding.type ||
+    manifest.embedding.model !== priv.embedding.model ||
+    (priv.embedding.dimensions !== undefined &&
+      manifest.embedding.dimensions !== priv.embedding.dimensions)
+  if (stale) {
+    warnOnce(
+      indexCacheKey(config, priv),
+      '[vocs] Prebuilt RAG index is stale (embedding config changed). Run `vocs embeddings generate` to refresh. Falling back to keyword search.',
+    )
+    return undefined
+  }
+  return manifest
+}
+
+const warnedKeys = new Set<string>()
+function warnOnce(key: string, message: string): void {
+  if (warnedKeys.has(key)) return
+  warnedKeys.add(key)
+  console.warn(message)
 }
 
 async function embedChunks(
@@ -429,6 +579,7 @@ async function embedChunks(
   priv: PrivateConfig,
   cache: { get: (k: string) => number[] | undefined; set: (k: string, v: number[]) => void },
   RagCache: typeof import('./rag-cache.js'),
+  onProgress?: ((event: ProgressEvent) => void) | undefined,
 ): Promise<Float32Array[]> {
   const vectors = new Array<Float32Array>(chunks.length)
   const keys = chunks.map((c) =>
@@ -452,7 +603,15 @@ async function embedChunks(
     else misses.push({ index: i, key, text: chunk.embeddingText })
   }
 
+  onProgress?.({
+    type: 'embed:start',
+    total: chunks.length,
+    cached: chunks.length - misses.length,
+    toEmbed: misses.length,
+  })
+
   const batchSize = priv.embedding.maxBatchSize ?? 256
+  let embeddedCount = 0
   for (let i = 0; i < misses.length; i += batchSize) {
     const batch = misses.slice(i, i + batchSize)
     const embedded = await priv.embedding.embed(
@@ -465,6 +624,8 @@ async function embedChunks(
       cache.set(m.key, [...raw])
       vectors[m.index] = VectorStore.normalize(raw)
     })
+    embeddedCount += batch.length
+    onProgress?.({ type: 'embed:progress', embedded: embeddedCount, toEmbed: misses.length })
   }
 
   return vectors
@@ -520,10 +681,10 @@ export function ensureServerIndex(config: Config.Config): ServerIndexEntry {
   let entry = serverIndexCache.get(cacheKey)
   if (!entry) {
     const created: ServerIndexEntry = { ready: false, promise: undefined as never }
-    created.promise = buildIndex(config)
-      .then((manifest) => {
+    created.promise = resolveServerIndex(config, priv)
+      .then((index) => {
         created.ready = true
-        return { store: VectorStore.load(manifest.vectors), chunks: manifest.chunks }
+        return index
       })
       .catch((error) => {
         serverIndexCache.delete(cacheKey)
@@ -533,6 +694,31 @@ export function ensureServerIndex(config: Config.Config): ServerIndexEntry {
     serverIndexCache.set(cacheKey, entry)
   }
   return entry
+}
+
+/**
+ * Produces the in-process server index.
+ *
+ * - Production: builds the index (embeds all chunks, cache-warmed at build time).
+ * - Development: loads the prebuilt manifest written by `vocs embeddings
+ *   generate` / `vocs build`. It never builds at request time (that would
+ *   refetch every external source and repack on each dev process). When the
+ *   prebuilt index is missing or stale it resolves to an empty index, so RAG
+ *   quietly falls back to keyword search.
+ */
+async function resolveServerIndex(
+  config: Config.Config,
+  priv: PrivateConfig,
+): Promise<ServerIndex> {
+  // Only the Vite dev server (`NODE_ENV=development`) is load-only. Production
+  // runtime, `vocs embeddings generate`, and tests all build on demand.
+  if (process.env['NODE_ENV'] === 'development') {
+    const manifest = await loadPrebuiltIndex(config, priv)
+    if (!manifest) return { store: VectorStore.load(VectorStore.pack([], 'float32')), chunks: [] }
+    return { store: VectorStore.load(manifest.vectors), chunks: manifest.chunks }
+  }
+  const manifest = await buildIndex(config)
+  return { store: VectorStore.load(manifest.vectors), chunks: manifest.chunks }
 }
 
 /** Lazily builds and memoizes the in-process server index (awaits the build). */
@@ -548,6 +734,9 @@ export async function retrieve(
   const priv = requirePrivate(config)
   const limit = options.limit ?? priv.retrieval.topK
   const index = await getServerIndex(config)
+  // Empty index (dev with no prebuilt manifest): skip the query embedding call
+  // and fall back to keyword-only search on the client.
+  if (index.chunks.length === 0) return []
 
   const embedded = await priv.embedding.embed([options.query], { purpose: 'query' })
   const raw = embedded[0]
@@ -556,11 +745,19 @@ export async function retrieve(
 
   const hits = VectorStore.search(index.store, query, priv.retrieval.candidateK)
 
+  // Apply per-source weights (local docs default to 1), then re-rank so a
+  // boosted/penalized source can move relative to the raw similarity order.
+  const ranked = hits
+    .map((hit) => {
+      const meta = index.chunks[hit.index]
+      return meta ? { meta, score: hit.score * (meta.weight ?? 1) } : undefined
+    })
+    .filter((hit): hit is { meta: ChunkMetadata; score: number } => hit !== undefined)
+    .sort((a, b) => b.score - a.score)
+
   const seen = new Set<string>()
   const results: Result[] = []
-  for (const hit of hits) {
-    const meta = index.chunks[hit.index]
-    if (!meta) continue
+  for (const { meta, score } of ranked) {
     if (seen.has(meta.href)) continue
     seen.add(meta.href)
     results.push({
@@ -571,7 +768,7 @@ export async function retrieve(
       category: meta.category,
       type: meta.type,
       snippet: meta.snippet,
-      score: hit.score,
+      score,
     })
     if (results.length >= limit) break
   }
@@ -614,10 +811,11 @@ export async function handleSearchRequest(
   const limit =
     typeof body.limit === 'number' ? Math.max(1, Math.min(20, Math.floor(body.limit))) : undefined
 
-  // Kick off (or reuse) the index build. The first cold build embeds every
-  // chunk and can take a while, so we never block the request on it: if the
-  // index isn't ready, respond immediately with `indexing: true` and let the
-  // client keep showing keyword results (and retry shortly).
+  // Kick off (or reuse) the in-process index. In production this is a cold
+  // build that embeds every chunk; in dev it just loads the prebuilt manifest.
+  // Either way we never block the request: if it isn't ready, respond with
+  // `indexing: true` and let the client keep showing keyword results (and retry
+  // shortly).
   const index = ensureServerIndex(config)
   if (!index.ready) {
     index.promise.catch(() => {}) // avoid unhandled rejection on the background build

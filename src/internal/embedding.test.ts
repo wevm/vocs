@@ -67,6 +67,49 @@ describe('adapter factories', () => {
     expect(calls[0]?.headers['X-Title']).toBe('Docs')
   })
 
+  it('cloudflare defaults to bge-base and infers dimensions', () => {
+    const adapter = Embedding.cloudflare()
+    expect(adapter.type).toBe('cloudflare')
+    expect(adapter.model).toBe('@cf/baai/bge-base-en-v1.5')
+    expect(adapter.dimensions).toBe(768)
+  })
+
+  it('cloudflare posts text batch to /ai/run/{model} and reads result.data', async () => {
+    const calls: { url: string; headers: Record<string, string>; body: string }[] = []
+    const original = globalThis.fetch
+    globalThis.fetch = (async (url: string, init: RequestInit) => {
+      calls.push({
+        url: String(url),
+        headers: init.headers as Record<string, string>,
+        body: String(init.body),
+      })
+      return new Response(JSON.stringify({ result: { data: [[0, 1, 2]] }, success: true }), {
+        status: 200,
+      })
+    }) as typeof fetch
+    try {
+      const adapter = Embedding.cloudflare({ accountId: 'acc-1', apiToken: 'cf-test' })
+      const vectors = await adapter.embed(['hi'], { purpose: 'query' })
+      expect(vectors).toEqual([[0, 1, 2]])
+    } finally {
+      globalThis.fetch = original
+    }
+    expect(calls[0]?.url).toBe(
+      'https://api.cloudflare.com/client/v4/accounts/acc-1/ai/run/@cf/baai/bge-base-en-v1.5',
+    )
+    expect(calls[0]?.headers['Authorization']).toBe('Bearer cf-test')
+    expect(JSON.parse(calls[0]?.body ?? '{}')).toEqual({ text: ['hi'] })
+  })
+
+  it('cloudflare throws without account id or token', async () => {
+    await expect(
+      Embedding.cloudflare({ apiToken: 't' }).embed(['x'], { purpose: 'document' }),
+    ).rejects.toThrow(/accountId/)
+    await expect(
+      Embedding.cloudflare({ accountId: 'a' }).embed(['x'], { purpose: 'document' }),
+    ).rejects.toThrow(/apiToken/)
+  })
+
   it('ollama defaults to nomic-embed-text', () => {
     expect(Embedding.ollama().model).toBe('nomic-embed-text')
   })

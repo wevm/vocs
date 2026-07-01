@@ -7,6 +7,7 @@ import { useQueryState } from 'nuqs'
 import * as React from 'react'
 import { useRouter } from 'waku'
 import LucideArrowRight from '~icons/lucide/arrow-right'
+import LucideExternalLink from '~icons/lucide/external-link'
 import LucideFile from '~icons/lucide/file'
 import LucideHash from '~icons/lucide/hash'
 import LucideLoaderCircle from '~icons/lucide/loader-circle'
@@ -40,17 +41,22 @@ type SearchState = {
   selectedIndex: number
 }
 
-/** Public RAG config shape (subset) carried on `config.search.rag`. */
-type RagConfig = {
+/**
+ * Public semantic-search config shape (subset). Both `config.search.rag` (a
+ * built-in vector store) and `config.search.retriever` (a managed backend)
+ * serialize to this shape, so the dialog treats them uniformly.
+ */
+type SemanticConfig = {
   enabled: boolean
-  runtime: 'server' | 'client'
   endpoint: string
   hybrid?: { enabled: boolean; semanticWeight: number; keywordWeight: number } | undefined
+  /** Only present on `search.rag`; managed retrievers query at runtime. */
+  runtime?: 'server' | 'client' | undefined
   ui?: { debounceMs?: number } | undefined
 }
 
-/** Result shape returned by the `/api/search/rag` endpoint. */
-type RagResult = {
+/** Result shape returned by the `/api/search/rag` and `/api/search/retrieve` endpoints. */
+type SemanticResult = {
   id: string
   href: string
   title: string
@@ -61,8 +67,8 @@ type RagResult = {
   score: number
 }
 
-/** Adapts a RAG endpoint result to the keyword `SearchResult` shape for reuse. */
-function toSearchResult(result: RagResult): SearchResult {
+/** Adapts a semantic endpoint result to the keyword `SearchResult` shape for reuse. */
+function toSearchResult(result: SemanticResult): SearchResult {
   return {
     category: result.category,
     href: result.href,
@@ -106,54 +112,68 @@ export function Search(props: Search.Props) {
   const listRef = React.useRef<HTMLUListElement>(null)
   const router = useRouter()
 
-  // Hybrid semantic search. When RAG is enabled, we fetch semantic (vector)
-  // results in the background and fuse them with the instant MiniSearch keyword
-  // results into one similarity-ranked list. Keyword results render immediately;
-  // the list re-ranks once embeddings return, so the UI never blocks on the
-  // network.
-  const ragConfig = (config.search as { rag?: RagConfig } | undefined)?.rag
-  const ragEnabled = Boolean(ragConfig?.enabled && ragConfig.runtime === 'server')
-  const [ragResults, setRagResults] = React.useState<SearchResult[]>([])
-  const [ragLoading, setRagLoading] = React.useState(false)
+  // Hybrid semantic search. Vocs supports two semantic backends — a built-in
+  // vector store (`search.rag`) and a managed retriever (`search.retriever`).
+  // Both serialize to the same public shape and the same request/response
+  // contract, so the dialog resolves whichever is enabled (retriever takes
+  // precedence) and treats it uniformly. We fetch semantic results in the
+  // background and fuse them with the instant MiniSearch keyword results into one
+  // similarity-ranked list. Keyword results render immediately; the list
+  // re-ranks once semantic results return, so the UI never blocks on the network.
+  const searchConfig = config.search as
+    | { rag?: SemanticConfig; retriever?: SemanticConfig }
+    | undefined
+  const retrieverConfig = searchConfig?.retriever
+  const ragConfig = searchConfig?.rag
+  const semanticConfig = React.useMemo<SemanticConfig | undefined>(() => {
+    if (retrieverConfig?.enabled) return retrieverConfig
+    // RAG only queries the server endpoint when running in server runtime.
+    if (ragConfig?.enabled && ragConfig.runtime !== 'client') return ragConfig
+    return undefined
+  }, [retrieverConfig, ragConfig])
+  const semanticEnabled = Boolean(semanticConfig?.enabled)
+  const [semanticResults, setSemanticResults] = React.useState<SearchResult[]>([])
+  const [semanticLoading, setSemanticLoading] = React.useState(false)
 
   React.useEffect(() => {
-    if (!ragEnabled || !open || !query.trim() || !ragConfig?.endpoint) {
-      setRagResults([])
-      setRagLoading(false)
+    if (!semanticEnabled || !open || !query.trim() || !semanticConfig?.endpoint) {
+      setSemanticResults([])
+      setSemanticLoading(false)
       return
     }
     const controller = new AbortController()
-    const debounce = ragConfig.ui?.debounceMs ?? 250
+    const debounce = semanticConfig.ui?.debounceMs ?? 250
     let retryTimer: ReturnType<typeof setTimeout> | undefined
 
     const run = async (): Promise<void> => {
-      const response = await fetch(ragConfig.endpoint, {
+      const response = await fetch(semanticConfig.endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query }),
         signal: controller.signal,
       })
       if (!response.ok) throw new Error(`Semantic search failed: ${response.status}`)
-      const data = (await response.json()) as { results: RagResult[]; indexing?: boolean }
-      // The server builds the vector index on first use. While it's still
-      // indexing we keep showing keyword results and poll until it's ready,
-      // rather than blocking the request or surfacing an error.
+      const data = (await response.json()) as { results: SemanticResult[]; indexing?: boolean }
+      // The built-in RAG store builds its vector index on first use. While it's
+      // still indexing we keep showing keyword results and poll until it's
+      // ready, rather than blocking the request or surfacing an error. Managed
+      // retrievers never set `indexing`.
       if (data.indexing) {
         retryTimer = setTimeout(() => {
           run().catch(() => {})
         }, 1500)
         return
       }
-      setRagResults(data.results.map(toSearchResult))
-      setRagLoading(false)
+      setSemanticResults(data.results.map(toSearchResult))
+      setSemanticLoading(false)
     }
 
     const timer = setTimeout(() => {
-      setRagLoading(true)
+      setSemanticLoading(true)
       run().catch((error) => {
         if ((error as Error).name === 'AbortError') return
-        setRagResults([])
-        setRagLoading(false)
+        setSemanticResults([])
+        setSemanticLoading(false)
       })
     }, debounce)
     return () => {
@@ -161,19 +181,26 @@ export function Search(props: Search.Props) {
       clearTimeout(timer)
       if (retryTimer) clearTimeout(retryTimer)
     }
-  }, [ragEnabled, open, query, ragConfig?.endpoint, ragConfig?.ui?.debounceMs])
+  }, [semanticEnabled, open, query, semanticConfig?.endpoint, semanticConfig?.ui?.debounceMs])
 
   const displayedResults = React.useMemo(() => {
     if (!query.trim()) return recentSearches
-    if (!ragEnabled || ragResults.length === 0) return search.results
+    if (!semanticEnabled || semanticResults.length === 0) return search.results
     return fuse({
       keyword: search.results,
-      semantic: ragResults,
-      keywordWeight: ragConfig?.hybrid?.keywordWeight,
-      semanticWeight: ragConfig?.hybrid?.semanticWeight,
+      semantic: semanticResults,
+      keywordWeight: semanticConfig?.hybrid?.keywordWeight,
+      semanticWeight: semanticConfig?.hybrid?.semanticWeight,
       limit: 20,
     })
-  }, [query, ragEnabled, ragResults, search.results, recentSearches, ragConfig?.hybrid])
+  }, [
+    query,
+    semanticEnabled,
+    semanticResults,
+    search.results,
+    recentSearches,
+    semanticConfig?.hybrid,
+  ])
 
   const jumpToResult = React.useMemo(() => {
     if (!query.trim() || search.results.length === 0) return null
@@ -352,7 +379,7 @@ export function Search(props: Search.Props) {
               type="text"
               value={query}
             />
-            {ragLoading && (
+            {semanticLoading && (
               <LucideLoaderCircle
                 aria-label="Searching"
                 className="vocs:size-4 vocs:shrink-0 vocs:text-secondary vocs:animate-spin"
@@ -408,7 +435,7 @@ export function Search(props: Search.Props) {
                   })}
                 </ul>
               </>
-            ) : query.trim() && ragLoading ? (
+            ) : query.trim() && semanticLoading ? (
               <ResultSkeleton />
             ) : (
               <div className="vocs:px-4 vocs:py-8 vocs:text-center vocs:text-secondary">
@@ -456,12 +483,24 @@ export declare namespace Search {
   }
 }
 
+/** Renders an external result's origin for display: just the hostname. */
+function formatExternalUrl(href: string): string {
+  try {
+    return new URL(href).hostname
+  } catch {
+    return href
+  }
+}
+
 // biome-ignore lint/correctness/noUnusedVariables: _
 function Result(props: Result.Props) {
   const { queryTerms, onClick, result, selected } = props
 
-  const Icon = result.type === 'page' ? LucideFile : LucideHash
-  const breadcrumb = [result.category, ...result.titles].filter(Boolean).join(' › ') || null
+  const isExternal = Path.isExternal(result.href)
+  const Icon = isExternal ? LucideExternalLink : result.type === 'page' ? LucideFile : LucideHash
+  const breadcrumb = isExternal
+    ? result.category || formatExternalUrl(result.href)
+    : [result.category, ...result.titles].filter(Boolean).join(' › ') || null
 
   return (
     // biome-ignore lint/a11y/useFocusableInteractive: _

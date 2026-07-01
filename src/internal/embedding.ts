@@ -191,6 +191,122 @@ export declare namespace openrouter {
   }
 }
 
+/** Output dimensionality for well-known Cloudflare Workers AI embedding models. */
+const cloudflareDimensions: Record<string, number> = {
+  '@cf/baai/bge-base-en-v1.5': 768,
+  '@cf/baai/bge-large-en-v1.5': 1024,
+  '@cf/baai/bge-m3': 1024,
+  '@cf/baai/bge-small-en-v1.5': 384,
+  '@cf/google/embeddinggemma-300m': 768,
+  '@cf/qwen/qwen3-embedding-0.6b': 1024,
+}
+
+/**
+ * Cloudflare Workers AI embeddings adapter (uses the `/ai/run/{model}` REST
+ * endpoint via `fetch`). Runs embedding models on Cloudflare's edge — a fully
+ * managed, pay-per-use alternative to self-hosting a model.
+ *
+ * Defaults to `process.env.CLOUDFLARE_ACCOUNT_ID` /
+ * `process.env.CLOUDFLARE_API_TOKEN` and `@cf/baai/bge-base-en-v1.5` (768 dims).
+ * The API token needs the `Workers AI` permission. Batches up to 100 inputs per
+ * request.
+ *
+ * @example
+ * ```ts
+ * import { defineConfig, Embedding } from 'vocs/config'
+ *
+ * export default defineConfig({
+ *   search: { rag: { embedding: Embedding.cloudflare() } },
+ * })
+ * ```
+ */
+export function cloudflare(options: cloudflare.Options = {}): Adapter {
+  const {
+    accountId = process.env['CLOUDFLARE_ACCOUNT_ID'],
+    apiToken = process.env['CLOUDFLARE_API_TOKEN'],
+    baseUrl = 'https://api.cloudflare.com/client/v4',
+    dimensions,
+    headers,
+    maxBatchSize = 100,
+    model = '@cf/baai/bge-base-en-v1.5',
+    pooling,
+    prefix,
+  } = options
+  return {
+    type: 'cloudflare',
+    model,
+    dimensions: dimensions ?? cloudflareDimensions[model],
+    maxBatchSize,
+    async embed(input, context) {
+      if (input.length === 0) return []
+      if (!accountId)
+        throw new Error(
+          '[vocs] Embedding.cloudflare: missing `accountId` (or CLOUDFLARE_ACCOUNT_ID).',
+        )
+      if (!apiToken)
+        throw new Error(
+          '[vocs] Embedding.cloudflare: missing `apiToken` (or CLOUDFLARE_API_TOKEN).',
+        )
+      const p = prefix?.[context.purpose] ?? ''
+      const url = `${baseUrl.replace(/\/$/, '')}/accounts/${accountId}/ai/run/${model}`
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${apiToken}`,
+          'Content-Type': 'application/json',
+          ...headers,
+        },
+        body: JSON.stringify({
+          text: p ? input.map((t) => p + t) : input,
+          ...(pooling ? { pooling } : {}),
+        }),
+        signal: context.signal ?? null,
+      })
+      if (!response.ok)
+        throw new Error(
+          `[vocs] cloudflare embedding failed (${response.status}): ${await safeText(response)}`,
+        )
+      const json = (await response.json()) as { result?: { data?: number[][] } }
+      const data = json.result?.data
+      if (!data) throw new Error('[vocs] cloudflare embedding response missing `result.data`.')
+      return data
+    },
+  }
+}
+
+export declare namespace cloudflare {
+  type Options = {
+    /** Cloudflare account id. @default process.env.CLOUDFLARE_ACCOUNT_ID */
+    accountId?: string | undefined
+    /** API token with the `Workers AI` permission. @default process.env.CLOUDFLARE_API_TOKEN */
+    apiToken?: string | undefined
+    /** API base URL. @default 'https://api.cloudflare.com/client/v4' */
+    baseUrl?: string | undefined
+    /** Output dimensionality. @default inferred from `model` when known */
+    dimensions?: number | undefined
+    /** Extra request headers. */
+    headers?: Record<string, string> | undefined
+    /** Max inputs per request (Workers AI allows up to 100). @default 100 */
+    maxBatchSize?: number | undefined
+    /** Model id. @default '@cf/baai/bge-base-en-v1.5' */
+    model?: string | undefined
+    /**
+     * Pooling method. `cls` is more accurate on larger inputs but is not
+     * compatible with `mean`-pooled vectors. @default Cloudflare default (`mean`)
+     */
+    pooling?: 'mean' | 'cls' | undefined
+    /** Optional per-purpose text prefixes (BGE benefits from a query instruction). */
+    prefix?:
+      | {
+          /** Prefix prepended to document text. */
+          document?: string | undefined
+          /** Prefix prepended to query text. */
+          query?: string | undefined
+        }
+      | undefined
+  }
+}
+
 /**
  * Native Ollama embeddings adapter (uses `/api/embed`). Dependency-free and the
  * best zero-key open-source default — no paid API and no browser model download.

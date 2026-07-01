@@ -1,8 +1,12 @@
 import type * as Hast from 'hast'
 import type * as Mdast from 'mdast'
+import { toString as mdastToString } from 'mdast-util-to-string'
 import rehypeSlug from 'rehype-slug'
 import rehypeStringify from 'rehype-stringify'
+import remarkDirective from 'remark-directive'
+import remarkFrontmatter from 'remark-frontmatter'
 import remarkGfm from 'remark-gfm'
+import remarkMdx from 'remark-mdx'
 import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
 import { unified } from 'unified'
@@ -176,4 +180,110 @@ const processor = unified()
 export function toHtml(markdown: string): string {
   if (!markdown) return ''
   return processor.processSync(markdown).toString()
+}
+
+/**
+ * Reduces a Markdown/MDX string to plain text suitable for search indexing and
+ * embedding.
+ *
+ * Parses the source into an MDAST (frontmatter, GFM, directives, MDX) and
+ * serializes it with `mdast-util-to-string`, so only human-readable words
+ * remain — no regex guesswork. Shared by the OpenAPI search index and external
+ * RAG sources.
+ */
+export function toText(markdown: string | undefined): string {
+  if (!markdown) return ''
+
+  // MDX first (handles JSX in the site's own docs); fall back to plain
+  // CommonMark for external sources whose `.md` isn't valid MDX.
+  const tree = parseToText(markdown, true) ?? parseToText(markdown, false)
+  if (!tree) return ''
+
+  // Serialize per top-level block so adjacent blocks keep a word boundary
+  // (mdast-util-to-string joins siblings without separators otherwise).
+  return tree.children
+    .map((node) => mdastToString(node))
+    .join(' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+function parseToText(markdown: string, mdx: boolean): Mdast.Root | undefined {
+  try {
+    const base = mdx ? unified().use(remarkParse).use(remarkMdx) : unified().use(remarkParse)
+    const proc = base
+      .use(remarkFrontmatter)
+      .use(remarkDirective)
+      .use(remarkGfm)
+      .use(stripFrontmatter)
+      .use(stripJsx)
+      .use(stripDirectives)
+
+    const tree = proc.parse(markdown)
+    proc.runSync(tree)
+    return tree
+  } catch {
+    return undefined
+  }
+}
+
+/** Removes YAML/TOML frontmatter nodes so their keys don't leak into text. */
+function stripFrontmatter() {
+  return (tree: Mdast.Root) => {
+    visit(
+      tree,
+      (node) => node.type === 'yaml' || node.type === 'toml',
+      (_node, index, parent) => {
+        if (index === undefined || !parent) return
+        parent.children.splice(index, 1)
+        return index
+      },
+    )
+  }
+}
+
+/** Unwraps or drops MDX JSX/ESM/expression nodes, keeping child text. */
+function stripJsx() {
+  return (tree: Mdast.Root) => {
+    visit(
+      tree,
+      (node) =>
+        node.type === 'mdxJsxFlowElement' ||
+        node.type === 'mdxJsxTextElement' ||
+        node.type === 'mdxjsEsm' ||
+        node.type === 'mdxFlowExpression' ||
+        node.type === 'mdxTextExpression',
+      (node, index, parent) => {
+        if (index === undefined || !parent) return
+        if ('children' in node && Array.isArray(node.children)) {
+          parent.children.splice(index, 1, ...(node.children as Mdast.RootContent[]))
+          return index
+        }
+        parent.children.splice(index, 1)
+        return index
+      },
+    )
+  }
+}
+
+/** Unwraps directive nodes, keeping their child text. */
+function stripDirectives() {
+  return (tree: Mdast.Root) => {
+    visit(
+      tree,
+      (node) =>
+        node.type === 'containerDirective' ||
+        node.type === 'leafDirective' ||
+        node.type === 'textDirective',
+      (node, index, parent) => {
+        if (index === undefined || !parent) return
+        if ('children' in node && Array.isArray(node.children)) {
+          parent.children.splice(index, 1, ...(node.children as Mdast.RootContent[]))
+          return index
+        }
+        parent.children.splice(index, 1)
+        return index
+      },
+    )
+  }
 }

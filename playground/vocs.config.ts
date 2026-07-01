@@ -89,9 +89,16 @@ export default defineConfig({
   title: 'Vocs',
   titleTemplate: '%s – Vocs',
   search: {
-    rag: {
-      embedding: Embedding.openrouter(),
-    },
+    rag: process.env.CLOUDFLARE_API_TOKEN
+      ? {
+          embedding: Embedding.cloudflare(),
+          sources: [
+            { url: 'https://viem.sh/llms.txt', label: 'Viem', weight: 0.8 },
+            { url: 'https://wagmi.sh/llms.txt', label: 'Wagmi', weight: 0.8 },
+            { url: 'https://docs.tempo.xyz/llms.txt', label: 'Tempo', weight: 0.8 },
+          ],
+        }
+      : undefined,
   },
   sidebar: {
     '/': [

@@ -1,3 +1,4 @@
+import * as Markdown from '../markdown.js'
 import type { SearchDocuments } from '../search.js'
 import type { Ir, IrOperation } from './parser.js'
 
@@ -29,7 +30,7 @@ export function toSearchDocuments(ir: Ir): SearchDocuments.Document[] {
     id: `openapi:${ir.path}`,
     searchPriority: undefined,
     subtitle: '',
-    text: plainText(ir.info.description),
+    text: Markdown.toText(ir.info.description),
     title: ir.info.title,
     titles: [],
     type: 'page',
@@ -45,7 +46,7 @@ export function toSearchDocuments(ir: Ir): SearchDocuments.Document[] {
       id: `openapi:${groupHref}`,
       searchPriority: undefined,
       subtitle: '',
-      text: plainText(group.description),
+      text: Markdown.toText(group.description),
       title: group.name,
       titles: [ir.info.title],
       type: 'page',
@@ -75,34 +76,14 @@ export function toSearchDocuments(ir: Ir): SearchDocuments.Document[] {
 function operationText(operation: IrOperation): string {
   const parts = [
     `${operation.method} ${operation.path}`,
-    plainText(operation.description),
-    plainText(operation.summary),
+    Markdown.toText(operation.description),
+    Markdown.toText(operation.summary),
     ...operation.parameters
       .filter((parameter) => !parameter.deprecated)
-      .map((parameter) => `${parameter.name} ${plainText(parameter.description)}`.trim()),
+      .map((parameter) => `${parameter.name} ${Markdown.toText(parameter.description)}`.trim()),
     ...operation.responses.map((response) =>
-      `${response.status} ${plainText(response.description)}`.trim(),
+      `${response.status} ${Markdown.toText(response.description)}`.trim(),
     ),
   ]
   return parts.filter(Boolean).join(' ').replace(/\s+/g, ' ').trim()
-}
-
-/**
- * Reduces a Markdown string to plain text suitable for the search index. Strips
- * the common inline/block syntax (links, emphasis, code, headings, lists,
- * blockquotes, images) so only human-readable words remain for tokenization.
- */
-function plainText(markdown: string | undefined): string {
-  if (!markdown) return ''
-  return markdown
-    .replace(/```[\s\S]*?```/g, ' ') // fenced code blocks
-    .replace(/`([^`]+)`/g, '$1') // inline code
-    .replace(/!\[([^\]]*)\]\([^)]*\)/g, '$1') // images → alt text
-    .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1') // links → label
-    .replace(/^\s{0,3}#{1,6}\s+/gm, '') // headings
-    .replace(/^\s{0,3}>\s?/gm, '') // blockquotes
-    .replace(/^\s*[-*+]\s+/gm, '') // unordered list markers
-    .replace(/[*_~]/g, '') // emphasis / strikethrough
-    .replace(/\s+/g, ' ')
-    .trim()
 }

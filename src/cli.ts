@@ -39,17 +39,102 @@ cli
     server.printUrls()
   })
 
-cli.command('build', 'Build for production').action(async () => {
-  const config = await Config.resolve()
-  const builder = await vite.createBuilder({
-    configFile: false,
-    plugins: [react(), vocs()],
-    build: {
-      outDir: config.outDir,
-    },
+cli
+  .command('build', 'Build for production')
+  .option('--no-embeddings', 'Skip building the search embeddings')
+  .action(async (options: { embeddings: boolean }) => {
+    if (options.embeddings === false) process.env['VOCS_SKIP_SEARCH_INDEX'] = 'true'
+
+    const config = await Config.resolve()
+    const builder = await vite.createBuilder({
+      configFile: false,
+      plugins: [react(), vocs()],
+      build: {
+        outDir: config.outDir,
+      },
+    })
+    await builder.buildApp()
   })
-  await builder.buildApp()
-})
+
+cli
+  .command('embeddings [action]', 'Manage the search embedding index')
+  .option('--force', 'Ignore the embedding cache and re-embed everything', { default: false })
+  .option('--out <file>', 'Also write the built index manifest to a JSON file')
+  .action(async (action: string | undefined, options: { force: boolean; out?: string }) => {
+    if (action !== 'generate') {
+      console.error(
+        `[vocs] Unknown embeddings action${action ? ` "${action}"` : ''}. Usage: vocs embeddings generate [--force] [--out <file>]`,
+      )
+      process.exit(1)
+    }
+
+    if (options.force) process.env['VOCS_RAG_CACHE_IGNORE'] = 'true'
+
+    const config = await Config.resolve()
+    const Rag = await import('./internal/rag.js')
+    if (!Rag.fromConfig(config)) {
+      console.error('[vocs] `search.rag` is not enabled in your config. Nothing to generate.')
+      process.exit(1)
+    }
+
+    console.log('[vocs] Building RAG index...')
+    const started = Date.now()
+    // Throttle high-frequency progress so long runs stay readable.
+    let lastFetchLog = 0
+    const manifest = await Rag.buildIndex(config, {
+      onProgress(event) {
+        switch (event.type) {
+          case 'documents':
+            console.log(`[vocs]   local documents: ${event.local}`)
+            break
+          case 'sources:start':
+            console.log(`[vocs]   fetching external sources (${event.sources})...`)
+            break
+          case 'sources:progress': {
+            const now = Date.now()
+            if (event.done === event.total || now - lastFetchLog > 1000) {
+              lastFetchLog = now
+              console.log(`[vocs]   fetched ${event.done}/${event.total} pages`)
+            }
+            break
+          }
+          case 'sources:done':
+            console.log(`[vocs]   external pages indexed: ${event.pages}`)
+            break
+          case 'chunked':
+            console.log(`[vocs]   chunks: ${event.chunks}`)
+            break
+          case 'embed:start':
+            console.log(
+              `[vocs]   embedding: ${event.toEmbed} to embed, ${event.cached} cached (of ${event.total})`,
+            )
+            break
+          case 'embed:progress':
+            console.log(`[vocs]   embedded ${event.embedded}/${event.toEmbed}`)
+            break
+          case 'packed':
+            console.log(`[vocs]   packed vectors (${event.dimensions}d, ${event.format})`)
+            break
+        }
+      },
+    })
+    const elapsed = ((Date.now() - started) / 1000).toFixed(1)
+    console.log(
+      `[vocs] RAG index built in ${elapsed}s (${manifest.vectorStore.count} chunks, ${manifest.vectorStore.dimensions}d, ${manifest.vectorStore.format}).`,
+    )
+
+    // Persist to the canonical cache path so `vocs dev` can serve semantic
+    // search without rebuilding.
+    const indexPath = await Rag.saveIndex(config, manifest)
+    console.log(`[vocs] Wrote index to ${indexPath}`)
+
+    if (options.out) {
+      const outPath = path.resolve(process.cwd(), options.out)
+      await fs.promises.mkdir(path.dirname(outPath), { recursive: true })
+      await fs.promises.writeFile(outPath, JSON.stringify(manifest), 'utf-8')
+      console.log(`[vocs] Wrote index manifest to ${outPath}`)
+    }
+  })
 
 cli
   .command('preview', 'Preview production build')
