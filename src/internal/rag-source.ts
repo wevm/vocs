@@ -142,7 +142,7 @@ async function fetchDocuments(
       if (next === undefined) return
       try {
         const body = await fetchText(next, options.signal)
-        const doc = extractDocument(next, body, options.meta.get(next))
+        const doc = await extractDocument(next, body, options.meta.get(next))
         if (doc.text.trim()) documents.push(doc)
       } catch (error) {
         if ((error as Error).name === 'AbortError') return
@@ -245,7 +245,11 @@ function resolveUrl(raw: string, baseUrl: string): string | undefined {
 }
 
 /** Turns a fetched page (HTML, Markdown, or text) into a {@link Document}. */
-export function extractDocument(pageUrl: string, body: string, source?: Source): Document {
+export async function extractDocument(
+  pageUrl: string,
+  body: string,
+  source?: Source,
+): Promise<Document> {
   // Link to the rendered page, not the raw source: `llms.txt` files often point
   // at `.md`/`.mdx` files, but the human-facing page lives at the extensionless
   // path. We still fetch from `pageUrl` — only the stored `href` is cleaned.
@@ -264,7 +268,7 @@ export function extractDocument(pageUrl: string, body: string, source?: Source):
   return {
     href,
     label,
-    text: Markdown.toText(body),
+    text: await Markdown.toText(body),
     title: heading?.trim() || titleFromUrl(pageUrl),
     weight,
   }

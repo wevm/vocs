@@ -111,7 +111,10 @@ export namespace SearchDocuments {
     if (!config.openapi || config.openapi.length === 0) return []
     try {
       const specs = await OpenApiRegistry.build(config)
-      return Object.values(specs).flatMap((ir) => OpenApiSearch.toSearchDocuments(ir))
+      const documents = await Promise.all(
+        Object.values(specs).map((ir) => OpenApiSearch.toSearchDocuments(ir)),
+      )
+      return documents.flat()
     } catch {
       return []
     }

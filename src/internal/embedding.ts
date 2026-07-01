@@ -202,6 +202,20 @@ const cloudflareDimensions: Record<string, number> = {
 }
 
 /**
+ * BGE English v1.5 models (`bge-small/base/large-en-v1.5`) are trained to
+ * receive this retrieval instruction on the query side only (passages are
+ * embedded as-is), which noticeably improves retrieval quality. Other models
+ * are excluded: `bge-m3` is instruction-free, and `embeddinggemma`/`qwen3` use
+ * their own instruction formats.
+ */
+const bgeQueryInstruction = 'Represent this sentence for searching relevant passages: '
+
+function defaultCloudflarePrefix(model: string): cloudflare.Options['prefix'] {
+  if (/bge-(small|base|large)-en-v1\.5/.test(model)) return { query: bgeQueryInstruction }
+  return undefined
+}
+
+/**
  * Cloudflare Workers AI embeddings adapter (uses the `/ai/run/{model}` REST
  * endpoint via `fetch`). Runs embedding models on Cloudflare's edge — a fully
  * managed, pay-per-use alternative to self-hosting a model.
@@ -230,7 +244,7 @@ export function cloudflare(options: cloudflare.Options = {}): Adapter {
     maxBatchSize = 100,
     model = '@cf/baai/bge-base-en-v1.5',
     pooling,
-    prefix,
+    prefix = defaultCloudflarePrefix(model),
   } = options
   return {
     type: 'cloudflare',
@@ -295,7 +309,13 @@ export declare namespace cloudflare {
      * compatible with `mean`-pooled vectors. @default Cloudflare default (`mean`)
      */
     pooling?: 'mean' | 'cls' | undefined
-    /** Optional per-purpose text prefixes (BGE benefits from a query instruction). */
+    /**
+     * Optional per-purpose text prefixes. BGE English v1.5 models
+     * (`bge-small/base/large-en-v1.5`) require a query-side retrieval
+     * instruction, so a sensible `query` prefix is applied automatically for
+     * those models unless you override this. `bge-m3` is instruction-free.
+     * @default query instruction for BGE English v1.5 models, otherwise none
+     */
     prefix?:
       | {
           /** Prefix prepended to document text. */

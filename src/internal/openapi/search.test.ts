@@ -1,4 +1,5 @@
-import { describe, expect, test } from 'vitest'
+import { beforeAll, describe, expect, test } from 'vitest'
+import type { SearchDocuments } from '../search.js'
 import type { Ir } from './parser.js'
 import { toSearchDocuments } from './search.js'
 
@@ -33,7 +34,10 @@ const ir: Ir = {
 }
 
 describe('toSearchDocuments', () => {
-  const docs = toSearchDocuments(ir)
+  let docs: SearchDocuments.Document[]
+  beforeAll(async () => {
+    docs = await toSearchDocuments(ir)
+  })
 
   test('emits a landing page, a category page, and an operation section', () => {
     expect(docs.map((doc) => ({ href: doc.href, title: doc.title, type: doc.type }))).toEqual([

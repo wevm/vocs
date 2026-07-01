@@ -98,7 +98,76 @@ describe('adapter factories', () => {
       'https://api.cloudflare.com/client/v4/accounts/acc-1/ai/run/@cf/baai/bge-base-en-v1.5',
     )
     expect(calls[0]?.headers['Authorization']).toBe('Bearer cf-test')
-    expect(JSON.parse(calls[0]?.body ?? '{}')).toEqual({ text: ['hi'] })
+    // BGE English v1.5 queries get the retrieval instruction automatically.
+    expect(JSON.parse(calls[0]?.body ?? '{}')).toEqual({
+      text: ['Represent this sentence for searching relevant passages: hi'],
+    })
+  })
+
+  it('cloudflare applies BGE query prefix to queries but not documents', async () => {
+    const original = globalThis.fetch
+    const calls: string[] = []
+    globalThis.fetch = (async (_url: string, init: RequestInit) => {
+      calls.push(String(init.body))
+      return new Response(JSON.stringify({ result: { data: [[0, 1, 2]] }, success: true }), {
+        status: 200,
+      })
+    }) as typeof fetch
+    try {
+      const adapter = Embedding.cloudflare({ accountId: 'acc-1', apiToken: 'cf-test' })
+      await adapter.embed(['passage'], { purpose: 'document' })
+      await adapter.embed(['question'], { purpose: 'query' })
+    } finally {
+      globalThis.fetch = original
+    }
+    expect(JSON.parse(calls[0] ?? '{}')).toEqual({ text: ['passage'] })
+    expect(JSON.parse(calls[1] ?? '{}')).toEqual({
+      text: ['Represent this sentence for searching relevant passages: question'],
+    })
+  })
+
+  it('cloudflare does not auto-prefix bge-m3 (instruction-free)', async () => {
+    const original = globalThis.fetch
+    const calls: string[] = []
+    globalThis.fetch = (async (_url: string, init: RequestInit) => {
+      calls.push(String(init.body))
+      return new Response(JSON.stringify({ result: { data: [[0, 1, 2]] }, success: true }), {
+        status: 200,
+      })
+    }) as typeof fetch
+    try {
+      const adapter = Embedding.cloudflare({
+        accountId: 'acc-1',
+        apiToken: 'cf-test',
+        model: '@cf/baai/bge-m3',
+      })
+      await adapter.embed(['q'], { purpose: 'query' })
+    } finally {
+      globalThis.fetch = original
+    }
+    expect(JSON.parse(calls[0] ?? '{}')).toEqual({ text: ['q'] })
+  })
+
+  it('cloudflare lets user override the default prefix', async () => {
+    const original = globalThis.fetch
+    const calls: string[] = []
+    globalThis.fetch = (async (_url: string, init: RequestInit) => {
+      calls.push(String(init.body))
+      return new Response(JSON.stringify({ result: { data: [[0, 1, 2]] }, success: true }), {
+        status: 200,
+      })
+    }) as typeof fetch
+    try {
+      const adapter = Embedding.cloudflare({
+        accountId: 'acc-1',
+        apiToken: 'cf-test',
+        prefix: { query: 'custom: ' },
+      })
+      await adapter.embed(['q'], { purpose: 'query' })
+    } finally {
+      globalThis.fetch = original
+    }
+    expect(JSON.parse(calls[0] ?? '{}')).toEqual({ text: ['custom: q'] })
   })
 
   it('cloudflare throws without account id or token', async () => {

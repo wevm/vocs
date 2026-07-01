@@ -757,8 +757,195 @@ Splits search queries into terms at runtime.
 
 Normalizes or expands search query terms at runtime.
 
+#### `search.rag`
+
+- **Type:** `boolean | object`
+
+Adds built-in retrieval-augmented (RAG) AI search on top of keyword search. Vocs embeds your
+pages at build time, packs them into a built-in static vector store, and queries them at runtime via
+a server endpoint. Embedding/reranker adapters hold secrets and are kept **server-side only** (never
+serialized to the browser). For a managed backend instead, use [`search.retriever`](#searchretriever).
+
+```ts
+import { defineConfig, Embedding, Reranker } from 'vocs/config'
+
+export default defineConfig({
+  search: {
+    rag: {
+      embedding: Embedding.openai(),
+      reranker: Reranker.cloudflare(),
+      sources: ['https://viem.sh/llms.txt'],
+    }
+  }
+})
+```
+
+#### `search.rag.embedding`
+
+- **Type:** `Embedding.Adapter`
+- **Required** (unless using the `rag: true` shorthand, which defaults to `Embedding.ollama()`)
+
+The embedding adapter used to vectorize chunks (at build) and queries (at runtime). Built-ins:
+`Embedding.openai()`, `Embedding.cloudflare()`, `Embedding.openrouter()`,
+`Embedding.openaiCompatible()`, `Embedding.ollama()`, and `Embedding.from()` for a custom adapter.
+
+#### `search.rag.reranker`
+
+- **Type:** `Reranker.Adapter`
+
+Optional cross-encoder ("search model") applied to the top candidates after vector retrieval to
+boost precision. Adds one model call per query and fails open to the vector order on error.
+Built-ins: `Reranker.cloudflare()` and `Reranker.from()`.
+
+#### `search.rag.sources`
+
+- **Type:** `(string | { url: string; label?: string; weight?: number })[]`
+
+External source URLs to embed alongside local docs. Each is fetched at build time and auto-expanded:
+a `sitemap.xml` → every page it lists, an `llms.txt` → every page it links, anything else → the page
+itself. Results link out to their absolute URL. `label` sets the result badge (defaults to the
+hostname); `weight` is a score multiplier relative to local docs (which are `1`), defaulting to
+`0.9`.
+
+#### `search.rag.retrieval.topK`
+
+- **Type:** `number`
+- **Default:** `8`
+
+Number of results returned to the client.
+
+#### `search.rag.retrieval.candidateK`
+
+- **Type:** `number`
+- **Default:** `40`
+
+Number of candidates scored before dedupe/rerank.
+
+#### `search.rag.retrieval.hybrid`
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Fuse keyword (MiniSearch) and AI results into a single ranking. When `false`, AI results
+are appended to keyword results instead.
+
+#### `search.rag.retrieval.semanticWeight`
+
+- **Type:** `number`
+- **Default:** `0.7`
+
+Weight applied to AI results during hybrid fusion.
+
+#### `search.rag.retrieval.keywordWeight`
+
+- **Type:** `number`
+- **Default:** `0.3`
+
+Weight applied to keyword results during hybrid fusion.
+
+#### `search.rag.chunking.maxCharacters`
+
+- **Type:** `number`
+- **Default:** `1200`
+
+Target maximum characters per embedded chunk.
+
+#### `search.rag.chunking.overlapCharacters`
+
+- **Type:** `number`
+- **Default:** `160`
+
+Characters of overlap between adjacent chunks of the same document.
+
+#### `search.rag.chunking.includeHeadings`
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+Prepend the section heading to the embedded text.
+
+#### `search.rag.chunking.includeBreadcrumbs`
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+Prepend parent breadcrumbs/category to the embedded text.
+
+#### `search.rag.chunking.includeNav`
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Include external nav links (usually text-less) in the index.
+
+#### `search.rag.cache`
+
+- **Type:** `boolean | { enabled?: boolean; dir?: string; ignore?: boolean }`
+- **Default:** `true`
+
+On-disk embedding cache so unchanged chunks aren't re-embedded between builds. Set `false` to
+disable. `ignore` (or `VOCS_RAG_CACHE_IGNORE`) forces a full re-embed.
+
+#### `search.rag.ui.debounceMs`
+
+- **Type:** `number`
+- **Default:** `250`
+
+Debounce before firing an AI search request from the search dialog.
+
+#### `search.rag.runtime`
+
+- **Type:** `'auto' | 'server' | 'client'`
+- **Default:** `'server'`
+
+Where retrieval runs. `'auto'` resolves to `'server'`.
+
+#### `search.rag.endpoint`
+
+- **Type:** `string`
+- **Default:** `` `{basePath}/api/search/rag` ``
+
+Overrides the server endpoint path that embeds the query and searches the index.
+
+#### `search.rag.vectorStore`
+
+- **Type:** `VectorStore.Adapter`
+- **Default:** `VectorStore.static()`
+
+The vector store backing the index. The default packs vectors into a static artifact; provide a
+custom adapter with `VectorStore.from()`.
+
+#### `search.rag.enabled`
+
+- **Type:** `boolean`
+
+Explicitly enable/disable RAG. Defaults to enabled when the `rag` object is present.
+
+#### `search.retriever`
+
+- **Type:** `Retriever.Adapter | object`
+
+Adds AI search via a **managed** retriever instead of a Vocs-owned index. Delegates retrieval
+to a backend (e.g. Cloudflare AI Search) queried at runtime (`/api/search/retrieve`) and fuses the
+results with keyword search. Retriever adapters are kept **server-side only**.
+
+```ts
+import { defineConfig, Retriever } from 'vocs/config'
+
+export default defineConfig({
+  search: {
+    retriever: Retriever.cloudflare({ instance: 'my-docs' })
+  }
+})
+```
+
+Use `Retriever.cloudflare()` for a Cloudflare AI Search instance or `Retriever.from()` for a custom
+backend. `Retriever.cloudflare()` accepts `instance` (required), `namespace`, `reranking`,
+`retrievalType` (`'vector' | 'keyword' | 'hybrid'`), `rewriteQuery`, `scoreThreshold`, `filters`,
+`mapResult`, and credential overrides (`accountId`, `apiToken`, `baseUrl`, `headers`).
+
 :::tip
-See [Search](/features/search) for recipes covering fuzzy matching, prefix matching, and field weighting.
+See [Search](/features/search) for the full guide — keyword-search recipes plus AI (RAG/retriever) search setup.
 :::
 
 ## Integrations

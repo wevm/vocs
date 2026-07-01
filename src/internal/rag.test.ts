@@ -6,6 +6,7 @@ import * as Config from './config.js'
 import * as ConfigSerializer from './config-serializer.js'
 import * as Embedding from './embedding.js'
 import * as Rag from './rag.js'
+import * as Reranker from './reranker.js'
 
 function makeSite(): string {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'vocs-rag-'))
@@ -161,6 +162,52 @@ describe('end-to-end (mock embedder)', () => {
     const results = await Rag.retrieve(config, { query: 'embeddings cache build time' })
     expect(results.length).toBeGreaterThan(0)
     // the embeddings section should surface for an embeddings query
+    expect(results.some((r) => r.href.includes('/search'))).toBe(true)
+  })
+
+  it('applies a reranker to reorder candidates', async () => {
+    const calls: { query: string; count: number }[] = []
+    const reranker = Reranker.from({
+      type: 'spy',
+      model: 'spy',
+      async rerank(query, documents, context) {
+        calls.push({ query, count: documents.length })
+        // Reverse the vector order so we can prove the reranker took effect.
+        return documents
+          .map((_, index) => ({ index, score: index }))
+          .sort((a, b) => b.score - a.score)
+          .slice(0, context.topK)
+      },
+    })
+    const config = Config.define({
+      rootDir: dir,
+      search: { rag: { embedding: Embedding.mock({ dimensions: 64 }), reranker, cache: false } },
+    })
+
+    await Rag.buildIndex(config)
+    const results = await Rag.retrieve(config, { query: 'installation' })
+    expect(results.length).toBeGreaterThan(0)
+    expect(calls[0]?.query).toBe('installation')
+    expect(calls[0]?.count).toBeGreaterThan(0)
+  })
+
+  it('falls back to vector order when the reranker throws', async () => {
+    const reranker = Reranker.from({
+      type: 'boom',
+      model: 'boom',
+      async rerank() {
+        throw new Error('rerank unavailable')
+      },
+    })
+    const config = Config.define({
+      rootDir: dir,
+      search: { rag: { embedding: Embedding.mock({ dimensions: 64 }), reranker, cache: false } },
+    })
+
+    await Rag.buildIndex(config)
+    const results = await Rag.retrieve(config, { query: 'embeddings cache build time' })
+    // Search still works despite the reranker failure.
+    expect(results.length).toBeGreaterThan(0)
     expect(results.some((r) => r.href.includes('/search'))).toBe(true)
   })
 

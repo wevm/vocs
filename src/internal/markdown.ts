@@ -1,12 +1,8 @@
 import type * as Hast from 'hast'
 import type * as Mdast from 'mdast'
-import { toString as mdastToString } from 'mdast-util-to-string'
 import rehypeSlug from 'rehype-slug'
 import rehypeStringify from 'rehype-stringify'
-import remarkDirective from 'remark-directive'
-import remarkFrontmatter from 'remark-frontmatter'
 import remarkGfm from 'remark-gfm'
-import remarkMdx from 'remark-mdx'
 import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
 import { unified } from 'unified'
@@ -183,6 +179,27 @@ export function toHtml(markdown: string): string {
 }
 
 /**
+ * Lazily loads the MDX/frontmatter parser stack used by {@link toText}.
+ *
+ * These packages (`remark-frontmatter`, `remark-mdx`, `remark-directive`,
+ * `mdast-util-to-string`) are heavy and, in `remark-frontmatter`'s case, drag in
+ * CJS-only transitive deps (`micromark-extension-frontmatter` → `fault` →
+ * `format`) that break when bundled into a browser graph. `toHtml` — which is
+ * imported by client components like `<Cards>` — must never pull them in, so
+ * they're loaded on demand here (and only ever on the server / during indexing)
+ * instead of at the top of this module.
+ */
+async function loadTextDeps() {
+  const [remarkDirective, remarkFrontmatter, remarkMdx, mdastToString] = await Promise.all([
+    import('remark-directive').then((m) => m.default),
+    import('remark-frontmatter').then((m) => m.default),
+    import('remark-mdx').then((m) => m.default),
+    import('mdast-util-to-string').then((m) => m.toString),
+  ])
+  return { mdastToString, remarkDirective, remarkFrontmatter, remarkMdx }
+}
+
+/**
  * Reduces a Markdown/MDX string to plain text suitable for search indexing and
  * embedding.
  *
@@ -190,30 +207,40 @@ export function toHtml(markdown: string): string {
  * serializes it with `mdast-util-to-string`, so only human-readable words
  * remain — no regex guesswork. Shared by the OpenAPI search index and external
  * RAG sources.
+ *
+ * Async because it lazily loads the MDX/frontmatter parser stack (see
+ * {@link loadTextDeps}) rather than importing it at module scope, which would
+ * leak heavy server-only deps into any client that imports {@link toHtml}.
  */
-export function toText(markdown: string | undefined): string {
+export async function toText(markdown: string | undefined): Promise<string> {
   if (!markdown) return ''
+
+  const deps = await loadTextDeps()
 
   // MDX first (handles JSX in the site's own docs); fall back to plain
   // CommonMark for external sources whose `.md` isn't valid MDX.
-  const tree = parseToText(markdown, true) ?? parseToText(markdown, false)
+  const tree = parseToText(markdown, true, deps) ?? parseToText(markdown, false, deps)
   if (!tree) return ''
 
   // Serialize per top-level block so adjacent blocks keep a word boundary
   // (mdast-util-to-string joins siblings without separators otherwise).
   return tree.children
-    .map((node) => mdastToString(node))
+    .map((node) => deps.mdastToString(node))
     .join(' ')
     .replace(/\s+/g, ' ')
     .trim()
 }
 
-function parseToText(markdown: string, mdx: boolean): Mdast.Root | undefined {
+function parseToText(
+  markdown: string,
+  mdx: boolean,
+  deps: Awaited<ReturnType<typeof loadTextDeps>>,
+): Mdast.Root | undefined {
   try {
-    const base = mdx ? unified().use(remarkParse).use(remarkMdx) : unified().use(remarkParse)
+    const base = mdx ? unified().use(remarkParse).use(deps.remarkMdx) : unified().use(remarkParse)
     const proc = base
-      .use(remarkFrontmatter)
-      .use(remarkDirective)
+      .use(deps.remarkFrontmatter)
+      .use(deps.remarkDirective)
       .use(remarkGfm)
       .use(stripFrontmatter)
       .use(stripJsx)

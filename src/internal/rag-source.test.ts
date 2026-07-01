@@ -41,11 +41,11 @@ See also https://example.com/extra`
 })
 
 describe('extractDocument', () => {
-  it('extracts title and text from HTML', () => {
+  it('extracts title and text from HTML', async () => {
     const html = `<html><head><title>Fallback</title></head>
       <body><main><h1>Real Title</h1><p>Hello <b>world</b>.</p>
       <script>ignore()</script></main></body></html>`
-    const doc = RagSource.extractDocument('https://example.com/page', html)
+    const doc = await RagSource.extractDocument('https://example.com/page', html)
     expect(doc.title).toBe('Real Title')
     expect(doc.href).toBe('https://example.com/page')
     expect(doc.text).toContain('Hello')
@@ -53,36 +53,36 @@ describe('extractDocument', () => {
     expect(doc.text).not.toContain('ignore')
   })
 
-  it('uses the first heading as the title for markdown', () => {
+  it('uses the first heading as the title for markdown', async () => {
     const md = '# My Page\n\nSome content here.'
-    const doc = RagSource.extractDocument('https://example.com/x.md', md)
+    const doc = await RagSource.extractDocument('https://example.com/x.md', md)
     expect(doc.title).toBe('My Page')
     expect(doc.text).toContain('Some content here.')
   })
 
-  it('derives a title from the URL when none is found', () => {
-    const doc = RagSource.extractDocument('https://example.com/getting-started', 'plain text')
+  it('derives a title from the URL when none is found', async () => {
+    const doc = await RagSource.extractDocument('https://example.com/getting-started', 'plain text')
     expect(doc.title).toBe('Getting Started')
   })
 
-  it('strips a .md/.mdx extension from the stored href', () => {
-    expect(RagSource.extractDocument('https://x.com/react/why.md', '# Why').href).toBe(
+  it('strips a .md/.mdx extension from the stored href', async () => {
+    expect((await RagSource.extractDocument('https://x.com/react/why.md', '# Why')).href).toBe(
       'https://x.com/react/why',
     )
-    expect(RagSource.extractDocument('https://x.com/a.mdx?v=1#top', '# A').href).toBe(
+    expect((await RagSource.extractDocument('https://x.com/a.mdx?v=1#top', '# A')).href).toBe(
       'https://x.com/a?v=1#top',
     )
     // Non-doc extensions and clean paths are untouched.
-    expect(RagSource.extractDocument('https://x.com/docs/intro', '# Intro').href).toBe(
+    expect((await RagSource.extractDocument('https://x.com/docs/intro', '# Intro')).href).toBe(
       'https://x.com/docs/intro',
     )
   })
 })
 
 describe('extractDocument (markdown body)', () => {
-  it('cleans frontmatter + Markdown out of the embedded text', () => {
+  it('cleans frontmatter + Markdown out of the embedded text', async () => {
     const md = '---\nurl: /a.md\n---\n# Title\n\nHello [world](https://x.com).'
-    const doc = RagSource.extractDocument('https://x.com/a.md', md)
+    const doc = await RagSource.extractDocument('https://x.com/a.md', md)
     expect(doc.title).toBe('Title')
     expect(doc.text).not.toContain('---')
     expect(doc.text).not.toContain('](https://x.com)')

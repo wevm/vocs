@@ -14,6 +14,7 @@
 import type * as Config from './config.js'
 import * as Embedding from './embedding.js'
 import * as RagSource from './rag-source.js'
+import type * as Reranker from './reranker.js'
 import * as VectorStore from './vector-store.js'
 
 export type ChunkingOptions = {
@@ -54,10 +55,6 @@ export type CacheOptions = {
 export type UiOptions = {
   /** Debounce before firing a semantic request (ms). @default 250 */
   debounceMs?: number | undefined
-  /** What the dialog surfaces. @default 'both' */
-  mode?: 'results' | 'ask' | 'both' | undefined
-  /** Show a "Semantic" badge on RAG results. @default true */
-  showBadges?: boolean | undefined
 }
 
 /** User-facing `search.rag` input. */
@@ -74,6 +71,12 @@ export type Input =
       enabled?: boolean | undefined
       /** Override the server endpoint path. @default `{basePath}/api/search/rag` */
       endpoint?: string | undefined
+      /**
+       * Optional cross-encoder reranker ("search model") applied to the top
+       * candidates after vector retrieval to boost precision. Adds one model
+       * call per query. Server-side only.
+       */
+      reranker?: Reranker.Adapter | undefined
       /** How candidates are fetched and ranked. */
       retrieval?: RetrievalOptions | undefined
       /** Where retrieval runs. `'auto'` → `'server'`. @default 'server' */
@@ -112,10 +115,6 @@ export type PublicConfig = {
   ui: {
     /** Debounce before firing a semantic request (ms). */
     debounceMs: number
-    /** What the dialog surfaces. */
-    mode: 'results' | 'ask' | 'both'
-    /** Show a "Semantic" badge on RAG results. */
-    showBadges: boolean
   }
 }
 
@@ -137,6 +136,8 @@ export type PrivateConfig = {
   chunking: ResolvedChunking
   /** Embedding adapter used to vectorize chunks and queries. */
   embedding: Embedding.Adapter
+  /** Optional cross-encoder reranker applied to top candidates. */
+  reranker: Reranker.Adapter | undefined
   /** Resolved retrieval options. */
   retrieval: ResolvedRetrieval
   /** Where retrieval runs. */
@@ -192,8 +193,6 @@ export function resolve(input: Input | undefined, ctx: resolve.Context): resolve
       keywordWeight: options.retrieval?.keywordWeight ?? 0.3,
     },
     ui: {
-      mode: ui.mode ?? 'both',
-      showBadges: ui.showBadges ?? true,
       debounceMs: ui.debounceMs ?? 250,
     },
   }
@@ -201,6 +200,7 @@ export function resolve(input: Input | undefined, ctx: resolve.Context): resolve
   const privateConfig: PrivateConfig = {
     runtime,
     embedding,
+    reranker: options.reranker,
     sources: options.sources ?? [],
     vectorStore,
     chunking: {
@@ -745,14 +745,40 @@ export async function retrieve(
 
   const hits = VectorStore.search(index.store, query, priv.retrieval.candidateK)
 
-  // Apply per-source weights (local docs default to 1), then re-rank so a
-  // boosted/penalized source can move relative to the raw similarity order.
-  const ranked = hits
+  // Vector candidates, paired with their chunk metadata. `score` is the raw
+  // similarity; a reranker (below) may replace it with a cross-encoder score.
+  let candidates = hits
     .map((hit) => {
       const meta = index.chunks[hit.index]
-      return meta ? { meta, score: hit.score * (meta.weight ?? 1) } : undefined
+      return meta ? { meta, score: hit.score } : undefined
     })
     .filter((hit): hit is { meta: ChunkMetadata; score: number } => hit !== undefined)
+
+  // Optional rerank: a cross-encoder reads each (query, passage) pair jointly
+  // and re-scores the candidates for precision. On failure we keep the vector
+  // order so search never breaks.
+  if (priv.reranker && candidates.length > 0) {
+    try {
+      const docs = candidates.map((c) => c.meta.text || c.meta.snippet || c.meta.title)
+      const reranked = await priv.reranker.rerank(options.query, docs, {
+        topK: candidates.length,
+      })
+      if (reranked.length > 0)
+        candidates = reranked
+          .map((r) => {
+            const c = candidates[r.index]
+            return c ? { meta: c.meta, score: r.score } : undefined
+          })
+          .filter((c): c is { meta: ChunkMetadata; score: number } => c !== undefined)
+    } catch (error) {
+      console.warn('[vocs] reranker failed; falling back to vector order:', error)
+    }
+  }
+
+  // Apply per-source weights (local docs default to 1), then re-rank so a
+  // boosted/penalized source can move relative to the raw similarity order.
+  const ranked = candidates
+    .map(({ meta, score }) => ({ meta, score: score * (meta.weight ?? 1) }))
     .sort((a, b) => b.score - a.score)
 
   const seen = new Set<string>()
@@ -824,12 +850,25 @@ export async function handleSearchRequest(
 
   try {
     const t0 = Date.now()
-    const results = await retrieve(config, { query, limit })
+    const [{ store }, results] = await Promise.all([
+      index.promise,
+      retrieve(config, { query, limit }),
+    ])
     const searchMs = Date.now() - t0
 
-    return json({ results, indexing: false, timings: { searchMs } }, 200, {
-      'Cache-Control': 'no-store',
-    })
+    const { type, model, dimensions } = config._rag.embedding
+    const reranker = config._rag.reranker
+    return json(
+      {
+        results,
+        indexing: false,
+        embedding: { type, model, dimensions: store.dimensions || dimensions },
+        ...(reranker ? { reranker: { type: reranker.type, model: reranker.model } } : {}),
+        timings: { searchMs },
+      },
+      200,
+      { 'Cache-Control': 'no-store' },
+    )
   } catch (error) {
     console.error('[vocs] RAG search failed:', error)
     return json({ error: 'Search failed' }, 503)
