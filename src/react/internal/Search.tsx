@@ -389,10 +389,13 @@ export function Search(props: Search.Props) {
               value={query}
             />
             {semanticLoading && (
-              <LucideLoaderCircle
-                aria-label="Searching"
-                className="vocs:size-4 vocs:shrink-0 vocs:text-secondary vocs:animate-spin"
-              />
+              <div className="vocs:flex vocs:items-center vocs:gap-2 vocs:shrink-0">
+                <span className="vocs:text-xs vocs:text-secondary">Enhancing Results</span>
+                <LucideLoaderCircle
+                  aria-label="Searching"
+                  className="vocs:size-4 vocs:shrink-0 vocs:text-secondary vocs:animate-spin"
+                />
+              </div>
             )}
           </div>
 
