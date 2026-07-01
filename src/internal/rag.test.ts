@@ -191,6 +191,27 @@ describe('end-to-end (mock embedder)', () => {
     expect(calls[0]?.count).toBeGreaterThan(0)
   })
 
+  it('boosts an exact title match (navigational intent)', async () => {
+    // Uniform reranker scores make the lexical title boost the deciding factor,
+    // so a query equal to a section title must rank that section first.
+    const reranker = Reranker.from({
+      type: 'uniform',
+      model: 'uniform',
+      async rerank(_query, documents, context) {
+        return documents.map((_, index) => ({ index, score: 0.5 })).slice(0, context.topK)
+      },
+    })
+    const config = Config.define({
+      rootDir: dir,
+      search: { rag: { embedding: Embedding.mock({ dimensions: 64 }), reranker, cache: false } },
+    })
+
+    await Rag.buildIndex(config)
+    const results = await Rag.retrieve(config, { query: 'installation' })
+    expect(results[0]?.href).toContain('#installation')
+    expect(results[0]?.title).toBe('Installation')
+  })
+
   it('falls back to vector order when the reranker throws', async () => {
     const reranker = Reranker.from({
       type: 'boom',

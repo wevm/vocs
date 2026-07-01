@@ -741,6 +741,34 @@ function rerankText(meta: ChunkMetadata): string {
   return lines.join('\n') || meta.title
 }
 
+/** Lowercase alphanumeric word tokens (shared by title-boost matching). */
+function tokenize(text: string): string[] {
+  return text.toLowerCase().match(/[a-z0-9]+/g) ?? []
+}
+
+/**
+ * Additive lexical boost for chunks whose title matches the query — a
+ * navigational-intent signal cross-encoders under-reward.
+ *
+ * - exact title (same token set) → `0.25`
+ * - every query token present in the title → `0.12`
+ * - partial overlap → up to `0.05`, scaled by coverage
+ *
+ * Capped so it reorders near-ties (e.g. lifting an exact-title landing page over
+ * denser prose) without overriding a decisively more relevant passage.
+ */
+function titleMatchBoost(queryTokens: readonly string[], title: string): number {
+  if (queryTokens.length === 0) return 0
+  const titleTokens = tokenize(title)
+  if (titleTokens.length === 0) return 0
+  const titleSet = new Set(titleTokens)
+  const covered = queryTokens.filter((t) => titleSet.has(t)).length
+  const coverage = covered / queryTokens.length
+  if (coverage < 1) return coverage * 0.05
+  // Every query token is in the title. Reward an exact title match most.
+  return queryTokens.length === titleTokens.length ? 0.25 : 0.12
+}
+
 /** Embeds the query, searches the local store, dedupes by href. */
 export async function retrieve(
   config: Config.Config,
@@ -794,10 +822,18 @@ export async function retrieve(
     }
   }
 
-  // Apply per-source weights (local docs default to 1), then re-rank so a
-  // boosted/penalized source can move relative to the raw similarity order.
+  // Apply per-source weights (local docs default to 1) and a lexical title
+  // boost, then re-rank. Cross-encoders reward comprehensive passages over
+  // short exact titles, so a query that matches a heading (navigational intent,
+  // e.g. "stablecoin issuance" → the "Stablecoin Issuance" page) can otherwise
+  // lose to denser prose. The boost is additive and capped, so it nudges
+  // near-ties without overriding a clearly more relevant passage.
+  const queryTokens = tokenize(options.query)
   const ranked = candidates
-    .map(({ meta, score }) => ({ meta, score: score * (meta.weight ?? 1) }))
+    .map(({ meta, score }) => ({
+      meta,
+      score: score * (meta.weight ?? 1) + titleMatchBoost(queryTokens, meta.title),
+    }))
     .sort((a, b) => b.score - a.score)
 
   const seen = new Set<string>()
