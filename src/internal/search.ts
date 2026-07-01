@@ -442,6 +442,25 @@ export declare namespace extract {
   }
 }
 
+/**
+ * String-valued JSX attributes worth indexing. Components like `<Card>` carry
+ * their user-visible text in props (e.g. `title`, `description`) rather than
+ * children, so a naive strip would drop it entirely from the search index.
+ */
+const indexedJsxAttributes = new Set(['title', 'description', 'label'])
+
+/** Plain-text values of {@link indexedJsxAttributes} on a JSX element. */
+function jsxAttributeText(node: MdAst.RootContent): string[] {
+  if (!('attributes' in node) || !Array.isArray(node.attributes)) return []
+  const values: string[] = []
+  for (const attr of node.attributes) {
+    if (attr.type !== 'mdxJsxAttribute') continue
+    if (!indexedJsxAttributes.has(attr.name)) continue
+    if (typeof attr.value === 'string' && attr.value.trim()) values.push(attr.value.trim())
+  }
+  return values
+}
+
 function remarkStripJsx() {
   return (tree: MdAst.Root) => {
     UnistUtil.visit(
@@ -454,11 +473,17 @@ function remarkStripJsx() {
         node.type === 'mdxTextExpression',
       (node, index, parent) => {
         if (index === undefined || !parent) return
+        // Preserve indexable attribute text (e.g. `<Card title description />`)
+        // as a paragraph so it survives the strip and lands in the section text.
+        const attrText = jsxAttributeText(node as MdAst.RootContent)
+        const attrNode: MdAst.RootContent[] = attrText.length
+          ? [{ type: 'paragraph', children: [{ type: 'text', value: attrText.join('. ') }] }]
+          : []
         if ('children' in node && Array.isArray(node.children)) {
-          parent.children.splice(index, 1, ...(node.children as MdAst.RootContent[]))
+          parent.children.splice(index, 1, ...attrNode, ...(node.children as MdAst.RootContent[]))
           return index
         }
-        parent.children.splice(index, 1)
+        parent.children.splice(index, 1, ...attrNode)
         return index
       },
     )

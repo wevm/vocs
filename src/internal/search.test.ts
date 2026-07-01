@@ -796,6 +796,31 @@ Some text after.
     `)
   })
 
+  it('indexes title/description/label attributes of childless JSX (e.g. Card)', () => {
+    const content = `
+# Stablecoin Issuance
+
+Create and manage your own stablecoin.
+
+<Cards>
+  <Card title="Create a Stablecoin" description="Create your own stablecoin using TIP-20 tokens." to="/create" icon="lucide:coins" />
+  <Card title="Mint Stablecoins" description="Mint new tokens to increase supply." to="/mint" />
+</Cards>
+`
+    expect(Search.extract(content, config).sections).toMatchInlineSnapshot(`
+      [
+        {
+          "anchor": "stablecoin-issuance",
+          "isPage": true,
+          "subtitle": "",
+          "text": " Create and manage your own stablecoin. Create a Stablecoin. Create your own stablecoin using TIP-20 tokens. Mint Stablecoins. Mint new tokens to increase supply.",
+          "title": "Stablecoin Issuance",
+          "titles": [],
+        },
+      ]
+    `)
+  })
+
   it('includes code block content', () => {
     const content = `
 # Code Example
