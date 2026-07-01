@@ -726,6 +726,21 @@ export async function getServerIndex(config: Config.Config): Promise<ServerIndex
   return ensureServerIndex(config).promise
 }
 
+/**
+ * Builds the passage text handed to the reranker. Mirrors the embedded text
+ * (breadcrumb → titles → heading → body) so the cross-encoder scores the same
+ * content the vector retriever matched, letting exact heading matches win.
+ */
+function rerankText(meta: ChunkMetadata): string {
+  const lines: string[] = []
+  if (meta.category) lines.push(meta.category)
+  if (meta.titles.length) lines.push(meta.titles.join(' > '))
+  if (meta.title) lines.push(meta.title)
+  const body = meta.text || meta.snippet
+  if (body) lines.push(body)
+  return lines.join('\n') || meta.title
+}
+
 /** Embeds the query, searches the local store, dedupes by href. */
 export async function retrieve(
   config: Config.Config,
@@ -759,7 +774,11 @@ export async function retrieve(
   // order so search never breaks.
   if (priv.reranker && candidates.length > 0) {
     try {
-      const docs = candidates.map((c) => c.meta.text || c.meta.snippet || c.meta.title)
+      // Feed the cross-encoder the same context the embedding saw — breadcrumb,
+      // titles, and heading — not just the section body. Otherwise an exact
+      // heading match (e.g. a "Stablecoin Issuance" landing page) is invisible
+      // to the reranker and gets crowded out by prose that repeats the query.
+      const docs = candidates.map((c) => rerankText(c.meta))
       const reranked = await priv.reranker.rerank(options.query, docs, {
         topK: candidates.length,
       })
