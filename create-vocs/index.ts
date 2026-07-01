@@ -60,10 +60,12 @@ export async function init() {
 
     spinner.stop('Project created successfully')
 
+    const pkgManager = pkgFromUserAgent(process.env['npm_config_user_agent'])?.name ?? 'npm'
+
     clack.note(
       `${pc.dim('$')} cd ${projectName}
-${pc.dim('$')} npm install
-${pc.dim('$')} npm run dev`,
+${pc.dim('$')} ${pkgManager} install
+${pc.dim('$')} ${getRunCommand(pkgManager, 'dev').join(' ')}`,
       'Next steps',
     )
 
@@ -72,6 +74,26 @@ ${pc.dim('$')} npm run dev`,
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     clack.cancel(`Failed to create project: ${errorMessage}`)
     process.exit(1)
+  }
+}
+
+function pkgFromUserAgent(userAgent: string | undefined): { name: string } | undefined {
+  if (!userAgent) return undefined
+  const pkgSpec = userAgent.split(' ')[0] ?? ''
+  const pkgSpecArr = pkgSpec.split('/')
+  return {
+    name: pkgSpecArr[0] ?? '',
+  }
+}
+
+function getRunCommand(agent: string, script: string): string[] {
+  switch (agent) {
+    case 'yarn':
+    case 'pnpm':
+    case 'bun':
+      return [agent, script]
+    default:
+      return [agent, 'run', script]
   }
 }
 

@@ -1,5 +1,11 @@
 # create-vocs
 
+## 2.0.2
+
+### Patch Changes
+
+- acb79c8: Updated to Prompt correct package manager for next-steps commands
+
 ## 2.0.1
 
 ### Patch Changes

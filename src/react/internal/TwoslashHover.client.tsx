@@ -69,6 +69,9 @@ export function TwoslashHover(props: TwoslashHover.Props) {
           side="bottom"
           sideOffset={4}
           collisionAvoidance={{ side: 'none' }}
+          // Portaled to `body`; needs z-index or `minimal`/`blank` `[data-v-main]`
+          // (z-index: 10) covers it. The popup class `z-50` is inert here.
+          style={{ zIndex: 50 }}
         >
           <Popover.Popup className={className} initialFocus={false}>
             <Popover.Arrow className="vocs:data-[side=bottom]:top-[-8px] vocs:data-[side=left]:right-[-13px] vocs:data-[side=left]:rotate-90 vocs:data-[side=right]:left-[-13px] vocs:data-[side=right]:-rotate-90 vocs:data-[side=top]:bottom-[-8px] vocs:data-[side=top]:rotate-180">

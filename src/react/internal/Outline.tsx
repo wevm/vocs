@@ -26,7 +26,10 @@ function useOutlineItems(options: { minLevel: number; maxLevel: number }) {
     const scanHeadings = () => {
       const headingElements = Array.from(
         document.querySelectorAll('article[data-v-content] :is(h2, h3, h4, h5, h6)[id]'),
-      )
+        // Changelog release bodies render as nested `[data-v-content]` inside the
+        // main article; their headings have their own `Versions` outline, so keep
+        // them out of the page outline (otherwise they flood/leak into it).
+      ).filter((element) => !element.closest('[data-v-changelog]'))
       const newItems = headingElements
         .map((element) => {
           const level = Number.parseInt(element.tagName[1] ?? '0', 10)

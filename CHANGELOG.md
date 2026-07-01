@@ -1,5 +1,30 @@
 # vocs
 
+## 2.2.5
+
+### Patch Changes
+
+- 26cec40: Added `trailingSlashRedirect` config option (default `true`).
+
+## 2.2.4
+
+### Patch Changes
+
+- 7718528: Fixed the standalone OpenAPI reference rendering blank (`__webpack_require__ is not defined`). The genuine `react/Link` imports `unstable_RouterContext` from `waku/router/client`, which dragged `react-server-dom-webpack` into the prebuilt browser bundle. The standalone build now aliases `waku/router/client` to its Waku shim (which provides the router context), keeping the RSC client out of the bundle.
+
+## 2.2.3
+
+### Patch Changes
+
+- b0ea6e7: Excluded changelog release-body headings from the page outline and sidebar active-section tracking, fixing the overlapping/duplicated "On this page" entries on changelog pages and the stale entries that leaked onto subsequent pages.
+- a1dd6ba: Fixed the Twoslash hover popup being covered by page content on `minimal` and `blank` layouts by giving its portaled positioner a z-index.
+
+## 2.2.2
+
+### Patch Changes
+
+- 16cd8db: Added support for OpenAPI 3.1 webhooks. Top-level `webhooks` are rendered as non-callable operations (no interactive client or request samples), with a "Webhook" badge in the operation header and a webhook glyph in the sidebar.
+
 ## 2.2.1
 
 ### Patch Changes

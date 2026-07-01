@@ -9,7 +9,11 @@ import { trailingSlash } from './trailing-slash.js'
 function request(path: string, options?: trailingSlash.Options) {
   const app = new Hono()
   app.use('*', trailingSlash(options))
-  app.get('*', (c) => c.text('ok'))
+  // Echo the downstream pathname + search so tests can assert internal rewrites.
+  app.get('*', (c) => {
+    const url = new URL(c.req.url)
+    return c.text(url.pathname + url.search)
+  })
   return app.request(path)
 }
 
@@ -63,5 +67,34 @@ describe('trailingSlash', () => {
     const res = await request('http://localhost/sdk/typescript/core/')
     expect(res.status).toBe(308)
     expect(res.headers.get('location')).toBe('/sdk/typescript/core')
+  })
+
+  describe('redirect: false (internal rewrite)', () => {
+    it('normalizes trailing slash internally without a redirect', async () => {
+      const res = await request('http://localhost/about/', { redirect: false })
+      expect(res.status).toBe(200)
+      expect(res.headers.get('location')).toBeNull()
+      expect(await res.text()).toBe('/about')
+    })
+
+    it('preserves query string when rewriting internally', async () => {
+      const res = await request('http://localhost/docs/?ref=nav', { redirect: false })
+      expect(res.status).toBe(200)
+      expect(res.headers.get('location')).toBeNull()
+      expect(await res.text()).toBe('/docs?ref=nav')
+    })
+
+    it('still skips root, base path root, and file-extension paths', async () => {
+      expect((await request('http://localhost/', { redirect: false })).status).toBe(200)
+      expect(
+        (
+          await request('http://localhost/open-source/', {
+            redirect: false,
+            basePath: '/open-source',
+          })
+        ).status,
+      ).toBe(200)
+      expect((await request('http://localhost/styles.css', { redirect: false })).status).toBe(200)
+    })
   })
 })

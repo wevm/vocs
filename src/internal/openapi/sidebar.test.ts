@@ -119,6 +119,37 @@ describe('toSidebar', () => {
   })
 })
 
+describe('webhook badges', () => {
+  const webhookIr: Ir = {
+    ...ir,
+    groups: [
+      {
+        id: 'webhooks',
+        name: 'Webhooks',
+        operations: [
+          {
+            id: 'payment-succeeded',
+            method: 'POST',
+            path: 'payment.succeeded',
+            summary: 'Payment succeeded',
+            parameters: [],
+            responses: [],
+            isWebhook: true,
+          },
+        ],
+      },
+    ],
+  }
+
+  test('webhook operations get an icon badge instead of the POST method text', () => {
+    const sidebar = toSidebar(webhookIr)
+    const group = sidebar[1] as { items: { badge?: { icon?: string; text?: string } }[] }
+    const badge = group.items[1]?.badge
+    expect(badge?.text).toBeUndefined()
+    expect(badge?.icon).toContain('<svg')
+  })
+})
+
 describe('methodVariant', () => {
   test('maps methods to badge variants', () => {
     expect(methodVariant('GET')).toBe('info')

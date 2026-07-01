@@ -15,6 +15,17 @@
   @apply vocs:text-[10px] vocs:px-1.5 vocs:py-0.5;
 }
 
+/* Icon badges (e.g. webhooks) center a glyph instead of method text. */
+[data-v-sidebar-item-badge][data-v-icon] {
+  @apply vocs:inline-flex vocs:items-center vocs:justify-center;
+}
+[data-v-sidebar-item-badge-icon] {
+  @apply vocs:inline-flex vocs:items-center vocs:justify-center;
+}
+[data-v-sidebar-item-badge-icon] svg {
+  @apply vocs:size-3;
+}
+
 /* #region Page layout */
 
 /* Both the landing and group pages use the full-bleed layout (left gutter
