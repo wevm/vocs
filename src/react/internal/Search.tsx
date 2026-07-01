@@ -133,6 +133,10 @@ export function Search(props: Search.Props) {
   }, [retrieverConfig, ragConfig])
   const semanticEnabled = Boolean(semanticConfig?.enabled)
   const [semanticResults, setSemanticResults] = React.useState<SearchResult[]>([])
+  // The query the current `semanticResults` were fetched for. While a newer
+  // query is in flight this won't match `query`, so we fall back to keyword
+  // results instead of showing stale AI results.
+  const [semanticResultsQuery, setSemanticResultsQuery] = React.useState('')
   const [semanticLoading, setSemanticLoading] = React.useState(false)
 
   React.useEffect(() => {
@@ -165,6 +169,7 @@ export function Search(props: Search.Props) {
         return
       }
       setSemanticResults(data.results.map(toSearchResult))
+      setSemanticResultsQuery(query)
       setSemanticLoading(false)
     }
 
@@ -185,10 +190,13 @@ export function Search(props: Search.Props) {
 
   const displayedResults = React.useMemo(() => {
     if (!query.trim()) return recentSearches
-    if (!semanticEnabled || semanticResults.length === 0) return search.results
+    // Ignore AI results that belong to a previous query — while a new request is
+    // in flight, show fresh keyword results rather than stale AI ones.
+    const semanticFresh = semanticEnabled && semanticResultsQuery === query ? semanticResults : []
+    if (semanticFresh.length === 0) return search.results
     return fuse({
       keyword: search.results,
-      semantic: semanticResults,
+      semantic: semanticFresh,
       keywordWeight: semanticConfig?.hybrid?.keywordWeight,
       semanticWeight: semanticConfig?.hybrid?.semanticWeight,
       limit: 20,
@@ -197,6 +205,7 @@ export function Search(props: Search.Props) {
     query,
     semanticEnabled,
     semanticResults,
+    semanticResultsQuery,
     search.results,
     recentSearches,
     semanticConfig?.hybrid,
