@@ -683,6 +683,70 @@ describe('end-to-end (mock embedder)', () => {
     expect(purposes).toEqual(['query'])
   })
 
+  it('serves the bundled manifest (loadManifest) without rebuilding', async () => {
+    const purposes: string[] = []
+    const inner = Embedding.mock({ dimensions: 64 })
+    const embedding = Embedding.from({
+      type: 'mock',
+      model: 'mock',
+      dimensions: 64,
+      async embed(input, context) {
+        purposes.push(context.purpose)
+        return inner.embed(input, context)
+      },
+    })
+    const config = Config.define({
+      rootDir: dir,
+      ai: { retriever: Retriever.local({ embedding, cache: false }) },
+    })
+    const manifest = await Retriever.buildIndex(config)
+    Retriever._resetServerIndexCache()
+    purposes.length = 0
+
+    const makeRequest = () =>
+      new Request('http://localhost/api/search', {
+        method: 'POST',
+        body: JSON.stringify({ query: 'embeddings cache build time' }),
+      })
+    const options = { loadManifest: async () => manifest }
+
+    const first = await Retriever.handleSearchRequest(makeRequest(), config, options)
+    expect(first.status).toBe(202)
+    await Retriever.getServerIndex(config)
+
+    const second = await Retriever.handleSearchRequest(makeRequest(), config, options)
+    expect(second.status).toBe(200)
+    const json = (await second.json()) as { results: Retriever.Result[] }
+    expect(json.results.length).toBeGreaterThan(0)
+    // Only the query was embedded — the index came from the bundled manifest.
+    expect(purposes).toEqual(['query'])
+  })
+
+  it('ignores a stale bundled manifest and rebuilds', async () => {
+    const purposes: string[] = []
+    const inner = Embedding.mock({ dimensions: 64 })
+    const embedding = Embedding.from({
+      type: 'mock',
+      model: 'mock',
+      dimensions: 64,
+      async embed(input, context) {
+        purposes.push(context.purpose)
+        return inner.embed(input, context)
+      },
+    })
+    const config = Config.define({
+      rootDir: dir,
+      ai: { retriever: Retriever.local({ embedding, cache: false }) },
+    })
+    const manifest = await Retriever.buildIndex(config)
+    const stale = { ...manifest, embedding: { ...manifest.embedding, model: 'other' } }
+    Retriever._resetServerIndexCache()
+    purposes.length = 0
+
+    await Retriever.getServerIndex(config, { loadManifest: async () => stale })
+    expect(purposes).toContain('document')
+  })
+
   it('answers 503 (not 202) after a failed index build, without instant rebuilds', async () => {
     let attempts = 0
     const embedding = Embedding.from({
