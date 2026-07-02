@@ -5,9 +5,10 @@ import * as path from 'node:path'
 /**
  * On-disk cache of embedding vectors, keyed by a content+model hash.
  *
- * Embedding is the slow/expensive part of a RAG build, so unchanged chunks are
- * never re-embedded across builds. Modeled on the Twoslash cache: a single JSON
- * file under `{cacheDir}/rag`, loaded once and written once per build.
+ * Embedding is the slow/expensive part of an AI search build, so unchanged
+ * chunks are never re-embedded across builds. Modeled on the Twoslash cache: a
+ * single JSON file under `{cacheDir}/ai-search`, loaded once and written once
+ * per build.
  */
 
 const version = 1

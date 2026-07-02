@@ -1,7 +1,7 @@
 /**
- * External RAG sources for Vocs semantic search.
+ * External sources for Vocs AI search.
  *
- * `search.rag.sources` is a list of URLs. Each URL is fetched at build time and
+ * `ai.retriever` (local) `sources` is a list of URLs. Each URL is fetched at build time and
  * embedded alongside the site's own docs. URLs are auto-expanded:
  *
  * - a `sitemap.xml` (or sitemap-index) → every `<loc>` page it lists
@@ -10,7 +10,7 @@
  *
  * Sources are bounded: they never recursively follow in-page links. The URL set
  * comes entirely from the entrypoints you list. For live recursive crawling, use
- * a managed retriever (`search.retriever`) instead.
+ * a managed retriever (`Retriever.cloudflare`) instead.
  *
  * External documents keep their absolute `href`, so search results link out (and
  * render the external-link icon in the search dialog).
@@ -19,7 +19,7 @@
 import * as Markdown from './markdown.js'
 
 /**
- * An external RAG source. A bare string is shorthand for `{ url }`.
+ * An external source. A bare string is shorthand for `{ url }`.
  *
  * `url` is a sitemap, `llms.txt`, or page URL (auto-expanded). `label` and
  * `weight` apply to every page the source expands to.
@@ -38,7 +38,7 @@ export type Source = {
   weight?: number | undefined
 }
 
-/** A document produced by an external RAG source. */
+/** A document produced by an external AI search source. */
 export type Document = {
   /** Absolute URL of the page (kept as-is so results link out). */
   href: string
@@ -160,13 +160,13 @@ async function fetchDocuments(
 
 function warn(url: string, error: unknown): void {
   console.warn(
-    `[vocs] RagSource: skipped ${url}: ${error instanceof Error ? error.message : String(error)}`,
+    `[vocs] RetrieverSource: skipped ${url}: ${error instanceof Error ? error.message : String(error)}`,
   )
 }
 
 async function fetchText(target: string, signal: AbortSignal | undefined): Promise<string> {
   const response = await fetch(target, {
-    headers: { 'User-Agent': 'vocs-rag' },
+    headers: { 'User-Agent': 'vocs' },
     signal: signal ?? null,
   })
   if (!response.ok) throw new Error(`fetch failed (${response.status})`)

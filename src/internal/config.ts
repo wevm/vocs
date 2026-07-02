@@ -12,7 +12,6 @@ import type * as McpSource from './mcp-source.js'
 import type * as Mdx from './mdx.js'
 import type * as OpenApi from './openapi/index.js'
 import { from as resolveOpenApi } from './openapi/openapi.js'
-import * as Rag from './rag.js'
 import type * as Redirects from './redirects.js'
 import * as Retriever from './retriever.js'
 import type * as Sidebar from './sidebar.js'
@@ -186,6 +185,39 @@ export type SearchQueryOptions = MiniSearchSearchOptions & {
   processTerm?: MiniSearchSearchOptions['processTerm']
 }
 
+/**
+ * Top-level AI configuration. A home for AI-powered features; currently exposes
+ * semantic search via {@link AiOptions.retriever}.
+ */
+export type AiOptions = {
+  /**
+   * AI search. Additive to the default MiniSearch keyword search: the dialog
+   * keeps showing instant keyword results and blends in AI results.
+   *
+   * Set it to a retriever created by one of:
+   *
+   * - {@link Retriever.local} — Vocs owns the pipeline: build-time embeddings
+   *   packed into a built-in static vector store, queried at runtime.
+   *   Self-owned, open-source alternative to a hosted vector DB.
+   * - {@link Retriever.cloudflare} / {@link Retriever.from} — retrieval
+   *   delegated to a managed backend (e.g. Cloudflare AI Search).
+   *
+   * Shared runtime/UI knobs (`enabled`, `endpoint`, `hybrid`, `topK`, `ui`) are
+   * passed to the constructor. Retrievers hold secrets and are kept server-side
+   * only (never serialized to the browser).
+   *
+   * @example
+   * ```ts
+   * import { defineConfig, Retriever, Embedding } from 'vocs/config'
+   *
+   * export default defineConfig({
+   *   ai: { retriever: Retriever.local({ embedding: Embedding.openai() }) },
+   * })
+   * ```
+   */
+  retriever?: Retriever.Retriever | undefined
+}
+
 export type SearchOptions = {
   /**
    * MiniSearch constructor/load options for index build and index load.
@@ -201,49 +233,6 @@ export type SearchOptions = {
    * Function options run in the browser and must be serializable.
    */
   query?: SearchQueryOptions
-  /**
-   * Retrieval-augmented (semantic/AI) search with a built-in vector store.
-   *
-   * Additive to the default MiniSearch keyword search. Build-time embeddings are
-   * packed into a built-in static vector store and queried at runtime via the
-   * `/api/search/rag` endpoint. Embedding/LLM adapters hold secrets and are kept
-   * server-side only (never serialized to the browser).
-   *
-   * Use this when you want Vocs to own the index (open-source alternative to a
-   * hosted vector DB). For a managed backend instead, use {@link retriever}.
-   *
-   * @example
-   * ```ts
-   * import { defineConfig, Embedding } from 'vocs/config'
-   *
-   * export default defineConfig({
-   *   search: { rag: { embedding: Embedding.openai() } },
-   * })
-   * ```
-   */
-  rag?: Rag.Input | undefined
-  /**
-   * Semantic (AI) search via a managed retriever.
-   *
-   * Additive to the default MiniSearch keyword search. Delegates retrieval to a
-   * managed backend (e.g. Cloudflare AI Search) queried at runtime via the
-   * `/api/search/retrieve` endpoint, and fuses the results with keyword search.
-   * Retriever adapters hold secrets and are kept server-side only (never
-   * serialized to the browser).
-   *
-   * Use this for a managed backend. To let Vocs build/host the index instead,
-   * use {@link rag}.
-   *
-   * @example
-   * ```ts
-   * import { defineConfig, Retriever } from 'vocs/config'
-   *
-   * export default defineConfig({
-   *   search: { retriever: Retriever.cloudflare({ instance: 'my-docs' }) },
-   * })
-   * ```
-   */
-  retriever?: Retriever.Input | undefined
   /**
    * Legacy alias for `search.query.boost`.
    *
@@ -289,6 +278,11 @@ export type Config<partial extends boolean = false> = MaybePartial<
      *
      */
     accentColor: `light-dark(${string}, ${string})` | (string & {})
+    /**
+     * AI-powered features. Currently exposes semantic search via
+     * {@link AiOptions.retriever}.
+     */
+    ai?: AiOptions | undefined
     /**
      * Configuration for the banner fixed to the top of the page.
      */
@@ -431,15 +425,17 @@ export type Config<partial extends boolean = false> = MaybePartial<
      */
     _feedback?: Feedback.Adapter | undefined
     /**
-     * Private (server-only) RAG config, derived from `search.rag`. Holds the
-     * embedding/LLM/vector-store adapters and is never serialized to the client.
+     * Private (server-only) config for the self-owned AI search provider,
+     * derived from `ai.retriever`. Holds the embedding/vector-store/reranker
+     * adapters and is never serialized to the client.
      */
-    _rag?: Rag.PrivateConfig | undefined
+    _localRetriever?: Retriever.LocalPrivateConfig | undefined
     /**
-     * Private (server-only) retriever config, derived from `search.retriever`.
-     * Holds the retrieval adapter/secrets and is never serialized to the client.
+     * Private (server-only) config for the managed AI search provider, derived
+     * from `ai.retriever`. Holds the retrieval adapter/secrets and is never
+     * serialized to the client.
      */
-    _retriever?: Retriever.PrivateConfig | undefined
+    _retriever?: Retriever.ManagedPrivateConfig | undefined
     /**
      * Group icons configuration for code block labels.
      * Displays icons next to code block titles based on file extensions and tools.
@@ -755,6 +751,7 @@ export type Frontmatter = {
 export function define(config: define.Options = {}): Config {
   const {
     accentColor = 'light-dark(black, white)',
+    ai: aiOptions,
     banner,
     basePath = '/',
     cacheDir,
@@ -795,20 +792,33 @@ export function define(config: define.Options = {}): Config {
     return url
   })()
 
-  // RAG/retriever resolution must be idempotent: `define` can run twice (once
-  // via `defineConfig` in the user's config, then again in `Config.resolve`). On
-  // the second pass the private config already exists and the public config is
-  // already resolved, so we skip re-resolving (which would otherwise see no
-  // adapter and disable semantic search).
-  const existingRag = (config as { _rag?: Rag.PrivateConfig })._rag
-  const ragResolved = existingRag ? undefined : Rag.resolve(search?.rag, { basePath })
-  const existingRetriever = (config as { _retriever?: Retriever.PrivateConfig })._retriever
+  // `ai.retriever` selects one semantic provider (self-owned vector store or a
+  // managed retriever). Normalize it into the internal local/managed inputs.
+  //
+  // Resolution must be idempotent: `define` can run twice (once via
+  // `defineConfig` in the user's config, then again in `Config.resolve`). On the
+  // second pass the private config already exists and `ai.retriever` already holds
+  // the resolved public config, so we skip re-normalizing (which would otherwise
+  // see no adapter and disable semantic search).
+  const existingLocal = (config as { _localRetriever?: Retriever.LocalPrivateConfig })
+    ._localRetriever
+  const existingRetriever = (config as { _retriever?: Retriever.ManagedPrivateConfig })._retriever
+  const resolvedAlready = Boolean(existingLocal || existingRetriever)
+  const ai = resolvedAlready ? {} : Retriever.normalize(aiOptions?.retriever)
+  const localResolved = existingLocal ? undefined : Retriever.resolveLocal(ai.local, { basePath })
   const retrieverResolved = existingRetriever
     ? undefined
-    : Retriever.resolve(search?.retriever, { basePath })
+    : Retriever.resolveManaged(ai.managed, { basePath })
+  // Exactly one provider resolves; both serialize to the same public shape.
+  const aiPublic = resolvedAlready
+    ? (aiOptions?.retriever as Retriever.PublicConfig | undefined)
+    : (localResolved?.public ?? retrieverResolved?.public)
+  // The public config shape differs from the `Retriever.Retriever` accepted on the way in.
+  const aiResolved = (aiPublic ? { retriever: aiPublic } : undefined) as AiOptions | undefined
 
   return {
     accentColor,
+    ai: aiResolved,
     banner: banner
       ? {
           dismissable: true,
@@ -841,7 +851,7 @@ export function define(config: define.Options = {}): Config {
       : undefined,
     feedback: !!(config.feedback || (config as { _feedback?: unknown })._feedback),
     _feedback: (config as { _feedback?: Feedback.Adapter })._feedback ?? config.feedback,
-    _rag: existingRag ?? ragResolved?.private,
+    _localRetriever: existingLocal ?? localResolved?.private,
     _retriever: existingRetriever ?? retrieverResolved?.private,
     groupIcons: config.groupIcons,
     iconUrl,
@@ -874,10 +884,6 @@ export function define(config: define.Options = {}): Config {
 
       return {
         ...search,
-        rag: (existingRag ? search?.rag : ragResolved?.public) as unknown as Rag.Input | undefined,
-        retriever: (existingRetriever ? search?.retriever : retrieverResolved?.public) as unknown as
-          | Retriever.Input
-          | undefined,
         query: {
           ...query,
           boostDocument,
@@ -923,7 +929,7 @@ export function define(config: define.Options = {}): Config {
 export declare namespace define {
   export type Options = UnionOmit<
     Config<true>,
-    'pagesDir' | 'feedback' | '_feedback' | '_rag' | '_retriever'
+    'pagesDir' | 'feedback' | '_feedback' | '_localRetriever' | '_retriever'
   > & {
     /**
      * Feedback adapter configuration.

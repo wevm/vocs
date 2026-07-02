@@ -42,20 +42,20 @@ type SearchState = {
 }
 
 /**
- * Public semantic-search config shape (subset). Both `config.search.rag` (a
- * built-in vector store) and `config.search.retriever` (a managed backend)
- * serialize to this shape, so the dialog treats them uniformly.
+ * Public semantic-search config shape. `config.ai.retriever` resolves to this
+ * for either provider (a built-in vector store or a managed retriever), so the
+ * dialog treats them uniformly.
  */
 type SemanticConfig = {
   enabled: boolean
   endpoint: string
   hybrid?: { enabled: boolean; semanticWeight: number; keywordWeight: number } | undefined
-  /** Only present on `search.rag`; managed retrievers query at runtime. */
+  /** Only present for the self-owned provider; managed retrievers query at runtime. */
   runtime?: 'server' | 'client' | undefined
   ui?: { debounceMs?: number } | undefined
 }
 
-/** Result shape returned by the `/api/search/rag` and `/api/search/retrieve` endpoints. */
+/** Result shape returned by the `/api/search` endpoint. */
 type SemanticResult = {
   id: string
   href: string
@@ -112,25 +112,19 @@ export function Search(props: Search.Props) {
   const listRef = React.useRef<HTMLUListElement>(null)
   const router = useRouter()
 
-  // Hybrid semantic search. Vocs supports two semantic backends — a built-in
-  // vector store (`search.rag`) and a managed retriever (`search.retriever`).
-  // Both serialize to the same public shape and the same request/response
-  // contract, so the dialog resolves whichever is enabled (retriever takes
-  // precedence) and treats it uniformly. We fetch semantic results in the
-  // background and fuse them with the instant MiniSearch keyword results into one
-  // similarity-ranked list. Keyword results render immediately; the list
-  // re-ranks once semantic results return, so the UI never blocks on the network.
-  const searchConfig = config.search as
-    | { rag?: SemanticConfig; retriever?: SemanticConfig }
-    | undefined
-  const retrieverConfig = searchConfig?.retriever
-  const ragConfig = searchConfig?.rag
+  // AI (semantic) search. `ai.retriever` selects one provider — a built-in vector
+  // store or a managed retriever — and both serialize to the same public shape
+  // and request/response contract, so the dialog treats them uniformly. We fetch
+  // semantic results in the background and fuse them with the instant MiniSearch
+  // keyword results into one similarity-ranked list. Keyword results render
+  // immediately; the list re-ranks once semantic results return, so the UI never
+  // blocks on the network.
+  const aiConfig = (config as { ai?: { retriever?: SemanticConfig } }).ai?.retriever
   const semanticConfig = React.useMemo<SemanticConfig | undefined>(() => {
-    if (retrieverConfig?.enabled) return retrieverConfig
-    // RAG only queries the server endpoint when running in server runtime.
-    if (ragConfig?.enabled && ragConfig.runtime !== 'client') return ragConfig
+    // The self-owned provider only queries the server endpoint in server runtime.
+    if (aiConfig?.enabled && aiConfig.runtime !== 'client') return aiConfig
     return undefined
-  }, [retrieverConfig, ragConfig])
+  }, [aiConfig])
   const semanticEnabled = Boolean(semanticConfig?.enabled)
   const [semanticResults, setSemanticResults] = React.useState<SearchResult[]>([])
   // The query the current `semanticResults` were fetched for. While a newer
@@ -158,7 +152,7 @@ export function Search(props: Search.Props) {
       })
       if (!response.ok) throw new Error(`Semantic search failed: ${response.status}`)
       const data = (await response.json()) as { results: SemanticResult[]; indexing?: boolean }
-      // The built-in RAG store builds its vector index on first use. While it's
+      // The built-in AI search store builds its vector index on first use. While it's
       // still indexing we keep showing keyword results and poll until it's
       // ready, rather than blocking the request or surfacing an error. Managed
       // retrievers never set `indexing`.

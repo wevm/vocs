@@ -68,20 +68,22 @@ cli
       process.exit(1)
     }
 
-    if (options.force) process.env['VOCS_RAG_CACHE_IGNORE'] = 'true'
+    if (options.force) process.env['VOCS_AI_CACHE_IGNORE'] = 'true'
 
     const config = await Config.resolve()
-    const Rag = await import('./internal/rag.js')
-    if (!Rag.fromConfig(config)) {
-      console.error('[vocs] `search.rag` is not enabled in your config. Nothing to generate.')
+    const Retriever = await import('./internal/retriever.js')
+    if (!Retriever.fromConfig(config)) {
+      console.error(
+        '[vocs] A local AI search provider (`ai.retriever` with `Retriever.local`) is not enabled in your config. Nothing to generate.',
+      )
       process.exit(1)
     }
 
-    console.log('[vocs] Building RAG index...')
+    console.log('[vocs] Building AI search index...')
     const started = Date.now()
     // Throttle high-frequency progress so long runs stay readable.
     let lastFetchLog = 0
-    const manifest = await Rag.buildIndex(config, {
+    const manifest = await Retriever.buildIndex(config, {
       onProgress(event) {
         switch (event.type) {
           case 'documents':
@@ -120,12 +122,12 @@ cli
     })
     const elapsed = ((Date.now() - started) / 1000).toFixed(1)
     console.log(
-      `[vocs] RAG index built in ${elapsed}s (${manifest.vectorStore.count} chunks, ${manifest.vectorStore.dimensions}d, ${manifest.vectorStore.format}).`,
+      `[vocs] AI search index built in ${elapsed}s (${manifest.vectorStore.count} chunks, ${manifest.vectorStore.dimensions}d, ${manifest.vectorStore.format}).`,
     )
 
     // Persist to the canonical cache path so `vocs dev` can serve semantic
     // search without rebuilding.
-    const indexPath = await Rag.saveIndex(config, manifest)
+    const indexPath = await Retriever.saveIndex(config, manifest)
     console.log(`[vocs] Wrote index to ${indexPath}`)
 
     if (options.out) {

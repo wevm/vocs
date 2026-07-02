@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import * as RagSource from './rag-source.js'
+import * as RetrieverSource from './retriever-source.js'
 
 describe('parseSitemapLocs', () => {
   it('extracts <loc> URLs', () => {
@@ -8,7 +8,7 @@ describe('parseSitemapLocs', () => {
         <url><loc>https://example.com/a</loc></url>
         <url><loc> https://example.com/b </loc></url>
       </urlset>`
-    expect(RagSource.parseSitemapLocs(xml)).toEqual([
+    expect(RetrieverSource.parseSitemapLocs(xml)).toEqual([
       'https://example.com/a',
       'https://example.com/b',
     ])
@@ -16,7 +16,7 @@ describe('parseSitemapLocs', () => {
 
   it('decodes entities in URLs', () => {
     const xml = '<url><loc>https://example.com/a?x=1&amp;y=2</loc></url>'
-    expect(RagSource.parseSitemapLocs(xml)).toEqual(['https://example.com/a?x=1&y=2'])
+    expect(RetrieverSource.parseSitemapLocs(xml)).toEqual(['https://example.com/a?x=1&y=2'])
   })
 })
 
@@ -27,7 +27,7 @@ describe('parseLlmsTxt', () => {
 - [API](https://example.com/api "API Reference")
 
 See also https://example.com/extra`
-    expect(RagSource.parseLlmsTxt(text, 'https://example.com/llms.txt')).toEqual([
+    expect(RetrieverSource.parseLlmsTxt(text, 'https://example.com/llms.txt')).toEqual([
       'https://example.com/docs/start',
       'https://example.com/api',
       'https://example.com/extra',
@@ -36,7 +36,9 @@ See also https://example.com/extra`
 
   it('de-duplicates URLs', () => {
     const text = '[a](https://example.com/a)\n[a again](https://example.com/a)'
-    expect(RagSource.parseLlmsTxt(text, 'https://example.com')).toEqual(['https://example.com/a'])
+    expect(RetrieverSource.parseLlmsTxt(text, 'https://example.com')).toEqual([
+      'https://example.com/a',
+    ])
   })
 })
 
@@ -45,7 +47,7 @@ describe('extractDocument', () => {
     const html = `<html><head><title>Fallback</title></head>
       <body><main><h1>Real Title</h1><p>Hello <b>world</b>.</p>
       <script>ignore()</script></main></body></html>`
-    const doc = await RagSource.extractDocument('https://example.com/page', html)
+    const doc = await RetrieverSource.extractDocument('https://example.com/page', html)
     expect(doc.title).toBe('Real Title')
     expect(doc.href).toBe('https://example.com/page')
     expect(doc.text).toContain('Hello')
@@ -55,34 +57,37 @@ describe('extractDocument', () => {
 
   it('uses the first heading as the title for markdown', async () => {
     const md = '# My Page\n\nSome content here.'
-    const doc = await RagSource.extractDocument('https://example.com/x.md', md)
+    const doc = await RetrieverSource.extractDocument('https://example.com/x.md', md)
     expect(doc.title).toBe('My Page')
     expect(doc.text).toContain('Some content here.')
   })
 
   it('derives a title from the URL when none is found', async () => {
-    const doc = await RagSource.extractDocument('https://example.com/getting-started', 'plain text')
+    const doc = await RetrieverSource.extractDocument(
+      'https://example.com/getting-started',
+      'plain text',
+    )
     expect(doc.title).toBe('Getting Started')
   })
 
   it('strips a .md/.mdx extension from the stored href', async () => {
-    expect((await RagSource.extractDocument('https://x.com/react/why.md', '# Why')).href).toBe(
-      'https://x.com/react/why',
-    )
-    expect((await RagSource.extractDocument('https://x.com/a.mdx?v=1#top', '# A')).href).toBe(
+    expect(
+      (await RetrieverSource.extractDocument('https://x.com/react/why.md', '# Why')).href,
+    ).toBe('https://x.com/react/why')
+    expect((await RetrieverSource.extractDocument('https://x.com/a.mdx?v=1#top', '# A')).href).toBe(
       'https://x.com/a?v=1#top',
     )
     // Non-doc extensions and clean paths are untouched.
-    expect((await RagSource.extractDocument('https://x.com/docs/intro', '# Intro')).href).toBe(
-      'https://x.com/docs/intro',
-    )
+    expect(
+      (await RetrieverSource.extractDocument('https://x.com/docs/intro', '# Intro')).href,
+    ).toBe('https://x.com/docs/intro')
   })
 })
 
 describe('extractDocument (markdown body)', () => {
   it('cleans frontmatter + Markdown out of the embedded text', async () => {
     const md = '---\nurl: /a.md\n---\n# Title\n\nHello [world](https://x.com).'
-    const doc = await RagSource.extractDocument('https://x.com/a.md', md)
+    const doc = await RetrieverSource.extractDocument('https://x.com/a.md', md)
     expect(doc.title).toBe('Title')
     expect(doc.text).not.toContain('---')
     expect(doc.text).not.toContain('](https://x.com)')
@@ -92,16 +97,20 @@ describe('extractDocument (markdown body)', () => {
 
 describe('stripDocExtension', () => {
   it('removes trailing .md and .mdx, preserving query and hash', () => {
-    expect(RagSource.stripDocExtension('https://x.com/a.md')).toBe('https://x.com/a')
-    expect(RagSource.stripDocExtension('https://x.com/a.mdx')).toBe('https://x.com/a')
-    expect(RagSource.stripDocExtension('https://x.com/a.md?q=1#h')).toBe('https://x.com/a?q=1#h')
-    expect(RagSource.stripDocExtension('https://x.com/readme.txt')).toBe('https://x.com/readme.txt')
+    expect(RetrieverSource.stripDocExtension('https://x.com/a.md')).toBe('https://x.com/a')
+    expect(RetrieverSource.stripDocExtension('https://x.com/a.mdx')).toBe('https://x.com/a')
+    expect(RetrieverSource.stripDocExtension('https://x.com/a.md?q=1#h')).toBe(
+      'https://x.com/a?q=1#h',
+    )
+    expect(RetrieverSource.stripDocExtension('https://x.com/readme.txt')).toBe(
+      'https://x.com/readme.txt',
+    )
   })
 })
 
 describe('load', () => {
   it('returns an empty array for no sources', async () => {
-    expect(await RagSource.load([])).toEqual([])
+    expect(await RetrieverSource.load([])).toEqual([])
   })
 
   it('fetches plain page URLs and extracts documents', async () => {
@@ -109,7 +118,7 @@ describe('load', () => {
       'https://example.com/a': '# Page A\n\nAlpha content.',
       'https://example.com/b': '# Page B\n\nBeta content.',
     })
-    const docs = await RagSource.load(['https://example.com/a', 'https://example.com/b'])
+    const docs = await RetrieverSource.load(['https://example.com/a', 'https://example.com/b'])
     fetchMock.restore()
 
     expect(docs.map((d) => d.title)).toEqual(['Page A', 'Page B'])
@@ -123,7 +132,7 @@ describe('load', () => {
       'https://example.com/one': '# One\n\nContent one.',
       'https://example.com/two': '# Two\n\nContent two.',
     })
-    const docs = await RagSource.load(['https://example.com/sitemap.xml'])
+    const docs = await RetrieverSource.load(['https://example.com/sitemap.xml'])
     fetchMock.restore()
 
     expect(docs.map((d) => d.href).sort()).toEqual([
@@ -137,7 +146,7 @@ describe('load', () => {
       'https://example.com/llms.txt': '# Docs\n- [One](https://example.com/one)',
       'https://example.com/one': '# One\n\nContent one.',
     })
-    const docs = await RagSource.load(['https://example.com/llms.txt'])
+    const docs = await RetrieverSource.load(['https://example.com/llms.txt'])
     fetchMock.restore()
 
     expect(docs.map((d) => d.href)).toEqual(['https://example.com/one'])
@@ -149,7 +158,7 @@ describe('load', () => {
         '<urlset><url><loc>https://example.com/one</loc></url></urlset>',
       'https://example.com/one': '# One\n\nContent one.',
     })
-    const docs = await RagSource.load([
+    const docs = await RetrieverSource.load([
       'https://example.com/sitemap.xml',
       'https://example.com/one',
     ])
@@ -165,7 +174,7 @@ describe('load', () => {
       'https://example.com/one': '# One\n\nContent one.',
       'https://example.com/two': '# Two\n\nContent two.',
     })
-    const docs = await RagSource.load([
+    const docs = await RetrieverSource.load([
       { url: 'https://example.com/llms.txt', label: 'Example', weight: 0.5 },
     ])
     fetchMock.restore()
@@ -176,7 +185,7 @@ describe('load', () => {
 
   it('treats a bare string as `{ url }` with no label/weight', async () => {
     const fetchMock = mockFetch({ 'https://example.com/a': '# A\n\nAlpha.' })
-    const [doc] = await RagSource.load(['https://example.com/a'])
+    const [doc] = await RetrieverSource.load(['https://example.com/a'])
     fetchMock.restore()
 
     expect(doc?.label).toBeUndefined()
@@ -188,7 +197,7 @@ describe('load', () => {
       'https://example.com/ok': '# OK\n\nGood.',
       // /bad omitted → 404
     })
-    const docs = await RagSource.load(['https://example.com/ok', 'https://example.com/bad'])
+    const docs = await RetrieverSource.load(['https://example.com/ok', 'https://example.com/bad'])
     fetchMock.restore()
 
     expect(docs.map((d) => d.href)).toEqual(['https://example.com/ok'])

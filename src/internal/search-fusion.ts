@@ -1,5 +1,5 @@
 /**
- * Hybrid search fusion — combine keyword (MiniSearch) and semantic (RAG/vector)
+ * Hybrid search fusion — combine keyword (MiniSearch) and semantic (vector)
  * result lists into a single ranking.
  *
  * Uses weighted **Reciprocal Rank Fusion (RRF)**. RRF ranks by position rather
@@ -52,7 +52,7 @@ export declare namespace fuse {
     keywordWeight?: number | undefined
     /** Cap on the number of fused results returned. */
     limit?: number | undefined
-    /** Semantic (RAG/vector) results, already ranked best-first. */
+    /** Semantic (vector) results, already ranked best-first. */
     semantic: readonly T[]
     /** Weight applied to the semantic list. @default 0.7 */
     semanticWeight?: number | undefined

@@ -1,5 +1,5 @@
 /**
- * Embedding adapters for RAG search.
+ * Embedding adapters for AI search.
  *
  * Adapters turn text into vectors. They follow the same shape as
  * {@link Feedback.Adapter} and {@link McpSource.Adapter}: a plain object with a
@@ -7,7 +7,7 @@
  * so they run in any modern runtime.
  *
  * Adapters hold secrets (API keys) and therefore must only ever live in the
- * private `_rag` config — never in serializable config sent to the browser.
+ * private `_localRetriever` config — never in serializable config sent to the browser.
  */
 
 /** A single embedding vector. */
@@ -61,10 +61,10 @@ export function from(adapter: Adapter): Adapter {
  *
  * @example
  * ```ts
- * import { Embedding } from 'vocs/config'
+ * import { defineConfig, Embedding, Retriever } from 'vocs/config'
  *
  * export default defineConfig({
- *   search: { rag: { embedding: Embedding.openai() } },
+ *   ai: { retriever: Retriever.local({ embedding: Embedding.openai() }) },
  * })
  * ```
  */
@@ -227,10 +227,10 @@ function defaultCloudflarePrefix(model: string): cloudflare.Options['prefix'] {
  *
  * @example
  * ```ts
- * import { defineConfig, Embedding } from 'vocs/config'
+ * import { defineConfig, Embedding, Retriever } from 'vocs/config'
  *
  * export default defineConfig({
- *   search: { rag: { embedding: Embedding.cloudflare() } },
+ *   ai: { retriever: Retriever.local({ embedding: Embedding.cloudflare() }) },
  * })
  * ```
  */

@@ -206,7 +206,7 @@ async function loadTextDeps() {
  * Parses the source into an MDAST (frontmatter, GFM, directives, MDX) and
  * serializes it with `mdast-util-to-string`, so only human-readable words
  * remain — no regex guesswork. Shared by the OpenAPI search index and external
- * RAG sources.
+ * AI search sources.
  *
  * Async because it lazily loads the MDX/frontmatter parser stack (see
  * {@link loadTextDeps}) rather than importing it at module scope, which would

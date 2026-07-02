@@ -1,5 +1,5 @@
 /**
- * Reranker adapters for RAG search.
+ * Reranker adapters for AI search.
  *
  * A reranker is a cross-encoder "search model": given a query and a set of
  * candidate passages, it scores each `(query, passage)` pair *jointly* (unlike
@@ -12,7 +12,7 @@
  * vendor SDK) so they run in any modern runtime.
  *
  * Adapters hold secrets (API keys) and therefore must only ever live in the
- * private `_rag` config — never in serializable config sent to the browser.
+ * private `_localRetriever` config — never in serializable config sent to the browser.
  */
 
 export type RerankContext = {
@@ -77,14 +77,14 @@ export function from(adapter: Adapter): Adapter {
  *
  * @example
  * ```ts
- * import { Embedding, Reranker } from 'vocs/config'
+ * import { defineConfig, Embedding, Reranker, Retriever } from 'vocs/config'
  *
  * export default defineConfig({
- *   search: {
- *     rag: {
+ *   ai: {
+ *     retriever: Retriever.local({
  *       embedding: Embedding.cloudflare(),
  *       reranker: Reranker.cloudflare(),
- *     },
+ *     }),
  *   },
  * })
  * ```

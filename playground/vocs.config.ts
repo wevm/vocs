@@ -1,6 +1,18 @@
-import { Changelog, defineConfig, Embedding, McpSource, Twoslash } from 'vocs/config'
+import { Changelog, defineConfig, Embedding, McpSource, Retriever, Twoslash } from 'vocs/config'
 
 export default defineConfig({
+  ai: {
+    retriever: process.env.CLOUDFLARE_API_TOKEN
+      ? Retriever.local({
+          embedding: Embedding.cloudflare(),
+          sources: [
+            { url: 'https://viem.sh/llms.txt', label: 'Viem', weight: 0.8 },
+            { url: 'https://wagmi.sh/llms.txt', label: 'Wagmi', weight: 0.8 },
+            { url: 'https://docs.tempo.xyz/llms.txt', label: 'Tempo', weight: 0.8 },
+          ],
+        })
+      : undefined,
+  },
   changelog: Changelog.github({ prereleases: true, repo: 'tempoxyz/tempo' }),
   openapi: [
     {
@@ -88,18 +100,6 @@ export default defineConfig({
   ],
   title: 'Vocs',
   titleTemplate: '%s – Vocs',
-  search: {
-    rag: process.env.CLOUDFLARE_API_TOKEN
-      ? {
-          embedding: Embedding.cloudflare(),
-          sources: [
-            { url: 'https://viem.sh/llms.txt', label: 'Viem', weight: 0.8 },
-            { url: 'https://wagmi.sh/llms.txt', label: 'Wagmi', weight: 0.8 },
-            { url: 'https://docs.tempo.xyz/llms.txt', label: 'Tempo', weight: 0.8 },
-          ],
-        }
-      : undefined,
-  },
   sidebar: {
     '/': [
       { text: 'Home', link: '/' },

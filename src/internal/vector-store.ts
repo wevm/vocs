@@ -1,5 +1,5 @@
 /**
- * Built-in static vector store for RAG search — the default, open-source
+ * Built-in static vector store for AI search — the default, open-source
  * alternative to a hosted vector DB (Pinecone, etc).
  *
  * Vectors are packed into a single typed-array matrix and base64-encoded, so the
@@ -28,10 +28,12 @@ export type Adapter = {
  *
  * @example
  * ```ts
- * import { VectorStore } from 'vocs/config'
+ * import { defineConfig, Retriever, VectorStore } from 'vocs/config'
  *
  * export default defineConfig({
- *   search: { rag: { vectorStore: VectorStore.static({ format: 'int8' }) } },
+ *   ai: {
+ *     retriever: Retriever.local({ vectorStore: VectorStore.static({ format: 'int8' }) }),
+ *   },
  * })
  * ```
  */
