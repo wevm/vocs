@@ -791,51 +791,10 @@ export default defineConfig({
 })
 ```
 
-### Shared retriever options
-
-Every `Retriever.*` constructor accepts these runtime/UI options alongside its provider-specific
-options.
-
-#### `Retriever` shared `topK`
-
-- **Type:** `number`
-- **Default:** `8`
-
-Number of results returned to the client.
-
-#### `Retriever` shared `hybrid`
-
-- **Type:** `boolean | { semanticWeight?: number; keywordWeight?: number }`
-- **Default:** `false`
-
-Fuse keyword (MiniSearch) and AI results into a single ranking. When `false`, AI results are appended
-to keyword results instead. Pass an object to tune the fusion weights: `semanticWeight` (default
-`0.7`) and `keywordWeight` (default `0.3`).
-
-#### `Retriever` shared `endpoint`
-
-- **Type:** `string`
-- **Default:** `` `{basePath}/api/search` ``
-
-Overrides the server endpoint path for the retriever.
-
-#### `Retriever` shared `enabled`
-
-- **Type:** `boolean`
-
-Explicitly enable/disable AI search. Defaults to enabled when `ai.retriever` is present.
-
-#### `Retriever` shared `ui.debounceMs`
-
-- **Type:** `number`
-- **Default:** `250`
-
-Debounce before firing an AI search request from the search dialog.
-
 ### `Retriever.local`
 
-Creates the self-owned retriever. Accepts the [shared options](#shared-retriever-options) plus the
-options below (`embedding` is required, the rest are optional).
+Creates the self-owned retriever. Accepts the shared retriever options (`enabled`, `endpoint`,
+`hybrid`, `topK`, `ui`) plus the options below (`embedding` is required, the rest are optional).
 
 #### `Retriever.local.embedding`
 
@@ -940,15 +899,15 @@ export default defineConfig({
 })
 ```
 
-Accepts the [shared options](#shared-retriever-options) plus `instance` (required), `namespace`,
+Accepts the shared retriever options plus `instance` (required), `namespace`,
 `reranking`, `retrievalType` (`'vector' | 'keyword' | 'hybrid'`), `rewriteQuery`, `scoreThreshold`,
 `filters`, `mapResult`, and credential overrides (`accountId`, `apiToken`, `baseUrl`, `headers`).
 
 ### `Retriever.from`
 
 Creates a managed retriever from a custom adapter (any `{ type, retrieve }`) for backends other than
-Cloudflare. Accepts the adapter as the first argument and the
-[shared options](#shared-retriever-options) as the second.
+Cloudflare. Accepts the adapter as the first argument and the shared retriever options as the
+second.
 
 ```ts
 import { defineConfig, Retriever } from 'vocs/config'
