@@ -1,9 +1,13 @@
 import * as fs from 'node:fs'
 import * as os from 'node:os'
 import * as path from 'node:path'
+import remarkDirective from 'remark-directive'
+import type { Pluggable } from 'unified'
 import { describe, expect, test } from 'vitest'
+import type * as Changelog from './changelog.js'
 import { buildLlmsContent } from './llms.js'
 import {
+  remarkChangelogMarkdown,
   remarkDefaultFrontmatter,
   remarkExtractFrontmatter,
   remarkFrontmatter,
@@ -434,6 +438,150 @@ const a = 1
       \`\`\`
       "
     `)
+  })
+
+  describe('::changelog directive', () => {
+    const releases: Changelog.Release[] = [
+      {
+        version: 'vocs@2.1.0',
+        title: 'vocs@2.1.0',
+        date: '2026-06-02T00:00:00.000Z',
+        body: '### Patch Changes\n\n- Fixed a thing.',
+        url: 'https://example.com/releases/2.1.0',
+      },
+      {
+        version: 'vocs@2.0.0',
+        title: 'Big Bang',
+        date: '2026-05-01T00:00:00.000Z',
+        body: '### Major Changes\n\n- Everything changed.',
+        url: 'https://example.com/releases/2.0.0',
+      },
+      {
+        version: 'vocs@1.9.0',
+        title: 'vocs@1.9.0',
+        date: '2026-04-01T00:00:00.000Z',
+        body: '- Older release.',
+        url: 'https://example.com/releases/1.9.0',
+      },
+    ]
+    const adapter: Changelog.Adapter = {
+      type: 'mock',
+      async fetch(options = {}) {
+        return releases.slice(0, options.limit ?? releases.length)
+      },
+    }
+    const page = {
+      path: '/changelog',
+      content: '---\ntitle: Changelog\n---\n\n::changelog',
+    }
+    const withChangelog = (changelog?: Changelog.Adapter) => ({
+      rehypePlugins: [],
+      remarkPlugins: [
+        ...plugins.remarkPlugins,
+        remarkDirective,
+        [remarkChangelogMarkdown, { changelog }] as Pluggable,
+      ],
+    })
+
+    test('renders releases from the adapter', async () => {
+      const result = await buildLlmsContent({
+        pages: [page],
+        title: 'My Docs',
+        ...withChangelog(adapter),
+      })
+
+      const content = result.results[0]?.content ?? ''
+      expect(content).not.toContain('::changelog')
+      expect(content).toContain('## vocs@2.1.0 (2026-06-02)')
+      expect(content).toContain('Fixed a thing.')
+      // A title differing from the version is included in the heading.
+      expect(content).toContain('## vocs@2.0.0 — Big Bang (2026-05-01)')
+      expect(content).toContain('Everything changed.')
+    })
+
+    test('respects the limit attribute', async () => {
+      const result = await buildLlmsContent({
+        pages: [{ ...page, content: '---\ntitle: Changelog\n---\n\n::changelog{limit=1}' }],
+        title: 'My Docs',
+        ...withChangelog(adapter),
+      })
+
+      const content = result.results[0]?.content ?? ''
+      expect(content).toContain('## vocs@2.1.0 (2026-06-02)')
+      expect(content).not.toContain('vocs@2.0.0')
+    })
+
+    test('replaces multiple directives on one page independently', async () => {
+      const result = await buildLlmsContent({
+        pages: [
+          {
+            path: '/changelog',
+            content:
+              '---\ntitle: Changelog\n---\n\n::changelog{limit=1}\n\nOlder releases:\n\n::changelog{limit=2}',
+          },
+        ],
+        title: 'My Docs',
+        ...withChangelog(adapter),
+      })
+
+      const content = result.results[0]?.content ?? ''
+      expect(content).not.toContain('::changelog')
+      // First directive (limit=1): only the latest release.
+      // Second directive (limit=2): latest two — so vocs@2.1.0 appears twice,
+      // vocs@2.0.0 once, and the separator paragraph sits between them.
+      expect(content.match(/## vocs@2\.1\.0/g)).toHaveLength(2)
+      expect(content.match(/## vocs@2\.0\.0/g)).toHaveLength(1)
+      const separator = content.indexOf('Older releases:')
+      expect(separator).toBeGreaterThan(-1)
+      expect(content.indexOf('## vocs@2.1.0')).toBeLessThan(separator)
+      expect(content.lastIndexOf('## vocs@2.0.0')).toBeGreaterThan(separator)
+    })
+
+    test('degrades to a comment without an adapter', async () => {
+      const result = await buildLlmsContent({
+        pages: [page],
+        title: 'My Docs',
+        ...withChangelog(undefined),
+      })
+
+      const content = result.results[0]?.content ?? ''
+      expect(content).not.toContain('::changelog')
+      expect(content).toContain('<!-- changelog unavailable -->')
+    })
+
+    test('degrades to a comment when the adapter throws', async () => {
+      const throwing: Changelog.Adapter = {
+        type: 'mock',
+        async fetch() {
+          throw new Error('rate limit exceeded')
+        },
+      }
+      const result = await buildLlmsContent({
+        pages: [page],
+        title: 'My Docs',
+        ...withChangelog(throwing),
+      })
+
+      const content = result.results[0]?.content ?? ''
+      expect(content).toContain('<!-- changelog unavailable -->')
+    })
+
+    test('unhandled directives round-trip unchanged', async () => {
+      const result = await buildLlmsContent({
+        pages: [
+          {
+            path: '/guide',
+            content: '---\ntitle: Guide\n---\n\n:::steps\n### One\n\nDo the thing.\n:::',
+          },
+        ],
+        title: 'My Docs',
+        ...withChangelog(adapter),
+      })
+
+      const content = result.results[0]?.content ?? ''
+      expect(content).toContain(':::steps')
+      expect(content).toContain('Do the thing.')
+    })
   })
 
   test('includes imported markdown content for file-backed pages', async () => {
