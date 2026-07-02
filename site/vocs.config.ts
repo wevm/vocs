@@ -1,7 +1,20 @@
-import { Changelog, defineConfig, Feedback, McpSource, Twoslash } from 'vocs/config'
+import {
+  Changelog,
+  defineConfig,
+  Embedding,
+  Feedback,
+  McpSource,
+  Retriever,
+  Twoslash,
+} from 'vocs/config'
 import { version } from '../package.json'
 
 export default defineConfig({
+  ai: {
+    retriever: process.env.CLOUDFLARE_API_TOKEN
+      ? Retriever.local({ embedding: Embedding.cloudflare() })
+      : undefined,
+  },
   baseUrl:
     process.env.VERCEL_ENV === 'production'
       ? 'https://vocs.dev'

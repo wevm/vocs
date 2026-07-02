@@ -1,23 +1,38 @@
+---
+outline: 3
+---
+
 import { Card, Cards } from 'vocs'
 
-# Search [Built-in client-side search powered by MiniSearch]
+# Search [Built-in keyword search, with optional AI search]
 
-## Opening Search
+## Overview
+
+Vocs uses two methods to search your docs:
+
+- [**Keyword Search**](#keyword-search) *(enabled by default)*: instant, client-side full-text search powered by [MiniSearch](https://lucaong.github.io/minisearch/), with no configuration required.
+- [**AI Search**](#ai-search) *(opt-in)*: ranks results by *meaning* rather than exact terms, so "how do I ship my site" finds your Deployment guide even when it never uses the word "ship".
+
+AI search is **additive**: the dialog keeps showing instant keyword results and blends in AI results as they arrive.
+
+### Opening search
 
 - Click the search input in the top navigation, or
 - Press `⌘K` / `Ctrl+K` to focus the dialog from anywhere.
 
 Search supports keyboard navigation (`↑` `↓` `Enter`), fuzzy matching, "Jump to" suggestions, and a list of recently viewed pages.
 
-## How It Works
+## Keyword Search
 
-At build time, Vocs walks `src/pages/`, splits each MDX page into title/subtitle/text/category fields, and builds a [MiniSearch](https://lucaong.github.io/minisearch/) index. The index is written to `.vocs/search-index-{hash}.json` for production and served as a virtual module in dev with HMR.
+Instant, client-side full-text search powered by [MiniSearch](https://lucaong.github.io/minisearch/). It's on by default and needs no configuration.
+
+At build time, Vocs walks `src/pages/`, splits each MDX page into title/subtitle/text/category fields, and builds a MiniSearch index. The index is written to `.vocs/search-index-{hash}.json` for production and served as a virtual module in dev with HMR.
 
 At runtime, the index is fetched once on first search and stays in memory for the session.
 
-## Configuration
+### Configuration
 
-Customize search behavior in `vocs.config.ts`:
+Customize keyword search behavior in `vocs.config.ts`:
 
 ```ts twoslash
 import { defineConfig } from 'vocs/config'
@@ -32,50 +47,9 @@ export default defineConfig({
 })
 ```
 
-### Options
+See the [`search` config reference](/reference/site-config#search) for all options, including `fuzzy`, `prefix`, `combineWith`, `boost`, and `boostDocument`.
 
-#### `fuzzy`
-
-- **Type:** `number | boolean`
-- **Default:** `0.2`
-
-Tolerance for typos. A number between `0` and `1` controls the fuzziness ratio. Set `false` to require exact matches.
-
-#### `prefix`
-
-- **Type:** `boolean`
-- **Default:** `true`
-
-When `true`, queries match terms that share a prefix (so `nav` matches `navigation`).
-
-#### `combineWith`
-
-- **Type:** `'AND' | 'OR'`
-- **Default:** `'AND'`
-
-How to combine multiple search terms. `AND` (the default) requires every term to match.
-
-#### `boost`
-
-- **Type:** `Record<string, number>`
-
-Boost factor per indexed field. Defaults:
-
-| Field | Boost |
-|---|---|
-| `title` | 4 |
-| `subtitle` | 3 |
-| `text` | 2 |
-| `titles` | 1 |
-| `category` | 1 |
-
-#### `boostDocument`
-
-- **Type:** `(id: string, term: string, storedFields?: Record<string, unknown>) => number`
-
-Custom function for boosting documents. Vocs's default boosts shallower routes and prefers `/docs/*`. Override to implement your own ranking heuristic.
-
-## Per-Page Boosting
+### Per-page boosting
 
 Use the `searchPriority` field in [frontmatter](/reference/frontmatter) to boost or hide a page:
 
@@ -87,7 +61,7 @@ searchPriority: 5    # higher = ranked higher
 
 Set `searchPriority: 0` to exclude a page from search entirely.
 
-## Hiding the Search Box on a Page
+### Hide the search box
 
 ```mdx
 ---
@@ -97,23 +71,325 @@ showSearch: false
 
 This hides the search trigger only on the affected page; the keyboard shortcut still opens the dialog.
 
-## Local Caching
+### Local caching
 
 In production, the search index file is content-hashed (`search-index-{hash}.json`) so browsers and CDNs can cache it indefinitely. When you redeploy with content changes, a new hash invalidates the cache automatically.
+
+## AI Search
+
+AI search adds meaning-based ranking on top of keyword search. It is configured with a single `ai.retriever` key, and you pick one provider:
+
+- [**Hosted Retriever**](#hosted-retriever) (`Retriever.cloudflare`, or any `Retriever.Adapter`): retrieval is delegated to a hosted backend (e.g. Cloudflare AI Search), and Vocs blends the results with keyword search. Use this when you'd rather not own the index.
+- [**Local Retriever**](#local-retriever) (`Retriever.local`): Vocs owns the whole pipeline. It chunks and embeds your pages at build time into a built-in static vector store, then searches it at runtime. The open-source, self-owned option.
+
+Providers hold secrets (API keys) and are **server-side only**; they are never serialized to the browser.
+
+```txt
+                         ╭──────────────╮
+ query ─▶ keyword ─────▶ │              │
+         (MiniSearch)    │  fused,      │──▶ results
+                         │  ranked list │
+ query ─▶ embed ─▶ vector│              │
+         search ─▶ rerank╰──────────────╯
+                   (ai.retriever)
+```
+
+### Hosted Retriever
+
+Skip owning the index entirely: delegate retrieval to a hosted backend with `Retriever.cloudflare` (or any custom `Retriever.from` adapter). The backend owns ingestion, chunking, embedding, and vector search; Vocs queries it at runtime and blends the results with keyword search.
+
+::::steps
+
+#### Create an AI Search instance
+
+In the [Cloudflare dashboard](https://dash.cloudflare.com/), create an [AI Search](https://developers.cloudflare.com/ai-search/) instance (e.g. `my-docs`) pointed at your docs content, such as a website crawl or an R2 bucket. Cloudflare indexes it and keeps it up to date.
+
+#### Add the retriever
+
+```ts twoslash
+// [!code word:retriever]
+import { defineConfig, Retriever } from 'vocs/config'
+
+export default defineConfig({
+  ai: {
+    retriever: Retriever.cloudflare({
+      instance: 'my-docs',
+      reranking: true,
+    }),
+  },
+})
+```
+
+Results are mapped from the instance's chunk metadata; Vocs derives titles and breadcrumbs from the indexed URLs, and `mapResult` can override the mapping.
+
+#### Set your credentials
+
+The API token needs the **AI Search: Run** permission.
+
+```bash [.env]
+CLOUDFLARE_ACCOUNT_ID=...
+CLOUDFLARE_API_TOKEN=...
+```
+
+#### Deploy
+
+There is no build-time embedding step; indexing happens on the hosted service. Keep the credentials available to the server at runtime.
+
+:::warning
+`/api/search` is public, and each request runs an AI Search query on your Cloudflare account. If abuse is a concern, rate limit the endpoint at your edge or CDN.
+:::
+
+::::
+
+### Local Retriever
+
+Own the pipeline with `Retriever.local`: Vocs chunks and embeds your pages at build time, packs them into the built-in static vector store, and searches it at runtime. This walkthrough uses Cloudflare Workers AI for embeddings.
+
+::::steps
+
+#### Add a local retriever
+
+Point `ai.retriever` at `Retriever.local` with an embedding adapter. `Embedding.cloudflare()` runs `@cf/baai/bge-base-en-v1.5` on Workers AI and reads credentials from the environment.
+
+```ts twoslash
+// [!code word:retriever]
+import { defineConfig, Embedding, Retriever } from 'vocs/config'
+
+export default defineConfig({
+  ai: {
+    retriever: Retriever.local({
+      embedding: Embedding.cloudflare(),
+    }),
+  },
+})
+```
+
+#### Set your credentials
+
+The API token needs the **Workers AI** permission.
+
+```bash [.env]
+CLOUDFLARE_ACCOUNT_ID=...
+CLOUDFLARE_API_TOKEN=...
+```
+
+#### Generate the embeddings
+
+Embeddings are built during `vocs build`. To build (or refresh) them on their own (handy in CI or before starting the dev server), run:
+
+```bash
+vocs embeddings generate
+```
+
+The manifest is written to `.vocs`'s cache. `vocs dev` loads that prebuilt index; it never re-embeds on the fly.
+
+#### Deploy
+
+The server endpoint (`/api/search` by default) embeds each query and searches the packed vector store. Two things must be available to the server at runtime:
+
+- The embedding provider's credentials (here `CLOUDFLARE_ACCOUNT_ID` / `CLOUDFLARE_API_TOKEN`), since each query is embedded on the fly.
+- The `.vocs` cache directory, which holds the prebuilt index from `vocs build` / `vocs embeddings generate`. Without it, the first request per server instance rebuilds the index in-process (refetching external sources and re-embedding uncached chunks) while the dialog falls back to keyword results.
+
+:::warning
+`/api/search` is public, and each request spends an embedding (plus optional rerank) call on your provider account. If abuse is a concern, rate limit the endpoint at your edge or CDN.
+:::
+
+::::
+
+#### Choose an embedding provider
+
+`Retriever.local`'s `embedding` accepts any embedding adapter. Built-ins all use `fetch` (no vendor SDK):
+
+:::code-group
+
+```ts [OpenAI] twoslash
+import { Embedding } from 'vocs/config'
+// ---cut---
+Embedding.openai() // text-embedding-3-small, OPENAI_API_KEY
+```
+
+```ts [Cloudflare] twoslash
+import { Embedding } from 'vocs/config'
+// ---cut---
+Embedding.cloudflare() // @cf/baai/bge-base-en-v1.5
+// reads CLOUDFLARE_ACCOUNT_ID + CLOUDFLARE_API_TOKEN
+```
+
+```ts [OpenRouter] twoslash
+import { Embedding } from 'vocs/config'
+// ---cut---
+Embedding.openrouter() // openai/text-embedding-3-small, OPENROUTER_API_KEY
+```
+
+```ts [Ollama (local)] twoslash
+import { Embedding } from 'vocs/config'
+// ---cut---
+Embedding.ollama() // nomic-embed-text on http://localhost:11434
+```
+
+```ts [Custom] twoslash
+import { Embedding } from 'vocs/config'
+// ---cut---
+Embedding.from({
+  type: 'my-provider',
+  model: 'my-model',
+  // `context.purpose` is 'document' (build) or 'query' (runtime)
+  async embed(input) {
+    return input.map((text) => Array.from(text, () => Math.random()))
+  },
+})
+```
+
+:::
+
+For any OpenAI-compatible endpoint, use `Embedding.openaiCompatible({ baseUrl, apiKey, model })`.
+
+:::tip
+Cloudflare's `bge-*-en-v1.5` models need a query-side instruction to retrieve well, and Vocs applies it **automatically**, so `Embedding.cloudflare()` works out of the box.
+:::
+
+#### Improve precision with a reranker
+
+An embedding model scores the query and each passage *independently*, giving great recall but mediocre precision. A **reranker** (cross-encoder) reads each `(query, passage)` pair *together* and re-scores the top candidates, sharply improving ordering. It runs after vector retrieval and adds one model call per query.
+
+```ts twoslash
+// [!code word:reranker]
+import { defineConfig, Embedding, Retriever, Reranker } from 'vocs/config'
+
+export default defineConfig({
+  ai: {
+    retriever: Retriever.local({
+      embedding: Embedding.cloudflare(),
+      reranker: Reranker.cloudflare(), // @cf/baai/bge-reranker-base
+    }),
+  },
+})
+```
+
+If the reranker call fails, search **fails open** to the vector order, so results still come back.
+
+#### Index external sources
+
+Embed other sites alongside your docs so their pages surface in search and link out to their absolute URL. Each URL is fetched at build time and auto-expanded: a `sitemap.xml` → every page it lists, an `llms.txt` → every same-origin page it links (off-site links are ignored), anything else → the page itself. Each source expands to at most 1,000 pages; raise `maxPages` per source to index more.
+
+```ts twoslash
+// [!code word:sources]
+import { defineConfig, Embedding, Retriever } from 'vocs/config'
+
+export default defineConfig({
+  ai: {
+    retriever: Retriever.local({
+      embedding: Embedding.openai(),
+      sources: [
+        'https://viem.sh/llms.txt',
+        { url: 'https://wagmi.sh/sitemap.xml', label: 'wagmi', weight: 0.8 },
+      ],
+    }),
+  },
+})
+```
+
+`weight` is a score multiplier relative to your local docs (which are `1`). External sources default to `0.9`, slightly de-prioritized so your own docs win on comparable relevance. `label` sets the badge shown on results (defaults to the hostname).
+
+#### Tune chunking and results
+
+Control how pages are split for embedding and how many results are returned:
+
+```ts twoslash
+import { defineConfig, Embedding, Retriever } from 'vocs/config'
+// ---cut---
+export default defineConfig({
+  ai: {
+    retriever: Retriever.local({
+      embedding: Embedding.openai(),
+      chunking: {
+        maxCharacters: 1200,
+        overlapCharacters: 160,
+      },
+      topK: 8, // results returned to the client
+    }),
+  },
+})
+```
+
+#### Cache embeddings between builds
+
+Embeddings are cached on disk by default so unchanged chunks aren't re-embedded. Disable it, or force a full re-embed:
+
+```ts twoslash
+import { defineConfig, Embedding, Retriever } from 'vocs/config'
+// ---cut---
+export default defineConfig({
+  ai: {
+    retriever: Retriever.local({
+      embedding: Embedding.openai(),
+      cache: false, // disable the on-disk cache entirely
+    }),
+  },
+})
+```
+
+```bash
+vocs embeddings generate --force  # ignore the cache and re-embed everything
+```
+
+#### Skip embeddings on a build
+
+Embeddings cost time and API calls. To build without them (e.g. a preview deploy), pass `--no-embeddings`:
+
+```bash
+vocs build --no-embeddings
+```
+
+A common setup is to build embeddings on a schedule (cron/CI) and skip them on regular content builds.
+
+### Blend keyword and AI results
+
+By default the dialog shows keyword results and appends AI results. Turn on `hybrid` (a shared option on every retriever constructor) to instead **fuse** both lists into a single ranking, weighting each contribution:
+
+```ts twoslash
+import { defineConfig, Embedding, Retriever } from 'vocs/config'
+// ---cut---
+export default defineConfig({
+  ai: {
+    retriever: Retriever.local({
+      embedding: Embedding.openai(),
+      hybrid: { // [!code hl]
+        semanticWeight: 0.7,
+        keywordWeight: 0.3,
+      },
+    }),
+  },
+})
+```
+
+Pass `hybrid: true` for defaults, or an object to tune the weights.
 
 ## See More
 
 <Cards>
   <Card
     title="search"
-    description="Site config options: tokenizer, boost weights, hidden routes, and defaults."
+    description="Keyword search config: tokenizer, boost weights, hidden routes, and defaults."
     icon="search"
     to="/reference/site-config#search"
+  />
+  <Card
+    title="ai.retriever"
+    description="The AI search config key and its retriever providers."
+    icon="settings"
+    to="/reference/site-config#airetriever"
   />
   <Card
     title="Per-page fields"
     description="searchPriority and showSearch frontmatter fields."
     icon="file-text"
     to="/reference/frontmatter"
+  />
+  <Card
+    title="Ask AI"
+    description="Answer questions over your docs with an LLM."
+    icon="sparkles"
+    to="/features/ask-ai"
   />
 </Cards>

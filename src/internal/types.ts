@@ -315,17 +315,11 @@ export type Undefined<type> = {
   [key in keyof type]?: undefined
 }
 
-///////////////////////////////////////////////////////////////////////////
-// Loose types
-
 /**
  * Loose version of {@link Omit}
  * @internal
  */
 export type LooseOmit<type, keys extends string> = Pick<type, Exclude<keyof type, keys>>
-
-///////////////////////////////////////////////////////////////////////////
-// Union types
 
 /** @internal */
 export type UnionCompute<type> = type extends object ? Compute<type> : type

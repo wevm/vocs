@@ -7,11 +7,14 @@ import { useQueryState } from 'nuqs'
 import * as React from 'react'
 import { useRouter } from 'waku'
 import LucideArrowRight from '~icons/lucide/arrow-right'
+import LucideExternalLink from '~icons/lucide/external-link'
 import LucideFile from '~icons/lucide/file'
 import LucideHash from '~icons/lucide/hash'
+import LucideLoaderCircle from '~icons/lucide/loader-circle'
 import LucideSearch from '~icons/lucide/search'
 import * as Path from '../../internal/path.js'
 import { SearchConfig } from '../../internal/search.client.js'
+import { append, fuse } from '../../internal/search-fusion.js'
 import { Link } from '../Link.js'
 import { useConfig } from '../useConfig.js'
 import { DialogTrigger } from './DialogTrigger.js'
@@ -36,6 +39,49 @@ type SearchResult = {
 type SearchState = {
   results: SearchResult[]
   selectedIndex: number
+}
+
+/**
+ * Public semantic-search config shape. `config.ai.retriever` resolves to this
+ * for either provider (a built-in vector store or a managed retriever), so the
+ * dialog treats them uniformly.
+ */
+type SemanticConfig = {
+  enabled: boolean
+  endpoint: string
+  hybrid?: { enabled: boolean; semanticWeight: number; keywordWeight: number } | undefined
+  /** Only present for the self-owned provider; managed retrievers query at runtime. */
+  runtime?: 'server' | 'client' | undefined
+  ui?: { debounceMs?: number } | undefined
+}
+
+/** Result shape returned by the `/api/search` endpoint. */
+type SemanticResult = {
+  id: string
+  href: string
+  title: string
+  titles: string[]
+  category: string
+  type: 'page' | 'section' | 'nav'
+  snippet: string
+  score: number
+}
+
+/** Adapts a semantic endpoint result to the keyword `SearchResult` shape for reuse. */
+function toSearchResult(result: SemanticResult): SearchResult {
+  return {
+    category: result.category,
+    href: result.href,
+    id: result.id,
+    match: {},
+    queryTerms: [],
+    score: result.score,
+    terms: [],
+    text: result.snippet,
+    title: result.title,
+    titles: result.titles,
+    type: result.type,
+  }
 }
 
 const initialSearchState: SearchState = {
@@ -66,7 +112,103 @@ export function Search(props: Search.Props) {
   const listRef = React.useRef<HTMLUListElement>(null)
   const router = useRouter()
 
-  const displayedResults = query.trim() ? search.results : recentSearches
+  // AI (semantic) search. `ai.retriever` selects one provider — a built-in vector
+  // store or a managed retriever — and both serialize to the same public shape
+  // and request/response contract, so the dialog treats them uniformly. We fetch
+  // semantic results in the background and blend them with the instant MiniSearch
+  // keyword results (appended below by default, fused into one ranking with
+  // `hybrid`). Keyword results render immediately; the list updates once
+  // semantic results return, so the UI never blocks on the network.
+  const aiConfig = (config as { ai?: { retriever?: SemanticConfig } }).ai?.retriever
+  const semanticConfig = React.useMemo<SemanticConfig | undefined>(() => {
+    // The self-owned provider only queries the server endpoint in server runtime.
+    if (aiConfig?.enabled && aiConfig.runtime !== 'client') return aiConfig
+    return undefined
+  }, [aiConfig])
+  const semanticEnabled = Boolean(semanticConfig?.enabled)
+  const [semanticResults, setSemanticResults] = React.useState<SearchResult[]>([])
+  // The query the current `semanticResults` were fetched for. While a newer
+  // query is in flight this won't match `query`, so we fall back to keyword
+  // results instead of showing stale AI results.
+  const [semanticResultsQuery, setSemanticResultsQuery] = React.useState('')
+  const [semanticLoading, setSemanticLoading] = React.useState(false)
+
+  React.useEffect(() => {
+    if (!semanticEnabled || !open || !query.trim() || !semanticConfig?.endpoint) {
+      setSemanticResults([])
+      setSemanticLoading(false)
+      return
+    }
+    const controller = new AbortController()
+    const debounce = semanticConfig.ui?.debounceMs ?? 250
+    let retryTimer: ReturnType<typeof setTimeout> | undefined
+
+    const fail = (error: unknown): void => {
+      if ((error as Error).name === 'AbortError') return
+      setSemanticResults([])
+      setSemanticLoading(false)
+    }
+
+    const run = async (): Promise<void> => {
+      const response = await fetch(semanticConfig.endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query }),
+        signal: controller.signal,
+      })
+      if (!response.ok) throw new Error(`Semantic search failed: ${response.status}`)
+      const data = (await response.json()) as { results: SemanticResult[]; indexing?: boolean }
+      // The built-in AI search store builds its vector index on first use. While it's
+      // still indexing we keep showing keyword results and poll until it's
+      // ready, rather than blocking the request or surfacing an error. Managed
+      // retrievers never set `indexing`.
+      if (data.indexing) {
+        retryTimer = setTimeout(() => {
+          run().catch(fail)
+        }, 1500)
+        return
+      }
+      setSemanticResults(data.results.map(toSearchResult))
+      setSemanticResultsQuery(query)
+      setSemanticLoading(false)
+    }
+
+    const timer = setTimeout(() => {
+      setSemanticLoading(true)
+      run().catch(fail)
+    }, debounce)
+    return () => {
+      controller.abort()
+      clearTimeout(timer)
+      if (retryTimer) clearTimeout(retryTimer)
+    }
+  }, [semanticEnabled, open, query, semanticConfig?.endpoint, semanticConfig?.ui?.debounceMs])
+
+  const displayedResults = React.useMemo(() => {
+    if (!query.trim()) return recentSearches
+    // Ignore AI results that belong to a previous query — while a new request is
+    // in flight, show fresh keyword results rather than stale AI ones.
+    const semanticFresh = semanticEnabled && semanticResultsQuery === query ? semanticResults : []
+    if (semanticFresh.length === 0) return search.results
+    // Default: keyword ordering stays put, AI results are appended below.
+    // `hybrid` opts into fusing both lists into a single ranking.
+    if (!semanticConfig?.hybrid?.enabled) return append(search.results, semanticFresh, 20)
+    return fuse({
+      keyword: search.results,
+      semantic: semanticFresh,
+      keywordWeight: semanticConfig.hybrid.keywordWeight,
+      semanticWeight: semanticConfig.hybrid.semanticWeight,
+      limit: 20,
+    })
+  }, [
+    query,
+    semanticEnabled,
+    semanticResults,
+    semanticResultsQuery,
+    search.results,
+    recentSearches,
+    semanticConfig?.hybrid,
+  ])
 
   const jumpToResult = React.useMemo(() => {
     if (!query.trim() || search.results.length === 0) return null
@@ -245,6 +387,15 @@ export function Search(props: Search.Props) {
               type="text"
               value={query}
             />
+            {semanticLoading && (
+              <div className="vocs:flex vocs:items-center vocs:gap-2 vocs:shrink-0">
+                <span className="vocs:text-xs vocs:text-secondary">Enhancing Results</span>
+                <LucideLoaderCircle
+                  aria-label="Searching"
+                  className="vocs:size-4 vocs:shrink-0 vocs:text-secondary vocs:animate-spin"
+                />
+              </div>
+            )}
           </div>
 
           <div className="vocs:flex-1 vocs:overflow-y-auto vocs:py-2">
@@ -272,12 +423,13 @@ export function Search(props: Search.Props) {
                   )}
                   {displayedResults.map((result, i) => {
                     const index = jumpToResult ? i + 1 : i
+                    const queryTerms = !query.trim() ? [] : query.trim().split(/\s+/)
                     if (result.type === 'nav')
                       return (
                         <JumpTo
                           key={result.id}
                           onClick={() => handleResultClick(result)}
-                          queryTerms={query.trim() ? query.trim().split(/\s+/) : []}
+                          queryTerms={queryTerms}
                           result={result}
                           selected={index === search.selectedIndex}
                         />
@@ -285,7 +437,7 @@ export function Search(props: Search.Props) {
                     return (
                       <Result
                         key={result.id}
-                        queryTerms={query.trim() ? query.trim().split(/\s+/) : []}
+                        queryTerms={queryTerms}
                         onClick={() => handleResultClick(result)}
                         result={result}
                         selected={index === search.selectedIndex}
@@ -294,9 +446,11 @@ export function Search(props: Search.Props) {
                   })}
                 </ul>
               </>
+            ) : query.trim() && semanticLoading ? (
+              <ResultSkeleton />
             ) : (
               <div className="vocs:px-4 vocs:py-8 vocs:text-center vocs:text-secondary">
-                {query.trim() ? 'No results found' : 'Start typing to search...'}
+                {!query.trim() ? 'Start typing to search...' : 'No results found'}
               </div>
             )}
           </div>
@@ -340,12 +494,24 @@ export declare namespace Search {
   }
 }
 
+/** Renders an external result's origin for display: just the hostname. */
+function formatExternalUrl(href: string): string {
+  try {
+    return new URL(href).hostname
+  } catch {
+    return href
+  }
+}
+
 // biome-ignore lint/correctness/noUnusedVariables: _
 function Result(props: Result.Props) {
   const { queryTerms, onClick, result, selected } = props
 
-  const Icon = result.type === 'page' ? LucideFile : LucideHash
-  const breadcrumb = [result.category, ...result.titles].filter(Boolean).join(' › ') || null
+  const isExternal = Path.isExternal(result.href)
+  const Icon = isExternal ? LucideExternalLink : result.type === 'page' ? LucideFile : LucideHash
+  const breadcrumb = isExternal
+    ? result.category || formatExternalUrl(result.href)
+    : [result.category, ...result.titles].filter(Boolean).join(' › ') || null
 
   return (
     // biome-ignore lint/a11y/useFocusableInteractive: _
@@ -391,6 +557,27 @@ declare namespace Result {
     result: SearchResult
     selected: boolean
   }
+}
+
+/** Placeholder rows shown while semantic results are loading. */
+function ResultSkeleton() {
+  return (
+    <div aria-hidden className="vocs:flex vocs:flex-col">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <div
+          // biome-ignore lint/suspicious/noArrayIndexKey: static placeholder list
+          key={i}
+          className="vocs:flex vocs:items-start vocs:gap-3 vocs:px-4 vocs:py-2"
+        >
+          <div className="vocs:size-4 vocs:mt-0.5 vocs:shrink-0 vocs:rounded vocs:bg-surfaceTint vocs:animate-pulse" />
+          <div className="vocs:flex vocs:flex-col vocs:gap-1.5 vocs:flex-1">
+            <div className="vocs:h-3 vocs:w-1/3 vocs:rounded vocs:bg-surfaceTint vocs:animate-pulse" />
+            <div className="vocs:h-3 vocs:w-3/4 vocs:rounded vocs:bg-surfaceTint vocs:animate-pulse" />
+          </div>
+        </div>
+      ))}
+    </div>
+  )
 }
 
 // biome-ignore lint/correctness/noUnusedVariables: _

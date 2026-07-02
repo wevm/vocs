@@ -177,3 +177,147 @@ export function toHtml(markdown: string): string {
   if (!markdown) return ''
   return processor.processSync(markdown).toString()
 }
+
+/**
+ * Lazily builds the MDX/frontmatter text-extraction stack used by
+ * {@link toText}: the parser deps plus two reusable processors (MDX and plain
+ * CommonMark). Memoized so the imports and processor construction happen once.
+ *
+ * These packages (`remark-frontmatter`, `remark-mdx`, `remark-directive`,
+ * `mdast-util-to-string`) are heavy and, in `remark-frontmatter`'s case, drag in
+ * CJS-only transitive deps (`micromark-extension-frontmatter` → `fault` →
+ * `format`) that break when bundled into a browser graph. `toHtml` — which is
+ * imported by client components like `<Cards>` — must never pull them in, so
+ * they're loaded on demand here (and only ever on the server / during indexing)
+ * instead of at the top of this module.
+ */
+async function createTextStack() {
+  const [remarkDirective, remarkFrontmatter, remarkMdx, mdastToString] = await Promise.all([
+    import('remark-directive').then((m) => m.default),
+    import('remark-frontmatter').then((m) => m.default),
+    import('remark-mdx').then((m) => m.default),
+    import('mdast-util-to-string').then((m) => m.toString),
+  ])
+
+  const build = (mdx: boolean) => {
+    const base = mdx ? unified().use(remarkParse).use(remarkMdx) : unified().use(remarkParse)
+    return base
+      .use(remarkFrontmatter)
+      .use(remarkDirective)
+      .use(remarkGfm)
+      .use(stripFrontmatter)
+      .use(stripJsx)
+      .use(stripDirectives)
+  }
+  const processors = { md: build(false), mdx: build(true) }
+
+  return {
+    mdastToString,
+    parse(markdown: string, mode: 'md' | 'mdx'): Mdast.Root | undefined {
+      try {
+        const processor = processors[mode]
+        const tree = processor.parse(markdown)
+        processor.runSync(tree)
+        return tree
+      } catch {
+        return undefined
+      }
+    },
+  }
+}
+
+let textStack: ReturnType<typeof createTextStack> | undefined
+
+/**
+ * Reduces a Markdown/MDX string to plain text suitable for search indexing and
+ * embedding.
+ *
+ * Parses the source into an MDAST (frontmatter, GFM, directives, MDX) and
+ * serializes it with `mdast-util-to-string`, so only human-readable words
+ * remain — no regex guesswork. Shared by the OpenAPI search index and external
+ * AI search sources.
+ *
+ * Async because it lazily loads the MDX/frontmatter parser stack (see
+ * {@link createTextStack}) rather than importing it at module scope, which
+ * would leak heavy server-only deps into any client that imports {@link toHtml}.
+ */
+export async function toText(markdown: string | undefined): Promise<string> {
+  if (!markdown) return ''
+
+  textStack ??= createTextStack()
+  const { mdastToString, parse } = await textStack
+
+  // MDX first (handles JSX in the site's own docs); fall back to plain
+  // CommonMark for external sources whose `.md` isn't valid MDX.
+  const tree = parse(markdown, 'mdx') ?? parse(markdown, 'md')
+  if (!tree) return ''
+
+  // Serialize per top-level block so adjacent blocks keep a word boundary
+  // (mdast-util-to-string joins siblings without separators otherwise).
+  return tree.children
+    .map((node) => mdastToString(node))
+    .join(' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+/** Removes YAML/TOML frontmatter nodes so their keys don't leak into text. */
+function stripFrontmatter() {
+  return (tree: Mdast.Root) => {
+    visit(
+      tree,
+      (node) => node.type === 'yaml' || node.type === 'toml',
+      (_node, index, parent) => {
+        if (index === undefined || !parent) return
+        parent.children.splice(index, 1)
+        return index
+      },
+    )
+  }
+}
+
+/** Unwraps or drops MDX JSX/ESM/expression nodes, keeping child text. */
+function stripJsx() {
+  return (tree: Mdast.Root) => {
+    visit(
+      tree,
+      (node) =>
+        node.type === 'mdxJsxFlowElement' ||
+        node.type === 'mdxJsxTextElement' ||
+        node.type === 'mdxjsEsm' ||
+        node.type === 'mdxFlowExpression' ||
+        node.type === 'mdxTextExpression',
+      (node, index, parent) => {
+        if (index === undefined || !parent) return
+        if ('children' in node && Array.isArray(node.children)) {
+          parent.children.splice(index, 1, ...(node.children as Mdast.RootContent[]))
+          return index
+        }
+        parent.children.splice(index, 1)
+        return index
+      },
+    )
+  }
+}
+
+/** Unwraps directive nodes, keeping their child text. */
+function stripDirectives() {
+  return (tree: Mdast.Root) => {
+    visit(
+      tree,
+      (node) =>
+        node.type === 'containerDirective' ||
+        node.type === 'leafDirective' ||
+        node.type === 'textDirective',
+      (node, index, parent) => {
+        if (index === undefined || !parent) return
+        if ('children' in node && Array.isArray(node.children)) {
+          parent.children.splice(index, 1, ...(node.children as Mdast.RootContent[]))
+          return index
+        }
+        parent.children.splice(index, 1)
+        return index
+      },
+    )
+  }
+}

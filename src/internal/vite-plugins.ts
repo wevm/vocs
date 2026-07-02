@@ -14,6 +14,7 @@ import * as Llms from './llms.js'
 import * as Mdx from './mdx.js'
 import type * as OpenApi from './openapi/index.js'
 import * as OpenApiRegistry from './openapi/registry.js'
+import * as Retriever from './retriever.js'
 import { SearchDocuments, SearchIndex } from './search.js'
 import * as ShikiTransformers from './shiki-transformers.js'
 import * as TaskRunner from './task-runner.js'
@@ -756,6 +757,140 @@ export function search(config: Config.Config): PluginOption {
 }
 
 /**
+ * Vite plugin for AI (semantic) search.
+ *
+ * When a local `ai.retriever` provider is enabled it builds the static vector index at build/dev
+ * start (warming the embedding cache), and — for `runtime: 'client'` or
+ * `vectorStore.expose` — emits a public browser artifact and serves it via the
+ * `virtual:vocs/ai-search-index` module. Server-runtime search is handled at runtime
+ * by the `/api/search` endpoint (which builds an in-memory index), so this
+ * plugin's main job there is cache warming.
+ *
+ * @param config - Vocs configuration.
+ * @returns Plugin.
+ */
+export function aiSearch(config: Config.Config): PluginOption {
+  const ai = Retriever.fromConfig(config)
+  if (!ai) return []
+
+  const virtualModuleId = 'virtual:vocs/ai-search-index'
+  const resolvedVirtualModuleId = `\0${virtualModuleId}`
+  const { rootDir, basePath } = config
+  const exposePublic =
+    ai.runtime === 'client' || config._localRetriever?.vectorStore.expose === true
+
+  let mode: 'development' | 'production' = 'development'
+  let manifestPromise: Promise<Retriever.IndexManifest> | undefined
+  let publicHash: string | undefined
+
+  function toPublicManifest(manifest: Retriever.IndexManifest): Retriever.IndexManifest {
+    // Strip full chunk text — the browser artifact only needs snippets.
+    return {
+      ...manifest,
+      chunks: manifest.chunks.map(({ text: _text, ...rest }) => rest),
+    }
+  }
+
+  function buildManifest(): Promise<Retriever.IndexManifest> {
+    if (!manifestPromise) {
+      logger.info('Building AI search index...', { timestamp: true })
+      manifestPromise = Retriever.buildIndex(config)
+        .then(async (manifest) => {
+          if (exposePublic) {
+            const json = JSON.stringify(toPublicManifest(manifest))
+            publicHash = crypto.createHash('md5').update(json).digest('hex').slice(0, 12)
+          }
+          await Retriever.saveIndex(config, manifest)
+          logger.info(
+            `AI search index built (${manifest.vectorStore.count} chunks, ${manifest.vectorStore.format}).`,
+            { timestamp: true },
+          )
+          return manifest
+        })
+        .catch((error) => {
+          logger.error(
+            `Failed to build AI search index: ${error instanceof Error ? error.message : String(error)}`,
+          )
+          throw error
+        })
+    }
+    return manifestPromise
+  }
+
+  /**
+   * Whether to skip build-time embedding seeding (`VOCS_SKIP_EMBEDDINGS=true`
+   * or `vocs build --no-embeddings`). Only honored for server runtime: client
+   * runtime needs the index artifact emitted at build time, so skipping there
+   * would ship a broken (empty) search — we warn and build anyway.
+   */
+  function skipSeeding(): boolean {
+    const skip = process.env['VOCS_SKIP_EMBEDDINGS']
+    if (skip !== 'true' && skip !== '1') return false
+    if (exposePublic) {
+      logger.warn(
+        'VOCS_SKIP_EMBEDDINGS ignored: client-runtime AI search (exposed vector store) needs the index built at build time. Building it anyway.',
+        { timestamp: true },
+      )
+      return false
+    }
+    return true
+  }
+
+  return {
+    name: 'vocs:ai-search',
+    configResolved(resolvedConfig) {
+      mode = resolvedConfig.command === 'build' ? 'production' : 'development'
+    },
+    buildStart() {
+      // Warm the embedding cache (and prepare the public artifact) once, at
+      // build time only. In dev we never build the index: server-runtime search
+      // loads the prebuilt manifest written by `vocs embeddings generate` /
+      // `vocs build` (falling back to keyword search if absent), and
+      // client-runtime search builds it lazily when the virtual module loads.
+      if (mode !== 'production') return
+      if (skipSeeding()) {
+        logger.info('Skipping AI search index build (VOCS_SKIP_EMBEDDINGS).', { timestamp: true })
+        return
+      }
+      void buildManifest()
+    },
+    resolveId(id) {
+      if (id === virtualModuleId) return resolvedVirtualModuleId
+      return
+    },
+    async load(id) {
+      if (id !== resolvedVirtualModuleId) return
+      if (!exposePublic)
+        return `export const getAiSearchIndex = async () => { throw new Error('[vocs] AI search client index is not exposed (server runtime).') }`
+
+      const manifest = toPublicManifest(await buildManifest())
+      if (mode === 'development')
+        return `export const getAiSearchIndex = async () => ${JSON.stringify(JSON.stringify(manifest))}`
+
+      const base = basePath.endsWith('/') ? basePath : `${basePath}/`
+      return `export const getAiSearchIndex = async () => await (await fetch("${base}assets/ai-search-index-${publicHash}.json")).text()`
+    },
+    async writeBundle(options) {
+      if (!exposePublic) return
+      const manifest = toPublicManifest(await buildManifest())
+      const json = JSON.stringify(manifest)
+      const outDir = options.dir ?? path.resolve(rootDir, config.outDir)
+      const dir = path.resolve(outDir, 'assets')
+      await fs.mkdir(dir, { recursive: true })
+      await fs.writeFile(path.join(dir, `ai-search-index-${publicHash}.json`), json, 'utf-8')
+
+      const bytes = Buffer.byteLength(json)
+      const max = config._localRetriever?.vectorStore.maxClientBytes
+      if (max && bytes > max)
+        logger.warn(
+          `AI search client index is ${(bytes / 1e6).toFixed(1)}MB, exceeds maxClientBytes (${(max / 1e6).toFixed(1)}MB). Consider int8 format or fewer chunks.`,
+          { timestamp: true },
+        )
+    },
+  }
+}
+
+/**
  * Vite plugin that provides the Vocs configuration as a virtual module and
  * serializes it to a JSON file at build time.
  *
@@ -789,7 +924,14 @@ export function virtualConfig(config: Config.Config): PluginOption {
           const mod = server.moduleGraph.getModuleById(resolvedVirtualModuleId)
           if (mod) server.moduleGraph.invalidateModule(mod)
           Config.setGlobal(newConfig)
-          server.ws.send({ type: 'custom', event: 'vocs:config', data: newConfig })
+          // Send the serialized (public) config only — `serializeFunctions`
+          // strips `_`-prefixed fields (e.g. `_feedback`, `_localRetriever`) so secrets in
+          // server-only adapters never reach the browser over the HMR channel.
+          server.ws.send({
+            type: 'custom',
+            event: 'vocs:config',
+            data: ConfigSerializer.serializeFunctions(newConfig),
+          })
           // Force full reload to ensure CSS is properly reprocessed
           server.ws.send({ type: 'full-reload' })
         } catch {}

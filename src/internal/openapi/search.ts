@@ -1,3 +1,4 @@
+import * as Markdown from '../markdown.js'
 import type { SearchDocuments } from '../search.js'
 import type { Ir, IrOperation } from './parser.js'
 
@@ -16,7 +17,7 @@ import type { Ir, IrOperation } from './parser.js'
  * response descriptions into their searchable `text` so endpoints surface for a
  * wide range of queries (summary, path, parameter, status code, …).
  */
-export function toSearchDocuments(ir: Ir): SearchDocuments.Document[] {
+export async function toSearchDocuments(ir: Ir): Promise<SearchDocuments.Document[]> {
   const category = ir.info.title
   const documents: SearchDocuments.Document[] = []
   // Strip a trailing slash so a root mount (`/`) doesn't yield `//group` hrefs.
@@ -29,7 +30,7 @@ export function toSearchDocuments(ir: Ir): SearchDocuments.Document[] {
     id: `openapi:${ir.path}`,
     searchPriority: undefined,
     subtitle: '',
-    text: plainText(ir.info.description),
+    text: await Markdown.toText(ir.info.description),
     title: ir.info.title,
     titles: [],
     type: 'page',
@@ -45,7 +46,7 @@ export function toSearchDocuments(ir: Ir): SearchDocuments.Document[] {
       id: `openapi:${groupHref}`,
       searchPriority: undefined,
       subtitle: '',
-      text: plainText(group.description),
+      text: await Markdown.toText(group.description),
       title: group.name,
       titles: [ir.info.title],
       type: 'page',
@@ -60,7 +61,7 @@ export function toSearchDocuments(ir: Ir): SearchDocuments.Document[] {
         id: `openapi:${groupHref}#${operation.id}`,
         searchPriority: undefined,
         subtitle: methodPath,
-        text: operationText(operation),
+        text: await operationText(operation),
         title: operation.summary || methodPath,
         titles: [ir.info.title, group.name],
         type: 'section',
@@ -72,37 +73,23 @@ export function toSearchDocuments(ir: Ir): SearchDocuments.Document[] {
 }
 
 /** Folds an operation's searchable content into a single plain-text string. */
-function operationText(operation: IrOperation): string {
+async function operationText(operation: IrOperation): Promise<string> {
   const parts = [
     `${operation.method} ${operation.path}`,
-    plainText(operation.description),
-    plainText(operation.summary),
-    ...operation.parameters
-      .filter((parameter) => !parameter.deprecated)
-      .map((parameter) => `${parameter.name} ${plainText(parameter.description)}`.trim()),
-    ...operation.responses.map((response) =>
-      `${response.status} ${plainText(response.description)}`.trim(),
-    ),
+    await Markdown.toText(operation.description),
+    await Markdown.toText(operation.summary),
+    ...(await Promise.all(
+      operation.parameters
+        .filter((parameter) => !parameter.deprecated)
+        .map(async (parameter) =>
+          `${parameter.name} ${await Markdown.toText(parameter.description)}`.trim(),
+        ),
+    )),
+    ...(await Promise.all(
+      operation.responses.map(async (response) =>
+        `${response.status} ${await Markdown.toText(response.description)}`.trim(),
+      ),
+    )),
   ]
   return parts.filter(Boolean).join(' ').replace(/\s+/g, ' ').trim()
-}
-
-/**
- * Reduces a Markdown string to plain text suitable for the search index. Strips
- * the common inline/block syntax (links, emphasis, code, headings, lists,
- * blockquotes, images) so only human-readable words remain for tokenization.
- */
-function plainText(markdown: string | undefined): string {
-  if (!markdown) return ''
-  return markdown
-    .replace(/```[\s\S]*?```/g, ' ') // fenced code blocks
-    .replace(/`([^`]+)`/g, '$1') // inline code
-    .replace(/!\[([^\]]*)\]\([^)]*\)/g, '$1') // images → alt text
-    .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1') // links → label
-    .replace(/^\s{0,3}#{1,6}\s+/gm, '') // headings
-    .replace(/^\s{0,3}>\s?/gm, '') // blockquotes
-    .replace(/^\s*[-*+]\s+/gm, '') // unordered list markers
-    .replace(/[*_~]/g, '') // emphasis / strikethrough
-    .replace(/\s+/g, ' ')
-    .trim()
 }

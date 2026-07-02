@@ -757,8 +757,41 @@ Splits search queries into terms at runtime.
 
 Normalizes or expands search query terms at runtime.
 
+### `ai`
+
+- **Type:** `object`
+
+Top-level home for AI-powered features. Currently exposes semantic (AI) search via
+[`ai.retriever`](#airetriever).
+
+#### `ai.retriever`
+
+- **Type:** `Retriever.local(...) | Retriever.cloudflare(...) | Retriever.from(...)`
+
+Adds AI search on top of keyword search. Set it to a retriever created by one constructor:
+
+- `Retriever.local()`: Vocs owns the pipeline. It embeds your pages at build time, packs them
+  into a built-in static vector store, and queries them at runtime via a server endpoint (the
+  open-source, self-owned option).
+- `Retriever.cloudflare()` / `Retriever.from()`: retrieval is delegated to a hosted backend.
+
+Retrievers hold secrets and are kept **server-side only** (never serialized to the browser).
+
+```ts
+import { defineConfig, Embedding, Retriever } from 'vocs/config'
+
+export default defineConfig({
+  ai: {
+    retriever: Retriever.local({
+      embedding: Embedding.openai(),
+      sources: ['https://viem.sh/llms.txt'],
+    })
+  }
+})
+```
+
 :::tip
-See [Search](/features/search) for recipes covering fuzzy matching, prefix matching, and field weighting.
+See [Search](/features/search) for the full guide, covering keyword-search recipes plus AI search setup.
 :::
 
 ## Integrations

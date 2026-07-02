@@ -16,6 +16,6 @@ export async function getSearchIndex(): Promise<string> {
     storeFields: [...storeFields],
     tokenize,
   })
-  index.addAll(toSearchDocuments(read().ir))
+  index.addAll(await toSearchDocuments(read().ir))
   return JSON.stringify(index.toJSON())
 }

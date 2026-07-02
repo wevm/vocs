@@ -6,6 +6,7 @@ import {
   inlineLanguage,
   notationBlock,
   notationInclude,
+  notationWordHighlight,
   removeNotationEscape,
   resetTwoslasher,
   resetTwoslashSnippets,
@@ -902,5 +903,84 @@ describe('removeNotationEscape', () => {
     expect(html).toContain('[!include ~/snippets/example.ts]')
     expect(html).not.toContain('[\\!include')
     expect(html).not.toContain('createPublicClient')
+  })
+})
+
+describe('notationWordHighlight', () => {
+  it('highlights the word in plain tokens', async () => {
+    const highlighter = await createHighlighter({
+      themes: ['github-dark'],
+      langs: ['typescript'],
+    })
+
+    const html = highlighter.codeToHtml('// [!code word:retriever]\nconst retriever = 1', {
+      lang: 'typescript',
+      theme: 'github-dark',
+      transformers: [notationWordHighlight()],
+    })
+
+    highlighter.dispose()
+
+    expect(html).not.toContain('[!code')
+    expect(html.match(/highlighted-word/g)).toHaveLength(1)
+    expect(html).toMatch(/class="highlighted-word">retriever</)
+  })
+
+  it('highlights element-wrapped tokens (twoslash hovers) instead of their neighbors', async () => {
+    // Mimics the twoslash transformer: wraps identifier tokens in a popup
+    // container whose first child is the code and the rest is popup markup
+    // (which also contains the word, and must not create phantom matches).
+    const wrapIdentifiers: import('@shikijs/types').ShikiTransformer = {
+      name: 'test:wrap-identifiers',
+      code(code) {
+        for (const line of code.children) {
+          if (line.type !== 'element') continue
+          for (const token of line.children) {
+            if (token.type !== 'element') continue
+            const text = token.children[0]
+            if (text?.type !== 'text' || !/^\s*[A-Za-z_$][\w$]*\s*$/.test(text.value)) continue
+            token.children = [
+              {
+                type: 'element',
+                tagName: 'span',
+                properties: { class: 'twoslash-hover twoslash-popup-container' },
+                children: [
+                  text,
+                  {
+                    type: 'element',
+                    tagName: 'div',
+                    properties: { class: 'twoslash-popup-docs' },
+                    children: [{ type: 'text', value: '(property) retriever: LocalRetriever' }],
+                  },
+                ],
+              },
+            ]
+          }
+        }
+      },
+    }
+
+    const highlighter = await createHighlighter({
+      themes: ['github-dark'],
+      langs: ['typescript'],
+    })
+
+    const html = highlighter.codeToHtml(
+      '// [!code word:retriever]\nconst retriever = Retriever.local({})',
+      {
+        lang: 'typescript',
+        theme: 'github-dark',
+        transformers: [wrapIdentifiers, notationWordHighlight()],
+      },
+    )
+
+    highlighter.dispose()
+
+    // The wrapped `retriever` token itself is highlighted (case-sensitive, so
+    // `Retriever` is not), and neither punctuation neighbors nor popup text are.
+    expect(html.match(/highlighted-word/g)).toHaveLength(1)
+    expect(html).toContain(
+      'highlighted-word"><span class="twoslash-hover twoslash-popup-container"> retriever<div',
+    )
   })
 })
