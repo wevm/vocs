@@ -344,7 +344,7 @@ A common setup is to build embeddings on a schedule (cron/CI) and skip them on r
 
 ### Blend keyword and AI results
 
-By default the dialog shows keyword results and appends AI results. Turn on `hybrid` (a shared option on every retriever constructor) to instead **fuse** both lists into a single ranking, weighting each contribution:
+The dialog **fuses** keyword and AI results into a single ranking by default, weighting each contribution. Tune the weights with `hybrid` (a shared option on every retriever constructor):
 
 ```ts twoslash
 import { defineConfig, Embedding, Retriever } from 'vocs/config'
@@ -362,7 +362,7 @@ export default defineConfig({
 })
 ```
 
-Pass `hybrid: true` for defaults, or an object to tune the weights.
+Pass `hybrid: false` to keep the keyword ordering untouched and append AI results below it instead.
 
 ## See More
 

@@ -116,9 +116,9 @@ export function Search(props: Search.Props) {
   // store or a managed retriever — and both serialize to the same public shape
   // and request/response contract, so the dialog treats them uniformly. We fetch
   // semantic results in the background and blend them with the instant MiniSearch
-  // keyword results (appended below by default, fused into one ranking with
-  // `hybrid`). Keyword results render immediately; the list updates once
-  // semantic results return, so the UI never blocks on the network.
+  // keyword results (fused into one ranking by default; `hybrid: false` appends
+  // them below instead). Keyword results render immediately; the list updates
+  // once semantic results return, so the UI never blocks on the network.
   const aiConfig = (config as { ai?: { retriever?: SemanticConfig } }).ai?.retriever
   const semanticConfig = React.useMemo<SemanticConfig | undefined>(() => {
     // The self-owned provider only queries the server endpoint in server runtime.
@@ -190,8 +190,8 @@ export function Search(props: Search.Props) {
     // in flight, show fresh keyword results rather than stale AI ones.
     const semanticFresh = semanticEnabled && semanticResultsQuery === query ? semanticResults : []
     if (semanticFresh.length === 0) return search.results
-    // Default: keyword ordering stays put, AI results are appended below.
-    // `hybrid` opts into fusing both lists into a single ranking.
+    // `hybrid: false` opts into append mode: keyword ordering stays put and AI
+    // results follow below. Fusion is the default.
     if (!semanticConfig?.hybrid?.enabled) return append(search.results, semanticFresh, 20)
     return fuse({
       keyword: search.results,

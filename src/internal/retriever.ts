@@ -78,7 +78,8 @@ export type BaseRetriever = {
   endpoint?: string | undefined
   /**
    * Fuse semantic results with keyword (MiniSearch) results into a single
-   * ranking. Pass an object to tune each contribution. @default false
+   * ranking. Pass an object to tune each contribution, or `false` to append
+   * semantic results below the keyword list instead. @default true
    */
   hybrid?:
     | boolean
@@ -543,7 +544,7 @@ export function resolveManaged(
     enabled: true,
     endpoint,
     hybrid: {
-      enabled: Boolean(hybrid),
+      enabled: hybrid !== false,
       keywordWeight: hybridObj.keywordWeight ?? 0.3,
       semanticWeight: hybridObj.semanticWeight ?? 0.7,
     },
@@ -653,7 +654,7 @@ export type ChunkingOptions = {
 export type RetrievalOptions = {
   /** Candidates scored before dedupe/rerank. @default 40 */
   candidateK?: number | undefined
-  /** Fuse with keyword search. @default false */
+  /** Fuse with keyword search. @default true */
   hybrid?: boolean | undefined
   /** Keyword weight for hybrid fusion. @default 0.3 */
   keywordWeight?: number | undefined
@@ -794,7 +795,7 @@ export function resolveLocal(
     runtime,
     endpoint,
     hybrid: {
-      enabled: options.retrieval?.hybrid ?? false,
+      enabled: options.retrieval?.hybrid ?? true,
       semanticWeight: options.retrieval?.semanticWeight ?? 0.7,
       keywordWeight: options.retrieval?.keywordWeight ?? 0.3,
     },
@@ -826,7 +827,7 @@ export function resolveLocal(
     retrieval: {
       topK: options.retrieval?.topK ?? 8,
       candidateK: options.retrieval?.candidateK ?? 40,
-      hybrid: options.retrieval?.hybrid ?? false,
+      hybrid: options.retrieval?.hybrid ?? true,
       semanticWeight: options.retrieval?.semanticWeight ?? 0.7,
       keywordWeight: options.retrieval?.keywordWeight ?? 0.3,
     },
