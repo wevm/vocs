@@ -160,6 +160,34 @@ describe('retrieveManaged', () => {
   })
 })
 
+describe('retrieve', () => {
+  it('returns [] when no retriever is configured', async () => {
+    const config = { ai: undefined } as unknown as Config.Config
+    expect(await Retriever.retrieve(config, { query: 'x' })).toEqual([])
+  })
+
+  it('dispatches to the managed adapter', async () => {
+    const managed: Retriever.Adapter = {
+      type: 'x',
+      retrieve: async () => [
+        {
+          category: '',
+          href: '/a',
+          id: '1',
+          score: 0.9,
+          snippet: 'a',
+          title: 'A',
+          titles: [],
+          type: 'page',
+        },
+      ],
+    }
+    const config = toConfig(Retriever.resolveManaged(Retriever.from(managed), ctx))
+    const results = await Retriever.retrieve(config, { query: 'anything' })
+    expect(results.map((r) => r.href)).toEqual(['/a'])
+  })
+})
+
 describe('handleSearchRequest (managed)', () => {
   it('400s on missing query, 404s when disabled', async () => {
     const config = toConfig(Retriever.resolveManaged(Retriever.from(adapter), ctx))

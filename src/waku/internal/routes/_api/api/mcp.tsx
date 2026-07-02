@@ -5,6 +5,7 @@ import {
   WebSSEServerTransport,
   WebStreamableHTTPServerTransport,
 } from '../../../../../internal/mcp-transport.js'
+import { loadAiSearchManifest } from '../../../ai-search.js'
 
 /**
  * GET /api/mcp - Establish SSE stream (deprecated HTTP+SSE transport)
@@ -20,7 +21,7 @@ export async function GET() {
   }
 
   const transport = new WebSSEServerTransport('/api/mcp/messages')
-  const server = Mcp.createServer(config)
+  const server = Mcp.createServer(config, { loadManifest: loadAiSearchManifest })
 
   McpSessions.setSession(transport.sessionId, { transport, server })
 
@@ -88,7 +89,7 @@ export async function POST(request: Request) {
     },
   })
 
-  const server = Mcp.createServer(config)
+  const server = Mcp.createServer(config, { loadManifest: loadAiSearchManifest })
   await server.connect(transport as never)
 
   return transport.handleRequest(body, useSSE)

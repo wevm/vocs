@@ -471,6 +471,38 @@ export declare namespace handleSearchRequest {
   }
 }
 
+/**
+ * Retrieves AI search results for a query with whichever provider is
+ * configured, awaiting the index when needed (unlike the `/api/search`
+ * endpoint, which answers `202` while it loads). Returns `[]` when AI search
+ * is not enabled or the index is empty.
+ */
+export async function retrieve(
+  config: Config.Config,
+  options: retrieve.Options,
+): Promise<Result[]> {
+  const { limit, loadManifest, query, signal } = options
+  if (config._localRetriever) {
+    await getServerIndex(config, { loadManifest })
+    return retrieveLocal(config, { limit, query })
+  }
+  if (config._retriever) return retrieveManaged(config, { limit, query, signal })
+  return []
+}
+
+export declare namespace retrieve {
+  type Options = {
+    /** Max results to return. @default topK */
+    limit?: number | undefined
+    /** Source of the prebuilt manifest (e.g. baked into the server bundle). */
+    loadManifest?: ManifestLoader | undefined
+    /** Search query. */
+    query: string
+    /** Optional abort signal (managed retrievers only). */
+    signal?: AbortSignal | undefined
+  }
+}
+
 //
 // Managed retriever (delegated to a backend adapter)
 //
