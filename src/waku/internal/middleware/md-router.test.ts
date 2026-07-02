@@ -3,6 +3,11 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('node:fs/promises', () => ({
   readFile: vi.fn(),
+  stat: vi.fn(),
+}))
+
+vi.mock('../../../internal/config.js', () => ({
+  resolve: vi.fn(),
 }))
 
 vi.mock('node:path', async () => {
@@ -205,6 +210,59 @@ describe('middleware', () => {
     expect(await response.text()).toBe('<p>ok</p>')
     expect(readFile).not.toHaveBeenCalled()
     expect(fetchSpy).not.toHaveBeenCalled()
+  })
+
+  it('serves public `.md` files as-is instead of resolving a twin', async () => {
+    process.env['NODE_ENV'] = 'production'
+
+    const { readFile, stat } = await import('node:fs/promises')
+    vi.mocked(stat).mockResolvedValue({ isFile: () => true } as never)
+
+    const fetchSpy = vi.fn()
+    globalThis.fetch = fetchSpy
+
+    const response = await request('http://localhost/SKILL.md')
+
+    expect(response.status).toBe(200)
+    expect(response.headers.get('content-type')).toContain('text/html')
+    expect(await response.text()).toBe('<p>ok</p>')
+    expect(vi.mocked(stat).mock.calls[0]?.[0]).toMatch(/\/public\/SKILL\.md$/)
+    expect(readFile).not.toHaveBeenCalled()
+    expect(fetchSpy).not.toHaveBeenCalled()
+  })
+
+  it('serves public `.md` files as-is in dev', async () => {
+    const Config = await import('../../../internal/config.js')
+    vi.mocked(Config.resolve).mockResolvedValue({ rootDir: '/site' } as never)
+
+    const { readFile, stat } = await import('node:fs/promises')
+    vi.mocked(stat).mockResolvedValue({ isFile: () => true } as never)
+
+    const fetchSpy = vi.fn()
+    globalThis.fetch = fetchSpy
+
+    const response = await request('http://localhost/SKILL.md')
+
+    expect(response.status).toBe(200)
+    expect(await response.text()).toBe('<p>ok</p>')
+    expect(vi.mocked(stat).mock.calls[0]?.[0]).toBe('/site/public/SKILL.md')
+    expect(readFile).not.toHaveBeenCalled()
+    expect(fetchSpy).not.toHaveBeenCalled()
+  })
+
+  it('resolves the markdown twin for `.md` requests without a matching public file', async () => {
+    process.env['NODE_ENV'] = 'production'
+
+    const { readFile, stat } = await import('node:fs/promises')
+    vi.mocked(stat).mockRejectedValue(new Error('ENOENT'))
+    vi.mocked(readFile).mockResolvedValue('# Hello from disk')
+
+    const response = await request('http://localhost/docs.md')
+
+    expect(response.status).toBe(200)
+    expect(response.headers.get('content-type')).toBe('text/markdown; charset=utf-8')
+    expect(await response.text()).toBe('# Hello from disk')
+    expect(vi.mocked(readFile).mock.calls[0]?.[0]).toMatch(/\/public\/assets\/md\/docs\.md$/)
   })
 
   it('serves markdown for clean routes whose parent segments contain dots', async () => {
