@@ -1,5 +1,14 @@
 # vocs
 
+## 2.3.1
+
+### Patch Changes
+
+- 5a3ac18: Fixed malformed `::changelog{limit}` values reaching the changelog fetcher as `NaN` instead of falling back to the default limit.
+- 28036a4: Rendered `::changelog` releases in markdown output (`llms.txt`, `.md` twins) instead of a literal `::changelog` line.
+- dad7742: Fixed changelog version links, the skip-to-content link, and markdown and OpenAPI heading anchors navigating to the site root when `baseUrl` is set.
+- a9f4aa4: Defaulted AI search `hybrid` fusion on; pass `hybrid: false` to append semantic results below keyword results instead.
+
 ## 2.3.0
 
 ### Minor Changes
