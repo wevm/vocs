@@ -4,6 +4,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 import type { Config } from './config.js'
 import type * as McpSource from './mcp-source.js'
+import * as Retriever from './retriever.js'
 
 /**
  * MCP (Model Context Protocol) server configuration and tools.
@@ -41,7 +42,7 @@ export type McpConfig = {
 /**
  * Create an MCP server instance with all documentation tools registered.
  */
-export function createServer(config: Config): McpServer {
+export function createServer(config: Config, options: createServer.Options = {}): McpServer {
   const server = new McpServer(
     {
       name: 'vocs',
@@ -109,12 +110,34 @@ export function createServer(config: Config): McpServer {
   server.registerTool(
     'search_docs',
     {
-      description: 'Search documentation for a query string.',
+      description:
+        'Search documentation for a query string. Uses AI (semantic) search when configured, with keyword fallback.',
       inputSchema: {
         query: z.string().describe('The search query'),
       },
     },
     async ({ query }) => {
+      // AI (semantic) search when a retriever is configured. Falls back to the
+      // substring scan below when disabled, empty, or failing.
+      const semantic = await Retriever.retrieve(config, {
+        query,
+        loadManifest: options.loadManifest,
+      }).catch((error) => {
+        console.warn('[vocs] mcp search_docs: AI search failed, falling back:', error)
+        return [] as Retriever.Result[]
+      })
+      if (semantic.length > 0) {
+        const results = semantic.map((result) => ({
+          path: result.href,
+          title: result.title,
+          snippet: result.snippet,
+          score: result.score,
+        }))
+        return {
+          content: [{ type: 'text', text: JSON.stringify(results, null, 2) }],
+        }
+      }
+
       const lowerQuery = query.toLowerCase()
       const pages = await Array.fromAsync(fs.glob(`${pagesDir}/**/*.{md,mdx}`))
 
@@ -309,4 +332,11 @@ export function createServer(config: Config): McpServer {
   }
 
   return server
+}
+
+export declare namespace createServer {
+  type Options = {
+    /** Source of the prebuilt AI search manifest (e.g. baked into the server bundle). */
+    loadManifest?: Retriever.ManifestLoader | undefined
+  }
 }
