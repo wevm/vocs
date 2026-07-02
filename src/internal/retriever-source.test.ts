@@ -40,6 +40,18 @@ See also https://example.com/extra`
       'https://example.com/a',
     ])
   })
+
+  it('drops off-origin links (GitHub, socials, related projects)', () => {
+    const text = `# Docs
+- [Local](/docs/start)
+- [GitHub](https://github.com/wevm/vocs)
+
+See https://example.com/extra and https://twitter.com/wevm_dev`
+    expect(RetrieverSource.parseLlmsTxt(text, 'https://example.com/llms.txt')).toEqual([
+      'https://example.com/docs/start',
+      'https://example.com/extra',
+    ])
+  })
 })
 
 describe('extractDocument', () => {
@@ -190,6 +202,23 @@ describe('load', () => {
 
     expect(doc?.label).toBeUndefined()
     expect(doc?.weight).toBeUndefined()
+  })
+
+  it('caps pages per source at maxPages', async () => {
+    const fetchMock = mockFetch({
+      'https://example.com/llms.txt':
+        '# Docs\n- [One](https://example.com/one)\n- [Two](https://example.com/two)\n- [Three](https://example.com/three)',
+      'https://example.com/one': '# One\n\nContent one.',
+      'https://example.com/two': '# Two\n\nContent two.',
+      'https://example.com/three': '# Three\n\nContent three.',
+    })
+    const docs = await RetrieverSource.load([{ url: 'https://example.com/llms.txt', maxPages: 2 }])
+    fetchMock.restore()
+
+    expect(docs.map((d) => d.href).sort()).toEqual([
+      'https://example.com/one',
+      'https://example.com/two',
+    ])
   })
 
   it('skips pages that fail to fetch rather than throwing', async () => {

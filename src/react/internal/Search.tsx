@@ -14,7 +14,7 @@ import LucideLoaderCircle from '~icons/lucide/loader-circle'
 import LucideSearch from '~icons/lucide/search'
 import * as Path from '../../internal/path.js'
 import { SearchConfig } from '../../internal/search.client.js'
-import { fuse } from '../../internal/search-fusion.js'
+import { append, fuse } from '../../internal/search-fusion.js'
 import { Link } from '../Link.js'
 import { useConfig } from '../useConfig.js'
 import { DialogTrigger } from './DialogTrigger.js'
@@ -115,10 +115,10 @@ export function Search(props: Search.Props) {
   // AI (semantic) search. `ai.retriever` selects one provider — a built-in vector
   // store or a managed retriever — and both serialize to the same public shape
   // and request/response contract, so the dialog treats them uniformly. We fetch
-  // semantic results in the background and fuse them with the instant MiniSearch
-  // keyword results into one similarity-ranked list. Keyword results render
-  // immediately; the list re-ranks once semantic results return, so the UI never
-  // blocks on the network.
+  // semantic results in the background and blend them with the instant MiniSearch
+  // keyword results (appended below by default, fused into one ranking with
+  // `hybrid`). Keyword results render immediately; the list updates once
+  // semantic results return, so the UI never blocks on the network.
   const aiConfig = (config as { ai?: { retriever?: SemanticConfig } }).ai?.retriever
   const semanticConfig = React.useMemo<SemanticConfig | undefined>(() => {
     // The self-owned provider only queries the server endpoint in server runtime.
@@ -143,6 +143,12 @@ export function Search(props: Search.Props) {
     const debounce = semanticConfig.ui?.debounceMs ?? 250
     let retryTimer: ReturnType<typeof setTimeout> | undefined
 
+    const fail = (error: unknown): void => {
+      if ((error as Error).name === 'AbortError') return
+      setSemanticResults([])
+      setSemanticLoading(false)
+    }
+
     const run = async (): Promise<void> => {
       const response = await fetch(semanticConfig.endpoint, {
         method: 'POST',
@@ -158,7 +164,7 @@ export function Search(props: Search.Props) {
       // retrievers never set `indexing`.
       if (data.indexing) {
         retryTimer = setTimeout(() => {
-          run().catch(() => {})
+          run().catch(fail)
         }, 1500)
         return
       }
@@ -169,11 +175,7 @@ export function Search(props: Search.Props) {
 
     const timer = setTimeout(() => {
       setSemanticLoading(true)
-      run().catch((error) => {
-        if ((error as Error).name === 'AbortError') return
-        setSemanticResults([])
-        setSemanticLoading(false)
-      })
+      run().catch(fail)
     }, debounce)
     return () => {
       controller.abort()
@@ -188,11 +190,14 @@ export function Search(props: Search.Props) {
     // in flight, show fresh keyword results rather than stale AI ones.
     const semanticFresh = semanticEnabled && semanticResultsQuery === query ? semanticResults : []
     if (semanticFresh.length === 0) return search.results
+    // Default: keyword ordering stays put, AI results are appended below.
+    // `hybrid` opts into fusing both lists into a single ranking.
+    if (!semanticConfig?.hybrid?.enabled) return append(search.results, semanticFresh, 20)
     return fuse({
       keyword: search.results,
       semantic: semanticFresh,
-      keywordWeight: semanticConfig?.hybrid?.keywordWeight,
-      semanticWeight: semanticConfig?.hybrid?.semanticWeight,
+      keywordWeight: semanticConfig.hybrid.keywordWeight,
+      semanticWeight: semanticConfig.hybrid.semanticWeight,
       limit: 20,
     })
   }, [

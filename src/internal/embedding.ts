@@ -69,8 +69,27 @@ export function from(adapter: Adapter): Adapter {
  * ```
  */
 export function openai(options: openai.Options = {}): Adapter {
+  const { apiKey = process.env['OPENAI_API_KEY'], ...rest } = options
+  return openaiWire(
+    { ...rest, apiKey },
+    {
+      type: 'openai',
+      missingApiKey: 'Embedding.openai: missing `apiKey` (or OPENAI_API_KEY).',
+    },
+  )
+}
+
+/**
+ * Shared OpenAI wire-format adapter. `missingApiKey`, when set, makes a missing
+ * key a clear error instead of an opaque 401 — left unset for
+ * {@link openaiCompatible}, whose local servers are legitimately keyless.
+ */
+function openaiWire(
+  options: openai.Options,
+  adapterOptions: { missingApiKey?: string | undefined; type: string },
+): Adapter {
   const {
-    apiKey = process.env['OPENAI_API_KEY'],
+    apiKey,
     baseUrl = 'https://api.openai.com/v1',
     dimensions,
     headers,
@@ -78,12 +97,14 @@ export function openai(options: openai.Options = {}): Adapter {
     model = 'text-embedding-3-small',
   } = options
   return {
-    type: 'openai',
+    type: adapterOptions.type,
     model,
     dimensions,
     maxBatchSize,
     async embed(input, context) {
       if (input.length === 0) return []
+      if (!apiKey && adapterOptions.missingApiKey)
+        throw new Error(`[vocs] ${adapterOptions.missingApiKey}`)
       const body: Record<string, unknown> = { input, model }
       if (dimensions) body['dimensions'] = dimensions
       const response = await fetch(`${baseUrl.replace(/\/$/, '')}/embeddings`, {
@@ -136,7 +157,8 @@ export declare namespace openai {
  * ```
  */
 export function openaiCompatible(options: openaiCompatible.Options): Adapter {
-  return { ...openai(options), type: 'openai-compatible' }
+  const { apiKey = process.env['OPENAI_API_KEY'], ...rest } = options
+  return openaiWire({ ...rest, apiKey }, { type: 'openai-compatible' })
 }
 
 export declare namespace openaiCompatible {
@@ -166,8 +188,8 @@ export function openrouter(options: openrouter.Options = {}): Adapter {
     headers,
     ...rest
   } = options
-  return {
-    ...openai({
+  return openaiWire(
+    {
       ...rest,
       apiKey,
       baseUrl,
@@ -177,9 +199,12 @@ export function openrouter(options: openrouter.Options = {}): Adapter {
         ...(title ? { 'X-Title': title } : {}),
         ...headers,
       },
-    }),
-    type: 'openrouter',
-  }
+    },
+    {
+      type: 'openrouter',
+      missingApiKey: 'Embedding.openrouter: missing `apiKey` (or OPENROUTER_API_KEY).',
+    },
+  )
 }
 
 export declare namespace openrouter {

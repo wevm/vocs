@@ -818,16 +818,17 @@ export function aiSearch(config: Config.Config): PluginOption {
   }
 
   /**
-   * Whether to skip build-time embedding seeding (`VOCS_SKIP_SEARCH_INDEX=1` or
-   * `vocs build --no-search-index`). Only honored for server runtime: client
+   * Whether to skip build-time embedding seeding (`VOCS_SKIP_EMBEDDINGS=true`
+   * or `vocs build --no-embeddings`). Only honored for server runtime: client
    * runtime needs the index artifact emitted at build time, so skipping there
    * would ship a broken (empty) search — we warn and build anyway.
    */
   function skipSeeding(): boolean {
-    if (process.env['VOCS_SKIP_SEARCH_INDEX'] !== 'true') return false
+    const skip = process.env['VOCS_SKIP_EMBEDDINGS']
+    if (skip !== 'true' && skip !== '1') return false
     if (exposePublic) {
       logger.warn(
-        'VOCS_SKIP_SEARCH_INDEX ignored: client-runtime AI search (exposed vector store) needs the index built at build time. Building it anyway.',
+        'VOCS_SKIP_EMBEDDINGS ignored: client-runtime AI search (exposed vector store) needs the index built at build time. Building it anyway.',
         { timestamp: true },
       )
       return false
@@ -848,7 +849,7 @@ export function aiSearch(config: Config.Config): PluginOption {
       // client-runtime search builds it lazily when the virtual module loads.
       if (mode !== 'production') return
       if (skipSeeding()) {
-        logger.info('Skipping AI search index build (VOCS_SKIP_SEARCH_INDEX).', { timestamp: true })
+        logger.info('Skipping AI search index build (VOCS_SKIP_EMBEDDINGS).', { timestamp: true })
         return
       }
       void buildManifest()

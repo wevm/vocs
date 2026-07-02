@@ -43,23 +43,32 @@ export function load(options: load.Options): Cache {
   }
 
   const stats = { hits: 0, misses: 0 }
+  // Keys read or written this build. `save` persists only these, so entries
+  // for removed/changed chunks are pruned instead of accreting forever.
+  const touched = new Set<string>()
 
   return {
     stats,
     get(key) {
       const hit = store.get(key)
-      if (hit) stats.hits++
-      else stats.misses++
+      if (hit) {
+        stats.hits++
+        touched.add(key)
+      } else stats.misses++
       return hit
     },
     set(key, vector) {
       store.set(key, vector)
+      touched.add(key)
     },
     save() {
       if (ignore) return
       fs.mkdirSync(dir, { recursive: true })
       const entries: Record<string, number[]> = {}
-      for (const [key, vector] of store) entries[key] = vector
+      for (const key of touched) {
+        const vector = store.get(key)
+        if (vector) entries[key] = vector
+      }
       const tmp = `${file}.${process.pid}.tmp`
       fs.writeFileSync(tmp, JSON.stringify({ version, entries }), 'utf-8')
       fs.renameSync(tmp, file)

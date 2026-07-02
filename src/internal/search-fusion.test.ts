@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { fuse } from './search-fusion.js'
+import { append, fuse } from './search-fusion.js'
 
 type Doc = { href: string; source?: string }
 
@@ -45,5 +45,27 @@ describe('fuse', () => {
 
   it('handles empty inputs', () => {
     expect(fuse({ keyword: [], semantic: [] })).toEqual([])
+  })
+})
+
+describe('append', () => {
+  it('keeps keyword order and appends semantic-only items below', () => {
+    const keyword: Doc[] = [{ href: '/a' }, { href: '/b' }]
+    const semantic: Doc[] = [{ href: '/b', source: 'sem' }, { href: '/c' }]
+    expect(append(keyword, semantic).map((d) => d.href)).toEqual(['/a', '/b', '/c'])
+  })
+
+  it('keeps the keyword object on duplicate hrefs', () => {
+    const keyword: Doc[] = [{ href: '/a', source: 'kw' }]
+    const semantic: Doc[] = [{ href: '/a', source: 'sem' }]
+    const merged = append(keyword, semantic)
+    expect(merged).toHaveLength(1)
+    expect(merged[0]?.source).toBe('kw')
+  })
+
+  it('applies the limit', () => {
+    const keyword: Doc[] = [{ href: '/1' }, { href: '/2' }]
+    const semantic: Doc[] = [{ href: '/3' }, { href: '/4' }]
+    expect(append(keyword, semantic, 3)).toHaveLength(3)
   })
 })

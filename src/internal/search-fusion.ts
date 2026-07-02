@@ -58,3 +58,23 @@ export declare namespace fuse {
     semanticWeight?: number | undefined
   }
 }
+
+/**
+ * Append semantic results below the keyword list (the non-hybrid default),
+ * de-duplicated by `href`. Keyword ordering is untouched; semantic-only
+ * results follow in their own ranked order.
+ */
+export function append<T extends { href: string }>(
+  keyword: readonly T[],
+  semantic: readonly T[],
+  limit?: number | undefined,
+): T[] {
+  const seen = new Set(keyword.map((item) => item.href))
+  const out = [...keyword]
+  for (const item of semantic) {
+    if (seen.has(item.href)) continue
+    seen.add(item.href)
+    out.push(item)
+  }
+  return typeof limit === 'number' ? out.slice(0, limit) : out
+}

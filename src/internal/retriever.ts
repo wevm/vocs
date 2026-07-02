@@ -166,12 +166,13 @@ export declare namespace local {
      * retrieval to boost precision. Adds one model call per query. Server-side.
      */
     reranker?: Reranker.Adapter | undefined
-    /** Where retrieval runs. `'auto'` resolves to `'server'`. @default 'server' */
+    /** Where retrieval runs. `'auto'` → `'server'`; `'client'` is reserved (not implemented yet). @default 'server' */
     runtime?: 'auto' | 'server' | 'client' | undefined
     /**
      * External source URLs embedded alongside local docs. Each URL is fetched at
      * build time and auto-expanded: a `sitemap.xml` to every page it lists, an
-     * `llms.txt` to every page it links, anything else to the page itself.
+     * `llms.txt` to every same-origin page it links, anything else to the page
+     * itself.
      */
     sources?: readonly (string | RetrieverSource.Source)[] | undefined
     /** Vector store. @default VectorStore.static() */
@@ -494,7 +495,7 @@ export function resolveManaged(
     enabled: true,
     endpoint,
     hybrid: {
-      enabled: hybrid !== false,
+      enabled: Boolean(hybrid),
       keywordWeight: hybridObj.keywordWeight ?? 0.3,
       semanticWeight: hybridObj.semanticWeight ?? 0.7,
     },
@@ -650,13 +651,13 @@ export type Input =
       reranker?: Reranker.Adapter | undefined
       /** How candidates are fetched and ranked. */
       retrieval?: RetrievalOptions | undefined
-      /** Where retrieval runs. `'auto'` → `'server'`. @default 'server' */
+      /** Where retrieval runs. `'auto'` → `'server'`; `'client'` is reserved (not implemented yet). @default 'server' */
       runtime?: 'auto' | 'server' | 'client' | undefined
       /**
        * External source URLs to embed alongside local docs. Each URL is fetched
        * at build time and auto-expanded: a `sitemap.xml` → every page it lists,
-       * an `llms.txt` → every page it links, anything else → the page itself.
-       * Results link out to their absolute URL.
+       * an `llms.txt` → every same-origin page it links, anything else → the
+       * page itself. Results link out to their absolute URL.
        */
       sources?: readonly (string | RetrieverSource.Source)[] | undefined
       /** Search dialog UI behavior. */
@@ -716,7 +717,13 @@ export function resolveLocal(
     return undefined
   }
 
-  const runtime = options.runtime && options.runtime !== 'auto' ? options.runtime : 'server'
+  let runtime = options.runtime && options.runtime !== 'auto' ? options.runtime : 'server'
+  if (runtime === 'client') {
+    console.warn(
+      "[vocs] ai.retriever: `runtime: 'client'` is not implemented yet. Falling back to `'server'`.",
+    )
+    runtime = 'server'
+  }
   const vectorStore = options.vectorStore ?? VectorStore.static()
 
   const ui = options.ui ?? {}
@@ -748,6 +755,13 @@ export function resolveLocal(
     },
   }
 
+  // Overlap must stay below the max so the splitter always advances.
+  const maxCharacters = Math.max(1, options.chunking?.maxCharacters ?? 1200)
+  const overlapCharacters = Math.min(
+    Math.max(0, options.chunking?.overlapCharacters ?? 160),
+    maxCharacters - 1,
+  )
+
   const privateConfig: LocalPrivateConfig = {
     runtime,
     embedding,
@@ -755,8 +769,8 @@ export function resolveLocal(
     sources: options.sources ?? [],
     vectorStore,
     chunking: {
-      maxCharacters: options.chunking?.maxCharacters ?? 1200,
-      overlapCharacters: options.chunking?.overlapCharacters ?? 160,
+      maxCharacters,
+      overlapCharacters,
       includeHeadings: options.chunking?.includeHeadings ?? true,
       includeBreadcrumbs: options.chunking?.includeBreadcrumbs ?? true,
       includeNav: options.chunking?.includeNav ?? false,
@@ -791,8 +805,6 @@ export type Chunk = {
   href: string
   /** Unique chunk id (`{docId}` or `{docId}::{index}` when split). */
   id: string
-  /** Relative search priority carried from the source document. */
-  searchPriority: number | undefined
   /** Display text (original section text for this chunk). */
   text: string
   /** Title of the source page/section. */
@@ -844,7 +856,6 @@ export function chunk(documents: readonly Document[], options: ResolvedChunking)
         titles: doc.titles,
         category: doc.category,
         type: doc.type,
-        searchPriority: doc.searchPriority,
         weight: doc.weight,
         text,
         embeddingText: prefix ? `${prefix}\n\n${text}` : text,
@@ -864,11 +875,13 @@ function splitText(text: string, max: number, overlap: number): string[] {
     const trimmed = current.trim()
     if (trimmed) out.push(trimmed)
   }
+  // Guard the stride so a misconfigured overlap can never stall the loop.
+  const step = Math.max(1, max - overlap)
   for (const para of paragraphs) {
     if (para.length > max) {
       push()
       current = ''
-      for (let i = 0; i < para.length; i += max - overlap) out.push(para.slice(i, i + max).trim())
+      for (let i = 0; i < para.length; i += step) out.push(para.slice(i, i + max).trim())
       continue
     }
     if (current.length + para.length + 2 > max) {
@@ -890,8 +903,6 @@ export type ChunkMetadata = {
   href: string
   /** Unique chunk id. */
   id: string
-  /** Relative search priority carried from the source document. */
-  searchPriority: number | undefined
   /** Short preview text shown in results. */
   snippet: string
   /** Full display text — present in the server artifact, stripped for the browser. */
@@ -1043,7 +1054,6 @@ export async function buildIndex(
       titles: c.titles,
       category: c.category,
       type: c.type,
-      searchPriority: c.searchPriority,
       snippet: c.text.slice(0, 240),
       text: c.text,
       ...(c.weight !== undefined && c.weight !== 1 ? { weight: c.weight } : {}),
@@ -1083,33 +1093,20 @@ export async function loadIndex(config: Config.Config): Promise<IndexManifest | 
 
 /**
  * Loads the prebuilt manifest and validates it against the current embedding
- * config. Returns `undefined` (and warns once) when it is missing or stale, so
- * dev can fall back to keyword search and tell the user to regenerate.
+ * config. Returns the manifest, or the reason it can't be used.
  */
 async function loadPrebuiltIndex(
   config: Config.Config,
   priv: LocalPrivateConfig,
-): Promise<IndexManifest | undefined> {
+): Promise<IndexManifest | 'missing' | 'stale'> {
   const manifest = await loadIndex(config)
-  if (!manifest) {
-    warnOnce(
-      indexCacheKey(config, priv),
-      '[vocs] No prebuilt AI search index found. Run `vocs embeddings generate` to enable AI search in dev. Falling back to keyword search.',
-    )
-    return undefined
-  }
+  if (!manifest) return 'missing'
   const stale =
     manifest.embedding.type !== priv.embedding.type ||
     manifest.embedding.model !== priv.embedding.model ||
     (priv.embedding.dimensions !== undefined &&
       manifest.embedding.dimensions !== priv.embedding.dimensions)
-  if (stale) {
-    warnOnce(
-      indexCacheKey(config, priv),
-      '[vocs] Prebuilt AI search index is stale (embedding config changed). Run `vocs embeddings generate` to refresh. Falling back to keyword search.',
-    )
-    return undefined
-  }
+  if (stale) return 'stale'
   return manifest
 }
 
@@ -1183,13 +1180,18 @@ type ServerIndex = {
 }
 
 type ServerIndexEntry = {
+  /** Set when `status` is `'error'`; gates rebuild attempts. */
+  failedAt?: number | undefined
   /** Resolves to the built in-process index. */
   promise: Promise<ServerIndex>
-  /** `true` once the build has finished (so callers can avoid blocking). */
-  ready: boolean
+  /** Build state (so callers can avoid blocking or retrying). */
+  status: 'pending' | 'ready' | 'error'
 }
 
 const serverIndexCache = new Map<string, ServerIndexEntry>()
+
+/** Minimum wait before a failed index build may be retried. */
+const failedBuildRetryMs = 30_000
 
 function indexCacheKey(config: Config.Config, priv: LocalPrivateConfig): string {
   return `${config.rootDir}:${priv.embedding.type}:${priv.embedding.model}`
@@ -1197,24 +1199,30 @@ function indexCacheKey(config: Config.Config, priv: LocalPrivateConfig): string 
 
 /**
  * Starts (or reuses) the background build of the in-process server index and
- * returns its tracking entry. Never blocks: inspect `entry.ready` to decide
+ * returns its tracking entry. Never blocks: inspect `entry.status` to decide
  * whether to await `entry.promise` or respond immediately.
  *
- * On failure the entry is evicted so the next request retries the build.
+ * A failed build is kept (as `'error'`) for {@link failedBuildRetryMs} before
+ * it may be retried, so client polling can't trigger a rebuild per request.
  */
 export function ensureServerIndex(config: Config.Config): ServerIndexEntry {
   const priv = requireLocal(config)
   const cacheKey = indexCacheKey(config, priv)
   let entry = serverIndexCache.get(cacheKey)
+  if (entry?.status === 'error' && Date.now() - (entry.failedAt ?? 0) >= failedBuildRetryMs) {
+    serverIndexCache.delete(cacheKey)
+    entry = undefined
+  }
   if (!entry) {
-    const created: ServerIndexEntry = { ready: false, promise: undefined as never }
+    const created: ServerIndexEntry = { status: 'pending', promise: undefined as never }
     created.promise = resolveServerIndex(config, priv)
       .then((index) => {
-        created.ready = true
+        created.status = 'ready'
         return index
       })
       .catch((error) => {
-        serverIndexCache.delete(cacheKey)
+        created.status = 'error'
+        created.failedAt = Date.now()
         throw error
       })
     entry = created
@@ -1226,24 +1234,35 @@ export function ensureServerIndex(config: Config.Config): ServerIndexEntry {
 /**
  * Produces the in-process server index.
  *
- * - Production: builds the index (embeds all chunks, cache-warmed at build time).
- * - Development: loads the prebuilt manifest written by `vocs embeddings
- *   generate` / `vocs build`. It never builds at request time (that would
- *   refetch every external source and repack on each dev process). When the
- *   prebuilt index is missing or stale it resolves to an empty index, so AI
- *   search quietly falls back to keyword search.
+ * Prefers the prebuilt manifest written by `vocs embeddings generate` / `vocs
+ * build` — a request-time build refetches every external source and re-embeds
+ * cache misses, so it is the fallback, not the default.
+ *
+ * - Development (Vite dev server): load-only. When the prebuilt index is
+ *   missing or stale it resolves to an empty index (with a one-time warning),
+ *   so AI search quietly falls back to keyword search.
+ * - Production runtime (and `vocs preview`, tests): builds on demand when no
+ *   usable prebuilt manifest ships with the deploy, warmed by the on-disk
+ *   embedding cache when present.
  */
 async function resolveServerIndex(
   config: Config.Config,
   priv: LocalPrivateConfig,
 ): Promise<ServerIndex> {
-  // Only the Vite dev server (`NODE_ENV=development`) is load-only. Production
-  // runtime, `vocs embeddings generate`, and tests all build on demand.
+  const prebuilt = await loadPrebuiltIndex(config, priv)
+  if (typeof prebuilt !== 'string')
+    return { store: VectorStore.load(prebuilt.vectors), chunks: prebuilt.chunks }
+
   if (process.env['NODE_ENV'] === 'development') {
-    const manifest = await loadPrebuiltIndex(config, priv)
-    if (!manifest) return { store: VectorStore.load(VectorStore.pack([], 'float32')), chunks: [] }
-    return { store: VectorStore.load(manifest.vectors), chunks: manifest.chunks }
+    warnOnce(
+      indexCacheKey(config, priv),
+      prebuilt === 'missing'
+        ? '[vocs] No prebuilt AI search index found. Run `vocs embeddings generate` to enable AI search in dev. Falling back to keyword search.'
+        : '[vocs] Prebuilt AI search index is stale (embedding config changed). Run `vocs embeddings generate` to refresh. Falling back to keyword search.',
+    )
+    return { store: VectorStore.load(VectorStore.pack([], 'float32')), chunks: [] }
   }
+
   const manifest = await buildIndex(config)
   return { store: VectorStore.load(manifest.vectors), chunks: manifest.chunks }
 }
@@ -1329,18 +1348,22 @@ export async function retrieveLocal(
   // order so search never breaks.
   if (priv.reranker && candidates.length > 0) {
     try {
+      // Cap the pool to the reranker's per-request limit; candidates are
+      // vector-ordered, so the dropped tail is the least relevant.
+      const max = priv.reranker.maxBatchSize
+      const pool = max && candidates.length > max ? candidates.slice(0, max) : candidates
       // Feed the cross-encoder the same context the embedding saw — breadcrumb,
       // titles, and heading — not just the section body. Otherwise an exact
       // heading match (e.g. a "Stablecoin Issuance" landing page) is invisible
       // to the reranker and gets crowded out by prose that repeats the query.
-      const docs = candidates.map((c) => rerankText(c.meta))
+      const docs = pool.map((c) => rerankText(c.meta))
       const reranked = await priv.reranker.rerank(options.query, docs, {
-        topK: candidates.length,
+        topK: pool.length,
       })
       if (reranked.length > 0)
         candidates = reranked
           .map((r) => {
-            const c = candidates[r.index]
+            const c = pool[r.index]
             return c ? { meta: c.meta, score: r.score } : undefined
           })
           .filter((c): c is { meta: ChunkMetadata; score: number } => c !== undefined)
@@ -1419,16 +1442,17 @@ async function handleLocalSearchRequest(
   const limit =
     typeof body.limit === 'number' ? Math.max(1, Math.min(20, Math.floor(body.limit))) : undefined
 
-  // Kick off (or reuse) the in-process index. In production this is a cold
-  // build that embeds every chunk; in dev it just loads the prebuilt manifest.
-  // Either way we never block the request: if it isn't ready, respond with
-  // `indexing: true` and let the client keep showing keyword results (and retry
-  // shortly).
+  // Kick off (or reuse) the in-process index. This loads the prebuilt manifest
+  // when present and cold-builds otherwise — either way we never block the
+  // request: while pending, respond with `indexing: true` and let the client
+  // keep showing keyword results (and retry shortly). A failed build answers
+  // 503 (instead of 202) so the client stops polling; the entry is retried
+  // after a backoff.
   const index = ensureServerIndex(config)
-  if (!index.ready) {
-    index.promise.catch(() => {}) // avoid unhandled rejection on the background build
+  index.promise.catch(() => {}) // avoid unhandled rejection on the background build
+  if (index.status === 'error') return json({ error: 'Search failed' }, 503)
+  if (index.status === 'pending')
     return json({ results: [], indexing: true }, 202, { 'Cache-Control': 'no-store' })
-  }
 
   try {
     const t0 = Date.now()

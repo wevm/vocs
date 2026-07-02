@@ -84,18 +84,22 @@ describe('resolveManaged', () => {
     expect(resolved?.public.endpoint).toBe('/api/search')
   })
 
-  it('derives endpoint from basePath and resolves hybrid defaults', () => {
+  it('derives endpoint from basePath and defaults hybrid off', () => {
     const resolved = Retriever.resolveManaged(Retriever.from(adapter), { basePath: '/docs/' })
     expect(resolved?.public.endpoint).toBe('/docs/api/search')
     expect(resolved?.public.hybrid).toEqual({
-      enabled: true,
+      enabled: false,
       keywordWeight: 0.3,
       semanticWeight: 0.7,
     })
     expect(resolved?.private.topK).toBe(8)
   })
 
-  it('honors hybrid: false and custom weights/topK', () => {
+  it('honors hybrid true/false and custom weights/topK', () => {
+    expect(
+      Retriever.resolveManaged(Retriever.from(adapter, { hybrid: true }), ctx)?.public.hybrid
+        .enabled,
+    ).toBe(true)
     expect(
       Retriever.resolveManaged(Retriever.from(adapter, { hybrid: false }), ctx)?.public.hybrid
         .enabled,
@@ -333,6 +337,33 @@ describe('resolveLocal (config split)', () => {
     const resolved = Retriever.resolveLocal({ embedding: Embedding.mock() }, { basePath: '/docs/' })
     expect(resolved?.public.endpoint).toBe('/docs/api/search')
   })
+
+  it("coerces runtime: 'client' to 'server' (not implemented yet)", () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    try {
+      const resolved = Retriever.resolveLocal(
+        { embedding: Embedding.mock(), runtime: 'client' },
+        { basePath: '/' },
+      )
+      expect(resolved?.public.runtime).toBe('server')
+      expect(resolved?.private.runtime).toBe('server')
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining('not implemented'))
+    } finally {
+      warn.mockRestore()
+    }
+  })
+
+  it('clamps chunking overlap below maxCharacters', () => {
+    const resolved = Retriever.resolveLocal(
+      {
+        embedding: Embedding.mock(),
+        chunking: { maxCharacters: 100, overlapCharacters: 100 },
+      },
+      { basePath: '/' },
+    )
+    expect(resolved?.private.chunking.maxCharacters).toBe(100)
+    expect(resolved?.private.chunking.overlapCharacters).toBe(99)
+  })
 })
 
 describe('config integration', () => {
@@ -429,6 +460,19 @@ describe('chunk', () => {
         includeNav: false,
       }),
     ).toHaveLength(0)
+  })
+
+  it('terminates when overlap reaches maxCharacters (defensive stride)', () => {
+    const longDocs = [{ ...(docs[0] as (typeof docs)[number]), text: 'a'.repeat(500) }]
+    const chunks = Retriever.chunk(longDocs, {
+      maxCharacters: 100,
+      overlapCharacters: 100,
+      includeHeadings: false,
+      includeBreadcrumbs: false,
+      includeNav: false,
+    })
+    expect(chunks.length).toBeGreaterThan(0)
+    expect(chunks.length).toBeLessThanOrEqual(500)
   })
 })
 
@@ -609,6 +653,65 @@ describe('end-to-end (mock embedder)', () => {
       if (prev === undefined) delete process.env['NODE_ENV']
       else process.env['NODE_ENV'] = prev
     }
+  })
+
+  it('production prefers the prebuilt index over rebuilding', async () => {
+    const purposes: string[] = []
+    const inner = Embedding.mock({ dimensions: 64 })
+    const embedding = Embedding.from({
+      type: 'mock',
+      model: 'mock',
+      dimensions: 64,
+      async embed(input, context) {
+        purposes.push(context.purpose)
+        return inner.embed(input, context)
+      },
+    })
+    const config = Config.define({
+      rootDir: dir,
+      ai: { retriever: Retriever.local({ embedding, cache: false }) },
+    })
+
+    const manifest = await Retriever.buildIndex(config)
+    await Retriever.saveIndex(config, manifest)
+    Retriever._resetServerIndexCache()
+    purposes.length = 0
+
+    const results = await Retriever.retrieveLocal(config, { query: 'embeddings cache build time' })
+    expect(results.length).toBeGreaterThan(0)
+    // Only the query was embedded — the index came from the prebuilt manifest.
+    expect(purposes).toEqual(['query'])
+  })
+
+  it('answers 503 (not 202) after a failed index build, without instant rebuilds', async () => {
+    let attempts = 0
+    const embedding = Embedding.from({
+      type: 'boom',
+      model: 'boom',
+      async embed() {
+        attempts++
+        throw new Error('embedding unavailable')
+      },
+    })
+    const config = Config.define({
+      rootDir: dir,
+      ai: { retriever: Retriever.local({ embedding, cache: false }) },
+    })
+    const makeRequest = () =>
+      new Request('http://localhost/api/search', {
+        method: 'POST',
+        body: JSON.stringify({ query: 'installation' }),
+      })
+
+    // First request kicks off the build and reports indexing.
+    expect((await Retriever.handleSearchRequest(makeRequest(), config)).status).toBe(202)
+    await expect(Retriever.getServerIndex(config)).rejects.toThrow('embedding unavailable')
+
+    // Subsequent requests surface the failure and don't retrigger the build
+    // until the backoff elapses.
+    expect((await Retriever.handleSearchRequest(makeRequest(), config)).status).toBe(503)
+    expect((await Retriever.handleSearchRequest(makeRequest(), config)).status).toBe(503)
+    expect(attempts).toBe(1)
   })
 
   it('saveIndex/loadIndex round-trips the manifest', async () => {

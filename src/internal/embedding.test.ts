@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import * as Embedding from './embedding.js'
 
 describe('Embedding.mock', () => {
@@ -34,6 +34,40 @@ describe('adapter factories', () => {
     expect(Embedding.openaiCompatible({ baseUrl: 'http://x/v1', model: 'm' }).type).toBe(
       'openai-compatible',
     )
+  })
+
+  it('openai throws a clear error when the api key is missing', async () => {
+    vi.stubEnv('OPENAI_API_KEY', '')
+    try {
+      await expect(Embedding.openai().embed(['x'], { purpose: 'document' })).rejects.toThrow(
+        /OPENAI_API_KEY/,
+      )
+    } finally {
+      vi.unstubAllEnvs()
+    }
+  })
+
+  it('openaiCompatible stays keyless (local servers)', async () => {
+    vi.stubEnv('OPENAI_API_KEY', '')
+    const calls: { headers: Record<string, string> }[] = []
+    const original = globalThis.fetch
+    globalThis.fetch = (async (_url: string, init: RequestInit) => {
+      calls.push({ headers: init.headers as Record<string, string> })
+      return new Response(JSON.stringify({ data: [{ index: 0, embedding: [0, 1] }] }), {
+        status: 200,
+      })
+    }) as typeof fetch
+    try {
+      const adapter = Embedding.openaiCompatible({
+        baseUrl: 'http://localhost:1234/v1',
+        model: 'm',
+      })
+      await adapter.embed(['hi'], { purpose: 'document' })
+    } finally {
+      globalThis.fetch = original
+      vi.unstubAllEnvs()
+    }
+    expect(calls[0]?.headers['Authorization']).toBeUndefined()
   })
 
   it('openrouter tags the type and defaults the model slug', () => {

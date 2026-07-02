@@ -856,13 +856,14 @@ Built-ins: `Reranker.cloudflare()` and `Reranker.from()`.
 
 #### `Retriever.local.sources`
 
-- **Type:** `(string | { url: string; label?: string; weight?: number })[]`
+- **Type:** `(string | { url: string; label?: string; maxPages?: number; weight?: number })[]`
 
 External source URLs to embed alongside local docs. Each is fetched at build time and auto-expanded:
-a `sitemap.xml` → every page it lists, an `llms.txt` → every page it links, anything else → the page
-itself. Results link out to their absolute URL. `label` sets the result badge (defaults to the
-hostname); `weight` is a score multiplier relative to local docs (which are `1`), defaulting to
-`0.9`.
+a `sitemap.xml` → every page it lists, an `llms.txt` → every same-origin page it links (off-site
+links are ignored), anything else → the page itself. Results link out to their absolute URL. `label`
+sets the result badge (defaults to the hostname); `weight` is a score multiplier relative to local
+docs (which are `1`), defaulting to `0.9`; `maxPages` caps how many pages a source may expand to
+(default `1000`).
 
 #### `Retriever.local.chunking.maxCharacters`
 
@@ -912,7 +913,8 @@ disable. `ignore` (or `VOCS_AI_CACHE_IGNORE`) forces a full re-embed.
 - **Type:** `'auto' | 'server' | 'client'`
 - **Default:** `'server'`
 
-Where retrieval runs. `'auto'` resolves to `'server'`.
+Where retrieval runs. `'auto'` resolves to `'server'`. `'client'` is reserved and not implemented
+yet; it currently falls back to `'server'` with a warning.
 
 #### `Retriever.local.vectorStore`
 
@@ -925,7 +927,7 @@ custom adapter with `VectorStore.from()`.
 ### `Retriever.cloudflare`
 
 Creates a **managed** retriever backed by Cloudflare AI Search. Set it as `ai.retriever` to delegate
-retrieval to the backend (queried at runtime, then fused with keyword search) with no build-time
+retrieval to the backend (queried at runtime, then blended with keyword search) with no build-time
 embedding step. Kept **server-side only**.
 
 ```ts

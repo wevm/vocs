@@ -5,12 +5,14 @@
  * embedded alongside the site's own docs. URLs are auto-expanded:
  *
  * - a `sitemap.xml` (or sitemap-index) → every `<loc>` page it lists
- * - an `llms.txt` → every page linked from it
+ * - an `llms.txt` → every same-origin page linked from it (llms files routinely
+ *   link out to GitHub/socials; those must not be crawled into the index)
  * - anything else → the page itself
  *
- * Sources are bounded: they never recursively follow in-page links. The URL set
- * comes entirely from the entrypoints you list. For live recursive crawling, use
- * a managed retriever (`Retriever.cloudflare`) instead.
+ * Sources are bounded: they never recursively follow in-page links, and each
+ * source expands to at most `maxPages` pages. The URL set comes entirely from
+ * the entrypoints you list. For live recursive crawling, use a managed
+ * retriever (`Retriever.cloudflare`) instead.
  *
  * External documents keep their absolute `href`, so search results link out (and
  * render the external-link icon in the search dialog).
@@ -27,6 +29,8 @@ import * as Markdown from './markdown.js'
 export type Source = {
   /** Display label for results from this source. Defaults to the hostname. */
   label?: string | undefined
+  /** Max pages this source may expand to. Excess is dropped with a warning. @default 1000 */
+  maxPages?: number | undefined
   /** Sitemap / `llms.txt` / page URL to fetch and embed. */
   url: string
   /**
@@ -84,13 +88,20 @@ export async function load(
   const expanded = await Promise.all(
     normalized.map(async (source) => {
       try {
-        if (isSitemap(source.url))
-          return { source, urls: await collectSitemapUrls(source.url, signal) }
-        if (isLlmsTxt(source.url)) {
-          const body = await fetchText(source.url, signal)
-          return { source, urls: parseLlmsTxt(body, source.url) }
-        }
-        return { source, urls: [source.url] }
+        const urls = await (async () => {
+          if (isSitemap(source.url)) return collectSitemapUrls(source.url, signal)
+          if (isLlmsTxt(source.url)) {
+            const body = await fetchText(source.url, signal)
+            return parseLlmsTxt(body, source.url)
+          }
+          return [source.url]
+        })()
+        const max = source.maxPages ?? defaultMaxPages
+        if (urls.length > max)
+          console.warn(
+            `[vocs] RetrieverSource: ${source.url} expanded to ${urls.length} pages; indexing the first ${max}. Raise \`maxPages\` to index more.`,
+          )
+        return { source, urls: urls.slice(0, max) }
       } catch (error) {
         warn(source.url, error)
         return { source, urls: [] as string[] }
@@ -111,6 +122,9 @@ export async function load(
 
   return fetchDocuments(urls, { concurrency, meta, onProgress, signal })
 }
+
+/** Cap on pages a single source may expand to (see {@link Source.maxPages}). */
+const defaultMaxPages = 1000
 
 function isSitemap(url: string): boolean {
   return /\.xml(\?|#|$)/i.test(url) || /\/sitemap[^/]*$/i.test(url)
@@ -164,10 +178,14 @@ function warn(url: string, error: unknown): void {
   )
 }
 
+/** Per-request timeout so one hung server can't stall the whole build. */
+const fetchTimeoutMs = 30_000
+
 async function fetchText(target: string, signal: AbortSignal | undefined): Promise<string> {
+  const timeout = AbortSignal.timeout(fetchTimeoutMs)
   const response = await fetch(target, {
     headers: { 'User-Agent': 'vocs' },
-    signal: signal ?? null,
+    signal: signal ? AbortSignal.any([signal, timeout]) : timeout,
   })
   if (!response.ok) throw new Error(`fetch failed (${response.status})`)
   return response.text()
@@ -205,16 +223,21 @@ export function parseSitemapLocs(xml: string): string[] {
   return out
 }
 
-/** Extracts link URLs from an `llms.txt` file (Markdown links + bare URLs). */
+/**
+ * Extracts link URLs from an `llms.txt` file (Markdown links + bare URLs).
+ * Only same-origin links are kept: llms files routinely link out to GitHub,
+ * socials, and related projects, and those must not be crawled into the index.
+ */
 export function parseLlmsTxt(text: string, baseUrl: string): string[] {
+  const origin = urlOrigin(baseUrl)
   const seen = new Set<string>()
   const out: string[] = []
   const add = (raw: string) => {
     const resolved = resolveUrl(raw, baseUrl)
-    if (resolved && !seen.has(resolved)) {
-      seen.add(resolved)
-      out.push(resolved)
-    }
+    if (!resolved || seen.has(resolved)) return
+    if (origin && urlOrigin(resolved) !== origin) return
+    seen.add(resolved)
+    out.push(resolved)
   }
 
   // Markdown links: [text](url)
@@ -239,6 +262,14 @@ export function parseLlmsTxt(text: string, baseUrl: string): string[] {
 function resolveUrl(raw: string, baseUrl: string): string | undefined {
   try {
     return new URL(raw, baseUrl).href
+  } catch {
+    return undefined
+  }
+}
+
+function urlOrigin(url: string): string | undefined {
+  try {
+    return new URL(url).origin
   } catch {
     return undefined
   }

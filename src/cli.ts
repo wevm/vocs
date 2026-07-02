@@ -43,7 +43,7 @@ cli
   .command('build', 'Build for production')
   .option('--no-embeddings', 'Skip building the search embeddings')
   .action(async (options: { embeddings: boolean }) => {
-    if (options.embeddings === false) process.env['VOCS_SKIP_SEARCH_INDEX'] = 'true'
+    if (options.embeddings === false) process.env['VOCS_SKIP_EMBEDDINGS'] = 'true'
 
     const config = await Config.resolve()
     const builder = await vite.createBuilder({

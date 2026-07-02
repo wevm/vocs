@@ -132,7 +132,14 @@ The manifest is written to `.vocs`'s cache. `vocs dev` loads that prebuilt index
 
 #### Deploy
 
-Ship as usual. The server endpoint (`/api/search` by default) embeds each query and searches the packed vector store. If the index is still warming up, the dialog quietly falls back to keyword results.
+The server endpoint (`/api/search` by default) embeds each query and searches the packed vector store. Two things must be available to the server at runtime:
+
+- The embedding provider's credentials (e.g. `OPENAI_API_KEY`), since each query is embedded on the fly.
+- The `.vocs` cache directory, which holds the prebuilt index from `vocs build` / `vocs embeddings generate`. Without it, the first request per server instance rebuilds the index in-process (refetching external sources and re-embedding uncached chunks) while the dialog falls back to keyword results.
+
+:::warning
+`/api/search` is public, and each request spends an embedding (plus optional rerank) call on your provider account. If abuse is a concern, rate limit the endpoint at your edge or CDN.
+:::
 
 ::::
 
@@ -210,7 +217,7 @@ If the reranker call fails, search **fails open** to the vector order, so result
 
 ### Index external sources
 
-Embed other sites alongside your docs so their pages surface in search and link out to their absolute URL. Each URL is fetched at build time and auto-expanded: a `sitemap.xml` → every page it lists, an `llms.txt` → every page it links, anything else → the page itself.
+Embed other sites alongside your docs so their pages surface in search and link out to their absolute URL. Each URL is fetched at build time and auto-expanded: a `sitemap.xml` → every page it lists, an `llms.txt` → every same-origin page it links (off-site links are ignored), anything else → the page itself. Each source expands to at most 1,000 pages; raise `maxPages` per source to index more.
 
 ```ts twoslash
 // [!code word:sources]
@@ -307,7 +314,7 @@ A common setup is to build embeddings on a schedule (cron/CI) and skip them on r
 
 ### Use a managed retriever instead
 
-To delegate retrieval to a managed backend instead of owning the index, set `ai.retriever` to a managed adapter like `Retriever.cloudflare`. Vocs queries it at runtime (`/api/search`) and fuses the results with keyword search.
+To delegate retrieval to a managed backend instead of owning the index, set `ai.retriever` to a managed adapter like `Retriever.cloudflare`. Vocs queries it at runtime (`/api/search`) and blends the results with keyword search (appended below by default; enable `hybrid` to fuse them into a single ranking).
 
 ```ts twoslash
 // [!code word:cloudflare]

@@ -31,7 +31,7 @@ export type RerankResult = {
 }
 
 export type Adapter = {
-  /** Maximum documents per request. The caller batches by this value. */
+  /** Maximum documents per request. Callers cap the candidate pool to this value. */
   maxBatchSize?: number | undefined
   /** Model identifier used for reranking. */
   model: string

@@ -179,7 +179,9 @@ export function toHtml(markdown: string): string {
 }
 
 /**
- * Lazily loads the MDX/frontmatter parser stack used by {@link toText}.
+ * Lazily builds the MDX/frontmatter text-extraction stack used by
+ * {@link toText}: the parser deps plus two reusable processors (MDX and plain
+ * CommonMark). Memoized so the imports and processor construction happen once.
  *
  * These packages (`remark-frontmatter`, `remark-mdx`, `remark-directive`,
  * `mdast-util-to-string`) are heavy and, in `remark-frontmatter`'s case, drag in
@@ -189,15 +191,42 @@ export function toHtml(markdown: string): string {
  * they're loaded on demand here (and only ever on the server / during indexing)
  * instead of at the top of this module.
  */
-async function loadTextDeps() {
+async function createTextStack() {
   const [remarkDirective, remarkFrontmatter, remarkMdx, mdastToString] = await Promise.all([
     import('remark-directive').then((m) => m.default),
     import('remark-frontmatter').then((m) => m.default),
     import('remark-mdx').then((m) => m.default),
     import('mdast-util-to-string').then((m) => m.toString),
   ])
-  return { mdastToString, remarkDirective, remarkFrontmatter, remarkMdx }
+
+  const build = (mdx: boolean) => {
+    const base = mdx ? unified().use(remarkParse).use(remarkMdx) : unified().use(remarkParse)
+    return base
+      .use(remarkFrontmatter)
+      .use(remarkDirective)
+      .use(remarkGfm)
+      .use(stripFrontmatter)
+      .use(stripJsx)
+      .use(stripDirectives)
+  }
+  const processors = { md: build(false), mdx: build(true) }
+
+  return {
+    mdastToString,
+    parse(markdown: string, mode: 'md' | 'mdx'): Mdast.Root | undefined {
+      try {
+        const processor = processors[mode]
+        const tree = processor.parse(markdown)
+        processor.runSync(tree)
+        return tree
+      } catch {
+        return undefined
+      }
+    },
+  }
 }
+
+let textStack: ReturnType<typeof createTextStack> | undefined
 
 /**
  * Reduces a Markdown/MDX string to plain text suitable for search indexing and
@@ -209,49 +238,27 @@ async function loadTextDeps() {
  * AI search sources.
  *
  * Async because it lazily loads the MDX/frontmatter parser stack (see
- * {@link loadTextDeps}) rather than importing it at module scope, which would
- * leak heavy server-only deps into any client that imports {@link toHtml}.
+ * {@link createTextStack}) rather than importing it at module scope, which
+ * would leak heavy server-only deps into any client that imports {@link toHtml}.
  */
 export async function toText(markdown: string | undefined): Promise<string> {
   if (!markdown) return ''
 
-  const deps = await loadTextDeps()
+  textStack ??= createTextStack()
+  const { mdastToString, parse } = await textStack
 
   // MDX first (handles JSX in the site's own docs); fall back to plain
   // CommonMark for external sources whose `.md` isn't valid MDX.
-  const tree = parseToText(markdown, true, deps) ?? parseToText(markdown, false, deps)
+  const tree = parse(markdown, 'mdx') ?? parse(markdown, 'md')
   if (!tree) return ''
 
   // Serialize per top-level block so adjacent blocks keep a word boundary
   // (mdast-util-to-string joins siblings without separators otherwise).
   return tree.children
-    .map((node) => deps.mdastToString(node))
+    .map((node) => mdastToString(node))
     .join(' ')
     .replace(/\s+/g, ' ')
     .trim()
-}
-
-function parseToText(
-  markdown: string,
-  mdx: boolean,
-  deps: Awaited<ReturnType<typeof loadTextDeps>>,
-): Mdast.Root | undefined {
-  try {
-    const base = mdx ? unified().use(remarkParse).use(deps.remarkMdx) : unified().use(remarkParse)
-    const proc = base
-      .use(deps.remarkFrontmatter)
-      .use(deps.remarkDirective)
-      .use(remarkGfm)
-      .use(stripFrontmatter)
-      .use(stripJsx)
-      .use(stripDirectives)
-
-    const tree = proc.parse(markdown)
-    proc.runSync(tree)
-    return tree
-  } catch {
-    return undefined
-  }
 }
 
 /** Removes YAML/TOML frontmatter nodes so their keys don't leak into text. */
