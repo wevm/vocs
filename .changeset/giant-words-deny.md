@@ -2,4 +2,4 @@
 "vocs": patch
 ---
 
-Fixed changelog `Versions` links navigating to the site root instead of scrolling to the release when `baseUrl` is set.
+Fixed changelog version links, the skip-to-content link, and OpenAPI heading anchors navigating to the site root when `baseUrl` is set.
