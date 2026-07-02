@@ -1,5 +1,16 @@
 # vocs
 
+## 2.3.0
+
+### Minor Changes
+
+- ab6ef26: Added opt-in AI search via `ai.retriever`.
+
+### Patch Changes
+
+- 850bda1: Fixed static `.md` files in `public/` being shadowed by markdown-twin routing.
+- 77aa310: Added a direct `es-module-lexer@^2.3.0` dependency to prevent installs from resolving the broken `2.2.0` release ([guybedford/es-module-lexer#214](https://github.com/guybedford/es-module-lexer/issues/214)).
+
 ## 2.2.5
 
 ### Patch Changes
