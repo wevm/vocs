@@ -1,4 +1,5 @@
 import LucideLink from '~icons/lucide/link'
+import { Link } from '../../Link.js'
 
 /**
  * A copy-link anchor appended to an OpenAPI heading. Reuses the markdown
@@ -8,14 +9,14 @@ import LucideLink from '~icons/lucide/link'
  */
 export function HeadingAnchor(props: HeadingAnchor.Props) {
   return (
-    <a
-      href={`#${props.id}`}
+    <Link
+      to={`#${props.id}`}
       className={`heading-anchor${props.className ? ` ${props.className}` : ''}`}
       aria-label="Copy link and go to this section"
       title="Copy link and go to this section"
     >
       <LucideLink className="heading-anchor-icon vocs:size-[0.75em]" />
-    </a>
+    </Link>
   )
 }
 

@@ -12,6 +12,7 @@ import {
   deadLinks,
   getCompileOptions,
   recmaMdxLayout,
+  rehypeHeadingAnchors,
   rehypeLinks,
   remarkChangelog,
   remarkCodeTitle,
@@ -669,5 +670,66 @@ describe('rehypeLinks', () => {
 
     deadLinks.delete(vfile.path)
     OpenApiRegistry.invalidate()
+  })
+})
+
+describe('rehypeHeadingAnchors', () => {
+  function headingAnchor(
+    href: string,
+    properties: Record<string, unknown> = { className: ['heading-anchor'] },
+  ) {
+    return {
+      type: 'element' as const,
+      tagName: 'a',
+      properties: { ...properties, href } as Record<string, unknown>,
+      children: [],
+    }
+  }
+
+  function run(anchors: ReturnType<typeof headingAnchor>[], filePath: string) {
+    const config = Config.define({ rootDir: process.cwd() })
+    const tree = { type: 'root' as const, children: anchors }
+    const vfile = { path: path.join(process.cwd(), filePath) }
+    rehypeHeadingAnchors(config)()(tree as never, vfile as never)
+  }
+
+  it('resolves hash-only hrefs against the page path', () => {
+    const anchor = headingAnchor('#overview')
+    run([anchor], 'src/pages/guide/getting-started.mdx')
+    expect(anchor.properties['href']).toBe('/guide/getting-started#overview')
+  })
+
+  it('resolves index pages to their directory path', () => {
+    const nested = headingAnchor('#overview')
+    run([nested], 'src/pages/guide/index.mdx')
+    expect(nested.properties['href']).toBe('/guide#overview')
+
+    const root = headingAnchor('#overview')
+    run([root], 'src/pages/index.md')
+    expect(root.properties['href']).toBe('/#overview')
+  })
+
+  it('ignores anchors without the heading-anchor class', () => {
+    const anchor = headingAnchor('#overview', {})
+    run([anchor], 'src/pages/guide/getting-started.mdx')
+    expect(anchor.properties['href']).toBe('#overview')
+  })
+
+  it('ignores non-hash hrefs', () => {
+    const anchor = headingAnchor('/other-page#overview')
+    run([anchor], 'src/pages/guide/getting-started.mdx')
+    expect(anchor.properties['href']).toBe('/other-page#overview')
+  })
+
+  it('ignores files outside the pages directory', () => {
+    const anchor = headingAnchor('#overview')
+    run([anchor], 'other/getting-started.mdx')
+    expect(anchor.properties['href']).toBe('#overview')
+  })
+
+  it('ignores pages with dynamic segments', () => {
+    const anchor = headingAnchor('#overview')
+    run([anchor], 'src/pages/blog/[slug].mdx')
+    expect(anchor.properties['href']).toBe('#overview')
   })
 })

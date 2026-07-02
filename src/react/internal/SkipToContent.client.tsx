@@ -1,11 +1,17 @@
 'use client'
 
 import { cx } from 'cva'
+import { useRouter } from 'waku'
 
 export function SkipToContent(props: SkipToContent.Props) {
   const { className } = props
+  const { path } = useRouter()
 
   return (
+    // Native anchor (not the router `Link`) so fragment navigation moves the
+    // browser's sequential-focus point into the content — the whole point of
+    // a skip link. The href carries the page path because a hash-only href
+    // would resolve against the `<base>` tag and navigate to the site root.
     <a
       className={cx(
         'vocs:fixed vocs:top-3 vocs:left-3 vocs:z-50',
@@ -19,7 +25,7 @@ export function SkipToContent(props: SkipToContent.Props) {
         className,
       )}
       data-v-skip-to-content
-      href="#vocs-content"
+      href={`${path.split('#')[0]}#vocs-content`}
     >
       Skip to content
     </a>
