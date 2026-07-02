@@ -511,6 +511,21 @@ const a = 1
       expect(content).not.toContain('vocs@2.0.0')
     })
 
+    test('falls back to the default on a malformed limit', async () => {
+      const result = await buildLlmsContent({
+        pages: [{ ...page, content: '---\ntitle: Changelog\n---\n\n::changelog{limit=abc}' }],
+        title: 'My Docs',
+        ...withChangelog(adapter),
+      })
+
+      // Behaves like no limit: all releases render.
+      const content = result.results[0]?.content ?? ''
+      expect(content).not.toContain('::changelog')
+      expect(content).toContain('## vocs@2.1.0 (2026-06-02)')
+      expect(content).toContain('## vocs@2.0.0 — Big Bang (2026-05-01)')
+      expect(content).toContain('## vocs@1.9.0 (2026-04-01)')
+    })
+
     test('replaces multiple directives on one page independently', async () => {
       const result = await buildLlmsContent({
         pages: [

@@ -1511,7 +1511,9 @@ export function remarkChangelogMarkdown(
     UnistUtil.visit(tree, 'leafDirective', (node, index, parent) => {
       if (node.name !== 'changelog') return
       if (index === undefined || !parent) return
-      const limit = node.attributes?.['limit'] ? Number.parseInt(node.attributes['limit'], 10) : 999
+      // Malformed limits (NaN, zero, negative) fall back to the default.
+      const parsed = Number.parseInt(node.attributes?.['limit'] ?? '', 10)
+      const limit = Number.isInteger(parsed) && parsed > 0 ? parsed : 999
       found.push({ index, limit, parent })
     })
     if (found.length === 0) return
