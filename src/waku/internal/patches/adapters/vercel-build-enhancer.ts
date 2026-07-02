@@ -28,25 +28,32 @@ function markdownRoutes({
     .map(escapeRegExp)
     .join('|')}).*`
 
-  // Vercel's filesystem handler would serve prerendered HTML before mdRouter sees
-  // the request. Route markdown-eligible clean URLs to RSC first so mdRouter can
-  // choose markdown or HTML.
-  return [
-    {
-      src: markdownSource,
-      dest: destination,
-    },
-    {
-      src: cleanPageSource,
-      has: [{ type: 'header', key: 'accept', value: '.*text/markdown.*' }],
-      dest: destination,
-    },
-    {
-      src: cleanPageSource,
-      has: [{ type: 'header', key: 'user-agent', value: markdownUserAgentPattern }],
-      dest: destination,
-    },
-  ]
+  return {
+    // Vercel's filesystem handler would serve prerendered HTML before mdRouter sees
+    // the request. Route markdown-eligible clean URLs to RSC first so mdRouter can
+    // choose markdown or HTML.
+    beforeFilesystem: [
+      {
+        src: cleanPageSource,
+        has: [{ type: 'header', key: 'accept', value: '.*text/markdown.*' }],
+        dest: destination,
+      },
+      {
+        src: cleanPageSource,
+        has: [{ type: 'header', key: 'user-agent', value: markdownUserAgentPattern }],
+        dest: destination,
+      },
+    ],
+    // `.md` URLs reach RSC only after the filesystem handler misses, so `public/*.md`
+    // files are served as-is. Markdown twins live at `/assets/md/`, never in the
+    // static output root, so they still fall through to twin resolution.
+    afterFilesystem: [
+      {
+        src: markdownSource,
+        dest: destination,
+      },
+    ],
+  }
 }
 
 async function postBuild({
@@ -110,6 +117,7 @@ export default getRequestListener(
     )
   }
 
+  const markdown = markdownRoutes({ assetsDir, basePath, rscBase })
   const routes = [
     {
       src: `^${basePath}${assetsDir}/(.*)$`,
@@ -119,8 +127,9 @@ export default getRequestListener(
     },
     ...(serverless
       ? [
-          ...markdownRoutes({ assetsDir, basePath, rscBase }),
+          ...markdown.beforeFilesystem,
           { handle: 'filesystem' },
+          ...markdown.afterFilesystem,
           {
             src: basePath + '(.*)',
             dest: basePath + rscBase + '/',

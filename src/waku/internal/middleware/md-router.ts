@@ -49,6 +49,32 @@ export async function fetchMarkdown(url: URL, assetPath: string, cookie?: string
   return response.text()
 }
 
+/** Whether an exact file for `pathname` exists in the `public/` (dev) or static output (build) directory. */
+async function hasPublicFile(pathname: string) {
+  const relativePath = pathname.replace(/^\//, '')
+  if (!relativePath) return false
+  try {
+    const fs = await import('node:fs/promises')
+    const path = await import('node:path')
+
+    let publicDir: string
+    if (isDev) {
+      const Config = await import('../../../internal/config.js')
+      const config = await Config.resolve({ server: true })
+      publicDir = path.resolve(config.rootDir, 'public')
+    } else {
+      const { fileURLToPath } = await import('node:url')
+      const distDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
+      publicDir = path.join(distDir, 'public')
+    }
+
+    const stats = await fs.stat(path.join(publicDir, relativePath))
+    return stats.isFile()
+  } catch {
+    return false
+  }
+}
+
 export function middleware(): MiddlewareHandler {
   return async (context, next) => {
     const url = new URL(context.req.url)
@@ -86,6 +112,10 @@ export function middleware(): MiddlewareHandler {
     }
 
     const isMarkdownRequest = url.pathname.endsWith('.md')
+
+    // A file physically present in `public/` wins over markdown-twin resolution,
+    // so static `.md` files (skill manifests, plain markdown) are served as-is.
+    if (isMarkdownRequest && (await hasPublicFile(url.pathname))) return next()
 
     // Static assets (`.json`, `.svg`, `.png`, ...) have no markdown twin. Skip
     // twin resolution so a disk miss never falls back to a slow self-fetch.
