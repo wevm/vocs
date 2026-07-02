@@ -25,6 +25,10 @@ catalog:
 overrides:
   '@vocs/twoslash-rust': workspace:*
   create-vocs: workspace:*
+  # es-module-lexer@2.2.0 cannot parse sources over ~4MB ("WebAssembly.Memory.grow():
+  # Maximum memory size exceeded"), crashing plugin-rsc's scan build on large modules
+  # (e.g. iconify JSON). https://github.com/guybedford/es-module-lexer/issues/214
+  es-module-lexer: ^2.3.0
   # Pin a single `yaml` version. `yaml` is an optional peer dep of vite, so
   # multiple versions fork vite/waku/plugin-rsc into separate peer-resolved
   # instances, which breaks `instanceof RunnableDevEnvironment` checks
