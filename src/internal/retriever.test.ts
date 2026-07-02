@@ -84,11 +84,11 @@ describe('resolveManaged', () => {
     expect(resolved?.public.endpoint).toBe('/api/search')
   })
 
-  it('derives endpoint from basePath and defaults hybrid off', () => {
+  it('derives endpoint from basePath and defaults hybrid on', () => {
     const resolved = Retriever.resolveManaged(Retriever.from(adapter), { basePath: '/docs/' })
     expect(resolved?.public.endpoint).toBe('/docs/api/search')
     expect(resolved?.public.hybrid).toEqual({
-      enabled: false,
+      enabled: true,
       keywordWeight: 0.3,
       semanticWeight: 0.7,
     })
@@ -356,6 +356,14 @@ describe('resolveLocal (config split)', () => {
     expect(resolved?.public.enabled).toBe(true)
     expect(resolved?.public.runtime).toBe('server')
     expect(resolved?.public.endpoint).toBe('/api/search')
+    // Hybrid fusion is on by default; `hybrid: false` opts into append mode.
+    expect(resolved?.public.hybrid.enabled).toBe(true)
+    expect(
+      Retriever.resolveLocal(
+        { embedding: Embedding.mock(), retrieval: { hybrid: false } },
+        { basePath: '/' },
+      )?.public.hybrid.enabled,
+    ).toBe(false)
     // adapters live only in the private half
     expect(resolved?.private.embedding.type).toBe('mock')
     expect(resolved?.public).not.toHaveProperty('embedding')
