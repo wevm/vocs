@@ -27,7 +27,6 @@ export {
   transformerNotationDiff as notationDiff,
   transformerNotationFocus as notationFocus,
   transformerNotationHighlight as notationHighlight,
-  transformerNotationWordHighlight as notationWordHighlight,
 } from '@shikijs/transformers'
 
 const notationBlockStartRegex =
@@ -498,6 +497,113 @@ export function lineNumbers(): ShikiTransformer {
     /\s*\[!code line-numbers\]/,
     function () {
       this.addClassToHast(this.code, 'line-numbers')
+      return true
+    },
+    'v3',
+  )
+}
+
+/**
+ * Word-highlight notation (`[!code word:foo]`, `[!code word:foo:N]`).
+ *
+ * Replaces `transformerNotationWordHighlight` from `@shikijs/transformers`,
+ * which measures line offsets over plain `span > text` tokens only. The
+ * twoslash transformer runs earlier and replaces hover targets' children with
+ * elements, so upstream counts them as zero-width and highlights the
+ * neighboring tokens. This version measures every token's recursive text and
+ * classes wrapped tokens whole instead of splitting them.
+ */
+export function notationWordHighlight(): ShikiTransformer {
+  type Element = import('hast').Element
+  type ElementContent = import('hast').ElementContent
+  type Text = import('hast').Text
+
+  const className = 'highlighted-word'
+
+  // Rendered code text of a node. Twoslash popup containers carry the code as
+  // their first child followed by popup markup (type info, docs), which must
+  // not count toward line offsets; completion/meta nodes are popup-only.
+  function textOf(node: ElementContent): string {
+    if (node.type === 'text') return node.value
+    if (node.type !== 'element') return ''
+    const cls = node.properties?.['class']
+    const classes = Array.isArray(cls) ? cls.join(' ') : String(cls ?? '')
+    if (classes.includes('twoslash-popup-container')) {
+      const code = node.children[0]
+      return code ? textOf(code) : ''
+    }
+    if (classes.includes('twoslash-completions') || classes.includes('twoslash-meta-line'))
+      return ''
+    return node.children.map(textOf).join('')
+  }
+
+  function splitToken(span: Element, text: string, index: number, length: number) {
+    const clone = (value: string): Element => ({
+      ...span,
+      properties: { ...span.properties },
+      children: [{ type: 'text', value }],
+    })
+    return [
+      index > 0 ? clone(text.slice(0, index)) : undefined,
+      clone(text.slice(index, index + length)),
+      index + length < text.length ? clone(text.slice(index + length)) : undefined,
+    ] as const
+  }
+
+  // Applies `className` to the matched range [start, start + length) of a
+  // line. Simple `span > text` tokens are split around the match; tokens with
+  // element children (e.g. twoslash hover wrappers) are classed whole.
+  function highlightRange(line: Element, ignored: ElementContent, start: number, length: number) {
+    const end = start + length
+    let pos = 0
+    for (let i = 0; i < line.children.length; i++) {
+      const child = line.children[i]
+      if (!child || child === ignored) continue
+      const width = textOf(child).length
+      const childStart = pos
+      pos += width
+      if (width === 0 || child.type !== 'element') continue
+      if (childStart + width <= start || childStart >= end) continue
+      const textNode =
+        child.children.length === 1 && child.children[0]?.type === 'text'
+          ? (child.children[0] as Text)
+          : undefined
+      if (!textNode) {
+        addClassToHast(child, className)
+        continue
+      }
+      const from = Math.max(0, start - childStart)
+      const matchLength = Math.min(end, childStart + width) - (childStart + from)
+      if (matchLength <= 0) continue
+      const parts = splitToken(child, textNode.value, from, matchLength)
+      addClassToHast(parts[1], className)
+      const output = parts.filter((part): part is Element => part !== undefined)
+      line.children.splice(i, 1, ...output)
+      i += output.length - 1
+    }
+  }
+
+  return createCommentNotationTransformer(
+    'vocs:notation-word-highlight',
+    /\s*\[!code word:((?:\\.|[^:\]])+)(:\d+)?\]/,
+    (match, _line, comment, lines, index) => {
+      const [, rawWord, range] = match
+      if (!rawWord) return false
+      const word = rawWord.replace(/\\(.)/g, '$1')
+      const lineCount = range ? Number.parseInt(range.slice(1), 10) : lines.length
+      for (let i = index; i < Math.min(index + lineCount, lines.length); i++) {
+        const line = lines[i]
+        if (!line) continue
+        const content = line.children
+          .filter((child) => child !== comment)
+          .map(textOf)
+          .join('')
+        let at = content.indexOf(word)
+        while (at !== -1) {
+          highlightRange(line, comment, at, word.length)
+          at = content.indexOf(word, at + 1)
+        }
+      }
       return true
     },
     'v3',
