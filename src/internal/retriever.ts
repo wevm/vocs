@@ -440,6 +440,14 @@ export function fromConfig(config: Config.Config): PublicConfig | undefined {
 }
 
 /**
+ * Loads a prebuilt {@link IndexManifest} from outside the module — e.g. the
+ * manifest baked into the server bundle at build time (see the
+ * `virtual:vocs/ai-search-manifest` module). Returning `undefined` falls back
+ * to the on-disk manifest, then to an in-process build.
+ */
+export type ManifestLoader = () => Promise<IndexManifest | undefined>
+
+/**
  * Handles `POST /api/search`. Framework-agnostic (Web Request/Response).
  *
  * Dispatches to whichever provider is configured — the self-owned local vector
@@ -449,10 +457,18 @@ export function fromConfig(config: Config.Config): PublicConfig | undefined {
 export async function handleSearchRequest(
   request: Request,
   config: Config.Config,
+  options: handleSearchRequest.Options = {},
 ): Promise<Response> {
-  if (config._localRetriever) return handleLocalSearchRequest(request, config)
+  if (config._localRetriever) return handleLocalSearchRequest(request, config, options)
   if (config._retriever) return handleManagedSearchRequest(request, config)
   return json({ error: 'AI search not enabled' }, 404)
+}
+
+export declare namespace handleSearchRequest {
+  type Options = {
+    /** Source of the prebuilt manifest (e.g. baked into the server bundle). */
+    loadManifest?: ManifestLoader | undefined
+  }
 }
 
 //
@@ -1091,6 +1107,16 @@ export async function loadIndex(config: Config.Config): Promise<IndexManifest | 
   }
 }
 
+/** Whether a manifest no longer matches the configured embedding. */
+function isStale(manifest: IndexManifest, priv: LocalPrivateConfig): boolean {
+  return (
+    manifest.embedding.type !== priv.embedding.type ||
+    manifest.embedding.model !== priv.embedding.model ||
+    (priv.embedding.dimensions !== undefined &&
+      manifest.embedding.dimensions !== priv.embedding.dimensions)
+  )
+}
+
 /**
  * Loads the prebuilt manifest and validates it against the current embedding
  * config. Returns the manifest, or the reason it can't be used.
@@ -1101,12 +1127,7 @@ async function loadPrebuiltIndex(
 ): Promise<IndexManifest | 'missing' | 'stale'> {
   const manifest = await loadIndex(config)
   if (!manifest) return 'missing'
-  const stale =
-    manifest.embedding.type !== priv.embedding.type ||
-    manifest.embedding.model !== priv.embedding.model ||
-    (priv.embedding.dimensions !== undefined &&
-      manifest.embedding.dimensions !== priv.embedding.dimensions)
-  if (stale) return 'stale'
+  if (isStale(manifest, priv)) return 'stale'
   return manifest
 }
 
@@ -1205,7 +1226,10 @@ function indexCacheKey(config: Config.Config, priv: LocalPrivateConfig): string 
  * A failed build is kept (as `'error'`) for {@link failedBuildRetryMs} before
  * it may be retried, so client polling can't trigger a rebuild per request.
  */
-export function ensureServerIndex(config: Config.Config): ServerIndexEntry {
+export function ensureServerIndex(
+  config: Config.Config,
+  options: ensureServerIndex.Options = {},
+): ServerIndexEntry {
   const priv = requireLocal(config)
   const cacheKey = indexCacheKey(config, priv)
   let entry = serverIndexCache.get(cacheKey)
@@ -1215,7 +1239,7 @@ export function ensureServerIndex(config: Config.Config): ServerIndexEntry {
   }
   if (!entry) {
     const created: ServerIndexEntry = { status: 'pending', promise: undefined as never }
-    created.promise = resolveServerIndex(config, priv)
+    created.promise = resolveServerIndex(config, priv, options.loadManifest)
       .then((index) => {
         created.status = 'ready'
         return index
@@ -1223,12 +1247,20 @@ export function ensureServerIndex(config: Config.Config): ServerIndexEntry {
       .catch((error) => {
         created.status = 'error'
         created.failedAt = Date.now()
+        console.error('[vocs] AI search index build failed:', error)
         throw error
       })
     entry = created
     serverIndexCache.set(cacheKey, entry)
   }
   return entry
+}
+
+export declare namespace ensureServerIndex {
+  type Options = {
+    /** Source of the prebuilt manifest (e.g. baked into the server bundle). */
+    loadManifest?: ManifestLoader | undefined
+  }
 }
 
 /**
@@ -1248,7 +1280,21 @@ export function ensureServerIndex(config: Config.Config): ServerIndexEntry {
 async function resolveServerIndex(
   config: Config.Config,
   priv: LocalPrivateConfig,
+  loadManifest?: ManifestLoader | undefined,
 ): Promise<ServerIndex> {
+  // Baked-in manifest first (emitted into the server bundle at build time) —
+  // serverless filesystems don't carry the cache directory or source pages, so
+  // this is the only source that works everywhere.
+  if (loadManifest) {
+    try {
+      const manifest = await loadManifest()
+      if (manifest && !isStale(manifest, priv))
+        return { store: VectorStore.load(manifest.vectors), chunks: manifest.chunks }
+    } catch (error) {
+      console.warn('[vocs] failed to load bundled AI search manifest:', error)
+    }
+  }
+
   const prebuilt = await loadPrebuiltIndex(config, priv)
   if (typeof prebuilt !== 'string')
     return { store: VectorStore.load(prebuilt.vectors), chunks: prebuilt.chunks }
@@ -1268,8 +1314,11 @@ async function resolveServerIndex(
 }
 
 /** Lazily builds and memoizes the in-process server index (awaits the build). */
-export async function getServerIndex(config: Config.Config): Promise<ServerIndex> {
-  return ensureServerIndex(config).promise
+export async function getServerIndex(
+  config: Config.Config,
+  options: ensureServerIndex.Options = {},
+): Promise<ServerIndex> {
+  return ensureServerIndex(config, options).promise
 }
 
 /**
@@ -1424,6 +1473,7 @@ type RequestBody = {
 async function handleLocalSearchRequest(
   request: Request,
   config: Config.Config,
+  options: handleSearchRequest.Options = {},
 ): Promise<Response> {
   const publicConfig = fromConfig(config)
   if (!publicConfig || !config._localRetriever) return json({ error: 'AI search not enabled' }, 404)
@@ -1448,7 +1498,7 @@ async function handleLocalSearchRequest(
   // keep showing keyword results (and retry shortly). A failed build answers
   // 503 (instead of 202) so the client stops polling; the entry is retried
   // after a backoff.
-  const index = ensureServerIndex(config)
+  const index = ensureServerIndex(config, options)
   index.promise.catch(() => {}) // avoid unhandled rejection on the background build
   if (index.status === 'error') return json({ error: 'Search failed' }, 503)
   if (index.status === 'pending')

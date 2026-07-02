@@ -771,13 +771,19 @@ export function search(config: Config.Config): PluginOption {
  */
 export function aiSearch(config: Config.Config): PluginOption {
   const ai = Retriever.fromConfig(config)
-  if (!ai) return []
 
   const virtualModuleId = 'virtual:vocs/ai-search-index'
   const resolvedVirtualModuleId = `\0${virtualModuleId}`
+  // Server-side manifest, baked into the server bundle at build time so
+  // serverless deploys (no cache dir, no source pages) can serve AI search.
+  const serverManifestId = 'virtual:vocs/ai-search-manifest'
+  const resolvedServerManifestId = `\0${serverManifestId}`
+  const emptyManifestModule = 'export const getAiSearchManifest = async () => undefined'
+
   const { rootDir, basePath } = config
+  const localEnabled = Boolean(config._localRetriever)
   const exposePublic =
-    ai.runtime === 'client' || config._localRetriever?.vectorStore.expose === true
+    ai?.runtime === 'client' || config._localRetriever?.vectorStore.expose === true
 
   let mode: 'development' | 'production' = 'development'
   let manifestPromise: Promise<Retriever.IndexManifest> | undefined
@@ -847,6 +853,7 @@ export function aiSearch(config: Config.Config): PluginOption {
       // loads the prebuilt manifest written by `vocs embeddings generate` /
       // `vocs build` (falling back to keyword search if absent), and
       // client-runtime search builds it lazily when the virtual module loads.
+      if (!localEnabled) return
       if (mode !== 'production') return
       if (skipSeeding()) {
         logger.info('Skipping AI search index build (VOCS_SKIP_EMBEDDINGS).', { timestamp: true })
@@ -856,9 +863,18 @@ export function aiSearch(config: Config.Config): PluginOption {
     },
     resolveId(id) {
       if (id === virtualModuleId) return resolvedVirtualModuleId
+      if (id === serverManifestId) return resolvedServerManifestId
       return
     },
     async load(id) {
+      if (id === resolvedServerManifestId) {
+        // Dev never builds; the server loads the manifest written by
+        // `vocs embeddings generate` from disk instead.
+        if (!localEnabled || mode === 'development' || skipSeeding()) return emptyManifestModule
+        const manifest = await buildManifest()
+        return `export const getAiSearchManifest = async () => ${JSON.stringify(JSON.stringify(manifest))}`
+      }
+
       if (id !== resolvedVirtualModuleId) return
       if (!exposePublic)
         return `export const getAiSearchIndex = async () => { throw new Error('[vocs] AI search client index is not exposed (server runtime).') }`

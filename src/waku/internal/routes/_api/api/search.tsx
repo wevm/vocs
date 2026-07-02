@@ -11,5 +11,13 @@ import * as Retriever from '../../../../../internal/retriever.js'
  */
 export async function POST(request: Request) {
   const config = await Config.resolve({ server: true })
-  return Retriever.handleSearchRequest(request, config)
+  return Retriever.handleSearchRequest(request, config, {
+    // Prebuilt manifest baked into the server bundle at build time. Falls back
+    // to the on-disk manifest (dev), then to an in-process build.
+    async loadManifest() {
+      const { getAiSearchManifest } = await import('virtual:vocs/ai-search-manifest')
+      const json = await getAiSearchManifest()
+      return json ? (JSON.parse(json) as Retriever.IndexManifest) : undefined
+    },
+  })
 }

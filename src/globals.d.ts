@@ -32,6 +32,10 @@ declare module 'virtual:vocs/ai-search-index' {
   export function getAiSearchIndex(): Promise<string>
 }
 
+declare module 'virtual:vocs/ai-search-manifest' {
+  export function getAiSearchManifest(): Promise<string | undefined>
+}
+
 declare module 'virtual:vocs/group-icons.css' {}
 
 declare module 'virtual:vocs/group-icons.css?inline' {

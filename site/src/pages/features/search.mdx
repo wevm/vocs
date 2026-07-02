@@ -185,10 +185,9 @@ The manifest is written to `.vocs`'s cache. `vocs dev` loads that prebuilt index
 
 #### Deploy
 
-The server endpoint (`/api/search` by default) embeds each query and searches the packed vector store. Two things must be available to the server at runtime:
+The server endpoint (`/api/search` by default) embeds each query and searches the packed vector store. `vocs build` bakes the prebuilt index into the server bundle, so serverless deploys work out of the box.
 
-- The embedding provider's credentials (here `CLOUDFLARE_ACCOUNT_ID` / `CLOUDFLARE_API_TOKEN`), since each query is embedded on the fly.
-- The `.vocs` cache directory, which holds the prebuilt index from `vocs build` / `vocs embeddings generate`. Without it, the first request per server instance rebuilds the index in-process (refetching external sources and re-embedding uncached chunks) while the dialog falls back to keyword results.
+Make the embedding provider's credentials (here `CLOUDFLARE_ACCOUNT_ID` / `CLOUDFLARE_API_TOKEN`) available to the server at runtime, since each query is embedded on the fly. Keeping the `.vocs` cache between builds avoids re-embedding unchanged chunks.
 
 :::warning
 `/api/search` is public, and each request spends an embedding (plus optional rerank) call on your provider account. If abuse is a concern, rate limit the endpoint at your edge or CDN.

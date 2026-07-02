@@ -51,6 +51,14 @@ describe('load', () => {
     expect(fs.readdirSync(dir)).toEqual([])
   })
 
+  it('skips persisting on unwritable filesystems instead of throwing', () => {
+    const filePath = path.join(dir, 'not-a-dir')
+    fs.writeFileSync(filePath, 'x')
+    const cache = EmbeddingCache.load({ dir: path.join(filePath, 'nested') })
+    cache.set('a', [1])
+    expect(() => cache.save()).not.toThrow()
+  })
+
   it('recovers from a corrupt cache file', () => {
     const cache = EmbeddingCache.load({ dir })
     cache.set('a', [1])

@@ -63,15 +63,19 @@ export function load(options: load.Options): Cache {
     },
     save() {
       if (ignore) return
-      fs.mkdirSync(dir, { recursive: true })
-      const entries: Record<string, number[]> = {}
-      for (const key of touched) {
-        const vector = store.get(key)
-        if (vector) entries[key] = vector
+      try {
+        fs.mkdirSync(dir, { recursive: true })
+        const entries: Record<string, number[]> = {}
+        for (const key of touched) {
+          const vector = store.get(key)
+          if (vector) entries[key] = vector
+        }
+        const tmp = `${file}.${process.pid}.tmp`
+        fs.writeFileSync(tmp, JSON.stringify({ version, entries }), 'utf-8')
+        fs.renameSync(tmp, file)
+      } catch {
+        // Read-only filesystem (e.g. serverless) — skip persisting.
       }
-      const tmp = `${file}.${process.pid}.tmp`
-      fs.writeFileSync(tmp, JSON.stringify({ version, entries }), 'utf-8')
-      fs.renameSync(tmp, file)
     },
   }
 }
