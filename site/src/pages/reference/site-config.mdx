@@ -770,11 +770,10 @@ Top-level home for AI-powered features. Currently exposes semantic (AI) search v
 
 Adds AI search on top of keyword search. Set it to a retriever created by one constructor:
 
-- [`Retriever.local()`](#retrieverlocal): Vocs owns the pipeline. It embeds your pages at build
-  time, packs them into a built-in static vector store, and queries them at runtime via a server
-  endpoint (the open-source, self-owned option).
-- [`Retriever.cloudflare()`](#retrievercloudflare) / [`Retriever.from()`](#retrieverfrom):
-  retrieval is delegated to a managed backend.
+- `Retriever.local()`: Vocs owns the pipeline. It embeds your pages at build time, packs them
+  into a built-in static vector store, and queries them at runtime via a server endpoint (the
+  open-source, self-owned option).
+- `Retriever.cloudflare()` / `Retriever.from()`: retrieval is delegated to a hosted backend.
 
 Retrievers hold secrets and are kept **server-side only** (never serialized to the browser).
 
@@ -787,143 +786,6 @@ export default defineConfig({
       embedding: Embedding.openai(),
       sources: ['https://viem.sh/llms.txt'],
     })
-  }
-})
-```
-
-### `Retriever.local`
-
-Creates the self-owned retriever. Accepts the shared retriever options (`enabled`, `endpoint`,
-`hybrid`, `topK`, `ui`) plus the options below (`embedding` is required, the rest are optional).
-
-#### `Retriever.local.embedding`
-
-- **Type:** `Embedding.Adapter`
-- **Required**
-
-The embedding adapter used to vectorize chunks (at build) and queries (at runtime). Built-ins:
-`Embedding.openai()`, `Embedding.cloudflare()`, `Embedding.openrouter()`,
-`Embedding.openaiCompatible()`, `Embedding.ollama()`, and `Embedding.from()` for a custom adapter.
-
-#### `Retriever.local.reranker`
-
-- **Type:** `Reranker.Adapter`
-
-Optional cross-encoder ("search model") applied to the top candidates after vector retrieval to
-boost precision. Adds one model call per query and fails open to the vector order on error.
-Built-ins: `Reranker.cloudflare()` and `Reranker.from()`.
-
-#### `Retriever.local.sources`
-
-- **Type:** `(string | { url: string; label?: string; maxPages?: number; weight?: number })[]`
-
-External source URLs to embed alongside local docs. Each is fetched at build time and auto-expanded:
-a `sitemap.xml` → every page it lists, an `llms.txt` → every same-origin page it links (off-site
-links are ignored), anything else → the page itself. Results link out to their absolute URL. `label`
-sets the result badge (defaults to the hostname); `weight` is a score multiplier relative to local
-docs (which are `1`), defaulting to `0.9`; `maxPages` caps how many pages a source may expand to
-(default `1000`).
-
-#### `Retriever.local.chunking.maxCharacters`
-
-- **Type:** `number`
-- **Default:** `1200`
-
-Target maximum characters per embedded chunk.
-
-#### `Retriever.local.chunking.overlapCharacters`
-
-- **Type:** `number`
-- **Default:** `160`
-
-Characters of overlap between adjacent chunks of the same document.
-
-#### `Retriever.local.chunking.includeHeadings`
-
-- **Type:** `boolean`
-- **Default:** `true`
-
-Prepend the section heading to the embedded text.
-
-#### `Retriever.local.chunking.includeBreadcrumbs`
-
-- **Type:** `boolean`
-- **Default:** `true`
-
-Prepend parent breadcrumbs/category to the embedded text.
-
-#### `Retriever.local.chunking.includeNav`
-
-- **Type:** `boolean`
-- **Default:** `false`
-
-Include external nav links (usually text-less) in the index.
-
-#### `Retriever.local.cache`
-
-- **Type:** `boolean | { enabled?: boolean; dir?: string; ignore?: boolean }`
-- **Default:** `true`
-
-On-disk embedding cache so unchanged chunks aren't re-embedded between builds. Set `false` to
-disable. `ignore` (or `VOCS_AI_CACHE_IGNORE`) forces a full re-embed.
-
-#### `Retriever.local.runtime`
-
-- **Type:** `'auto' | 'server' | 'client'`
-- **Default:** `'server'`
-
-Where retrieval runs. `'auto'` resolves to `'server'`. `'client'` is reserved and not implemented
-yet; it currently falls back to `'server'` with a warning.
-
-#### `Retriever.local.vectorStore`
-
-- **Type:** `VectorStore.Adapter`
-- **Default:** `VectorStore.static()`
-
-The vector store backing the index. The default packs vectors into a static artifact; provide a
-custom adapter with `VectorStore.from()`.
-
-### `Retriever.cloudflare`
-
-Creates a **managed** retriever backed by Cloudflare AI Search. Set it as `ai.retriever` to delegate
-retrieval to the backend (queried at runtime, then blended with keyword search) with no build-time
-embedding step. Kept **server-side only**.
-
-```ts
-import { defineConfig, Retriever } from 'vocs/config'
-
-export default defineConfig({
-  ai: {
-    retriever: Retriever.cloudflare({ instance: 'my-docs' })
-  }
-})
-```
-
-Accepts the shared retriever options plus `instance` (required), `namespace`,
-`reranking`, `retrievalType` (`'vector' | 'keyword' | 'hybrid'`), `rewriteQuery`, `scoreThreshold`,
-`filters`, `mapResult`, and credential overrides (`accountId`, `apiToken`, `baseUrl`, `headers`).
-
-### `Retriever.from`
-
-Creates a managed retriever from a custom adapter (any `{ type, retrieve }`) for backends other than
-Cloudflare. Accepts the adapter as the first argument and the shared retriever options as the
-second.
-
-```ts
-import { defineConfig, Retriever } from 'vocs/config'
-
-export default defineConfig({
-  ai: {
-    retriever: Retriever.from(
-      {
-        type: 'custom',
-        async retrieve(query, { limit }) {
-          // return ranked Retriever.Result[]
-          return []
-        },
-      },
-      { topK: 8 },
-    ),
   }
 })
 ```

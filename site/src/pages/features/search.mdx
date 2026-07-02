@@ -1,3 +1,7 @@
+---
+outline: 3
+---
+
 import { Card, Cards } from 'vocs'
 
 # Search [Built-in keyword search, with optional AI search]
@@ -75,8 +79,8 @@ In production, the search index file is content-hashed (`search-index-{hash}.jso
 
 AI search adds meaning-based ranking on top of keyword search. It is configured with a single `ai.retriever` key, and you pick one provider:
 
-- [**Local Retriever**](#local-retriever) (`Retriever.local`): Vocs owns the whole pipeline. It chunks and embeds your pages at build time into a built-in static vector store, then searches it at runtime. The open-source, self-owned option.
 - [**Hosted Retriever**](#hosted-retriever) (`Retriever.cloudflare`, or any `Retriever.Adapter`): retrieval is delegated to a hosted backend (e.g. Cloudflare AI Search), and Vocs blends the results with keyword search. Use this when you'd rather not own the index.
+- [**Local Retriever**](#local-retriever) (`Retriever.local`): Vocs owns the whole pipeline. It chunks and embeds your pages at build time into a built-in static vector store, then searches it at runtime. The open-source, self-owned option.
 
 Providers hold secrets (API keys) and are **server-side only**; they are never serialized to the browser.
 
@@ -89,62 +93,6 @@ Providers hold secrets (API keys) and are **server-side only**; they are never s
          search ─▶ rerank╰──────────────╯
                    (ai.retriever)
 ```
-
-### Local Retriever
-
-Own the pipeline with `Retriever.local`: Vocs chunks and embeds your pages at build time, packs them into the built-in static vector store, and searches it at runtime. This walkthrough uses Cloudflare Workers AI for embeddings.
-
-::::steps
-
-#### Add a local retriever
-
-Point `ai.retriever` at `Retriever.local` with an embedding adapter. `Embedding.cloudflare()` runs `@cf/baai/bge-base-en-v1.5` on Workers AI and reads credentials from the environment.
-
-```ts twoslash
-// [!code word:retriever]
-import { defineConfig, Embedding, Retriever } from 'vocs/config'
-
-export default defineConfig({
-  ai: {
-    retriever: Retriever.local({
-      embedding: Embedding.cloudflare(),
-    }),
-  },
-})
-```
-
-#### Set your credentials
-
-The API token needs the **Workers AI** permission.
-
-```bash
-# .env
-CLOUDFLARE_ACCOUNT_ID=...
-CLOUDFLARE_API_TOKEN=...
-```
-
-#### Generate the embeddings
-
-Embeddings are built during `vocs build`. To build (or refresh) them on their own (handy in CI or before starting the dev server), run:
-
-```bash
-vocs embeddings generate
-```
-
-The manifest is written to `.vocs`'s cache. `vocs dev` loads that prebuilt index; it never re-embeds on the fly.
-
-#### Deploy
-
-The server endpoint (`/api/search` by default) embeds each query and searches the packed vector store. Two things must be available to the server at runtime:
-
-- The embedding provider's credentials (here `CLOUDFLARE_ACCOUNT_ID` / `CLOUDFLARE_API_TOKEN`), since each query is embedded on the fly.
-- The `.vocs` cache directory, which holds the prebuilt index from `vocs build` / `vocs embeddings generate`. Without it, the first request per server instance rebuilds the index in-process (refetching external sources and re-embedding uncached chunks) while the dialog falls back to keyword results.
-
-:::warning
-`/api/search` is public, and each request spends an embedding (plus optional rerank) call on your provider account. If abuse is a concern, rate limit the endpoint at your edge or CDN.
-:::
-
-::::
 
 ### Hosted Retriever
 
@@ -178,19 +126,77 @@ Results are mapped from the instance's chunk metadata; Vocs derives titles and b
 
 The API token needs the **AI Search: Run** permission.
 
-```bash
-# .env
+```bash [.env]
 CLOUDFLARE_ACCOUNT_ID=...
 CLOUDFLARE_API_TOKEN=...
 ```
 
 #### Deploy
 
-There is no build-time embedding step; indexing happens on the hosted service. Keep the credentials available to the server at runtime. Each `/api/search` request runs one AI Search query against your account, so the same rate-limiting note as the local retriever applies.
+There is no build-time embedding step; indexing happens on the hosted service. Keep the credentials available to the server at runtime.
+
+:::warning
+`/api/search` is public, and each request runs an AI Search query on your Cloudflare account. If abuse is a concern, rate limit the endpoint at your edge or CDN.
+:::
 
 ::::
 
-### Choose an embedding provider
+### Local Retriever
+
+Own the pipeline with `Retriever.local`: Vocs chunks and embeds your pages at build time, packs them into the built-in static vector store, and searches it at runtime. This walkthrough uses Cloudflare Workers AI for embeddings.
+
+::::steps
+
+#### Add a local retriever
+
+Point `ai.retriever` at `Retriever.local` with an embedding adapter. `Embedding.cloudflare()` runs `@cf/baai/bge-base-en-v1.5` on Workers AI and reads credentials from the environment.
+
+```ts twoslash
+// [!code word:retriever]
+import { defineConfig, Embedding, Retriever } from 'vocs/config'
+
+export default defineConfig({
+  ai: {
+    retriever: Retriever.local({
+      embedding: Embedding.cloudflare(),
+    }),
+  },
+})
+```
+
+#### Set your credentials
+
+The API token needs the **Workers AI** permission.
+
+```bash [.env]
+CLOUDFLARE_ACCOUNT_ID=...
+CLOUDFLARE_API_TOKEN=...
+```
+
+#### Generate the embeddings
+
+Embeddings are built during `vocs build`. To build (or refresh) them on their own (handy in CI or before starting the dev server), run:
+
+```bash
+vocs embeddings generate
+```
+
+The manifest is written to `.vocs`'s cache. `vocs dev` loads that prebuilt index; it never re-embeds on the fly.
+
+#### Deploy
+
+The server endpoint (`/api/search` by default) embeds each query and searches the packed vector store. Two things must be available to the server at runtime:
+
+- The embedding provider's credentials (here `CLOUDFLARE_ACCOUNT_ID` / `CLOUDFLARE_API_TOKEN`), since each query is embedded on the fly.
+- The `.vocs` cache directory, which holds the prebuilt index from `vocs build` / `vocs embeddings generate`. Without it, the first request per server instance rebuilds the index in-process (refetching external sources and re-embedding uncached chunks) while the dialog falls back to keyword results.
+
+:::warning
+`/api/search` is public, and each request spends an embedding (plus optional rerank) call on your provider account. If abuse is a concern, rate limit the endpoint at your edge or CDN.
+:::
+
+::::
+
+#### Choose an embedding provider
 
 `Retriever.local`'s `embedding` accepts any embedding adapter. Built-ins all use `fetch` (no vendor SDK):
 
@@ -242,7 +248,7 @@ For any OpenAI-compatible endpoint, use `Embedding.openaiCompatible({ baseUrl, a
 Cloudflare's `bge-*-en-v1.5` models need a query-side instruction to retrieve well, and Vocs applies it **automatically**, so `Embedding.cloudflare()` works out of the box.
 :::
 
-### Improve precision with a reranker
+#### Improve precision with a reranker
 
 An embedding model scores the query and each passage *independently*, giving great recall but mediocre precision. A **reranker** (cross-encoder) reads each `(query, passage)` pair *together* and re-scores the top candidates, sharply improving ordering. It runs after vector retrieval and adds one model call per query.
 
@@ -262,7 +268,7 @@ export default defineConfig({
 
 If the reranker call fails, search **fails open** to the vector order, so results still come back.
 
-### Index external sources
+#### Index external sources
 
 Embed other sites alongside your docs so their pages surface in search and link out to their absolute URL. Each URL is fetched at build time and auto-expanded: a `sitemap.xml` → every page it lists, an `llms.txt` → every same-origin page it links (off-site links are ignored), anything else → the page itself. Each source expands to at most 1,000 pages; raise `maxPages` per source to index more.
 
@@ -285,29 +291,7 @@ export default defineConfig({
 
 `weight` is a score multiplier relative to your local docs (which are `1`). External sources default to `0.9`, slightly de-prioritized so your own docs win on comparable relevance. `label` sets the badge shown on results (defaults to the hostname).
 
-### Blend keyword and AI results
-
-By default the dialog shows keyword results and appends AI results. Turn on `hybrid` to instead **fuse** both lists into a single ranking, weighting each contribution:
-
-```ts twoslash
-import { defineConfig, Embedding, Retriever } from 'vocs/config'
-// ---cut---
-export default defineConfig({
-  ai: {
-    retriever: Retriever.local({
-      embedding: Embedding.openai(),
-      hybrid: { // [!code hl]
-        semanticWeight: 0.7,
-        keywordWeight: 0.3,
-      },
-    }),
-  },
-})
-```
-
-Pass `hybrid: true` for defaults, or an object to tune the weights.
-
-### Tune chunking and results
+#### Tune chunking and results
 
 Control how pages are split for embedding and how many results are returned:
 
@@ -328,7 +312,7 @@ export default defineConfig({
 })
 ```
 
-### Cache embeddings between builds
+#### Cache embeddings between builds
 
 Embeddings are cached on disk by default so unchanged chunks aren't re-embedded. Disable it, or force a full re-embed:
 
@@ -349,7 +333,7 @@ export default defineConfig({
 vocs embeddings generate --force  # ignore the cache and re-embed everything
 ```
 
-### Skip embeddings on a build
+#### Skip embeddings on a build
 
 Embeddings cost time and API calls. To build without them (e.g. a preview deploy), pass `--no-embeddings`:
 
@@ -358,6 +342,28 @@ vocs build --no-embeddings
 ```
 
 A common setup is to build embeddings on a schedule (cron/CI) and skip them on regular content builds.
+
+### Blend keyword and AI results
+
+By default the dialog shows keyword results and appends AI results. Turn on `hybrid` (a shared option on every retriever constructor) to instead **fuse** both lists into a single ranking, weighting each contribution:
+
+```ts twoslash
+import { defineConfig, Embedding, Retriever } from 'vocs/config'
+// ---cut---
+export default defineConfig({
+  ai: {
+    retriever: Retriever.local({
+      embedding: Embedding.openai(),
+      hybrid: { // [!code hl]
+        semanticWeight: 0.7,
+        keywordWeight: 0.3,
+      },
+    }),
+  },
+})
+```
+
+Pass `hybrid: true` for defaults, or an object to tune the weights.
 
 ## See More
 
@@ -370,15 +376,9 @@ A common setup is to build embeddings on a schedule (cron/CI) and skip them on r
   />
   <Card
     title="ai.retriever"
-    description="Full AI search config: local provider, embedding, reranker, sources, hybrid, chunking, cache."
+    description="The AI search config key and its retriever providers."
     icon="settings"
     to="/reference/site-config#airetriever"
-  />
-  <Card
-    title="Retriever.cloudflare"
-    description="Managed retriever config and the Cloudflare AI Search adapter."
-    icon="cloud"
-    to="/reference/site-config#retrievercloudflare"
   />
   <Card
     title="Per-page fields"
