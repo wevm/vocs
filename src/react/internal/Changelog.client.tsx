@@ -3,12 +3,12 @@
 import { cx } from 'cva'
 import * as React from 'react'
 import { createPortal } from 'react-dom'
-import { Link } from 'waku'
 import LucideChevronDown from '~icons/lucide/chevron-down'
 import LucideExternalLink from '~icons/lucide/external-link'
 import LucideHistory from '~icons/lucide/history'
 import type * as ChangelogTypes from '../../internal/changelog.js'
 import { Badge } from '../Badge.js'
+import { Link } from '../Link.js'
 
 const collapsedHeight = 600
 

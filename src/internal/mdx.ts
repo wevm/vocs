@@ -270,6 +270,7 @@ export function getCompileOptions(
               },
             },
           ] as Pluggable,
+          rehypeHeadingAnchors(config),
           rehypeShiki({ ...codeHighlight, cacheDir, rootDir, srcDir, twoslash }),
           ...(markdown?.rehypePlugins ?? []),
           rehypeCodeInLink,
@@ -418,6 +419,44 @@ export function rehypeCodeInLink() {
           children: codeChildren,
         },
       ]
+    })
+  }
+}
+
+/**
+ * Rehype plugin that resolves hash-only heading anchor hrefs against the page path.
+ * A hash-only href resolves against the `<base>` tag and navigates to the site root
+ * when `baseUrl` is set.
+ */
+export function rehypeHeadingAnchors(config: Config.Config) {
+  const { rootDir, srcDir, pagesDir } = config
+  const pagesDirPath = path.resolve(rootDir, srcDir, pagesDir)
+
+  return () => (tree: HAst.Root, vfile: VFile) => {
+    if (!vfile.path) return
+
+    const relativePath = path.relative(pagesDirPath, path.resolve(vfile.path))
+    if (relativePath.startsWith('..') || path.isAbsolute(relativePath)) return
+    // Dynamic segments only resolve at request time; leave those to the runtime `Link`.
+    if (relativePath.includes('[')) return
+
+    const pagePath =
+      `/${relativePath.split(path.sep).join('/')}`
+        .replace(/\.(md|mdx)$/, '')
+        .replace(/\/index$/, '') || '/'
+
+    UnistUtil.visit(tree, 'element', (node) => {
+      const element = node as HAst.Element
+      if (element.tagName !== 'a') return
+
+      const className = element.properties?.['className']
+      const classes = Array.isArray(className) ? className : [className]
+      if (!classes.includes('heading-anchor')) return
+
+      const href = element.properties?.['href']
+      if (typeof href !== 'string' || !href.startsWith('#')) return
+
+      element.properties['href'] = `${pagePath}${href}`
     })
   }
 }
