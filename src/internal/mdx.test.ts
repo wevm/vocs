@@ -1,6 +1,7 @@
 import * as path from 'node:path'
 import type * as Estree from 'estree'
 import type * as MdAst from 'mdast'
+import remarkDirective from 'remark-directive'
 import remarkFrontmatter from 'remark-frontmatter'
 import remarkParse from 'remark-parse'
 import ruby from 'shiki/langs/ruby.mjs'
@@ -12,6 +13,7 @@ import {
   getCompileOptions,
   recmaMdxLayout,
   rehypeLinks,
+  remarkChangelog,
   remarkCodeTitle,
   remarkDefaultFrontmatter,
   remarkFilename,
@@ -381,6 +383,58 @@ describe('remarkRestoreUnknownTextDirectives', () => {
       { type: 'text', value: 'localhost' },
       { type: 'text', value: ':3003' },
     ])
+  })
+})
+
+describe('remarkChangelog', () => {
+  async function run(markdown: string) {
+    const tree = await runRemark(markdown, [remarkDirective, remarkChangelog])
+    return tree.children[0]?.data
+  }
+
+  it('respects the limit attribute', async () => {
+    expect(await run('::changelog{limit=10}')).toMatchInlineSnapshot(`
+      {
+        "hName": "div",
+        "hProperties": {
+          "data-v-changelog": "true",
+          "data-v-changelog-limit": "10",
+        },
+      }
+    `)
+  })
+
+  it('defaults the limit when omitted', async () => {
+    expect(await run('::changelog')).toMatchInlineSnapshot(`
+      {
+        "hName": "div",
+        "hProperties": {
+          "data-v-changelog": "true",
+          "data-v-changelog-limit": "999",
+        },
+      }
+    `)
+  })
+
+  it('falls back to the default on a malformed limit', async () => {
+    expect(await run('::changelog{limit=abc}')).toMatchInlineSnapshot(`
+      {
+        "hName": "div",
+        "hProperties": {
+          "data-v-changelog": "true",
+          "data-v-changelog-limit": "999",
+        },
+      }
+    `)
+    expect(await run('::changelog{limit=0}')).toMatchInlineSnapshot(`
+      {
+        "hName": "div",
+        "hProperties": {
+          "data-v-changelog": "true",
+          "data-v-changelog-limit": "999",
+        },
+      }
+    `)
   })
 })
 
