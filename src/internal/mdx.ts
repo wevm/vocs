@@ -12,6 +12,7 @@ import remarkDirective from 'remark-directive'
 import remarkFrontmatter from 'remark-frontmatter'
 import remarkGfm from 'remark-gfm'
 import remarkMdxFrontmatter from 'remark-mdx-frontmatter'
+import remarkParse from 'remark-parse'
 import type {
   BuiltinTheme,
   CodeOptionsMultipleThemes,
@@ -28,11 +29,12 @@ import solidity from 'shiki/langs/solidity.mjs'
 import sql from 'shiki/langs/sql.mjs'
 import toml from 'shiki/langs/toml.mjs'
 import yamlLang from 'shiki/langs/yaml.mjs'
-import type { Pluggable, PluggableList } from 'unified'
+import { type Pluggable, type PluggableList, unified } from 'unified'
 import * as UnistUtil from 'unist-util-visit'
 import type { VFile } from 'vfile'
 import { createLogger } from 'vite'
 import * as yaml from 'yaml'
+import * as Changelog from './changelog.js'
 import type * as Config from './config.js'
 import * as Git from './git.js'
 import * as Icons from './icons.js'
@@ -214,6 +216,11 @@ export function getCompileOptions(
           remarkStripFrontmatter,
           remarkStripJs,
           remarkStripInlineCache,
+          // Parse directive syntax (`::name`/`:::name`) so data-backed
+          // directives can render real markdown below. Unhandled directives
+          // round-trip back to their source form on stringify.
+          remarkDirective,
+          [remarkChangelogMarkdown, config] as Pluggable,
           // User plugins extend the parser (e.g. `remark-math`) so syntax
           // recognized in the React build also parses for llms/search.
           ...(markdown?.remarkPlugins ?? []),
@@ -1479,4 +1486,78 @@ export function remarkChangelog(): remarkChangelog.ReturnType {
 
 export declare namespace remarkChangelog {
   type ReturnType = (tree: MdAst.Root) => void
+}
+
+/**
+ * Remark plugin (markdown/`txt` pipeline) that renders `::changelog` leaf
+ * directives as release markdown, so `llms.txt` and the per-page markdown
+ * twins carry the releases instead of a literal `::changelog` line — the
+ * content only exists behind the adapter, so without this the markdown
+ * output loses the page's entire content.
+ *
+ * Mirrors the react pipeline's `remarkChangelog` + `Changelog` component
+ * pair: same adapter, `{limit=N}` handling, and duplicate-title
+ * normalization. Failures (no adapter, offline, rate limit) degrade to an
+ * HTML comment — a missing changelog must never fail the llms/markdown build.
+ */
+export function remarkChangelogMarkdown(
+  options: remarkChangelogMarkdown.Options = {},
+): remarkChangelogMarkdown.ReturnType {
+  return async (tree: MdAst.Root) => {
+    // Collect matches first (visit is sync), then fetch and splice.
+    const found: { index: number; limit: number; parent: MdAst.Parent }[] = []
+    UnistUtil.visit(tree, 'leafDirective', (node, index, parent) => {
+      if (node.name !== 'changelog') return
+      if (index === undefined || !parent) return
+      const limit = node.attributes?.['limit'] ? Number.parseInt(node.attributes['limit'], 10) : 999
+      found.push({ index, limit, parent })
+    })
+    if (found.length === 0) return
+
+    // Splice back-to-front so earlier indices stay valid.
+    for (const { index, limit, parent } of found.reverse())
+      parent.children.splice(index, 1, ...(await render(limit)))
+
+    async function render(limit: number): Promise<MdAst.RootContent[]> {
+      const unavailable: MdAst.RootContent[] = [
+        { type: 'html', value: '<!-- changelog unavailable -->' },
+      ]
+      const adapter = options.changelog
+      if (!adapter) return unavailable
+      try {
+        const releases = await adapter.fetch({ limit, prereleases: false })
+        const markdown = releases
+          .map((release) => {
+            const date = release.date.slice(0, 10)
+            const body = Changelog.stripDuplicateTitle({
+              body: release.body,
+              title: release.title,
+            })
+            const title =
+              release.title && release.title !== release.version ? ` — ${release.title}` : ''
+            return `## ${release.version}${title} (${date})\n\n${body}`.trim()
+          })
+          .join('\n\n')
+        // Parsed without GFM on purpose: the outer txt pipeline stringifies
+        // without GFM extensions, so GFM nodes (tables, …) spliced in here
+        // would make it throw. Plain parsing keeps GFM constructs as
+        // readable literal text.
+        return unified().use(remarkParse).parse(markdown).children
+      } catch (error) {
+        logger.warn(
+          `Failed to render \`::changelog\` in markdown output: ${error instanceof Error ? error.message : String(error)}`,
+          { timestamp: true },
+        )
+        return unavailable
+      }
+    }
+  }
+}
+
+export declare namespace remarkChangelogMarkdown {
+  type Options = {
+    /** Changelog adapter to fetch releases from (`config.changelog`). */
+    changelog?: Changelog.Adapter | undefined
+  }
+  type ReturnType = (tree: MdAst.Root) => Promise<void>
 }
