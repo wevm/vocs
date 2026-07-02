@@ -75,8 +75,8 @@ In production, the search index file is content-hashed (`search-index-{hash}.jso
 
 AI search adds meaning-based ranking on top of keyword search. It is configured with a single `ai.retriever` key, and you pick one provider:
 
-- **`Retriever.local`**: Vocs owns the whole pipeline. It chunks and embeds your pages at build time into a built-in static vector store, then searches it at runtime. The open-source, self-owned option.
-- **`Retriever.cloudflare`** (or any `Retriever.Adapter`): Vocs delegates retrieval to a managed backend (e.g. Cloudflare AI Search) and fuses the results with keyword search. Use this when you'd rather not own the index.
+- [**Local Retriever**](#local-retriever) (`Retriever.local`): Vocs owns the whole pipeline. It chunks and embeds your pages at build time into a built-in static vector store, then searches it at runtime. The open-source, self-owned option.
+- [**Hosted Retriever**](#hosted-retriever) (`Retriever.cloudflare`, or any `Retriever.Adapter`): retrieval is delegated to a hosted backend (e.g. Cloudflare AI Search), and Vocs blends the results with keyword search. Use this when you'd rather not own the index.
 
 Providers hold secrets (API keys) and are **server-side only**; they are never serialized to the browser.
 
@@ -90,15 +90,15 @@ Providers hold secrets (API keys) and are **server-side only**; they are never s
                    (ai.retriever)
 ```
 
-### Set up built-in AI search
+### Local Retriever
 
-Enable the self-owned `Retriever.local` provider with an embedding provider. This example uses OpenAI.
+Own the pipeline with `Retriever.local`: Vocs chunks and embeds your pages at build time, packs them into the built-in static vector store, and searches it at runtime. This walkthrough uses Cloudflare Workers AI for embeddings.
 
 ::::steps
 
 #### Add a local retriever
 
-Point `ai.retriever` at `Retriever.local` with an embedding adapter. Vocs reads the API key from the environment.
+Point `ai.retriever` at `Retriever.local` with an embedding adapter. `Embedding.cloudflare()` runs `@cf/baai/bge-base-en-v1.5` on Workers AI and reads credentials from the environment.
 
 ```ts twoslash
 // [!code word:retriever]
@@ -107,17 +107,20 @@ import { defineConfig, Embedding, Retriever } from 'vocs/config'
 export default defineConfig({
   ai: {
     retriever: Retriever.local({
-      embedding: Embedding.openai(), // reads OPENAI_API_KEY
+      embedding: Embedding.cloudflare(),
     }),
   },
 })
 ```
 
-#### Set your API key
+#### Set your credentials
+
+The API token needs the **Workers AI** permission.
 
 ```bash
 # .env
-OPENAI_API_KEY=sk-...
+CLOUDFLARE_ACCOUNT_ID=...
+CLOUDFLARE_API_TOKEN=...
 ```
 
 #### Generate the embeddings
@@ -134,12 +137,56 @@ The manifest is written to `.vocs`'s cache. `vocs dev` loads that prebuilt index
 
 The server endpoint (`/api/search` by default) embeds each query and searches the packed vector store. Two things must be available to the server at runtime:
 
-- The embedding provider's credentials (e.g. `OPENAI_API_KEY`), since each query is embedded on the fly.
+- The embedding provider's credentials (here `CLOUDFLARE_ACCOUNT_ID` / `CLOUDFLARE_API_TOKEN`), since each query is embedded on the fly.
 - The `.vocs` cache directory, which holds the prebuilt index from `vocs build` / `vocs embeddings generate`. Without it, the first request per server instance rebuilds the index in-process (refetching external sources and re-embedding uncached chunks) while the dialog falls back to keyword results.
 
 :::warning
 `/api/search` is public, and each request spends an embedding (plus optional rerank) call on your provider account. If abuse is a concern, rate limit the endpoint at your edge or CDN.
 :::
+
+::::
+
+### Hosted Retriever
+
+Skip owning the index entirely: delegate retrieval to a hosted backend with `Retriever.cloudflare` (or any custom `Retriever.from` adapter). The backend owns ingestion, chunking, embedding, and vector search; Vocs queries it at runtime and blends the results with keyword search.
+
+::::steps
+
+#### Create an AI Search instance
+
+In the [Cloudflare dashboard](https://dash.cloudflare.com/), create an [AI Search](https://developers.cloudflare.com/ai-search/) instance (e.g. `my-docs`) pointed at your docs content, such as a website crawl or an R2 bucket. Cloudflare indexes it and keeps it up to date.
+
+#### Add the retriever
+
+```ts twoslash
+// [!code word:retriever]
+import { defineConfig, Retriever } from 'vocs/config'
+
+export default defineConfig({
+  ai: {
+    retriever: Retriever.cloudflare({
+      instance: 'my-docs',
+      reranking: true,
+    }),
+  },
+})
+```
+
+Results are mapped from the instance's chunk metadata; Vocs derives titles and breadcrumbs from the indexed URLs, and `mapResult` can override the mapping.
+
+#### Set your credentials
+
+The API token needs the **AI Search: Run** permission.
+
+```bash
+# .env
+CLOUDFLARE_ACCOUNT_ID=...
+CLOUDFLARE_API_TOKEN=...
+```
+
+#### Deploy
+
+There is no build-time embedding step; indexing happens on the hosted service. Keep the credentials available to the server at runtime. Each `/api/search` request runs one AI Search query against your account, so the same rate-limiting note as the local retriever applies.
 
 ::::
 
@@ -311,26 +358,6 @@ vocs build --no-embeddings
 ```
 
 A common setup is to build embeddings on a schedule (cron/CI) and skip them on regular content builds.
-
-### Use a managed retriever instead
-
-To delegate retrieval to a managed backend instead of owning the index, set `ai.retriever` to a managed adapter like `Retriever.cloudflare`. Vocs queries it at runtime (`/api/search`) and blends the results with keyword search (appended below by default; enable `hybrid` to fuse them into a single ranking).
-
-```ts twoslash
-// [!code word:cloudflare]
-import { defineConfig, Retriever } from 'vocs/config'
-
-export default defineConfig({
-  ai: {
-    retriever: Retriever.cloudflare({
-      instance: 'my-docs', // Cloudflare AI Search instance
-      reranking: true,
-    }),
-  },
-})
-```
-
-This needs no build-time embedding step, since indexing happens on the managed service.
 
 ## See More
 
