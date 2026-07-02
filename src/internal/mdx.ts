@@ -1466,7 +1466,9 @@ export function remarkChangelog(): remarkChangelog.ReturnType {
       // biome-ignore lint/suspicious/noAssignInExpressions: _
       const data = node.data || (node.data = {})
 
-      const limit = node.attributes?.['limit'] ? Number.parseInt(node.attributes['limit'], 10) : 999
+      // Malformed limits (NaN, zero, negative) fall back to the default.
+      const parsed = Number.parseInt(node.attributes?.['limit'] ?? '', 10)
+      const limit = Number.isInteger(parsed) && parsed > 0 ? parsed : 999
 
       data.hName = 'div'
       data.hProperties = {

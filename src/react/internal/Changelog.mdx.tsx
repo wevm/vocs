@@ -11,9 +11,9 @@ export function Changelog(props: Changelog.Props): React.JSX.Element {
 }
 
 async function ChangelogAsync(props: Changelog.Props): Promise<React.JSX.Element> {
-  const limit = props['data-v-changelog-limit']
-    ? Number.parseInt(props['data-v-changelog-limit'], 10)
-    : 999
+  // Malformed limits (NaN, zero, negative) fall back to the default.
+  const parsed = Number.parseInt(props['data-v-changelog-limit'] ?? '', 10)
+  const limit = Number.isInteger(parsed) && parsed > 0 ? parsed : 999
 
   const releases = await Actions.fetchChangelog({ limit })
   return <Changelog_client releases={releases} />
