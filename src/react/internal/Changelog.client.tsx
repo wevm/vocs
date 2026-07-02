@@ -3,6 +3,7 @@
 import { cx } from 'cva'
 import * as React from 'react'
 import { createPortal } from 'react-dom'
+import { Link } from 'waku'
 import LucideChevronDown from '~icons/lucide/chevron-down'
 import LucideExternalLink from '~icons/lucide/external-link'
 import LucideHistory from '~icons/lucide/history'
@@ -218,8 +219,8 @@ function VersionOutline(props: VersionOutline.Props): React.JSX.Element | null {
               data-version={release.version}
               className="vocs:scroll-my-4"
             >
-              <a
-                href={`#${release.version}`}
+              <Link
+                to={`#${release.version}`}
                 className={cx(
                   'vocs:block vocs:leading-snug vocs:py-1 vocs:pl-3 vocs:cursor-pointer vocs:font-mono vocs:text-xs vocs:transition-colors vocs:duration-100',
                   isActive ? 'vocs:text-accent' : 'vocs:text-secondary vocs:hover:text-link',
@@ -227,7 +228,7 @@ function VersionOutline(props: VersionOutline.Props): React.JSX.Element | null {
                 data-active={isActive}
               >
                 {release.version}
-              </a>
+              </Link>
             </li>
           )
         })}
