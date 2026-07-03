@@ -19,7 +19,7 @@ catalog:
   typescript: ^6.0.2
   vite: ^8.0.14
   vitest: ^4.1.7
-  waku: 1.0.0-beta.3
+  waku: 1.0.0-beta.6
   zile: 0.0.25
 
 overrides:
