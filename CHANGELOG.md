@@ -1,5 +1,11 @@
 # vocs
 
+## 2.3.2
+
+### Patch Changes
+
+- a3b0447: Upgraded to `waku@1.0.0-beta.6`.
+
 ## 2.3.1
 
 ### Patch Changes
