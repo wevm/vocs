@@ -81,5 +81,7 @@ export function Link(props: Link.Props) {
 }
 
 export namespace Link {
-  export type Props = React.ComponentProps<typeof WakuLink>
+  export type Props = Omit<React.ComponentProps<typeof WakuLink>, 'to'> & {
+    to: string
+  }
 }

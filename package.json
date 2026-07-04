@@ -150,7 +150,7 @@
     "react": "^19",
     "react-dom": "^19",
     "vite": "^8",
-    "waku": "^1.0.0-beta.3"
+    "waku": "^1.0.0-beta.6"
   },
   "peerDependenciesMeta": {
     "@vocs/twoslash-rust": {
