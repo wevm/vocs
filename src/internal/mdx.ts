@@ -1645,7 +1645,10 @@ export function remarkDirectivesMarkdown(
   return async (tree: MdAst.Root) => {
     // Collect matches first (visit is sync), then render and splice.
     const found: {
-      node: MdAst.RootContent & { name: string; attributes?: Directive.Attributes | undefined }
+      node: MdAst.RootContent & {
+        name: string
+        attributes?: Directive.Attributes | null | undefined
+      }
       index: number
       parent: MdAst.Parent
       directive: Directive.Resolved
