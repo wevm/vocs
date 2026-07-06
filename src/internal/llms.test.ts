@@ -624,7 +624,7 @@ const a = 1
 
   describe('user directives', () => {
     const withUserDirectives = (directives: readonly Directive.Directive[]) =>
-      withDirectives(Directive.resolve({ config: { markdown: { directives } } }))
+      withDirectives(Directive.resolve({ config: {}, directives }))
 
     const posts = [
       { title: 'Announcing Vocs v2', path: '/blog/announcing-v2', date: '2026-06-01' },

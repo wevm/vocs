@@ -8,6 +8,7 @@ import type { PluginOption, ResolvedConfig, Rolldown, ViteDevServer } from 'vite
 import { createLogger } from 'vite'
 import * as Config from './config.js'
 import * as ConfigSerializer from './config-serializer.js'
+import type * as Directive from './directive.js'
 import * as Git from './git.js'
 import * as Icons from './icons.js'
 import * as Langs from './langs.js'
@@ -169,11 +170,11 @@ export function langWatcher(config: Config.Config): PluginOption {
   }
 }
 
-export function llms(config: Config.Config): PluginOption {
+export function llms(config: Config.Config, options: llms.Options = {}): PluginOption {
   const { description, title } = config
   let viteConfig: ResolvedConfig
 
-  const { rehypePlugins, remarkPlugins } = Mdx.getCompileOptions('txt', config)
+  const { rehypePlugins, remarkPlugins } = Mdx.getCompileOptions('txt', config, options)
 
   async function buildLlmsContent() {
     const pagesDir = path.resolve(viteConfig.root, config.srcDir, config.pagesDir)
@@ -249,6 +250,20 @@ export function llms(config: Config.Config): PluginOption {
   }
 }
 
+export declare namespace llms {
+  type Options = {
+    /** User directives (`Directive.load`). */
+    directives?: readonly Directive.Directive[] | undefined
+  }
+}
+
+export declare namespace mdx {
+  type Options = {
+    /** User directives (`Directive.load`). */
+    directives?: readonly Directive.Directive[] | undefined
+  }
+}
+
 /**
  * Processes MDX files with graceful error handling.
  *
@@ -258,9 +273,9 @@ export function llms(config: Config.Config): PluginOption {
  * @param config - Vocs configuration.
  * @returns Plugin.
  */
-export function mdx(config: Config.Config): PluginOption {
+export function mdx(config: Config.Config, options: mdx.Options = {}): PluginOption {
   const { checkDeadlinks, twoslash } = config
-  const plugin = mdxPlugin(Mdx.getCompileOptions('react', config))
+  const plugin = mdxPlugin(Mdx.getCompileOptions('react', config, options))
 
   let mode: 'development' | 'production' = 'development'
 
@@ -600,6 +615,48 @@ export function userStyles(config: Config.Config): PluginOption {
         }
       }
       return
+    },
+  }
+}
+
+/**
+ * Vite plugin that exposes user directives (`_directives.tsx`, default
+ * export) as `virtual:vocs/directives`, consumed by `Directive.mdx.tsx`.
+ * The remark side loads the same file via `Directive.load` at startup, so
+ * changing it restarts the dev server to keep both in sync.
+ */
+export function directives(config: Config.Config): PluginOption {
+  const virtualModuleId = 'virtual:vocs/directives'
+  const resolvedVirtualModuleId = `\0${virtualModuleId}`
+  const directivesPath = path.resolve(
+    config.rootDir,
+    config.srcDir,
+    config.pagesDir,
+    '_directives.tsx',
+  )
+
+  return {
+    name: 'vocs:directives',
+    enforce: 'pre',
+    async resolveId(id) {
+      if (id === virtualModuleId) return resolvedVirtualModuleId
+      return
+    },
+    async load(id) {
+      if (id === resolvedVirtualModuleId) {
+        try {
+          await fs.access(directivesPath)
+          return `export { default as directives } from '${directivesPath}'`
+        } catch {
+          return 'export const directives = []'
+        }
+      }
+      return
+    },
+    configureServer(server) {
+      server.watcher.on('all', (_event, file) => {
+        if (file === directivesPath) server.restart()
+      })
     },
   }
 }

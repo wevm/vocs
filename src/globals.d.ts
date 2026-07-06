@@ -75,6 +75,11 @@ declare module '*?arraybuffer' {
   export default data
 }
 
+declare module 'virtual:vocs/directives' {
+  import type { Directive } from './internal/directive.js'
+  export const directives: readonly Directive[]
+}
+
 declare module 'virtual:vocs/slots' {
   import type { ComponentType } from 'react'
   export const Footer: ComponentType | undefined

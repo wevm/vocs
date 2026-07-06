@@ -277,15 +277,15 @@ export const deadLinks = new Map<string, string[]>()
 export function getCompileOptions(
   type: 'txt' | 'react',
   config: Config.Config,
+  options: getCompileOptions.Options = {},
 ): Omit<CompileOptions, 'remarkPlugins' | 'rehypePlugins' | 'recmaPlugins'> & {
   remarkPlugins: PluggableList
   rehypePlugins: PluggableList
   recmaPlugins: PluggableList
 } {
   const { cacheDir, codeHighlight, markdown, rootDir, srcDir, twoslash } = config
-  // `directives` is a vocs extension — keep it out of the MDX compile options.
-  const { jsxImportSource = 'react', directives: _, ...mdxOptions } = markdown ?? {}
-  const directives = Directive.resolve({ config })
+  const { jsxImportSource = 'react' } = markdown ?? {}
+  const directives = Directive.resolve({ config, directives: options.directives })
 
   // Extract language names from twoslash transformers (e.g., rust, toml from experimental_rust)
   const twoslashTransformerLangs =
@@ -422,12 +422,19 @@ export function getCompileOptions(
   })()
 
   return {
-    ...mdxOptions,
+    ...markdown,
     jsxImportSource,
     providerImportSource: 'vocs/mdx',
     recmaPlugins,
     rehypePlugins,
     remarkPlugins,
+  }
+}
+
+export declare namespace getCompileOptions {
+  type Options = {
+    /** User directives (`Directive.load`). */
+    directives?: readonly Directive.Directive[] | undefined
   }
 }
 

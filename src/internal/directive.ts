@@ -1,3 +1,5 @@
+import * as fs from 'node:fs'
+import * as path from 'node:path'
 import type * as MdAst from 'mdast'
 import type * as React from 'react'
 import * as Changelog from './changelog.js'
@@ -9,9 +11,8 @@ export type Directive = {
   name: string
   /**
    * React representation — rendered in the site build with the directive's
-   * attributes as props. Runs as a server component (config loads outside
-   * the app module graph): async components work; `use client` components
-   * aren't supported.
+   * attributes as props. Loaded through the app module graph, so `use client`
+   * components and async server components both work.
    */
   component?: React.ComponentType<Attributes> | undefined
   /**
@@ -31,15 +32,48 @@ export declare namespace toMarkdown {
   type ReturnType = string | MdAst.RootContent[] | null | undefined
 }
 
+/**
+ * Loads user directives from `{pagesDir}/_directives.tsx` (default export),
+ * for the remark pipelines. The react pipeline consumes the same file through
+ * `virtual:vocs/directives` instead, so its component imports resolve in the
+ * app module graph.
+ */
+export async function load(options: load.Options): Promise<load.ReturnType> {
+  const { config } = options
+  const { rootDir, srcDir, pagesDir } = config
+
+  const file = path.resolve(rootDir, srcDir, pagesDir, '_directives.tsx')
+  if (!fs.existsSync(file)) return []
+
+  const { tsImport } = await import('tsx/esm/api')
+  const loaded = (await tsImport(file, import.meta.url)) as {
+    default?: Directive[] | { default?: Directive[] | undefined } | undefined
+  }
+  // CJS interop (no `"type": "module"`) wraps the default export twice.
+  const mod = loaded.default
+  if (Array.isArray(mod)) return mod
+  if (mod && Array.isArray(mod.default)) return mod.default
+  return []
+}
+
+export declare namespace load {
+  type Options = {
+    config: Pick<Config.Config, 'rootDir' | 'srcDir' | 'pagesDir'>
+  }
+  type ReturnType = readonly Directive[]
+}
+
 /** Resolves the directive registry: user directives first (they override built-ins), then built-ins. */
 export function resolve(options: resolve.Options): resolve.ReturnType {
-  const { config } = options
-  return [...(config.markdown?.directives ?? []), ...builtins(config)]
+  const { config, directives = [] } = options
+  return [...directives, ...builtins(config)]
 }
 
 export declare namespace resolve {
   type Options = {
-    config: Pick<Config.Config, 'changelog' | 'markdown'>
+    config: Pick<Config.Config, 'changelog'>
+    /** User directives (`Directive.load`). */
+    directives?: readonly Directive[] | undefined
   }
   type ReturnType = readonly Resolved[]
 }

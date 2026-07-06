@@ -475,7 +475,8 @@ describe('remarkDirectives', () => {
 
   it('marks user directives with a component', async () => {
     const list = Directive.resolve({
-      config: { markdown: { directives: [{ name: 'blog-posts', component: () => null }] } },
+      config: {},
+      directives: [{ name: 'blog-posts', component: () => null }],
     })
     expect(await run('::blog-posts{limit=3}', list)).toMatchInlineSnapshot(`
       {
@@ -492,7 +493,8 @@ describe('remarkDirectives', () => {
     expect(await run('::blog-posts')).toBeUndefined()
 
     const list = Directive.resolve({
-      config: { markdown: { directives: [{ name: 'blog-posts', toMarkdown: () => 'posts' }] } },
+      config: {},
+      directives: [{ name: 'blog-posts', toMarkdown: () => 'posts' }],
     })
     expect(await run('::blog-posts', list)).toBeUndefined()
   })

@@ -1,4 +1,5 @@
 export { useRouter } from 'waku'
+export type { Directive } from './internal/directive.js'
 export * as Feedback from './internal/feedback.js'
 export * as McpSource from './internal/mcp-source.js'
 export { Badge } from './react/Badge.js'
