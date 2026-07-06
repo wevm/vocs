@@ -5,10 +5,11 @@ import remarkDirective from 'remark-directive'
 import type { Pluggable } from 'unified'
 import { describe, expect, test } from 'vitest'
 import type * as Changelog from './changelog.js'
+import * as Directive from './directive.js'
 import { buildLlmsContent, getMarkdownPagePrelude } from './llms.js'
 import {
-  remarkChangelogMarkdown,
   remarkDefaultFrontmatter,
+  remarkDirectivesMarkdown,
   remarkExtractFrontmatter,
   remarkFrontmatter,
   remarkStripFrontmatter,
@@ -459,6 +460,15 @@ const a = 1
     `)
   })
 
+  const withDirectives = (directives: Directive.resolve.ReturnType) => ({
+    rehypePlugins: [],
+    remarkPlugins: [
+      ...plugins.remarkPlugins,
+      remarkDirective,
+      [remarkDirectivesMarkdown, { directives }] as Pluggable,
+    ],
+  })
+
   describe('::changelog directive', () => {
     const releases: Changelog.Release[] = [
       {
@@ -493,14 +503,8 @@ const a = 1
       path: '/changelog',
       content: '---\ntitle: Changelog\n---\n\n::changelog',
     }
-    const withChangelog = (changelog?: Changelog.Adapter) => ({
-      rehypePlugins: [],
-      remarkPlugins: [
-        ...plugins.remarkPlugins,
-        remarkDirective,
-        [remarkChangelogMarkdown, { changelog }] as Pluggable,
-      ],
-    })
+    const withChangelog = (changelog?: Changelog.Adapter) =>
+      withDirectives(Directive.resolve({ config: { changelog } }))
 
     test('renders releases from the adapter', async () => {
       const result = await buildLlmsContent({
@@ -615,6 +619,124 @@ const a = 1
       const content = result.results[0]?.content ?? ''
       expect(content).toContain(':::steps')
       expect(content).toContain('Do the thing.')
+    })
+  })
+
+  describe('user directives', () => {
+    const withUserDirectives = (directives: readonly Directive.Directive[]) =>
+      withDirectives(Directive.resolve({ config: { markdown: { directives } } }))
+
+    const posts = [
+      { title: 'Announcing Vocs v2', path: '/blog/announcing-v2', date: '2026-06-01' },
+      { title: 'Reducing bundle size', path: '/blog/bundle-size', date: '2026-05-12' },
+      { title: 'Hello world', path: '/blog/hello-world', date: '2026-04-02' },
+    ]
+    const blogPosts: Directive.Directive = {
+      name: 'blog-posts',
+      toMarkdown(attributes) {
+        const limit = Number.parseInt(attributes['limit'] ?? '', 10) || posts.length
+        return posts
+          .slice(0, limit)
+          .map((post) => `- [${post.title}](${post.path}) — ${post.date}`)
+          .join('\n')
+      },
+    }
+
+    const page = {
+      path: '/blog',
+      content: '---\ntitle: Blog\n---\n\n::blog-posts{limit=2}',
+    }
+
+    test('renders a post list from `toMarkdown`', async () => {
+      const result = await buildLlmsContent({
+        pages: [page],
+        title: 'My Docs',
+        ...withUserDirectives([blogPosts]),
+      })
+
+      const content = result.results[0]?.content ?? ''
+      expect(content).not.toContain('::blog-posts')
+      expect(content).toContain('[Announcing Vocs v2](/blog/announcing-v2) — 2026-06-01')
+      expect(content).toContain('[Reducing bundle size](/blog/bundle-size) — 2026-05-12')
+      // limit=2: the third post is cut.
+      expect(content).not.toContain('Hello world')
+    })
+
+    test('splices mdast nodes from `toMarkdown`', async () => {
+      const result = await buildLlmsContent({
+        pages: [{ path: '/blog', content: '---\ntitle: Blog\n---\n\n::authors' }],
+        title: 'My Docs',
+        ...withUserDirectives([
+          {
+            name: 'authors',
+            toMarkdown: () => [
+              {
+                type: 'paragraph',
+                children: [
+                  { type: 'text', value: 'Written by ' },
+                  {
+                    type: 'link',
+                    url: 'https://github.com/jxom',
+                    children: [{ type: 'text', value: 'jxom' }],
+                  },
+                ],
+              },
+            ],
+          },
+        ]),
+      })
+
+      const content = result.results[0]?.content ?? ''
+      expect(content).not.toContain('::authors')
+      expect(content).toContain('Written by [jxom](https://github.com/jxom)')
+    })
+
+    test('leaves the directive as-is on `null`', async () => {
+      const result = await buildLlmsContent({
+        pages: [page],
+        title: 'My Docs',
+        ...withUserDirectives([{ name: 'blog-posts', toMarkdown: () => null }]),
+      })
+
+      // The directive round-trips to its source form (attributes normalized).
+      expect(result.results[0]?.content).toContain('::blog-posts{limit="2"}')
+    })
+
+    test('degrades to a comment when `toMarkdown` throws', async () => {
+      const result = await buildLlmsContent({
+        pages: [page],
+        title: 'My Docs',
+        ...withUserDirectives([
+          {
+            name: 'blog-posts',
+            toMarkdown() {
+              throw new Error('failed to read posts')
+            },
+          },
+        ]),
+      })
+
+      const content = result.results[0]?.content ?? ''
+      expect(content).not.toContain('::blog-posts')
+      expect(content).toContain('<!-- blog-posts unavailable -->')
+    })
+
+    test('overrides a built-in of the same name', async () => {
+      const result = await buildLlmsContent({
+        pages: [{ path: '/changelog', content: '---\ntitle: Changelog\n---\n\n::changelog' }],
+        title: 'My Docs',
+        ...withUserDirectives([
+          {
+            name: 'changelog',
+            toMarkdown: () =>
+              'All releases live on [GitHub](https://github.com/wevm/vocs/releases).',
+          },
+        ]),
+      })
+
+      const content = result.results[0]?.content ?? ''
+      expect(content).not.toContain('::changelog')
+      expect(content).toContain('[GitHub](https://github.com/wevm/vocs/releases)')
     })
   })
 

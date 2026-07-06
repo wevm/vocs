@@ -1,6 +1,24 @@
 import { Changelog, defineConfig, Embedding, McpSource, Retriever, Twoslash } from 'vocs/config'
+import { Contributors, fetchContributors, parseLimit } from './src/components/Contributors'
 
 export default defineConfig({
+  markdown: {
+    directives: [
+      {
+        name: 'contributors',
+        component: Contributors,
+        async toMarkdown(attributes) {
+          const contributors = await fetchContributors({
+            limit: parseLimit(attributes['limit']),
+            repo: attributes['repo'] ?? 'wevm/vocs',
+          })
+          return contributors
+            .map((contributor) => `- [${contributor.login}](${contributor.html_url})`)
+            .join('\n')
+        },
+      },
+    ],
+  },
   ai: {
     retriever: process.env.CLOUDFLARE_API_TOKEN
       ? Retriever.local({
@@ -104,6 +122,7 @@ export default defineConfig({
     '/': [
       { text: 'Home', link: '/' },
       { text: 'Changelog', link: '/changelog', badge: 'New' },
+      { text: 'Contributors', link: '/contributors' },
       { text: 'Kitchen Sink', link: '/kitchen-sink' },
       { text: 'REPL', link: '/repl', badge: { text: 'Beta', variant: 'warning' } },
       { text: 'None' },

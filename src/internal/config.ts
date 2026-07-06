@@ -7,6 +7,7 @@ import type {
 } from 'minisearch'
 import type { Link, MetaFlat, Script, StringInnerContent, Style } from 'unhead/types'
 import type * as Changelog from './changelog.js'
+import type * as Directive from './directive.js'
 import type * as Feedback from './feedback.js'
 import * as Langs from './langs.js'
 import type * as McpSource from './mcp-source.js'
@@ -536,7 +537,16 @@ export type Config<partial extends boolean = false> = MaybePartial<
     /**
      * Markdown configuration.
      */
-    markdown?: MdxRollup.Options | undefined
+    markdown?:
+      | (MdxRollup.Options & {
+          /**
+           * Markdown directives (`::name{key=value}`), each with a react
+           * and/or markdown representation. User directives override
+           * built-ins of the same name.
+           */
+          directives?: readonly Directive.Directive[] | undefined
+        })
+      | undefined
     /**
      * MCP (Model Context Protocol) server configuration.
      * Enables LLMs to navigate documentation and source code.
