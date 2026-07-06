@@ -47,6 +47,13 @@ export type Ir = {
   /** Operations grouped by category (tag or path segment). */
   groups: IrGroup[]
   /**
+   * Named sections of categories from `x-tagGroups` (Redoc convention), used to
+   * nest sidebar groups under section headers (e.g. `Data API`, `Platform
+   * API`). Present only when the document declares at least one group that
+   * resolves to a rendered category; navigation-only — pages stay per-category.
+   */
+  tagGroups?: IrTagGroup[] | undefined
+  /**
    * Doc-only "trait" pages: tags marked `x-traitTag: true` (Redoc convention),
    * which carry Markdown `description` content but no operations. The standalone
    * handler renders each as a guide page nested under `Introduction`.
@@ -88,6 +95,13 @@ export type IrGroup = {
   description?: string | undefined
   /** Operations belonging to this category. */
   operations: IrOperation[]
+}
+
+export type IrTagGroup = {
+  /** Display name of the section (e.g. `Data API`). */
+  name: string
+  /** Ids of the categories in this section, in authored order. */
+  groupIds: string[]
 }
 
 export type IrOperation = {
@@ -197,6 +211,11 @@ type Document = {
     'x-subtitle'?: string
     'x-parent'?: string
   }[]
+  /**
+   * Redoc convention: named sections of tags, rendered as sidebar section
+   * headers with the tags' groups nested inside.
+   */
+  'x-tagGroups'?: { name?: string; tags?: string[] }[]
   paths?: Record<string, PathItem>
   /**
    * OpenAPI 3.1 outbound webhook deliveries. Keyed by event name (an arbitrary
@@ -297,7 +316,13 @@ export async function parse(config: OpenApi.Config, options: parse.Options = {})
 
   const securitySchemes = document.components?.securitySchemes ?? {}
 
-  const { groups, injections } = await buildGroups(document, { baseUrl: openrpcBaseUrl })
+  const built = await buildGroups(document, { baseUrl: openrpcBaseUrl })
+  const { groups, tagGroups, excluded } = applyExclusions(
+    built.groups,
+    buildTagGroups(document, built.groups),
+    config.exclude,
+  )
+  const injections = built.injections
 
   // Inject JSON-RPC examples onto the host operation in the spec the
   // interactive client loads, so each "Try" can preselect its method's
@@ -307,14 +332,24 @@ export async function parse(config: OpenApi.Config, options: parse.Options = {})
   for (const injection of injections)
     injectRpcExamples(specification as Record<string, unknown>, injection)
 
+  // Excluded operations are stripped from the client spec too (forcing inline
+  // for URL specs), so the interactive client's own navigation can't leak
+  // them. Strip a clone: the input `specification` may be a caller-owned
+  // object also served elsewhere (e.g. `/openapi.json`), which must keep the
+  // excluded operations.
+  const clientSpecification = (
+    excluded.length > 0 ? structuredClone(specification) : specification
+  ) as Record<string, unknown>
+  stripOperations(clientSpecification, excluded)
+
   const shouldInlineClientSpec =
-    injections.length > 0 || (isUrl && shouldNormalizeClientServers(document, servers))
-  if (shouldInlineClientSpec) setClientServers(specification as Record<string, unknown>, servers)
+    injections.length > 0 ||
+    excluded.length > 0 ||
+    (isUrl && shouldNormalizeClientServers(document, servers))
+  if (shouldInlineClientSpec) setClientServers(clientSpecification, servers)
 
   const client =
-    isUrl && !shouldInlineClientSpec
-      ? { url: spec as string }
-      : { content: specification as Record<string, unknown> }
+    isUrl && !shouldInlineClientSpec ? { url: spec as string } : { content: clientSpecification }
 
   return {
     path: config.path ?? '/',
@@ -326,9 +361,37 @@ export async function parse(config: OpenApi.Config, options: parse.Options = {})
     },
     servers,
     groups,
+    ...(tagGroups ? { tagGroups } : {}),
     traits: buildTraits(document),
     securitySchemes,
   }
+}
+
+/**
+ * Resolves `x-tagGroups` entries against the built categories. Tags that don't
+ * resolve to a rendered category are dropped; a category claimed by multiple
+ * sections stays with the first (pages are per-category, so one sidebar home).
+ * Returns `undefined` when nothing resolves, so the sidebar stays flat.
+ */
+function buildTagGroups(document: Document, groups: IrGroup[]): IrTagGroup[] | undefined {
+  const entries = document['x-tagGroups']
+  if (!entries || entries.length === 0) return undefined
+
+  const idByName = new Map(groups.map((group) => [group.name, group.id]))
+  const claimed = new Set<string>()
+  const tagGroups: IrTagGroup[] = []
+  for (const entry of entries) {
+    if (!entry?.name) continue
+    const groupIds: string[] = []
+    for (const tag of entry.tags ?? []) {
+      const id = idByName.get(tag)
+      if (!id || claimed.has(id)) continue
+      claimed.add(id)
+      groupIds.push(id)
+    }
+    if (groupIds.length > 0) tagGroups.push({ name: entry.name, groupIds })
+  }
+  return tagGroups.length > 0 ? tagGroups : undefined
 }
 
 /**
@@ -356,6 +419,78 @@ function injectRpcExamples(specification: Record<string, unknown>, injection: Rp
   if (!content['application/json']) content['application/json'] = {}
   const media = content['application/json']
   media['examples'] = { ...(media['examples'] as Record<string, unknown>), ...injection.examples }
+}
+
+/** An operation removed by `exclude`, identified for stripping from the client spec. */
+type ExcludedOperation = { method: string; path: string; isWebhook: boolean }
+
+/**
+ * Applies the config `exclude` list: a name matching an `x-tagGroups` section
+ * excludes every category it claims; a name matching a category (tag) excludes
+ * that category. Excluded categories are dropped from `groups`, pruned from
+ * `tagGroups` (emptied sections are removed), and their operations returned
+ * for stripping from the client spec. Unmatched names are ignored.
+ */
+function applyExclusions(
+  groups: IrGroup[],
+  tagGroups: IrTagGroup[] | undefined,
+  exclude: readonly string[] | undefined,
+): { groups: IrGroup[]; tagGroups: IrTagGroup[] | undefined; excluded: ExcludedOperation[] } {
+  const names = new Set(exclude ?? [])
+  if (names.size === 0) return { groups, tagGroups, excluded: [] }
+
+  const excludedIds = new Set<string>()
+  for (const tagGroup of tagGroups ?? [])
+    if (names.has(tagGroup.name)) for (const id of tagGroup.groupIds) excludedIds.add(id)
+  for (const group of groups) if (names.has(group.name)) excludedIds.add(group.id)
+  if (excludedIds.size === 0) return { groups, tagGroups, excluded: [] }
+
+  const excluded = groups
+    .filter((group) => excludedIds.has(group.id))
+    .flatMap((group) =>
+      group.operations.map((operation) => ({
+        method: operation.method,
+        path: operation.path,
+        isWebhook: operation.isWebhook ?? false,
+      })),
+    )
+  const prunedTagGroups = (tagGroups ?? [])
+    .filter((tagGroup) => !names.has(tagGroup.name))
+    .map((tagGroup) => ({
+      ...tagGroup,
+      groupIds: tagGroup.groupIds.filter((id) => !excludedIds.has(id)),
+    }))
+    .filter((tagGroup) => tagGroup.groupIds.length > 0)
+  return {
+    groups: groups.filter((group) => !excludedIds.has(group.id)),
+    tagGroups: prunedTagGroups.length > 0 ? prunedTagGroups : undefined,
+    excluded,
+  }
+}
+
+/**
+ * Deletes excluded operations from the (upgraded) spec handed to the
+ * interactive client. A path item left with no methods is removed entirely.
+ */
+function stripOperations(
+  specification: Record<string, unknown>,
+  excluded: ExcludedOperation[],
+): void {
+  // JSON-RPC operations expanded from one host operation share its path+method.
+  const seen = new Set<string>()
+  for (const operation of excluded) {
+    const key = `${operation.isWebhook}:${operation.method}:${operation.path}`
+    if (seen.has(key)) continue
+    seen.add(key)
+
+    const target = specification[operation.isWebhook ? 'webhooks' : 'paths'] as
+      | Record<string, Record<string, unknown>>
+      | undefined
+    const item = target?.[operation.path]
+    if (!item || typeof item !== 'object') continue
+    delete item[operation.method.toLowerCase()]
+    if (!methods.some((method) => method in item)) delete target[operation.path]
+  }
 }
 
 /** Builds doc-only "trait" pages from tags marked `x-traitTag: true`. */

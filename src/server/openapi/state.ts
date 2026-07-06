@@ -57,6 +57,7 @@ export async function prepare(
   const bottom = config.sidebar?.bottom ?? []
   const intro = [...traitIntro, ...(config.sidebar?.intro ?? [])]
   const collapsed = config.sidebar?.collapsed ?? false
+  const flatten = config.sidebar?.flatten
   const newGroups = [...extraGroups].map(([name, items]) => ({
     text: name,
     collapsed,
@@ -64,7 +65,7 @@ export async function prepare(
   }))
   const sidebar = [
     ...top,
-    ...Sidebar.toSidebar(ir, { intro, groupExtras, collapsed }),
+    ...Sidebar.toSidebar(ir, { intro, groupExtras, collapsed, flatten }),
     ...newGroups,
     ...bottom,
   ]

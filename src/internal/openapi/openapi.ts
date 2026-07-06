@@ -69,6 +69,15 @@ export type SidebarExtras = {
    * @default true
    */
   backLink?: boolean | undefined
+  /**
+   * Names of `x-tagGroups` sections to flatten: their categories render as
+   * top-level sidebar items (as without tag groups) instead of nesting under
+   * the section header. Useful to keep a primary API prominent while secondary
+   * APIs stay grouped. Names not matching a section are ignored.
+   *
+   * @example ["Data API"]
+   */
+  flatten?: readonly string[] | undefined
 }
 
 /**
@@ -122,6 +131,17 @@ export type Config = {
    * @example "/api"
    */
   path?: string | undefined
+  /**
+   * Tag or `x-tagGroups` section names to leave out of the generated reference
+   * entirely: no sidebar items, no category pages, no search entries, and the
+   * operations are stripped from the spec handed to the interactive client.
+   * Excluding a section name excludes every tag it claims. Names matching
+   * nothing are ignored. The source spec is not modified — a spec served
+   * separately (e.g. `/openapi.json`) still contains the operations.
+   *
+   * @example ["Platform API"]
+   */
+  exclude?: readonly string[] | undefined
   /**
    * Extra sidebar items to add around the auto-generated section (e.g. links to
    * consumer-authored guide pages mounted under `path`).
@@ -191,7 +211,7 @@ export type SiteConfig = Config & {
  * ```
  */
 export function from(config: from.Options): SiteConfig {
-  const { spec, path, sidebar, pages } = config
+  const { spec, path, exclude, sidebar, pages } = config
 
   if (!spec) throw new Error('[vocs] `openapi` entry is missing a `spec`.')
   if (!path) throw new Error('[vocs] `openapi` entry is missing a `path`.')
@@ -199,6 +219,7 @@ export function from(config: from.Options): SiteConfig {
   return {
     spec,
     path: normalizePath(path),
+    ...(exclude ? { exclude } : {}),
     ...(sidebar ? { sidebar } : {}),
     ...(pages ? { pages } : {}),
   }

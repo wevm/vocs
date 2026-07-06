@@ -62,6 +62,52 @@ export default defineConfig({
 
 Then author the page in your pages directory at the matching route (e.g. `src/pages/api/auth.mdx`).
 
+### Group Tags into Sections
+
+Declare `x-tagGroups` at the root of your spec ([Redoc convention](https://redocly.com/docs/api-reference-docs/specification-extensions/x-tag-groups/)) to nest the sidebar's tag groups under named section headers — useful when one document spans several APIs.
+
+```yaml [openapi.yaml]
+x-tagGroups: # [!code focus]
+  - name: Data API # [!code focus]
+    tags: [Tokens, Transactions, Blocks] # [!code focus]
+  - name: Platform API # [!code focus]
+    tags: [Organizations, API Keys] # [!code focus]
+```
+
+Grouping affects navigation only — each tag keeps its own page and URL. Tags not claimed by any group stay at the top level of the sidebar, after the sections.
+
+To keep a primary API prominent, name it in `sidebar.flatten` — its tags render as top-level items (as without tag groups) while the other sections keep their headers.
+
+```ts [vocs.config.ts]
+export default defineConfig({
+  openapi: [
+    {
+      spec: './openapi.yaml',
+      path: '/api',
+      sidebar: { // [!code focus]
+        flatten: ['Data API'], // [!code focus]
+      }, // [!code focus]
+    },
+  ],
+})
+```
+
+### Hide Tags or Sections
+
+Name tags or `x-tagGroups` sections in `exclude` to leave them out of the reference entirely — no sidebar items, category pages, or search entries, and their operations are stripped from the interactive client. The source spec is untouched, so a spec served separately (e.g. `/openapi.json`) still documents them.
+
+```ts [vocs.config.ts]
+export default defineConfig({
+  openapi: [
+    {
+      spec: './openapi.yaml',
+      path: '/api',
+      exclude: ['Platform API'], // [!code focus]
+    },
+  ],
+})
+```
+
 ### List Endpoints in a Page
 
 The `<OpenApi.Endpoints />` component renders the landing/domain accordion of operations anywhere in your MDX, useful for an introduction or overview page.

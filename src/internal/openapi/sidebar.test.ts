@@ -94,6 +94,100 @@ describe('toSidebar', () => {
     expect((sidebar[1] as { collapsed: boolean }).collapsed).toBe(true)
   })
 
+  test('nests claimed groups under static section headers from tagGroups', () => {
+    const sectioned: Ir = {
+      ...ir,
+      groups: [
+        ...ir.groups,
+        {
+          id: 'platform',
+          name: 'Platform',
+          operations: [
+            {
+              id: 'listkeys',
+              method: 'GET',
+              path: '/keys',
+              summary: 'List keys',
+              parameters: [],
+              responses: [],
+            },
+          ],
+        },
+      ],
+      tagGroups: [
+        { name: 'Data API', groupIds: ['pets'] },
+        { name: 'Platform API', groupIds: ['platform'] },
+      ],
+    }
+    const sidebar = toSidebar(sectioned, { collapsed: true })
+    expect(sidebar.map((item) => item.text)).toEqual(['Introduction', 'Data API', 'Platform API'])
+    // Sections are static headers (not collapsible); nested groups keep the
+    // `collapsed` behavior.
+    const section = sidebar[1] as {
+      collapsed?: boolean
+      items: { text?: string; collapsed?: boolean }[]
+    } // prettier-ignore
+    expect(section.collapsed).toBeUndefined()
+    expect(section.items.map((item) => item.text)).toEqual(['pets'])
+    expect(section.items[0]?.collapsed).toBe(true)
+  })
+
+  test('appends groups unclaimed by tagGroups at the top level', () => {
+    const sidebar = toSidebar({
+      ...ir,
+      groups: [
+        ...ir.groups,
+        { id: 'internal', name: 'Internal', operations: ir.groups[0]?.operations ?? [] },
+      ],
+      tagGroups: [{ name: 'Data API', groupIds: ['pets'] }],
+    })
+    expect(sidebar.map((item) => item.text)).toEqual(['Introduction', 'Data API', 'Internal'])
+  })
+
+  test('flattened tag groups render their categories in place at the top level', () => {
+    const sectioned: Ir = {
+      ...ir,
+      groups: [
+        ...ir.groups,
+        {
+          id: 'platform',
+          name: 'Platform',
+          operations: [
+            {
+              id: 'listkeys',
+              method: 'GET',
+              path: '/keys',
+              summary: 'List keys',
+              parameters: [],
+              responses: [],
+            },
+          ],
+        },
+      ],
+      tagGroups: [
+        { name: 'Data API', groupIds: ['pets'] },
+        { name: 'Platform API', groupIds: ['platform'] },
+      ],
+    }
+    const sidebar = toSidebar(sectioned, { flatten: ['Data API'] })
+    // `pets` renders top-level where its section would sit; `Platform API`
+    // keeps its section header.
+    expect(sidebar.map((item) => item.text)).toEqual(['Introduction', 'pets', 'Platform API'])
+    const pets = sidebar[1] as { collapsed?: boolean }
+    const section = sidebar[2] as { collapsed?: boolean; items: { text?: string }[] }
+    expect(pets.collapsed).toBe(false)
+    expect(section.collapsed).toBeUndefined()
+    expect(section.items.map((item) => item.text)).toEqual(['Platform'])
+  })
+
+  test('ignores flatten names that match no tag group', () => {
+    const sidebar = toSidebar(
+      { ...ir, tagGroups: [{ name: 'Data API', groupIds: ['pets'] }] },
+      { flatten: ['Nope'] },
+    )
+    expect(sidebar.map((item) => item.text)).toEqual(['Introduction', 'Data API'])
+  })
+
   test('injects groupExtras after a group Overview link', () => {
     const sidebar = toSidebar(ir, {
       groupExtras: new Map([['pets', [{ text: 'Rate limits', link: '/api/rate-limits' }]]]),

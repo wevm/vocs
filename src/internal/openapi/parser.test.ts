@@ -188,6 +188,113 @@ describe('parse', () => {
     expect(fallback?.operations.map((op) => op.id)).toEqual(['health'])
   })
 
+  test('omits `tagGroups` when the document has no `x-tagGroups`', async () => {
+    const ir = await parse(OpenApi.from({ spec, path: '/api' }))
+    expect(ir.tagGroups).toBeUndefined()
+  })
+
+  test('resolves `x-tagGroups` to rendered group ids', async () => {
+    const ir = await parse(
+      OpenApi.from({
+        spec: {
+          ...spec,
+          'x-tagGroups': [
+            { name: 'Data API', tags: ['pets'] },
+            { name: 'Platform API', tags: ['store'] },
+          ],
+        },
+        path: '/api',
+      }),
+    )
+    expect(ir.tagGroups).toEqual([
+      { name: 'Data API', groupIds: ['pets'] },
+      { name: 'Platform API', groupIds: ['store'] },
+    ])
+  })
+
+  test('drops unknown tags, empty sections, and repeat claims from `x-tagGroups`', async () => {
+    const ir = await parse(
+      OpenApi.from({
+        spec: {
+          ...spec,
+          'x-tagGroups': [
+            // `missing` names no rendered group; `pets` resolves.
+            { name: 'Data API', tags: ['missing', 'pets'] },
+            // Both tags already claimed or unknown → section drops entirely.
+            { name: 'Empty', tags: ['pets', 'nope'] },
+            // Unnamed entries are ignored.
+            { tags: ['store'] },
+          ],
+        },
+        path: '/api',
+      }),
+    )
+    expect(ir.tagGroups).toEqual([{ name: 'Data API', groupIds: ['pets'] }])
+  })
+
+  test('omits `tagGroups` when no `x-tagGroups` entry resolves', async () => {
+    const ir = await parse(
+      OpenApi.from({
+        spec: { ...spec, 'x-tagGroups': [{ name: 'Ghost', tags: ['missing'] }] },
+        path: '/api',
+      }),
+    )
+    expect(ir.tagGroups).toBeUndefined()
+  })
+
+  test('excludes a tag by name, stripping its operations from the client spec', async () => {
+    const ir = await parse(OpenApi.from({ spec, path: '/api', exclude: ['store'] }))
+    expect(ir.groups.map((group) => group.name)).toEqual(['pets', 'default'])
+    const content = (ir.client as { content: Record<string, unknown> }).content
+    const paths = content['paths'] as Record<string, unknown>
+    expect(paths['/inventory']).toBeUndefined()
+    expect(paths['/pets']).toBeDefined()
+  })
+
+  test('excludes every tag an excluded `x-tagGroups` section claims', async () => {
+    const ir = await parse(
+      OpenApi.from({
+        spec: {
+          ...spec,
+          'x-tagGroups': [
+            { name: 'Data API', tags: ['pets'] },
+            { name: 'Platform API', tags: ['store'] },
+          ],
+        },
+        path: '/api',
+        exclude: ['Platform API'],
+      }),
+    )
+    expect(ir.groups.map((group) => group.name)).toEqual(['pets', 'default'])
+    expect(ir.tagGroups).toEqual([{ name: 'Data API', groupIds: ['pets'] }])
+    const content = (ir.client as { content: Record<string, unknown> }).content
+    expect((content['paths'] as Record<string, unknown>)['/inventory']).toBeUndefined()
+  })
+
+  test('keeps other methods on a path shared with an excluded tag', async () => {
+    const sharedSpec = {
+      openapi: '3.1.0',
+      info: { title: 'Shared', version: '1.0.0' },
+      paths: {
+        '/shared': {
+          get: { operationId: 'readShared', tags: ['a'], responses: { '200': {} } },
+          post: { operationId: 'writeShared', tags: ['b'], responses: { '201': {} } },
+        },
+      },
+    }
+    const ir = await parse(OpenApi.from({ spec: sharedSpec, path: '/api', exclude: ['a'] }))
+    expect(ir.groups.map((group) => group.name)).toEqual(['b'])
+    const content = (ir.client as { content: Record<string, unknown> }).content
+    const shared = (content['paths'] as Record<string, Record<string, unknown>>)['/shared']
+    expect(shared?.['get']).toBeUndefined()
+    expect(shared?.['post']).toBeDefined()
+  })
+
+  test('ignores exclude names matching nothing', async () => {
+    const ir = await parse(OpenApi.from({ spec, path: '/api', exclude: ['Ghost'] }))
+    expect(ir.groups.map((group) => group.name)).toEqual(['pets', 'store', 'default'])
+  })
+
   test('inlines remote specs with relative servers for the API client', async () => {
     const fetch_ = globalThis.fetch
     const remoteSpec = {

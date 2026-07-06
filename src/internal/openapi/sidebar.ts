@@ -32,7 +32,9 @@ export function methodVariant(method: string): BadgeVariant {
  * OpenAPI IR.
  *
  * Each category is its own page; operation links are in-page anchors on that
- * page (`/api/{group}#{operation}`).
+ * page (`/api/{group}#{operation}`). When the IR carries `tagGroups`, claimed
+ * categories nest under static section headers; unclaimed ones follow at the
+ * top level so no category silently disappears.
  */
 export function toSidebar(ir: Ir, options: toSidebar.Options = {}): SidebarItem<true>[] {
   // Strip a trailing slash so a root mount (`/`) doesn't yield `//group`.
@@ -63,28 +65,48 @@ export function toSidebar(ir: Ir, options: toSidebar.Options = {}): SidebarItem<
   // active group still auto-expands at render). `Introduction` is unaffected.
   const groupCollapsed = options.collapsed ?? false
 
+  const groupItem = (group: Ir['groups'][number]): SidebarItem<true> => ({
+    text: group.name,
+    collapsed: groupCollapsed,
+    items: [
+      // An "Overview" entry links to the category itself; the top-level item
+      // is a non-link header so its label doesn't compete with the operations.
+      { text: 'Overview', link: groupLink(group.id) },
+      ...((groupExtras.get(group.id) ?? []) as SidebarItem<true>[]),
+      ...group.operations.map((operation) => ({
+        text: operation.summary || `${operation.method} ${operation.path}`,
+        link: operationLink(operation, group.id),
+        // Webhooks are inbound deliveries, not callable endpoints — show a
+        // webhook glyph instead of the HTTP method (which is always POST).
+        badge:
+          operation.isWebhook && webhookIcon
+            ? { icon: webhookIcon, variant: methodVariant(operation.method) }
+            : { text: operation.method, variant: methodVariant(operation.method) },
+      })),
+    ],
+  })
+
+  const tagGroups = ir.tagGroups ?? []
+  if (tagGroups.length === 0) return [introduction, ...ir.groups.map(groupItem)]
+
+  // `x-tagGroups` sections render as static headers (no `collapsed`, so not
+  // collapsible); the per-category `collapsed` behavior applies unchanged.
+  // Sections named in `flatten` spread their categories in place instead.
+  const flatten = new Set(options.flatten ?? [])
+  const groupById = new Map(ir.groups.map((group) => [group.id, group]))
+  const claimed = new Set(tagGroups.flatMap((tagGroup) => tagGroup.groupIds))
+  const sections = tagGroups.flatMap((tagGroup) => {
+    const items = tagGroup.groupIds.flatMap((id) => {
+      const group = groupById.get(id)
+      return group ? [groupItem(group)] : []
+    })
+    if (flatten.has(tagGroup.name)) return items
+    return [{ text: tagGroup.name, items }]
+  })
   return [
     introduction,
-    ...ir.groups.map((group) => ({
-      text: group.name,
-      collapsed: groupCollapsed,
-      items: [
-        // An "Overview" entry links to the category itself; the top-level item
-        // is a non-link header so its label doesn't compete with the operations.
-        { text: 'Overview', link: groupLink(group.id) },
-        ...((groupExtras.get(group.id) ?? []) as SidebarItem<true>[]),
-        ...group.operations.map((operation) => ({
-          text: operation.summary || `${operation.method} ${operation.path}`,
-          link: operationLink(operation, group.id),
-          // Webhooks are inbound deliveries, not callable endpoints — show a
-          // webhook glyph instead of the HTTP method (which is always POST).
-          badge:
-            operation.isWebhook && webhookIcon
-              ? { icon: webhookIcon, variant: methodVariant(operation.method) }
-              : { text: operation.method, variant: methodVariant(operation.method) },
-        })),
-      ],
-    })),
+    ...sections,
+    ...ir.groups.filter((group) => !claimed.has(group.id)).map(groupItem),
   ]
 }
 
@@ -99,5 +121,10 @@ export declare namespace toSidebar {
      * auto-expands). `Introduction` is unaffected. @default false
      */
     collapsed?: boolean | undefined
+    /**
+     * Names of `x-tagGroups` sections whose categories render as top-level
+     * items (in place) instead of nesting under the section header.
+     */
+    flatten?: readonly string[] | undefined
   }
 }
