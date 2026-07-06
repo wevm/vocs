@@ -1,5 +1,12 @@
 # vocs
 
+## 2.3.3
+
+### Patch Changes
+
+- 3612cf0: Added `exclude` to OpenAPI entries to hide tags or `x-tagGroups` sections from the generated reference (sidebar, pages, search, and the interactive client).
+- 3612cf0: Added `x-tagGroups` support to the OpenAPI reference sidebar (claimed tags nest under named sections, unclaimed tags stay top-level), with `sidebar.flatten` to render chosen sections' tags as top-level items.
+
 ## 2.3.2
 
 ### Patch Changes
