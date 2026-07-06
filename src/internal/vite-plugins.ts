@@ -620,8 +620,8 @@ export function userStyles(config: Config.Config): PluginOption {
 }
 
 /**
- * Vite plugin that exposes user directives (`_directives.tsx`, default
- * export) as `virtual:vocs/directives`, consumed by `Directive.mdx.tsx`.
+ * Vite plugin that exposes user directives (`_directives.tsx`) as
+ * `virtual:vocs/directives`, consumed by `Directive.mdx.tsx`.
  * The remark side loads the same file via `Directive.load` at startup, so
  * changing it restarts the dev server to keep both in sync.
  */
@@ -646,7 +646,7 @@ export function directives(config: Config.Config): PluginOption {
       if (id === resolvedVirtualModuleId) {
         try {
           await fs.access(directivesPath)
-          return `export { default as directives } from '${directivesPath}'`
+          return `export { directives } from '${directivesPath}'`
         } catch {
           return 'export const directives = []'
         }

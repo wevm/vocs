@@ -11,8 +11,7 @@ export type Directive = {
   name: string
   /**
    * React representation — rendered in the site build with the directive's
-   * attributes as props. Loaded through the app module graph, so `use client`
-   * components and async server components both work.
+   * attributes as props.
    */
   component?: React.ComponentType<Attributes> | undefined
   /**
@@ -33,10 +32,10 @@ export declare namespace toMarkdown {
 }
 
 /**
- * Loads user directives from `{pagesDir}/_directives.tsx` (default export),
- * for the remark pipelines. The react pipeline consumes the same file through
- * `virtual:vocs/directives` instead, so its component imports resolve in the
- * app module graph.
+ * Loads user directives from `{pagesDir}/_directives.tsx` (a `directives`
+ * named export — a default export would register as a page) for the remark
+ * pipelines. The react pipeline consumes the same file through
+ * `virtual:vocs/directives` instead.
  */
 export async function load(options: load.Options): Promise<load.ReturnType> {
   const { config } = options
@@ -47,13 +46,11 @@ export async function load(options: load.Options): Promise<load.ReturnType> {
 
   const { tsImport } = await import('tsx/esm/api')
   const loaded = (await tsImport(file, import.meta.url)) as {
-    default?: Directive[] | { default?: Directive[] | undefined } | undefined
+    directives?: Directive[] | undefined
+    default?: { directives?: Directive[] | undefined } | undefined
   }
-  // CJS interop (no `"type": "module"`) wraps the default export twice.
-  const mod = loaded.default
-  if (Array.isArray(mod)) return mod
-  if (mod && Array.isArray(mod.default)) return mod.default
-  return []
+  // CJS interop (no `"type": "module"`) nests the exports under `default`.
+  return loaded.directives ?? loaded.default?.directives ?? []
 }
 
 export declare namespace load {

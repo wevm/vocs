@@ -11,7 +11,7 @@ describe('load', () => {
     fs.mkdirSync(pagesDir, { recursive: true })
     fs.writeFileSync(
       path.join(pagesDir, '_directives.tsx'),
-      `export default [
+      `export const directives = [
         {
           name: 'stats',
           toMarkdown: () => 'Stats',

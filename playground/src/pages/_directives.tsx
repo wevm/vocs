@@ -2,7 +2,7 @@ import type { Directive } from 'vocs'
 import { Contributors, fetchContributors, parseLimit } from '../components/Contributors'
 import { Counter } from '../components/Counter'
 
-export default [
+export const directives = [
   {
     name: 'contributors',
     component: Contributors,
