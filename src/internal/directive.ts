@@ -9,9 +9,9 @@ export type Directive = {
   name: string
   /**
    * React representation — rendered in the site build with the directive's
-   * attributes as props. Runs as a server component (config only loads on
-   * the server), so async components work but `use client` components need
-   * a server wrapper.
+   * attributes as props. Runs as a server component (config loads outside
+   * the app module graph): async components work; `use client` components
+   * aren't supported.
    */
   component?: React.ComponentType<Attributes> | undefined
   /**
