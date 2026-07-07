@@ -134,6 +134,7 @@
     "tailwindcss-logical": "^4.1.0",
     "tsx": "^4.21.0",
     "twoslash": "^0.3.6",
+    "unhead": "^3.1.7",
     "unified": "^11.0.5",
     "unist-util-visit": "^5.0.0",
     "unplugin-icons": "^22.5.0",

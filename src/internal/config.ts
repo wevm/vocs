@@ -5,6 +5,7 @@ import type {
   Options as MiniSearchOptions,
   SearchOptions as MiniSearchSearchOptions,
 } from 'minisearch'
+import type { Link, MetaFlat, Script, StringInnerContent, Style } from 'unhead/types'
 import type * as Changelog from './changelog.js'
 import type * as Feedback from './feedback.js'
 import * as Langs from './langs.js'
@@ -20,12 +21,7 @@ import type { MaybePartial, UnionOmit } from './types.js'
 
 export type ThemeValue<value> = { light: value; dark: value }
 
-export type RoutePredicate<context = undefined> =
-  | boolean
-  | ((
-      path: string,
-      context: context extends undefined ? { frontmatter?: Frontmatter | undefined } : context,
-    ) => boolean)
+export type RoutePredicate<context> = boolean | ((path: string, context: context) => boolean)
 
 export type TitleTemplate =
   | string
@@ -38,39 +34,41 @@ export type TitleTemplate =
       },
     ) => string | undefined)
 
-export type HeadOptions = {
-  /** Controls the generated `<base>` tag. */
-  base?: RoutePredicate | undefined
-  /** Controls the generated canonical link tag. */
-  canonical?: RoutePredicate | undefined
-  /** Controls the generated description meta tag. */
-  description?: RoutePredicate | undefined
-  /** Controls the generated icon link tags. */
-  icons?: RoutePredicate | undefined
-  /**
-   * Controls built-in metadata tags. Set an entry to `false` to disable that tag, or use a
-   * function to enable/disable it per route.
-   */
-  meta?: {
-    author?: RoutePredicate | undefined
-    articleAuthor?: RoutePredicate | undefined
-    articleModifiedTime?: RoutePredicate | undefined
-    ogDescription?: RoutePredicate | undefined
-    ogImage?: RoutePredicate | undefined
-    ogSiteName?: RoutePredicate | undefined
-    ogTitle?: RoutePredicate | undefined
-    ogType?: RoutePredicate | undefined
-    ogUrl?: RoutePredicate | undefined
-    twitterCard?: RoutePredicate | undefined
-    twitterDescription?: RoutePredicate | undefined
-    twitterImage?: RoutePredicate | undefined
-    twitterTitle?: RoutePredicate | undefined
-  }
-  /** Controls the generated robots meta tag. */
-  robots?: RoutePredicate | undefined
-  /** Controls the generated `<title>` tag. */
-  title?: RoutePredicate | undefined
+/**
+ * `<meta>` tags, keyed by unhead's flat meta schema (e.g. `ogTitle`, `twitterCard`,
+ * `themeColor`). Set a value to override the generated tag (or add a new one), or
+ * `false` to omit it.
+ */
+export type HeadMeta = {
+  [key in keyof MetaFlat]?: MetaFlat[key] | false | undefined
 }
+
+export type HeadTags = {
+  /** `<base>` href. Set a value to override, or `false` to omit. */
+  base?: string | false | undefined
+  /** `<link rel="canonical">` href. Set a value to override, or `false` to omit. */
+  canonical?: string | false | undefined
+  /** `<link rel="icon">` tags. Set `false` to omit (values come from `iconUrl`). */
+  icons?: false | undefined
+  /** Additional `<link>` tags. */
+  link?: Link[] | undefined
+  /** `<meta>` tag overrides and additions. */
+  meta?: HeadMeta | undefined
+  /** Additional `<script>` tags. */
+  script?: Script[] | undefined
+  /** Additional `<style>` tags. */
+  style?: (Style & StringInnerContent)[] | undefined
+  /** `<title>` text (bypasses `titleTemplate`). Set a value to override, or `false` to omit. */
+  title?: string | false | undefined
+}
+
+export type HeadOptions =
+  | false
+  | HeadTags
+  | ((
+      path: string,
+      context: { frontmatter?: Frontmatter | undefined },
+    ) => HeadTags | false | undefined)
 
 export type SitemapOptions = {
   /**

@@ -1,7 +1,7 @@
 import { renderToStaticMarkup } from 'react-dom/server'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
 import type * as Config from '../internal/config.js'
-import { Head, resolveHeadOption, resolveMetaOption, resolveTitleTemplate } from './Head.js'
+import { Head, resolveHead, resolveTitleTemplate } from './Head.js'
 import * as MdxPageContext from './MdxPageContext.js'
 
 const mocks = vi.hoisted(() => ({
@@ -44,61 +44,29 @@ describe('Head', () => {
     expect(resolveTitleTemplate(config, '/', 'Acme Docs', undefined)).toBeUndefined()
   })
 
-  test('resolves path-aware meta config', () => {
+  test('resolves head object config', () => {
     const config = {
-      head: {
-        meta: {
-          articleModifiedTime: (path) => !path.startsWith('/docs'),
-          twitterImage: false,
-        },
+      head: { meta: { description: 'Custom', twitterImage: false } },
+    } satisfies Pick<Config.Config, 'head'>
+
+    expect(resolveHead(config, '/docs', undefined)).toEqual({
+      meta: { description: 'Custom', twitterImage: false },
+    })
+    expect(resolveHead({}, '/docs', undefined)).toEqual({})
+  })
+
+  test('resolves path-aware head config', () => {
+    const config = {
+      head: (path) => {
+        if (path.startsWith('/preview')) return false
+        if (path.startsWith('/blog')) return { meta: { ogType: 'article' } }
+        return undefined
       },
     } satisfies Pick<Config.Config, 'head'>
 
-    expect(resolveMetaOption(config, 'articleModifiedTime', '/docs/intro', undefined)).toBe(false)
-    expect(resolveMetaOption(config, 'articleModifiedTime', '/blog/post', undefined)).toBe(true)
-    expect(resolveMetaOption(config, 'twitterImage', '/blog/post', undefined)).toBe(false)
-    expect(resolveMetaOption(config, 'ogTitle', '/blog/post', undefined)).toBe(true)
-  })
-
-  test('resolves path-aware core head config', () => {
-    const config = {
-      head: {
-        canonical: (path) => path !== '/preview',
-        description: false,
-      },
-    } satisfies Pick<Config.Config, 'head'>
-
-    expect(resolveHeadOption(config, 'canonical', '/preview', undefined)).toBe(false)
-    expect(resolveHeadOption(config, 'canonical', '/docs', undefined)).toBe(true)
-    expect(resolveHeadOption(config, 'description', '/docs', undefined)).toBe(false)
-    expect(resolveHeadOption(config, 'title', '/docs', undefined)).toBe(true)
-  })
-
-  test('renders route-aware title and omits disabled meta tags', () => {
-    mocks.path = '/docs/intro'
-    mocks.config = createConfig({
-      head: {
-        meta: {
-          articleModifiedTime: (path) => !path.startsWith('/docs'),
-          ogImage: false,
-          twitterImage: false,
-        },
-      },
-      titleTemplate: (path) => (path.startsWith('/docs') ? '%s · Acme Docs' : '%s · Acme'),
-    })
-
-    const html = renderHead({
-      description: 'Intro page',
-      lastModified: '2026-01-01T00:00:00.000Z',
-      title: 'Intro',
-    })
-
-    expect(html).toContain('<title>Intro · Acme Docs</title>')
-    expect(html).not.toContain('article:modified_time')
-    expect(html).not.toContain('property="og:image"')
-    expect(html).not.toContain('property="twitter:image"')
-    expect(html).toContain('property="og:title" content="Intro"')
-    expect(html).toContain('name="twitter:title" content="Intro"')
+    expect(resolveHead(config, '/preview/draft', undefined)).toBe(false)
+    expect(resolveHead(config, '/blog/post', undefined)).toEqual({ meta: { ogType: 'article' } })
+    expect(resolveHead(config, '/docs', undefined)).toEqual({})
   })
 
   test('renders default metadata when head config is omitted', () => {
@@ -116,17 +84,98 @@ describe('Head', () => {
     expect(html).toContain('property="article:author" content="Jane"')
     expect(html).toContain('property="article:modified_time"')
     expect(html).toContain('property="og:image"')
-    expect(html).toContain('property="twitter:image"')
+    expect(html).toContain('name="twitter:image"')
   })
 
-  test('omits disabled core head tags', () => {
+  test('renders arbitrary meta tags from unhead vocabulary', () => {
+    mocks.config = createConfig({
+      head: {
+        meta: {
+          appleMobileWebAppTitle: 'Acme',
+          ogImageWidth: 1200,
+          themeColor: '#161616',
+        },
+      },
+    })
+
+    const html = renderHead({ title: 'Post' })
+
+    expect(html).toContain('name="apple-mobile-web-app-title" content="Acme"')
+    expect(html).toContain('property="og:image:width" content="1200"')
+    expect(html).toContain('name="theme-color" content="#161616"')
+  })
+
+  test('renders link, script, and style tags', () => {
+    mocks.config = createConfig({
+      head: {
+        link: [
+          { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: 'anonymous' },
+          { rel: 'alternate', type: 'application/rss+xml', href: '/feed.xml' },
+        ],
+        script: [
+          { src: 'https://analytics.example.com/script.js', async: true },
+          { textContent: 'console.log("hi")' },
+          { type: 'application/ld+json', innerHTML: { '@type': 'WebSite', name: 'Acme' } },
+        ],
+        style: [{ textContent: ':root{--brand:#161616}' }],
+      },
+    })
+
+    const html = renderHead({ title: 'Post' })
+
+    expect(html).toContain(
+      '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"/>',
+    )
+    expect(html).toContain('<link rel="alternate" type="application/rss+xml" href="/feed.xml"/>')
+    expect(html).toContain('<script src="https://analytics.example.com/script.js" async="">')
+    expect(html).toContain('<script>console.log("hi")</script>')
+    expect(html).toContain(
+      '<script type="application/ld+json">{"@type":"WebSite","name":"Acme"}</script>',
+    )
+    expect(html).toContain('<style>:root{--brand:#161616}</style>')
+  })
+
+  test('overrides tag values and cascades into downstream defaults', () => {
+    mocks.config = createConfig({
+      head: {
+        canonical: 'https://example.com/custom',
+        meta: {
+          description: 'Custom description',
+          ogType: 'article',
+        },
+      },
+    })
+
+    const html = renderHead({ description: 'Frontmatter description', title: 'Post' })
+
+    expect(html).toContain('name="description" content="Custom description"')
+    expect(html).toContain('property="og:description" content="Custom description"')
+    expect(html).toContain('name="twitter:description" content="Custom description"')
+    expect(html).toContain('rel="canonical" href="https://example.com/custom"')
+    expect(html).toContain('property="og:url" content="https://example.com/custom"')
+    expect(html).toContain('property="og:type" content="article"')
+  })
+
+  test('title override bypasses title template and cascades', () => {
+    mocks.config = createConfig({ head: { title: 'Custom Title' } })
+
+    const html = renderHead({ title: 'Post' })
+
+    expect(html).toContain('<title>Custom Title</title>')
+    expect(html).toContain('property="og:title" content="Custom Title"')
+    expect(html).toContain('name="twitter:title" content="Custom Title"')
+  })
+
+  test('omits disabled tags', () => {
     mocks.config = createConfig({
       head: {
         base: false,
         canonical: false,
-        description: false,
         icons: false,
-        robots: false,
+        meta: {
+          description: false,
+          robots: false,
+        },
         title: false,
       },
       iconUrl: '/favicon.svg',
@@ -143,7 +192,47 @@ describe('Head', () => {
     expect(html).not.toContain('rel="canonical"')
     expect(html).not.toContain('rel="icon"')
     expect(html).not.toContain('name="robots"')
+    // `false` only omits the tag itself; downstream defaults remain.
     expect(html).toContain('property="og:title" content="Hidden title"')
+    expect(html).toContain('property="og:description" content="Hidden description"')
+  })
+
+  test('renders route-aware head config', () => {
+    mocks.path = '/docs/intro'
+    mocks.config = createConfig({
+      head: (path) =>
+        path.startsWith('/docs')
+          ? { meta: { articleModifiedTime: false, ogImage: false, twitterImage: false } }
+          : undefined,
+      titleTemplate: (path) => (path.startsWith('/docs') ? '%s · Acme Docs' : '%s · Acme'),
+    })
+
+    const html = renderHead({
+      description: 'Intro page',
+      lastModified: '2026-01-01T00:00:00.000Z',
+      title: 'Intro',
+    })
+
+    expect(html).toContain('<title>Intro · Acme Docs</title>')
+    expect(html).not.toContain('article:modified_time')
+    expect(html).not.toContain('property="og:image"')
+    expect(html).not.toContain('name="twitter:image"')
+    expect(html).toContain('property="og:title" content="Intro"')
+    expect(html).toContain('name="twitter:title" content="Intro"')
+  })
+
+  test('disables all generated tags with `head: false`', () => {
+    mocks.config = createConfig({ head: false, iconUrl: '/favicon.svg' })
+
+    const html = renderHead({ description: 'Hidden', title: 'Hidden' })
+
+    expect(html).not.toContain('<title>')
+    expect(html).not.toContain('name="description"')
+    expect(html).not.toContain('rel="icon"')
+    expect(html).not.toContain('og:')
+    expect(html).not.toContain('twitter:')
+    // Functional tags are unaffected.
+    expect(html).toContain('name="color-scheme"')
   })
 })
 
