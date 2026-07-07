@@ -1,5 +1,15 @@
 # vocs
 
+## 2.4.0
+
+### Minor Changes
+
+- cdedc62: Added `head` config for overriding, extending, or disabling generated head tags (`meta` typed by unhead's flat schema, plus `link`/`script`/`style`; object, `false`, or per-route function), and route-aware `sitemap.include`/`sitemap.lastmod` options.
+
+### Patch Changes
+
+- 5040558: Reduced serverless bundle size: search indexes are emitted only into client output, and the AI search manifest and Waku build metadata are stored as gzipped sidecars.
+
 ## 2.3.3
 
 ### Patch Changes
