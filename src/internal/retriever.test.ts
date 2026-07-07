@@ -643,8 +643,9 @@ describe('end-to-end (mock embedder)', () => {
         body: JSON.stringify({ query: 'installation' }),
       })
 
-    // First request returns immediately while the index builds in the background.
-    const first = await Retriever.handleSearchRequest(makeRequest(), config)
+    // First request returns immediately while the index builds in the background
+    // (`pendingWaitMs: 0` disables the grace wait to observe the 202).
+    const first = await Retriever.handleSearchRequest(makeRequest(), config, { pendingWaitMs: 0 })
     expect(first.status).toBe(202)
     const firstJson = (await first.json()) as { results: Retriever.Result[]; indexing: boolean }
     expect(firstJson.indexing).toBe(true)
@@ -657,6 +658,32 @@ describe('end-to-end (mock embedder)', () => {
     const secondJson = (await second.json()) as { results: Retriever.Result[]; indexing: boolean }
     expect(secondJson.indexing).toBe(false)
     expect(Array.isArray(secondJson.results)).toBe(true)
+  })
+
+  it('answers 202 when the build outlasts the grace wait', async () => {
+    const embedding = Embedding.from({
+      type: 'slow',
+      model: 'slow',
+      async embed() {
+        return new Promise(() => {}) as never // never resolves
+      },
+    })
+    const config = Config.define({
+      rootDir: dir,
+      ai: { retriever: Retriever.local({ embedding, cache: false }) },
+    })
+
+    const response = await Retriever.handleSearchRequest(
+      new Request('http://localhost/api/search', {
+        method: 'POST',
+        body: JSON.stringify({ query: 'installation' }),
+      }),
+      config,
+      { pendingWaitMs: 25 },
+    )
+    expect(response.status).toBe(202)
+    const json = (await response.json()) as { indexing: boolean }
+    expect(json.indexing).toBe(true)
   })
 
   it('dev (NODE_ENV=development) loads the prebuilt index instead of building', async () => {
@@ -746,13 +773,11 @@ describe('end-to-end (mock embedder)', () => {
       })
     const options = { loadManifest: async () => manifest }
 
+    // The manifest loads within the grace wait, so the first request answers
+    // 200 directly instead of 202 (`indexing: true`).
     const first = await Retriever.handleSearchRequest(makeRequest(), config, options)
-    expect(first.status).toBe(202)
-    await Retriever.getServerIndex(config)
-
-    const second = await Retriever.handleSearchRequest(makeRequest(), config, options)
-    expect(second.status).toBe(200)
-    const json = (await second.json()) as { results: Retriever.Result[] }
+    expect(first.status).toBe(200)
+    const json = (await first.json()) as { results: Retriever.Result[] }
     expect(json.results.length).toBeGreaterThan(0)
     // Only the query was embedded — the index came from the bundled manifest.
     expect(purposes).toEqual(['query'])
@@ -803,8 +828,10 @@ describe('end-to-end (mock embedder)', () => {
         body: JSON.stringify({ query: 'installation' }),
       })
 
-    // First request kicks off the build and reports indexing.
-    expect((await Retriever.handleSearchRequest(makeRequest(), config)).status).toBe(202)
+    // First request kicks off the build and reports indexing (grace wait
+    // disabled — the fast failure would otherwise answer 503 directly).
+    const first = await Retriever.handleSearchRequest(makeRequest(), config, { pendingWaitMs: 0 })
+    expect(first.status).toBe(202)
     await expect(Retriever.getServerIndex(config)).rejects.toThrow('embedding unavailable')
 
     // Subsequent requests surface the failure and don't retrigger the build

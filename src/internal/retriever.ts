@@ -469,6 +469,12 @@ export declare namespace handleSearchRequest {
   type Options = {
     /** Source of the prebuilt manifest (e.g. baked into the server bundle). */
     loadManifest?: ManifestLoader | undefined
+    /**
+     * How long to wait for a pending index build before answering `202`.
+     *
+     * @default 1500
+     */
+    pendingWaitMs?: number | undefined
   }
 }
 
@@ -1247,6 +1253,13 @@ const serverIndexCache = new Map<string, ServerIndexEntry>()
 /** Minimum wait before a failed index build may be retried. */
 const failedBuildRetryMs = 30_000
 
+/**
+ * How long a search request waits for a pending index build before answering
+ * `202`. Matches the client's poll cadence, so a fast manifest load (the
+ * common cold-start case) answers on the first request instead.
+ */
+const pendingWaitMsDefault = 1_500
+
 function indexCacheKey(config: Config.Config, priv: LocalPrivateConfig): string {
   return `${config.rootDir}:${priv.embedding.type}:${priv.embedding.model}`
 }
@@ -1526,13 +1539,18 @@ async function handleLocalSearchRequest(
     typeof body.limit === 'number' ? Math.max(1, Math.min(20, Math.floor(body.limit))) : undefined
 
   // Kick off (or reuse) the in-process index. This loads the prebuilt manifest
-  // when present and cold-builds otherwise — either way we never block the
-  // request: while pending, respond with `indexing: true` and let the client
-  // keep showing keyword results (and retry shortly). A failed build answers
-  // 503 (instead of 202) so the client stops polling; the entry is retried
-  // after a backoff.
+  // when present and cold-builds otherwise. While pending, wait briefly — a
+  // manifest load (the common cold-start case) usually finishes within the
+  // grace window — then respond with `indexing: true` so the client keeps
+  // showing keyword results (and retries shortly). A failed build answers 503
+  // (instead of 202) so the client stops polling; the entry is retried after
+  // a backoff.
   const index = ensureServerIndex(config, options)
   index.promise.catch(() => {}) // avoid unhandled rejection on the background build
+  if (index.status === 'pending') {
+    const waitMs = options.pendingWaitMs ?? pendingWaitMsDefault
+    if (waitMs > 0) await Promise.race([index.promise.catch(() => {}), sleep(waitMs)])
+  }
   if (index.status === 'error') return json({ error: 'Search failed' }, 503)
   if (index.status === 'pending')
     return json({ results: [], indexing: true }, 202, { 'Cache-Control': 'no-store' })
@@ -1583,6 +1601,14 @@ function json(data: unknown, status: number, headers?: Record<string, string>): 
   return new Response(JSON.stringify(data), {
     headers: { 'Content-Type': 'application/json', ...headers },
     status,
+  })
+}
+
+/** Resolves after `ms` without holding the process open (Node-only `unref`). */
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    const timer = setTimeout(resolve, ms)
+    ;(timer as unknown as { unref?: () => void }).unref?.()
   })
 }
 
