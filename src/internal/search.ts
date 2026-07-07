@@ -1,4 +1,3 @@
-import * as crypto from 'node:crypto'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import GithubSlugger from 'github-slugger'
@@ -235,20 +234,6 @@ export namespace SearchIndex {
       config?: Config.Config
       filePath: string
     }
-  }
-
-  /**
-   * Save a search index to a JSON file.
-   * Returns the hash used in the filename for cache busting.
-   */
-  export function saveToFile(index: SearchIndex, dir: string): string {
-    const json = index.toJSON()
-    const hash = crypto.createHash('md5').update(JSON.stringify(json)).digest('hex').slice(0, 12)
-
-    fs.mkdirSync(dir, { recursive: true })
-    fs.writeFileSync(path.join(dir, `search-index-${hash}.json`), JSON.stringify(json), 'utf-8')
-
-    return hash
   }
 
   /**
