@@ -1,5 +1,6 @@
-import { cpSync, existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs'
+import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
+import { gzipSync } from 'node:zlib'
 import { aiUserAgents, terminalUserAgents } from '../../../../internal/markdown-negotiation.js'
 
 export type BuildOptions = {
@@ -14,6 +15,37 @@ export type BuildOptions = {
 
 function escapeRegExp(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+const buildMetadataFile = '__waku_build_metadata.js'
+
+/**
+ * Rewrites Waku's build metadata (inlined RSC payloads, can be tens of MB)
+ * into a gzipped sidecar plus a tiny loader to shrink serverless bundles.
+ */
+function compressBuildMetadata(serverDir: string) {
+  const file = path.join(serverDir, buildMetadataFile)
+  if (!existsSync(file)) return
+  const code = readFileSync(file, 'utf-8')
+  const match = code.match(/^export const buildMetadata = new Map\((.*)\);\s*$/s)
+  const json = match?.[1]
+  if (!json) return
+  try {
+    if (!Array.isArray(JSON.parse(json))) return
+  } catch {
+    return
+  }
+  const gzFile = '__waku_build_metadata.json.gz'
+  writeFileSync(path.join(serverDir, gzFile), gzipSync(json, { level: 9 }))
+  writeFileSync(
+    file,
+    [
+      `import { readFileSync } from 'node:fs';`,
+      `import { gunzipSync } from 'node:zlib';`,
+      `export const buildMetadata = new Map(JSON.parse(gunzipSync(readFileSync(new URL('./${gzFile}', import.meta.url))).toString('utf8')));`,
+      '',
+    ].join('\n'),
+  )
 }
 
 function markdownRoutes({
@@ -90,6 +122,7 @@ export default getRequestListener(
     rmSync(serverlessDir, { recursive: true, force: true })
     mkdirSync(functionDistDir, { recursive: true })
     writeFileSync(path.resolve(distDir, SERVE_JS), serveCode)
+    compressBuildMetadata(path.resolve(distDir, 'server'))
     cpSync(path.resolve(distDir, 'server'), path.join(functionDistDir, 'server'), {
       recursive: true,
     })

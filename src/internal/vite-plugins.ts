@@ -1,6 +1,7 @@
 import crypto from 'node:crypto'
 import * as fs from 'node:fs/promises'
 import * as path from 'node:path'
+import { gzipSync } from 'node:zlib'
 import mdxPlugin from '@mdx-js/rollup'
 import tailwindcss, { type PluginOptions as TailwindOptions } from '@tailwindcss/vite'
 import type { PluginOption, ResolvedConfig, Rolldown, ViteDevServer } from 'vite'
@@ -654,6 +655,7 @@ export function search(config: Config.Config): PluginOption {
 
   let indexPromise: Promise<SearchIndex.SearchIndex> | undefined
   let indexHash: string | undefined
+  let indexJson: string | undefined
   let server: ViteDevServer | undefined
   let mode: 'development' | 'production' = 'development'
   const fileIds = new Map<string, string[]>()
@@ -741,7 +743,12 @@ export function search(config: Config.Config): PluginOption {
       // Only build index in production (dev builds in configureServer to avoid dep optimization issues)
       // Also skip if already built (multi-environment builds call this multiple times)
       if (mode !== 'production' || indexPromise) return
-      indexPromise = buildIndex()
+      indexPromise = buildIndex().then((index) => {
+        // Hash eagerly so `load` works regardless of environment build order.
+        indexJson = JSON.stringify(index.toJSON())
+        indexHash = crypto.createHash('md5').update(indexJson).digest('hex').slice(0, 12)
+        return index
+      })
     },
     configureServer(devServer) {
       server = devServer
@@ -769,10 +776,16 @@ export function search(config: Config.Config): PluginOption {
       return `export const getSearchIndex = async () => JSON.stringify(await (await fetch("${basePath.endsWith('/') ? basePath : basePath + '/'}assets/search-index-${indexHash}.json")).json())`
     },
     async writeBundle(options) {
-      const index = await indexPromise
-      if (!index) return
+      // Only emit into the public (client) output. Server copies would bloat
+      // serverless bundles; the index is always fetched over HTTP.
+      const environment = this.environment?.name
+      if (environment && environment !== 'client') return
+      await indexPromise
+      if (!indexJson || !indexHash) return
       const outDir = options.dir ?? path.resolve(rootDir, config.outDir)
-      indexHash = SearchIndex.saveToFile(index, path.resolve(outDir, 'assets'))
+      const dir = path.resolve(outDir, 'assets')
+      await fs.mkdir(dir, { recursive: true })
+      await fs.writeFile(path.join(dir, `search-index-${indexHash}.json`), indexJson, 'utf-8')
     },
     handleHotUpdate({ file }) {
       if (!file.endsWith('.md') && !file.endsWith('.mdx')) return
@@ -899,7 +912,19 @@ export function aiSearch(config: Config.Config): PluginOption {
         // `vocs embeddings generate` from disk instead.
         if (!localEnabled || mode === 'development' || skipSeeding()) return emptyManifestModule
         const manifest = await buildManifest()
-        return `export const getAiSearchManifest = async () => ${JSON.stringify(JSON.stringify(manifest))}`
+        // Emit as a gzipped asset. Inlining the JSON into the chunk bloats
+        // server bundles (manifests can be tens of MB).
+        const ref = this.emitFile({
+          type: 'asset',
+          name: 'ai-search-manifest.json.gz',
+          source: gzipSync(JSON.stringify(manifest), { level: 9 }),
+        })
+        return `
+import { readFileSync } from 'node:fs'
+import { gunzipSync } from 'node:zlib'
+export const getAiSearchManifest = async () =>
+  gunzipSync(readFileSync(new URL(import.meta.ROLLUP_FILE_URL_${ref}))).toString('utf8')
+`
       }
 
       if (id !== resolvedVirtualModuleId) return
@@ -915,6 +940,10 @@ export function aiSearch(config: Config.Config): PluginOption {
     },
     async writeBundle(options) {
       if (!exposePublic) return
+      // Only emit into the public (client) output. Server copies would bloat
+      // serverless bundles; the index is always fetched over HTTP.
+      const environment = this.environment?.name
+      if (environment && environment !== 'client') return
       const manifest = toPublicManifest(await buildManifest())
       const json = JSON.stringify(manifest)
       const outDir = options.dir ?? path.resolve(rootDir, config.outDir)
