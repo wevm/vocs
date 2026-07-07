@@ -96,6 +96,37 @@ export default function BlogLayout({ children }: { children: ReactNode }) {
 }
 ```
 
+### Customize Generated Tags by Route
+
+Use [`titleTemplate`](/reference/site-config#titletemplate) as a function when a section needs a different title suffix:
+
+```ts [vocs.config.ts]
+import { defineConfig } from 'vocs/config'
+
+export default defineConfig({
+  titleTemplate: (path) => { // [!code focus:4]
+    if (path === '/docs' || path.startsWith('/docs/')) return '%s · Acme Docs'
+    return '%s · Acme'
+  }
+})
+```
+
+Use [`head`](/reference/site-config#head) to disable generated tags globally or per route. This is useful for evergreen docs pages where you do not want article freshness metadata:
+
+```ts [vocs.config.ts]
+import { defineConfig } from 'vocs/config'
+
+export default defineConfig({
+  head: {
+    meta: {
+      articleModifiedTime: (path) => !path.startsWith('/docs') // [!code focus]
+    }
+  }
+})
+```
+
+The same pattern works for core generated tags such as `title`, `description`, `robots`, `canonical`, `base`, and `icons`.
+
 ### Load a Third-Party Script
 
 React 19 hoists `<script async>` into `<head>` and de-duplicates it across pages, so an analytics snippet is just an element. Put it on a single page, or in the root layout to load it everywhere:
@@ -124,7 +155,7 @@ Only `async` scripts are hoisted. An inline blocking script — e.g. one that mu
 <Cards>
   <Card
     title="Site Configuration"
-    description="title, description, iconUrl, baseUrl, and ogImageUrl that drive the built-in tags."
+    description="titleTemplate, head, iconUrl, baseUrl, and ogImageUrl that drive the built-in tags."
     icon="settings"
     to="/reference/site-config"
   />

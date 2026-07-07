@@ -20,6 +20,79 @@ import type { MaybePartial, UnionOmit } from './types.js'
 
 export type ThemeValue<value> = { light: value; dark: value }
 
+export type RoutePredicate<context = undefined> =
+  | boolean
+  | ((
+      path: string,
+      context: context extends undefined ? { frontmatter?: Frontmatter | undefined } : context,
+    ) => boolean)
+
+export type TitleTemplate =
+  | string
+  | ((
+      path: string,
+      context: {
+        frontmatter?: Frontmatter | undefined
+        title: string | undefined
+        siteTitle: string
+      },
+    ) => string | undefined)
+
+export type HeadOptions = {
+  /** Controls the generated `<base>` tag. */
+  base?: RoutePredicate | undefined
+  /** Controls the generated canonical link tag. */
+  canonical?: RoutePredicate | undefined
+  /** Controls the generated description meta tag. */
+  description?: RoutePredicate | undefined
+  /** Controls the generated icon link tags. */
+  icons?: RoutePredicate | undefined
+  /**
+   * Controls built-in metadata tags. Set an entry to `false` to disable that tag, or use a
+   * function to enable/disable it per route.
+   */
+  meta?: {
+    author?: RoutePredicate | undefined
+    articleAuthor?: RoutePredicate | undefined
+    articleModifiedTime?: RoutePredicate | undefined
+    ogDescription?: RoutePredicate | undefined
+    ogImage?: RoutePredicate | undefined
+    ogSiteName?: RoutePredicate | undefined
+    ogTitle?: RoutePredicate | undefined
+    ogType?: RoutePredicate | undefined
+    ogUrl?: RoutePredicate | undefined
+    twitterCard?: RoutePredicate | undefined
+    twitterDescription?: RoutePredicate | undefined
+    twitterImage?: RoutePredicate | undefined
+    twitterTitle?: RoutePredicate | undefined
+  }
+  /** Controls the generated robots meta tag. */
+  robots?: RoutePredicate | undefined
+  /** Controls the generated `<title>` tag. */
+  title?: RoutePredicate | undefined
+}
+
+export type SitemapOptions = {
+  /**
+   * Controls which pages Vocs includes in the generated sitemap.
+   */
+  include?: RoutePredicate<{ filePath: string }> | undefined
+  /**
+   * Controls `<lastmod>` output. Return `false` to omit it, `true` to use Vocs' inferred date, or
+   * a string to provide a route-specific date.
+   */
+  lastmod?:
+    | boolean
+    | ((
+        path: string,
+        context: {
+          filePath: string
+          lastmod: string
+        },
+      ) => boolean | string | undefined)
+    | undefined
+}
+
 type SearchDocument = {
   category: string
   href: string
@@ -459,6 +532,10 @@ export type Config<partial extends boolean = false> = MaybePartial<
      */
     logoUrl?: string | ThemeValue<string> | undefined
     /**
+     * Controls generated `<head>` tags.
+     */
+    head?: HeadOptions | undefined
+    /**
      * Markdown configuration.
      */
     markdown?: MdxRollup.Options | undefined
@@ -598,6 +675,10 @@ export type Config<partial extends boolean = false> = MaybePartial<
      */
     search: MaybePartial<partial, SearchOptions>
     /**
+     * Controls generated `sitemap.xml` entries.
+     */
+    sitemap?: false | SitemapOptions | undefined
+    /**
      * Navigation displayed on the sidebar.
      */
     sidebar?:
@@ -632,7 +713,7 @@ export type Config<partial extends boolean = false> = MaybePartial<
      *
      * @default `%s – ${title}`
      */
-    titleTemplate: string
+    titleTemplate: TitleTemplate
     /**
      * Navigation displayed on the top.
      */
@@ -760,6 +841,7 @@ export function define(config: define.Options = {}): Config {
     codeHighlight,
     colorScheme = 'light dark',
     description,
+    head,
     iconUrl,
     logoUrl,
     markdown,
@@ -772,6 +854,7 @@ export function define(config: define.Options = {}): Config {
     rootDir = process.cwd(),
     search,
     sidebar,
+    sitemap,
     socials,
     srcDir = 'src',
     title = 'Docs',
@@ -854,6 +937,7 @@ export function define(config: define.Options = {}): Config {
     _localRetriever: existingLocal ?? localResolved?.private,
     _retriever: existingRetriever ?? retrieverResolved?.private,
     groupIcons: config.groupIcons,
+    head,
     iconUrl,
     logoUrl,
     markdown,
@@ -916,6 +1000,7 @@ export function define(config: define.Options = {}): Config {
       }
     })(),
     sidebar,
+    sitemap,
     socials,
     srcDir,
     title,
