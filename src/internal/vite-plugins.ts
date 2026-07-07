@@ -383,6 +383,8 @@ export function sitemap(config: Config.Config): PluginOption {
   }
 
   async function buildSitemapContent(): Promise<string | null> {
+    if (config.sitemap === false) return null
+
     const siteUrl = getSiteUrl()
     if (!siteUrl) {
       logger.warn('Sitemap generation skipped: baseUrl is not configured', { timestamp: true })
@@ -394,32 +396,29 @@ export function sitemap(config: Config.Config): PluginOption {
 
     const runner = TaskRunner.create(20)
 
-    const urls: { loc: string; lastmod: string }[] = []
+    const urls: { lastmod: string | undefined; loc: string }[] = []
     for (const page of pages) {
       // Skip files/directories starting with _
-      if (
-        page
-          .replace(pagesDir, '')
-          .split('/')
-          .some((part) => part.startsWith('_'))
-      )
-        continue
+      const filePath = path.relative(pagesDir, page).split(path.sep).join('/')
+      if (filePath.split('/').some((part) => part.startsWith('_'))) continue
 
       runner.run(async () => {
         const pagePath =
-          page
-            .replace(pagesDir, '')
+          `/${filePath}`
             .replace(/\.(mdx?|tsx?)$/, '')
             .replace(/\/index$/, '/')
             .replace(/\/$/, '') || '/'
+
+        if (!resolveSitemapInclude(config, pagePath, filePath)) return
 
         const loc = `${siteUrl.replace(/\/$/, '')}${pagePath}`
         const gitDate = Git.getLastModified(page)
         const lastmod = gitDate
           ? (gitDate.split('T')[0] as string)
           : ((await fs.stat(page)).mtime.toISOString().split('T')[0] as string)
+        const resolvedLastmod = resolveSitemapLastmod(config, pagePath, filePath, lastmod)
 
-        urls.push({ loc, lastmod })
+        urls.push({ loc, lastmod: resolvedLastmod })
       })
     }
 
@@ -433,9 +432,11 @@ export function sitemap(config: Config.Config): PluginOption {
         [
           `${indent}<url>`,
           `${indent}${indent}<loc>${loc}</loc>`,
-          `${indent}${indent}<lastmod>${lastmod}</lastmod>`,
+          lastmod ? `${indent}${indent}<lastmod>${lastmod}</lastmod>` : undefined,
           `${indent}</url>`,
-        ].join('\n'),
+        ]
+          .filter(Boolean)
+          .join('\n'),
       )
       .join('\n')
 
@@ -459,7 +460,7 @@ export function sitemap(config: Config.Config): PluginOption {
         const siteUrl = getSiteUrl()
 
         if (req.url === '/robots.txt') {
-          if (!siteUrl) {
+          if (!siteUrl || config.sitemap === false) {
             res.statusCode = 404
             res.end('robots.txt not available: baseUrl is not configured')
             return
@@ -491,7 +492,7 @@ export function sitemap(config: Config.Config): PluginOption {
 
       const siteUrl = getSiteUrl()
       const sitemapContent = await buildSitemapContent()
-      if (!sitemapContent || !siteUrl) return
+      if (!sitemapContent || !siteUrl || config.sitemap === false) return
 
       const writes: Promise<void>[] = []
       if (!(await hasPublicFile('sitemap.xml')))
@@ -509,6 +510,32 @@ export function sitemap(config: Config.Config): PluginOption {
       await Promise.all(writes)
     },
   }
+}
+
+export function resolveSitemapInclude(
+  config: Pick<Config.Config, 'sitemap'>,
+  pagePath: string,
+  filePath: string,
+) {
+  if (config.sitemap === false) return false
+  const include = config.sitemap?.include
+  if (typeof include === 'function') return include(pagePath, { filePath })
+  return include ?? true
+}
+
+export function resolveSitemapLastmod(
+  config: Pick<Config.Config, 'sitemap'>,
+  pagePath: string,
+  filePath: string,
+  lastmod: string,
+) {
+  if (config.sitemap === false) return undefined
+  const option = config.sitemap?.lastmod
+  const resolved =
+    typeof option === 'function' ? option(pagePath, { filePath, lastmod }) : (option ?? true)
+  if (typeof resolved === 'string') return resolved
+  if (resolved === false) return undefined
+  return lastmod
 }
 
 /**

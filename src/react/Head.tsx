@@ -1,6 +1,7 @@
 'use client'
 
 import { useRouter } from 'waku'
+import type * as Config from '../internal/config.js'
 import * as MdxPageContext from './MdxPageContext.js'
 import { useConfig } from './useConfig.js'
 
@@ -14,10 +15,14 @@ export function Head() {
   const staticScheme = colorScheme !== 'light dark'
 
   const title = frontmatter?.title ?? config.title
-  const titleTemplate = title.includes(config.title) ? undefined : config.titleTemplate
+  const titleTemplate = resolveTitleTemplate(config, pathname, title, frontmatter)
   const fullTitle = titleTemplate ? titleTemplate.replace('%s', title) : title
 
   const description = frontmatter?.description ?? config.description
+  const isHeadEnabled = (key: keyof Omit<Config.HeadOptions, 'meta'>) =>
+    resolveHeadOption(config, key, pathname, frontmatter)
+  const isMetaEnabled = (key: keyof NonNullable<Config.HeadOptions['meta']>) =>
+    resolveMetaOption(config, key, pathname, frontmatter)
 
   const fullPathname = basePath && basePath !== '/' ? `${basePath}${pathname}` : pathname
   const canonicalUrl = baseUrl ? `${baseUrl}${fullPathname}` : undefined
@@ -54,31 +59,35 @@ export function Head() {
       <meta name="color-scheme" content={colorScheme} />
 
       {/* Robots  */}
-      <meta
-        name="robots"
-        content={
-          frontmatter?.robots ?? (import.meta.env.PROD ? 'index, follow' : 'noindex, nofollow')
-        }
-      />
+      {isHeadEnabled('robots') && (
+        <meta
+          name="robots"
+          content={
+            frontmatter?.robots ?? (import.meta.env.PROD ? 'index, follow' : 'noindex, nofollow')
+          }
+        />
+      )}
 
       {/* Title & Description */}
-      {fullTitle && <title key="title">{fullTitle}</title>}
-      {description && <meta name="description" content={description} />}
+      {fullTitle && isHeadEnabled('title') && <title key="title">{fullTitle}</title>}
+      {description && isHeadEnabled('description') && (
+        <meta name="description" content={description} />
+      )}
 
       {/* Base URL */}
-      {baseUrl && <base href={baseUrl} />}
+      {baseUrl && isHeadEnabled('base') && <base href={baseUrl} />}
 
       {/* Canonical */}
-      {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
+      {canonicalUrl && isHeadEnabled('canonical') && <link rel="canonical" href={canonicalUrl} />}
 
       {/* Icons */}
-      {iconUrl && typeof iconUrl === 'string' && (
+      {iconUrl && typeof iconUrl === 'string' && isHeadEnabled('icons') && (
         <link rel="icon" href={iconUrl} type={getIconType(iconUrl)} />
       )}
-      {iconUrl && typeof iconUrl !== 'string' && (
+      {iconUrl && typeof iconUrl !== 'string' && isHeadEnabled('icons') && (
         <link rel="icon" href={iconUrl.light} type={getIconType(iconUrl.light)} />
       )}
-      {iconUrl && typeof iconUrl !== 'string' && (
+      {iconUrl && typeof iconUrl !== 'string' && isHeadEnabled('icons') && (
         <link
           rel="icon"
           href={iconUrl.dark}
@@ -88,29 +97,78 @@ export function Head() {
       )}
 
       {/* Standard SEO */}
-      {frontmatter?.author && <meta name="author" content={frontmatter.author} />}
+      {frontmatter?.author && isMetaEnabled('author') && (
+        <meta name="author" content={frontmatter.author} />
+      )}
 
       {/* Open Graph */}
-      <meta property="og:type" content="website" />
-      {title && <meta property="og:title" content={title} />}
-      {config.title && <meta property="og:site_name" content={config.title} />}
-      {baseUrl && <meta property="og:url" content={canonicalUrl ?? baseUrl} />}
-      {description && <meta property="og:description" content={description} />}
-      {ogImage && <meta property="og:image" content={ogImage} />}
+      {isMetaEnabled('ogType') && <meta property="og:type" content="website" />}
+      {title && isMetaEnabled('ogTitle') && <meta property="og:title" content={title} />}
+      {config.title && isMetaEnabled('ogSiteName') && (
+        <meta property="og:site_name" content={config.title} />
+      )}
+      {baseUrl && isMetaEnabled('ogUrl') && (
+        <meta property="og:url" content={canonicalUrl ?? baseUrl} />
+      )}
+      {description && isMetaEnabled('ogDescription') && (
+        <meta property="og:description" content={description} />
+      )}
+      {ogImage && isMetaEnabled('ogImage') && <meta property="og:image" content={ogImage} />}
 
       {/* Article metadata */}
-      {frontmatter?.author && <meta property="article:author" content={frontmatter.author} />}
-      {frontmatter?.lastModified && (
+      {frontmatter?.author && isMetaEnabled('articleAuthor') && (
+        <meta property="article:author" content={frontmatter.author} />
+      )}
+      {frontmatter?.lastModified && isMetaEnabled('articleModifiedTime') && (
         <meta property="article:modified_time" content={frontmatter.lastModified} />
       )}
 
       {/* Twitter */}
-      <meta name="twitter:card" content="summary_large_image" />
-      {title && <meta name="twitter:title" content={title} />}
-      {description && <meta name="twitter:description" content={description} />}
-      {ogImage && <meta property="twitter:image" content={ogImage} />}
+      {isMetaEnabled('twitterCard') && <meta name="twitter:card" content="summary_large_image" />}
+      {title && isMetaEnabled('twitterTitle') && <meta name="twitter:title" content={title} />}
+      {description && isMetaEnabled('twitterDescription') && (
+        <meta name="twitter:description" content={description} />
+      )}
+      {ogImage && isMetaEnabled('twitterImage') && (
+        <meta property="twitter:image" content={ogImage} />
+      )}
     </>
   )
+}
+
+export function resolveTitleTemplate(
+  config: Pick<Config.Config, 'title' | 'titleTemplate'>,
+  path: string,
+  title: string | undefined,
+  frontmatter: Config.Frontmatter | undefined,
+) {
+  const titleTemplate =
+    typeof config.titleTemplate === 'function'
+      ? config.titleTemplate(path, { frontmatter, siteTitle: config.title, title })
+      : config.titleTemplate
+  return title?.includes(config.title) ? undefined : titleTemplate
+}
+
+export function resolveHeadOption(
+  config: Pick<Config.Config, 'head'>,
+  key: keyof Omit<Config.HeadOptions, 'meta'>,
+  path: string,
+  frontmatter: Config.Frontmatter | undefined,
+) {
+  const option = config.head?.[key]
+  if (typeof option === 'function') return option(path, { frontmatter })
+  return option ?? true
+}
+
+export function resolveMetaOption(
+  config: Pick<Config.Config, 'head'>,
+  key: keyof NonNullable<Config.HeadOptions['meta']>,
+  path: string,
+  frontmatter: Config.Frontmatter | undefined,
+) {
+  const option = config.head?.meta?.[key]
+  if (typeof option === 'function') return option(path, { frontmatter })
+  return option ?? true
 }
 
 function getIconType(iconUrl: string) {

@@ -65,7 +65,7 @@ export default defineConfig({
 
 ### `titleTemplate`
 
-- **Type:** `string`
+- **Type:** `string | ((path: string, context: { title?: string, siteTitle: string, frontmatter?: Frontmatter }) => string | undefined)`
 - **Default:** `%s – ${title}`
 
 Template used to build each page's `<title>`. Use `%s` as a placeholder for the page title.
@@ -76,6 +76,65 @@ export default defineConfig({
   titleTemplate: '%s · Acme Docs'
 })
 ```
+
+Use a function to vary the title template by route:
+
+```ts
+export default defineConfig({
+  titleTemplate: (path) => {
+    if (path === '/docs' || path.startsWith('/docs/')) return '%s · Acme Docs'
+    return '%s · Acme'
+  }
+})
+```
+
+### `head`
+
+- **Type:** `object`
+
+Controls built-in `<head>` tags. Each field accepts `boolean` or a route-aware function. Omitted fields default to `true`.
+
+```ts
+export default defineConfig({
+  head: {
+    canonical: (path) => !path.startsWith('/preview'),
+    icons: false,
+    meta: {
+      articleModifiedTime: (path) => !path.startsWith('/docs'),
+      twitterImage: false
+    }
+  }
+})
+```
+
+Available `head` fields:
+
+| Field | Tag |
+|---|---|
+| `base` | `<base>` |
+| `canonical` | `<link rel="canonical">` |
+| `description` | `<meta name="description">` |
+| `icons` | `<link rel="icon">` |
+| `robots` | `<meta name="robots">` |
+| `title` | `<title>` |
+
+Available `head.meta` fields:
+
+| Field | Tag |
+|---|---|
+| `author` | `<meta name="author">` |
+| `articleAuthor` | `<meta property="article:author">` |
+| `articleModifiedTime` | `<meta property="article:modified_time">` |
+| `ogDescription` | `<meta property="og:description">` |
+| `ogImage` | `<meta property="og:image">` |
+| `ogSiteName` | `<meta property="og:site_name">` |
+| `ogTitle` | `<meta property="og:title">` |
+| `ogType` | `<meta property="og:type">` |
+| `ogUrl` | `<meta property="og:url">` |
+| `twitterCard` | `<meta name="twitter:card">` |
+| `twitterDescription` | `<meta name="twitter:description">` |
+| `twitterImage` | `<meta property="twitter:image">` |
+| `twitterTitle` | `<meta name="twitter:title">` |
 
 ## URLs And Deployment
 
@@ -107,6 +166,35 @@ export default defineConfig({
 ```
 
 If you omit the protocol, Vocs normalizes it to `https://`.
+
+### `sitemap`
+
+- **Type:** `false | { include?: boolean | ((path: string, context: { filePath: string }) => boolean), lastmod?: boolean | ((path: string, context: { filePath: string, lastmod: string }) => boolean | string | undefined) }`
+
+Controls generated `sitemap.xml` entries. Set `sitemap` to `false` to disable generated sitemap and robots files.
+
+Use `include` to omit routes from the generated sitemap:
+
+```ts
+export default defineConfig({
+  sitemap: {
+    include: (path) => !path.startsWith('/internal')
+  }
+})
+```
+
+Use `lastmod` to omit or override `<lastmod>` per route:
+
+```ts
+export default defineConfig({
+  sitemap: {
+    lastmod: (path, { lastmod }) => {
+      if (path === '/docs' || path.startsWith('/docs/')) return false
+      return lastmod
+    }
+  }
+})
+```
 
 ### `redirects`
 
