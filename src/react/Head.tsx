@@ -1,5 +1,7 @@
 'use client'
 
+import type { Meta, MetaFlat } from 'unhead/types'
+import { unpackMeta } from 'unhead/utils'
 import { useRouter } from 'waku'
 import type * as Config from '../internal/config.js'
 import * as MdxPageContext from './MdxPageContext.js'
@@ -14,18 +16,31 @@ export function Head() {
 
   const staticScheme = colorScheme !== 'light dark'
 
-  const title = frontmatter?.title ?? config.title
-  const titleTemplate = resolveTitleTemplate(config, pathname, title, frontmatter)
-  const fullTitle = titleTemplate ? titleTemplate.replace('%s', title) : title
+  const resolved = resolveHead(config, pathname, frontmatter)
+  const disabled = resolved === false
+  const head = disabled ? {} : resolved
+  const meta = head.meta ?? {}
 
-  const description = frontmatter?.description ?? config.description
-  const isHeadEnabled = (key: keyof Omit<Config.HeadOptions, 'meta'>) =>
-    resolveHeadOption(config, key, pathname, frontmatter)
-  const isMetaEnabled = (key: keyof NonNullable<Config.HeadOptions['meta']>) =>
-    resolveMetaOption(config, key, pathname, frontmatter)
+  const baseTitle = frontmatter?.title ?? config.title
+  const baseDescription = frontmatter?.description ?? config.description
+
+  // String overrides cascade into downstream defaults (e.g. `description` feeds
+  // `og:description`); `false` only omits the tag itself.
+  const titleSource = typeof head.title === 'string' ? head.title : baseTitle
+  const descriptionSource =
+    typeof meta.description === 'string' ? meta.description : baseDescription
 
   const fullPathname = basePath && basePath !== '/' ? `${basePath}${pathname}` : pathname
-  const canonicalUrl = baseUrl ? `${baseUrl}${fullPathname}` : undefined
+  const canonicalDefault = baseUrl ? `${baseUrl}${fullPathname}` : undefined
+  const canonicalSource = typeof head.canonical === 'string' ? head.canonical : canonicalDefault
+
+  const fullTitle = (() => {
+    if (head.title === false) return undefined
+    // Explicit `title` bypasses `titleTemplate`.
+    if (typeof head.title === 'string') return head.title
+    const titleTemplate = resolveTitleTemplate(config, pathname, baseTitle, frontmatter)
+    return titleTemplate ? titleTemplate.replace('%s', baseTitle) : baseTitle
+  })()
 
   const ogImageTemplate = (() => {
     if (typeof ogImageUrl === 'function') return ogImageUrl(pathname, { baseUrl })
@@ -34,15 +49,46 @@ export function Head() {
     return `${baseUrl ?? ''}/api/og?title=%title&description=%description`
   })()
 
-  const ogImage = ogImageTemplate
+  const ogImageDefault = ogImageTemplate
     ? ogImageTemplate
         .replace(
           '%logo',
           `${baseUrl ?? ''}${typeof logoUrl === 'string' ? logoUrl : (logoUrl?.dark ?? '')}`,
         )
-        .replace('%title', encodeURIComponent(title ?? ''))
-        .replace('%description', encodeURIComponent(description ?? ''))
+        .replace('%title', encodeURIComponent(titleSource ?? ''))
+        .replace('%description', encodeURIComponent(descriptionSource ?? ''))
     : undefined
+  const ogImageSource = typeof meta.ogImage === 'string' ? meta.ogImage : ogImageDefault
+
+  const tag = (value: string | false | undefined, fallback: string | undefined) => {
+    if (value === false) return undefined
+    return value ?? fallback
+  }
+
+  const base = tag(head.base, baseUrl)
+  const canonical = tag(head.canonical, canonicalDefault)
+  const icons = head.icons !== false
+
+  const metaTags = unpackMeta(
+    compactMeta({
+      robots: frontmatter?.robots ?? (import.meta.env.PROD ? 'index, follow' : 'noindex, nofollow'),
+      description: baseDescription,
+      author: frontmatter?.author,
+      ogType: 'website',
+      ogTitle: titleSource,
+      ogSiteName: config.title,
+      ogUrl: baseUrl ? (canonicalSource ?? baseUrl) : undefined,
+      ogDescription: descriptionSource,
+      ogImage: ogImageDefault,
+      articleAuthor: frontmatter?.author ? [frontmatter.author] : undefined,
+      articleModifiedTime: frontmatter?.lastModified,
+      twitterCard: 'summary_large_image',
+      twitterTitle: titleSource,
+      twitterDescription: descriptionSource,
+      twitterImage: ogImageSource,
+      ...meta,
+    }) as MetaFlat,
+  ) as Meta[]
 
   return (
     <>
@@ -58,82 +104,127 @@ export function Head() {
 
       <meta name="color-scheme" content={colorScheme} />
 
-      {/* Robots  */}
-      {isHeadEnabled('robots') && (
-        <meta
-          name="robots"
-          content={
-            frontmatter?.robots ?? (import.meta.env.PROD ? 'index, follow' : 'noindex, nofollow')
-          }
-        />
-      )}
+      {!disabled && (
+        <>
+          {/* Title */}
+          {fullTitle && <title key="title">{fullTitle}</title>}
 
-      {/* Title & Description */}
-      {fullTitle && isHeadEnabled('title') && <title key="title">{fullTitle}</title>}
-      {description && isHeadEnabled('description') && (
-        <meta name="description" content={description} />
-      )}
+          {/* Base URL */}
+          {base && <base href={base} />}
 
-      {/* Base URL */}
-      {baseUrl && isHeadEnabled('base') && <base href={baseUrl} />}
+          {/* Canonical */}
+          {canonical && <link rel="canonical" href={canonical} />}
 
-      {/* Canonical */}
-      {canonicalUrl && isHeadEnabled('canonical') && <link rel="canonical" href={canonicalUrl} />}
+          {/* Icons */}
+          {icons && iconUrl && typeof iconUrl === 'string' && (
+            <link rel="icon" href={iconUrl} type={getIconType(iconUrl)} />
+          )}
+          {icons && iconUrl && typeof iconUrl !== 'string' && (
+            <link rel="icon" href={iconUrl.light} type={getIconType(iconUrl.light)} />
+          )}
+          {icons && iconUrl && typeof iconUrl !== 'string' && (
+            <link
+              rel="icon"
+              href={iconUrl.dark}
+              type={getIconType(iconUrl.dark)}
+              media="(prefers-color-scheme: dark)"
+            />
+          )}
 
-      {/* Icons */}
-      {iconUrl && typeof iconUrl === 'string' && isHeadEnabled('icons') && (
-        <link rel="icon" href={iconUrl} type={getIconType(iconUrl)} />
-      )}
-      {iconUrl && typeof iconUrl !== 'string' && isHeadEnabled('icons') && (
-        <link rel="icon" href={iconUrl.light} type={getIconType(iconUrl.light)} />
-      )}
-      {iconUrl && typeof iconUrl !== 'string' && isHeadEnabled('icons') && (
-        <link
-          rel="icon"
-          href={iconUrl.dark}
-          type={getIconType(iconUrl.dark)}
-          media="(prefers-color-scheme: dark)"
-        />
-      )}
+          {/* Meta */}
+          {metaTags.map((tag, index) => {
+            const {
+              charset: charSet,
+              content,
+              'http-equiv': httpEquiv,
+              media,
+              name,
+              property,
+            } = tag
+            return (
+              <meta
+                key={`${name ?? property ?? httpEquiv ?? charSet}-${index}`}
+                charSet={charSet}
+                httpEquiv={httpEquiv}
+                name={name}
+                property={property}
+                content={content != null ? String(content) : undefined}
+                media={media}
+              />
+            )
+          })}
 
-      {/* Standard SEO */}
-      {frontmatter?.author && isMetaEnabled('author') && (
-        <meta name="author" content={frontmatter.author} />
-      )}
+          {/* Links */}
+          {head.link?.map((tag, index) => (
+            <link
+              key={`${tag.rel}-${tag.href}-${index}`}
+              {...(toReactProps(tag) as React.JSX.IntrinsicElements['link'])}
+            />
+          ))}
 
-      {/* Open Graph */}
-      {isMetaEnabled('ogType') && <meta property="og:type" content="website" />}
-      {title && isMetaEnabled('ogTitle') && <meta property="og:title" content={title} />}
-      {config.title && isMetaEnabled('ogSiteName') && (
-        <meta property="og:site_name" content={config.title} />
-      )}
-      {baseUrl && isMetaEnabled('ogUrl') && (
-        <meta property="og:url" content={canonicalUrl ?? baseUrl} />
-      )}
-      {description && isMetaEnabled('ogDescription') && (
-        <meta property="og:description" content={description} />
-      )}
-      {ogImage && isMetaEnabled('ogImage') && <meta property="og:image" content={ogImage} />}
+          {/* Scripts */}
+          {head.script?.map((tag, index) => {
+            const props = toReactProps(tag) as React.JSX.IntrinsicElements['script']
+            const html = innerContent(tag)
+            const key = `${tag.src ?? html}-${index}`
+            if (html == null) return <script key={key} {...props} />
+            return (
+              <script
+                key={key}
+                {...props}
+                // biome-ignore lint/security/noDangerouslySetInnerHtml: user-provided inline script from config
+                dangerouslySetInnerHTML={{ __html: html }}
+              />
+            )
+          })}
 
-      {/* Article metadata */}
-      {frontmatter?.author && isMetaEnabled('articleAuthor') && (
-        <meta property="article:author" content={frontmatter.author} />
-      )}
-      {frontmatter?.lastModified && isMetaEnabled('articleModifiedTime') && (
-        <meta property="article:modified_time" content={frontmatter.lastModified} />
-      )}
-
-      {/* Twitter */}
-      {isMetaEnabled('twitterCard') && <meta name="twitter:card" content="summary_large_image" />}
-      {title && isMetaEnabled('twitterTitle') && <meta name="twitter:title" content={title} />}
-      {description && isMetaEnabled('twitterDescription') && (
-        <meta name="twitter:description" content={description} />
-      )}
-      {ogImage && isMetaEnabled('twitterImage') && (
-        <meta property="twitter:image" content={ogImage} />
+          {/* Styles */}
+          {head.style?.map((tag) => {
+            const props = toReactProps(tag) as React.JSX.IntrinsicElements['style']
+            const html = innerContent(tag)
+            if (html == null) return null
+            return (
+              <style
+                key={html}
+                {...props}
+                // biome-ignore lint/security/noDangerouslySetInnerHtml: user-provided inline style from config
+                dangerouslySetInnerHTML={{ __html: html }}
+              />
+            )
+          })}
+        </>
       )}
     </>
   )
+}
+
+/** unhead types use HTML attribute casing; React needs camelCase for these. */
+const reactPropName: Record<string, string> = {
+  charset: 'charSet',
+  crossorigin: 'crossOrigin',
+  fetchpriority: 'fetchPriority',
+  hreflang: 'hrefLang',
+  'http-equiv': 'httpEquiv',
+  imagesizes: 'imageSizes',
+  imagesrcset: 'imageSrcSet',
+  nomodule: 'noModule',
+  referrerpolicy: 'referrerPolicy',
+}
+
+function toReactProps(tag: object) {
+  const props: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(tag)) {
+    if (key === 'innerHTML' || key === 'textContent') continue
+    if (value == null || value === false) continue
+    props[reactPropName[key] ?? key] = value
+  }
+  return props
+}
+
+function innerContent(tag: { innerHTML?: unknown; textContent?: unknown }) {
+  const content = tag.innerHTML ?? tag.textContent
+  if (content == null) return undefined
+  return typeof content === 'string' ? content : JSON.stringify(content)
 }
 
 export function resolveTitleTemplate(
@@ -149,26 +240,25 @@ export function resolveTitleTemplate(
   return title?.includes(config.title) ? undefined : titleTemplate
 }
 
-export function resolveHeadOption(
+/**
+ * Resolves the `head` config into per-tag overrides for the given route.
+ * `false` (or a function returning `false`) disables every generated tag.
+ */
+export function resolveHead(
   config: Pick<Config.Config, 'head'>,
-  key: keyof Omit<Config.HeadOptions, 'meta'>,
   path: string,
   frontmatter: Config.Frontmatter | undefined,
-) {
-  const option = config.head?.[key]
-  if (typeof option === 'function') return option(path, { frontmatter })
-  return option ?? true
+): Config.HeadTags | false {
+  const head = typeof config.head === 'function' ? config.head(path, { frontmatter }) : config.head
+  if (head === false) return false
+  return head ?? {}
 }
 
-export function resolveMetaOption(
-  config: Pick<Config.Config, 'head'>,
-  key: keyof NonNullable<Config.HeadOptions['meta']>,
-  path: string,
-  frontmatter: Config.Frontmatter | undefined,
-) {
-  const option = config.head?.meta?.[key]
-  if (typeof option === 'function') return option(path, { frontmatter })
-  return option ?? true
+/** Drops disabled (`false`) and empty values before unpacking. */
+function compactMeta(meta: Config.HeadMeta) {
+  return Object.fromEntries(
+    Object.entries(meta).filter(([, value]) => value !== false && value != null && value !== ''),
+  )
 }
 
 function getIconType(iconUrl: string) {

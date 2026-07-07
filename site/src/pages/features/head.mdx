@@ -111,21 +111,34 @@ export default defineConfig({
 })
 ```
 
-Use [`head`](/reference/site-config#head) to disable generated tags globally or per route. This is useful for evergreen docs pages where you do not want article freshness metadata:
+Use [`head`](/reference/site-config#head) to override or disable generated tags. Set a `meta` field to a value to override it, or to `false` to omit it:
 
 ```ts [vocs.config.ts]
 import { defineConfig } from 'vocs/config'
 
 export default defineConfig({
   head: {
-    meta: {
-      articleModifiedTime: (path) => !path.startsWith('/docs') // [!code focus]
-    }
+    meta: { // [!code focus:5]
+      ogType: 'article',
+      twitterCard: 'summary',
+      articleModifiedTime: false,
+    },
   }
 })
 ```
 
-The same pattern works for core generated tags such as `title`, `description`, `robots`, `canonical`, `base`, and `icons`.
+Pass a function to vary tags by route — return tags for matching paths, `false` to disable all generated tags, or `undefined` to keep the defaults:
+
+```ts [vocs.config.ts]
+import { defineConfig } from 'vocs/config'
+
+export default defineConfig({
+  head(path) { // [!code focus:4]
+    if (path.startsWith('/preview')) return false
+    if (path.startsWith('/blog')) return { meta: { ogType: 'article' } }
+  }
+})
+```
 
 ### Load a Third-Party Script
 

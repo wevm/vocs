@@ -90,51 +90,62 @@ export default defineConfig({
 
 ### `head`
 
-- **Type:** `object`
+- **Type:** `false | HeadTags | (path: string, context: { frontmatter }) => HeadTags | false | undefined`
 
-Controls built-in `<head>` tags. Each field accepts `boolean` or a route-aware function. Omitted fields default to `true`.
+Controls the document `<head>`. `meta` overrides or extends the generated `<meta>` tags — set a field to a value to override it, or to `false` to omit it. `link`, `script`, and `style` append tags. Set `head: false` to disable all generated tags.
 
 ```ts
 export default defineConfig({
   head: {
-    canonical: (path) => !path.startsWith('/preview'),
-    icons: false,
     meta: {
-      articleModifiedTime: (path) => !path.startsWith('/docs'),
-      twitterImage: false
-    }
+      ogType: 'article',
+      twitterCard: 'summary',
+      articleModifiedTime: false
+    },
+    link: [{ rel: 'preconnect', href: 'https://fonts.gstatic.com' }],
+    script: [{ src: 'https://analytics.example.com/script.js', async: true }]
   }
 })
 ```
 
-Available `head` fields:
+Pass a function to vary tags by route. Return tags, `false` to disable all generated tags, or `undefined` to keep the defaults:
 
-| Field | Tag |
+```ts
+export default defineConfig({
+  head(path) {
+    if (path.startsWith('/preview')) return false
+    if (path.startsWith('/blog')) return { meta: { ogType: 'article' } }
+  }
+})
+```
+
+String overrides cascade into related defaults: `title` and `meta.description` feed the `og:` and `twitter:` variants, `canonical` feeds `og:url`, and `meta.ogImage` feeds `twitter:image`. Setting a field to `false` omits only that tag.
+
+Top-level fields:
+
+| Field | Behavior |
 |---|---|
-| `base` | `<base>` |
-| `canonical` | `<link rel="canonical">` |
-| `description` | `<meta name="description">` |
-| `icons` | `<link rel="icon">` |
-| `robots` | `<meta name="robots">` |
-| `title` | `<title>` |
+| `base` | `<base>` href. Set a value to override, or `false` to omit. |
+| `canonical` | `<link rel="canonical">` href. Set a value to override, or `false` to omit. |
+| `icons` | `<link rel="icon">` tags. Set `false` to omit (values come from [`iconUrl`](#iconurl)). |
+| `link` | Additional `<link>` tags. |
+| `meta` | `<meta>` tag overrides and additions (see below). |
+| `script` | Additional `<script>` tags — external (`src`) or inline (`textContent`, or `innerHTML` for JSON-LD objects). |
+| `style` | Additional `<style>` tags (`textContent`). |
+| `title` | `<title>` text (bypasses [`titleTemplate`](#titletemplate)). Set a value to override, or `false` to omit. |
 
-Available `head.meta` fields:
+`meta` accepts any key from [unhead's flat meta schema](https://unhead.unjs.io/docs/head/api/composables/use-seo-meta): camelCase keys map to the corresponding `name` or `property` attribute (e.g. `themeColor` → `<meta name="theme-color">`, `ogImageWidth` → `<meta property="og:image:width">`), so you can also add tags Vocs doesn't generate:
 
-| Field | Tag |
-|---|---|
-| `author` | `<meta name="author">` |
-| `articleAuthor` | `<meta property="article:author">` |
-| `articleModifiedTime` | `<meta property="article:modified_time">` |
-| `ogDescription` | `<meta property="og:description">` |
-| `ogImage` | `<meta property="og:image">` |
-| `ogSiteName` | `<meta property="og:site_name">` |
-| `ogTitle` | `<meta property="og:title">` |
-| `ogType` | `<meta property="og:type">` |
-| `ogUrl` | `<meta property="og:url">` |
-| `twitterCard` | `<meta name="twitter:card">` |
-| `twitterDescription` | `<meta name="twitter:description">` |
-| `twitterImage` | `<meta property="twitter:image">` |
-| `twitterTitle` | `<meta name="twitter:title">` |
+```ts
+export default defineConfig({
+  head: {
+    meta: {
+      appleMobileWebAppTitle: 'Acme',
+      themeColor: '#161616'
+    }
+  }
+})
+```
 
 ## URLs And Deployment
 

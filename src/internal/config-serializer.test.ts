@@ -5,11 +5,10 @@ import { deserialize, serialize } from './config-serializer.js'
 describe('config serializer', () => {
   test('round trips route-aware head and title callbacks', () => {
     const config = define({
-      head: {
-        canonical: (path) => path !== '/preview',
-        meta: {
-          articleModifiedTime: (path) => !path.startsWith('/docs'),
-        },
+      head: (path) => {
+        if (path === '/preview') return false
+        if (path.startsWith('/blog')) return { meta: { ogType: 'article' } }
+        return undefined
       },
       titleTemplate: (path) => (path.startsWith('/docs') ? '%s · Docs' : '%s · Site'),
     })
@@ -17,8 +16,7 @@ describe('config serializer', () => {
     const result = deserialize(serialize(config))
 
     expect(typeof result.titleTemplate).toBe('function')
-    expect(typeof result.head?.canonical).toBe('function')
-    expect(typeof result.head?.meta?.articleModifiedTime).toBe('function')
+    expect(typeof result.head).toBe('function')
     expect(
       typeof result.titleTemplate === 'function' &&
         result.titleTemplate('/docs/intro', {
@@ -28,13 +26,11 @@ describe('config serializer', () => {
         }),
     ).toBe('%s · Docs')
     expect(
-      typeof result.head?.canonical === 'function' &&
-        result.head.canonical('/preview', { frontmatter: undefined }),
+      typeof result.head === 'function' && result.head('/preview', { frontmatter: undefined }),
     ).toBe(false)
     expect(
-      typeof result.head?.meta?.articleModifiedTime === 'function' &&
-        result.head.meta.articleModifiedTime('/docs/intro', { frontmatter: undefined }),
-    ).toBe(false)
+      typeof result.head === 'function' && result.head('/blog/post', { frontmatter: undefined }),
+    ).toEqual({ meta: { ogType: 'article' } })
   })
 
   test('round trips route-aware sitemap callbacks', () => {
