@@ -40,6 +40,22 @@ Some text.
     expect(sections.length).toBe(1)
   })
 
+  it('strips inline twoslash cache comments from code blocks', () => {
+    const content = `
+# Getting Started
+
+Set up your client.
+
+\`\`\`ts twoslash
+// @twoslash-cache: {"v":1,"hash":"abc123","data":"N4Igdg9gJgpgziAXAbVAFwJ4AcZJACwgDcYAnEAGhDRgA808AKAQwBsBLZuASgAIAzAK5gAxmnYQwvEaRjMaABUEAjDiIDCHGMBpQ4vACqHjps+YvT8zdlKvbbvdR5evAA+vMKw/F4wULwAvGE2MJFg0W7MIiIQwmgA8qQAglBQsnB2PjZ2+RlZOiG8hcXwdqHhSVEx8a3JqbykWCIAyiL4MAC2zJb0vnYASv1DI+N1Xe1xCRHtbpnGFmgQANbaZVMVDgdHy4ndHettKVAAfIxYzIajMDSkcIi8SqrsGi06nUiA"]}
+import { createPublicClient } from 'viem'
+\`\`\`
+`
+    const [section] = Search.extract(content, config).sections
+    expect(section?.text).not.toContain('@twoslash-cache')
+    expect(section?.text).toContain("import { createPublicClient } from 'viem'")
+  })
+
   it('extracts sections from headings', () => {
     const content = `
 # Getting Started

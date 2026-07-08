@@ -14,7 +14,7 @@ import * as UnistUtil from 'unist-util-visit'
 import * as yaml from 'yaml'
 import type * as Config from './config.js'
 import * as MarkdownImports from './markdown-imports.js'
-import { extractSubheading, getPhrasingContentText } from './mdx.js'
+import { extractSubheading, getPhrasingContentText, remarkStripInlineCache } from './mdx.js'
 import * as OpenApiRegistry from './openapi/registry.js'
 import * as OpenApiSearch from './openapi/search.js'
 import * as Path from './path.js'
@@ -323,6 +323,9 @@ export function extract(source: string, config: Config.Config): extract.ReturnTy
     remarkGfm,
     remarkStripJsx,
     remarkStripDirectives,
+    // Persisted twoslash cache comments are giant base64 blobs; without this
+    // they leak into section text (and search snippets/embeddings).
+    remarkStripInlineCache,
     // User plugins extend the parser (e.g. `remark-math`) so syntax
     // recognized in the React build also parses during indexing.
     ...(config.markdown?.remarkPlugins ?? []),
