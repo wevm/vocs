@@ -1,5 +1,11 @@
 # vocs
 
+## 2.5.3
+
+### Patch Changes
+
+- 35ebd0c: Fixed search indexing leaking persisted twoslash cache comments (giant base64 blobs) into section text, snippets, and embeddings.
+
 ## 2.5.2
 
 ### Patch Changes
