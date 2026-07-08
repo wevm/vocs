@@ -195,6 +195,38 @@ describe('cloudflare (remote adapter)', () => {
     expect(String(stored?.metadata['text']).length).toBeGreaterThan(0)
   })
 
+  it('sanitizes metadata to Vectorize types (string | number | boolean | string[])', async () => {
+    const state = mockVectorize()
+    const store = VectorStore.cloudflare(credentials)
+
+    await store.sync(
+      [
+        {
+          id: 'a',
+          // Sparse `titles` (skipped heading levels) serialize as nulls.
+          metadata: {
+            href: '/a',
+            nested: { drop: true },
+            none: null,
+            title: 'a',
+            titles: ['Guide', null, 'Steps'],
+            weight: 0.8,
+          },
+          vector: VectorStore.normalize([1, 0]),
+        },
+      ],
+      { dimensions: 2 },
+    )
+
+    const [stored] = [...state.vectors.values()]
+    expect(stored?.metadata).toEqual({
+      href: '/a',
+      title: 'a',
+      titles: ['Guide', 'Steps'],
+      weight: 0.8,
+    })
+  })
+
   it('queries nearest vectors and caps topK at 50', async () => {
     const state = mockVectorize()
     const store = VectorStore.cloudflare(credentials)

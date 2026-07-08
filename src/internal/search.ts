@@ -386,7 +386,8 @@ export function extract(source: string, config: Config.Config): extract.ReturnTy
 
         // Update title stack based on heading depth
         titleStack.length = depth - 1
-        const titles = [...titleStack]
+        // Skipped heading levels leave holes; drop them from the breadcrumb.
+        const titles = [...titleStack].filter((t) => t !== undefined)
         titleStack[depth - 1] = title
 
         currentSection = {

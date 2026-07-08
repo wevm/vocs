@@ -286,7 +286,10 @@ export function cloudflare(options: cloudflare.Options = {}): RemoteAdapter {
       // the bounded metadata so truncation stays stable across builds.
       const local = new Map<string, RemoteEntry>()
       for (const entry of entries) {
-        const bounded = { ...entry, metadata: boundMetadata(entry.metadata) }
+        const bounded = {
+          ...entry,
+          metadata: boundMetadata(sanitizeMetadata(entry.metadata)),
+        }
         local.set(await contentId(bounded), bounded)
       }
 
@@ -365,6 +368,18 @@ export declare namespace cloudflare {
 /** Creates a vector-store adapter from a custom definition. */
 export function from(adapter: Adapter): Adapter {
   return adapter
+}
+
+/** Vectorize metadata values must be string | number | boolean | string[]; drops the rest. */
+function sanitizeMetadata(metadata: Record<string, unknown>): Record<string, unknown> {
+  const out: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(metadata)) {
+    if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean')
+      out[key] = value
+    else if (Array.isArray(value))
+      out[key] = value.filter((item): item is string => typeof item === 'string')
+  }
+  return out
 }
 
 /** Vectorize caps metadata at 10KiB/vector; trims the unbounded `text` field to fit. */
