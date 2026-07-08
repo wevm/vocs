@@ -1,5 +1,11 @@
 # vocs
 
+## 2.5.2
+
+### Patch Changes
+
+- 9780e74: Fixed `VectorStore.cloudflare` pruning failing with error 40007 by batching deletes at Vectorize's 100-id limit.
+
 ## 2.5.1
 
 ### Patch Changes
