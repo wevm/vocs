@@ -267,6 +267,30 @@ export default defineConfig({
 
 If the reranker call fails, search **fails open** to the vector order, so results still come back.
 
+#### Store vectors in a remote database
+
+By default, the packed vector store is baked into the server bundle. On large sites that artifact can get big, so you can sync vectors to a remote database instead with `vectorStore`. `VectorStore.cloudflare()` uses [Cloudflare Vectorize](https://developers.cloudflare.com/vectorize/):
+
+```ts twoslash
+// [!code word:vectorStore]
+import { defineConfig, Embedding, Retriever, VectorStore } from 'vocs/config'
+
+export default defineConfig({
+  ai: {
+    retriever: Retriever.local({
+      embedding: Embedding.cloudflare(),
+      vectorStore: VectorStore.cloudflare({ index: 'my-docs' }),
+    }),
+  },
+})
+```
+
+Vocs still chunks and embeds locally. At build time vectors are synced into the Vectorize index (created on first sync; sync is incremental, so unchanged chunks are skipped and stale vectors are pruned), and at runtime each query searches the index over REST, so no vector artifact ships with the server bundle.
+
+`VectorStore.cloudflare()` reads `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN` from the environment (the token needs the **Vectorize** Edit permission). Make them available at build time (to sync) and at runtime (to query). Like the rest of the retriever config, credentials stay server-side.
+
+Bring your own database with `VectorStore.from()`.
+
 #### Index external sources
 
 Embed other sites alongside your docs so their pages surface in search and link out to their absolute URL. Each URL is fetched at build time and auto-expanded: a `sitemap.xml` → every page it lists, an `llms.txt` → every same-origin page it links (off-site links are ignored), anything else → the page itself. Each source expands to at most 1,000 pages; raise `maxPages` per source to index more.

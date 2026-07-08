@@ -822,8 +822,12 @@ export function aiSearch(config: Config.Config): PluginOption {
 
   const { rootDir, basePath } = config
   const localEnabled = Boolean(config._localRetriever)
+  const vectorStore = config._localRetriever?.vectorStore
+  // Remote store: build-time work is syncing vectors into the database; no
+  // index artifact (server manifest or public browser file) is emitted.
+  const remoteStore = vectorStore?.target === 'remote'
   const exposePublic =
-    ai?.runtime === 'client' || config._localRetriever?.vectorStore.expose === true
+    ai?.runtime === 'client' || (vectorStore?.target === 'static' && vectorStore.expose === true)
 
   let mode: 'development' | 'production' = 'development'
   let manifestPromise: Promise<Retriever.IndexManifest> | undefined
@@ -848,7 +852,9 @@ export function aiSearch(config: Config.Config): PluginOption {
           }
           await Retriever.saveIndex(config, manifest)
           logger.info(
-            `AI search index built (${manifest.vectorStore.count} chunks, ${manifest.vectorStore.format}).`,
+            remoteStore
+              ? `AI search index synced (${manifest.vectorStore.count} chunks, remote vector store).`
+              : `AI search index built (${manifest.vectorStore.count} chunks, ${manifest.vectorStore.format}).`,
             { timestamp: true },
           )
           return manifest
@@ -909,8 +915,10 @@ export function aiSearch(config: Config.Config): PluginOption {
     async load(id) {
       if (id === resolvedServerManifestId) {
         // Dev never builds; the server loads the manifest written by
-        // `vocs embeddings generate` from disk instead.
-        if (!localEnabled || mode === 'development' || skipSeeding()) return emptyManifestModule
+        // `vocs embeddings generate` from disk instead. A remote store needs
+        // no baked manifest either — the server queries the database directly.
+        if (!localEnabled || remoteStore || mode === 'development' || skipSeeding())
+          return emptyManifestModule
         const manifest = await buildManifest()
         // Emit as a gzipped asset. Inlining the JSON into the chunk bloats
         // server bundles (manifests can be tens of MB).
@@ -952,7 +960,7 @@ export const getAiSearchManifest = async () =>
       await fs.writeFile(path.join(dir, `ai-search-index-${publicHash}.json`), json, 'utf-8')
 
       const bytes = Buffer.byteLength(json)
-      const max = config._localRetriever?.vectorStore.maxClientBytes
+      const max = vectorStore?.target === 'static' ? vectorStore.maxClientBytes : undefined
       if (max && bytes > max)
         logger.warn(
           `AI search client index is ${(bytes / 1e6).toFixed(1)}MB, exceeds maxClientBytes (${(max / 1e6).toFixed(1)}MB). Consider int8 format or fewer chunks.`,

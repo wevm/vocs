@@ -7,6 +7,7 @@ import * as ConfigSerializer from './config-serializer.js'
 import * as Embedding from './embedding.js'
 import * as Reranker from './reranker.js'
 import * as Retriever from './retriever.js'
+import * as VectorStore from './vector-store.js'
 
 const ctx = { basePath: '/' }
 
@@ -400,6 +401,20 @@ describe('resolveLocal (config split)', () => {
     expect(resolved?.private.chunking.maxCharacters).toBe(100)
     expect(resolved?.private.chunking.overlapCharacters).toBe(99)
   })
+
+  it('accepts a remote vector store (VectorStore.cloudflare)', () => {
+    const resolved = Retriever.resolveLocal(
+      {
+        embedding: Embedding.mock(),
+        vectorStore: VectorStore.cloudflare({ accountId: 'acc', apiToken: 'secret-token' }),
+      },
+      { basePath: '/' },
+    )
+    expect(resolved?.private.vectorStore.type).toBe('cloudflare')
+    expect(resolved?.private.vectorStore.target).toBe('remote')
+    // Adapter (and its credentials) stays in the private, never-serialized half.
+    expect(JSON.stringify(resolved?.public)).not.toContain('secret-token')
+  })
 })
 
 describe('config integration', () => {
@@ -643,8 +658,9 @@ describe('end-to-end (mock embedder)', () => {
         body: JSON.stringify({ query: 'installation' }),
       })
 
-    // First request returns immediately while the index builds in the background.
-    const first = await Retriever.handleSearchRequest(makeRequest(), config)
+    // First request returns immediately while the index builds in the background
+    // (`pendingWaitMs: 0` disables the grace wait to observe the 202).
+    const first = await Retriever.handleSearchRequest(makeRequest(), config, { pendingWaitMs: 0 })
     expect(first.status).toBe(202)
     const firstJson = (await first.json()) as { results: Retriever.Result[]; indexing: boolean }
     expect(firstJson.indexing).toBe(true)
@@ -657,6 +673,32 @@ describe('end-to-end (mock embedder)', () => {
     const secondJson = (await second.json()) as { results: Retriever.Result[]; indexing: boolean }
     expect(secondJson.indexing).toBe(false)
     expect(Array.isArray(secondJson.results)).toBe(true)
+  })
+
+  it('answers 202 when the build outlasts the grace wait', async () => {
+    const embedding = Embedding.from({
+      type: 'slow',
+      model: 'slow',
+      async embed() {
+        return new Promise(() => {}) as never // never resolves
+      },
+    })
+    const config = Config.define({
+      rootDir: dir,
+      ai: { retriever: Retriever.local({ embedding, cache: false }) },
+    })
+
+    const response = await Retriever.handleSearchRequest(
+      new Request('http://localhost/api/search', {
+        method: 'POST',
+        body: JSON.stringify({ query: 'installation' }),
+      }),
+      config,
+      { pendingWaitMs: 25 },
+    )
+    expect(response.status).toBe(202)
+    const json = (await response.json()) as { indexing: boolean }
+    expect(json.indexing).toBe(true)
   })
 
   it('dev (NODE_ENV=development) loads the prebuilt index instead of building', async () => {
@@ -746,13 +788,11 @@ describe('end-to-end (mock embedder)', () => {
       })
     const options = { loadManifest: async () => manifest }
 
+    // The manifest loads within the grace wait, so the first request answers
+    // 200 directly instead of 202 (`indexing: true`).
     const first = await Retriever.handleSearchRequest(makeRequest(), config, options)
-    expect(first.status).toBe(202)
-    await Retriever.getServerIndex(config)
-
-    const second = await Retriever.handleSearchRequest(makeRequest(), config, options)
-    expect(second.status).toBe(200)
-    const json = (await second.json()) as { results: Retriever.Result[] }
+    expect(first.status).toBe(200)
+    const json = (await first.json()) as { results: Retriever.Result[] }
     expect(json.results.length).toBeGreaterThan(0)
     // Only the query was embedded — the index came from the bundled manifest.
     expect(purposes).toEqual(['query'])
@@ -803,8 +843,10 @@ describe('end-to-end (mock embedder)', () => {
         body: JSON.stringify({ query: 'installation' }),
       })
 
-    // First request kicks off the build and reports indexing.
-    expect((await Retriever.handleSearchRequest(makeRequest(), config)).status).toBe(202)
+    // First request kicks off the build and reports indexing (grace wait
+    // disabled — the fast failure would otherwise answer 503 directly).
+    const first = await Retriever.handleSearchRequest(makeRequest(), config, { pendingWaitMs: 0 })
+    expect(first.status).toBe(202)
     await expect(Retriever.getServerIndex(config)).rejects.toThrow('embedding unavailable')
 
     // Subsequent requests surface the failure and don't retrigger the build
@@ -852,5 +894,130 @@ describe('end-to-end (mock embedder)', () => {
       body: JSON.stringify({ query: '   ' }),
     })
     expect((await Retriever.handleSearchRequest(request, config)).status).toBe(400)
+  })
+})
+
+describe('end-to-end (remote vector store)', () => {
+  let dir: string
+
+  beforeEach(() => {
+    Retriever._resetServerIndexCache()
+    dir = makeSite()
+  })
+  afterEach(() => {
+    fs.rmSync(dir, { recursive: true, force: true })
+  })
+
+  /** In-memory remote vector store (stands in for e.g. Cloudflare Vectorize). */
+  function memoryRemoteStore() {
+    const vectors = new Map<string, { metadata: Record<string, unknown>; vector: Float32Array }>()
+    const syncs: { count: number; dimensions: number }[] = []
+    const store: VectorStore.RemoteAdapter = {
+      type: 'memory',
+      target: 'remote',
+      async sync(entries, { dimensions }) {
+        syncs.push({ count: entries.length, dimensions })
+        vectors.clear()
+        for (const e of entries) vectors.set(e.id, { metadata: e.metadata, vector: e.vector })
+        return { deleted: 0, skipped: 0, upserted: entries.length }
+      },
+      async query(query, { topK }) {
+        return [...vectors.entries()]
+          .map(([id, v]) => {
+            let score = 0
+            for (let i = 0; i < query.length; i++) score += (v.vector[i] ?? 0) * (query[i] ?? 0)
+            return { id, metadata: v.metadata, score }
+          })
+          .sort((a, b) => b.score - a.score)
+          .slice(0, topK)
+      },
+    }
+    return { store, syncs, vectors }
+  }
+
+  function remoteConfig(store: VectorStore.RemoteAdapter, reranker?: Reranker.Adapter) {
+    return Config.define({
+      rootDir: dir,
+      ai: {
+        retriever: Retriever.local({
+          embedding: Embedding.mock({ dimensions: 64 }),
+          cache: false,
+          vectorStore: store,
+          ...(reranker ? { reranker } : {}),
+        }),
+      },
+    })
+  }
+
+  it('buildIndex syncs vectors remotely and emits no local artifact', async () => {
+    const { store, syncs, vectors } = memoryRemoteStore()
+    const config = remoteConfig(store)
+
+    const events: Retriever.ProgressEvent['type'][] = []
+    const manifest = await Retriever.buildIndex(config, {
+      onProgress: (event) => events.push(event.type),
+    })
+
+    expect(syncs).toEqual([{ count: vectors.size, dimensions: 64 }])
+    expect(vectors.size).toBeGreaterThan(0)
+    // Chunk metadata + vectors live remotely — the manifest is metadata-only.
+    expect(manifest.chunks).toEqual([])
+    expect(manifest.vectors.count).toBe(0)
+    expect(manifest.vectorStore.count).toBe(vectors.size)
+    expect(events).toContain('sync:start')
+    expect(events).toContain('synced')
+    expect(events).not.toContain('packed')
+  })
+
+  it('retrieves through the remote store', async () => {
+    const { store } = memoryRemoteStore()
+    const config = remoteConfig(store)
+    await Retriever.buildIndex(config)
+
+    const results = await Retriever.retrieveLocal(config, { query: 'embeddings cache build time' })
+    expect(results.length).toBeGreaterThan(0)
+    expect(results.some((r) => r.href.includes('/search'))).toBe(true)
+  })
+
+  it('applies the reranker to remote candidates', async () => {
+    const calls: { count: number; query: string }[] = []
+    const reranker = Reranker.from({
+      type: 'spy',
+      model: 'spy',
+      async rerank(query, documents, context) {
+        calls.push({ count: documents.length, query })
+        return documents.map((_, index) => ({ index, score: 0.5 })).slice(0, context.topK)
+      },
+    })
+    const { store } = memoryRemoteStore()
+    const config = remoteConfig(store, reranker)
+    await Retriever.buildIndex(config)
+
+    const results = await Retriever.retrieveLocal(config, { query: 'installation' })
+    expect(calls[0]?.query).toBe('installation')
+    expect(calls[0]?.count).toBeGreaterThan(0)
+    // Uniform reranker scores → the lexical title boost decides the winner.
+    expect(results[0]?.title).toBe('Installation')
+  })
+
+  it('serves search requests without an indexing phase', async () => {
+    const { store } = memoryRemoteStore()
+    const config = remoteConfig(store)
+    await Retriever.buildIndex(config)
+
+    // Even the first request answers 200 — remote mode has no in-process
+    // index to warm, so there is never a 202 `indexing` response.
+    const response = await Retriever.handleSearchRequest(
+      new Request('http://localhost/api/search', {
+        method: 'POST',
+        body: JSON.stringify({ query: 'installation' }),
+      }),
+      config,
+      { pendingWaitMs: 0 },
+    )
+    expect(response.status).toBe(200)
+    const json = (await response.json()) as { indexing: boolean; results: Retriever.Result[] }
+    expect(json.indexing).toBe(false)
+    expect(json.results.length).toBeGreaterThan(0)
   })
 })
