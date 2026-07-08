@@ -667,7 +667,6 @@ Then do this.
           "title": "Step one",
           "titles": [
             "Getting Started",
-            undefined,
           ],
         },
         {
@@ -678,7 +677,6 @@ Then do this.
           "title": "Step two",
           "titles": [
             "Getting Started",
-            undefined,
           ],
         },
       ]
