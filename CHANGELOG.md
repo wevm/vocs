@@ -1,5 +1,15 @@
 # vocs
 
+## 2.5.0
+
+### Minor Changes
+
+- 6bdd40d: Added `VectorStore.cloudflare()` to sync `Retriever.local` vectors to a Cloudflare Vectorize index instead of bundling them into the server bundle.
+
+### Patch Changes
+
+- 6bdd40d: Warmed the local AI search index on the first request of a server instance and made `/api/search` briefly wait for a pending index before answering `indexing: true`.
+
 ## 2.4.0
 
 ### Minor Changes
