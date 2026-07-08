@@ -328,8 +328,9 @@ export function cloudflare(options: cloudflare.Options = {}): RemoteAdapter {
         onProgress?.(upserted, toUpsert.length)
       }
 
-      for (let i = 0; i < toDelete.length; i += 1000) {
-        const batch = toDelete.slice(i, i + 1000)
+      // Vectorize caps delete_by_ids at 100 ids per request (error 40007).
+      for (let i = 0; i < toDelete.length; i += 100) {
+        const batch = toDelete.slice(i, i + 100)
         const response = await request(`/${index}/delete_by_ids`, {
           method: 'POST',
           contentType: 'application/json',
