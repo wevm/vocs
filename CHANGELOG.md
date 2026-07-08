@@ -1,5 +1,11 @@
 # vocs
 
+## 2.5.1
+
+### Patch Changes
+
+- 1e5cb15: Fixed `titles` breadcrumbs containing holes when heading levels are skipped.
+
 ## 2.5.0
 
 ### Minor Changes
