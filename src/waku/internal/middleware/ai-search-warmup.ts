@@ -43,6 +43,8 @@ async function warm(): Promise<void> {
     ])
     const config = await Config.resolve({ server: true })
     if (!config._localRetriever) return
+    // Remote vector store: no in-process index to warm (queried in the database).
+    if (config._localRetriever.vectorStore.target === 'remote') return
     await Retriever.ensureServerIndex(config, { loadManifest: loadAiSearchManifest }).promise
   } catch {
     // `ensureServerIndex` already logs build failures.

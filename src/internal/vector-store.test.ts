@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import * as VectorStore from './vector-store.js'
 
 describe('normalize', () => {
@@ -62,5 +62,155 @@ describe('resolveFormat', () => {
     expect(VectorStore.resolveFormat('auto', 'server')).toBe('float32')
     expect(VectorStore.resolveFormat('auto', 'client')).toBe('int8')
     expect(VectorStore.resolveFormat('int8', 'server')).toBe('int8')
+  })
+})
+
+describe('cloudflare (remote adapter)', () => {
+  afterEach(() => vi.restoreAllMocks())
+
+  /** In-memory Vectorize API fake backing the `fetch` mock. */
+  function mockVectorize() {
+    const state = {
+      created: false,
+      dimensions: undefined as number | undefined,
+      requests: [] as { body: string | undefined; method: string; path: string }[],
+      vectors: new Map<string, { metadata: Record<string, unknown>; values: number[] }>(),
+    }
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async (input, init) => {
+      const url = new URL(String(input))
+      const method = init?.method ?? 'GET'
+      const body = typeof init?.body === 'string' ? init.body : undefined
+      state.requests.push({ body, method, path: url.pathname + url.search })
+
+      const base = '/client/v4/accounts/acc/vectorize/v2/indexes'
+      if (!url.pathname.startsWith(base)) return new Response('not found', { status: 404 })
+      const rest = url.pathname.slice(base.length)
+
+      // Create index.
+      if (rest === '' && method === 'POST') {
+        state.created = true
+        state.dimensions = JSON.parse(body ?? '{}').config?.dimensions
+        return Response.json({ success: true })
+      }
+      // Get index.
+      if (/^\/[^/]+$/.test(rest) && method === 'GET') {
+        if (!state.created) return new Response('not found', { status: 404 })
+        return Response.json({ result: { config: { dimensions: state.dimensions } } })
+      }
+      if (rest.endsWith('/list'))
+        return Response.json({
+          result: { isTruncated: false, vectors: [...state.vectors.keys()].map((id) => ({ id })) },
+        })
+      if (rest.endsWith('/upsert')) {
+        for (const line of (body ?? '').split('\n')) {
+          const { id, metadata, values } = JSON.parse(line)
+          state.vectors.set(id, { metadata, values })
+        }
+        return Response.json({ success: true })
+      }
+      if (rest.endsWith('/delete_by_ids')) {
+        for (const id of JSON.parse(body ?? '{}').ids ?? []) state.vectors.delete(id)
+        return Response.json({ success: true })
+      }
+      if (rest.endsWith('/query')) {
+        const { topK, vector } = JSON.parse(body ?? '{}')
+        const matches = [...state.vectors.entries()]
+          .map(([id, v]) => ({
+            id,
+            metadata: v.metadata,
+            score: v.values.reduce((sum, x, i) => sum + x * (vector[i] ?? 0), 0),
+          }))
+          .sort((a, b) => b.score - a.score)
+          .slice(0, topK)
+        return Response.json({ result: { matches } })
+      }
+      return new Response('bad request', { status: 400 })
+    })
+    return state
+  }
+
+  function entry(id: string, text: string, vector: number[]): VectorStore.RemoteEntry {
+    return {
+      id,
+      metadata: { href: `/${id}`, text, title: id },
+      vector: VectorStore.normalize(vector),
+    }
+  }
+
+  const credentials = { accountId: 'acc', apiToken: 'tok' }
+
+  it('throws on missing credentials', async () => {
+    const store = VectorStore.cloudflare({ accountId: '', apiToken: '' })
+    await expect(store.query(new Float32Array([1]), { topK: 5 })).rejects.toThrow(/accountId/)
+  })
+
+  it('creates the index on first sync and upserts all entries', async () => {
+    const state = mockVectorize()
+    const store = VectorStore.cloudflare(credentials)
+
+    const result = await store.sync([entry('a', 'alpha', [1, 0]), entry('b', 'beta', [0, 1])], {
+      dimensions: 2,
+    })
+
+    expect(state.created).toBe(true)
+    expect(state.dimensions).toBe(2)
+    expect(result).toEqual({ deleted: 0, skipped: 0, upserted: 2 })
+    expect(state.vectors.size).toBe(2)
+    // Content-addressed ids: 64 hex chars (Vectorize's id byte cap).
+    for (const id of state.vectors.keys()) expect(id).toMatch(/^[0-9a-f]{64}$/)
+  })
+
+  it('re-sync skips unchanged entries and prunes stale ones', async () => {
+    const state = mockVectorize()
+    const store = VectorStore.cloudflare(credentials)
+
+    await store.sync([entry('a', 'alpha', [1, 0]), entry('b', 'beta', [0, 1])], { dimensions: 2 })
+    const result = await store.sync([entry('a', 'alpha', [1, 0]), entry('c', 'gamma', [1, 1])], {
+      dimensions: 2,
+    })
+
+    expect(result).toEqual({ deleted: 1, skipped: 1, upserted: 1 })
+    expect(state.vectors.size).toBe(2)
+  })
+
+  it('rejects a dimension change against an existing index', async () => {
+    mockVectorize()
+    const store = VectorStore.cloudflare(credentials)
+    await store.sync([entry('a', 'alpha', [1, 0])], { dimensions: 2 })
+    await expect(store.sync([entry('a', 'alpha', [1, 0, 0])], { dimensions: 3 })).rejects.toThrow(
+      /dimensions/,
+    )
+  })
+
+  it('bounds oversized metadata under the Vectorize cap', async () => {
+    const state = mockVectorize()
+    const store = VectorStore.cloudflare(credentials)
+
+    await store.sync([entry('big', 'x'.repeat(20_000), [1, 0])], { dimensions: 2 })
+
+    const [stored] = [...state.vectors.values()]
+    const size = new TextEncoder().encode(JSON.stringify(stored?.metadata)).length
+    expect(size).toBeLessThanOrEqual(9216)
+    // Trimmed, not dropped.
+    expect(String(stored?.metadata['text']).length).toBeGreaterThan(0)
+  })
+
+  it('queries nearest vectors and caps topK at 50', async () => {
+    const state = mockVectorize()
+    const store = VectorStore.cloudflare(credentials)
+    await store.sync([entry('a', 'alpha', [1, 0]), entry('b', 'beta', [0, 1])], { dimensions: 2 })
+
+    const hits = await store.query(VectorStore.normalize([0.9, 0.1]), { topK: 100 })
+
+    expect(hits[0]?.metadata?.['href']).toBe('/a')
+    expect(hits[0]?.score ?? 0).toBeGreaterThan(hits[1]?.score ?? 0)
+    const queryRequest = state.requests.find((r) => r.path.endsWith('/query'))
+    expect(JSON.parse(queryRequest?.body ?? '{}').topK).toBe(50)
+  })
+
+  it('propagates query failures', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('nope', { status: 401 }))
+    const store = VectorStore.cloudflare(credentials)
+    await expect(store.query(new Float32Array([1]), { topK: 5 })).rejects.toThrow(/401/)
   })
 })

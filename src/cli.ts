@@ -117,12 +117,31 @@ cli
           case 'packed':
             console.log(`[vocs]   packed vectors (${event.dimensions}d, ${event.format})`)
             break
+          case 'sync:start':
+            console.log(`[vocs]   syncing ${event.chunks} chunks to the remote vector store...`)
+            break
+          case 'sync:progress': {
+            const now = Date.now()
+            if (event.done === event.total || now - lastFetchLog > 1000) {
+              lastFetchLog = now
+              console.log(`[vocs]   upserted ${event.done}/${event.total}`)
+            }
+            break
+          }
+          case 'synced':
+            console.log(
+              `[vocs]   synced (${event.upserted} upserted, ${event.skipped} unchanged, ${event.deleted} pruned)`,
+            )
+            break
         }
       },
     })
     const elapsed = ((Date.now() - started) / 1000).toFixed(1)
+    const remote = config._localRetriever?.vectorStore.target === 'remote'
     console.log(
-      `[vocs] AI search index built in ${elapsed}s (${manifest.vectorStore.count} chunks, ${manifest.vectorStore.dimensions}d, ${manifest.vectorStore.format}).`,
+      remote
+        ? `[vocs] AI search index synced in ${elapsed}s (${manifest.vectorStore.count} chunks, ${manifest.vectorStore.dimensions}d, remote vector store).`
+        : `[vocs] AI search index built in ${elapsed}s (${manifest.vectorStore.count} chunks, ${manifest.vectorStore.dimensions}d, ${manifest.vectorStore.format}).`,
     )
 
     // Persist to the canonical cache path so `vocs dev` can serve semantic

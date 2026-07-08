@@ -33,9 +33,9 @@ function createApp() {
   return app
 }
 
-function localConfig() {
-  // `_localRetriever` presence is all the middleware checks.
-  return { _localRetriever: {} } as unknown as Config.Config
+function localConfig(target: 'static' | 'remote' = 'static') {
+  // The middleware checks `_localRetriever` presence and the vector-store target.
+  return { _localRetriever: { vectorStore: { target } } } as unknown as Config.Config
 }
 
 /** Lets the fire-and-forget warm-up chain settle. */
@@ -61,6 +61,15 @@ describe('aiSearchWarmup', () => {
 
   it('skips when no local retriever is configured', async () => {
     mockResolve.mockResolvedValue({} as Config.Config)
+
+    const app = createApp()
+    expect((await app.request('http://localhost/')).status).toBe(200)
+    await settle()
+    expect(mockEnsure).not.toHaveBeenCalled()
+  })
+
+  it('skips for a remote vector store (no in-process index to warm)', async () => {
+    mockResolve.mockResolvedValue(localConfig('remote'))
 
     const app = createApp()
     expect((await app.request('http://localhost/')).status).toBe(200)

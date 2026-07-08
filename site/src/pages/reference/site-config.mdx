@@ -871,7 +871,9 @@ Adds AI search on top of keyword search. Set it to a retriever created by one co
 
 - `Retriever.local()`: Vocs owns the pipeline. It embeds your pages at build time, packs them
   into a built-in static vector store, and queries them at runtime via a server endpoint (the
-  open-source, self-owned option).
+  open-source, self-owned option). Pass `vectorStore: VectorStore.cloudflare()` to sync vectors
+  to a remote [Cloudflare Vectorize](https://developers.cloudflare.com/vectorize/) index instead
+  of bundling them.
 - `Retriever.cloudflare()` / `Retriever.from()`: retrieval is delegated to a hosted backend.
 
 Retrievers hold secrets and are kept **server-side only** (never serialized to the browser).

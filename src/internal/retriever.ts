@@ -1004,7 +1004,8 @@ export type IndexManifest = {
 /**
  * A build-progress event emitted by {@link buildIndex}, in pipeline order:
  * `documents` → (`sources:start` → `sources:progress`* → `sources:done`) →
- * `chunked` → `embed:start` → `embed:progress`* → `packed`.
+ * `chunked` → `embed:start` → `embed:progress`* → then `packed` (static
+ * store) or `sync:start` → `sync:progress`* → `synced` (remote store).
  */
 export type ProgressEvent =
   | { type: 'documents'; local: number }
@@ -1015,6 +1016,9 @@ export type ProgressEvent =
   | { type: 'embed:start'; cached: number; toEmbed: number; total: number }
   | { type: 'embed:progress'; embedded: number; toEmbed: number }
   | { type: 'packed'; dimensions: number; format: VectorStore.Format }
+  | { type: 'sync:start'; chunks: number }
+  | { type: 'sync:progress'; done: number; total: number }
+  | { type: 'synced'; deleted: number; skipped: number; upserted: number }
 
 export declare namespace buildIndex {
   type Options = {
@@ -1089,30 +1093,60 @@ export async function buildIndex(
   cache.save()
 
   const dimensions = vectors[0]?.length ?? priv.embedding.dimensions ?? 0
+  const embedding: IndexManifest['embedding'] = {
+    type: priv.embedding.type,
+    model: priv.embedding.model,
+    dimensions,
+    normalized: true,
+  }
+  const toMetadata = (c: Chunk): ChunkMetadata => ({
+    id: c.id,
+    href: c.href,
+    title: c.title,
+    titles: c.titles,
+    category: c.category,
+    type: c.type,
+    snippet: c.text.slice(0, 240),
+    text: c.text,
+    ...(c.weight !== undefined && c.weight !== 1 ? { weight: c.weight } : {}),
+  })
+
+  // Remote store: push vectors + metadata up instead of packing an artifact.
+  // The returned manifest carries build metadata only — chunks live remotely.
+  if (priv.vectorStore.target === 'remote') {
+    const store = priv.vectorStore
+    let synced: VectorStore.RemoteSyncResult = { deleted: 0, skipped: 0, upserted: 0 }
+    if (chunks.length > 0) {
+      onProgress?.({ type: 'sync:start', chunks: chunks.length })
+      const entries = chunks.map((c, i) => {
+        const vector = vectors[i]
+        if (!vector) throw new Error('[vocs] embedding produced no vector for a chunk')
+        return { id: c.id, metadata: toMetadata(c), vector }
+      })
+      synced = await store.sync(entries, {
+        dimensions,
+        onProgress: (done, total) => onProgress?.({ type: 'sync:progress', done, total }),
+      })
+    }
+    onProgress?.({ type: 'synced', ...synced })
+    return {
+      version: 1,
+      embedding,
+      vectorStore: { format: 'float32', count: chunks.length, dimensions },
+      chunks: [],
+      vectors: VectorStore.pack([], 'float32'),
+    }
+  }
+
   const format = VectorStore.resolveFormat(priv.vectorStore.format, priv.runtime)
   const packed = VectorStore.pack(vectors, format)
   onProgress?.({ type: 'packed', format, dimensions })
 
   return {
     version: 1,
-    embedding: {
-      type: priv.embedding.type,
-      model: priv.embedding.model,
-      dimensions,
-      normalized: true,
-    },
+    embedding,
     vectorStore: { format, count: chunks.length, dimensions },
-    chunks: chunks.map((c) => ({
-      id: c.id,
-      href: c.href,
-      title: c.title,
-      titles: c.titles,
-      category: c.category,
-      type: c.type,
-      snippet: c.text.slice(0, 240),
-      text: c.text,
-      ...(c.weight !== undefined && c.weight !== 1 ? { weight: c.weight } : {}),
-    })),
+    chunks: chunks.map(toMetadata),
     vectors: packed,
   }
 }
@@ -1328,6 +1362,12 @@ async function resolveServerIndex(
   priv: LocalPrivateConfig,
   loadManifest?: ManifestLoader | undefined,
 ): Promise<ServerIndex> {
+  // Remote vector store: vectors live in the hosted database (synced at build
+  // time), so there is no in-process index to load — and never build one here,
+  // which would re-sync the store from a runtime instance.
+  if (priv.vectorStore.target === 'remote')
+    return { store: VectorStore.load(VectorStore.pack([], 'float32')), chunks: [] }
+
   // Baked-in manifest first (emitted into the server bundle at build time) —
   // serverless filesystems don't carry the cache directory or source pages, so
   // this is the only source that works everywhere.
@@ -1410,33 +1450,92 @@ function titleMatchBoost(queryTokens: readonly string[], title: string): number 
   return queryTokens.length === titleTokens.length ? 0.25 : 0.12
 }
 
-/** Embeds the query, searches the local store, dedupes by href. */
+/** Embeds and L2-normalizes a search query. */
+async function embedQuery(
+  priv: LocalPrivateConfig,
+  query: string,
+): Promise<Float32Array | undefined> {
+  const embedded = await priv.embedding.embed([query], { purpose: 'query' })
+  const raw = embedded[0]
+  return raw ? VectorStore.normalize(raw) : undefined
+}
+
+/** Maps remote-store metadata back into {@link ChunkMetadata} (skips malformed hits). */
+function chunkMetadataFromRemote(
+  metadata: Record<string, unknown> | undefined,
+): ChunkMetadata | undefined {
+  if (!metadata) return undefined
+  const href = str(metadata['href'])
+  const title = str(metadata['title'])
+  if (!href || !title) return undefined
+  const type = metadata['type']
+  return {
+    id: str(metadata['id']) ?? href,
+    href,
+    title,
+    titles: Array.isArray(metadata['titles'])
+      ? metadata['titles'].filter((t): t is string => typeof t === 'string')
+      : [],
+    category: typeof metadata['category'] === 'string' ? metadata['category'] : '',
+    type: type === 'page' || type === 'section' || type === 'nav' ? type : 'page',
+    snippet: typeof metadata['snippet'] === 'string' ? metadata['snippet'] : '',
+    ...(typeof metadata['text'] === 'string' ? { text: metadata['text'] } : {}),
+    ...(typeof metadata['weight'] === 'number' && metadata['weight'] !== 1
+      ? { weight: metadata['weight'] }
+      : {}),
+  }
+}
+
+/**
+ * Fetches vector candidates for a query — from the remote store (embed query →
+ * remote nearest-neighbor query) or the in-process static store (embed query →
+ * dot-product scan). `score` is the raw similarity; a reranker may replace it
+ * with a cross-encoder score.
+ */
+async function retrieveCandidates(
+  config: Config.Config,
+  priv: LocalPrivateConfig,
+  queryText: string,
+): Promise<{ meta: ChunkMetadata; score: number }[]> {
+  if (priv.vectorStore.target === 'remote') {
+    const query = await embedQuery(priv, queryText)
+    if (!query) return []
+    const hits = await priv.vectorStore.query(query, { topK: priv.retrieval.candidateK })
+    return hits
+      .map((hit) => {
+        const meta = chunkMetadataFromRemote(hit.metadata)
+        return meta ? { meta, score: hit.score } : undefined
+      })
+      .filter((hit): hit is { meta: ChunkMetadata; score: number } => hit !== undefined)
+  }
+
+  const index = await getServerIndex(config)
+  // Empty index (dev with no prebuilt manifest): skip the query embedding call
+  // and fall back to keyword-only search on the client.
+  if (index.chunks.length === 0) return []
+
+  const query = await embedQuery(priv, queryText)
+  if (!query) return []
+
+  const hits = VectorStore.search(index.store, query, priv.retrieval.candidateK)
+  return hits
+    .map((hit) => {
+      const meta = index.chunks[hit.index]
+      return meta ? { meta, score: hit.score } : undefined
+    })
+    .filter((hit): hit is { meta: ChunkMetadata; score: number } => hit !== undefined)
+}
+
+/** Embeds the query, searches the vector store, dedupes by href. */
 export async function retrieveLocal(
   config: Config.Config,
   options: retrieveLocal.Options,
 ): Promise<Result[]> {
   const priv = requireLocal(config)
   const limit = options.limit ?? priv.retrieval.topK
-  const index = await getServerIndex(config)
-  // Empty index (dev with no prebuilt manifest): skip the query embedding call
-  // and fall back to keyword-only search on the client.
-  if (index.chunks.length === 0) return []
 
-  const embedded = await priv.embedding.embed([options.query], { purpose: 'query' })
-  const raw = embedded[0]
-  if (!raw) return []
-  const query = VectorStore.normalize(raw)
-
-  const hits = VectorStore.search(index.store, query, priv.retrieval.candidateK)
-
-  // Vector candidates, paired with their chunk metadata. `score` is the raw
-  // similarity; a reranker (below) may replace it with a cross-encoder score.
-  let candidates = hits
-    .map((hit) => {
-      const meta = index.chunks[hit.index]
-      return meta ? { meta, score: hit.score } : undefined
-    })
-    .filter((hit): hit is { meta: ChunkMetadata; score: number } => hit !== undefined)
+  let candidates = await retrieveCandidates(config, priv, options.query)
+  if (candidates.length === 0) return []
 
   // Optional rerank: a cross-encoder reads each (query, passage) pair jointly
   // and re-scores the candidates for precision. On failure we keep the vector
@@ -1538,27 +1637,33 @@ async function handleLocalSearchRequest(
   const limit =
     typeof body.limit === 'number' ? Math.max(1, Math.min(20, Math.floor(body.limit))) : undefined
 
-  // Kick off (or reuse) the in-process index. This loads the prebuilt manifest
-  // when present and cold-builds otherwise. While pending, wait briefly — a
-  // manifest load (the common cold-start case) usually finishes within the
-  // grace window — then respond with `indexing: true` so the client keeps
-  // showing keyword results (and retries shortly). A failed build answers 503
-  // (instead of 202) so the client stops polling; the entry is retried after
-  // a backoff.
-  const index = ensureServerIndex(config, options)
-  index.promise.catch(() => {}) // avoid unhandled rejection on the background build
-  if (index.status === 'pending') {
-    const waitMs = options.pendingWaitMs ?? pendingWaitMsDefault
-    if (waitMs > 0) await Promise.race([index.promise.catch(() => {}), sleep(waitMs)])
+  // Static store only: kick off (or reuse) the in-process index. This loads
+  // the prebuilt manifest when present and cold-builds otherwise. While
+  // pending, wait briefly — a manifest load (the common cold-start case)
+  // usually finishes within the grace window — then respond with
+  // `indexing: true` so the client keeps showing keyword results (and retries
+  // shortly). A failed build answers 503 (instead of 202) so the client stops
+  // polling; the entry is retried after a backoff.
+  //
+  // A remote store has no in-process index (vectors are queried in the
+  // database), so there is never an `indexing` phase.
+  let index: ReturnType<typeof ensureServerIndex> | undefined
+  if (config._localRetriever.vectorStore.target === 'static') {
+    index = ensureServerIndex(config, options)
+    index.promise.catch(() => {}) // avoid unhandled rejection on the background build
+    if (index.status === 'pending') {
+      const waitMs = options.pendingWaitMs ?? pendingWaitMsDefault
+      if (waitMs > 0) await Promise.race([index.promise.catch(() => {}), sleep(waitMs)])
+    }
+    if (index.status === 'error') return json({ error: 'Search failed' }, 503)
+    if (index.status === 'pending')
+      return json({ results: [], indexing: true }, 202, { 'Cache-Control': 'no-store' })
   }
-  if (index.status === 'error') return json({ error: 'Search failed' }, 503)
-  if (index.status === 'pending')
-    return json({ results: [], indexing: true }, 202, { 'Cache-Control': 'no-store' })
 
   try {
     const t0 = Date.now()
-    const [{ store }, results] = await Promise.all([
-      index.promise,
+    const [store, results] = await Promise.all([
+      index?.promise.then((i) => i.store),
       retrieveLocal(config, { query, limit }),
     ])
     const searchMs = Date.now() - t0
@@ -1569,7 +1674,7 @@ async function handleLocalSearchRequest(
       {
         results,
         indexing: false,
-        embedding: { type, model, dimensions: store.dimensions || dimensions },
+        embedding: { type, model, dimensions: store?.dimensions || dimensions },
         ...(reranker ? { reranker: { type: reranker.type, model: reranker.model } } : {}),
         timings: { searchMs },
       },
