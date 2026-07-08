@@ -109,7 +109,14 @@ describe('cloudflare (remote adapter)', () => {
         return Response.json({ success: true })
       }
       if (rest.endsWith('/delete_by_ids')) {
-        for (const id of JSON.parse(body ?? '{}').ids ?? []) state.vectors.delete(id)
+        const ids = JSON.parse(body ?? '{}').ids ?? []
+        // Mirrors Vectorize error 40007.
+        if (ids.length > 100)
+          return Response.json(
+            { success: false, errors: [{ code: 40007, message: 'too many ids in payload' }] },
+            { status: 400 },
+          )
+        for (const id of ids) state.vectors.delete(id)
         return Response.json({ success: true })
       }
       if (rest.endsWith('/query')) {
@@ -171,6 +178,18 @@ describe('cloudflare (remote adapter)', () => {
 
     expect(result).toEqual({ deleted: 1, skipped: 1, upserted: 1 })
     expect(state.vectors.size).toBe(2)
+  })
+
+  it('batches deletes within the 100-id Vectorize limit', async () => {
+    const state = mockVectorize()
+    const store = VectorStore.cloudflare(credentials)
+
+    const entries = Array.from({ length: 150 }, (_, i) => entry(`e${i}`, `text ${i}`, [1, i]))
+    await store.sync(entries, { dimensions: 2 })
+    const result = await store.sync([entry('keep', 'kept', [1, 0])], { dimensions: 2 })
+
+    expect(result).toEqual({ deleted: 150, skipped: 0, upserted: 1 })
+    expect(state.vectors.size).toBe(1)
   })
 
   it('rejects a dimension change against an existing index', async () => {
