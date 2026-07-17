@@ -61,8 +61,8 @@ export function toSidebar(ir: Ir, options: toSidebar.Options = {}): SidebarItem<
   // group id, rendered after the group's "Overview" link.
   const groupExtras = options.groupExtras ?? new Map<string, SidebarItem[]>()
 
-  // Generated category groups start collapsed when `collapsed` is set (the
-  // active group still auto-expands at render). `Introduction` is unaffected.
+  // Generated category groups and sections start collapsed when `collapsed` is
+  // set. Active groups still auto-expand at render. `Introduction` is unaffected.
   const groupCollapsed = options.collapsed ?? false
 
   const groupItem = (group: Ir['groups'][number]): SidebarItem<true> => ({
@@ -89,9 +89,8 @@ export function toSidebar(ir: Ir, options: toSidebar.Options = {}): SidebarItem<
   const tagGroups = ir.tagGroups ?? []
   if (tagGroups.length === 0) return [introduction, ...ir.groups.map(groupItem)]
 
-  // `x-tagGroups` sections render as static headers (no `collapsed`, so not
-  // collapsible); the per-category `collapsed` behavior applies unchanged.
-  // Sections named in `flatten` spread their categories in place instead.
+  // `x-tagGroups` sections render as collapsible headers. Sections named in
+  // `flatten` spread their categories in place instead.
   const flatten = new Set(options.flatten ?? [])
   const groupById = new Map(ir.groups.map((group) => [group.id, group]))
   const claimed = new Set(tagGroups.flatMap((tagGroup) => tagGroup.groupIds))
@@ -101,7 +100,7 @@ export function toSidebar(ir: Ir, options: toSidebar.Options = {}): SidebarItem<
       return group ? [groupItem(group)] : []
     })
     if (flatten.has(tagGroup.name)) return items
-    return [{ text: tagGroup.name, items }]
+    return [{ text: tagGroup.name, collapsed: options.collapsed, items }]
   })
   return [
     introduction,
@@ -117,8 +116,8 @@ export declare namespace toSidebar {
     /** Extra items injected into a generated group, keyed by group id. */
     groupExtras?: Map<string, SidebarItem[]> | undefined
     /**
-     * Collapse the generated category groups by default (the active group still
-     * auto-expands). `Introduction` is unaffected. @default false
+     * Collapse generated category groups and `x-tagGroups` sections by default.
+     * Active groups still auto-expand. `Introduction` is unaffected. @default false
      */
     collapsed?: boolean | undefined
     /**

@@ -55,9 +55,9 @@ export type SidebarExtras = {
    */
   intro?: SidebarItem[] | undefined
   /**
-   * Collapse the generated category groups by default. The group matching the
-   * active page still auto-expands, so deep links stay navigable. The generated
-   * `Introduction` entry is unaffected.
+   * Collapse the generated category groups and `x-tagGroups` sections by default.
+   * Groups containing the active page still auto-expand, so deep links stay
+   * navigable. The generated `Introduction` entry is unaffected.
    *
    * @default false
    */
