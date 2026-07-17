@@ -1,5 +1,16 @@
 # vocs
 
+## 2.6.0
+
+### Minor Changes
+
+- ac99f45: Added `prompt` directives and the `Prompt` component for copyable agent instructions.
+- 51c7978: Added agent guidance to Markdown page twins and a `submit_feedback` MCP tool for configured feedback adapters.
+
+### Patch Changes
+
+- b3fcf99: Collapsed OpenAPI tag group sections when generated sidebar categories were configured as collapsed.
+
 ## 2.5.3
 
 ### Patch Changes
