@@ -10,7 +10,7 @@ import * as OpenApiMarkdown from './openapi/markdown.js'
 import type * as Sidebar from './sidebar.js'
 
 export async function buildLlmsContent(options: buildLlmsContent.Options) {
-  const { title, description, rehypePlugins, remarkPlugins, sidebar } = options
+  const { title, description, pagePrelude, rehypePlugins, remarkPlugins, sidebar } = options
 
   // Dedupe by path (first occurrence wins), so consumer-authored source pages
   // take precedence over generated pages (e.g. OpenAPI) mounted at the same path.
@@ -84,8 +84,14 @@ export async function buildLlmsContent(options: buildLlmsContent.Options) {
   const sitemap = ['<!--', 'Sitemap:', ...nav, '-->', ''].join('\n')
   const short = [...llmsTxtContent, ...nav]
   const full = [...llmsTxtContent, sitemap, ...results.map((r) => r.content)]
+  const pageResults = pagePrelude
+    ? results.map((result) => ({
+        ...result,
+        content: `${pagePrelude}\n\n${result.content}`,
+      }))
+    : results
 
-  return { full: full.join('\n'), results, short: short.join('\n') }
+  return { full: full.join('\n'), results: pageResults, short: short.join('\n') }
 }
 
 export declare namespace buildLlmsContent {
@@ -93,6 +99,7 @@ export declare namespace buildLlmsContent {
     pages: Page[]
     title: string
     description?: string | undefined
+    pagePrelude?: string | undefined
     rehypePlugins: PluggableList
     remarkPlugins: PluggableList
     sidebar?: Config.Config['sidebar'] | undefined
@@ -109,6 +116,27 @@ export declare namespace buildLlmsContent {
     title?: string | undefined
     description?: string | undefined
   }
+}
+
+export function getMarkdownPagePrelude(config: getMarkdownPagePrelude.Options) {
+  if (!config.mcp?.enabled) return undefined
+
+  const baseUrl = config.baseUrl?.replace(/\/$/, '') ?? ''
+  const basePathValue = config.basePath.replace(/^\/+|\/+$/g, '')
+  const basePath = basePathValue ? `/${basePathValue}` : ''
+  const mcpUrl = `${baseUrl}${basePath}/api/mcp`
+  const lines = [
+    `> **Can't find what you're looking for?** Use \`search_docs\` on the docs MCP server at \`${mcpUrl}\` to find what you need.`,
+  ]
+
+  if (config.feedback)
+    lines.push('> **Have feedback?** Use `submit_feedback` on the same MCP server.')
+
+  return lines.join('\n>\n')
+}
+
+export declare namespace getMarkdownPagePrelude {
+  type Options = Pick<Config.Config, 'basePath' | 'baseUrl' | 'feedback' | 'mcp'>
 }
 
 /**

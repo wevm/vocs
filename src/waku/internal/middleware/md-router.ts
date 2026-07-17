@@ -23,6 +23,7 @@ async function resolveContent() {
     pages: [...openapiPages, ...pages],
     title: config.title,
     description: config.description,
+    pagePrelude: Llms.getMarkdownPagePrelude(config),
     rehypePlugins,
     remarkPlugins,
     sidebar: config.sidebar,

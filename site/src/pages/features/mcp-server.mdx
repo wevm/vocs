@@ -6,7 +6,9 @@ import { Card, Cards } from 'vocs'
 
 Vocs includes a built-in [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server. When enabled, AI clients can read, search, and browse your docs — and optionally source repositories you choose to expose — from a single endpoint at `/api/mcp`.
 
-The server is read-only. Vocs supports Streamable HTTP (`POST /api/mcp`) and the older HTTP+SSE transport (`GET /api/mcp`).
+Documentation and source-code tools are read-only. When page feedback is configured, Vocs also
+exposes an additive `submit_feedback` tool. Vocs supports Streamable HTTP (`POST /api/mcp`) and
+the older HTTP+SSE transport (`GET /api/mcp`).
 
 ## Setup
 
@@ -65,6 +67,24 @@ export default defineConfig({
 This adds the source tools: `list_sources`, `list_source_files`, `read_source_file`, `get_file_tree`, and `search_source` (when the adapter supports it).
 
 Set `GITHUB_TOKEN` for higher rate limits and to enable authenticated code search.
+
+### Collect Feedback from Agents
+
+Configure both MCP and [page feedback](/features/feedback) to expose `submit_feedback`.
+
+```ts [vocs.config.ts]
+import { defineConfig, Feedback } from 'vocs/config'
+
+export default defineConfig({
+  feedback: Feedback.slack(), // [!code focus]
+  mcp: { enabled: true },
+})
+```
+
+The tool accepts `pagePath`, `helpful`, and optional `category` and `message` fields. Vocs derives
+the page URL and timestamp before forwarding the submission to the configured feedback adapter.
+Generated Markdown pages include the MCP server endpoint and point agents to `search_docs` and
+`submit_feedback`.
 
 ### Build a Custom Adapter
 
