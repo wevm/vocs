@@ -36,6 +36,11 @@ https://docs.example.com/index.md
 
 This is useful for copying documentation into AI conversations or for custom integrations.
 
+When the [MCP server](/features/mcp-server) is enabled, each generated Markdown page starts
+with its endpoint and suggests using `search_docs`. If feedback is also configured,
+the prelude suggests the `submit_feedback` tool. These instructions are not repeated in
+`llms.txt` or `llms-full.txt`.
+
 ## llms.txt Files
 
 Vocs automatically generates [`llms.txt`](https://llmstxt.org/) files for LLM consumption:

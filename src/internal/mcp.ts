@@ -167,6 +167,52 @@ export function createServer(config: Config, options: createServer.Options = {})
     },
   )
 
+  if (config._feedback) {
+    const feedback = config._feedback
+    server.registerTool(
+      'submit_feedback',
+      {
+        title: 'Submit documentation feedback',
+        description: 'Submit feedback about a documentation page to the site maintainers.',
+        inputSchema: {
+          pagePath: z
+            .string()
+            .min(1)
+            .describe('The documentation page path returned by list_pages or search_docs'),
+          helpful: z.boolean().describe('Whether the page was helpful'),
+          category: z.string().optional().describe('A short feedback category'),
+          message: z.string().optional().describe('Additional feedback for the maintainers'),
+        },
+        annotations: {
+          readOnlyHint: false,
+          destructiveHint: false,
+          idempotentHint: false,
+          openWorldHint: true,
+        },
+      },
+      async ({ pagePath, helpful, category, message }) => {
+        try {
+          await feedback.submit({
+            helpful,
+            category,
+            message,
+            pageUrl: resolvePageUrl(config, pagePath),
+            timestamp: new Date().toISOString(),
+          })
+          return {
+            content: [{ type: 'text', text: 'Feedback submitted successfully.' }],
+          }
+        } catch (error) {
+          console.error('[vocs] mcp submit_feedback failed:', error)
+          return {
+            content: [{ type: 'text', text: 'Failed to submit feedback.' }],
+            isError: true,
+          }
+        }
+      },
+    )
+  }
+
   const sources = (config.mcp?.sources ?? []).map((s, i) => ({
     ...s,
     name: s.name ?? `source-${i}`,
@@ -332,6 +378,14 @@ export function createServer(config: Config, options: createServer.Options = {})
   }
 
   return server
+}
+
+function resolvePageUrl(config: Pick<Config, 'basePath' | 'baseUrl'>, pagePath: string) {
+  const baseUrl = config.baseUrl?.replace(/\/$/, '') ?? ''
+  const basePathValue = config.basePath.replace(/^\/+|\/+$/g, '')
+  const basePath = basePathValue ? `/${basePathValue}` : ''
+  const normalizedPagePath = `/${pagePath.replace(/^\/+/, '')}`
+  return `${baseUrl}${basePath}${normalizedPagePath}`
 }
 
 export declare namespace createServer {

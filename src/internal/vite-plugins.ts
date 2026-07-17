@@ -186,6 +186,7 @@ export function llms(config: Config.Config): PluginOption {
       pages: [...openapiPages, ...pages],
       title,
       description,
+      pagePrelude: Llms.getMarkdownPagePrelude(config),
       rehypePlugins,
       remarkPlugins,
       sidebar: config.sidebar,

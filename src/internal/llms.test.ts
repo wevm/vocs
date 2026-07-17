@@ -5,7 +5,7 @@ import remarkDirective from 'remark-directive'
 import type { Pluggable } from 'unified'
 import { describe, expect, test } from 'vitest'
 import type * as Changelog from './changelog.js'
-import { buildLlmsContent } from './llms.js'
+import { buildLlmsContent, getMarkdownPagePrelude } from './llms.js'
 import {
   remarkChangelogMarkdown,
   remarkDefaultFrontmatter,
@@ -349,6 +349,25 @@ This is the home page.`,
     `)
   })
 
+  test('prepends guidance to page content without repeating it in llms-full.txt', async () => {
+    const pagePrelude =
+      "> **Can't find what you're looking for?** Use `search_docs` on the docs MCP server."
+    const result = await buildLlmsContent({
+      pages: [{ path: '/page', content: '---\ntitle: Page\n---\n\nContent.' }],
+      pagePrelude,
+      title: 'My Docs',
+      ...plugins,
+    })
+
+    expect(result.results[0]?.content).toMatchInlineSnapshot(`
+      "> **Can't find what you're looking for?** Use \`search_docs\` on the docs MCP server.
+
+      Content.
+      "
+    `)
+    expect(result.full).not.toContain(pagePrelude)
+  })
+
   test('description is included in output when provided', async () => {
     const result = await buildLlmsContent({
       pages: [{ path: '/', content: '---\ntitle: Home\n---\n\nWelcome to the docs.' }],
@@ -629,5 +648,28 @@ import Notes from '../../notes.md'
 
     expect(result.results[0]?.content).toContain('Some indexable prose about widgets.')
     expect(result.full).toContain('Some indexable prose about widgets.')
+  })
+})
+
+describe('getMarkdownPagePrelude', () => {
+  test('links to the configured MCP endpoint and feedback tool', () => {
+    const result = getMarkdownPagePrelude({
+      basePath: '/developers',
+      baseUrl: 'https://tempo.xyz',
+      feedback: true,
+      mcp: { enabled: true },
+    })
+
+    expect(result).toMatchInlineSnapshot(`
+      "> **Can't find what you're looking for?** Use \`search_docs\` on the docs MCP server at \`https://tempo.xyz/developers/api/mcp\` to find what you need.
+      >
+      > **Have feedback?** Use \`submit_feedback\` on the same MCP server."
+    `)
+  })
+
+  test('omits the prelude when MCP is disabled', () => {
+    expect(
+      getMarkdownPagePrelude({ basePath: '/', feedback: true, mcp: { enabled: false } }),
+    ).toBeUndefined()
   })
 })

@@ -3,9 +3,10 @@ import * as os from 'node:os'
 import * as path from 'node:path'
 import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import * as Config from './config.js'
 import * as Embedding from './embedding.js'
+import type * as Feedback from './feedback.js'
 import * as Mcp from './mcp.js'
 import * as Retriever from './retriever.js'
 
@@ -26,6 +27,7 @@ beforeEach(() => {
   )
 })
 afterEach(() => {
+  vi.restoreAllMocks()
   fs.rmSync(dir, { recursive: true, force: true })
 })
 
@@ -88,5 +90,77 @@ describe('search_docs', () => {
     expect(results).toHaveLength(1)
     expect(results[0]?.path).toBe('/deploy')
     expect(results[0]?.snippet).toContain('production hosting')
+  })
+})
+
+describe('submit_feedback', () => {
+  it('submits page feedback through the configured adapter', async () => {
+    const submit = vi.fn(async (_data: Feedback.FeedbackData) => {})
+    const config = Config.define({
+      rootDir: dir,
+      basePath: '/reference',
+      baseUrl: 'https://docs.example.com',
+      feedback: { type: 'test', submit },
+      mcp: { enabled: true },
+    })
+
+    const server = Mcp.createServer(config)
+    const client = await connect(server)
+    const tools = await client.listTools()
+    const result = await client.callTool({
+      name: 'submit_feedback',
+      arguments: {
+        pagePath: '/deploy',
+        helpful: false,
+        category: 'Outdated',
+        message: 'The deployment instructions are stale.',
+      },
+    })
+
+    expect(tools.tools.map((tool) => tool.name)).toContain('submit_feedback')
+    expect(result.isError).not.toBe(true)
+    expect(resultText(result)).toBe('Feedback submitted successfully.')
+    expect(submit).toHaveBeenCalledOnce()
+    expect(submit).toHaveBeenCalledWith({
+      helpful: false,
+      category: 'Outdated',
+      message: 'The deployment instructions are stale.',
+      pageUrl: 'https://docs.example.com/reference/deploy',
+      timestamp: expect.any(String),
+    })
+  })
+
+  it('is not registered without a feedback adapter', async () => {
+    const config = Config.define({ rootDir: dir, mcp: { enabled: true } })
+
+    const server = Mcp.createServer(config)
+    const client = await connect(server)
+    const tools = await client.listTools()
+
+    expect(tools.tools.map((tool) => tool.name)).not.toContain('submit_feedback')
+  })
+
+  it('returns an MCP error when the adapter rejects the submission', async () => {
+    const error = new Error('Adapter failed')
+    const submit = vi.fn(async (_data: Feedback.FeedbackData) => {
+      throw error
+    })
+    const log = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const config = Config.define({
+      rootDir: dir,
+      feedback: { type: 'test', submit },
+      mcp: { enabled: true },
+    })
+
+    const server = Mcp.createServer(config)
+    const client = await connect(server)
+    const result = await client.callTool({
+      name: 'submit_feedback',
+      arguments: { pagePath: '/', helpful: true },
+    })
+
+    expect(result.isError).toBe(true)
+    expect(resultText(result)).toBe('Failed to submit feedback.')
+    expect(log).toHaveBeenCalledWith('[vocs] mcp submit_feedback failed:', error)
   })
 })
