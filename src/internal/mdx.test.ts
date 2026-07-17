@@ -15,7 +15,6 @@ import {
   rehypeHeadingAnchors,
   rehypeLinks,
   remarkChangelog,
-  remarkCodeGroup,
   remarkCodeTitle,
   remarkDefaultFrontmatter,
   remarkFilename,
@@ -131,9 +130,16 @@ describe('remarkSubheading', () => {
 })
 
 describe('remarkPrompt', () => {
-  it('turns prompt fences into opaque prompt blocks', async () => {
-    const value = 'Read https://vocs.dev.\n\nRequirements:\n- Run `pnpm build`.'
-    const tree = await runRemark(`\`\`\`prompt\n${value}\n\`\`\``, [remarkPrompt])
+  it('turns prompt directives into opaque prompt blocks', async () => {
+    const value = [
+      'Read https://vocs.dev.',
+      '',
+      'Requirements:',
+      '- Run `pnpm build`.',
+      '- Replace <PROJECT_NAME>.',
+      '- Preserve {literal} braces.',
+    ].join('\n')
+    const tree = await runRemark(`:::prompt\n${value}\n:::`, [remarkDirective, remarkPrompt])
 
     expect(tree.children[0]).toMatchObject({
       type: 'paragraph',
@@ -145,42 +151,41 @@ describe('remarkPrompt', () => {
     })
   })
 
-  it('leaves other code fences unchanged', async () => {
-    const tree = await runRemark('```txt\nhello\n```', [remarkPrompt])
-    expect(tree.children[0]).toMatchObject({ type: 'code', lang: 'txt', value: 'hello' })
+  it('leaves prompt examples in code fences unchanged', async () => {
+    const value = ':::prompt\nReplace <PROJECT_NAME>.\n:::'
+    const tree = await runRemark(`\`\`\`md\n${value}\n\`\`\``, [remarkDirective, remarkPrompt])
+
+    expect(tree.children[0]).toMatchObject({ type: 'code', lang: 'md', value })
   })
 
-  it('preserves code group titles', async () => {
-    const tree = await runRemark(':::code-group\n```prompt [Setup]\nDo the thing.\n```\n:::', [
+  it('restores prompt directives as code blocks for markdown output', async () => {
+    const value = 'Replace <PROJECT_NAME> and preserve {literal} braces.'
+    const tree = await runRemark(`:::prompt\n${value}\n:::`, [
       remarkDirective,
-      remarkCodeGroup,
-      remarkPrompt,
+      [remarkPrompt, { output: 'code' }],
     ])
+
+    expect(tree.children[0]).toMatchObject({ type: 'code', lang: 'prompt', value })
+  })
+
+  it('leaves other directives unchanged', async () => {
+    const tree = await runRemark(':::note\nhello\n:::', [remarkDirective, remarkPrompt])
 
     expect(tree.children[0]).toMatchObject({
       type: 'containerDirective',
-      children: [
-        {
-          data: { hProperties: { 'data-title': 'Setup' } },
-          children: [
-            {
-              data: {
-                hName: 'pre',
-                hProperties: { 'data-v-prompt': 'Do the thing.' },
-              },
-            },
-          ],
-        },
-      ],
+      name: 'note',
     })
   })
 })
 
 async function runRemark(markdown: string, plugins: unknown[]) {
   const processor = unified().use(remarkParse)
-  for (const plugin of plugins) processor.use(plugin as never)
+  for (const plugin of plugins) {
+    if (Array.isArray(plugin)) processor.use(plugin[0] as never, plugin[1] as never)
+    else processor.use(plugin as never)
+  }
   const tree = processor.parse(markdown) as MdAst.Root
-  await processor.run(tree)
+  await processor.run(tree, markdown)
   return tree
 }
 

@@ -29,7 +29,7 @@ import solidity from 'shiki/langs/solidity.mjs'
 import sql from 'shiki/langs/sql.mjs'
 import toml from 'shiki/langs/toml.mjs'
 import yamlLang from 'shiki/langs/yaml.mjs'
-import { type Pluggable, type PluggableList, unified } from 'unified'
+import { type Pluggable, type PluggableList, type Processor, unified } from 'unified'
 import * as UnistUtil from 'unist-util-visit'
 import type { VFile } from 'vfile'
 import { createLogger } from 'vite'
@@ -125,23 +125,90 @@ export declare namespace remarkMermaid {
   type ReturnType = (tree: MdAst.Root) => void
 }
 
-/** Transforms prompt fences into opaque prompt blocks before Shiki runs. */
-export function remarkPrompt(): remarkPrompt.ReturnType {
-  return (tree: MdAst.Root) => {
-    UnistUtil.visit(tree, 'code', (node, index, parent) => {
-      if (index === undefined || !parent) return
-      if (node.lang !== 'prompt') return
+/** Masks prompt bodies during parsing so MDX syntax remains literal prompt text. */
+function maskPromptBodies(markdown: string): string {
+  let codeFence: string | undefined
+  let promptFenceSize = 0
 
-      const replacement = {
-        type: 'paragraph',
-        children: [],
-        data: {
-          hName: 'pre',
-          hProperties: {
-            'data-v-prompt': node.value,
-          },
-        },
-      } satisfies MdAst.Paragraph
+  return markdown
+    .split(/(?<=\n)/)
+    .map((line) => {
+      const value = line.replace(/\r?\n$/, '')
+
+      if (promptFenceSize) {
+        const closing = value.match(/^ {0,3}(:{3,})[ \t]*$/)?.[1]
+        if (closing && closing.length >= promptFenceSize) {
+          promptFenceSize = 0
+          return line
+        }
+        return line.replace(/[^\r\n]/g, 'x')
+      }
+
+      if (codeFence) {
+        const closing = value.match(/^ {0,3}(`{3,}|~{3,})[ \t]*$/)?.[1]
+        if (closing && closing[0] === codeFence[0] && closing.length >= codeFence.length)
+          codeFence = undefined
+        return line
+      }
+
+      const nextCodeFence = value.match(/^ {0,3}(`{3,}|~{3,})/)?.[1]
+      if (nextCodeFence) {
+        const info = value.slice(value.indexOf(nextCodeFence) + nextCodeFence.length)
+        if (nextCodeFence[0] === '~' || !info.includes('`')) codeFence = nextCodeFence
+        return line
+      }
+
+      const promptFence = value.match(/^ {0,3}(:{3,})prompt[ \t]*$/)?.[1]
+      if (promptFence) promptFenceSize = promptFence.length
+      return line
+    })
+    .join('')
+}
+
+/** Transforms prompt directives into prompt blocks. */
+export function remarkPrompt(
+  this: Processor,
+  options: remarkPrompt.Options = {},
+): remarkPrompt.ReturnType {
+  const parser = this.parser
+  if (!parser) throw new Error('`remarkPrompt` requires a parser')
+  this.parser = (document, file) => parser(maskPromptBodies(document), file)
+
+  return (tree: MdAst.Root, file: VFile) => {
+    const raw = typeof file.value === 'string' ? file.value : file.value?.toString()
+    if (!raw) return
+
+    UnistUtil.visit(tree, (node, index, parent) => {
+      if (node.type !== 'containerDirective') return
+      if (node.name !== 'prompt') return
+      if (index === undefined || !parent) return
+
+      const start = node.position?.start.offset
+      const end = node.position?.end.offset
+      if (start === undefined || end === undefined) return
+
+      const source = raw.slice(start, end)
+      const bodyStart = source.indexOf('\n')
+      if (bodyStart === -1) return
+
+      const closingStart = source.lastIndexOf('\n')
+      const closingLine = source.slice(closingStart + 1).replace(/\r$/, '')
+      const bodyEnd = /^[ \t]*:{3,}[ \t]*$/.test(closingLine) ? closingStart : source.length
+      const value = source.slice(bodyStart + 1, bodyEnd)
+
+      const replacement =
+        options.output === 'code'
+          ? ({ type: 'code', lang: 'prompt', value } satisfies MdAst.Code)
+          : ({
+              type: 'paragraph',
+              children: [],
+              data: {
+                hName: 'pre',
+                hProperties: {
+                  'data-v-prompt': value,
+                },
+              },
+            } satisfies MdAst.Paragraph)
 
       parent.children.splice(index, 1, replacement)
       return UnistUtil.SKIP
@@ -150,7 +217,10 @@ export function remarkPrompt(): remarkPrompt.ReturnType {
 }
 
 export declare namespace remarkPrompt {
-  type ReturnType = (tree: MdAst.Root) => void
+  type Options = {
+    output?: 'code' | 'element' | undefined
+  }
+  type ReturnType = (tree: MdAst.Root, file: VFile) => void
 }
 
 /**
@@ -248,6 +318,7 @@ export function getCompileOptions(
           // directives can render real markdown below. Unhandled directives
           // round-trip back to their source form on stringify.
           remarkDirective,
+          [remarkPrompt, { output: 'code' }] as Pluggable,
           [remarkChangelogMarkdown, config] as Pluggable,
           // User plugins extend the parser (e.g. `remark-math`) so syntax
           // recognized in the React build also parses for llms/search.
@@ -315,6 +386,7 @@ export function getCompileOptions(
         remarkPlugins: [
           remarkMermaid,
           remarkFrontmatter,
+          remarkDirective,
           [remarkFileTree, config] as Pluggable,
           remarkCallout,
           remarkChangelog,
@@ -324,7 +396,6 @@ export function getCompileOptions(
           [remarkCodeTitle, { additionalLanguages: additionalLanguageNames }] as Pluggable,
           remarkDefaultFrontmatter,
           remarkDetails,
-          remarkDirective,
           remarkBadge,
           remarkFilename,
           remarkGfm,

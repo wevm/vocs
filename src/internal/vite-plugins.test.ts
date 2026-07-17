@@ -2,14 +2,9 @@ import * as fs from 'node:fs/promises'
 import * as os from 'node:os'
 import * as path from 'node:path'
 import type { ResolvedConfig } from 'vite'
-import { afterEach, describe, expect, test, vi } from 'vitest'
+import { afterEach, describe, expect, test } from 'vitest'
 import type * as Config from './config.js'
-import {
-  langWatcher,
-  resolveSitemapInclude,
-  resolveSitemapLastmod,
-  sitemap,
-} from './vite-plugins.js'
+import { resolveSitemapInclude, resolveSitemapLastmod, sitemap } from './vite-plugins.js'
 
 const tempDirs = new Set<string>()
 
@@ -152,40 +147,6 @@ describe('sitemap config helpers', () => {
         '2026-01-01',
       ),
     ).toBe('2025-01-01')
-  })
-})
-
-describe('langWatcher', () => {
-  test('does not restart for semantic fences', async () => {
-    const fixture = await createFixture()
-    const page = path.join(fixture.rootDir, 'src/pages/index.mdx')
-    const restart = vi.fn()
-    let onChange: ((path: string) => Promise<void>) | undefined
-    const plugin = langWatcher({
-      rootDir: fixture.rootDir,
-      srcDir: 'src',
-      pagesDir: 'pages',
-    } as Config.Config) as unknown as {
-      configureServer(server: {
-        restart(): void
-        watcher: {
-          on(event: 'change', handler: (path: string) => Promise<void>): void
-        }
-      }): Promise<void>
-    }
-
-    await plugin.configureServer({
-      restart,
-      watcher: {
-        on(_event, handler) {
-          onChange = handler
-        },
-      },
-    })
-    await fs.writeFile(page, '```prompt\nSummarize this.\n```')
-    await onChange?.(page)
-
-    expect(restart).not.toHaveBeenCalled()
   })
 })
 

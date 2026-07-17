@@ -532,6 +532,30 @@ sequenceDiagram
 ````
 :::
 
+## Prompts
+
+Use the `:::prompt` directive for instructions that readers can copy into an AI agent. Vocs highlights URLs, inline code, labels, list markers, and placeholders without changing the copied text.
+
+:::prompt
+Read https://vocs.dev/introduction/getting-started and update `vocs.config.ts`.
+
+Requirements:
+- Preserve existing navigation
+- Run `pnpm build`
+- Replace <PROJECT_NAME> with the project name
+:::
+
+```md
+:::prompt
+Read https://vocs.dev/introduction/getting-started and update `vocs.config.ts`.
+
+Requirements:
+- Preserve existing navigation
+- Run `pnpm build`
+- Replace <PROJECT_NAME> with the project name
+:::
+```
+
 ## Steps
 
 :::::code-group

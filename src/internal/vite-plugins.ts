@@ -130,10 +130,7 @@ export function deps(): PluginOption {
  * new language highlighter.
  */
 export function langWatcher(config: Config.Config): PluginOption {
-  const knownLangs = new Set([
-    ...((config.codeHighlight?.langs as string[]) ?? Langs.defaultLangs),
-    ...Langs.semanticFenceLangs,
-  ])
+  const defaultLangs = new Set((config.codeHighlight?.langs as string[]) ?? Langs.defaultLangs)
   const codeBlockRegex = /```(\w+)/g
 
   return {
@@ -157,8 +154,8 @@ export function langWatcher(config: Config.Config): PluginOption {
           // biome-ignore lint/suspicious/noAssignInExpressions: _
           while ((match = codeBlockRegex.exec(content)) !== null) {
             const lang = match[1]?.toLowerCase()
-            if (lang && !knownLangs.has(lang)) {
-              knownLangs.add(lang)
+            if (lang && !defaultLangs.has(lang)) {
+              defaultLangs.add(lang)
               logger.info(`New language "${lang}" detected, restarting server...`, {
                 timestamp: true,
               })

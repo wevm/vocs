@@ -2,4 +2,4 @@
 'vocs': minor
 ---
 
-Added `prompt` code fences and the `Prompt` component for copyable agent instructions.
+Added `prompt` directives and the `Prompt` component for copyable agent instructions.
