@@ -859,6 +859,28 @@ const x = 1
     `)
   })
 
+  it('includes literal prompt directive content', () => {
+    const content = `
+# Agent Setup
+
+:::prompt
+Replace <PROJECT_NAME> and preserve {literal} braces.
+:::
+`
+    expect(Search.extract(content, config).sections).toMatchInlineSnapshot(`
+      [
+        {
+          "anchor": "agent-setup",
+          "isPage": true,
+          "subtitle": "",
+          "text": " Replace <PROJECT_NAME> and preserve {literal} braces.",
+          "title": "Agent Setup",
+          "titles": [],
+        },
+      ]
+    `)
+  })
+
   it('skips imports at the top of MDX files', () => {
     const content = `import { Example } from '../components/Example'
 import { useState } from 'react'

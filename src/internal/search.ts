@@ -9,12 +9,17 @@ import remarkFrontmatter from 'remark-frontmatter'
 import remarkGfm from 'remark-gfm'
 import remarkMdx from 'remark-mdx'
 import remarkParse from 'remark-parse'
-import { unified } from 'unified'
+import { type Pluggable, unified } from 'unified'
 import * as UnistUtil from 'unist-util-visit'
 import * as yaml from 'yaml'
 import type * as Config from './config.js'
 import * as MarkdownImports from './markdown-imports.js'
-import { extractSubheading, getPhrasingContentText, remarkStripInlineCache } from './mdx.js'
+import {
+  extractSubheading,
+  getPhrasingContentText,
+  remarkPrompt,
+  remarkStripInlineCache,
+} from './mdx.js'
 import * as OpenApiRegistry from './openapi/registry.js'
 import * as OpenApiSearch from './openapi/search.js'
 import * as Path from './path.js'
@@ -320,6 +325,7 @@ export function extract(source: string, config: Config.Config): extract.ReturnTy
   const remarkPlugins = [
     remarkFrontmatter,
     remarkDirective,
+    [remarkPrompt, { output: 'code' }] as Pluggable,
     remarkGfm,
     remarkStripJsx,
     remarkStripDirectives,
@@ -343,7 +349,7 @@ export function extract(source: string, config: Config.Config): extract.ReturnTy
   // Single parse for both positions and text extraction
   const processor = unified().use(remarkParse).use(remarkMdx).use(remarkPlugins)
   const tree = processor.parse(source)
-  processor.runSync(tree)
+  processor.runSync(tree, source)
 
   // Collect headings (plugins strip JSX/directives but preserve headings)
   const headingPositions = tree.children

@@ -1,4 +1,4 @@
-import { Badge, Callout, Card, Cards, FeedbackWidget, HomePage, Link, Sandbox, Tab, Tabs } from 'vocs'
+import { Badge, Callout, Card, Cards, FeedbackWidget, HomePage, Link, Prompt, Sandbox, Tab, Tabs } from 'vocs'
 
 # Components [Reference for the public React components exported from Vocs]
 
@@ -241,6 +241,27 @@ export function WrappedPage() {
   )
 }
 ```
+
+## Prompt
+
+Use `Prompt` to render copyable instructions for an AI agent from JSX or MDX.
+
+:::code-group
+<div data-title="Preview">
+  <Prompt value={'Read https://vocs.dev/introduction/getting-started and update `vocs.config.ts`.'} />
+</div>
+```tsx [Code]
+import { Prompt } from 'vocs'
+
+export function AgentInstructions() {
+  return (
+    <Prompt
+      value={'Read https://vocs.dev/introduction/getting-started and update `vocs.config.ts`.'}
+    />
+  )
+}
+```
+:::
 
 ## Sandbox
 

@@ -70,6 +70,7 @@
     "@codesandbox/sandpack-react": "^2.20.0",
     "@hono/node-server": "^2.0.2",
     "@iconify-json/lucide": "^1.2.82",
+    "@iconify-json/ri": "^1.2.10",
     "@iconify-json/simple-icons": "^1.2.65",
     "@iconify-json/vscode-icons": "^1.2.39",
     "@iconify/types": "^2.0.0",

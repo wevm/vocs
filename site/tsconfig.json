@@ -5,7 +5,7 @@
     "module": "ESNext",
     "skipLibCheck": true,
     "moduleResolution": "bundler",
-    "types": ["node"],
+    "types": ["node", "unplugin-icons/types/react"],
     "allowImportingTsExtensions": true,
     "isolatedModules": true,
     "moduleDetection": "force",
