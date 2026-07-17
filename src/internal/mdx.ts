@@ -125,6 +125,34 @@ export declare namespace remarkMermaid {
   type ReturnType = (tree: MdAst.Root) => void
 }
 
+/** Transforms prompt fences into opaque prompt blocks before Shiki runs. */
+export function remarkPrompt(): remarkPrompt.ReturnType {
+  return (tree: MdAst.Root) => {
+    UnistUtil.visit(tree, 'code', (node, index, parent) => {
+      if (index === undefined || !parent) return
+      if (node.lang !== 'prompt') return
+
+      const replacement = {
+        type: 'paragraph',
+        children: [],
+        data: {
+          hName: 'pre',
+          hProperties: {
+            'data-v-prompt': node.value,
+          },
+        },
+      } satisfies MdAst.Paragraph
+
+      parent.children.splice(index, 1, replacement)
+      return UnistUtil.SKIP
+    })
+  }
+}
+
+export declare namespace remarkPrompt {
+  type ReturnType = (tree: MdAst.Root) => void
+}
+
 /**
  * Remark plugin that injects an ephemeral source-map comment into the body of
  * each `twoslash` code block. The comment carries the block's source position
@@ -291,6 +319,7 @@ export function getCompileOptions(
           remarkCallout,
           remarkChangelog,
           remarkCodeGroup,
+          remarkPrompt,
           remarkLangCommaAttrs,
           [remarkCodeTitle, { additionalLanguages: additionalLanguageNames }] as Pluggable,
           remarkDefaultFrontmatter,

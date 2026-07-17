@@ -15,11 +15,13 @@ import {
   rehypeHeadingAnchors,
   rehypeLinks,
   remarkChangelog,
+  remarkCodeGroup,
   remarkCodeTitle,
   remarkDefaultFrontmatter,
   remarkFilename,
   remarkFileTree,
   remarkLangCommaAttrs,
+  remarkPrompt,
   remarkRestoreUnknownTextDirectives,
   remarkSubheading,
 } from './mdx.js'
@@ -125,6 +127,52 @@ describe('remarkSubheading', () => {
         children: [{ type: 'text', value: 'structured' }],
       },
     ])
+  })
+})
+
+describe('remarkPrompt', () => {
+  it('turns prompt fences into opaque prompt blocks', async () => {
+    const value = 'Read https://vocs.dev.\n\nRequirements:\n- Run `pnpm build`.'
+    const tree = await runRemark(`\`\`\`prompt\n${value}\n\`\`\``, [remarkPrompt])
+
+    expect(tree.children[0]).toMatchObject({
+      type: 'paragraph',
+      children: [],
+      data: {
+        hName: 'pre',
+        hProperties: { 'data-v-prompt': value },
+      },
+    })
+  })
+
+  it('leaves other code fences unchanged', async () => {
+    const tree = await runRemark('```txt\nhello\n```', [remarkPrompt])
+    expect(tree.children[0]).toMatchObject({ type: 'code', lang: 'txt', value: 'hello' })
+  })
+
+  it('preserves code group titles', async () => {
+    const tree = await runRemark(':::code-group\n```prompt [Setup]\nDo the thing.\n```\n:::', [
+      remarkDirective,
+      remarkCodeGroup,
+      remarkPrompt,
+    ])
+
+    expect(tree.children[0]).toMatchObject({
+      type: 'containerDirective',
+      children: [
+        {
+          data: { hProperties: { 'data-title': 'Setup' } },
+          children: [
+            {
+              data: {
+                hName: 'pre',
+                hProperties: { 'data-v-prompt': 'Do the thing.' },
+              },
+            },
+          ],
+        },
+      ],
+    })
   })
 })
 

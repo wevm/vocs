@@ -2,7 +2,7 @@
 
 import type { ReactNode } from 'react'
 import { useState } from 'react'
-import { Link, useConfig } from 'vocs'
+import { Link, Prompt, useConfig } from 'vocs'
 import IconArrowUpRight from '~icons/lucide/arrow-up-right'
 import IconCheck from '~icons/lucide/check'
 import IconCopy from '~icons/lucide/copy'
@@ -39,7 +39,6 @@ export function Landing(props: Landing.Props) {
   const config = useConfig()
   const [packageManager, setPackageManager] = useState<PackageManager>('npm')
   const [copiedCommand, setCopiedCommand] = useState(false)
-  const [copiedPrompt, setCopiedPrompt] = useState(false)
 
   const github = config.socials?.find((social) => social.icon === 'github')
   const logoUrl = props.logoUrl ?? config.logoUrl
@@ -52,12 +51,6 @@ export function Landing(props: Landing.Props) {
     )
     setCopiedCommand(true)
     setTimeout(() => setCopiedCommand(false), 2_000)
-  }
-
-  async function copyPrompt() {
-    await navigator.clipboard.writeText(props.agentPrompt)
-    setCopiedPrompt(true)
-    setTimeout(() => setCopiedPrompt(false), 2_000)
   }
 
   const command = getPackageCommand(packageManager, props.packageName, props.packageType)
@@ -173,17 +166,10 @@ export function Landing(props: Landing.Props) {
               </button>
             </div>
 
-            <button
-              type="button"
-              className="vocs:flex vocs:min-h-[52px] vocs:w-[min(100%,620px)] vocs:cursor-pointer vocs:items-center vocs:gap-3 vocs:rounded-[var(--vocs-radius-lg)] vocs:border vocs:border-solid vocs:border-primary vocs:bg-surface vocs:px-5 vocs:text-left vocs:text-[15px] vocs:font-normal vocs:text-secondary vocs:transition-colors vocs:duration-100 vocs:hover:bg-surfaceTint vocs:hover:text-heading vocs:max-[700px]:w-full"
-              onClick={copyPrompt}
-            >
-              <span
-                data-copied={copiedPrompt || undefined}
-                className="vocs:inline-block vocs:size-[7px] vocs:bg-accent vocs:shadow-[0_0_10px_oklch(from_var(--vocs-color-accent)_l_c_h_/_28%)] vocs:data-copied:bg-success"
-              />
-              {copiedPrompt ? 'Copied to clipboard' : 'Copy setup instructions for agent'}
-            </button>
+            <Prompt
+              className="vocs:w-[min(100%,620px)] vocs:max-[700px]:w-full"
+              value={props.agentPrompt}
+            />
           </section>
         </div>
       </main>
@@ -193,7 +179,7 @@ export function Landing(props: Landing.Props) {
 
 export declare namespace Landing {
   export type Props = {
-    /** Prompt copied by the agent setup button. */
+    /** Agent setup instructions rendered by `Prompt`. */
     agentPrompt: string
     /** Landing page description. Falls back to the site description. */
     description?: ReactNode | undefined

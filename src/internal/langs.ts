@@ -20,6 +20,10 @@ export const defaultLangs = [
   'zsh',
 ]
 
+export const semanticFenceLangs = ['prompt'] as const
+
+const semanticFenceLangSet = new Set<string>(semanticFenceLangs)
+
 /**
  * Scans MDX/MD files in a directory and extracts code block language identifiers.
  * This enables faster Shiki cold starts by only loading languages that are actually used.
@@ -40,8 +44,8 @@ export function infer(options: inferLangs.Options): string[] {
       let match: RegExpExecArray | null
       // biome-ignore lint/suspicious/noAssignInExpressions: _
       while ((match = codeBlockRegex.exec(content)) !== null) {
-        const lang = match[1]
-        if (lang) langs.add(lang.toLowerCase())
+        const lang = match[1]?.toLowerCase()
+        if (lang && !semanticFenceLangSet.has(lang)) langs.add(lang)
       }
     }
   } catch {}

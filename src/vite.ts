@@ -1,5 +1,6 @@
 import { getIconData, iconToHTML, iconToSVG } from '@iconify/utils'
 import { type IconifyJSON, icons as lucide } from '@iconify-json/lucide'
+import { icons as ri } from '@iconify-json/ri'
 import { icons as simple } from '@iconify-json/simple-icons'
 import type { PluginOption } from 'vite'
 
@@ -24,6 +25,7 @@ export async function vocs(): Promise<PluginOption[]> {
       compiler: 'jsx',
       customCollections: {
         lucide: getIcon(lucide),
+        ri: getIcon(ri),
         'simple-icons': getIcon(simple),
       },
       jsx: 'react',

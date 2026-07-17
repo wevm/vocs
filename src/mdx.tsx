@@ -12,6 +12,7 @@ import { Terminal } from './react/internal/Terminal.mdx.js'
 import { TwoslashCompletionList } from './react/internal/TwoslashCompletionList.js'
 import { TwoslashHover } from './react/internal/TwoslashHover.js'
 import { Link } from './react/Link.js'
+import { Prompt } from './react/Prompt.js'
 
 export const components: MDXComponents = {
   a(props: React.ComponentProps<'a'> & { children: React.ReactNode }) {
@@ -52,9 +53,16 @@ export const components: MDXComponents = {
       'data-v-codeToHtml'?: string | undefined
       'data-v-code'?: string | undefined
       'data-v-lang'?: string | undefined
+      'data-v-prompt'?: string | undefined
     },
   ) {
-    const { 'data-v-codeToHtml': codeToHtml, 'data-v-code': code, 'data-v-lang': lang } = props
+    const {
+      'data-v-codeToHtml': codeToHtml,
+      'data-v-code': code,
+      'data-v-lang': lang,
+      'data-v-prompt': prompt,
+    } = props
+    if (prompt !== undefined) return <Prompt value={prompt} />
     if (codeToHtml && code && lang) return <CodeToHtml code={code} lang={lang} />
     return <CodeBlock {...props} />
   },
