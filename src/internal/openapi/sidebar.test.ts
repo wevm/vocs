@@ -94,7 +94,7 @@ describe('toSidebar', () => {
     expect((sidebar[1] as { collapsed: boolean }).collapsed).toBe(true)
   })
 
-  test('nests claimed groups under static section headers from tagGroups', () => {
+  test('nests claimed groups under collapsible section headers from tagGroups', () => {
     const sectioned: Ir = {
       ...ir,
       groups: [
@@ -121,13 +121,11 @@ describe('toSidebar', () => {
     }
     const sidebar = toSidebar(sectioned, { collapsed: true })
     expect(sidebar.map((item) => item.text)).toEqual(['Introduction', 'Data API', 'Platform API'])
-    // Sections are static headers (not collapsible); nested groups keep the
-    // `collapsed` behavior.
     const section = sidebar[1] as {
       collapsed?: boolean
       items: { text?: string; collapsed?: boolean }[]
     } // prettier-ignore
-    expect(section.collapsed).toBeUndefined()
+    expect(section.collapsed).toBe(true)
     expect(section.items.map((item) => item.text)).toEqual(['pets'])
     expect(section.items[0]?.collapsed).toBe(true)
   })
@@ -171,7 +169,7 @@ describe('toSidebar', () => {
     }
     const sidebar = toSidebar(sectioned, { flatten: ['Data API'] })
     // `pets` renders top-level where its section would sit; `Platform API`
-    // keeps its section header.
+    // keeps its static section header.
     expect(sidebar.map((item) => item.text)).toEqual(['Introduction', 'pets', 'Platform API'])
     const pets = sidebar[1] as { collapsed?: boolean }
     const section = sidebar[2] as { collapsed?: boolean; items: { text?: string }[] }
