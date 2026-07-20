@@ -1,4 +1,3 @@
-import { createRequire } from 'node:module'
 import * as path from 'node:path'
 import {
   defaultCompilerOptions,
@@ -9,8 +8,8 @@ import {
   type TwoslashOptions,
 } from 'twoslash/core'
 import type * as TypeScript from 'typescript'
+import * as TypeScriptLoader from './typescript.js'
 
-const require = createRequire(import.meta.url)
 const filenameRegex = /^[\t\v\f ]*\/\/\s?@filename: (.+)$/gm
 const supportedExtensions = new Set(['js', 'jsx', 'json', 'ts', 'tsx'])
 
@@ -403,7 +402,7 @@ function getExtension(fileName: string): string {
 }
 
 function getTypeScript(): TS {
-  return require('typescript') as TS
+  return TypeScriptLoader.fromProject()
 }
 
 function getCompilerOptionDeclarations(tsModule: TS): Parameters<typeof findFlagNotations>[2] {

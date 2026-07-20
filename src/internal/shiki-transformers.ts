@@ -1,4 +1,3 @@
-import { createRequire } from 'node:module'
 import * as path from 'node:path'
 import {
   createCommentNotationTransformer,
@@ -22,6 +21,7 @@ import * as TwoslashChecker from './twoslash/checker.js'
 import * as InlineCache from './twoslash/inline-cache.js'
 import * as Renderer from './twoslash/renderer.js'
 import * as TypesCache from './twoslash/types-cache.js'
+import * as TypeScript from './twoslash/typescript.js'
 
 export {
   transformerNotationDiff as notationDiff,
@@ -220,7 +220,6 @@ export type TwoslashError = {
 export const twoslashErrors: TwoslashError[] = []
 
 const cwd = typeof process !== 'undefined' && typeof process.cwd === 'function' ? process.cwd() : ''
-const require = createRequire(import.meta.url)
 
 let twoslasher: TwoslashInstance | undefined
 let twoslasherCalls = 0
@@ -406,6 +405,10 @@ function checkOnlyTwoslasher(options: {
     const twoslashOptions = {
       ...options.twoslashOptions,
       ...executeOptions,
+      compilerOptions: {
+        ...options.twoslashOptions?.compilerOptions,
+        ...executeOptions?.compilerOptions,
+      },
       handbookOptions: {
         ...options.twoslashOptions?.handbookOptions,
         ...executeOptions?.handbookOptions,
@@ -462,14 +465,8 @@ export function resetTwoslasher() {
 function getTypeScript(): TS {
   if (typescript) return typescript
 
-  try {
-    typescript = require('typescript') as TS
-    return typescript
-  } catch {
-    throw new Error(
-      'Using twoslash code blocks requires `typescript` to be installed in your project.',
-    )
-  }
+  typescript = TypeScript.fromProject()
+  return typescript
 }
 
 export function emptyLine(): ShikiTransformer {

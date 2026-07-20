@@ -13,13 +13,8 @@ const pkg = JSON.parse(fs.readFileSync(new URL('../package.json', import.meta.ur
 const cli = cac('vocs')
 
 async function getTypeScriptForTwoslash() {
-  try {
-    return await import('typescript')
-  } catch {
-    throw new Error(
-      'Using twoslash code blocks requires `typescript` to be installed in your project.',
-    )
-  }
+  const TypeScript = await import('./internal/twoslash/typescript.js')
+  return TypeScript.fromProject()
 }
 
 cli
