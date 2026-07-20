@@ -77,7 +77,7 @@ export function Banner() {
   const style: React.CSSProperties = {
     ...(banner.backgroundColor ? { backgroundColor: banner.backgroundColor } : {}),
     ...(banner.textColor ? { color: banner.textColor } : {}),
-    ...(banner.height ? { height: banner.height } : {}),
+    ...(banner.height ? { minHeight: banner.height } : {}),
   }
 
   const hasCustomColors = banner.backgroundColor || banner.textColor
