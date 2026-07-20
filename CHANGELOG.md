@@ -1,5 +1,12 @@
 # vocs
 
+## 2.6.1
+
+### Patch Changes
+
+- 8be1f97: Fixed Twoslash loading TypeScript and retaining configured compiler options from the consuming project.
+- c6feee9: Fixed banners with configured heights overlapping navigation when their content wrapped.
+
 ## 2.6.0
 
 ### Minor Changes
