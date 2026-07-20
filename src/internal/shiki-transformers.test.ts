@@ -158,6 +158,35 @@ describe('twoslash', () => {
     highlighter.dispose()
   })
 
+  it('should preserve configured compiler options in check-only mode', async () => {
+    const highlighter = await createHighlighter({
+      themes: ['github-dark'],
+      langs: ['typescript'],
+    })
+
+    twoslashErrors.length = 0
+    resetTwoslashSnippets()
+
+    highlighter.codeToHtml('const value: string = undefined', {
+      lang: 'typescript',
+      theme: 'github-dark',
+      transformers: [
+        twoslash({
+          checkOnly: true,
+          explicitTrigger: false,
+          twoslashOptions: { compilerOptions: { strictNullChecks: false } },
+        }),
+      ],
+    })
+    checkTwoslashSnippets()
+
+    expect(twoslashErrors).toEqual([])
+
+    twoslashErrors.length = 0
+    resetTwoslashSnippets()
+    highlighter.dispose()
+  })
+
   it('should accept expected type errors in check-only mode', async () => {
     const highlighter = await createHighlighter({
       themes: ['github-dark'],
