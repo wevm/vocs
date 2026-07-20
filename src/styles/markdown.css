@@ -268,7 +268,7 @@ aside[data-v][data-v-callout] {
 /* #region Banners */
 
 [data-v-banner] {
-  @apply vocs:fixed vocs:top-0 vocs:left-0 vocs:right-0 vocs:z-50 vocs:flex vocs:items-center vocs:justify-center vocs:gap-4 vocs:px-4 vocs:py-2 vocs:text-sm vocs:font-medium;
+  @apply vocs:fixed vocs:top-0 vocs:left-0 vocs:right-0 vocs:z-50 vocs:flex vocs:items-center vocs:justify-center vocs:gap-4 vocs:px-4 vocs:py-2 vocs:text-sm vocs:leading-[1.25] vocs:font-medium;
 
   &[data-v-context="note"] {
     @apply vocs:bg-note-tint vocs:text-note;
@@ -296,7 +296,7 @@ aside[data-v][data-v-callout] {
 }
 
 [data-v-banner-content] {
-  @apply vocs:flex vocs:items-center vocs:gap-1.5;
+  @apply vocs:flex vocs:flex-wrap vocs:items-center vocs:gap-x-1.5;
 }
 
 [data-v-banner-arrow] {

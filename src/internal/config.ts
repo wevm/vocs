@@ -368,7 +368,7 @@ export type Config<partial extends boolean = false> = MaybePartial<
           dismissable?: boolean | undefined
           /** Unique ID for tracking dismissal in localStorage. If not provided, a hash of the content is used. */
           dismissId?: string | undefined
-          /** Height of the banner (CSS value, e.g., '28px'). */
+          /** Minimum height of the banner (CSS value, e.g., '28px'). */
           height?: string | undefined
           /** Optional link (internal or external) the banner navigates to when clicked. */
           href?: string | undefined
