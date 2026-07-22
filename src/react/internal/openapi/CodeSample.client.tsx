@@ -24,8 +24,8 @@ export function CodeSample(props: CodeSample.Props) {
   const { samples, responses, action, anchors = true } = props
   const [sampleId, setSampleId] = useState(samples[0]?.id)
   const [status, setStatus] = useState(responses[0]?.status)
-  // When a request has many query params, the extras collapse by default.
-  const [queryExpanded, setQueryExpanded] = useState(false)
+  // Long requests and requests with many query params collapse by default.
+  const [expanded, setExpanded] = useState(false)
 
   const sample = samples.find((entry) => entry.id === sampleId) ?? samples[0]
   const response = responses.find((entry) => entry.status === status) ?? responses[0]
@@ -80,13 +80,12 @@ export function CodeSample(props: CodeSample.Props) {
           setStatus(match.status)
           return
         }
-        if (requestAnchors.hiddenIds.has(id)) setQueryExpanded(true)
+        if (requestAnchors.hiddenIds.has(id)) setExpanded(true)
       },
     })
   }, [anchors, responseAnchors, requestAnchors])
 
-  // Use the collapsed snippet variant (first few query params) unless expanded.
-  const view = sample?.collapsed && !queryExpanded ? sample.collapsed : sample
+  const view = sample?.collapsed && !expanded ? sample.collapsed : sample
 
   return (
     <div data-v-openapi-sample>
@@ -119,17 +118,18 @@ export function CodeSample(props: CodeSample.Props) {
             <button
               type="button"
               data-v-openapi-sample-more
-              onClick={() => setQueryExpanded((value) => !value)}
+              aria-expanded={expanded}
+              onClick={() => setExpanded((value) => !value)}
             >
-              {queryExpanded ? (
+              {expanded ? (
                 <>
                   <LucideChevronUp data-v-openapi-sample-more-icon />
-                  Show less
+                  {sample.truncatedBody ? 'Collapse' : 'Show less'}
                 </>
               ) : (
                 <>
                   <LucideChevronDown data-v-openapi-sample-more-icon />
-                  Show {sample.hiddenQueryCount} more
+                  {sample.truncatedBody ? 'Expand' : `Show ${sample.hiddenQueryCount} more`}
                 </>
               )}
             </button>

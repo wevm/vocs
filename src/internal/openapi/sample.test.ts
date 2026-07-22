@@ -146,6 +146,44 @@ describe('codeSamples', () => {
     expect(curl?.collapsed).toBeUndefined()
     expect(curl?.hiddenQueryCount).toBeUndefined()
   })
+
+  test('collapses long request bodies', () => {
+    const longBody: IrOperation = {
+      ...operation,
+      method: 'POST',
+      parameters: [],
+      requestBody: {
+        required: true,
+        content: [
+          {
+            mediaType: 'application/json',
+            example: Object.fromEntries(
+              Array.from({ length: 12 }, (_, index) => [`field${index}`, index]),
+            ),
+          },
+        ],
+      },
+    }
+    const curl = codeSamples(longBody).find((sample) => sample.id === 'shell/curl')
+    expect(curl?.truncatedBody).toBe(true)
+    expect(curl?.collapsed?.display.split('\n')).toHaveLength(12)
+    expect(curl?.display.split('\n').length).toBeGreaterThan(12)
+  })
+
+  test('does not collapse short request bodies', () => {
+    const shortBody: IrOperation = {
+      ...operation,
+      method: 'POST',
+      parameters: [],
+      requestBody: {
+        required: true,
+        content: [{ mediaType: 'application/json', example: { name: 'Ada' } }],
+      },
+    }
+    const curl = codeSamples(shortBody).find((sample) => sample.id === 'shell/curl')
+    expect(curl?.truncatedBody).toBeUndefined()
+    expect(curl?.collapsed).toBeUndefined()
+  })
 })
 
 describe('responseSamples', () => {

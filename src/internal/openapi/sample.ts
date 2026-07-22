@@ -48,6 +48,8 @@ export type CodeSample = {
   display: string
   /** Number of query parameters hidden in {@link collapsed}. */
   hiddenQueryCount?: number
+  /** Whether {@link collapsed} truncates a long request body. */
+  truncatedBody?: boolean
   /** Stable id, e.g. `shell/curl`. */
   id: string
   /** Display label for the language tab, e.g. `cURL`. */
@@ -64,6 +66,8 @@ export type CodeSample = {
 
 /** Query parameters above this count collapse behind a "Show more" toggle. */
 const collapseQueryThreshold = 2
+/** Request samples with bodies above this line count collapse by default. */
+const collapseBodyLineThreshold = 12
 
 /**
  * The set of clients we expose in the code-sample selector. Kept intentionally
@@ -125,6 +129,20 @@ export function codeSamples(
         }
         sample.hiddenQueryCount = queryCount - collapseQueryThreshold
       }
+    }
+    const collapsedDisplay = sample.collapsed?.display ?? display
+    if (request.postData && collapsedDisplay.split('\n').length > collapseBodyLineThreshold) {
+      const truncatedDisplay = collapsedDisplay
+        .split('\n')
+        .slice(0, collapseBodyLineThreshold)
+        .join('\n')
+      sample.collapsed = {
+        display: truncatedDisplay,
+        anchors: pathAnchors(truncatedDisplay, operation),
+        colorRanges: queryColorRanges(truncatedDisplay, operation),
+        lineAnchors: queryLineAnchors(truncatedDisplay, operation),
+      }
+      sample.truncatedBody = true
     }
     samples.push(sample)
   }

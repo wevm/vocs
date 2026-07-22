@@ -534,7 +534,7 @@ button[data-v-openapi-property-example-value]:hover {
 [data-v-openapi-sample] [data-v-openapi-anchor]:hover {
   @apply vocs:bg-code-highlighted;
 }
-/* "Show more/less" toggle for the collapsed query parameters of a request. */
+/* Expand/collapse toggle for long requests and extra query parameters. */
 [data-v-openapi-sample-more] {
   @apply vocs:flex vocs:items-center vocs:gap-1.5 vocs:w-full vocs:bg-code-block vocs:px-code-block-px vocs:-mt-2 vocs:pb-3 vocs:text-[12px] vocs:font-medium vocs:text-secondary vocs:cursor-pointer;
 }
