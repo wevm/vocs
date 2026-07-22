@@ -302,7 +302,7 @@
   @apply vocs:text-secondary;
 }
 [data-v-openapi-property-example-value] {
-  @apply vocs:font-mono vocs:text-primary vocs:break-all vocs:text-left;
+  @apply vocs:font-mono vocs:text-primary vocs:break-all vocs:text-left vocs:whitespace-pre-wrap;
 }
 /* When the sibling code sample renders a matching response example line, the
    example value becomes a button that reveals/flashes that line on click. */

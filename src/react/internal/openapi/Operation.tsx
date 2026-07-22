@@ -18,6 +18,7 @@ import { HeadingAnchor } from './HeadingAnchor.js'
 import { TestRequestButton } from './Playground.client.js'
 import {
   enumValues,
+  formatExample,
   PropertyRow,
   Schema,
   schemaExample,
@@ -228,10 +229,7 @@ function parameterExample(parameter: {
   example?: unknown
   schema?: Record<string, unknown> | undefined
 }): string | undefined {
-  if (parameter.example !== undefined)
-    return typeof parameter.example === 'string'
-      ? parameter.example
-      : JSON.stringify(parameter.example)
+  if (parameter.example !== undefined) return formatExample(parameter.example)
   return schemaExample(parameter.schema)
 }
 

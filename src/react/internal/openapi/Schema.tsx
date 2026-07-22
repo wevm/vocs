@@ -137,15 +137,20 @@ function stringify(value: unknown): string {
   return JSON.stringify(value)
 }
 
+export function formatExample(value: unknown): string {
+  if (typeof value === 'string') return value
+  return JSON.stringify(value, null, 2)
+}
+
 /**
  * Extracts a representative example value from a schema (`example` or the first
  * entry of `examples`), returned as a display string.
  */
 export function schemaExample(schema: SchemaObject | undefined): string | undefined {
   if (!schema) return undefined
-  if ('example' in schema) return stringify(schema['example'])
+  if ('example' in schema) return formatExample(schema['example'])
   const examples = schema['examples']
-  if (Array.isArray(examples) && examples.length > 0) return stringify(examples[0])
+  if (Array.isArray(examples) && examples.length > 0) return formatExample(examples[0])
   return undefined
 }
 
