@@ -66,6 +66,27 @@ describe('Operation', () => {
     expect(html).toContain('required')
   })
 
+  test('pretty-prints structured parameter examples', () => {
+    const html = renderToStaticMarkup(
+      <Operation
+        operation={{
+          ...operation,
+          parameters: [
+            {
+              name: 'filter',
+              in: 'query',
+              example: { status: 'active', limit: 10 },
+              schema: { type: 'object' },
+            },
+          ],
+        }}
+      />,
+    )
+    expect(html).toContain(
+      '{\n  &quot;status&quot;: &quot;active&quot;,\n  &quot;limit&quot;: 10\n}',
+    )
+  })
+
   test('renders responses with status and schema', () => {
     expect(html).toContain('>200<')
     expect(html).toContain('A pet')
@@ -76,6 +97,22 @@ describe('Operation', () => {
 })
 
 describe('Schema', () => {
+  test('pretty-prints structured property examples', () => {
+    const html = renderToStaticMarkup(
+      <Schema
+        schema={{
+          type: 'object',
+          properties: {
+            payload: { type: 'object', example: { signature: '0xabc', type: 'transaction' } },
+          },
+        }}
+      />,
+    )
+    expect(html).toContain(
+      '{\n  &quot;signature&quot;: &quot;0xabc&quot;,\n  &quot;type&quot;: &quot;transaction&quot;\n}',
+    )
+  })
+
   test('renders nested object properties recursively', () => {
     const html = renderToStaticMarkup(
       <Schema
