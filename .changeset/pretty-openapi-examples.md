@@ -2,4 +2,4 @@
 'vocs': patch
 ---
 
-Pretty-print structured OpenAPI parameter and property examples.
+Pretty-printed structured OpenAPI parameter and property examples.
