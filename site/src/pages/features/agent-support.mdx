@@ -62,6 +62,35 @@ Vocs is a library for creating documentation websites.
 - [Agent Support](/features/agent-support): Machine-readable docs for AI agents
 ```
 
+## Custom Component Markdown
+
+Custom MDX components can provide Markdown for AI-facing output without changing their interactive rendering. Define `toMarkdown` on the component, then use the component as a standalone MDX tag.
+
+```tsx [src/components/ClientPrompt.tsx]
+const prompt = 'Add mppx to my app as a client.'
+
+export const ClientPrompt = Object.assign(
+  function ClientPrompt() {
+    return <pre>{prompt}</pre>
+  },
+  {
+    toMarkdown: () => ({
+      type: 'code',
+      lang: 'text',
+      value: prompt,
+    }),
+  },
+)
+```
+
+```mdx [src/pages/quickstart.mdx]
+import { ClientPrompt } from '../components/ClientPrompt'
+
+<ClientPrompt />
+```
+
+Vocs invokes the hook only while generating `.md`, `llms.txt`, and `llms-full.txt`. The hook must return a Markdown AST node or an array of nodes; components without a hook remain unchanged.
+
 ## Best Practices
 
 ### Optimize for LLMs
