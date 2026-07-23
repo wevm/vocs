@@ -328,6 +328,52 @@ import { Prompt } from './components'
     }
   })
 
+  test('only expands imported standalone PascalCase components', async () => {
+    const rootDir = fs.mkdtempSync(path.join(os.tmpdir(), 'vocs-llms-components-'))
+    const componentPath = path.join(rootDir, 'Prompt.ts')
+    const pagePath = path.join(rootDir, 'quickstart.mdx')
+
+    try {
+      fs.writeFileSync(
+        componentPath,
+        `export const Prompt = {
+  toMarkdown: () => ({ type: 'paragraph', children: [{ type: 'text', value: 'Use mppx.' }] }),
+}`,
+      )
+      const source = `import { Prompt } from './Prompt'
+
+<Prompt>custom content</Prompt>
+
+<prompt />
+
+<Unimported />
+
+<Prompt />
+
+<Prompt />`
+      fs.writeFileSync(pagePath, source)
+
+      const markdown = await inlineMarkdownComponents(source, pagePath)
+
+      expect(markdown).toContain('<Prompt>custom content</Prompt>')
+      expect(markdown).toContain('<prompt />')
+      expect(markdown).toContain('<Unimported />')
+      expect(markdown.match(/Use mppx\./g)).toHaveLength(2)
+    } finally {
+      fs.rmSync(rootDir, { force: true, recursive: true })
+    }
+  })
+
+  test('preserves malformed MDX and unavailable component modules', async () => {
+    const filePath = path.join(os.tmpdir(), 'vocs-llms-components-missing.mdx')
+    const unavailable = `import { Prompt } from './missing'
+
+<Prompt />`
+
+    await expect(inlineMarkdownComponents('<Prompt', filePath)).resolves.toBe('<Prompt')
+    await expect(inlineMarkdownComponents(unavailable, filePath)).resolves.toBe(unavailable)
+  })
+
   test('resolves hooks in imported Markdown files from their own directory', async () => {
     const rootDir = fs.mkdtempSync(path.join(os.tmpdir(), 'vocs-llms-components-'))
     const snippetsDir = path.join(rootDir, 'snippets')
@@ -380,7 +426,10 @@ import Example from './snippets/example.mdx'
       fs.writeFileSync(
         componentPath,
         `export function Invalid() { return null }
-Invalid.toMarkdown = () => 'not a Markdown node'`,
+Invalid.toMarkdown = () => [
+  { type: 'paragraph', children: [{ type: 'text', value: 'Valid.' }] },
+  'not a Markdown node',
+]`,
       )
       fs.writeFileSync(
         pagePath,
