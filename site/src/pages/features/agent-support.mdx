@@ -91,6 +91,43 @@ import { ClientPrompt } from '../components/ClientPrompt'
 
 Vocs invokes the hook only while generating `.md`, `llms.txt`, and `llms-full.txt`. The hook must return a Markdown AST node or an array of nodes; components without a hook remain unchanged.
 
+### Audit Markdown Components
+
+Dry render every page locally to find components that remain as MDX in AI-facing Markdown:
+
+```sh
+vocs markdown-audit
+```
+
+The report groups results by component, then lists each affected page and a suggested fix. It exits with status `1` when a component remains unrendered, so it can be used in CI. Add `--json` for machine-readable output.
+
+#### Example Output
+
+```txt
+[vocs] Markdown audit found 1 component left after dry rendering 1 page (2 occurrences).
+
+Components:
+  InteractiveWidget (2 occurrences)
+    Fix: add `InteractiveWidget.toMarkdown` to return a Markdown AST node.
+    /guides/setup (2 occurrences)
+```
+
+#### JSON Output
+
+```json
+{
+  "components": [
+    {
+      "name": "InteractiveWidget",
+      "unsupportedUsages": 0,
+      "count": 2,
+      "pages": [{ "path": "/guides/setup", "count": 2 }]
+    }
+  ],
+  "errors": []
+}
+```
+
 ## Best Practices
 
 ### Optimize for LLMs

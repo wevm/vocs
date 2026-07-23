@@ -6,6 +6,9 @@ import react from '@vitejs/plugin-react'
 import { cac } from 'cac'
 import * as vite from 'vite'
 import * as Config from './internal/config.js'
+import * as Llms from './internal/llms.js'
+import * as MarkdownAudit from './internal/markdown-audit.js'
+import * as Mdx from './internal/mdx.js'
 import { vocs } from './waku/vite.js'
 
 const pkg = JSON.parse(fs.readFileSync(new URL('../package.json', import.meta.url), 'utf8'))
@@ -49,6 +52,28 @@ cli
       },
     })
     await builder.buildApp()
+  })
+
+cli
+  .command('markdown-audit [root]', 'Find MDX components that remain in generated Markdown')
+  .option('--json', 'Write the audit report as JSON')
+  .action(async (root: string | undefined, options: { json?: boolean }) => {
+    const rootDir = path.resolve(root ?? process.cwd())
+    const config = await Config.resolve({ rootDir })
+    const pagesDir = path.resolve(config.rootDir, config.srcDir, config.pagesDir)
+    const pages = await Llms.getPagesFromDir(pagesDir)
+    const { rehypePlugins, remarkPlugins } = Mdx.getCompileOptions('txt', config)
+    const viteConfig = await vite.resolveConfig({ root: rootDir }, 'build', 'production')
+    const resolve = viteConfig.createResolver({ asSrc: true })
+    const report = await MarkdownAudit.audit({
+      componentOptions: { resolve: (source, importer) => resolve(source, importer) },
+      pages,
+      rehypePlugins,
+      remarkPlugins,
+    })
+
+    console.log(options.json ? JSON.stringify(report, null, 2) : MarkdownAudit.format(report))
+    if (report.components.length > 0 || report.errors.length > 0) process.exitCode = 1
   })
 
 cli
