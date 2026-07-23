@@ -41,7 +41,11 @@ type MarkdownComponent = {
 }
 
 /** Replaces standalone MDX components with their Markdown representations. */
-export async function inlineMarkdownComponents(source: string, filePath: string) {
+export async function inlineMarkdownComponents(
+  source: string,
+  filePath: string,
+  options: inlineMarkdownComponents.Options = {},
+) {
   let tree: MdAst.Root
   try {
     tree = unified().use(remarkParse).use(remarkMdx).parse(source)
@@ -63,7 +67,7 @@ export async function inlineMarkdownComponents(source: string, filePath: string)
     const componentImport = imports.get(node.name)
     if (!componentImport) continue
 
-    const component = await loadComponent(componentImport, filePath)
+    const component = await loadComponent(componentImport, filePath, options)
     if (!component?.toMarkdown) continue
 
     const markdown = await component.toMarkdown()
@@ -76,6 +80,12 @@ export async function inlineMarkdownComponents(source: string, filePath: string)
   }
 
   return applyReplacements(source, replacements)
+}
+
+export declare namespace inlineMarkdownComponents {
+  type Options = {
+    resolve?: (source: string, importer: string) => Promise<string | undefined>
+  }
 }
 
 function getComponentImports(tree: MdAst.Root) {
@@ -113,14 +123,28 @@ function isStaticMdxComponent(node: MdAst.RootContent): node is MdxJsxElement {
   return node.attributes.length === 0 && node.children.length === 0
 }
 
-async function loadComponent(componentImport: ComponentImport, filePath: string) {
+async function loadComponent(
+  componentImport: ComponentImport,
+  filePath: string,
+  options: inlineMarkdownComponents.Options,
+) {
   try {
-    const module = await tsImport(resolveComponentImport(componentImport.source, filePath), {
+    const source =
+      (await options.resolve?.(componentImport.source, filePath)) ??
+      resolveComponentImport(componentImport.source, filePath)
+    const module = await tsImport(source, {
       parentURL: pathToFileURL(filePath).href,
     })
     const exports =
-      'default' in module && typeof module.default === 'object' ? module.default : module
-    return exports[componentImport.exportName] as MarkdownComponent | undefined
+      'default' in module &&
+      typeof module.default === 'object' &&
+      module.default !== null &&
+      componentImport.exportName in module.default
+        ? module.default
+        : module
+    return exports[componentImport.exportName as keyof typeof exports] as
+      | MarkdownComponent
+      | undefined
   } catch {
     return undefined
   }
@@ -130,11 +154,19 @@ function resolveComponentImport(source: string, filePath: string) {
   if (!source.startsWith('.') && !path.isAbsolute(source)) return source
 
   const resolved = path.isAbsolute(source) ? source : path.resolve(path.dirname(filePath), source)
+  const extension = path.extname(resolved)
+  const sourceExtensions = ['.cts', '.mts', '.ts', '.tsx']
+  const sourcePath = ['.cjs', '.js', '.jsx', '.mjs'].includes(extension)
+    ? resolved.slice(0, -extension.length)
+    : undefined
   const candidates = [
     resolved,
-    ...['.cjs', '.cts', '.js', '.jsx', '.mjs', '.mts', '.ts', '.tsx'].map(
-      (extension) => `${resolved}${extension}`,
-    ),
+    ...(sourcePath ? sourceExtensions.map((extension) => `${sourcePath}${extension}`) : []),
+    ...(!extension
+      ? ['.cjs', '.cts', '.js', '.jsx', '.mjs', '.mts', '.ts', '.tsx'].map(
+          (extension) => `${resolved}${extension}`,
+        )
+      : []),
     ...[
       'index.cjs',
       'index.cts',
@@ -147,7 +179,9 @@ function resolveComponentImport(source: string, filePath: string) {
     ].map((file) => path.join(resolved, file)),
   ]
 
-  const resolvedPath = candidates.find((candidate) => fs.existsSync(candidate))
+  const resolvedPath = candidates.find(
+    (candidate) => fs.existsSync(candidate) && fs.statSync(candidate).isFile(),
+  )
   return resolvedPath ?? source
 }
 

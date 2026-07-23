@@ -11,7 +11,15 @@ import * as OpenApiMarkdown from './openapi/markdown.js'
 import type * as Sidebar from './sidebar.js'
 
 export async function buildLlmsContent(options: buildLlmsContent.Options) {
-  const { title, description, pagePrelude, rehypePlugins, remarkPlugins, sidebar } = options
+  const {
+    componentOptions,
+    title,
+    description,
+    pagePrelude,
+    rehypePlugins,
+    remarkPlugins,
+    sidebar,
+  } = options
 
   // Dedupe by path (first occurrence wins), so consumer-authored source pages
   // take precedence over generated pages (e.g. OpenAPI) mounted at the same path.
@@ -46,14 +54,15 @@ export async function buildLlmsContent(options: buildLlmsContent.Options) {
         typeof page.content === 'string'
           ? page.content
           : await fs.readFile(page.content.path, 'utf-8')
-      const markdown =
-        typeof page.content === 'string'
-          ? rawContent
-          : MarkdownImports.inlineMarkdownImports(rawContent, page.content.path)
       const content =
         typeof page.content === 'string'
-          ? markdown
-          : await MarkdownComponents.inlineMarkdownComponents(markdown, page.content.path)
+          ? rawContent
+          : await MarkdownImports.inlineMarkdownImportsAsync(
+              rawContent,
+              page.content.path,
+              (source, filePath) =>
+                MarkdownComponents.inlineMarkdownComponents(source, filePath, componentOptions),
+            )
       const file = await unified()
         .use(remarkParse)
         .use(remarkMdx)
@@ -101,6 +110,7 @@ export async function buildLlmsContent(options: buildLlmsContent.Options) {
 
 export declare namespace buildLlmsContent {
   type Options = {
+    componentOptions?: MarkdownComponents.inlineMarkdownComponents.Options | undefined
     pages: Page[]
     title: string
     description?: string | undefined

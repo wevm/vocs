@@ -159,8 +159,9 @@ ServerPrompt.toMarkdown = async () => [
   { type: 'code', lang: 'text', value: 'Use mppx on the server.' },
 ]
 
-function ClientPrompt() { return null }
-ClientPrompt.toMarkdown = () => ({ type: 'code', lang: 'text', value: 'Use mppx in the client.' })
+const ClientPrompt = {
+  toMarkdown: () => ({ type: 'code', lang: 'text', value: 'Use mppx in the client.' }),
+}
 export default ClientPrompt`,
       )
       fs.writeFileSync(
@@ -169,7 +170,7 @@ export default ClientPrompt`,
 title: Quickstart
 ---
 
-import ClientPrompt, { ServerPrompt as Prompt } from './prompts'
+import ClientPrompt, { ServerPrompt as Prompt } from './prompts.js'
 
 <ClientPrompt />
 
@@ -256,6 +257,115 @@ import { ClientPrompt } from './ClientPrompt'
 
       expect(result.full).toContain('<ClientPrompt mode="client" />')
       expect(result.full).not.toContain('Use mppx.')
+    } finally {
+      fs.rmSync(rootDir, { force: true, recursive: true })
+    }
+  })
+
+  test('expands hooks imported through a barrel file', async () => {
+    const rootDir = fs.mkdtempSync(path.join(os.tmpdir(), 'vocs-llms-components-'))
+    const componentsDir = path.join(rootDir, 'components')
+    const pagePath = path.join(rootDir, 'quickstart.mdx')
+
+    try {
+      fs.mkdirSync(componentsDir)
+      fs.writeFileSync(
+        path.join(componentsDir, 'index.ts'),
+        `export const Prompt = {
+  toMarkdown: () => ({ type: 'paragraph', children: [{ type: 'text', value: 'Use mppx.' }] }),
+}`,
+      )
+      fs.writeFileSync(
+        pagePath,
+        `---
+title: Quickstart
+---
+
+import { Prompt } from './components'
+
+<Prompt />`,
+      )
+
+      const result = await buildLlmsContent({
+        pages: [{ path: '/quickstart', content: { path: pagePath } }],
+        title: 'My Docs',
+        ...plugins,
+      })
+
+      expect(result.full).toContain('Use mppx.')
+      expect(result.full).not.toContain('<Prompt />')
+    } finally {
+      fs.rmSync(rootDir, { force: true, recursive: true })
+    }
+  })
+
+  test('uses Vite-resolved component imports', async () => {
+    const rootDir = fs.mkdtempSync(path.join(os.tmpdir(), 'vocs-llms-components-'))
+    const componentPath = path.join(rootDir, 'Prompt.ts')
+    const pagePath = path.join(rootDir, 'quickstart.mdx')
+
+    try {
+      fs.writeFileSync(
+        componentPath,
+        `export const Prompt = {
+  toMarkdown: () => ({ type: 'paragraph', children: [{ type: 'text', value: 'Use mppx.' }] }),
+}`,
+      )
+      fs.writeFileSync(
+        pagePath,
+        `import { Prompt } from 'components'
+
+<Prompt />`,
+      )
+
+      await expect(
+        inlineMarkdownComponents(fs.readFileSync(pagePath, 'utf-8'), pagePath, {
+          resolve: async (source) => (source === 'components' ? componentPath : undefined),
+        }),
+      ).resolves.toContain('Use mppx.')
+    } finally {
+      fs.rmSync(rootDir, { force: true, recursive: true })
+    }
+  })
+
+  test('resolves hooks in imported Markdown files from their own directory', async () => {
+    const rootDir = fs.mkdtempSync(path.join(os.tmpdir(), 'vocs-llms-components-'))
+    const snippetsDir = path.join(rootDir, 'snippets')
+    const pagePath = path.join(rootDir, 'quickstart.mdx')
+
+    try {
+      fs.mkdirSync(snippetsDir)
+      fs.writeFileSync(
+        path.join(snippetsDir, 'Prompt.ts'),
+        `export const Prompt = {
+  toMarkdown: () => ({ type: 'paragraph', children: [{ type: 'text', value: 'Use mppx.' }] }),
+}`,
+      )
+      fs.writeFileSync(
+        path.join(snippetsDir, 'example.mdx'),
+        `import { Prompt } from './Prompt'
+
+<Prompt />`,
+      )
+      fs.writeFileSync(
+        pagePath,
+        `---
+title: Quickstart
+---
+
+import Example from './snippets/example.mdx'
+
+<Example />`,
+      )
+
+      const result = await buildLlmsContent({
+        pages: [{ path: '/quickstart', content: { path: pagePath } }],
+        title: 'My Docs',
+        ...plugins,
+      })
+
+      expect(result.full).toContain('Use mppx.')
+      expect(result.full).not.toContain('<Prompt />')
     } finally {
       fs.rmSync(rootDir, { force: true, recursive: true })
     }
