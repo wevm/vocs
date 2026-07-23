@@ -5,6 +5,7 @@ import { icons as simple } from '@iconify-json/simple-icons'
 import type { PluginOption } from 'vite'
 
 import * as Config from './internal/config.js'
+import * as Directive from './internal/directive.js'
 import * as Plugins from './internal/vite-plugins.js'
 
 /**
@@ -15,11 +16,13 @@ import * as Plugins from './internal/vite-plugins.js'
  */
 export async function vocs(): Promise<PluginOption[]> {
   const config = await Config.resolve()
+  const directives = await Directive.load({ config })
 
   return [
     Plugins.aiSearch(config),
     Plugins.arraybuffer(),
     Plugins.deps(),
+    Plugins.directives(config),
     Plugins.groupIcons(config),
     Plugins.icons({
       compiler: 'jsx',
@@ -31,8 +34,8 @@ export async function vocs(): Promise<PluginOption[]> {
       jsx: 'react',
     }),
     Plugins.langWatcher(config),
-    Plugins.llms(config),
-    Plugins.mdx(config),
+    Plugins.llms(config, { directives }),
+    Plugins.mdx(config, { directives }),
     Plugins.openapi(config),
     Plugins.routeWatcher(config),
     Plugins.search(config),

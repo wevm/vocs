@@ -104,6 +104,7 @@ export default defineConfig({
     '/': [
       { text: 'Home', link: '/' },
       { text: 'Changelog', link: '/changelog', badge: 'New' },
+      { text: 'Contributors', link: '/contributors' },
       { text: 'Kitchen Sink', link: '/kitchen-sink' },
       { text: 'REPL', link: '/repl', badge: { text: 'Beta', variant: 'warning' } },
       { text: 'None' },

@@ -1,3 +1,5 @@
+import type * as Directive from './directive.js'
+
 export type Adapter = {
   /** Adapter type identifier */
   type: string
@@ -79,6 +81,47 @@ export declare namespace stripDuplicateTitle {
     title: string
   }
   type ReturnType = string
+}
+
+/**
+ * The built-in `::changelog` directive's markdown representation: releases
+ * from the adapter, with `{limit=N}` handling and duplicate-title
+ * normalization.
+ */
+export function directive(options: directive.Options): directive.ReturnType {
+  const { adapter } = options
+  return {
+    name: 'changelog',
+    async toMarkdown(attributes) {
+      if (!adapter) return '<!-- changelog unavailable -->'
+
+      // Malformed limits (NaN, zero, negative) fall back to the default.
+      const parsed = Number.parseInt(attributes['limit'] ?? '', 10)
+      const limit = Number.isInteger(parsed) && parsed > 0 ? parsed : 999
+
+      const releases = await adapter.fetch({ limit, prereleases: false })
+      return releases
+        .map((release) => {
+          const date = release.date.slice(0, 10)
+          const body = stripDuplicateTitle({
+            body: release.body,
+            title: release.title,
+          })
+          const title =
+            release.title && release.title !== release.version ? ` — ${release.title}` : ''
+          return `## ${release.version}${title} (${date})\n\n${body}`.trim()
+        })
+        .join('\n\n')
+    },
+  }
+}
+
+export declare namespace directive {
+  type Options = {
+    /** Changelog adapter to fetch releases from (`config.changelog`). */
+    adapter?: Adapter | undefined
+  }
+  type ReturnType = Directive.Directive
 }
 
 function normalizeTitle(s: string): string {

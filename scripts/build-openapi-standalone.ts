@@ -40,6 +40,7 @@ function getIcon(set: Parameters<typeof getIconData>[0]) {
 function virtualModulesPlugin(): Plugin {
   const map: Record<string, string> = {
     'virtual:vocs/config': path.resolve(appDir, 'virtual/config.ts'),
+    'virtual:vocs/directives': path.resolve(appDir, 'virtual/directives.ts'),
     'virtual:vocs/langs': path.resolve(appDir, 'virtual/langs.ts'),
     'virtual:vocs/openapi': path.resolve(appDir, 'virtual/openapi.ts'),
     'virtual:vocs/search-index': path.resolve(appDir, 'virtual/search-index.ts'),

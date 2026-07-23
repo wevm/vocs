@@ -8,15 +8,16 @@ import ruby from 'shiki/langs/ruby.mjs'
 import { unified } from 'unified'
 import { describe, expect, it } from 'vitest'
 import * as Config from './config.js'
+import * as Directive from './directive.js'
 import {
   deadLinks,
   getCompileOptions,
   recmaMdxLayout,
   rehypeHeadingAnchors,
   rehypeLinks,
-  remarkChangelog,
   remarkCodeTitle,
   remarkDefaultFrontmatter,
+  remarkDirectives,
   remarkFilename,
   remarkFileTree,
   remarkLangCommaAttrs,
@@ -440,55 +441,62 @@ describe('remarkRestoreUnknownTextDirectives', () => {
   })
 })
 
-describe('remarkChangelog', () => {
-  async function run(markdown: string) {
-    const tree = await runRemark(markdown, [remarkDirective, remarkChangelog])
+describe('remarkDirectives', () => {
+  const directives = Directive.resolve({ config: {} })
+
+  async function run(markdown: string, list = directives) {
+    const tree = await runRemark(markdown, [
+      remarkDirective,
+      () => remarkDirectives({ directives: list }),
+    ])
     return tree.children[0]?.data
   }
 
-  it('respects the limit attribute', async () => {
+  it('marks built-in directives with their raw attributes', async () => {
     expect(await run('::changelog{limit=10}')).toMatchInlineSnapshot(`
       {
         "hName": "div",
         "hProperties": {
-          "data-v-changelog": "true",
-          "data-v-changelog-limit": "10",
+          "data-v-directive": "changelog",
+          "data-v-directive-attributes": "{"limit":"10"}",
         },
       }
     `)
-  })
-
-  it('defaults the limit when omitted', async () => {
     expect(await run('::changelog')).toMatchInlineSnapshot(`
       {
         "hName": "div",
         "hProperties": {
-          "data-v-changelog": "true",
-          "data-v-changelog-limit": "999",
+          "data-v-directive": "changelog",
+          "data-v-directive-attributes": "{}",
         },
       }
     `)
   })
 
-  it('falls back to the default on a malformed limit', async () => {
-    expect(await run('::changelog{limit=abc}')).toMatchInlineSnapshot(`
+  it('marks user directives with a component', async () => {
+    const list = Directive.resolve({
+      config: {},
+      directives: [{ name: 'blog-posts', component: () => null }],
+    })
+    expect(await run('::blog-posts{limit=3}', list)).toMatchInlineSnapshot(`
       {
         "hName": "div",
         "hProperties": {
-          "data-v-changelog": "true",
-          "data-v-changelog-limit": "999",
+          "data-v-directive": "blog-posts",
+          "data-v-directive-attributes": "{"limit":"3"}",
         },
       }
     `)
-    expect(await run('::changelog{limit=0}')).toMatchInlineSnapshot(`
-      {
-        "hName": "div",
-        "hProperties": {
-          "data-v-changelog": "true",
-          "data-v-changelog-limit": "999",
-        },
-      }
-    `)
+  })
+
+  it('leaves unregistered and markdown-only directives untouched', async () => {
+    expect(await run('::blog-posts')).toBeUndefined()
+
+    const list = Directive.resolve({
+      config: {},
+      directives: [{ name: 'blog-posts', toMarkdown: () => 'posts' }],
+    })
+    expect(await run('::blog-posts', list)).toBeUndefined()
   })
 })
 

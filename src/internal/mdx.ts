@@ -34,8 +34,8 @@ import * as UnistUtil from 'unist-util-visit'
 import type { VFile } from 'vfile'
 import { createLogger } from 'vite'
 import * as yaml from 'yaml'
-import * as Changelog from './changelog.js'
 import type * as Config from './config.js'
+import * as Directive from './directive.js'
 import * as Git from './git.js'
 import * as Icons from './icons.js'
 import * as OpenApiRegistry from './openapi/registry.js'
@@ -277,6 +277,7 @@ export const deadLinks = new Map<string, string[]>()
 export function getCompileOptions(
   type: 'txt' | 'react',
   config: Config.Config,
+  options: getCompileOptions.Options = {},
 ): Omit<CompileOptions, 'remarkPlugins' | 'rehypePlugins' | 'recmaPlugins'> & {
   remarkPlugins: PluggableList
   rehypePlugins: PluggableList
@@ -284,6 +285,7 @@ export function getCompileOptions(
 } {
   const { cacheDir, codeHighlight, markdown, rootDir, srcDir, twoslash } = config
   const { jsxImportSource = 'react' } = markdown ?? {}
+  const directives = Directive.resolve({ config, directives: options.directives })
 
   // Extract language names from twoslash transformers (e.g., rust, toml from experimental_rust)
   const twoslashTransformerLangs =
@@ -319,7 +321,7 @@ export function getCompileOptions(
           // round-trip back to their source form on stringify.
           remarkDirective,
           [remarkPrompt, { output: 'code' }] as Pluggable,
-          [remarkChangelogMarkdown, config] as Pluggable,
+          [remarkDirectivesMarkdown, { directives }] as Pluggable,
           // User plugins extend the parser (e.g. `remark-math`) so syntax
           // recognized in the React build also parses for llms/search.
           ...(markdown?.remarkPlugins ?? []),
@@ -389,7 +391,7 @@ export function getCompileOptions(
           remarkDirective,
           [remarkFileTree, config] as Pluggable,
           remarkCallout,
-          remarkChangelog,
+          [remarkDirectives, { directives }] as Pluggable,
           remarkCodeGroup,
           remarkPrompt,
           remarkLangCommaAttrs,
@@ -426,6 +428,13 @@ export function getCompileOptions(
     recmaPlugins,
     rehypePlugins,
     remarkPlugins,
+  }
+}
+
+export declare namespace getCompileOptions {
+  type Options = {
+    /** User directives (`Directive.load`). */
+    directives?: readonly Directive.Directive[] | undefined
   }
 }
 
@@ -1598,109 +1607,103 @@ export declare namespace remarkFileTree {
 }
 
 /**
- * Remark plugin that transforms `::changelog{limit=10}` leaf directives into Changelog components.
- *
- * Syntax:
- * - `::changelog` – renders a Changelog with default limit (999)
- * - `::changelog{limit=10}` – renders a Changelog with limit of 10
+ * Remark plugin (react pipeline) that transforms registered leaf directives
+ * into markers carrying the name and raw attributes, dispatched to their
+ * component in `vocs/mdx` (`Directive.mdx.tsx`).
  */
-export function remarkChangelog(): remarkChangelog.ReturnType {
+export function remarkDirectives(options: remarkDirectives.Options): remarkDirectives.ReturnType {
+  const { directives } = options
   return (tree: MdAst.Root) => {
     UnistUtil.visit(tree, 'leafDirective', (node) => {
-      if (node.name !== 'changelog') return
+      const directive = directives.find(
+        (directive) => directive.name === node.name && (directive.component || directive.builtin),
+      )
+      if (!directive) return
 
       // biome-ignore lint/suspicious/noAssignInExpressions: _
       const data = node.data || (node.data = {})
-
-      // Malformed limits (NaN, zero, negative) fall back to the default.
-      const parsed = Number.parseInt(node.attributes?.['limit'] ?? '', 10)
-      const limit = Number.isInteger(parsed) && parsed > 0 ? parsed : 999
-
       data.hName = 'div'
       data.hProperties = {
-        'data-v-changelog': 'true',
-        'data-v-changelog-limit': String(limit),
+        'data-v-directive': node.name,
+        'data-v-directive-attributes': JSON.stringify(node.attributes ?? {}),
       }
     })
   }
 }
 
-export declare namespace remarkChangelog {
+export declare namespace remarkDirectives {
+  type Options = {
+    /** Resolved directive registry (`Directive.resolve`). */
+    directives: readonly Directive.Resolved[]
+  }
   type ReturnType = (tree: MdAst.Root) => void
 }
 
 /**
- * Remark plugin (markdown/`txt` pipeline) that renders `::changelog` leaf
- * directives as release markdown, so `llms.txt` and the per-page markdown
- * twins carry the releases instead of a literal `::changelog` line — the
- * content only exists behind the adapter, so without this the markdown
- * output loses the page's entire content.
- *
- * Mirrors the react pipeline's `remarkChangelog` + `Changelog` component
- * pair: same adapter, `{limit=N}` handling, and duplicate-title
- * normalization. Failures (no adapter, offline, rate limit) degrade to an
- * HTML comment — a missing changelog must never fail the llms/markdown build.
+ * Remark plugin (markdown/`txt` pipeline) that renders registered leaf
+ * directives via their `toMarkdown`, so `llms.txt` and the `.md` twins carry
+ * real content instead of a literal `::name` line. Failures degrade to an
+ * HTML comment — they must never fail the build.
  */
-export function remarkChangelogMarkdown(
-  options: remarkChangelogMarkdown.Options = {},
-): remarkChangelogMarkdown.ReturnType {
+export function remarkDirectivesMarkdown(
+  options: remarkDirectivesMarkdown.Options,
+): remarkDirectivesMarkdown.ReturnType {
+  const { directives } = options
   return async (tree: MdAst.Root) => {
-    // Collect matches first (visit is sync), then fetch and splice.
-    const found: { index: number; limit: number; parent: MdAst.Parent }[] = []
+    // Collect matches first (visit is sync), then render and splice.
+    const found: {
+      node: MdAst.RootContent & {
+        name: string
+        attributes?: Directive.Attributes | null | undefined
+      }
+      index: number
+      parent: MdAst.Parent
+      directive: Directive.Resolved
+    }[] = []
     UnistUtil.visit(tree, 'leafDirective', (node, index, parent) => {
-      if (node.name !== 'changelog') return
+      const directive = directives.find(
+        (directive) => directive.name === node.name && directive.toMarkdown,
+      )
+      if (!directive) return
       if (index === undefined || !parent) return
-      // Malformed limits (NaN, zero, negative) fall back to the default.
-      const parsed = Number.parseInt(node.attributes?.['limit'] ?? '', 10)
-      const limit = Number.isInteger(parsed) && parsed > 0 ? parsed : 999
-      found.push({ index, limit, parent })
+      found.push({ node, index, parent, directive })
     })
     if (found.length === 0) return
 
     // Splice back-to-front so earlier indices stay valid.
-    for (const { index, limit, parent } of found.reverse())
-      parent.children.splice(index, 1, ...(await render(limit)))
+    for (const { node, index, parent, directive } of found.reverse())
+      parent.children.splice(index, 1, ...(await render(node, directive)))
 
-    async function render(limit: number): Promise<MdAst.RootContent[]> {
-      const unavailable: MdAst.RootContent[] = [
-        { type: 'html', value: '<!-- changelog unavailable -->' },
-      ]
-      const adapter = options.changelog
-      if (!adapter) return unavailable
+    async function render(
+      node: (typeof found)[number]['node'],
+      directive: Directive.Resolved,
+    ): Promise<MdAst.RootContent[]> {
       try {
-        const releases = await adapter.fetch({ limit, prereleases: false })
-        const markdown = releases
-          .map((release) => {
-            const date = release.date.slice(0, 10)
-            const body = Changelog.stripDuplicateTitle({
-              body: release.body,
-              title: release.title,
-            })
-            const title =
-              release.title && release.title !== release.version ? ` — ${release.title}` : ''
-            return `## ${release.version}${title} (${date})\n\n${body}`.trim()
-          })
-          .join('\n\n')
-        // Parsed without GFM on purpose: the outer txt pipeline stringifies
-        // without GFM extensions, so GFM nodes (tables, …) spliced in here
-        // would make it throw. Plain parsing keeps GFM constructs as
-        // readable literal text.
-        return unified().use(remarkParse).parse(markdown).children
+        const result = await directive.toMarkdown?.(node.attributes ?? {})
+        // `null` leaves the directive in place.
+        if (result == null) return [node]
+        if (typeof result === 'string')
+          // Parsed without GFM on purpose: the outer txt pipeline stringifies
+          // without GFM extensions, so GFM nodes (tables, …) spliced in here
+          // would make it throw. Plain parsing keeps GFM constructs as
+          // readable literal text.
+          return unified().use(remarkParse).parse(result).children
+        return result
       } catch (error) {
         logger.warn(
-          `Failed to render \`::changelog\` in markdown output: ${error instanceof Error ? error.message : String(error)}`,
+          `Failed to render \`::${node.name}\` in markdown output: ${error instanceof Error ? error.message : String(error)}`,
           { timestamp: true },
         )
-        return unavailable
+        return [{ type: 'html', value: `<!-- ${node.name} unavailable -->` }]
       }
     }
   }
 }
 
-export declare namespace remarkChangelogMarkdown {
+export declare namespace remarkDirectivesMarkdown {
   type Options = {
-    /** Changelog adapter to fetch releases from (`config.changelog`). */
-    changelog?: Changelog.Adapter | undefined
+    /** Resolved directive registry (`Directive.resolve`). */
+    directives: readonly Directive.Resolved[]
   }
   type ReturnType = (tree: MdAst.Root) => Promise<void>
 }

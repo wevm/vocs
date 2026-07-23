@@ -11,11 +11,13 @@ const isDev = process.env['NODE_ENV'] !== 'production'
 async function resolveContent() {
   const path = await import('node:path')
   const Config = await import('../../../internal/config.js')
+  const Directive = await import('../../../internal/directive.js')
   const Llms = await import('../../../internal/llms.js')
   const Mdx = await import('../../../internal/mdx.js')
 
   const config = await Config.resolve({ server: true })
-  const { rehypePlugins, remarkPlugins } = Mdx.getCompileOptions('txt', config)
+  const directives = await Directive.load({ config })
+  const { rehypePlugins, remarkPlugins } = Mdx.getCompileOptions('txt', config, { directives })
   const pagesDir = path.resolve(config.rootDir, config.srcDir, config.pagesDir)
   const pages = await Llms.getPagesFromDir(pagesDir)
   const openapiPages = await Llms.getOpenApiPages(config)
