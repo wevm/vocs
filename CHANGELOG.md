@@ -1,5 +1,12 @@
 # vocs
 
+## 2.6.2
+
+### Patch Changes
+
+- 97fdd0b: Collapsed long OpenAPI request body examples behind an expand control.
+- 830e721: Pretty-printed structured OpenAPI parameter and property examples.
+
 ## 2.6.1
 
 ### Patch Changes
