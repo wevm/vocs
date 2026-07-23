@@ -1,13 +1,16 @@
 import * as fs from 'node:fs'
 import * as os from 'node:os'
 import * as path from 'node:path'
+import type * as MdAst from 'mdast'
 import remarkDirective from 'remark-directive'
 import type { Pluggable } from 'unified'
 import { describe, expect, test } from 'vitest'
 import type * as Changelog from './changelog.js'
+import * as Config from './config.js'
 import { buildLlmsContent, getMarkdownPagePrelude } from './llms.js'
 import { inlineMarkdownComponents } from './markdown-components.js'
 import {
+  getCompileOptions,
   remarkChangelogMarkdown,
   remarkDefaultFrontmatter,
   remarkExtractFrontmatter,
@@ -740,6 +743,98 @@ title: Component
       <Component />
       "
     `)
+  })
+
+  test('renders components with output-only remark plugins', async () => {
+    type ComponentAttribute = {
+      name?: string
+      type: string
+      value?: unknown
+    }
+    type ComponentNode = {
+      attributes: ComponentAttribute[]
+      children: MdAst.RootContent[]
+      name: string | null
+      type: 'mdxJsxFlowElement'
+    }
+
+    function renamePanel() {
+      return (tree: MdAst.Root) => {
+        for (const child of tree.children) {
+          if (child.type !== 'mdxJsxFlowElement') continue
+          const node = child as ComponentNode
+          if (node.name !== 'Panel') continue
+          const title = node.attributes.find(
+            (attribute) => attribute.type === 'mdxJsxAttribute' && attribute.name === 'title',
+          )
+          if (typeof title?.value === 'string') title.value = 'Readable title'
+        }
+      }
+    }
+
+    function renderPanel() {
+      return (tree: MdAst.Root) => {
+        for (const [index, child] of tree.children.entries()) {
+          if (child.type !== 'mdxJsxFlowElement') continue
+          const node = child as ComponentNode
+          if (node.name !== 'Panel') continue
+          const title = node.attributes.find(
+            (attribute) => attribute.type === 'mdxJsxAttribute' && attribute.name === 'title',
+          )?.value
+          if (typeof title !== 'string') continue
+          tree.children.splice(
+            index,
+            1,
+            {
+              type: 'heading',
+              depth: 2,
+              children: [{ type: 'text', value: title }],
+            },
+            ...node.children,
+          )
+        }
+      }
+    }
+
+    const config = Config.define({
+      markdown: {
+        remarkPlugins: [renamePanel],
+        outputRemarkPlugins: [renderPanel],
+      },
+      rootDir: process.cwd(),
+    })
+    const { rehypePlugins, remarkPlugins } = getCompileOptions('txt', config)
+    const result = await buildLlmsContent({
+      pages: [
+        {
+          path: '/component',
+          content: `---
+title: Component
+---
+
+<Panel title="Interactive title">
+Child prose.
+</Panel>
+
+<Unknown />`,
+        },
+      ],
+      title: 'My Docs',
+      rehypePlugins,
+      remarkPlugins,
+    })
+
+    expect(result.results[0]?.content).toMatchInlineSnapshot(`
+      "## Readable title
+
+      Child prose.
+
+      <Unknown />
+      "
+    `)
+    expect(result.full).toContain(result.results[0]?.content)
+    expect(result.full).not.toContain('<Panel')
+    expect(result.short).toContain('- [Component](/component)')
   })
 
   test('strips inline twoslash cache comments from code blocks', async () => {

@@ -283,7 +283,7 @@ export function getCompileOptions(
   recmaPlugins: PluggableList
 } {
   const { cacheDir, codeHighlight, markdown, rootDir, srcDir, twoslash } = config
-  const { jsxImportSource = 'react' } = markdown ?? {}
+  const { jsxImportSource = 'react', outputRemarkPlugins, ...markdownOptions } = markdown ?? {}
 
   // Extract language names from twoslash transformers (e.g., rust, toml from experimental_rust)
   const twoslashTransformerLangs =
@@ -323,6 +323,9 @@ export function getCompileOptions(
           // User plugins extend the parser (e.g. `remark-math`) so syntax
           // recognized in the React build also parses for llms/search.
           ...(markdown?.remarkPlugins ?? []),
+          // Output-only plugins can replace interactive MDX with a plain
+          // Markdown representation without changing the rendered site.
+          ...(outputRemarkPlugins ?? []),
         ],
       }
     if (type === 'react')
@@ -420,7 +423,7 @@ export function getCompileOptions(
   })()
 
   return {
-    ...markdown,
+    ...markdownOptions,
     jsxImportSource,
     providerImportSource: 'vocs/mdx',
     recmaPlugins,

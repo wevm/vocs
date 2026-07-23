@@ -4,6 +4,7 @@ export * as Changelog from './internal/changelog.js'
 export {
   type Config,
   define as defineConfig,
+  type MarkdownOptions,
   resolve as resolveConfig,
 } from './internal/config.js'
 export * as Embedding from './internal/embedding.js'

@@ -83,6 +83,37 @@ export default defineConfig({
 })
 ```
 
+### Change Generated Markdown Only
+
+Use `outputRemarkPlugins` when an authored page needs a simpler Markdown form than its interactive form. These plugins run for authored page bodies used in per-page `.md` files and `llms-full.txt`, but do not change the rendered site.
+
+This is useful for replacing custom MDX components with plain headings, links, prose, or code. It uses the normal remark plugin format, so a plugin can read component names, props, and children without a separate Vocs component registry.
+
+```js [remark-plain-components.mjs]
+export default function unwrapPageGrid() {
+  return (tree) => {
+    for (let index = tree.children.length - 1; index >= 0; index--) {
+      const node = tree.children[index]
+      if (node.type !== 'mdxJsxFlowElement' || node.name !== 'PageGrid') continue
+      tree.children.splice(index, 1, ...node.children)
+    }
+  }
+}
+```
+
+```ts [vocs.config.ts]
+import { defineConfig } from 'vocs/config'
+import unwrapPageGrid from './remark-plain-components.mjs'
+
+export default defineConfig({
+  markdown: {
+    outputRemarkPlugins: [unwrapPageGrid] // [!code focus]
+  }
+})
+```
+
+Components that the plugin does not replace stay as MDX in the generated Markdown.
+
 ### Add Rehype Plugins
 
 Use `rehypePlugins` for transforms that work on HTML, such as adding attributes to links, rewriting elements, or integrating HTML-focused plugins.
@@ -123,7 +154,7 @@ export default defineConfig({
 
 ## Plugin Order
 
-Vocs runs its built-in Markdown plugins first, then runs plugins from your `markdown` config. Custom rehype plugins run after syntax highlighting and heading anchors, then Vocs finishes link and image processing.
+Vocs runs its built-in Markdown plugins first, followed by `remarkPlugins`. When Vocs generates Markdown, `outputRemarkPlugins` run last. Custom rehype plugins run after syntax highlighting and heading anchors, then Vocs finishes link and image processing.
 
 ## Reference
 
