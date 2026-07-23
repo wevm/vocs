@@ -34,6 +34,18 @@ export function inlineMarkdownImports(source: string, filePath: string): string 
   return inline(source, path.resolve(filePath), new Set())
 }
 
+export async function inlineMarkdownImportsAsync(
+  source: string,
+  filePath: string,
+  transform: inlineMarkdownImportsAsync.Transform,
+): Promise<string> {
+  return inlineAsync(source, path.resolve(filePath), new Set(), transform)
+}
+
+export declare namespace inlineMarkdownImportsAsync {
+  type Transform = (source: string, filePath: string) => Promise<string>
+}
+
 function inline(source: string, filePath: string, seen: Set<string>): string {
   if (seen.has(filePath)) return ''
   seen.add(filePath)
@@ -50,6 +62,34 @@ function inline(source: string, filePath: string, seen: Set<string>): string {
 
   collectImports(tree.children, imports, replacements)
   collectComponentReplacements(tree, imports, filePath, seen, replacements)
+
+  if (replacements.length === 0) return source
+  return applyReplacements(source, replacements)
+}
+
+async function inlineAsync(
+  source: string,
+  filePath: string,
+  seen: Set<string>,
+  transform: inlineMarkdownImportsAsync.Transform,
+): Promise<string> {
+  if (seen.has(filePath)) return ''
+  seen.add(filePath)
+
+  source = await transform(source, filePath)
+
+  let tree: MdAst.Root
+  try {
+    tree = unified().use(remarkParse).use(remarkMdx).parse(source)
+  } catch {
+    return source
+  }
+
+  const imports = new Map<string, MarkdownImport>()
+  const replacements: Replacement[] = []
+
+  collectImports(tree.children, imports, replacements)
+  await collectComponentReplacementsAsync(tree, imports, filePath, seen, replacements, transform)
 
   if (replacements.length === 0) return source
   return applyReplacements(source, replacements)
@@ -114,6 +154,40 @@ function collectComponentReplacements(
   if ('children' in node && Array.isArray(node.children))
     for (const child of node.children)
       collectComponentReplacements(child, imports, filePath, seen, replacements)
+}
+
+async function collectComponentReplacementsAsync(
+  node: MdAst.Root | MdAst.RootContent,
+  imports: Map<string, MarkdownImport>,
+  filePath: string,
+  seen: Set<string>,
+  replacements: Replacement[],
+  transform: inlineMarkdownImportsAsync.Transform,
+): Promise<void> {
+  if (isMdxJsxElement(node)) {
+    const name = node.name ?? undefined
+    const markdownImport = name ? imports.get(name) : undefined
+    if (markdownImport && isStaticMdxComponent(node)) {
+      const importedPath = resolveMarkdownImport(markdownImport.source, filePath)
+      if (importedPath) {
+        const importedSource = fs.readFileSync(importedPath, 'utf-8')
+        const value = await inlineAsync(importedSource, importedPath, new Set(seen), transform)
+        const replacement = toReplacement(node, value)
+        if (replacement) replacements.push(replacement)
+      }
+    }
+  }
+
+  if ('children' in node && Array.isArray(node.children))
+    for (const child of node.children)
+      await collectComponentReplacementsAsync(
+        child,
+        imports,
+        filePath,
+        seen,
+        replacements,
+        transform,
+      )
 }
 
 function isMdxJsxElement(node: MdAst.Root | MdAst.RootContent): node is MdxJsxElement {

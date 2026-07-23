@@ -6,6 +6,7 @@ import type { Pluggable } from 'unified'
 import { describe, expect, test } from 'vitest'
 import type * as Changelog from './changelog.js'
 import { buildLlmsContent, getMarkdownPagePrelude } from './llms.js'
+import { inlineMarkdownComponents } from './markdown-components.js'
 import {
   remarkChangelogMarkdown,
   remarkDefaultFrontmatter,
@@ -142,6 +143,315 @@ This is the home page.`,
       Content here.
       "
     `)
+  })
+
+  test('expands named and default MDX component imports with a toMarkdown hook', async () => {
+    const rootDir = fs.mkdtempSync(path.join(os.tmpdir(), 'vocs-llms-components-'))
+    const componentPath = path.join(rootDir, 'prompts.ts')
+    const pagePath = path.join(rootDir, 'quickstart.mdx')
+
+    try {
+      fs.writeFileSync(
+        componentPath,
+        `export function ServerPrompt() { return null }
+ServerPrompt.toMarkdown = async () => [
+  { type: 'heading', depth: 2, children: [{ type: 'text', value: 'Server' }] },
+  { type: 'code', lang: 'text', value: 'Use mppx on the server.' },
+]
+
+const ClientPrompt = {
+  toMarkdown: () => ({ type: 'code', lang: 'text', value: 'Use mppx in the client.' }),
+}
+export default ClientPrompt`,
+      )
+      fs.writeFileSync(
+        pagePath,
+        `---
+title: Quickstart
+---
+
+import ClientPrompt, { ServerPrompt as Prompt } from './prompts.js'
+
+<ClientPrompt />
+
+<Prompt />`,
+      )
+
+      await expect(
+        inlineMarkdownComponents(fs.readFileSync(pagePath, 'utf-8'), pagePath),
+      ).resolves.toContain('```text\nUse mppx in the client.\n```')
+
+      const result = await buildLlmsContent({
+        pages: [{ path: '/quickstart', content: { path: pagePath } }],
+        title: 'My Docs',
+        ...plugins,
+      })
+
+      expect(result.full).toContain('```text\nUse mppx in the client.\n```')
+      expect(result.full).toContain('## Server\n\n```text\nUse mppx on the server.\n```')
+      expect(result.full).not.toContain('<ClientPrompt />')
+      expect(result.full).not.toContain('<Prompt />')
+      expect(result.results[0]?.content).toContain('Use mppx on the server.')
+    } finally {
+      fs.rmSync(rootDir, { force: true, recursive: true })
+    }
+  })
+
+  test('preserves imported components without a toMarkdown hook', async () => {
+    const rootDir = fs.mkdtempSync(path.join(os.tmpdir(), 'vocs-llms-components-'))
+    const componentPath = path.join(rootDir, 'InteractiveWidget.ts')
+    const pagePath = path.join(rootDir, 'interactive.mdx')
+
+    try {
+      fs.writeFileSync(componentPath, 'export function InteractiveWidget() { return null }')
+      fs.writeFileSync(
+        pagePath,
+        `---
+title: Interactive
+---
+
+import { InteractiveWidget } from './InteractiveWidget'
+
+<InteractiveWidget />`,
+      )
+
+      const result = await buildLlmsContent({
+        pages: [{ path: '/interactive', content: { path: pagePath } }],
+        title: 'My Docs',
+        ...plugins,
+      })
+
+      expect(result.full).toContain('<InteractiveWidget />')
+    } finally {
+      fs.rmSync(rootDir, { force: true, recursive: true })
+    }
+  })
+
+  test('preserves components with attributes', async () => {
+    const rootDir = fs.mkdtempSync(path.join(os.tmpdir(), 'vocs-llms-components-'))
+    const componentPath = path.join(rootDir, 'ClientPrompt.ts')
+    const pagePath = path.join(rootDir, 'quickstart.mdx')
+
+    try {
+      fs.writeFileSync(
+        componentPath,
+        `export function ClientPrompt() { return null }
+ClientPrompt.toMarkdown = () => ({ type: 'code', lang: 'text', value: 'Use mppx.' })`,
+      )
+      fs.writeFileSync(
+        pagePath,
+        `---
+title: Quickstart
+---
+
+import { ClientPrompt } from './ClientPrompt'
+
+<ClientPrompt mode="client" />`,
+      )
+
+      const result = await buildLlmsContent({
+        pages: [{ path: '/quickstart', content: { path: pagePath } }],
+        title: 'My Docs',
+        ...plugins,
+      })
+
+      expect(result.full).toContain('<ClientPrompt mode="client" />')
+      expect(result.full).not.toContain('Use mppx.')
+    } finally {
+      fs.rmSync(rootDir, { force: true, recursive: true })
+    }
+  })
+
+  test('expands hooks imported through a barrel file', async () => {
+    const rootDir = fs.mkdtempSync(path.join(os.tmpdir(), 'vocs-llms-components-'))
+    const componentsDir = path.join(rootDir, 'components')
+    const pagePath = path.join(rootDir, 'quickstart.mdx')
+
+    try {
+      fs.mkdirSync(componentsDir)
+      fs.writeFileSync(
+        path.join(componentsDir, 'index.ts'),
+        `export const Prompt = {
+  toMarkdown: () => ({ type: 'paragraph', children: [{ type: 'text', value: 'Use mppx.' }] }),
+}`,
+      )
+      fs.writeFileSync(
+        pagePath,
+        `---
+title: Quickstart
+---
+
+import { Prompt } from './components'
+
+<Prompt />`,
+      )
+
+      const result = await buildLlmsContent({
+        pages: [{ path: '/quickstart', content: { path: pagePath } }],
+        title: 'My Docs',
+        ...plugins,
+      })
+
+      expect(result.full).toContain('Use mppx.')
+      expect(result.full).not.toContain('<Prompt />')
+    } finally {
+      fs.rmSync(rootDir, { force: true, recursive: true })
+    }
+  })
+
+  test('uses Vite-resolved component imports', async () => {
+    const rootDir = fs.mkdtempSync(path.join(os.tmpdir(), 'vocs-llms-components-'))
+    const componentPath = path.join(rootDir, 'Prompt.ts')
+    const pagePath = path.join(rootDir, 'quickstart.mdx')
+
+    try {
+      fs.writeFileSync(
+        componentPath,
+        `export const Prompt = {
+  toMarkdown: () => ({ type: 'paragraph', children: [{ type: 'text', value: 'Use mppx.' }] }),
+}`,
+      )
+      fs.writeFileSync(
+        pagePath,
+        `import { Prompt } from 'components'
+
+<Prompt />`,
+      )
+
+      await expect(
+        inlineMarkdownComponents(fs.readFileSync(pagePath, 'utf-8'), pagePath, {
+          resolve: async (source) => (source === 'components' ? componentPath : undefined),
+        }),
+      ).resolves.toContain('Use mppx.')
+    } finally {
+      fs.rmSync(rootDir, { force: true, recursive: true })
+    }
+  })
+
+  test('only expands imported standalone PascalCase components', async () => {
+    const rootDir = fs.mkdtempSync(path.join(os.tmpdir(), 'vocs-llms-components-'))
+    const componentPath = path.join(rootDir, 'Prompt.ts')
+    const pagePath = path.join(rootDir, 'quickstart.mdx')
+
+    try {
+      fs.writeFileSync(
+        componentPath,
+        `export const Prompt = {
+  toMarkdown: () => ({ type: 'paragraph', children: [{ type: 'text', value: 'Use mppx.' }] }),
+}`,
+      )
+      const source = `import { Prompt } from './Prompt'
+
+<Prompt>custom content</Prompt>
+
+<prompt />
+
+<Unimported />
+
+<Prompt />
+
+<Prompt />`
+      fs.writeFileSync(pagePath, source)
+
+      const markdown = await inlineMarkdownComponents(source, pagePath)
+
+      expect(markdown).toContain('<Prompt>custom content</Prompt>')
+      expect(markdown).toContain('<prompt />')
+      expect(markdown).toContain('<Unimported />')
+      expect(markdown.match(/Use mppx\./g)).toHaveLength(2)
+    } finally {
+      fs.rmSync(rootDir, { force: true, recursive: true })
+    }
+  })
+
+  test('preserves malformed MDX and unavailable component modules', async () => {
+    const filePath = path.join(os.tmpdir(), 'vocs-llms-components-missing.mdx')
+    const unavailable = `import { Prompt } from './missing'
+
+<Prompt />`
+
+    await expect(inlineMarkdownComponents('<Prompt', filePath)).resolves.toBe('<Prompt')
+    await expect(inlineMarkdownComponents(unavailable, filePath)).resolves.toBe(unavailable)
+  })
+
+  test('resolves hooks in imported Markdown files from their own directory', async () => {
+    const rootDir = fs.mkdtempSync(path.join(os.tmpdir(), 'vocs-llms-components-'))
+    const snippetsDir = path.join(rootDir, 'snippets')
+    const pagePath = path.join(rootDir, 'quickstart.mdx')
+
+    try {
+      fs.mkdirSync(snippetsDir)
+      fs.writeFileSync(
+        path.join(snippetsDir, 'Prompt.ts'),
+        `export const Prompt = {
+  toMarkdown: () => ({ type: 'paragraph', children: [{ type: 'text', value: 'Use mppx.' }] }),
+}`,
+      )
+      fs.writeFileSync(
+        path.join(snippetsDir, 'example.mdx'),
+        `import { Prompt } from './Prompt'
+
+<Prompt />`,
+      )
+      fs.writeFileSync(
+        pagePath,
+        `---
+title: Quickstart
+---
+
+import Example from './snippets/example.mdx'
+
+<Example />`,
+      )
+
+      const result = await buildLlmsContent({
+        pages: [{ path: '/quickstart', content: { path: pagePath } }],
+        title: 'My Docs',
+        ...plugins,
+      })
+
+      expect(result.full).toContain('Use mppx.')
+      expect(result.full).not.toContain('<Prompt />')
+    } finally {
+      fs.rmSync(rootDir, { force: true, recursive: true })
+    }
+  })
+
+  test('rejects invalid toMarkdown hook values', async () => {
+    const rootDir = fs.mkdtempSync(path.join(os.tmpdir(), 'vocs-llms-components-'))
+    const componentPath = path.join(rootDir, 'Invalid.ts')
+    const pagePath = path.join(rootDir, 'invalid.mdx')
+
+    try {
+      fs.writeFileSync(
+        componentPath,
+        `export function Invalid() { return null }
+Invalid.toMarkdown = () => [
+  { type: 'paragraph', children: [{ type: 'text', value: 'Valid.' }] },
+  'not a Markdown node',
+]`,
+      )
+      fs.writeFileSync(
+        pagePath,
+        `---
+title: Invalid
+---
+
+import { Invalid } from './Invalid'
+
+<Invalid />`,
+      )
+
+      await expect(
+        buildLlmsContent({
+          pages: [{ path: '/invalid', content: { path: pagePath } }],
+          title: 'My Docs',
+          ...plugins,
+        }),
+      ).rejects.toThrow('Invalid.toMarkdown must return a Markdown node or array of nodes.')
+    } finally {
+      fs.rmSync(rootDir, { force: true, recursive: true })
+    }
   })
 
   test('pages are sorted by depth then alphabetically', async () => {

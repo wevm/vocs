@@ -5,12 +5,21 @@ import remarkStringify from 'remark-stringify'
 import type { PluggableList } from 'unified'
 import { unified } from 'unified'
 import type * as Config from './config.js'
+import * as MarkdownComponents from './markdown-components.js'
 import * as MarkdownImports from './markdown-imports.js'
 import * as OpenApiMarkdown from './openapi/markdown.js'
 import type * as Sidebar from './sidebar.js'
 
 export async function buildLlmsContent(options: buildLlmsContent.Options) {
-  const { title, description, pagePrelude, rehypePlugins, remarkPlugins, sidebar } = options
+  const {
+    componentOptions,
+    title,
+    description,
+    pagePrelude,
+    rehypePlugins,
+    remarkPlugins,
+    sidebar,
+  } = options
 
   // Dedupe by path (first occurrence wins), so consumer-authored source pages
   // take precedence over generated pages (e.g. OpenAPI) mounted at the same path.
@@ -48,7 +57,12 @@ export async function buildLlmsContent(options: buildLlmsContent.Options) {
       const content =
         typeof page.content === 'string'
           ? rawContent
-          : MarkdownImports.inlineMarkdownImports(rawContent, page.content.path)
+          : await MarkdownImports.inlineMarkdownImportsAsync(
+              rawContent,
+              page.content.path,
+              (source, filePath) =>
+                MarkdownComponents.inlineMarkdownComponents(source, filePath, componentOptions),
+            )
       const file = await unified()
         .use(remarkParse)
         .use(remarkMdx)
@@ -96,6 +110,7 @@ export async function buildLlmsContent(options: buildLlmsContent.Options) {
 
 export declare namespace buildLlmsContent {
   type Options = {
+    componentOptions?: MarkdownComponents.inlineMarkdownComponents.Options | undefined
     pages: Page[]
     title: string
     description?: string | undefined

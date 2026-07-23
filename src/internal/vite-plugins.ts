@@ -179,6 +179,7 @@ export function llms(config: Config.Config): PluginOption {
     const pagesDir = path.resolve(viteConfig.root, config.srcDir, config.pagesDir)
     const pages = await Llms.getPagesFromDir(pagesDir)
     const openapiPages = await Llms.getOpenApiPages(config)
+    const resolve = viteConfig.createResolver({ asSrc: true })
     // Generated OpenAPI pages first so they win over any consumer override at the
     // same generated route (`.md` serves the full reference); authored-only guide
     // pages under the section keep their own content.
@@ -190,6 +191,9 @@ export function llms(config: Config.Config): PluginOption {
       rehypePlugins,
       remarkPlugins,
       sidebar: config.sidebar,
+      componentOptions: {
+        resolve: (source, importer) => resolve(source, importer),
+      },
     })
   }
 
