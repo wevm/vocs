@@ -1,5 +1,13 @@
 # vocs
 
+## 2.7.0
+
+### Minor Changes
+
+- 9891fb9: Add `toMarkdown` hooks for custom MDX components in generated LLM Markdown.
+- 30da11d: Add a CLI audit for MDX components left in generated Markdown.
+- e1a70dc: Added output-only remark plugins for generated Markdown.
+
 ## 2.6.2
 
 ### Patch Changes
