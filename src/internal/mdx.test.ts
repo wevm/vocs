@@ -387,15 +387,27 @@ describe('getCompileOptions', () => {
     expect(codeNode.meta).toBe('[example.ts]')
   })
 
-  it('threads user-configured remark plugins into the txt profile', () => {
+  it('applies output remark plugins only to the txt profile', () => {
     function userRemarkPlugin() {}
+    function outputRemarkPlugin() {}
     const config = Config.define({
-      markdown: { remarkPlugins: [userRemarkPlugin] },
+      markdown: {
+        remarkPlugins: [userRemarkPlugin],
+        outputRemarkPlugins: [outputRemarkPlugin],
+      },
       rootDir: process.cwd(),
     })
 
-    expect(getCompileOptions('txt', config).remarkPlugins).toContain(userRemarkPlugin)
-    expect(getCompileOptions('react', config).remarkPlugins).toContain(userRemarkPlugin)
+    const txtOptions = getCompileOptions('txt', config)
+    const reactOptions = getCompileOptions('react', config)
+
+    expect(txtOptions.remarkPlugins.indexOf(userRemarkPlugin)).toBeLessThan(
+      txtOptions.remarkPlugins.indexOf(outputRemarkPlugin),
+    )
+    expect(reactOptions.remarkPlugins).toContain(userRemarkPlugin)
+    expect(reactOptions.remarkPlugins).not.toContain(outputRemarkPlugin)
+    expect(txtOptions).not.toHaveProperty('outputRemarkPlugins')
+    expect(reactOptions).not.toHaveProperty('outputRemarkPlugins')
   })
 })
 

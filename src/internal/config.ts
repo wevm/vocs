@@ -6,6 +6,7 @@ import type {
   SearchOptions as MiniSearchSearchOptions,
 } from 'minisearch'
 import type { Link, MetaFlat, Script, StringInnerContent, Style } from 'unhead/types'
+import type { PluggableList } from 'unified'
 import type * as Changelog from './changelog.js'
 import type * as Feedback from './feedback.js'
 import * as Langs from './langs.js'
@@ -89,6 +90,16 @@ export type SitemapOptions = {
         },
       ) => boolean | string | undefined)
     | undefined
+}
+
+export type MarkdownOptions = MdxRollup.Options & {
+  /**
+   * Remark plugins applied only when Vocs generates Markdown for authored pages.
+   *
+   * Applies to per-page `.md` output and `llms-full.txt`. Runs after Vocs' built-in text
+   * transforms and `remarkPlugins`.
+   */
+  outputRemarkPlugins?: PluggableList | undefined
 }
 
 type SearchDocument = {
@@ -536,7 +547,7 @@ export type Config<partial extends boolean = false> = MaybePartial<
     /**
      * Markdown configuration.
      */
-    markdown?: MdxRollup.Options | undefined
+    markdown?: MarkdownOptions | undefined
     /**
      * MCP (Model Context Protocol) server configuration.
      * Enables LLMs to navigate documentation and source code.

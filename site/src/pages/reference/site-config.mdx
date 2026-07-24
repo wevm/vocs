@@ -584,7 +584,7 @@ export default defineConfig({
 
 ### `markdown`
 
-- **Type:** `@mdx-js/rollup` options
+- **Type:** `@mdx-js/rollup` options with `outputRemarkPlugins`
 
 Extends the underlying MDX compilation pipeline. Use this when you need to add custom remark, rehype, or recma plugins.
 
@@ -597,6 +597,8 @@ export default defineConfig({
   }
 })
 ```
+
+Use `outputRemarkPlugins` for remark transforms that should apply only to authored page bodies used in per-page `.md` output and `llms-full.txt`, not the rendered site. They run after `remarkPlugins`.
 
 Vocs already includes its own MDX plugins for features such as callouts, code groups, frontmatter handling, and syntax highlighting, so `markdown` is usually only needed for custom behavior.
 
