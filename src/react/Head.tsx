@@ -4,6 +4,7 @@ import type { Meta, MetaFlat } from 'unhead/types'
 import { unpackMeta } from 'unhead/utils'
 import { useRouter } from 'waku'
 import type * as Config from '../internal/config.js'
+import * as JsonLd from './json-ld.js'
 import * as MdxPageContext from './MdxPageContext.js'
 import { useConfig } from './useConfig.js'
 
@@ -68,6 +69,19 @@ export function Head() {
   const base = tag(head.base, baseUrl)
   const canonical = tag(head.canonical, canonicalDefault)
   const icons = head.icons !== false
+  const jsonLd =
+    !disabled && config.jsonLd
+      ? JsonLd.serialize(
+          JsonLd.from({
+            canonical,
+            description: descriptionSource,
+            frontmatter,
+            siteName: config.title,
+            siteUrl: baseUrl,
+            title: titleSource ?? config.title,
+          }),
+        )
+      : undefined
 
   const metaTags = unpackMeta(
     compactMeta({
@@ -153,6 +167,15 @@ export function Head() {
               />
             )
           })}
+
+          {/* Structured data */}
+          {jsonLd && (
+            <script
+              type="application/ld+json"
+              // biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD is serialized and escaped above
+              dangerouslySetInnerHTML={{ __html: jsonLd }}
+            />
+          )}
 
           {/* Links */}
           {head.link?.map((tag, index) => (
