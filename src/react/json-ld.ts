@@ -5,7 +5,8 @@ type JsonLd = Record<string, unknown>
 export function from(options: from.Options): JsonLd {
   const { canonical, description, frontmatter, siteName, siteUrl, title } = options
   const author = toAuthor(frontmatter?.author)
-  const datePublished = typeof frontmatter?.date === 'string' ? frontmatter.date : undefined
+  const date = frontmatter?.['date']
+  const datePublished = typeof date === 'string' ? date : undefined
 
   return {
     '@context': 'https://schema.org',
@@ -52,7 +53,7 @@ export function serialize(value: JsonLd): string {
       '\u2028': '\\u2028',
       '\u2029': '\\u2029',
     }
-    return replacements[character]
+    return replacements[character] ?? character
   })
 }
 
