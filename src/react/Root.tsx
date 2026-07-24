@@ -22,7 +22,7 @@ export async function Root({ children }: { children: React.ReactNode }) {
         <link rel="stylesheet" href={stylesUrl} />
         {userStylesUrl && <link rel="stylesheet" href={userStylesUrl} />}
         {groupIconsStylesUrl && <link rel="stylesheet" href={groupIconsStylesUrl} />}
-        <Head />
+        <Head includeJsonLd={false} />
       </head>
       <body data-version="1.0">
         <Root_client>{children}</Root_client>

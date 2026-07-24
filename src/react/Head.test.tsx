@@ -87,6 +87,38 @@ describe('Head', () => {
     expect(html).toContain('name="twitter:image"')
   })
 
+  test('renders enabled-by-default JSON-LD metadata', () => {
+    mocks.path = '/docs/intro'
+
+    const html = renderHead({
+      author: '[Ada Lovelace](https://example.com/ada)',
+      date: '2026-07-24',
+      description: 'Use Vocs to build documentation.',
+      lastModified: '2026-07-25T00:00:00.000Z',
+      title: 'Introduction',
+    })
+
+    expect(html).toContain('<script type="application/ld+json">')
+    expect(html).toContain('"@type":"TechArticle"')
+    expect(html).toContain('"url":"https://example.com/docs/intro"')
+    expect(html).toContain('"name":"Ada Lovelace"')
+    expect(html).toContain('"datePublished":"2026-07-24"')
+    expect(html).toContain('"dateModified":"2026-07-25T00:00:00.000Z"')
+  })
+
+  test('omits JSON-LD when disabled or excluded and escapes inline JSON', () => {
+    mocks.config = createConfig({ jsonLd: false })
+    expect(renderHead({ title: 'Post' })).not.toContain('application/ld+json')
+
+    mocks.config = createConfig()
+    expect(renderHead({ title: 'Post' }, { includeJsonLd: false })).not.toContain(
+      'application/ld+json',
+    )
+    expect(
+      renderHead({ description: '</script><script>alert(1)</script>', title: 'Post' }),
+    ).toContain('\\u003c/script\\u003e\\u003cscript\\u003ealert(1)\\u003c/script\\u003e')
+  })
+
   test('renders arbitrary meta tags from unhead vocabulary', () => {
     mocks.config = createConfig({
       head: {
@@ -231,15 +263,16 @@ describe('Head', () => {
     expect(html).not.toContain('rel="icon"')
     expect(html).not.toContain('og:')
     expect(html).not.toContain('twitter:')
+    expect(html).not.toContain('application/ld+json')
     // Functional tags are unaffected.
     expect(html).toContain('name="color-scheme"')
   })
 })
 
-function renderHead(frontmatter: Config.Frontmatter | undefined) {
+function renderHead(frontmatter: Config.Frontmatter | undefined, props: Head.Props = {}) {
   return renderToStaticMarkup(
     <MdxPageContext.Provider frontmatter={frontmatter}>
-      <Head />
+      <Head {...props} />
     </MdxPageContext.Provider>,
   )
 }
@@ -259,6 +292,7 @@ function createConfig(config: Partial<Config.Config> = {}): Config.Config {
     colorScheme: 'light dark',
     description: 'Acme docs',
     feedback: false,
+    jsonLd: true,
     outDir: 'dist',
     pagesDir: 'pages',
     renderStrategy: 'dynamic',

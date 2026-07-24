@@ -25,7 +25,7 @@ function OpenApiLayout(props: {
     <MdxPageContext.Provider
       frontmatter={{ outline: props.outline ?? true, content: { width: props.width ?? 'full' } }}
     >
-      <Layout>{props.children}</Layout>
+      <Layout includeJsonLd={false}>{props.children}</Layout>
     </MdxPageContext.Provider>
   )
 }

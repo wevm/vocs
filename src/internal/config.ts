@@ -545,6 +545,12 @@ export type Config<partial extends boolean = false> = MaybePartial<
      */
     head?: HeadOptions | undefined
     /**
+     * Whether Vocs includes JSON-LD structured data on pages.
+     *
+     * @default true
+     */
+    jsonLd: boolean
+    /**
      * Markdown configuration.
      */
     markdown?: MarkdownOptions | undefined
@@ -852,6 +858,7 @@ export function define(config: define.Options = {}): Config {
     description,
     head,
     iconUrl,
+    jsonLd = true,
     logoUrl,
     markdown,
     mcp,
@@ -948,6 +955,7 @@ export function define(config: define.Options = {}): Config {
     groupIcons: config.groupIcons,
     head,
     iconUrl,
+    jsonLd,
     logoUrl,
     markdown,
     mcp,

@@ -147,6 +147,19 @@ export default defineConfig({
 })
 ```
 
+### `jsonLd`
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+Adds [`TechArticle` JSON-LD](https://schema.org/TechArticle) to each page. Vocs includes the title, description, canonical URL, site identity, author, publication date, and modification date when available. Set `baseUrl` to include canonical page URLs.
+
+```ts
+export default defineConfig({
+  jsonLd: false
+})
+```
+
 ## URLs And Deployment
 
 ### `basePath`
