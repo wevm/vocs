@@ -106,11 +106,14 @@ describe('Head', () => {
     expect(html).toContain('"dateModified":"2026-07-25T00:00:00.000Z"')
   })
 
-  test('omits JSON-LD when disabled and escapes inline JSON', () => {
+  test('omits JSON-LD when disabled or excluded and escapes inline JSON', () => {
     mocks.config = createConfig({ jsonLd: false })
     expect(renderHead({ title: 'Post' })).not.toContain('application/ld+json')
 
     mocks.config = createConfig()
+    expect(renderHead({ title: 'Post' }, { includeJsonLd: false })).not.toContain(
+      'application/ld+json',
+    )
     expect(
       renderHead({ description: '</script><script>alert(1)</script>', title: 'Post' }),
     ).toContain('\\u003c/script\\u003e\\u003cscript\\u003ealert(1)\\u003c/script\\u003e')
@@ -266,10 +269,10 @@ describe('Head', () => {
   })
 })
 
-function renderHead(frontmatter: Config.Frontmatter | undefined) {
+function renderHead(frontmatter: Config.Frontmatter | undefined, props: Head.Props = {}) {
   return renderToStaticMarkup(
     <MdxPageContext.Provider frontmatter={frontmatter}>
-      <Head />
+      <Head {...props} />
     </MdxPageContext.Provider>,
   )
 }

@@ -8,7 +8,8 @@ import * as JsonLd from './json-ld.js'
 import * as MdxPageContext from './MdxPageContext.js'
 import { useConfig } from './useConfig.js'
 
-export function Head() {
+export function Head(props: Head.Props) {
+  const { includeJsonLd = true } = props
   const config = useConfig()
   const { path: pathname } = useRouter()
   const { frontmatter } = MdxPageContext.use()
@@ -70,7 +71,7 @@ export function Head() {
   const canonical = tag(head.canonical, canonicalDefault)
   const icons = head.icons !== false
   const jsonLd =
-    !disabled && config.jsonLd
+    !disabled && includeJsonLd && config.jsonLd
       ? JsonLd.serialize(
           JsonLd.from({
             canonical,
@@ -219,6 +220,12 @@ export function Head() {
       )}
     </>
   )
+}
+
+export declare namespace Head {
+  export type Props = {
+    includeJsonLd?: boolean | undefined
+  }
 }
 
 /** unhead types use HTML attribute casing; React needs camelCase for these. */

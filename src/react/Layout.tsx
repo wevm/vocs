@@ -2,10 +2,10 @@ import { Head } from './Head.js'
 import * as Layout_client from './Layout.client.js'
 
 export function Layout(props: Layout.Props) {
-  const { children } = props
+  const { children, includeJsonLd } = props
   return (
     <>
-      <Head />
+      <Head includeJsonLd={includeJsonLd} />
       <Layout_client.Main>{children}</Layout_client.Main>
     </>
   )
@@ -14,5 +14,6 @@ export function Layout(props: Layout.Props) {
 export namespace Layout {
   export type Props = {
     children: React.ReactNode
+    includeJsonLd?: boolean | undefined
   }
 }
