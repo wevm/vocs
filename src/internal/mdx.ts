@@ -1172,11 +1172,11 @@ export function remarkTerminal() {
  */
 export function remarkStripJs() {
   return (tree: MdAst.Root) => {
-    UnistUtil.visit(tree, 'mdxjsEsm', (node) => {
-      tree.children.splice(tree.children.indexOf(node), 1)
-    })
-    UnistUtil.visit(tree, 'mdxFlowExpression', (node) => {
-      tree.children.splice(tree.children.indexOf(node), 1)
+    UnistUtil.visit(tree, (node, index, parent) => {
+      if (node.type !== 'mdxjsEsm' && node.type !== 'mdxFlowExpression') return
+      if (index === undefined || !parent) return
+      parent.children.splice(index, 1)
+      return [UnistUtil.SKIP, index]
     })
   }
 }
