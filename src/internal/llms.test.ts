@@ -864,6 +864,36 @@ const a = 1
     `)
   })
 
+  test('strips nested expressions without removing later content', async () => {
+    const result = await buildLlmsContent({
+      pages: [
+        {
+          path: '/agents',
+          content: `---
+title: Agents
+---
+
+<style>{\`
+  .tabs { display: flex }
+\`}</style>
+
+## Agent resources
+
+| URL | Contents |
+| --- | --- |
+| /llms.txt | Documentation index |`,
+        },
+      ],
+      title: 'My Docs',
+      ...plugins,
+    })
+
+    expect(result.results[0]?.content).not.toContain('.tabs')
+    expect(result.results[0]?.content).toContain('## Agent resources')
+    expect(result.results[0]?.content).toContain('/llms.txt')
+    expect(result.results[0]?.content).toContain('Documentation index')
+  })
+
   describe('::changelog directive', () => {
     const releases: Changelog.Release[] = [
       {
