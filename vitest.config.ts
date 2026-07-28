@@ -27,6 +27,10 @@ export default defineConfig({
         import.meta.dirname,
         'src/internal/test/virtual-config.stub.ts',
       ),
+      'virtual:vocs/openapi': path.resolve(
+        import.meta.dirname,
+        'src/internal/test/virtual-openapi.stub.ts',
+      ),
     },
     include: ['./src/**/*.{test,spec}.?(c|m)[jt]s?(x)'],
     globals: true,

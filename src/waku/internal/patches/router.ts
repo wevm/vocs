@@ -1,5 +1,6 @@
 import { createElement, type FunctionComponent, lazy, type ReactNode } from 'react'
 import { createPages } from 'waku/router/server'
+import type { Frontmatter } from '../../../internal/config.js'
 import * as DedupeHead from '../dedupe-head.js'
 import {
   type ApiHandler,
@@ -319,7 +320,7 @@ export function router(
           )
 
           // Resolves a consumer "override" page mounted at `routePath` into the
-          // props (`intro` content + frontmatter `title`) layered onto the
+          // props (`intro` content + frontmatter) layered onto the
           // generated `OpenApiPage`. Returns empty props when there is no
           // override. Uses the MDX `default` export (raw content) — not `Page` —
           // so the override is not wrapped in its own Layout.
@@ -328,11 +329,15 @@ export function router(
             if (!importFn) return {}
             const mod = (await importFn()) as {
               default?: FunctionComponent
-              frontmatter?: { title?: string }
+              frontmatter?: Frontmatter
             }
             if (!mod.default) return {}
             const Content = mod.default
-            return { intro: createElement(Content), title: mod.frontmatter?.title }
+            return {
+              frontmatter: mod.frontmatter,
+              intro: createElement(Content),
+              title: mod.frontmatter?.title,
+            }
           }
 
           for (const entry of config.openapi) {
@@ -370,14 +375,19 @@ export function router(
               if (openapiRoutePaths.has(routePath)) continue
               const mod = (await importFn()) as {
                 default?: FunctionComponent
-                frontmatter?: { title?: string }
+                frontmatter?: Frontmatter
               }
               if (!mod.default) continue
               const Content = mod.default
               const title = mod.frontmatter?.title
               createPage({
                 path: routePath,
-                component: () => createElement(OpenApiGuide, { title }, createElement(Content)),
+                component: () =>
+                  createElement(
+                    OpenApiGuide,
+                    { frontmatter: mod.frontmatter, title },
+                    createElement(Content),
+                  ),
                 render: 'static',
               } as never)
             }
