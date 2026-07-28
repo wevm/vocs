@@ -218,6 +218,46 @@ describe('responseSamples', () => {
     expect(JSON.parse(samples[0]?.code ?? '{}')).toEqual({ id: 'abc' })
   })
 
+  test.each([
+    ['example', { example: { method: 'tempo' } }],
+    ['examples', { examples: [{ method: 'tempo' }] }],
+    ['default', { default: { method: 'tempo' } }],
+    ['enum', { enum: [{ method: 'tempo' }] }],
+  ])('pretty-prints nested objects from schema %s values', (_, authoredValue) => {
+    const samples = responseSamples({
+      ...operation,
+      responses: [
+        {
+          status: '200',
+          description: 'ok',
+          content: [
+            {
+              mediaType: 'application/json',
+              schema: {
+                type: 'object',
+                properties: {
+                  receipt: {
+                    type: 'object',
+                    ...authoredValue,
+                  },
+                },
+              },
+            },
+          ],
+          headers: [],
+        },
+      ],
+    })
+
+    expect(samples[0]?.code).toBe(`{
+  "receipt": {
+    "method": "tempo"
+  }
+}`)
+    expect(samples[0]?.placeholders).toEqual([])
+    expect(samples[0]?.linePaths[2]).toEqual(['receipt', 'method'])
+  })
+
   test('exposes a status-scoped id base for anchor resolution', () => {
     const samples = responseSamples(operation)
     expect(samples[0]?.idBase).toBe('createpet-response-200')
