@@ -1,5 +1,6 @@
 import { specs } from 'virtual:vocs/openapi'
 import type { ReactNode } from 'react'
+import type { Frontmatter } from '../../../internal/config.js'
 import { Layout } from '../../Layout.js'
 import * as MdxPageContext from '../../MdxPageContext.js'
 import { Endpoints } from './Endpoints.js'
@@ -18,12 +19,17 @@ import { Prose, ReferenceGroup, ReferenceOverview } from './Reference.js'
  */
 function OpenApiLayout(props: {
   children: React.ReactNode
+  frontmatter?: Frontmatter | undefined
   outline?: boolean | undefined
   width?: 'default' | 'full'
 }) {
   return (
     <MdxPageContext.Provider
-      frontmatter={{ outline: props.outline ?? true, content: { width: props.width ?? 'full' } }}
+      frontmatter={{
+        ...props.frontmatter,
+        content: { ...props.frontmatter?.content, width: props.width ?? 'full' },
+        outline: props.outline ?? true,
+      }}
     >
       <Layout includeJsonLd={false}>{props.children}</Layout>
     </MdxPageContext.Provider>
@@ -49,17 +55,20 @@ function OpenApiLayout(props: {
  * since their title/subtitle come from the spec tag and the body has no heading.
  */
 export function OpenApiGuide(props: OpenApiGuide.Props) {
+  const title = props.title ?? props.frontmatter?.title
+  const description = props.description ?? props.frontmatter?.description
+
   return (
-    <OpenApiLayout width="full">
-      {props.title ? <title>{props.title}</title> : null}
+    <OpenApiLayout frontmatter={{ ...props.frontmatter, description, title }} width="full">
+      {title ? <title>{title}</title> : null}
       <div data-v-openapi-guide>
-        {props.header && props.title ? (
+        {props.header && title ? (
           <header data-v-openapi-header>
             <h1 data-v data-v-openapi-h1 id={props.id}>
-              {props.title}
+              {title}
               {props.id ? <HeadingAnchor id={props.id} /> : null}
             </h1>
-            {props.description ? <Prose markdown={props.description} attr="description" /> : null}
+            {description ? <Prose markdown={description} attr="description" /> : null}
           </header>
         ) : null}
         {props.children}
@@ -72,6 +81,8 @@ export declare namespace OpenApiGuide {
   type Props = {
     /** Authored MDX content. */
     children?: ReactNode | undefined
+    /** Page frontmatter forwarded to the site layout and head configuration. */
+    frontmatter?: Frontmatter | undefined
     /** Document `<title>` and page heading (from the page's frontmatter). */
     title?: string | undefined
     /** Subtitle Markdown rendered below the heading. */
@@ -107,7 +118,7 @@ export function OpenApiPage(props: OpenApiPage.Props) {
 
   if (!ir)
     return (
-      <OpenApiLayout>
+      <OpenApiLayout frontmatter={props.frontmatter}>
         <p>No OpenAPI spec is mounted at {props.mount}.</p>
       </OpenApiLayout>
     )
@@ -117,16 +128,18 @@ export function OpenApiPage(props: OpenApiPage.Props) {
     const group = ir.groups.find((candidate) => candidate.id === props.group)
     if (!group)
       return (
-        <OpenApiLayout>
+        <OpenApiLayout frontmatter={props.frontmatter}>
           <p>
             No category “{props.group}” exists in the API mounted at {props.mount}.
           </p>
         </OpenApiLayout>
       )
 
+    const title = props.title ?? props.frontmatter?.title ?? `${group.name} · ${ir.info.title}`
+
     return (
-      <OpenApiLayout outline={false}>
-        <title>{props.title ?? `${group.name} · ${ir.info.title}`}</title>
+      <OpenApiLayout frontmatter={{ ...props.frontmatter, title }} outline={false}>
+        <title>{title}</title>
         <PlaygroundProvider client={ir.client} mount={ir.path}>
           <ReferenceGroup ir={ir} group={group} intro={props.intro} />
         </PlaygroundProvider>
@@ -135,9 +148,11 @@ export function OpenApiPage(props: OpenApiPage.Props) {
   }
 
   // Overview / landing page.
+  const title = props.title ?? props.frontmatter?.title ?? ir.info.title
+
   return (
-    <OpenApiLayout width="full">
-      <title>{props.title ?? ir.info.title}</title>
+    <OpenApiLayout frontmatter={{ ...props.frontmatter, title }} width="full">
+      <title>{title}</title>
       <ReferenceOverview
         ir={ir}
         intro={props.intro}
@@ -161,6 +176,8 @@ export declare namespace OpenApiPage {
      * header (spec title/description). The generated body still renders below.
      */
     intro?: ReactNode | undefined
+    /** Page frontmatter forwarded to the site layout and head configuration. */
+    frontmatter?: Frontmatter | undefined
     /** Document `<title>` override (e.g. from the override page's frontmatter). */
     title?: string | undefined
     /**
