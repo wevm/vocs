@@ -18,6 +18,7 @@ export default defineConfig({
     {
       spec: 'https://cadent.tempo.xyz/openapi.json',
       path: '/api',
+      exclude: ['MCP'],
       sidebar: {
         top: [
           { text: 'Authentication', link: '/api/auth' },

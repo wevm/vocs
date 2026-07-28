@@ -42,6 +42,7 @@ function virtualModulesPlugin(): Plugin {
     'virtual:vocs/config': path.resolve(appDir, 'virtual/config.ts'),
     'virtual:vocs/langs': path.resolve(appDir, 'virtual/langs.ts'),
     'virtual:vocs/openapi': path.resolve(appDir, 'virtual/openapi.ts'),
+    'virtual:vocs/openapi-client': path.resolve(appDir, 'virtual/openapi-client.ts'),
     'virtual:vocs/search-index': path.resolve(appDir, 'virtual/search-index.ts'),
     'virtual:vocs/slots': path.resolve(appDir, 'virtual/slots.ts'),
     'virtual:vocs/user-styles': path.resolve(appDir, 'virtual/user-styles.ts'),

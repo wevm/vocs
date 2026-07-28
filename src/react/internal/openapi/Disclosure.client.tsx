@@ -1,7 +1,7 @@
 'use client'
 
 import { Accordion } from '@base-ui/react/accordion'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { registerDisclosure } from './anchor-navigation.client.js'
 
 /**
@@ -22,9 +22,19 @@ import { registerDisclosure } from './anchor-navigation.client.js'
  * via the Base UI `data-panel-open` attribute on the trigger.
  */
 export function Disclosure(props: Disclosure.Props) {
-  const { trigger, defaultOpen = false, children } = props
+  const { trigger, defaultOpen = false, children, lazy = false, forceOpen = false } = props
   const [value, setValue] = useState<string[]>(defaultOpen ? ['disclosure'] : [])
+  const [mounted, setMounted] = useState(defaultOpen)
   const panelRef = useRef<HTMLDivElement | null>(null)
+  const expanded = forceOpen || value.includes('disclosure')
+
+  useLayoutEffect(() => {
+    if (forceOpen) setValue(['disclosure'])
+  }, [forceOpen])
+
+  useLayoutEffect(() => {
+    if (expanded) setMounted(true)
+  }, [expanded])
 
   const open = useCallback(() => {
     setValue((current) => (current.includes('disclosure') ? current : ['disclosure']))
@@ -39,7 +49,7 @@ export function Disclosure(props: Disclosure.Props) {
   return (
     <Accordion.Root
       data-v-openapi-disclosure
-      value={value}
+      value={expanded ? ['disclosure'] : []}
       onValueChange={(next) => setValue(next as string[])}
       multiple
       keepMounted
@@ -49,7 +59,7 @@ export function Disclosure(props: Disclosure.Props) {
           <Accordion.Trigger data-v-openapi-disclosure-trigger>{trigger}</Accordion.Trigger>
         </Accordion.Header>
         <Accordion.Panel ref={panelRef} data-v-openapi-disclosure-panel>
-          {children}
+          {!lazy || mounted ? children : null}
         </Accordion.Panel>
       </Accordion.Item>
     </Accordion.Root>
@@ -62,6 +72,10 @@ export declare namespace Disclosure {
     trigger: React.ReactNode
     /** @default false */
     defaultOpen?: boolean | undefined
+    /** Mount children after the disclosure first opens. */
+    lazy?: boolean | undefined
+    /** Opens a lazy disclosure for programmatic anchor navigation. */
+    forceOpen?: boolean | undefined
     children: React.ReactNode
   }
 }

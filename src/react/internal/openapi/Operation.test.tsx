@@ -113,7 +113,7 @@ describe('Schema', () => {
     )
   })
 
-  test('renders nested object properties recursively', () => {
+  test('server-renders a compact top-level schema summary', () => {
     const html = renderToStaticMarkup(
       <Schema
         schema={{
@@ -129,7 +129,31 @@ describe('Schema', () => {
       />,
     )
     expect(html).toContain('owner')
-    expect(html).toContain('Owner name')
+    expect(html).toContain('Show Child Attributes')
+    expect(html).not.toContain('Owner name')
+  })
+
+  test('bounds uncompressed markup for large hidden unions', () => {
+    const variants = Array.from({ length: 64 }, (_, index) => ({
+      title: `Activity ${index}`,
+      type: 'object',
+      properties: Object.fromEntries(
+        Array.from({ length: 20 }, (_value, propertyIndex) => [
+          `property${propertyIndex}`,
+          {
+            type: 'string',
+            description: `Hidden activity ${index} property ${propertyIndex} detail.`,
+          },
+        ]),
+      ),
+    }))
+    const html = renderToStaticMarkup(
+      <Schema schema={{ type: 'array', items: { oneOf: variants } }} />,
+    )
+
+    expect(Buffer.byteLength(html)).toBeLessThan(2_000)
+    expect(html).toContain('Select a value')
+    expect(html).not.toContain('Hidden activity')
   })
 
   test('renders nothing for a schemaless value', () => {

@@ -13,10 +13,12 @@ import { Disclosure } from './Disclosure.client.js'
  * `data-panel-open` state.
  */
 export function CollapsibleChildren(props: CollapsibleChildren.Props) {
-  const { children, label = 'Child Attributes' } = props
+  const { children, label = 'Child Attributes', lazy, forceOpen } = props
   return (
     <div data-v-openapi-collapse>
       <Disclosure
+        lazy={lazy}
+        forceOpen={forceOpen}
         trigger={
           <>
             <LucidePlus data-v-openapi-collapse-icon-show />
@@ -37,5 +39,9 @@ export declare namespace CollapsibleChildren {
     children: React.ReactNode
     /** Text after the Show/Hide verb. @default 'Child Attributes' */
     label?: string | undefined
+    /** Mount children after the disclosure first opens. */
+    lazy?: boolean | undefined
+    /** Opens a lazy disclosure for programmatic anchor navigation. */
+    forceOpen?: boolean | undefined
   }
 }

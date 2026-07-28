@@ -1,17 +1,12 @@
 import { Fragment } from 'react'
 import * as Markdown from '../../../internal/markdown.js'
-import { type SchemaPath, schemaPropertyId } from '../../../internal/openapi/anchors.js'
-import {
-  unionVariantSchemas,
-  unionVariantSegment,
-  unwrapSingleVariant,
-} from '../../../internal/openapi/union.js'
+import type { SchemaPath } from '../../../internal/openapi/anchors.js'
+import { unionVariantSchemas, unwrapSingleVariant } from '../../../internal/openapi/union.js'
 import { Badge } from '../../Badge.js'
-import { CollapsibleChildren } from './CollapsibleChildren.client.js'
 import { EnumValues } from './EnumValues.client.js'
 import { HeadingAnchor } from './HeadingAnchor.js'
 import { PropertyExample } from './PropertyExample.client.js'
-import { SchemaUnion } from './SchemaUnion.client.js'
+import { SchemaView } from './Schema.client.js'
 
 type SchemaObject = Record<string, unknown>
 
@@ -49,7 +44,7 @@ export function typeLabel(schema: SchemaObject | undefined): string {
 
 /**
  * Detects a `oneOf`/`anyOf` union (unwrapping array item schemas) worth showing
- * as a {@link SchemaUnion} variant picker, returning its variants. Trivial
+ * as a variant picker, returning its variants. Trivial
  * `null` members are dropped, and plain scalar unions with no extra info (e.g.
  * `string | number`) keep their inline type label instead — the picker is only
  * used when at least one variant carries something to show (object properties,
@@ -258,105 +253,49 @@ export declare namespace PropertyRow {
   }
 }
 
+export type SchemaModel =
+  | {
+      view: 'properties'
+      properties: SchemaPropertyModel[]
+    }
+  | {
+      view: 'union'
+      label: string
+      variants: SchemaVariantModel[]
+    }
+
+export type SchemaPropertyModel = {
+  name: string
+  type?: string | undefined
+  values?: string[] | undefined
+  meta: schemaMeta.Entry[]
+  example?: string | undefined
+  required?: boolean | undefined
+  deprecated?: boolean | undefined
+  descriptionHtml?: string | undefined
+  child?: SchemaModel | undefined
+  array?: boolean | undefined
+}
+
+export type SchemaVariantModel = {
+  name: string
+  type?: string | undefined
+  values?: string[] | undefined
+  meta: schemaMeta.Entry[]
+  descriptionHtml?: string | undefined
+  child?: SchemaModel | undefined
+}
+
 /**
  * Recursively renders a schema's properties as a list of rows. Nested
- * object/array properties are indented beneath their parent.
+ * object/array properties are projected into a compact display model and
+ * materialized by the client only after their disclosure is opened.
  */
 export function Schema(props: Schema.Props) {
-  const { schema: rawSchema, depth = 0, prefix = '', idBase, path = [] } = props
-  if (!rawSchema || depth > maxDepth) return null
-
-  // Unwrap a nullable/optional single-variant union (e.g. `oneOf: [null, X]`) to
-  // its sole member so X's type and properties render instead of nothing.
-  const schema = unwrapSingleVariant(rawSchema) ?? rawSchema
-
-  // Render oneOf/anyOf unions as a variant picker rather than a type string.
-  const union = unionVariants(schema)
-  if (union)
-    return <UnionView union={union} depth={depth} prefix={prefix} idBase={idBase} path={path} />
-
-  // Unwrap arrays to show the item schema's properties (path is unchanged: array
-  // items share the array property's anchor path).
-  if (schema['type'] === 'array' && schema['items'])
-    return (
-      <Schema
-        schema={schema['items'] as SchemaObject}
-        depth={depth}
-        prefix={prefix}
-        idBase={idBase}
-        path={path}
-      />
-    )
-
-  // Merge allOf members for display.
-  const allOf = schema['allOf'] as SchemaObject[] | undefined
-  const properties = (schema['properties'] ??
-    allOf?.reduce<Record<string, SchemaObject>>((acc, member) => {
-      Object.assign(acc, (member['properties'] as Record<string, SchemaObject>) ?? {})
-      return acc
-    }, {})) as Record<string, SchemaObject> | undefined
-
-  if (!properties || Object.keys(properties).length === 0) return null
-
-  const required = new Set((schema['required'] as string[] | undefined) ?? [])
-
-  return (
-    <div data-v-openapi-schema>
-      {Object.entries(properties).map(([name, rawProperty]) => {
-        // Unwrap a nullable single-variant union so the member's type label and
-        // nested properties surface (e.g. an optional object's children).
-        const property = unwrapSingleVariant(rawProperty) ?? rawProperty
-        const childPrefix = `${prefix}${name}${property['type'] === 'array' ? '[]' : ''}.`
-        const childPath = [...path, name]
-        const id = idBase ? schemaPropertyId(idBase, childPath) : undefined
-        const propertyUnion = unionVariants(property)
-        return (
-          <PropertyRow
-            key={name}
-            id={id}
-            name={name}
-            prefix={prefix || undefined}
-            type={propertyUnion ? undefined : typeLabel(property)}
-            values={propertyUnion ? undefined : enumValues(property)}
-            meta={propertyUnion ? [] : schemaMeta(property)}
-            example={propertyUnion ? undefined : schemaExample(property)}
-            required={required.has(name)}
-            deprecated={property['deprecated'] === true}
-            description={
-              typeof property['description'] === 'string'
-                ? (property['description'] as string)
-                : undefined
-            }
-          >
-            {propertyUnion
-              ? depth < maxDepth && (
-                  <UnionView
-                    union={propertyUnion}
-                    depth={depth + 1}
-                    prefix={childPrefix}
-                    idBase={idBase}
-                    path={childPath}
-                  />
-                )
-              : depth < maxDepth &&
-                hasChildren(property) && (
-                  <CollapsibleChildren>
-                    <div data-v-openapi-children>
-                      <Schema
-                        schema={property}
-                        depth={depth + 1}
-                        prefix={childPrefix}
-                        idBase={idBase}
-                        path={childPath}
-                      />
-                    </div>
-                  </CollapsibleChildren>
-                )}
-          </PropertyRow>
-        )
-      })}
-    </div>
-  )
+  const { depth = 0, prefix = '', idBase, path = [] } = props
+  const model = toSchemaModel(props.schema, depth)
+  if (!model) return null
+  return <SchemaView model={model} prefix={prefix} idBase={idBase} path={path} />
 }
 
 export declare namespace Schema {
@@ -388,78 +327,88 @@ export function UnionView(props: {
   path?: SchemaPath | undefined
 }) {
   const { union, depth, prefix, idBase, path = [] } = props
-  return (
-    <SchemaUnion
-      kind={union.kind}
-      names={union.variants.map((variant) => variant.name)}
-      panels={union.variants.map((variant, index) => (
-        <VariantPanel
-          key={variant.name}
-          schema={variant.schema}
-          depth={depth}
-          prefix={prefix}
-          idBase={idBase}
-          path={[...path, unionVariantSegment(index)]}
-        />
-      ))}
-    />
-  )
+  const model = toUnionModel(union, depth)
+  return <SchemaView model={model} prefix={prefix} idBase={idBase} path={path} />
 }
 
-/**
- * Renders the body of a single union variant: its description, plus either the
- * nested object schema (for object-like variants) or an inline type/meta line
- * and enum values (for scalar variants).
- */
-function VariantPanel(props: {
-  schema: SchemaObject
-  depth: number
-  prefix: string
-  idBase?: string | undefined
-  path?: SchemaPath | undefined
-}) {
-  const { schema, depth, prefix, idBase, path = [] } = props
-  const description = schema['description']
-  const items = (schema['type'] === 'array' ? schema['items'] : undefined) as
-    | SchemaObject
-    | undefined
-  const objectish = Boolean(
-    schema['properties'] || schema['allOf'] || items?.['properties'] || items?.['allOf'],
-  )
-  const meta = schemaMeta(schema)
-  const values = enumValues(schema)
-  return (
-    <div data-v-openapi-variant>
-      {!objectish && (
-        <div data-v-openapi-property-meta>
-          <code data-v data-v-openapi-type>
-            {typeLabel(schema)}
-          </code>
-          {meta.map((item) => (
-            <Fragment key={item.label}>
-              <span data-v-openapi-meta-sep>·</span>
-              <span>
-                <span data-v-openapi-meta-label>{item.label} </span>
-                <span data-v-openapi-meta-value>{item.value}</span>
-              </span>
-            </Fragment>
-          ))}
-        </div>
-      )}
-      {typeof description === 'string' && (
-        <div
-          data-v-openapi-property-description
-          data-v-content
-          // biome-ignore lint/security/noDangerouslySetInnerHtml: server-rendered trusted spec content
-          dangerouslySetInnerHTML={{ __html: Markdown.toHtml(description) }}
-        />
-      )}
-      {!objectish && values && values.length > 0 && <EnumValues values={values} />}
-      {objectish && (
-        <Schema schema={schema} depth={depth} prefix={prefix} idBase={idBase} path={path} />
-      )}
-    </div>
-  )
+function toSchemaModel(
+  rawSchema: SchemaObject | undefined,
+  depth: number,
+): SchemaModel | undefined {
+  if (!rawSchema || depth > maxDepth) return undefined
+
+  const schema = unwrapSingleVariant(rawSchema) ?? rawSchema
+  const union = unionVariants(schema)
+  if (union) return toUnionModel(union, depth)
+
+  if (schema['type'] === 'array' && schema['items'])
+    return toSchemaModel(schema['items'] as SchemaObject, depth)
+
+  const allOf = schema['allOf'] as SchemaObject[] | undefined
+  const properties = (schema['properties'] ??
+    allOf?.reduce<Record<string, SchemaObject>>((acc, member) => {
+      Object.assign(acc, (member['properties'] as Record<string, SchemaObject>) ?? {})
+      return acc
+    }, {})) as Record<string, SchemaObject> | undefined
+  if (!properties || Object.keys(properties).length === 0) return undefined
+
+  const required = new Set((schema['required'] as string[] | undefined) ?? [])
+  return {
+    view: 'properties',
+    properties: Object.entries(properties).map(([name, rawProperty]) => {
+      const property = unwrapSingleVariant(rawProperty) ?? rawProperty
+      const propertyUnion = unionVariants(property)
+      return {
+        name,
+        type: propertyUnion ? undefined : typeLabel(property),
+        values: propertyUnion ? undefined : enumValues(property),
+        meta: propertyUnion ? [] : schemaMeta(property),
+        example: propertyUnion ? undefined : schemaExample(property),
+        required: required.has(name),
+        deprecated: property['deprecated'] === true,
+        descriptionHtml:
+          typeof property['description'] === 'string'
+            ? Markdown.toHtml(property['description'] as string)
+            : undefined,
+        child:
+          depth >= maxDepth
+            ? undefined
+            : propertyUnion
+              ? toUnionModel(propertyUnion, depth + 1)
+              : hasChildren(property)
+                ? toSchemaModel(property, depth + 1)
+                : undefined,
+        array: property['type'] === 'array',
+      }
+    }),
+  }
+}
+
+function toUnionModel(union: unionVariants.Result, depth: number): SchemaModel {
+  return {
+    view: 'union',
+    label: union.kind,
+    variants: union.variants.map((variant) => {
+      const { schema } = variant
+      const items = (schema['type'] === 'array' ? schema['items'] : undefined) as
+        | SchemaObject
+        | undefined
+      const objectish = Boolean(
+        schema['properties'] || schema['allOf'] || items?.['properties'] || items?.['allOf'],
+      )
+      return {
+        name: variant.name,
+        type: objectish ? undefined : typeLabel(schema),
+        values: objectish ? undefined : enumValues(schema),
+        meta: objectish ? [] : schemaMeta(schema),
+        descriptionHtml:
+          typeof schema['description'] === 'string'
+            ? Markdown.toHtml(schema['description'] as string)
+            : undefined,
+        child: objectish ? toSchemaModel(schema, depth) : undefined,
+      }
+    }),
+  }
 }
 
 /** Whether a schema exposes nested properties worth rendering as child rows. */

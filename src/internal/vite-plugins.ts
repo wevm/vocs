@@ -1352,6 +1352,8 @@ export { matchIcon, resolveIcon, resolveIconSync } from './icons.js'
 export function openapi(config: Config.Config): PluginOption {
   const virtualModuleId = 'virtual:vocs/openapi'
   const resolvedVirtualModuleId = `\0${virtualModuleId}`
+  const clientVirtualModuleId = 'virtual:vocs/openapi-client'
+  const resolvedClientVirtualModuleId = `\0${clientVirtualModuleId}`
 
   /** Resolve absolute paths of local file specs for dev watching. */
   function specFilePaths(currentConfig: Config.Config): string[] {
@@ -1381,6 +1383,7 @@ export function openapi(config: Config.Config): PluginOption {
     },
     resolveId(id) {
       if (id === virtualModuleId) return resolvedVirtualModuleId
+      if (id === clientVirtualModuleId) return resolvedClientVirtualModuleId
       return
     },
     configureServer(server) {
@@ -1394,7 +1397,11 @@ export function openapi(config: Config.Config): PluginOption {
           await OpenApiRegistry.build(currentConfig)
         } catch {}
 
-        for (const moduleId of [resolvedVirtualModuleId, '\0virtual:vocs/config']) {
+        for (const moduleId of [
+          resolvedVirtualModuleId,
+          resolvedClientVirtualModuleId,
+          '\0virtual:vocs/config',
+        ]) {
           const mod = server.moduleGraph.getModuleById(moduleId)
           if (mod) server.moduleGraph.invalidateModule(mod)
         }
@@ -1402,7 +1409,7 @@ export function openapi(config: Config.Config): PluginOption {
       })
     },
     async load(id) {
-      if (id !== resolvedVirtualModuleId) return
+      if (id !== resolvedVirtualModuleId && id !== resolvedClientVirtualModuleId) return
 
       const currentConfig = Config.getGlobal() ?? config
 
@@ -1416,6 +1423,13 @@ export function openapi(config: Config.Config): PluginOption {
         this.error(
           `Failed to parse OpenAPI spec: ${error instanceof Error ? error.message : String(error)}`,
         )
+      }
+
+      if (id === resolvedClientVirtualModuleId) {
+        const clients = Object.fromEntries(
+          Object.entries(specs).map(([mount, spec]) => [mount, spec.client]),
+        )
+        return `export const clients = ${JSON.stringify(clients)}`
       }
 
       return `export const specs = ${JSON.stringify(specs)}`

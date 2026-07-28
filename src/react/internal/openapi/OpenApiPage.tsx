@@ -140,7 +140,7 @@ export function OpenApiPage(props: OpenApiPage.Props) {
     return (
       <OpenApiLayout frontmatter={{ ...props.frontmatter, title }} outline={false}>
         <title>{title}</title>
-        <PlaygroundProvider client={ir.client} mount={ir.path}>
+        <PlaygroundProvider mount={ir.path}>
           <ReferenceGroup ir={ir} group={group} intro={props.intro} />
         </PlaygroundProvider>
       </OpenApiLayout>
