@@ -412,16 +412,12 @@ function sampleTree(
 ): SampleNode | undefined {
   if (!schema || depth > 6) return undefined
 
-  if (schema['example'] !== undefined)
-    return { kind: 'leaf', value: schema['example'], placeholder: false }
+  if (schema['example'] !== undefined) return sampleTreeFromValue(schema['example'])
   const examples = schema['examples']
-  if (Array.isArray(examples) && examples.length > 0)
-    return { kind: 'leaf', value: examples[0], placeholder: false }
-  if (schema['default'] !== undefined)
-    return { kind: 'leaf', value: schema['default'], placeholder: false }
+  if (Array.isArray(examples) && examples.length > 0) return sampleTreeFromValue(examples[0])
+  if (schema['default'] !== undefined) return sampleTreeFromValue(schema['default'])
   const enumValues = schema['enum']
-  if (Array.isArray(enumValues) && enumValues.length > 0)
-    return { kind: 'leaf', value: enumValues[0], placeholder: false }
+  if (Array.isArray(enumValues) && enumValues.length > 0) return sampleTreeFromValue(enumValues[0])
 
   // oneOf/anyOf variant picker (matching the docs renderer): sample the first
   // variant and tag the resulting node with the variant's path segment, so its
