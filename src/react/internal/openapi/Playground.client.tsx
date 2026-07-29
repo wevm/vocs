@@ -71,6 +71,7 @@ export function PlaygroundProvider(props: PlaygroundProvider.Props) {
         const loadClient = clients[specMount]
         if (!loadClient) throw new Error(`No OpenAPI spec is mounted at ${specMount}.`)
         const client = await loadClient()
+        if (generation !== generationRef.current) return null
 
         const store = createWorkspaceStore({
           plugins: [
@@ -86,13 +87,13 @@ export function PlaygroundProvider(props: PlaygroundProvider.Props) {
             },
           ],
         })
-        storeRef.current = store
         await store.addDocument({
           name: 'default',
           ...('url' in client ? { url: client.url } : { document: client.content }),
         })
         if (generation !== generationRef.current) return null
 
+        storeRef.current = store
         loadStoredAuth(store, specMount)
         const modal = createApiClientModal({
           el: containerRef.current,
