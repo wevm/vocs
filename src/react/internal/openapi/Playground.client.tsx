@@ -35,6 +35,7 @@ export function PlaygroundProvider(props: PlaygroundProvider.Props) {
   React.useEffect(() => {
     return () => {
       generationRef.current += 1
+      setLoading(false)
       try {
         modalRef.current?.app?.unmount()
       } catch {}
@@ -67,8 +68,9 @@ export function PlaygroundProvider(props: PlaygroundProvider.Props) {
       import('virtual:vocs/openapi-client'),
     ])
       .then(async ([{ createWorkspaceStore, createApiClientModal }, { clients }]) => {
-        const client = clients[specMount]
-        if (!client) throw new Error(`No OpenAPI spec is mounted at ${specMount}.`)
+        const loadClient = clients[specMount]
+        if (!loadClient) throw new Error(`No OpenAPI spec is mounted at ${specMount}.`)
+        const client = await loadClient()
 
         const store = createWorkspaceStore({
           plugins: [

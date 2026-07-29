@@ -4,6 +4,6 @@ import { read } from '../payload.js'
 const payload = read()
 
 /** Backs the lazy playground client document in the prebuilt app. */
-export const clients: Record<string, Ir['client']> = {
-  [payload.ir.path || '/']: payload.ir.client,
+export const clients: Record<string, () => Promise<Ir['client']>> = {
+  [payload.ir.path || '/']: async () => payload.ir.client,
 }

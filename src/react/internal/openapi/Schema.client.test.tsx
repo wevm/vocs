@@ -79,3 +79,38 @@ test('materializes the matching union variant for anchor navigation', async () =
   expect(await result).toBe(true)
   expect(container.textContent).toContain('Second detail')
 })
+
+test('matches lazy anchors to the exact media schema', async () => {
+  const nestedSchema = (description: string) => ({
+    type: 'object',
+    properties: {
+      payload: {
+        type: 'object',
+        properties: { value: { type: 'string', description } },
+      },
+    },
+  })
+
+  await act(async () =>
+    root.render(
+      <>
+        <Schema idBase="response-application-json" schema={nestedSchema('JSON response detail')} />
+        <Schema
+          idBase="response-application-json-patch-json"
+          schema={nestedSchema('JSON Patch response detail')}
+        />
+      </>,
+    ),
+  )
+
+  expect(container.textContent).not.toContain('JSON Patch response detail')
+  let result: Promise<boolean> | undefined
+  await act(async () => {
+    result = revealAnchor('response-application-json-patch-json-payload-value', {
+      behavior: 'auto',
+    })
+  })
+  expect(await result).toBe(true)
+  expect(container.textContent).toContain('JSON Patch response detail')
+  expect(container.textContent).not.toContain('JSON response detail')
+})

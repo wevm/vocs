@@ -18,16 +18,16 @@ import type { SchemaModel, SchemaPropertyModel, SchemaVariantModel } from './Sch
  * after interaction.
  */
 export function SchemaView(props: SchemaView.Props) {
-  const { idBase } = props
+  const { idBase, model, path } = props
   const [targetId, setTargetId] = useState<string>()
 
   useEffect(() => {
     if (!idBase) return
     return registerLazyAnchor({
-      has: (id) => id.startsWith(`${idBase}-`),
+      has: (id) => hasSchemaAnchor(model, idBase, path ?? [], id),
       reveal: setTargetId,
     })
-  }, [idBase])
+  }, [idBase, model, path])
 
   // Descendant disclosures persist the forced-open state during their layout
   // effects, so the temporary target can be cleared after the reveal commits.
@@ -38,6 +38,29 @@ export function SchemaView(props: SchemaView.Props) {
   }, [targetId])
 
   return <SchemaNode {...props} targetId={targetId} />
+}
+
+function hasSchemaAnchor(
+  model: SchemaModel,
+  idBase: string,
+  path: SchemaPath,
+  targetId: string,
+): boolean {
+  if (model.view === 'union')
+    return model.variants.some(
+      (variant, index) =>
+        variant.child &&
+        hasSchemaAnchor(variant.child, idBase, [...path, unionVariantSegment(index)], targetId),
+    )
+
+  return model.properties.some((property) => {
+    const propertyPath = [...path, property.name]
+    if (schemaPropertyId(idBase, propertyPath) === targetId) return true
+    return (
+      property.child !== undefined &&
+      hasSchemaAnchor(property.child, idBase, propertyPath, targetId)
+    )
+  })
 }
 
 export declare namespace SchemaView {
