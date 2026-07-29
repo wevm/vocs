@@ -31,6 +31,13 @@ declare module 'virtual:vocs/openapi-client' {
   >
 }
 
+declare module 'virtual:vocs/openapi-schema-models' {
+  export const schemaModelDocuments: Record<
+    string,
+    () => Promise<Record<string, import('./internal/openapi/schema-model.js').SchemaModel>>
+  >
+}
+
 declare module 'virtual:vocs/search-index' {
   export function getSearchIndex(): Promise<string>
 }

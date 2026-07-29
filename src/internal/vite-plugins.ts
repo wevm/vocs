@@ -15,6 +15,7 @@ import * as Llms from './llms.js'
 import * as Mdx from './mdx.js'
 import type * as OpenApi from './openapi/index.js'
 import * as OpenApiRegistry from './openapi/registry.js'
+import { type SchemaModel, schemaModelSource, schemaModels } from './openapi/schema-model.js'
 import * as Retriever from './retriever.js'
 import { SearchDocuments, SearchIndex } from './search.js'
 import * as ShikiTransformers from './shiki-transformers.js'
@@ -1355,6 +1356,10 @@ const openapiClientVirtualModuleId = 'virtual:vocs/openapi-client'
 const resolvedOpenapiClientVirtualModuleId = `\0${openapiClientVirtualModuleId}`
 const openapiClientDocumentPrefix = `${openapiClientVirtualModuleId}:`
 const resolvedOpenapiClientDocumentPrefix = `\0${openapiClientDocumentPrefix}`
+const openapiSchemaModelsVirtualModuleId = 'virtual:vocs/openapi-schema-models'
+const resolvedOpenapiSchemaModelsVirtualModuleId = `\0${openapiSchemaModelsVirtualModuleId}`
+const openapiSchemaModelsDocumentPrefix = `${openapiSchemaModelsVirtualModuleId}:`
+const resolvedOpenapiSchemaModelsDocumentPrefix = `\0${openapiSchemaModelsDocumentPrefix}`
 
 function openapiClientDocumentId(mount: string): string {
   return `${openapiClientDocumentPrefix}${encodeURIComponent(mount)}`
@@ -1367,6 +1372,19 @@ function resolvedOpenapiClientDocumentId(mount: string): string {
 function openapiClientMount(id: string): string | undefined {
   if (!id.startsWith(resolvedOpenapiClientDocumentPrefix)) return undefined
   return decodeURIComponent(id.slice(resolvedOpenapiClientDocumentPrefix.length))
+}
+
+function openapiSchemaModelsDocumentId(source: string): string {
+  return `${openapiSchemaModelsDocumentPrefix}${encodeURIComponent(source)}`
+}
+
+function resolvedOpenapiSchemaModelsDocumentId(source: string): string {
+  return `\0${openapiSchemaModelsDocumentId(source)}`
+}
+
+function openapiSchemaModelsSource(id: string): string | undefined {
+  if (!id.startsWith(resolvedOpenapiSchemaModelsDocumentPrefix)) return undefined
+  return decodeURIComponent(id.slice(resolvedOpenapiSchemaModelsDocumentPrefix.length))
 }
 
 export function openapiClientManifest(specs: Record<string, OpenApi.Ir>): string {
@@ -1384,6 +1402,35 @@ export function openapiClientDocument(
   const client = specs[mount]?.client
   if (!client) return undefined
   return `export const client = ${JSON.stringify(client)}`
+}
+
+export function openapiSchemaModelsManifest(specs: Record<string, OpenApi.Ir>): string {
+  const entries = Object.values(specs).flatMap((ir) =>
+    ir.groups.map((group) => {
+      const source = schemaModelSource(ir.path, group.id)
+      return `${JSON.stringify(source)}: () => import(${JSON.stringify(openapiSchemaModelsDocumentId(source))}).then((module) => module.models)`
+    }),
+  )
+  return `export const schemaModelDocuments = {\n${entries.join(',\n')}\n}`
+}
+
+export function openapiSchemaModelsDocument(
+  specs: Record<string, OpenApi.Ir>,
+  source: string,
+): string | undefined {
+  for (const ir of Object.values(specs)) {
+    const group = ir.groups.find((candidate) => schemaModelSource(ir.path, candidate.id) === source)
+    if (!group) continue
+    const models: Record<string, SchemaModel> = schemaModels(group)
+    return `export const models = ${JSON.stringify(models)}`
+  }
+  return undefined
+}
+
+function openapiSchemaModelSources(specs: Record<string, OpenApi.Ir>): string[] {
+  return Object.values(specs).flatMap((ir) =>
+    ir.groups.map((group) => schemaModelSource(ir.path, group.id)),
+  )
 }
 
 export function openapi(config: Config.Config): PluginOption {
@@ -1416,7 +1463,10 @@ export function openapi(config: Config.Config): PluginOption {
     resolveId(id) {
       if (id === openapiVirtualModuleId) return resolvedOpenapiVirtualModuleId
       if (id === openapiClientVirtualModuleId) return resolvedOpenapiClientVirtualModuleId
+      if (id === openapiSchemaModelsVirtualModuleId)
+        return resolvedOpenapiSchemaModelsVirtualModuleId
       if (id.startsWith(openapiClientDocumentPrefix)) return `\0${id}`
+      if (id.startsWith(openapiSchemaModelsDocumentPrefix)) return `\0${id}`
       return
     },
     configureServer(server) {
@@ -1434,7 +1484,9 @@ export function openapi(config: Config.Config): PluginOption {
         for (const moduleId of [
           resolvedOpenapiVirtualModuleId,
           resolvedOpenapiClientVirtualModuleId,
+          resolvedOpenapiSchemaModelsVirtualModuleId,
           ...Object.keys(specs).map(resolvedOpenapiClientDocumentId),
+          ...openapiSchemaModelSources(specs).map(resolvedOpenapiSchemaModelsDocumentId),
           '\0virtual:vocs/config',
         ]) {
           const mod = server.moduleGraph.getModuleById(moduleId)
@@ -1445,10 +1497,13 @@ export function openapi(config: Config.Config): PluginOption {
     },
     async load(id) {
       const clientMount = openapiClientMount(id)
+      const schemaModelsSource = openapiSchemaModelsSource(id)
       if (
         id !== resolvedOpenapiVirtualModuleId &&
         id !== resolvedOpenapiClientVirtualModuleId &&
-        clientMount === undefined
+        id !== resolvedOpenapiSchemaModelsVirtualModuleId &&
+        clientMount === undefined &&
+        schemaModelsSource === undefined
       )
         return
 
@@ -1467,10 +1522,18 @@ export function openapi(config: Config.Config): PluginOption {
       }
 
       if (id === resolvedOpenapiClientVirtualModuleId) return openapiClientManifest(specs)
+      if (id === resolvedOpenapiSchemaModelsVirtualModuleId)
+        return openapiSchemaModelsManifest(specs)
 
       if (clientMount !== undefined) {
         const document = openapiClientDocument(specs, clientMount)
         if (!document) this.error(`No OpenAPI spec is mounted at ${clientMount}.`)
+        return document
+      }
+
+      if (schemaModelsSource !== undefined) {
+        const document = openapiSchemaModelsDocument(specs, schemaModelsSource)
+        if (!document) this.error(`No OpenAPI schema models found for ${schemaModelsSource}.`)
         return document
       }
 

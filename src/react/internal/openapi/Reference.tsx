@@ -79,7 +79,7 @@ export declare namespace ReferenceOverview {
  * with `PlaygroundProvider` so a single Scalar modal is shared across the page.
  */
 export function ReferenceGroup(props: ReferenceGroup.Props) {
-  const { ir, group, intro } = props
+  const { ir, group, intro, modelSource } = props
   return (
     <div data-v-openapi>
       {intro ? (
@@ -104,6 +104,7 @@ export function ReferenceGroup(props: ReferenceGroup.Props) {
           server={ir.servers[0]?.url}
           headingLevel={2}
           separator={index > 0}
+          modelSource={modelSource}
         />
       ))}
     </div>
@@ -116,5 +117,7 @@ export declare namespace ReferenceGroup {
     group: IrGroup
     /** Consumer override rendered in place of the auto-generated category header. */
     intro?: ReactNode | undefined
+    /** Category schema-model document key for code-split generated routes. */
+    modelSource?: string | undefined
   }
 }

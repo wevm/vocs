@@ -35,6 +35,10 @@ export default defineConfig({
         import.meta.dirname,
         'src/internal/test/virtual-openapi-client.stub.ts',
       ),
+      'virtual:vocs/openapi-schema-models': path.resolve(
+        import.meta.dirname,
+        'src/internal/test/virtual-openapi-schema-models.stub.ts',
+      ),
     },
     include: ['./src/**/*.{test,spec}.?(c|m)[jt]s?(x)'],
     globals: true,

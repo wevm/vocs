@@ -7,6 +7,7 @@ import { OpenApiGuide, OpenApiPage } from './OpenApiPage.js'
 const mocks = vi.hoisted(() => ({
   config: {} as Config.Config,
   path: '/api',
+  referenceGroup: vi.fn((_props: { modelSource?: string | undefined }) => null),
   specs: {} as Record<string, Ir>,
 }))
 
@@ -44,11 +45,12 @@ vi.mock('./Playground.client.js', () => ({
 
 vi.mock('./Reference.js', () => ({
   Prose: () => null,
-  ReferenceGroup: () => null,
+  ReferenceGroup: mocks.referenceGroup,
   ReferenceOverview: () => null,
 }))
 
 beforeEach(() => {
+  mocks.referenceGroup.mockClear()
   mocks.config = createConfig()
   mocks.path = '/api'
   mocks.specs = {
@@ -135,6 +137,18 @@ describe('OpenAPI page metadata', () => {
     expect(html).toContain(
       'name="twitter:description" content="Send and track payments through the API."',
     )
+  })
+
+  test('keeps standalone category schema models inline', () => {
+    renderToStaticMarkup(<OpenApiPage group="payments" inlineSchemaModels mount="/api" />)
+
+    expect(mocks.referenceGroup.mock.calls[0]?.[0].modelSource).toBeUndefined()
+  })
+
+  test('loads generated category schema models by default', () => {
+    renderToStaticMarkup(<OpenApiPage group="payments" mount="/api" />)
+
+    expect(mocks.referenceGroup.mock.calls[0]?.[0].modelSource).toBe('["/api","payments"]')
   })
 })
 

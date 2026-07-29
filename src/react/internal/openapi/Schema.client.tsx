@@ -1,8 +1,14 @@
 'use client'
 
-import { Fragment, useEffect, useLayoutEffect, useState } from 'react'
+import { schemaModelDocuments } from 'virtual:vocs/openapi-schema-models'
+import { Fragment, use, useEffect, useLayoutEffect, useState } from 'react'
 import LucideChevronDown from '~icons/lucide/chevron-down'
 import { type SchemaPath, schemaPropertyId } from '../../../internal/openapi/anchors.js'
+import type {
+  SchemaModel,
+  SchemaPropertyModel,
+  SchemaVariantModel,
+} from '../../../internal/openapi/schema-model.js'
 import { unionVariantSegment } from '../../../internal/openapi/union.js'
 import { Badge } from '../../Badge.js'
 import { registerLazyAnchor } from './anchor-navigation.client.js'
@@ -10,7 +16,8 @@ import { CollapsibleChildren } from './CollapsibleChildren.client.js'
 import { EnumValues } from './EnumValues.client.js'
 import { HeadingAnchor } from './HeadingAnchor.js'
 import { PropertyExample } from './PropertyExample.client.js'
-import type { SchemaModel, SchemaPropertyModel, SchemaVariantModel } from './Schema.js'
+
+const modelDocumentPromises = new Map<string, Promise<Record<string, SchemaModel>>>()
 
 /**
  * Renders a compact schema display model. Only the visible property level is
@@ -18,7 +25,14 @@ import type { SchemaModel, SchemaPropertyModel, SchemaVariantModel } from './Sch
  * after interaction.
  */
 export function SchemaView(props: SchemaView.Props) {
-  const { idBase, model, path } = props
+  const { idBase, path } = props
+  let model: SchemaModel
+  if (props.model) model = props.model
+  else {
+    const resolved = use(loadModelDocument(props.modelSource))[props.modelId]
+    if (!resolved) missingModel(props.modelSource, props.modelId)
+    model = resolved
+  }
   const [targetId, setTargetId] = useState<string>()
 
   useEffect(() => {
@@ -37,7 +51,29 @@ export function SchemaView(props: SchemaView.Props) {
     return () => window.clearTimeout(timeout)
   }, [targetId])
 
-  return <SchemaNode {...props} targetId={targetId} />
+  return (
+    <SchemaNode
+      model={model}
+      prefix={props.prefix}
+      idBase={idBase}
+      path={path}
+      targetId={targetId}
+    />
+  )
+}
+
+function loadModelDocument(source: string): Promise<Record<string, SchemaModel>> {
+  const existing = modelDocumentPromises.get(source)
+  if (existing) return existing
+  const loader = schemaModelDocuments[source]
+  if (!loader) throw new Error(`[vocs] No OpenAPI schema models found for ${source}.`)
+  const pending = loader()
+  modelDocumentPromises.set(source, pending)
+  return pending
+}
+
+function missingModel(source: string, id: string): never {
+  throw new Error(`[vocs] No OpenAPI schema model ${id} found in ${source}.`)
 }
 
 function hasSchemaAnchor(
@@ -64,8 +100,10 @@ function hasSchemaAnchor(
 }
 
 export declare namespace SchemaView {
-  type Props = {
-    model: SchemaModel
+  type Props = (
+    | { model: SchemaModel; modelId?: never; modelSource?: never }
+    | { model?: never; modelId: string; modelSource: string }
+  ) & {
     /** Muted ancestor path prepended to each child row's name. */
     prefix?: string | undefined
     /** Operation/media response id used to build property anchors. */
@@ -75,11 +113,13 @@ export declare namespace SchemaView {
   }
 }
 
-function SchemaNode(
-  props: SchemaView.Props & {
-    targetId?: string | undefined
-  },
-) {
+function SchemaNode(props: {
+  model: SchemaModel
+  prefix?: string | undefined
+  idBase?: string | undefined
+  path?: SchemaPath | undefined
+  targetId?: string | undefined
+}) {
   const { model, prefix = '', idBase, path = [], targetId } = props
   if (model.view === 'union')
     return (

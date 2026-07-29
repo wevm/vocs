@@ -1,153 +1,17 @@
 import { Fragment } from 'react'
 import * as Markdown from '../../../internal/markdown.js'
 import type { SchemaPath } from '../../../internal/openapi/anchors.js'
-import { unionVariantSchemas, unwrapSingleVariant } from '../../../internal/openapi/union.js'
+import {
+  type schemaMeta,
+  toSchemaModel,
+  toUnionModel,
+  type unionVariants,
+} from '../../../internal/openapi/schema-model.js'
 import { Badge } from '../../Badge.js'
 import { EnumValues } from './EnumValues.client.js'
 import { HeadingAnchor } from './HeadingAnchor.js'
 import { PropertyExample } from './PropertyExample.client.js'
 import { SchemaView } from './Schema.client.js'
-
-type SchemaObject = Record<string, unknown>
-
-const maxDepth = 6
-
-/**
- * Renders a human-readable type label for a JSON Schema (post-dereference).
- */
-export function typeLabel(schema: SchemaObject | undefined): string {
-  if (!schema) return 'unknown'
-
-  if (Array.isArray(schema['type'])) return (schema['type'] as string[]).join(' | ')
-
-  const composite = (schema['oneOf'] ?? schema['anyOf']) as SchemaObject[] | undefined
-  if (composite) return composite.map(typeLabel).join(' | ')
-
-  if (Array.isArray(schema['allOf']))
-    return (schema['allOf'] as SchemaObject[]).map(typeLabel).join(' & ')
-
-  if (schema['type'] === 'array') return `${typeLabel(schema['items'] as SchemaObject)}[]`
-
-  if (typeof schema['type'] === 'string') {
-    const format = schema['format'] ? ` <${schema['format']}>` : ''
-    return `${schema['type']}${format}`
-  }
-
-  // Enum without an explicit `type`: the literal values are rendered separately
-  // as a values list (see {@link enumValues}), so just label it `enum`.
-  if (Array.isArray(schema['enum'])) return 'enum'
-
-  if (schema['properties']) return 'object'
-
-  return 'unknown'
-}
-
-/**
- * Detects a `oneOf`/`anyOf` union (unwrapping array item schemas) worth showing
- * as a variant picker, returning its variants. Trivial
- * `null` members are dropped, and plain scalar unions with no extra info (e.g.
- * `string | number`) keep their inline type label instead — the picker is only
- * used when at least one variant carries something to show (object properties,
- * an enum, a `const`, a format, or a title).
- */
-export function unionVariants(schema: SchemaObject | undefined): unionVariants.Result | undefined {
-  const variants = unionVariantSchemas(schema)
-  if (!variants) return undefined
-  const target =
-    schema?.['type'] === 'array' && schema['items'] ? (schema['items'] as SchemaObject) : schema
-  const oneOf = target?.['oneOf']
-  return {
-    kind: oneOf ? 'One of' : 'Any of',
-    variants: variants.map((member, index) => ({
-      name: variantName(member, index),
-      schema: member,
-    })),
-  }
-}
-
-/** A human-readable label for a single union variant. */
-function variantName(member: SchemaObject, index: number): string {
-  if (typeof member['title'] === 'string' && member['title']) return member['title']
-  if ('const' in member) return stringify(member['const'])
-  const values = enumValues(member)
-  if (values && values.length > 0) {
-    const joined = values.join(' | ')
-    if (joined.length <= 32) return joined
-    return 'enum'
-  }
-  return typeLabel(member) || `Option ${index + 1}`
-}
-
-export declare namespace unionVariants {
-  type Result = {
-    kind: string
-    variants: { name: string; schema: SchemaObject }[]
-  }
-}
-
-/**
- * Extracts a schema's enum literals as display strings (strings unquoted, other
- * values JSON-stringified), unwrapping array item schemas. These are rendered
- * as a separate "values" list rather than a wrapping inline union, matching the
- * Scalar/Stripe reference UI.
- */
-export function enumValues(schema: SchemaObject | undefined): string[] | undefined {
-  if (!schema) return undefined
-  const target =
-    schema['type'] === 'array' && schema['items'] ? (schema['items'] as SchemaObject) : schema
-  const values = target['enum']
-  if (!Array.isArray(values) || values.length === 0) return undefined
-  return values.map((value) => (typeof value === 'string' ? value : JSON.stringify(value)))
-}
-
-/**
- * Builds the constraint metadata shown beneath a property/parameter type as
- * `{ label, value }` pairs (e.g. `min 0`, `max 100`, `default 10`), in the
- * style of Scalar/Stripe references. The type itself is rendered separately
- * (see {@link typeLabel}).
- */
-export function schemaMeta(schema: SchemaObject | undefined): schemaMeta.Entry[] {
-  if (!schema) return []
-  const parts: schemaMeta.Entry[] = []
-
-  const num = (key: string) =>
-    typeof schema[key] === 'number' ? (schema[key] as number) : undefined
-  const min = num('minimum') ?? num('minLength') ?? num('minItems')
-  const max = num('maximum') ?? num('maxLength') ?? num('maxItems')
-  if (min !== undefined) parts.push({ label: 'min', value: String(min) })
-  if (max !== undefined) parts.push({ label: 'max', value: String(max) })
-
-  if ('const' in schema) parts.push({ label: 'const', value: stringify(schema['const']) })
-  if ('default' in schema) parts.push({ label: 'default', value: stringify(schema['default']) })
-
-  return parts
-}
-
-export declare namespace schemaMeta {
-  type Entry = { label: string; value: string }
-}
-
-function stringify(value: unknown): string {
-  if (typeof value === 'string') return value
-  return JSON.stringify(value)
-}
-
-export function formatExample(value: unknown): string {
-  if (typeof value === 'string') return value
-  return JSON.stringify(value, null, 2)
-}
-
-/**
- * Extracts a representative example value from a schema (`example` or the first
- * entry of `examples`), returned as a display string.
- */
-export function schemaExample(schema: SchemaObject | undefined): string | undefined {
-  if (!schema) return undefined
-  if ('example' in schema) return formatExample(schema['example'])
-  const examples = schema['examples']
-  if (Array.isArray(examples) && examples.length > 0) return formatExample(examples[0])
-  return undefined
-}
 
 /**
  * A single parameter/property row: name + inline metadata, an optional
@@ -253,49 +117,23 @@ export declare namespace PropertyRow {
   }
 }
 
-export type SchemaModel =
-  | {
-      view: 'properties'
-      properties: SchemaPropertyModel[]
-    }
-  | {
-      view: 'union'
-      label: string
-      variants: SchemaVariantModel[]
-    }
-
-export type SchemaPropertyModel = {
-  name: string
-  type?: string | undefined
-  values?: string[] | undefined
-  meta: schemaMeta.Entry[]
-  example?: string | undefined
-  required?: boolean | undefined
-  deprecated?: boolean | undefined
-  descriptionHtml?: string | undefined
-  child?: SchemaModel | undefined
-  array?: boolean | undefined
-}
-
-export type SchemaVariantModel = {
-  name: string
-  type?: string | undefined
-  values?: string[] | undefined
-  meta: schemaMeta.Entry[]
-  descriptionHtml?: string | undefined
-  child?: SchemaModel | undefined
-}
-
 /**
  * Recursively renders a schema's properties as a list of rows. Nested
  * object/array properties are projected into a compact display model and
  * materialized by the client only after their disclosure is opened.
  */
 export function Schema(props: Schema.Props) {
-  const { depth = 0, prefix = '', idBase, path = [] } = props
+  const { depth = 0, prefix = '', idBase, modelId, modelSource, path = [] } = props
   const model = toSchemaModel(props.schema, depth)
   if (!model) return null
-  return <SchemaView model={model} prefix={prefix} idBase={idBase} path={path} />
+  return (
+    <SchemaView
+      {...(modelId && modelSource ? { modelId, modelSource } : { model })}
+      prefix={prefix}
+      idBase={idBase}
+      path={path}
+    />
+  )
 }
 
 export declare namespace Schema {
@@ -311,6 +149,10 @@ export declare namespace Schema {
     idBase?: string | undefined
     /** Schema path (chain of property names) leading to this schema. */
     path?: SchemaPath | undefined
+    /** Key in the category's code-split schema-model document. */
+    modelId?: string | undefined
+    /** Category schema-model document key. */
+    modelSource?: string | undefined
   }
 }
 
@@ -325,97 +167,17 @@ export function UnionView(props: {
   prefix: string
   idBase?: string | undefined
   path?: SchemaPath | undefined
+  modelId?: string | undefined
+  modelSource?: string | undefined
 }) {
-  const { union, depth, prefix, idBase, path = [] } = props
+  const { union, depth, prefix, idBase, modelId, modelSource, path = [] } = props
   const model = toUnionModel(union, depth)
-  return <SchemaView model={model} prefix={prefix} idBase={idBase} path={path} />
-}
-
-function toSchemaModel(
-  rawSchema: SchemaObject | undefined,
-  depth: number,
-): SchemaModel | undefined {
-  if (!rawSchema || depth > maxDepth) return undefined
-
-  const schema = unwrapSingleVariant(rawSchema) ?? rawSchema
-  const union = unionVariants(schema)
-  if (union) return toUnionModel(union, depth)
-
-  if (schema['type'] === 'array' && schema['items'])
-    return toSchemaModel(schema['items'] as SchemaObject, depth)
-
-  const allOf = schema['allOf'] as SchemaObject[] | undefined
-  const properties = (schema['properties'] ??
-    allOf?.reduce<Record<string, SchemaObject>>((acc, member) => {
-      Object.assign(acc, (member['properties'] as Record<string, SchemaObject>) ?? {})
-      return acc
-    }, {})) as Record<string, SchemaObject> | undefined
-  if (!properties || Object.keys(properties).length === 0) return undefined
-
-  const required = new Set((schema['required'] as string[] | undefined) ?? [])
-  return {
-    view: 'properties',
-    properties: Object.entries(properties).map(([name, rawProperty]) => {
-      const property = unwrapSingleVariant(rawProperty) ?? rawProperty
-      const propertyUnion = unionVariants(property)
-      return {
-        name,
-        type: propertyUnion ? undefined : typeLabel(property),
-        values: propertyUnion ? undefined : enumValues(property),
-        meta: propertyUnion ? [] : schemaMeta(property),
-        example: propertyUnion ? undefined : schemaExample(property),
-        required: required.has(name),
-        deprecated: property['deprecated'] === true,
-        descriptionHtml:
-          typeof property['description'] === 'string'
-            ? Markdown.toHtml(property['description'] as string)
-            : undefined,
-        child:
-          depth >= maxDepth
-            ? undefined
-            : propertyUnion
-              ? toUnionModel(propertyUnion, depth + 1)
-              : hasChildren(property)
-                ? toSchemaModel(property, depth + 1)
-                : undefined,
-        array: property['type'] === 'array',
-      }
-    }),
-  }
-}
-
-function toUnionModel(union: unionVariants.Result, depth: number): SchemaModel {
-  return {
-    view: 'union',
-    label: union.kind,
-    variants: union.variants.map((variant) => {
-      const { schema } = variant
-      const items = (schema['type'] === 'array' ? schema['items'] : undefined) as
-        | SchemaObject
-        | undefined
-      const objectish = Boolean(
-        schema['properties'] || schema['allOf'] || items?.['properties'] || items?.['allOf'],
-      )
-      return {
-        name: variant.name,
-        type: objectish ? undefined : typeLabel(schema),
-        values: objectish ? undefined : enumValues(schema),
-        meta: objectish ? [] : schemaMeta(schema),
-        descriptionHtml:
-          typeof schema['description'] === 'string'
-            ? Markdown.toHtml(schema['description'] as string)
-            : undefined,
-        child: objectish ? toSchemaModel(schema, depth) : undefined,
-      }
-    }),
-  }
-}
-
-/** Whether a schema exposes nested properties worth rendering as child rows. */
-function hasChildren(schema: SchemaObject): boolean {
-  if (schema['properties']) return true
-  if (schema['allOf']) return true
-  if (schema['type'] === 'array' && schema['items'])
-    return hasChildren(schema['items'] as SchemaObject)
-  return false
+  return (
+    <SchemaView
+      {...(modelId && modelSource ? { modelId, modelSource } : { model })}
+      prefix={prefix}
+      idBase={idBase}
+      path={path}
+    />
+  )
 }

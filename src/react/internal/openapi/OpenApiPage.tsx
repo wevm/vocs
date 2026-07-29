@@ -1,6 +1,7 @@
 import { specs } from 'virtual:vocs/openapi'
 import type { ReactNode } from 'react'
 import type { Frontmatter } from '../../../internal/config.js'
+import { schemaModelSource } from '../../../internal/openapi/schema-model.js'
 import { Layout } from '../../Layout.js'
 import * as MdxPageContext from '../../MdxPageContext.js'
 import { Endpoints } from './Endpoints.js'
@@ -142,7 +143,14 @@ export function OpenApiPage(props: OpenApiPage.Props) {
       <OpenApiLayout frontmatter={{ ...props.frontmatter, description, title }} outline={false}>
         <title>{title}</title>
         <PlaygroundProvider mount={ir.path}>
-          <ReferenceGroup ir={ir} group={group} intro={props.intro} />
+          <ReferenceGroup
+            ir={ir}
+            group={group}
+            intro={props.intro}
+            modelSource={
+              props.inlineSchemaModels ? undefined : schemaModelSource(ir.path, group.id)
+            }
+          />
         </PlaygroundProvider>
       </OpenApiLayout>
     )
@@ -181,6 +189,8 @@ export declare namespace OpenApiPage {
     frontmatter?: Frontmatter | undefined
     /** Document `<title>` override (e.g. from the override page's frontmatter). */
     title?: string | undefined
+    /** Keep schema models inline instead of loading a generated category document. */
+    inlineSchemaModels?: boolean | undefined
     /**
      * Render the domain/endpoint list on the overview page (ignored when `group`
      * or `intro` is set). The standalone handler enables this so its
