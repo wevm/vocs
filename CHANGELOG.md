@@ -1,5 +1,11 @@
 # vocs
 
+## 2.7.2
+
+### Patch Changes
+
+- ae7ceae: Moved generated OpenAPI schema models into category-specific client chunks to reduce inline route payloads.
+
 ## 2.7.1
 
 ### Patch Changes
