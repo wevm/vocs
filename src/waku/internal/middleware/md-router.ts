@@ -2,6 +2,7 @@ import type { MiddlewareHandler } from 'hono'
 import {
   aiUserAgents,
   ogBotUserAgents,
+  representationVary,
   searchEngineUserAgents,
   terminalUserAgents,
 } from '../../../internal/markdown-negotiation.js'
@@ -84,9 +85,25 @@ export function middleware(): MiddlewareHandler {
     // twin resolution would trigger a recursive self-fetch.
     if (url.pathname.startsWith('/assets/md/')) return next()
 
+    const isMarkdownRequest = url.pathname.endsWith('.md')
+
+    // A file physically present in `public/` wins over markdown-twin resolution,
+    // so static `.md` files (skill manifests, plain markdown) are served as-is.
+    if (isMarkdownRequest && (await hasPublicFile(url.pathname))) return next()
+
+    // Static assets (`.json`, `.svg`, `.png`, ...) have no markdown twin. Skip
+    // twin resolution so a disk miss never falls back to a slow self-fetch.
+    const filename = url.pathname.split('/').pop() ?? ''
+    if (!isMarkdownRequest && filename.includes('.')) return next()
+
+    const nextWithVary = async () => {
+      await next()
+      context.header('Vary', representationVary, { append: true })
+    }
+
     const userAgent = context.req.header('user-agent') ?? ''
     const isOgBot = ogBotUserAgents.some((agent) => userAgent.includes(agent))
-    if (isOgBot) return next()
+    if (isOgBot) return nextWithVary()
 
     const isAiAgent = aiUserAgents.some((agent) => userAgent.includes(agent))
     const isSearchEngine = searchEngineUserAgents.some((agent) => userAgent.includes(agent))
@@ -102,29 +119,19 @@ export function middleware(): MiddlewareHandler {
       } else {
         text = await fetchMarkdown(url, '/llms.txt', context.req.header('cookie'))
       }
-      if (!text) return next()
+      if (!text) return nextWithVary()
 
       context.res = new Response(text, {
         headers: {
           'Content-Type': 'text/markdown; charset=utf-8',
+          Vary: representationVary,
         },
       })
       return
     }
 
-    const isMarkdownRequest = url.pathname.endsWith('.md')
-
-    // A file physically present in `public/` wins over markdown-twin resolution,
-    // so static `.md` files (skill manifests, plain markdown) are served as-is.
-    if (isMarkdownRequest && (await hasPublicFile(url.pathname))) return next()
-
-    // Static assets (`.json`, `.svg`, `.png`, ...) have no markdown twin. Skip
-    // twin resolution so a disk miss never falls back to a slow self-fetch.
-    const filename = url.pathname.split('/').pop() ?? ''
-    if (!isMarkdownRequest && filename.includes('.')) return next()
-
     if (!isMarkdownRequest && (isSearchEngine || (!isAiAgent && !isTerminal && !acceptsMarkdown)))
-      return next()
+      return nextWithVary()
 
     const pagePath = url.pathname.replace(/\.md$/, '').replace(/\/index$/, '')
 
@@ -141,11 +148,12 @@ export function middleware(): MiddlewareHandler {
         : `/assets/md${url.pathname}.md`
       text = await fetchMarkdown(url, assetPath, context.req.header('cookie'))
     }
-    if (!text) return next()
+    if (!text) return nextWithVary()
 
     context.res = new Response(text, {
       headers: {
         'Content-Type': 'text/markdown; charset=utf-8',
+        Vary: representationVary,
       },
     })
     return

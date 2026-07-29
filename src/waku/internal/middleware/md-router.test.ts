@@ -143,6 +143,41 @@ describe('middleware', () => {
     expect(readFile).toHaveBeenCalledOnce()
   })
 
+  it('varies cached HTML and Markdown representations by accept and user-agent', async () => {
+    process.env['NODE_ENV'] = 'production'
+
+    const { readFile } = await import('node:fs/promises')
+    vi.mocked(readFile).mockResolvedValue('# Hello from disk')
+
+    const responses = [
+      await request('http://localhost/docs', {
+        accept: 'text/html',
+        'user-agent': 'Mozilla/5.0 AppleWebKit/537.36 Chrome/126 Safari/537.36',
+      }),
+      await request('http://localhost/docs', {
+        accept: 'text/html',
+        'user-agent': 'curl/8.7.1',
+      }),
+      await request('http://localhost/docs', {
+        accept: 'text/html',
+        'user-agent': 'Googlebot/2.1',
+      }),
+      await request('http://localhost/docs', {
+        accept: 'text/markdown',
+        'user-agent': 'Mozilla/5.0 AppleWebKit/537.36 Chrome/126 Safari/537.36',
+      }),
+    ]
+
+    expect(responses.map((response) => response.headers.get('content-type'))).toEqual([
+      'text/html; charset=UTF-8',
+      'text/markdown; charset=utf-8',
+      'text/html; charset=UTF-8',
+      'text/markdown; charset=utf-8',
+    ])
+    for (const response of responses)
+      expect(response.headers.get('vary')).toBe('Accept, User-Agent')
+  })
+
   it('passes static assets through for AI agents without resolving a twin', async () => {
     process.env['NODE_ENV'] = 'production'
 
