@@ -135,10 +135,11 @@ export function OpenApiPage(props: OpenApiPage.Props) {
         </OpenApiLayout>
       )
 
+    const description = props.frontmatter?.description ?? group.description
     const title = props.title ?? props.frontmatter?.title ?? `${group.name} · ${ir.info.title}`
 
     return (
-      <OpenApiLayout frontmatter={{ ...props.frontmatter, title }} outline={false}>
+      <OpenApiLayout frontmatter={{ ...props.frontmatter, description, title }} outline={false}>
         <title>{title}</title>
         <PlaygroundProvider mount={ir.path}>
           <ReferenceGroup ir={ir} group={group} intro={props.intro} />

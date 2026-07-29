@@ -54,7 +54,14 @@ beforeEach(() => {
   mocks.specs = {
     '/api': {
       client: { url: 'https://example.com/openapi.json' },
-      groups: [{ id: 'payments', name: 'Payments', operations: [] }],
+      groups: [
+        {
+          description: 'Send and track payments through the API.',
+          id: 'payments',
+          name: 'Payments',
+          operations: [],
+        },
+      ],
       info: { title: 'Tempo API' },
       path: '/api',
       securitySchemes: {},
@@ -113,14 +120,21 @@ describe('OpenAPI page metadata', () => {
     expect(html).toContain('name="twitter:description" content="Authenticate Tempo API requests."')
   })
 
-  test('uses the generated group title for head metadata', () => {
+  test('uses the generated group metadata in head tags', () => {
     mocks.path = '/api/payments'
 
     const html = renderToStaticMarkup(<OpenApiPage group="payments" mount="/api" />)
 
     expect(html).toContain('<title>Payments · Tempo API</title>')
+    expect(html).toContain('name="description" content="Send and track payments through the API."')
     expect(html).toContain('property="og:title" content="Payments · Tempo API"')
+    expect(html).toContain(
+      'property="og:description" content="Send and track payments through the API."',
+    )
     expect(html).toContain('name="twitter:title" content="Payments · Tempo API"')
+    expect(html).toContain(
+      'name="twitter:description" content="Send and track payments through the API."',
+    )
   })
 })
 
