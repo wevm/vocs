@@ -1,5 +1,12 @@
 # vocs
 
+## 2.7.1
+
+### Patch Changes
+
+- 324cfc9: Added `Vary: Accept, User-Agent` to HTML and Markdown responses so shared caches keep negotiated representations separate.
+- 2153bfa: Used OpenAPI tag descriptions for generated group page metadata.
+
 ## 2.7.0
 
 ### Minor Changes
