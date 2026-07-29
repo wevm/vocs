@@ -8,6 +8,8 @@ import type * as OpenApi from './openapi/index.js'
 import {
   openapiClientDocument,
   openapiClientManifest,
+  openapiSchemaModelsDocument,
+  openapiSchemaModelsManifest,
   resolveSitemapInclude,
   resolveSitemapLastmod,
   sitemap,
@@ -40,6 +42,79 @@ describe('openapi client modules', () => {
 
     expect(document).toContain('first-client')
     expect(document).not.toContain('second-client')
+  })
+})
+
+describe('openapi schema model modules', () => {
+  const specs = {
+    '/first': {
+      path: '/first',
+      groups: [
+        {
+          id: 'pets',
+          operations: [
+            {
+              id: 'createpet',
+              parameters: [],
+              requestBody: {
+                content: [
+                  {
+                    mediaType: 'application/json',
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        firstMarker: { type: 'string', description: 'first schema detail' },
+                      },
+                    },
+                  },
+                ],
+              },
+              responses: [],
+            },
+          ],
+        },
+        {
+          id: 'owners',
+          operations: [
+            {
+              id: 'createowner',
+              parameters: [],
+              requestBody: {
+                content: [
+                  {
+                    mediaType: 'application/json',
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        secondMarker: { type: 'string', description: 'second schema detail' },
+                      },
+                    },
+                  },
+                ],
+              },
+              responses: [],
+            },
+          ],
+        },
+      ],
+    },
+  } as unknown as Record<string, OpenApi.Ir>
+
+  test('creates one lazy document import per category without inlining models', () => {
+    const manifest = openapiSchemaModelsManifest(specs)
+
+    expect(manifest).toContain('virtual:vocs/openapi-schema-models:')
+    expect(manifest).toContain('pets')
+    expect(manifest).toContain('owners')
+    expect(manifest).not.toContain('schema detail')
+  })
+
+  test('serializes only the requested category models', () => {
+    const source = JSON.stringify(['/first', 'pets'])
+    const document = openapiSchemaModelsDocument(specs, source)
+
+    expect(document).toContain('first schema detail')
+    expect(document).not.toContain('second schema detail')
   })
 })
 

@@ -1,6 +1,7 @@
 import { specs } from 'virtual:vocs/openapi'
 import type { ReactNode } from 'react'
 import type { Frontmatter } from '../../../internal/config.js'
+import { schemaModelSource } from '../../../internal/openapi/schema-model.js'
 import { Layout } from '../../Layout.js'
 import * as MdxPageContext from '../../MdxPageContext.js'
 import { Endpoints } from './Endpoints.js'
@@ -142,7 +143,12 @@ export function OpenApiPage(props: OpenApiPage.Props) {
       <OpenApiLayout frontmatter={{ ...props.frontmatter, description, title }} outline={false}>
         <title>{title}</title>
         <PlaygroundProvider mount={ir.path}>
-          <ReferenceGroup ir={ir} group={group} intro={props.intro} />
+          <ReferenceGroup
+            ir={ir}
+            group={group}
+            intro={props.intro}
+            modelSource={schemaModelSource(ir.path, group.id)}
+          />
         </PlaygroundProvider>
       </OpenApiLayout>
     )

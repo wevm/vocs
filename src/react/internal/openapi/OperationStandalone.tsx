@@ -1,4 +1,5 @@
 import { specs } from 'virtual:vocs/openapi'
+import { schemaModelSource } from '../../../internal/openapi/schema-model.js'
 import { findOperation } from './find-operation.js'
 import { Operation as OperationView } from './Operation.js'
 import { PlaygroundProvider } from './Playground.client.js'
@@ -48,6 +49,8 @@ export function Operation(props: Operation.Props) {
       </p>
     )
 
+  const group = ir.groups.find((candidate) => candidate.operations.includes(operation))
+
   return (
     <div data-v-openapi>
       <PlaygroundProvider mount={ir.path}>
@@ -57,6 +60,7 @@ export function Operation(props: Operation.Props) {
           headingLevel={props.headingLevel ?? 2}
           anchors={props.anchors}
           hideQueryParams={props.hideQueryParams}
+          modelSource={group ? schemaModelSource(ir.path, group.id) : undefined}
         />
       </PlaygroundProvider>
     </div>

@@ -8,6 +8,17 @@ import {
 } from '../../../internal/openapi/anchors.js'
 import type * as OpenApi from '../../../internal/openapi/index.js'
 import { codeSamples, responseSamples } from '../../../internal/openapi/sample.js'
+import {
+  enumValues,
+  formatExample,
+  parameterSchemaModelId,
+  requestSchemaModelId,
+  responseSchemaModelId,
+  schemaExample,
+  schemaMeta,
+  typeLabel,
+  unionVariants,
+} from '../../../internal/openapi/schema-model.js'
 import { methodVariant } from '../../../internal/openapi/sidebar.js'
 import { unwrapSingleVariant } from '../../../internal/openapi/union.js'
 import { Badge } from '../../Badge.js'
@@ -16,17 +27,7 @@ import { CollapsibleChildren } from './CollapsibleChildren.client.js'
 import { Disclosure } from './Disclosure.client.js'
 import { HeadingAnchor } from './HeadingAnchor.js'
 import { TestRequestButton } from './Playground.client.js'
-import {
-  enumValues,
-  formatExample,
-  PropertyRow,
-  Schema,
-  schemaExample,
-  schemaMeta,
-  typeLabel,
-  UnionView,
-  unionVariants,
-} from './Schema.js'
+import { PropertyRow, Schema, UnionView } from './Schema.js'
 
 const parameterGroups: { in: OpenApi.IrParameter['in']; title: string }[] = [
   { in: 'path', title: 'Path Parameters' },
@@ -45,6 +46,7 @@ export function Operation(props: Operation.Props) {
     separator = false,
     anchors = true,
     hideQueryParams = false,
+    modelSource,
   } = props
   const title = operation.summary || `${operation.method} ${operation.path}`
   const Heading = `h${headingLevel}` as 'h2' | 'h3'
@@ -82,7 +84,11 @@ export function Operation(props: Operation.Props) {
           if (params.length === 0) return null
           return (
             <Section key={group.in} id={`${operation.id}-${slug(group.title)}`} title={group.title}>
-              <ParameterList parameters={params} idPrefix={operation.id} />
+              <ParameterList
+                parameters={params}
+                idPrefix={operation.id}
+                modelSource={modelSource}
+              />
             </Section>
           )
         })}
@@ -92,6 +98,8 @@ export function Operation(props: Operation.Props) {
             <Content
               content={operation.requestBody.content}
               idBase={requestBodyIdBase(operation.id)}
+              modelId={(media) => requestSchemaModelId(operation.id, media)}
+              modelSource={modelSource}
             />
           </Section>
         )}
@@ -100,7 +108,12 @@ export function Operation(props: Operation.Props) {
           <Section id={`${operation.id}-responses`} title="Responses">
             <div data-v-openapi-responses>
               {operation.responses.map((response) => (
-                <ResponseRow key={response.status} operationId={operation.id} response={response} />
+                <ResponseRow
+                  key={response.status}
+                  operationId={operation.id}
+                  response={response}
+                  modelSource={modelSource}
+                />
               ))}
             </div>
           </Section>
@@ -163,6 +176,8 @@ export declare namespace Operation {
      * @default false
      */
     hideQueryParams?: boolean | undefined
+    /** Category schema-model document key for code-split generated routes. */
+    modelSource?: string | undefined
   }
 }
 
@@ -178,7 +193,11 @@ function Section(props: { id: string; title: string; children: React.ReactNode }
   )
 }
 
-function ParameterList(props: { parameters: OpenApi.IrParameter[]; idPrefix: string }) {
+function ParameterList(props: {
+  parameters: OpenApi.IrParameter[]
+  idPrefix: string
+  modelSource?: string | undefined
+}) {
   return (
     <div data-v-openapi-params>
       {props.parameters.map((parameter) => {
@@ -202,7 +221,13 @@ function ParameterList(props: { parameters: OpenApi.IrParameter[]; idPrefix: str
             description={parameter.description}
           >
             {union ? (
-              <UnionView union={union} depth={1} prefix={`${parameter.name}.`} />
+              <UnionView
+                union={union}
+                depth={1}
+                prefix={`${parameter.name}.`}
+                modelId={parameterSchemaModelId(props.idPrefix, parameter)}
+                modelSource={props.modelSource}
+              />
             ) : (
               schema &&
               hasChildSchema(schema) && (
@@ -212,6 +237,8 @@ function ParameterList(props: { parameters: OpenApi.IrParameter[]; idPrefix: str
                       schema={schema}
                       depth={1}
                       prefix={`${parameter.name}${schema['type'] === 'array' ? '[]' : ''}.`}
+                      modelId={parameterSchemaModelId(props.idPrefix, parameter)}
+                      modelSource={props.modelSource}
                     />
                   </div>
                 </CollapsibleChildren>
@@ -245,6 +272,8 @@ function Content(props: {
   content: OpenApi.IrMediaType[]
   hideMediaType?: boolean
   idBase?: string | undefined
+  modelId?: ((media: OpenApi.IrMediaType) => string) | undefined
+  modelSource?: string | undefined
 }) {
   if (props.content.length === 0) return null
   return (
@@ -257,7 +286,12 @@ function Content(props: {
           <div key={media.mediaType} data-v-openapi-media>
             {!props.hideMediaType && <code data-v-openapi-media-type>{media.mediaType}</code>}
             {media.schema ? (
-              <Schema schema={media.schema} idBase={schemaIdBase} />
+              <Schema
+                schema={media.schema}
+                idBase={schemaIdBase}
+                modelId={props.modelId?.(media)}
+                modelSource={props.modelSource}
+              />
             ) : media.example !== undefined ? (
               <Example value={media.example} />
             ) : null}
@@ -268,7 +302,11 @@ function Content(props: {
   )
 }
 
-function ResponseRow(props: { operationId: string; response: OpenApi.IrResponse }) {
+function ResponseRow(props: {
+  operationId: string
+  response: OpenApi.IrResponse
+  modelSource?: string | undefined
+}) {
   const { operationId, response } = props
   const headers = response.headers ?? []
   const idBase = responseIdBase(operationId, response.status)
@@ -329,7 +367,13 @@ function ResponseRow(props: { operationId: string; response: OpenApi.IrResponse 
             </CollapsibleChildren>
           )}
           {response.content.length > 0 && (
-            <Content content={response.content} hideMediaType idBase={idBase} />
+            <Content
+              content={response.content}
+              hideMediaType
+              idBase={idBase}
+              modelId={(media) => responseSchemaModelId(operationId, response.status, media)}
+              modelSource={props.modelSource}
+            />
           )}
         </div>
       </Disclosure>

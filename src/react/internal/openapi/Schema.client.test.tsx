@@ -1,5 +1,6 @@
 /** @vitest-environment jsdom */
 
+import { schemaModelDocuments } from 'virtual:vocs/openapi-schema-models'
 import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
@@ -36,7 +37,35 @@ beforeEach(() => {
 afterEach(() => {
   act(() => root.unmount())
   container.remove()
+  for (const source of Object.keys(schemaModelDocuments)) delete schemaModelDocuments[source]
   vi.restoreAllMocks()
+})
+
+test('loads a generated schema model document by source and id', async () => {
+  const source = JSON.stringify(['/api/openapi.json', 'pets'])
+  const modelId = JSON.stringify(['response', 'getPet', '200', 'application/json'])
+  schemaModelDocuments[source] = async () => ({
+    [modelId]: {
+      view: 'properties',
+      properties: [{ name: 'external', type: 'string', meta: [] }],
+    },
+  })
+
+  await act(async () =>
+    root.render(
+      <Schema
+        modelId={modelId}
+        modelSource={source}
+        schema={{
+          type: 'object',
+          properties: { inline: { type: 'string' } },
+        }}
+      />,
+    ),
+  )
+
+  expect(container.textContent).toContain('external')
+  expect(container.textContent).not.toContain('inline')
 })
 
 test('materializes nested properties when their disclosure opens', async () => {
