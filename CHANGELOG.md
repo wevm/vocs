@@ -1,5 +1,21 @@
 # vocs
 
+## 2.7.0
+
+### Minor Changes
+
+- 9891fb9: Add `toMarkdown` hooks for custom MDX components in generated LLM Markdown.
+- ee50089: Add enabled-by-default JSON-LD structured data with a `jsonLd` opt-out.
+- 30da11d: Add a CLI audit for MDX components left in generated Markdown.
+- e1a70dc: Added output-only remark plugins for generated Markdown.
+
+### Patch Changes
+
+- 1258ed8: Preserve content after nested MDX expressions in generated Markdown.
+- c3741ff: Preserved authored frontmatter metadata in OpenAPI page head tags.
+- 103f229: Reduced OpenAPI route payloads by lazily loading playground assets and materializing nested schemas on demand.
+- e78ff5f: Pretty-printed nested objects and arrays from authored OpenAPI schema values.
+
 ## 2.6.2
 
 ### Patch Changes
