@@ -101,6 +101,13 @@ describe('vercel build enhancer', () => {
           "src": "^/assets/(.*)$",
         },
         {
+          "continue": true,
+          "headers": {
+            "vary": "Accept, User-Agent",
+          },
+          "src": "^/(?!assets/)(?!.*\\.[^/]+$)(.*)$",
+        },
+        {
           "dest": "/RSC/",
           "has": [
             {

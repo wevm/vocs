@@ -232,6 +232,47 @@ describe('Handler.openApi', () => {
       expect(response.headers.get('content-type') ?? '').not.toContain('text/markdown')
     })
 
+    test('varies cached HTML and Markdown representations by accept and user-agent', async () => {
+      const ref = openApi({ spec, path: '/api' })
+      const responses = [
+        await ref.fetch(
+          new Request('http://localhost/api', {
+            headers: {
+              accept: 'text/html',
+              'user-agent': 'Mozilla/5.0 AppleWebKit/537.36 Chrome/126 Safari/537.36',
+            },
+          }),
+        ),
+        await ref.fetch(
+          new Request('http://localhost/api', {
+            headers: { accept: 'text/html', 'user-agent': 'curl/8.7.1' },
+          }),
+        ),
+        await ref.fetch(
+          new Request('http://localhost/api', {
+            headers: { accept: 'text/html', 'user-agent': 'Googlebot/2.1' },
+          }),
+        ),
+        await ref.fetch(
+          new Request('http://localhost/api', {
+            headers: {
+              accept: 'text/markdown',
+              'user-agent': 'Mozilla/5.0 AppleWebKit/537.36 Chrome/126 Safari/537.36',
+            },
+          }),
+        ),
+      ]
+
+      expect(responses.map((response) => response.headers.get('content-type'))).toEqual([
+        'text/html; charset=UTF-8',
+        'text/markdown; charset=utf-8',
+        'text/html; charset=UTF-8',
+        'text/markdown; charset=utf-8',
+      ])
+      for (const response of responses)
+        expect(response.headers.get('vary')).toBe('Accept, User-Agent')
+    })
+
     test('prefixes overview links with the live host mount', async () => {
       const app = new Hono().basePath('/docs')
       app.route('/', openApi({ spec, path: '/api' }, { fallback: 'next' }))

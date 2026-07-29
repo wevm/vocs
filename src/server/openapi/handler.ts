@@ -1,6 +1,6 @@
 import { getRequestListener } from '@hono/node-server'
 import { Hono } from 'hono'
-import { prefersMarkdown } from '../../internal/markdown-negotiation.js'
+import { prefersMarkdown, representationVary } from '../../internal/markdown-negotiation.js'
 import type { Payload } from '../../internal/openapi/app.js'
 import { inferMount, join, knownRoutes } from '../../internal/openapi/app.js'
 import * as Markdown from '../../internal/openapi/markdown.js'
@@ -98,7 +98,11 @@ export function openApi(config: OpenApi.Config, options: openApi.Options = {}): 
           ? mountFromRoutePath(c.req.routePath)
           : inferMount(basePathname, routes)
       const markdown = resolveMarkdown(payload, relativeRoute(basePathname, mount), mount)
-      if (markdown) return c.text(markdown, 200, { 'content-type': 'text/markdown; charset=utf-8' })
+      if (markdown)
+        return c.text(markdown, 200, {
+          'content-type': 'text/markdown; charset=utf-8',
+          vary: representationVary,
+        })
       // Explicit `.md` for an unknown route falls through to the normal handling
       // below (renders the shell, or `next()` in fallback mode).
     }
@@ -116,6 +120,8 @@ export function openApi(config: OpenApi.Config, options: openApi.Options = {}): 
       const relative = (pathname.startsWith(mount) ? pathname.slice(mount.length) : pathname) || '/'
       if (!isKnownRoute(relative, routes)) return next()
     }
+
+    c.header('Vary', representationVary)
 
     // Otherwise render the HTML shell (client-side router takes over).
     const manifest = Assets.manifest()

@@ -44,6 +44,9 @@ export const searchEngineUserAgents = [
 /** Terminal HTTP clients that should receive Markdown. */
 export const terminalUserAgents = ['curl/', 'Wget/', 'HTTPie/', 'httpie-go/', 'xh/']
 
+/** Request headers that select between HTML and Markdown representations. */
+export const representationVary = 'Accept, User-Agent'
+
 /** Link-preview/Open Graph bots that must always receive HTML (for meta tags). */
 export const ogBotUserAgents = [
   'Discordbot',

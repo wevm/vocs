@@ -1,7 +1,11 @@
 import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { gzipSync } from 'node:zlib'
-import { aiUserAgents, terminalUserAgents } from '../../../../internal/markdown-negotiation.js'
+import {
+  aiUserAgents,
+  representationVary,
+  terminalUserAgents,
+} from '../../../../internal/markdown-negotiation.js'
 
 export type BuildOptions = {
   assetsDir: string
@@ -61,6 +65,15 @@ function markdownRoutes({
     .join('|')}).*`
 
   return {
+    // Apply Vary before the filesystem handler so prerendered HTML and routed
+    // Markdown use the same cache key.
+    headers: [
+      {
+        src: cleanPageSource,
+        headers: { vary: representationVary },
+        continue: true,
+      },
+    ],
     // Vercel's filesystem handler would serve prerendered HTML before mdRouter sees
     // the request. Route markdown-eligible clean URLs to RSC first so mdRouter can
     // choose markdown or HTML.
@@ -160,6 +173,7 @@ export default getRequestListener(
     },
     ...(serverless
       ? [
+          ...markdown.headers,
           ...markdown.beforeFilesystem,
           { handle: 'filesystem' },
           ...markdown.afterFilesystem,
