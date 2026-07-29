@@ -58,7 +58,7 @@ export function Playground(props: Playground.Props) {
 
   return (
     <div data-v-openapi>
-      <PlaygroundProvider client={ir.client} mount={ir.path}>
+      <PlaygroundProvider mount={ir.path}>
         <CodeSample
           samples={samples}
           responses={responses}

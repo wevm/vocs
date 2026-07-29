@@ -24,6 +24,13 @@ declare module 'virtual:vocs/openapi' {
   export const specs: Record<string, import('./internal/openapi/index.js').Ir>
 }
 
+declare module 'virtual:vocs/openapi-client' {
+  export const clients: Record<
+    string,
+    () => Promise<import('./internal/openapi/index.js').Ir['client']>
+  >
+}
+
 declare module 'virtual:vocs/search-index' {
   export function getSearchIndex(): Promise<string>
 }

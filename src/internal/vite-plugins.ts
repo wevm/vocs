@@ -1349,10 +1349,44 @@ export { matchIcon, resolveIcon, resolveIconSync } from './icons.js'
  * Local spec files are watched in dev: changes invalidate the module and
  * trigger a full reload so the section regenerates.
  */
-export function openapi(config: Config.Config): PluginOption {
-  const virtualModuleId = 'virtual:vocs/openapi'
-  const resolvedVirtualModuleId = `\0${virtualModuleId}`
+const openapiVirtualModuleId = 'virtual:vocs/openapi'
+const resolvedOpenapiVirtualModuleId = `\0${openapiVirtualModuleId}`
+const openapiClientVirtualModuleId = 'virtual:vocs/openapi-client'
+const resolvedOpenapiClientVirtualModuleId = `\0${openapiClientVirtualModuleId}`
+const openapiClientDocumentPrefix = `${openapiClientVirtualModuleId}:`
+const resolvedOpenapiClientDocumentPrefix = `\0${openapiClientDocumentPrefix}`
 
+function openapiClientDocumentId(mount: string): string {
+  return `${openapiClientDocumentPrefix}${encodeURIComponent(mount)}`
+}
+
+function resolvedOpenapiClientDocumentId(mount: string): string {
+  return `\0${openapiClientDocumentId(mount)}`
+}
+
+function openapiClientMount(id: string): string | undefined {
+  if (!id.startsWith(resolvedOpenapiClientDocumentPrefix)) return undefined
+  return decodeURIComponent(id.slice(resolvedOpenapiClientDocumentPrefix.length))
+}
+
+export function openapiClientManifest(specs: Record<string, OpenApi.Ir>): string {
+  const entries = Object.keys(specs).map(
+    (mount) =>
+      `${JSON.stringify(mount)}: () => import(${JSON.stringify(openapiClientDocumentId(mount))}).then((module) => module.client)`,
+  )
+  return `export const clients = {\n${entries.join(',\n')}\n}`
+}
+
+export function openapiClientDocument(
+  specs: Record<string, OpenApi.Ir>,
+  mount: string,
+): string | undefined {
+  const client = specs[mount]?.client
+  if (!client) return undefined
+  return `export const client = ${JSON.stringify(client)}`
+}
+
+export function openapi(config: Config.Config): PluginOption {
   /** Resolve absolute paths of local file specs for dev watching. */
   function specFilePaths(currentConfig: Config.Config): string[] {
     const paths: string[] = []
@@ -1380,7 +1414,9 @@ export function openapi(config: Config.Config): PluginOption {
       }
     },
     resolveId(id) {
-      if (id === virtualModuleId) return resolvedVirtualModuleId
+      if (id === openapiVirtualModuleId) return resolvedOpenapiVirtualModuleId
+      if (id === openapiClientVirtualModuleId) return resolvedOpenapiClientVirtualModuleId
+      if (id.startsWith(openapiClientDocumentPrefix)) return `\0${id}`
       return
     },
     configureServer(server) {
@@ -1390,11 +1426,17 @@ export function openapi(config: Config.Config): PluginOption {
 
         // Re-parse before reloading so the new sidebar + page are ready.
         OpenApiRegistry.invalidate()
+        let specs: Record<string, OpenApi.Ir> = {}
         try {
-          await OpenApiRegistry.build(currentConfig)
+          specs = await OpenApiRegistry.build(currentConfig)
         } catch {}
 
-        for (const moduleId of [resolvedVirtualModuleId, '\0virtual:vocs/config']) {
+        for (const moduleId of [
+          resolvedOpenapiVirtualModuleId,
+          resolvedOpenapiClientVirtualModuleId,
+          ...Object.keys(specs).map(resolvedOpenapiClientDocumentId),
+          '\0virtual:vocs/config',
+        ]) {
           const mod = server.moduleGraph.getModuleById(moduleId)
           if (mod) server.moduleGraph.invalidateModule(mod)
         }
@@ -1402,7 +1444,13 @@ export function openapi(config: Config.Config): PluginOption {
       })
     },
     async load(id) {
-      if (id !== resolvedVirtualModuleId) return
+      const clientMount = openapiClientMount(id)
+      if (
+        id !== resolvedOpenapiVirtualModuleId &&
+        id !== resolvedOpenapiClientVirtualModuleId &&
+        clientMount === undefined
+      )
+        return
 
       const currentConfig = Config.getGlobal() ?? config
 
@@ -1416,6 +1464,14 @@ export function openapi(config: Config.Config): PluginOption {
         this.error(
           `Failed to parse OpenAPI spec: ${error instanceof Error ? error.message : String(error)}`,
         )
+      }
+
+      if (id === resolvedOpenapiClientVirtualModuleId) return openapiClientManifest(specs)
+
+      if (clientMount !== undefined) {
+        const document = openapiClientDocument(specs, clientMount)
+        if (!document) this.error(`No OpenAPI spec is mounted at ${clientMount}.`)
+        return document
       }
 
       return `export const specs = ${JSON.stringify(specs)}`

@@ -16,12 +16,40 @@ type Registration = {
 
 const disclosures = new Set<Registration>()
 
+type LazyRegistration = {
+  has: (id: string) => boolean
+  reveal: (id: string) => void
+}
+
+const lazyAnchors = new Set<LazyRegistration>()
+
 /** Registers a disclosure panel so it can be auto-opened during navigation. */
 export function registerDisclosure(panel: HTMLElement, open: () => void): () => void {
   const registration: Registration = { panel, open }
   disclosures.add(registration)
   return () => {
     disclosures.delete(registration)
+  }
+}
+
+/** Registers schema data that can materialize an anchor on demand. */
+export function registerLazyAnchor(registration: LazyRegistration): () => void {
+  lazyAnchors.add(registration)
+  const hash = currentHashId()
+  if (hash && registration.has(hash)) registration.reveal(hash)
+  return () => {
+    lazyAnchors.delete(registration)
+  }
+}
+
+/** Returns the decoded id from the current URL fragment. */
+export function currentHashId(hash = window.location.hash): string | undefined {
+  const value = hash.slice(1)
+  if (!value) return undefined
+  try {
+    return decodeURIComponent(value)
+  } catch {
+    return value
   }
 }
 
@@ -85,7 +113,17 @@ export async function revealAnchor(
   id: string,
   options: { updateHash?: boolean; behavior?: ScrollBehavior } = {},
 ): Promise<boolean> {
-  const target = document.getElementById(id)
+  let target = document.getElementById(id)
+  if (!target) {
+    for (const registration of lazyAnchors)
+      if (registration.has(id)) {
+        registration.reveal(id)
+        break
+      }
+    await nextFrame()
+    await nextFrame()
+    target = document.getElementById(id)
+  }
   if (!target) return false
 
   for (const disclosure of disclosures) if (disclosure.panel.contains(target)) disclosure.open()

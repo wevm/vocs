@@ -4,13 +4,43 @@ import * as path from 'node:path'
 import type { ResolvedConfig } from 'vite'
 import { afterEach, describe, expect, test } from 'vitest'
 import type * as Config from './config.js'
-import { resolveSitemapInclude, resolveSitemapLastmod, sitemap } from './vite-plugins.js'
+import type * as OpenApi from './openapi/index.js'
+import {
+  openapiClientDocument,
+  openapiClientManifest,
+  resolveSitemapInclude,
+  resolveSitemapLastmod,
+  sitemap,
+} from './vite-plugins.js'
 
 const tempDirs = new Set<string>()
 
 afterEach(async () => {
   await Promise.all([...tempDirs].map((dir) => fs.rm(dir, { force: true, recursive: true })))
   tempDirs.clear()
+})
+
+describe('openapi client modules', () => {
+  const specs = {
+    '/first': { client: { content: { marker: 'first-client' } } },
+    '/second': { client: { content: { marker: 'second-client' } } },
+  } as unknown as Record<string, OpenApi.Ir>
+
+  test('creates one lazy document import per mount', () => {
+    const manifest = openapiClientManifest(specs)
+
+    expect(manifest).toContain('virtual:vocs/openapi-client:%2Ffirst')
+    expect(manifest).toContain('virtual:vocs/openapi-client:%2Fsecond')
+    expect(manifest).not.toContain('first-client')
+    expect(manifest).not.toContain('second-client')
+  })
+
+  test('serializes only the requested client document', () => {
+    const document = openapiClientDocument(specs, '/first')
+
+    expect(document).toContain('first-client')
+    expect(document).not.toContain('second-client')
+  })
 })
 
 describe('sitemap', () => {
