@@ -40,7 +40,16 @@ function Content(props: App.Props) {
 
   // Category page.
   const group = ir.groups.find((candidate) => join(base, `/${candidate.id}`) === route)
-  if (group) return <OpenApiPage mount={base} group={group.id} intro={intro} title={page?.title} />
+  if (group)
+    return (
+      <OpenApiPage
+        mount={base}
+        group={group.id}
+        intro={intro}
+        title={page?.title}
+        inlineSchemaModels
+      />
+    )
 
   // Landing / overview page. Without an override the standalone Introduction
   // lists every endpoint by default (consumers can override `/` to customize).
