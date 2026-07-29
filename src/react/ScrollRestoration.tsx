@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import { useRouter } from 'waku'
+import { currentHashId, revealAnchor } from './internal/openapi/anchor-navigation.client.js'
 
 const storageKey = 'vocs:scroll'
 
@@ -53,10 +54,12 @@ export function ScrollRestoration() {
   useEffect(() => {
     if (typeof window === 'undefined') return
 
-    const hash = router.hash.slice(1)
+    const hash = currentHashId(router.hash)
     if (hash) {
-      const element = document.getElementById(hash)
-      if (element) element.scrollIntoView({ behavior: prevHash.current ? 'smooth' : 'instant' })
+      void revealAnchor(hash, {
+        behavior: prevHash.current ? 'smooth' : 'auto',
+        updateHash: false,
+      })
       prevHash.current = hash
     }
   }, [router.hash])
@@ -65,7 +68,7 @@ export function ScrollRestoration() {
   useEffect(() => {
     if (typeof window === 'undefined') return
 
-    const hash = router.hash.slice(1)
+    const hash = currentHashId(router.hash)
 
     // Restore saved position only on back/forward, otherwise scroll to top or hash
     if (isPopstate.current) {

@@ -35,8 +35,21 @@ export function registerDisclosure(panel: HTMLElement, open: () => void): () => 
 /** Registers schema data that can materialize an anchor on demand. */
 export function registerLazyAnchor(registration: LazyRegistration): () => void {
   lazyAnchors.add(registration)
+  const hash = currentHashId()
+  if (hash && registration.has(hash)) registration.reveal(hash)
   return () => {
     lazyAnchors.delete(registration)
+  }
+}
+
+/** Returns the decoded id from the current URL fragment. */
+export function currentHashId(hash = window.location.hash): string | undefined {
+  const value = hash.slice(1)
+  if (!value) return undefined
+  try {
+    return decodeURIComponent(value)
+  } catch {
+    return value
   }
 }
 
