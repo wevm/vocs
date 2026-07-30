@@ -1,6 +1,7 @@
 import type { MDXComponents } from 'mdx/types.js'
 
 import { Callout } from './react/Callout.js'
+import { Benchmarks } from './react/internal/Benchmarks.mdx.js'
 import { Changelog } from './react/internal/Changelog.mdx.js'
 import { CodeBlock } from './react/internal/CodeBlock.mdx.js'
 import { CodeGroup } from './react/internal/CodeGroup.mdx.js'
@@ -36,6 +37,7 @@ export const components: MDXComponents = {
       }
     >,
   ) {
+    if ('data-v-benchmarks' in props) return <Benchmarks {...props} />
     if ('data-v-changelog' in props) return <Changelog {...props} />
     if ('data-v-code-group' in props) return <CodeGroup {...props} />
     if ('data-v-file-tree' in props) return <FileTree {...props} />

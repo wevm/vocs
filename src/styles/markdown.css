@@ -393,6 +393,99 @@ div[data-v-table-wrapper] {
 
 /* #endregion */
 
+/* #region Benchmarks */
+
+div[data-v-benchmarks] {
+  @apply vocs:mb-6;
+
+  & div[data-v-table-wrapper] {
+    @apply vocs:mb-0;
+  }
+
+  & table[data-v] {
+    & th[data-v-benchmarks-col]:not([align="left"]) {
+      @apply vocs:text-center;
+    }
+
+    & td[data-v-benchmarks-cell] {
+      @apply vocs:text-center vocs:tabular-nums vocs:whitespace-nowrap vocs:relative vocs:isolate;
+
+      /* Tint an inset layer instead of the cell so the background doesn't
+         bleed to the cell edges. */
+      &::before {
+        content: "";
+        position: absolute;
+        inset: 3px;
+        z-index: -1;
+      }
+    }
+
+    & td[data-v-benchmarks-cell="baseline"] {
+      @apply vocs:text-secondary;
+
+      &::before {
+        border: 1px dashed var(--vocs-border-color-primary);
+      }
+    }
+
+    & td[data-v-benchmarks-cell="neutral"]::before {
+      background-color: var(--vocs-background-color-surfaceTint);
+    }
+
+    & td[data-v-benchmarks-cell="faster"]::before {
+      background-color: color-mix(
+        in srgb,
+        var(--vocs-color-green) calc(6% + var(--vocs-benchmarks-intensity, 0) * 42%),
+        var(--vocs-background-color-surfaceTint)
+      );
+    }
+
+    & td[data-v-benchmarks-cell="slower"]::before {
+      background-color: color-mix(
+        in srgb,
+        var(--vocs-color-red) calc(6% + var(--vocs-benchmarks-intensity, 0) * 42%),
+        var(--vocs-background-color-surfaceTint)
+      );
+    }
+
+    & td[data-v-benchmarks-cell="missing"] {
+      @apply vocs:text-muted;
+
+      &::before {
+        background-image: repeating-linear-gradient(
+          -45deg,
+          color-mix(in srgb, var(--vocs-text-color-muted) 12%, transparent) 0 4px,
+          transparent 4px 8px
+        );
+      }
+    }
+  }
+
+  & footer[data-v-benchmarks-legend] {
+    @apply vocs:flex vocs:items-center vocs:gap-2 vocs:mt-2 vocs:text-sm vocs:text-muted;
+
+    & [data-v-benchmarks-legend-scale] {
+      @apply vocs:h-2 vocs:w-16;
+      background: linear-gradient(
+        to right,
+        color-mix(in srgb, var(--vocs-color-green) 48%, var(--vocs-background-color-surfaceTint)),
+        var(--vocs-background-color-surfaceTint),
+        color-mix(in srgb, var(--vocs-color-red) 48%, var(--vocs-background-color-surfaceTint))
+      );
+    }
+
+    & [data-v-benchmarks-legend-baseline] {
+      @apply vocs:flex vocs:items-center vocs:gap-2 vocs:ms-4;
+    }
+
+    & [data-v-benchmarks-legend-swatch] {
+      @apply vocs:inline-block vocs:h-3.5 vocs:w-6 vocs:border vocs:border-dashed vocs:border-primary;
+    }
+  }
+}
+
+/* #endregion */
+
 /* #region Superscript */
 
 sup[data-v] > a {
