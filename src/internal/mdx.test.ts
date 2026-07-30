@@ -3,6 +3,7 @@ import type * as Estree from 'estree'
 import type * as MdAst from 'mdast'
 import remarkDirective from 'remark-directive'
 import remarkFrontmatter from 'remark-frontmatter'
+import remarkGfm from 'remark-gfm'
 import remarkParse from 'remark-parse'
 import ruby from 'shiki/langs/ruby.mjs'
 import { unified } from 'unified'
@@ -14,6 +15,7 @@ import {
   recmaMdxLayout,
   rehypeHeadingAnchors,
   rehypeLinks,
+  remarkBenchmarks,
   remarkChangelog,
   remarkCodeTitle,
   remarkDefaultFrontmatter,
@@ -174,6 +176,199 @@ describe('remarkPrompt', () => {
     expect(tree.children[0]).toMatchObject({
       type: 'containerDirective',
       name: 'note',
+    })
+  })
+})
+
+describe('remarkBenchmarks', () => {
+  const plugins = [remarkDirective, remarkGfm, remarkBenchmarks]
+
+  function benchmarksCells(tree: MdAst.Root) {
+    const directive = tree.children[0] as unknown as { children: MdAst.RootContent[] }
+    const table = directive.children.find((child) => child.type === 'table') as MdAst.Table
+    return table.children.map((row) =>
+      row.children.map(
+        (cell) => (cell.data as { hProperties?: Record<string, unknown> } | undefined)?.hProperties,
+      ),
+    )
+  }
+
+  it('colors scalar cells as cost ratios against the reference column', async () => {
+    const tree = await runRemark(
+      [
+        ':::benchmarks',
+        '| suite | Octane | React | Solid |',
+        '| --- | --- | --- | --- |',
+        '| js-framework | 1x | 2.5x | 1.0x |',
+        '| memo-wall | 1x | 6.1x | 0.40x |',
+        ':::',
+      ].join('\n'),
+      plugins,
+    )
+
+    expect((tree.children[0] as unknown as { data?: unknown }).data).toMatchObject({
+      hName: 'div',
+      hProperties: { 'data-v-benchmarks': '' },
+    })
+    expect(benchmarksCells(tree)).toEqual([
+      [
+        undefined,
+        { 'data-v-benchmarks-col': '', style: 'width: 24%' },
+        { 'data-v-benchmarks-col': '', style: 'width: 24%' },
+        { 'data-v-benchmarks-col': '', style: 'width: 24%' },
+      ],
+      [
+        undefined,
+        { 'data-v-benchmarks-cell': 'baseline' },
+        { 'data-v-benchmarks-cell': 'slower', style: '--vocs-benchmarks-intensity: 0.53' },
+        { 'data-v-benchmarks-cell': 'neutral' },
+      ],
+      [
+        undefined,
+        { 'data-v-benchmarks-cell': 'baseline' },
+        { 'data-v-benchmarks-cell': 'slower', style: '--vocs-benchmarks-intensity: 1' },
+        { 'data-v-benchmarks-cell': 'faster', style: '--vocs-benchmarks-intensity: 0.53' },
+      ],
+    ])
+  })
+
+  it('inverts scalar cost with `scalar=speedup`', async () => {
+    const tree = await runRemark(
+      [
+        ':::benchmarks{scalar=speedup}',
+        '| op | vocs | other |',
+        '| --- | --- | --- |',
+        '| build | 1x | 2.0x |',
+        ':::',
+      ].join('\n'),
+      plugins,
+    )
+
+    expect((tree.children[0] as unknown as { data?: unknown }).data).toMatchObject({
+      hProperties: { 'data-v-benchmarks': '', scalar: 'speedup' },
+    })
+    expect(benchmarksCells(tree)[1]).toEqual([
+      undefined,
+      { 'data-v-benchmarks-cell': 'baseline' },
+      { 'data-v-benchmarks-cell': 'faster', style: '--vocs-benchmarks-intensity: 0.4' },
+    ])
+  })
+
+  it('normalizes scalars against a non-1x reference cell', async () => {
+    const table = ['| suite | a | b | c |', '| --- | --- | --- | --- |', '| r | 2x | 2x | 4x |']
+
+    const cost = await runRemark([':::benchmarks', ...table, ':::'].join('\n'), plugins)
+    expect(benchmarksCells(cost)[1]).toEqual([
+      undefined,
+      { 'data-v-benchmarks-cell': 'baseline' },
+      { 'data-v-benchmarks-cell': 'neutral' },
+      { 'data-v-benchmarks-cell': 'slower', style: '--vocs-benchmarks-intensity: 0.4' },
+    ])
+
+    const speedup = await runRemark(
+      [':::benchmarks{scalar=speedup}', ...table, ':::'].join('\n'),
+      plugins,
+    )
+    expect(benchmarksCells(speedup)[1]).toEqual([
+      undefined,
+      { 'data-v-benchmarks-cell': 'baseline' },
+      { 'data-v-benchmarks-cell': 'neutral' },
+      { 'data-v-benchmarks-cell': 'faster', style: '--vocs-benchmarks-intensity: 0.4' },
+    ])
+  })
+
+  it('renders zero-valued results at full intensity', async () => {
+    const cost = await runRemark(
+      [':::benchmarks', '| t | a | b |', '| --- | --- | --- |', '| r | 100ms | 0ms |', ':::'].join(
+        '\n',
+      ),
+      plugins,
+    )
+    expect(benchmarksCells(cost)[1]).toEqual([
+      undefined,
+      { 'data-v-benchmarks-cell': 'baseline' },
+      { 'data-v-benchmarks-cell': 'faster', style: '--vocs-benchmarks-intensity: 1' },
+    ])
+
+    const speedup = await runRemark(
+      [
+        ':::benchmarks{scalar=speedup}',
+        '| t | a | b |',
+        '| --- | --- | --- |',
+        '| r | 1x | 0x |',
+        ':::',
+      ].join('\n'),
+      plugins,
+    )
+    expect(benchmarksCells(speedup)[1]).toEqual([
+      undefined,
+      { 'data-v-benchmarks-cell': 'baseline' },
+      { 'data-v-benchmarks-cell': 'slower', style: '--vocs-benchmarks-intensity: 1' },
+    ])
+  })
+
+  it('colors time cells relative to the reference time, normalizing units', async () => {
+    const tree = await runRemark(
+      [
+        ':::benchmarks',
+        '| task | a | b | c | d |',
+        '| --- | --- | --- | --- | --- |',
+        '| build | 100ms | 50ms | 0.2s | — |',
+        '| run | 10 | 9.0 | fast | 10 |',
+        ':::',
+      ].join('\n'),
+      plugins,
+    )
+
+    expect(benchmarksCells(tree).slice(1)).toEqual([
+      [
+        undefined,
+        { 'data-v-benchmarks-cell': 'baseline' },
+        { 'data-v-benchmarks-cell': 'faster', style: '--vocs-benchmarks-intensity: 0.4' },
+        { 'data-v-benchmarks-cell': 'slower', style: '--vocs-benchmarks-intensity: 0.4' },
+        { 'data-v-benchmarks-cell': 'missing' },
+      ],
+      [
+        undefined,
+        { 'data-v-benchmarks-cell': 'baseline' },
+        { 'data-v-benchmarks-cell': 'faster', style: '--vocs-benchmarks-intensity: 0.06' },
+        undefined,
+        { 'data-v-benchmarks-cell': 'neutral' },
+      ],
+    ])
+  })
+
+  it('uses the first numeric column as reference and skips columns before it', async () => {
+    const tree = await runRemark(
+      [
+        ':::benchmarks',
+        '| suite | note | ref | other |',
+        '| --- | --- | --- | --- |',
+        '| r | - | 1x | 2x |',
+        ':::',
+      ].join('\n'),
+      plugins,
+    )
+
+    expect(benchmarksCells(tree)[1]).toEqual([
+      undefined,
+      undefined,
+      { 'data-v-benchmarks-cell': 'baseline' },
+      { 'data-v-benchmarks-cell': 'slower', style: '--vocs-benchmarks-intensity: 0.4' },
+    ])
+  })
+
+  it('ignores tables outside the directive and directives without tables', async () => {
+    const tree = await runRemark(
+      ['| a | b |', '| --- | --- |', '| 1x | 2x |', '', ':::benchmarks', 'hello', ':::'].join('\n'),
+      plugins,
+    )
+
+    const table = tree.children[0] as MdAst.Table
+    expect(table.children[1]?.children.map((cell) => cell.data)).toEqual([undefined, undefined])
+    expect((tree.children[1] as unknown as { data?: unknown }).data).toMatchObject({
+      hName: 'div',
+      hProperties: { 'data-v-benchmarks': '' },
     })
   })
 })

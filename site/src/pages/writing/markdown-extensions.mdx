@@ -27,6 +27,83 @@ This feature is :badge[Experimental].
 ```
 :::
 
+## Benchmarks
+
+Use the `:::benchmarks` directive to color a table by relative performance. The first column that contains numeric values is the reference. Scalar cells (`2.5x`) are cost ratios against the reference: below `1x` renders green (faster), above renders red (slower). Use `—` for missing values.
+
+::::code-group
+<div data-title="Preview">
+:::benchmarks
+| suite | Octane | React 19 | Preact 10 | Solid 2.0 |
+| --- | --- | --- | --- | --- |
+| js-framework | 1x | 2.5x | 2.4x | 1.1x |
+| chat-stream | 1x | 3.7x | 2.5x | 1.4x |
+| memo-wall | 1x | 6.1x | 7.6x | 0.40x |
+| signal-favoring | 1x | 5.9x | 3.3x | 0.69x |
+| async-waterfall | 1x | 12x | 9.0x | — |
+| bundle-size | 1x | 0.97x | 0.59x | 0.70x |
+:::
+</div>
+```md [Markdown]
+:::benchmarks
+| suite | Octane | React 19 | Preact 10 | Solid 2.0 |
+| --- | --- | --- | --- | --- |
+| js-framework | 1x | 2.5x | 2.4x | 1.1x |
+| chat-stream | 1x | 3.7x | 2.5x | 1.4x |
+| memo-wall | 1x | 6.1x | 7.6x | 0.40x |
+| signal-favoring | 1x | 5.9x | 3.3x | 0.69x |
+| async-waterfall | 1x | 12x | 9.0x | — |
+| bundle-size | 1x | 0.97x | 0.59x | 0.70x |
+:::
+```
+::::
+
+Time cells (`120ms`, `1.2s`, supporting `ns`, `us`, `ms`, `s`, and unitless values) are compared against the reference column's time in the same row.
+
+::::code-group
+<div data-title="Preview">
+:::benchmarks
+| task | vocs | webpack |
+| --- | --- | --- |
+| cold build | 1.2s | 4.8s |
+| HMR update | 45ms | 320ms |
+:::
+</div>
+```md [Markdown]
+:::benchmarks
+| task | vocs | webpack |
+| --- | --- | --- |
+| cold build | 1.2s | 4.8s |
+| HMR update | 45ms | 320ms |
+:::
+```
+::::
+
+For throughput-style tables where a higher multiplier means faster, set `scalar=speedup` to invert scalar coloring.
+
+::::code-group
+<div data-title="Preview">
+:::benchmarks{scalar=speedup}
+| suite | baseline | optimized | legacy |
+| --- | --- | --- | --- |
+| render | 1x | 2.5x | 0.80x |
+| hydrate | 1x | 1.9x | 0.65x |
+:::
+</div>
+```md [Markdown]
+:::benchmarks{scalar=speedup}
+| suite | baseline | optimized | legacy |
+| --- | --- | --- | --- |
+| render | 1x | 2.5x | 0.80x |
+| hydrate | 1x | 1.9x | 0.65x |
+:::
+```
+::::
+
+:::note
+Set `legend=false` on the directive to hide the legend.
+:::
+
 ## Blockquote
 
 To create a blockquote, add a `>` in front of a paragraph.

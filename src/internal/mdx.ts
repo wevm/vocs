@@ -6,6 +6,7 @@ import * as EstreeUtil from 'esast-util-from-js'
 import type * as Estree from 'estree'
 import type * as HAst from 'hast'
 import type * as MdAst from 'mdast'
+import { toString as mdastToString } from 'mdast-util-to-string'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import rehypeSlug from 'rehype-slug'
 import remarkDirective from 'remark-directive'
@@ -392,6 +393,7 @@ export function getCompileOptions(
           remarkDirective,
           [remarkFileTree, config] as Pluggable,
           remarkCallout,
+          remarkBenchmarks,
           remarkChangelog,
           remarkCodeGroup,
           remarkPrompt,
@@ -818,6 +820,154 @@ export function remarkCallout() {
         'data-v-context': node.name !== 'callout' ? node.name : 'info',
       }
     })
+  }
+}
+
+/**
+ * Remark plugin that transforms `:::benchmarks` container directives into
+ * color-coded benchmark tables.
+ *
+ * Tables inside the directive are scanned for a reference column – the first
+ * column that contains numeric values. Cells holding a scalar (`2.5x`) or a
+ * time (`120ms`, `1.2s`) are colored by their cost relative to the reference:
+ * green when faster, red when slower. Scalars are cost ratios by default
+ * (`2.5x` = 2.5× the reference's cost); use `:::benchmarks{scalar=speedup}`
+ * when scalars are speedup factors instead. `—` marks a missing value.
+ */
+export function remarkBenchmarks(): remarkBenchmarks.ReturnType {
+  return (tree: MdAst.Root) => {
+    UnistUtil.visit(tree, (node) => {
+      if (node.type !== 'containerDirective') return
+      if (node.name !== 'benchmarks') return
+
+      // biome-ignore lint/suspicious/noAssignInExpressions: _
+      const data = node.data || (node.data = {})
+      data.hName = 'div'
+      data.hProperties = {
+        ...(node.attributes ?? {}),
+        'data-v-benchmarks': '',
+      }
+
+      const scalar = node.attributes?.['scalar'] === 'speedup' ? 'speedup' : 'cost'
+      UnistUtil.visit(node, 'table', (table) => annotateBenchmarksTable(table, scalar))
+    })
+  }
+}
+
+export declare namespace remarkBenchmarks {
+  type ReturnType = (tree: MdAst.Root) => void
+}
+
+const benchmarksScalarRegex = /^(\d+(?:\.\d+)?)\s*[x×]$/i
+const benchmarksTimeRegex = /^(\d+(?:\.\d+)?)\s*(ns|µs|μs|us|ms|s)?$/i
+const benchmarksMissingRegex = /^(—|–|-|n\/a)$/i
+const benchmarksTimeUnits: Record<string, number> = {
+  ns: 1e-9,
+  µs: 1e-6,
+  μs: 1e-6,
+  us: 1e-6,
+  ms: 1e-3,
+  s: 1,
+}
+
+function parseBenchmarkValue(text: string): { kind: 'scalar' | 'time'; value: number } | undefined {
+  const scalar = text.match(benchmarksScalarRegex)
+  const time = scalar ? undefined : text.match(benchmarksTimeRegex)
+  const match = scalar ?? time
+  if (!match) return undefined
+
+  const value = Number.parseFloat(match[1] ?? '')
+  if (!Number.isFinite(value)) return undefined
+  if (scalar) return { kind: 'scalar', value }
+
+  const unit = benchmarksTimeUnits[(time?.[2] ?? 's').toLowerCase()] ?? 1
+  return { kind: 'time', value: value * unit }
+}
+
+function annotateBenchmarksTable(table: MdAst.Table, scalar: 'cost' | 'speedup') {
+  const [headerRow, ...rows] = table.children
+  if (!headerRow || rows.length === 0) return
+
+  const columnCount = Math.max(...table.children.map((row) => row.children.length))
+  const referenceIndex = Array.from({ length: columnCount }, (_, index) => index).find((index) =>
+    rows.some((row) => {
+      const cell = row.children[index]
+      return cell ? parseBenchmarkValue(mdastToString(cell).trim()) !== undefined : false
+    }),
+  )
+  if (referenceIndex === undefined) return
+
+  // Distribute value columns evenly; label columns share the remaining width.
+  const valueColumnWidth = Math.round((72 / (columnCount - referenceIndex)) * 10) / 10
+  for (const [index, cell] of headerRow.children.entries()) {
+    if (index < referenceIndex) continue
+    // biome-ignore lint/suspicious/noAssignInExpressions: _
+    const cellData = cell.data || (cell.data = {})
+    cellData.hProperties = {
+      ...cellData.hProperties,
+      'data-v-benchmarks-col': '',
+      style: `width: ${valueColumnWidth}%`,
+    }
+  }
+
+  for (const row of rows) {
+    const referenceCell = row.children[referenceIndex]
+    const reference = referenceCell
+      ? parseBenchmarkValue(mdastToString(referenceCell).trim())
+      : undefined
+
+    for (const [index, cell] of row.children.entries()) {
+      if (index < referenceIndex) continue
+
+      const annotate = (context: string, intensity?: number) => {
+        // biome-ignore lint/suspicious/noAssignInExpressions: _
+        const cellData = cell.data || (cell.data = {})
+        cellData.hProperties = {
+          ...cellData.hProperties,
+          'data-v-benchmarks-cell': context,
+          ...(intensity === undefined
+            ? {}
+            : { style: `--vocs-benchmarks-intensity: ${intensity}` }),
+        }
+      }
+
+      const text = mdastToString(cell).trim()
+      if (benchmarksMissingRegex.test(text)) {
+        annotate('missing')
+        continue
+      }
+
+      const value = parseBenchmarkValue(text)
+      if (!value) continue
+      if (index === referenceIndex) {
+        annotate('baseline')
+        continue
+      }
+
+      const cost = (() => {
+        if (value.kind === 'scalar') {
+          // Scalars are already relative, but normalize anyway so a non-`1x`
+          // reference cell (e.g. `2x | 2x`) still compares correctly.
+          const referenceValue = reference?.kind === 'scalar' ? reference.value : 1
+          if (referenceValue === 0) return undefined
+          return scalar === 'speedup' ? referenceValue / value.value : value.value / referenceValue
+        }
+        if (reference?.kind !== 'time' || reference.value === 0) return undefined
+        return value.value / reference.value
+      })()
+      // Zero and Infinity costs (e.g. a rounded `0ms` result) clamp to full
+      // intensity below via log2(0) = -Infinity / log2(Infinity) = Infinity.
+      if (cost === undefined || Number.isNaN(cost) || cost < 0) continue
+
+      // Full tint at ≥ ~5.7× (2^2.5) difference; within ~±1.4% counts as neutral.
+      const shift = Math.log2(cost)
+      if (Math.abs(shift) < 0.02) {
+        annotate('neutral')
+        continue
+      }
+      const intensity = Math.round(Math.min(1, Math.abs(shift) / 2.5) * 100) / 100
+      annotate(shift > 0 ? 'slower' : 'faster', intensity)
+    }
   }
 }
 
