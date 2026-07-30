@@ -945,7 +945,13 @@ function annotateBenchmarksTable(table: MdAst.Table, scalar: 'cost' | 'speedup')
       }
 
       const cost = (() => {
-        if (value.kind === 'scalar') return scalar === 'speedup' ? 1 / value.value : value.value
+        if (value.kind === 'scalar') {
+          // Scalars are already relative, but normalize anyway so a non-`1x`
+          // reference cell (e.g. `2x | 2x`) still compares correctly.
+          const referenceValue = reference?.kind === 'scalar' ? reference.value : 1
+          if (referenceValue === 0) return undefined
+          return scalar === 'speedup' ? referenceValue / value.value : value.value / referenceValue
+        }
         if (reference?.kind !== 'time' || reference.value === 0) return undefined
         return value.value / reference.value
       })()

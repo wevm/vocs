@@ -254,6 +254,29 @@ describe('remarkBenchmarks', () => {
     ])
   })
 
+  it('normalizes scalars against a non-1x reference cell', async () => {
+    const table = ['| suite | a | b | c |', '| --- | --- | --- | --- |', '| r | 2x | 2x | 4x |']
+
+    const cost = await runRemark([':::benchmarks', ...table, ':::'].join('\n'), plugins)
+    expect(benchmarksCells(cost)[1]).toEqual([
+      undefined,
+      { 'data-v-benchmarks-cell': 'baseline' },
+      { 'data-v-benchmarks-cell': 'neutral' },
+      { 'data-v-benchmarks-cell': 'slower', style: '--vocs-benchmarks-intensity: 0.4' },
+    ])
+
+    const speedup = await runRemark(
+      [':::benchmarks{scalar=speedup}', ...table, ':::'].join('\n'),
+      plugins,
+    )
+    expect(benchmarksCells(speedup)[1]).toEqual([
+      undefined,
+      { 'data-v-benchmarks-cell': 'baseline' },
+      { 'data-v-benchmarks-cell': 'neutral' },
+      { 'data-v-benchmarks-cell': 'faster', style: '--vocs-benchmarks-intensity: 0.4' },
+    ])
+  })
+
   it('colors time cells relative to the reference time, normalizing units', async () => {
     const tree = await runRemark(
       [
