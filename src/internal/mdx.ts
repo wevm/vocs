@@ -955,7 +955,9 @@ function annotateBenchmarksTable(table: MdAst.Table, scalar: 'cost' | 'speedup')
         if (reference?.kind !== 'time' || reference.value === 0) return undefined
         return value.value / reference.value
       })()
-      if (cost === undefined || !Number.isFinite(cost) || cost <= 0) continue
+      // Zero and Infinity costs (e.g. a rounded `0ms` result) clamp to full
+      // intensity below via log2(0) = -Infinity / log2(Infinity) = Infinity.
+      if (cost === undefined || Number.isNaN(cost) || cost < 0) continue
 
       // Full tint at ≥ ~5.7× (2^2.5) difference; within ~±1.4% counts as neutral.
       const shift = Math.log2(cost)

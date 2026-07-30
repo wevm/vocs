@@ -277,6 +277,36 @@ describe('remarkBenchmarks', () => {
     ])
   })
 
+  it('renders zero-valued results at full intensity', async () => {
+    const cost = await runRemark(
+      [':::benchmarks', '| t | a | b |', '| --- | --- | --- |', '| r | 100ms | 0ms |', ':::'].join(
+        '\n',
+      ),
+      plugins,
+    )
+    expect(benchmarksCells(cost)[1]).toEqual([
+      undefined,
+      { 'data-v-benchmarks-cell': 'baseline' },
+      { 'data-v-benchmarks-cell': 'faster', style: '--vocs-benchmarks-intensity: 1' },
+    ])
+
+    const speedup = await runRemark(
+      [
+        ':::benchmarks{scalar=speedup}',
+        '| t | a | b |',
+        '| --- | --- | --- |',
+        '| r | 1x | 0x |',
+        ':::',
+      ].join('\n'),
+      plugins,
+    )
+    expect(benchmarksCells(speedup)[1]).toEqual([
+      undefined,
+      { 'data-v-benchmarks-cell': 'baseline' },
+      { 'data-v-benchmarks-cell': 'slower', style: '--vocs-benchmarks-intensity: 1' },
+    ])
+  })
+
   it('colors time cells relative to the reference time, normalizing units', async () => {
     const tree = await runRemark(
       [
