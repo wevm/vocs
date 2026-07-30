@@ -1,10 +1,6 @@
 import type * as React from 'react'
 
-export function Benchmarks(
-  props: React.PropsWithChildren<
-    React.ComponentProps<'div'> & { legend?: string | undefined; scalar?: string | undefined }
-  >,
-) {
+export function Benchmarks(props: Benchmarks.Props) {
   const { children, legend, scalar: _scalar, ...rest } = props
   return (
     <div {...rest} data-v data-v-benchmarks>
@@ -22,4 +18,13 @@ export function Benchmarks(
       )}
     </div>
   )
+}
+
+export declare namespace Benchmarks {
+  type Props = React.PropsWithChildren<
+    React.ComponentProps<'div'> & {
+      legend?: string | undefined
+      scalar?: string | undefined
+    }
+  >
 }
