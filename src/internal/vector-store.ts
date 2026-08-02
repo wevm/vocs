@@ -14,7 +14,7 @@
  *   runtime, so no index artifact ships with the server bundle.
  */
 
-import * as WithRetry from './with-retry.js'
+import * as promise from './promise.js'
 
 export type Format = 'float32' | 'int8'
 
@@ -172,7 +172,7 @@ export function cloudflare(options: cloudflare.Options = {}): RemoteAdapter {
         '[vocs] VectorStore.cloudflare: missing `apiToken` (or CLOUDFLARE_API_TOKEN).',
       )
     const url = `${baseUrl.replace(/\/$/, '')}/accounts/${accountId}/vectorize/v2/indexes${path}`
-    return await WithRetry.withRetry(
+    return await promise.withRetry(
       () =>
         fetch(url, {
           method: init.method ?? 'GET',

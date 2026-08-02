@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import * as WithRetry from './with-retry.js'
+import * as promise from './promise.js'
 
 describe('withRetry', () => {
   it('retries failures', async () => {
@@ -9,7 +9,7 @@ describe('withRetry', () => {
       .mockRejectedValueOnce(new Error('failed'))
       .mockResolvedValueOnce('ok')
 
-    await expect(WithRetry.withRetry(fn, { retryDelays: [0, 0] })).resolves.toBe('ok')
+    await expect(promise.withRetry(fn, { retryDelays: [0, 0] })).resolves.toBe('ok')
     expect(fn).toHaveBeenCalledTimes(3)
   })
 
@@ -17,7 +17,7 @@ describe('withRetry', () => {
     const error = new Error('failed')
     const fn = vi.fn().mockRejectedValue(error)
 
-    await expect(WithRetry.withRetry(fn, { retryDelays: [0, 0] })).rejects.toBe(error)
+    await expect(promise.withRetry(fn, { retryDelays: [0, 0] })).rejects.toBe(error)
     expect(fn).toHaveBeenCalledTimes(3)
   })
 
@@ -26,7 +26,7 @@ describe('withRetry', () => {
     const fn = vi.fn().mockRejectedValue(error)
 
     await expect(
-      WithRetry.withRetry(fn, {
+      promise.withRetry(fn, {
         retryDelays: [0, 0],
         shouldRetry: (error) => error instanceof TypeError,
       }),
@@ -42,7 +42,7 @@ describe('withRetry', () => {
     })
 
     await expect(
-      WithRetry.withRetry(fn, {
+      promise.withRetry(fn, {
         retryDelays: [0, 0],
         signal: controller.signal,
       }),
@@ -54,14 +54,14 @@ describe('withRetry', () => {
     const controller = new AbortController()
     const error = new Error('aborted')
     const fn = vi.fn().mockRejectedValue(new Error('failed'))
-    const promise = WithRetry.withRetry(fn, {
+    const retry = promise.withRetry(fn, {
       retryDelays: [100],
       signal: controller.signal,
     })
 
     setTimeout(() => controller.abort(error), 0)
 
-    await expect(promise).rejects.toBe(error)
+    await expect(retry).rejects.toBe(error)
     expect(fn).toHaveBeenCalledOnce()
   })
 })
