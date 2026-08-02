@@ -1,23 +1,22 @@
-const defaultRetryDelays = [250, 1_000] as const
-
 export async function withRetry<value>(
   fn: () => Promise<value>,
   options: withRetry.Options = {},
 ): Promise<value> {
-  const { retryDelays = defaultRetryDelays, shouldRetry = () => true, signal } = options
+  const { baseMs = 250, retries = 2, shouldRetry = () => true, signal } = options
   for (let attempt = 0; ; attempt++) {
     try {
       return await fn()
     } catch (error) {
-      if (signal?.aborted || attempt >= retryDelays.length || !shouldRetry(error)) throw error
-      await wait(retryDelays[attempt] ?? 0, signal)
+      if (signal?.aborted || attempt >= retries || !shouldRetry(error)) throw error
+      await wait(baseMs * 2 ** attempt, signal)
     }
   }
 }
 
 export declare namespace withRetry {
   type Options = {
-    retryDelays?: readonly number[] | undefined
+    baseMs?: number | undefined
+    retries?: number | undefined
     shouldRetry?: ((error: unknown) => boolean) | undefined
     signal?: AbortSignal | null | undefined
   }
