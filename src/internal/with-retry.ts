@@ -1,20 +1,25 @@
 const defaultRetryDelays = [250, 1_000] as const
 
-export async function fetch(
-  input: string,
-  init: RequestInit,
-  options: { retryDelays?: readonly number[] } = {},
-): Promise<Response> {
-  const retryDelays = options.retryDelays ?? defaultRetryDelays
+export async function withRetry<value>(
+  fn: () => Promise<value>,
+  options: withRetry.Options = {},
+): Promise<value> {
+  const { retryDelays = defaultRetryDelays, shouldRetry = () => true, signal } = options
   for (let attempt = 0; ; attempt++) {
     try {
-      return await globalThis.fetch(input, init)
+      return await fn()
     } catch (error) {
-      // Fetch rejects with TypeError for network failures. HTTP errors resolve normally.
-      if (!(error instanceof TypeError) || init.signal?.aborted || attempt >= retryDelays.length)
-        throw error
-      await wait(retryDelays[attempt] ?? 0, init.signal)
+      if (signal?.aborted || attempt >= retryDelays.length || !shouldRetry(error)) throw error
+      await wait(retryDelays[attempt] ?? 0, signal)
     }
+  }
+}
+
+export declare namespace withRetry {
+  type Options = {
+    retryDelays?: readonly number[] | undefined
+    shouldRetry?: ((error: unknown) => boolean) | undefined
+    signal?: AbortSignal | null | undefined
   }
 }
 

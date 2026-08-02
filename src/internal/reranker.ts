@@ -15,7 +15,7 @@
  * private `_localRetriever` config — never in serializable config sent to the browser.
  */
 
-import * as FetchWithRetry from './fetch-with-retry.js'
+import * as WithRetry from './with-retry.js'
 
 export type RerankContext = {
   /** Optional abort signal to cancel the request. */
@@ -113,20 +113,27 @@ export function cloudflare(options: cloudflare.Options = {}): Adapter {
       if (!apiToken)
         throw new Error('[vocs] Reranker.cloudflare: missing `apiToken` (or CLOUDFLARE_API_TOKEN).')
       const url = `${baseUrl.replace(/\/$/, '')}/accounts/${accountId}/ai/run/${model}`
-      const response = await FetchWithRetry.fetch(url, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${apiToken}`,
-          'Content-Type': 'application/json',
-          ...headers,
+      const response = await WithRetry.withRetry(
+        () =>
+          fetch(url, {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${apiToken}`,
+              'Content-Type': 'application/json',
+              ...headers,
+            },
+            body: JSON.stringify({
+              query,
+              contexts: documents.map((text) => ({ text })),
+              ...(context.topK ? { top_k: context.topK } : {}),
+            }),
+            signal: context.signal ?? null,
+          }),
+        {
+          shouldRetry: (error) => error instanceof TypeError,
+          signal: context.signal,
         },
-        body: JSON.stringify({
-          query,
-          contexts: documents.map((text) => ({ text })),
-          ...(context.topK ? { top_k: context.topK } : {}),
-        }),
-        signal: context.signal ?? null,
-      })
+      )
       if (!response.ok)
         throw new Error(
           `[vocs] cloudflare rerank failed (${response.status}): ${await safeText(response)}`,

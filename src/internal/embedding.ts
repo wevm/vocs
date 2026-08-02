@@ -10,7 +10,7 @@
  * private `_localRetriever` config — never in serializable config sent to the browser.
  */
 
-import * as FetchWithRetry from './fetch-with-retry.js'
+import * as WithRetry from './with-retry.js'
 
 /** A single embedding vector. */
 export type Vector = readonly number[]
@@ -290,19 +290,26 @@ export function cloudflare(options: cloudflare.Options = {}): Adapter {
         )
       const p = prefix?.[context.purpose] ?? ''
       const url = `${baseUrl.replace(/\/$/, '')}/accounts/${accountId}/ai/run/${model}`
-      const response = await FetchWithRetry.fetch(url, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${apiToken}`,
-          'Content-Type': 'application/json',
-          ...headers,
+      const response = await WithRetry.withRetry(
+        () =>
+          fetch(url, {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${apiToken}`,
+              'Content-Type': 'application/json',
+              ...headers,
+            },
+            body: JSON.stringify({
+              text: p ? input.map((t) => p + t) : input,
+              ...(pooling ? { pooling } : {}),
+            }),
+            signal: context.signal ?? null,
+          }),
+        {
+          shouldRetry: (error) => error instanceof TypeError,
+          signal: context.signal,
         },
-        body: JSON.stringify({
-          text: p ? input.map((t) => p + t) : input,
-          ...(pooling ? { pooling } : {}),
-        }),
-        signal: context.signal ?? null,
-      })
+      )
       if (!response.ok)
         throw new Error(
           `[vocs] cloudflare embedding failed (${response.status}): ${await safeText(response)}`,

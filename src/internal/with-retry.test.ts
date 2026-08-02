@@ -1,0 +1,67 @@
+import { describe, expect, it, vi } from 'vitest'
+import * as WithRetry from './with-retry.js'
+
+describe('withRetry', () => {
+  it('retries failures', async () => {
+    const fn = vi
+      .fn<() => Promise<string>>()
+      .mockRejectedValueOnce(new Error('failed'))
+      .mockRejectedValueOnce(new Error('failed'))
+      .mockResolvedValueOnce('ok')
+
+    await expect(WithRetry.withRetry(fn, { retryDelays: [0, 0] })).resolves.toBe('ok')
+    expect(fn).toHaveBeenCalledTimes(3)
+  })
+
+  it('throws after exhausting retries', async () => {
+    const error = new Error('failed')
+    const fn = vi.fn().mockRejectedValue(error)
+
+    await expect(WithRetry.withRetry(fn, { retryDelays: [0, 0] })).rejects.toBe(error)
+    expect(fn).toHaveBeenCalledTimes(3)
+  })
+
+  it('only retries matching failures', async () => {
+    const error = new Error('invalid request')
+    const fn = vi.fn().mockRejectedValue(error)
+
+    await expect(
+      WithRetry.withRetry(fn, {
+        retryDelays: [0, 0],
+        shouldRetry: (error) => error instanceof TypeError,
+      }),
+    ).rejects.toBe(error)
+    expect(fn).toHaveBeenCalledOnce()
+  })
+
+  it('stops retrying when aborted', async () => {
+    const controller = new AbortController()
+    const fn = vi.fn().mockImplementation(async () => {
+      controller.abort(new Error('aborted'))
+      throw new Error('failed')
+    })
+
+    await expect(
+      WithRetry.withRetry(fn, {
+        retryDelays: [0, 0],
+        signal: controller.signal,
+      }),
+    ).rejects.toThrow('failed')
+    expect(fn).toHaveBeenCalledOnce()
+  })
+
+  it('cancels the retry delay when aborted', async () => {
+    const controller = new AbortController()
+    const error = new Error('aborted')
+    const fn = vi.fn().mockRejectedValue(new Error('failed'))
+    const promise = WithRetry.withRetry(fn, {
+      retryDelays: [100],
+      signal: controller.signal,
+    })
+
+    setTimeout(() => controller.abort(error), 0)
+
+    await expect(promise).rejects.toBe(error)
+    expect(fn).toHaveBeenCalledOnce()
+  })
+})
