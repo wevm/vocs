@@ -14,6 +14,8 @@
  *   runtime, so no index artifact ships with the server bundle.
  */
 
+import * as promise from './promise.js'
+
 export type Format = 'float32' | 'int8'
 
 export type Adapter = StaticAdapter | RemoteAdapter
@@ -170,16 +172,23 @@ export function cloudflare(options: cloudflare.Options = {}): RemoteAdapter {
         '[vocs] VectorStore.cloudflare: missing `apiToken` (or CLOUDFLARE_API_TOKEN).',
       )
     const url = `${baseUrl.replace(/\/$/, '')}/accounts/${accountId}/vectorize/v2/indexes${path}`
-    return await fetch(url, {
-      method: init.method ?? 'GET',
-      headers: {
-        Authorization: `Bearer ${apiToken}`,
-        ...(init.contentType ? { 'Content-Type': init.contentType } : {}),
-        ...headers,
+    return await promise.withRetry(
+      () =>
+        fetch(url, {
+          method: init.method ?? 'GET',
+          headers: {
+            Authorization: `Bearer ${apiToken}`,
+            ...(init.contentType ? { 'Content-Type': init.contentType } : {}),
+            ...headers,
+          },
+          ...(init.body !== undefined ? { body: init.body } : {}),
+          signal: init.signal ?? null,
+        }),
+      {
+        shouldRetry: (error) => error instanceof TypeError,
+        signal: init.signal,
       },
-      ...(init.body !== undefined ? { body: init.body } : {}),
-      signal: init.signal ?? null,
-    })
+    )
   }
 
   /** Creates the index when missing; validates dimensions when present. */
