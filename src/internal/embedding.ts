@@ -10,6 +10,8 @@
  * private `_localRetriever` config — never in serializable config sent to the browser.
  */
 
+import * as FetchWithRetry from './fetch-with-retry.js'
+
 /** A single embedding vector. */
 export type Vector = readonly number[]
 
@@ -288,7 +290,7 @@ export function cloudflare(options: cloudflare.Options = {}): Adapter {
         )
       const p = prefix?.[context.purpose] ?? ''
       const url = `${baseUrl.replace(/\/$/, '')}/accounts/${accountId}/ai/run/${model}`
-      const response = await fetch(url, {
+      const response = await FetchWithRetry.fetch(url, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${apiToken}`,

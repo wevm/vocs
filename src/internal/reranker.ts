@@ -15,6 +15,8 @@
  * private `_localRetriever` config — never in serializable config sent to the browser.
  */
 
+import * as FetchWithRetry from './fetch-with-retry.js'
+
 export type RerankContext = {
   /** Optional abort signal to cancel the request. */
   signal?: AbortSignal | undefined
@@ -111,7 +113,7 @@ export function cloudflare(options: cloudflare.Options = {}): Adapter {
       if (!apiToken)
         throw new Error('[vocs] Reranker.cloudflare: missing `apiToken` (or CLOUDFLARE_API_TOKEN).')
       const url = `${baseUrl.replace(/\/$/, '')}/accounts/${accountId}/ai/run/${model}`
-      const response = await fetch(url, {
+      const response = await FetchWithRetry.fetch(url, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${apiToken}`,
