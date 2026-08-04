@@ -212,16 +212,16 @@ describe('parse', () => {
     ])
   })
 
-  test('drops unknown tags, empty sections, and repeat claims from `x-tagGroups`', async () => {
+  test('drops unknown tags and empty sections but preserves repeat claims', async () => {
     const ir = await parse(
       OpenApi.from({
         spec: {
           ...spec,
           'x-tagGroups': [
-            // `missing` names no rendered group; `pets` resolves.
-            { name: 'Data API', tags: ['missing', 'pets'] },
-            // Both tags already claimed or unknown → section drops entirely.
-            { name: 'Empty', tags: ['pets', 'nope'] },
+            // Unknown and same-section duplicate tags drop; `pets` resolves once.
+            { name: 'Data API', tags: ['missing', 'pets', 'pets'] },
+            // `pets` remains in every section that names it; `nope` drops.
+            { name: 'Repeated', tags: ['pets', 'nope'] },
             // Unnamed entries are ignored.
             { tags: ['store'] },
           ],
@@ -229,7 +229,10 @@ describe('parse', () => {
         path: '/api',
       }),
     )
-    expect(ir.tagGroups).toEqual([{ name: 'Data API', groupIds: ['pets'] }])
+    expect(ir.tagGroups).toEqual([
+      { name: 'Data API', groupIds: ['pets'] },
+      { name: 'Repeated', groupIds: ['pets'] },
+    ])
   })
 
   test('omits `tagGroups` when no `x-tagGroups` entry resolves', async () => {
