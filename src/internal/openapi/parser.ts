@@ -369,24 +369,23 @@ export async function parse(config: OpenApi.Config, options: parse.Options = {})
 
 /**
  * Resolves `x-tagGroups` entries against the built categories. Tags that don't
- * resolve to a rendered category are dropped; a category claimed by multiple
- * sections stays with the first (pages are per-category, so one sidebar home).
- * Returns `undefined` when nothing resolves, so the sidebar stays flat.
+ * resolve to a rendered category are dropped; repeated categories remain in
+ * every authored section. Returns `undefined` when nothing resolves.
  */
 function buildTagGroups(document: Document, groups: IrGroup[]): IrTagGroup[] | undefined {
   const entries = document['x-tagGroups']
   if (!entries || entries.length === 0) return undefined
 
   const idByName = new Map(groups.map((group) => [group.name, group.id]))
-  const claimed = new Set<string>()
   const tagGroups: IrTagGroup[] = []
   for (const entry of entries) {
     if (!entry?.name) continue
+    const seen = new Set<string>()
     const groupIds: string[] = []
     for (const tag of entry.tags ?? []) {
       const id = idByName.get(tag)
-      if (!id || claimed.has(id)) continue
-      claimed.add(id)
+      if (!id || seen.has(id)) continue
+      seen.add(id)
       groupIds.push(id)
     }
     if (groupIds.length > 0) tagGroups.push({ name: entry.name, groupIds })

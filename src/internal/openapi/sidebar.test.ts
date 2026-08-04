@@ -142,6 +142,88 @@ describe('toSidebar', () => {
     expect(sidebar.map((item) => item.text)).toEqual(['Introduction', 'Data API', 'Internal'])
   })
 
+  test('renders a category in every tag group that claims it', () => {
+    const sidebar = toSidebar({
+      ...ir,
+      tagGroups: [
+        { name: 'Data API', groupIds: ['pets'] },
+        { name: 'Platform API', groupIds: ['pets'] },
+      ],
+    })
+    expect(sidebar).toMatchInlineSnapshot(`
+      [
+        {
+          "link": "/api",
+          "text": "Introduction",
+        },
+        {
+          "collapsed": undefined,
+          "items": [
+            {
+              "collapsed": false,
+              "items": [
+                {
+                  "link": "/api/pets",
+                  "text": "Overview",
+                },
+                {
+                  "badge": {
+                    "text": "GET",
+                    "variant": "info",
+                  },
+                  "link": "/api/pets#listpets",
+                  "text": "List pets",
+                },
+                {
+                  "badge": {
+                    "text": "POST",
+                    "variant": "success",
+                  },
+                  "link": "/api/pets#createpet",
+                  "text": "POST /pets",
+                },
+              ],
+              "text": "pets",
+            },
+          ],
+          "text": "Data API",
+        },
+        {
+          "collapsed": undefined,
+          "items": [
+            {
+              "collapsed": false,
+              "items": [
+                {
+                  "link": "/api/pets",
+                  "text": "Overview",
+                },
+                {
+                  "badge": {
+                    "text": "GET",
+                    "variant": "info",
+                  },
+                  "link": "/api/pets#listpets",
+                  "text": "List pets",
+                },
+                {
+                  "badge": {
+                    "text": "POST",
+                    "variant": "success",
+                  },
+                  "link": "/api/pets#createpet",
+                  "text": "POST /pets",
+                },
+              ],
+              "text": "pets",
+            },
+          ],
+          "text": "Platform API",
+        },
+      ]
+    `)
+  })
+
   test('flattened tag groups render their categories in place at the top level', () => {
     const sectioned: Ir = {
       ...ir,
