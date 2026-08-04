@@ -1,5 +1,11 @@
 # vocs
 
+## 2.8.3
+
+### Patch Changes
+
+- eee7161: Allowed OpenAPI tags to appear in multiple `x-tagGroups` sidebar sections.
+
 ## 2.8.2
 
 ### Patch Changes
