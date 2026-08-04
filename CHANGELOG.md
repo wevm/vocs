@@ -1,5 +1,11 @@
 # vocs
 
+## 2.8.2
+
+### Patch Changes
+
+- 1b6a231: Prevented infinite recursion while resolving MDX layout imports on Windows.
+
 ## 2.8.1
 
 ### Patch Changes
