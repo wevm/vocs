@@ -458,8 +458,18 @@ export function recmaMdxLayout(config: Config.Config) {
     )
     if (defaultExportIndex === -1) return
 
-    function getMdxLayoutImport(dir: string) {
-      if (dir === path.dirname(pagesDirPath)) return `import { Layout as _Layout } from 'vocs';`
+    function getMdxLayoutImport(dir: string): string {
+      // Normalize both sides before comparing: `dir` (derived from vfile
+      // paths) and `pagesDirPath` can differ in separator spelling on
+      // Windows (`D:/...` vs `D:\...`), so a raw `===` never matches and
+      // the walk recurses past the intended stop. The `dirname(dir) === dir`
+      // guard also terminates at filesystem roots, where `dirname` is a
+      // fixed point.
+      if (
+        path.resolve(dir) === path.resolve(path.dirname(pagesDirPath)) ||
+        path.dirname(dir) === dir
+      )
+        return `import { Layout as _Layout } from 'vocs';`
       if (layoutPaths.has(dir)) return `import _Layout from '${layoutPaths.get(dir)}';`
       const layoutPath = path.join(dir, '_mdx-wrapper.tsx')
       const layoutFile = fs.existsSync(layoutPath)
