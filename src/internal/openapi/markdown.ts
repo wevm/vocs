@@ -1,5 +1,12 @@
 import type { Config } from '../config.js'
-import type { Ir, IrGroup, IrOperation, IrParameter, IrResponse } from './parser.js'
+import {
+  groupPath,
+  type Ir,
+  type IrGroup,
+  type IrOperation,
+  type IrParameter,
+  type IrResponse,
+} from './parser.js'
 import * as Registry from './registry.js'
 import { codeSamples } from './sample.js'
 import { unwrapSingleVariant } from './union.js'
@@ -20,7 +27,7 @@ export type Page = {
  * Builds Markdown pages for every configured OpenAPI section.
  *
  * Produces one page per mount (the section overview, listing every category and
- * its endpoints) plus one page per category (`${mount}/${group.id}`), rendering
+ * its endpoints) plus one page per category (`${mount}/${group.pagePath}`), rendering
  * each operation's parameters, request body, responses, and an example request.
  *
  * These mirror the routes created in the Waku router so `/<mount>.md` and
@@ -80,7 +87,7 @@ export function renderOverview(ir: Ir, linkBase: string): string {
     lines.push(`### ${group.name}`, '')
     if (group.description) lines.push(oneLine(group.description), '')
     for (const operation of group.operations) {
-      const href = `${base}/${group.id}#${operation.id}`
+      const href = `${base}/${groupPath(group)}#${operation.id}`
       const label = operation.summary ? `: ${oneLine(operation.summary)}` : ''
       lines.push(`- [\`${operation.method} ${operation.path}\`](${href})${label}`)
     }
@@ -93,7 +100,7 @@ export function renderOverview(ir: Ir, linkBase: string): string {
 /** Category page: full detail for each operation in the group. */
 function groupPage(ir: Ir, group: IrGroup): Page {
   return {
-    path: `${normalizeMount(ir.path)}/${group.id}`,
+    path: `${normalizeMount(ir.path)}/${groupPath(group)}`,
     title: group.name,
     description: group.description ? oneLine(group.description) : undefined,
     content: renderGroup(ir, group),

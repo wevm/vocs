@@ -9,7 +9,7 @@
 import type { Config } from '../config.js'
 import type { SidebarItem } from '../sidebar.js'
 import { normalizePath } from './openapi.js'
-import type { Ir } from './parser.js'
+import { groupPath, type Ir } from './parser.js'
 
 /**
  * A block of rendered page content. Guide/override pages are compiled on the
@@ -89,7 +89,7 @@ export function knownRoutes(payload: Payload): string[] {
   const base = payload.ir.path || '/'
   const routes = new Set<string>()
   routes.add(base === '/' ? '/' : normalizePath(base))
-  for (const group of payload.ir.groups) routes.add(join(base, `/${group.id}`))
+  for (const group of payload.ir.groups) routes.add(join(base, `/${groupPath(group)}`))
   for (const page of payload.pages) routes.add(join(base, page.path))
   return [...routes]
 }

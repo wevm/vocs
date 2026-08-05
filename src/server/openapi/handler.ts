@@ -6,6 +6,7 @@ import { inferMount, join, knownRoutes } from '../../internal/openapi/app.js'
 import * as Markdown from '../../internal/openapi/markdown.js'
 import type * as OpenApi from '../../internal/openapi/openapi.js'
 import { normalizePath } from '../../internal/openapi/openapi.js'
+import { groupPath } from '../../internal/openapi/parser.js'
 import * as Assets from './assets.js'
 import * as Html from './html.js'
 import * as State from './state.js'
@@ -226,7 +227,8 @@ function resolveMarkdown(payload: Payload, relative: string, mount: string): str
 
   if (relative === introRoute) return Markdown.renderOverview(payload.ir, linkBase)
   for (const group of payload.ir.groups)
-    if (relative === join(base, `/${group.id}`)) return Markdown.renderGroup(payload.ir, group)
+    if (relative === join(base, `/${groupPath(group)}`))
+      return Markdown.renderGroup(payload.ir, group)
   for (const page of payload.pages)
     if (page.markdown && relative === join(base, page.path)) return page.markdown
   return null

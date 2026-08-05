@@ -47,6 +47,21 @@ describe('toSearchDocuments', () => {
     ])
   })
 
+  test('indexes configured category page paths', async () => {
+    const [group] = ir.groups
+    if (!group) throw new Error('Expected a group')
+    const docs = await toSearchDocuments({
+      ...ir,
+      groups: [{ ...group, pagePath: 'funding/transfers' }],
+    })
+
+    expect(docs.map((doc) => doc.href)).toEqual([
+      '/api',
+      '/api/funding/transfers',
+      '/api/funding/transfers#listpets',
+    ])
+  })
+
   test('landing page strips markdown from the description', () => {
     const landing = docs.find((doc) => doc.href === '/api')
     expect(landing?.text).toBe('The best pet API.')

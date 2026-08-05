@@ -83,6 +83,18 @@ describe('fromIr', () => {
     ])
   })
 
+  test('uses configured category page paths', () => {
+    const [group] = ir.groups
+    if (!group) throw new Error('Expected a group')
+    const pages = fromIr({
+      ...ir,
+      groups: [{ ...group, pagePath: 'funding/transfers' }],
+    })
+
+    expect(pages.map((page) => page.path)).toEqual(['/api', '/api/funding/transfers'])
+    expect(pages[0]?.content).toContain('/api/funding/transfers#listpets')
+  })
+
   test('overview lists every category with links to its operations', () => {
     const overview = pages.find((page) => page.path === '/api')
     expect(overview?.content).toContain('# Petstore')

@@ -65,6 +65,24 @@ describe('toSidebar', () => {
     ])
   })
 
+  test('links categories through their configured page paths', () => {
+    const [group] = ir.groups
+    if (!group) throw new Error('Expected a group')
+    const sidebar = toSidebar({
+      ...ir,
+      groups: [{ ...group, name: 'Transfers', pagePath: 'funding/transfers' }],
+    })
+
+    expect(sidebar[1]).toMatchObject({
+      text: 'Transfers',
+      items: [
+        { text: 'Overview', link: '/api/funding/transfers' },
+        { text: 'List pets', link: '/api/funding/transfers#listpets' },
+        { text: 'POST /pets', link: '/api/funding/transfers#createpet' },
+      ],
+    })
+  })
+
   test('nests intro items under the Introduction group', () => {
     const sidebar = toSidebar(ir, {
       intro: [
