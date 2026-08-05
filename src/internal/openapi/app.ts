@@ -9,7 +9,8 @@
 import type { Config } from '../config.js'
 import type { SidebarItem } from '../sidebar.js'
 import { normalizePath } from './openapi.js'
-import { groupPath, type Ir } from './parser.js'
+import type { Ir } from './parser.js'
+import { groupPath } from './route.js'
 
 /**
  * A block of rendered page content. Guide/override pages are compiled on the

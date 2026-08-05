@@ -1,7 +1,7 @@
 'use client'
 
 import type { Payload } from '../internal/openapi/app.js'
-import { groupPath } from '../internal/openapi/parser.js'
+import { groupPath } from '../internal/openapi/route.js'
 import { OpenApiGuide, OpenApiPage } from '../react/internal/openapi/OpenApiPage.js'
 import { Blocks } from './blocks.js'
 import { join } from './links.js'

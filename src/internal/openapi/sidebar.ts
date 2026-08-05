@@ -1,6 +1,7 @@
 import { resolveIconSync } from '../icons.js'
 import type { SidebarItem } from '../sidebar.js'
-import { groupPath, type Ir, type IrGroup, type IrOperation } from './parser.js'
+import type { Ir, IrGroup, IrOperation } from './parser.js'
+import { groupPath } from './route.js'
 
 /** Inline SVG for the webhook badge, resolved once at module load (server-side). */
 const webhookIcon = resolveIconSync('lucide:webhook')

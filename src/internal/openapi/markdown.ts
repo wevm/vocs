@@ -1,13 +1,7 @@
 import type { Config } from '../config.js'
-import {
-  groupPath,
-  type Ir,
-  type IrGroup,
-  type IrOperation,
-  type IrParameter,
-  type IrResponse,
-} from './parser.js'
+import type { Ir, IrGroup, IrOperation, IrParameter, IrResponse } from './parser.js'
 import * as Registry from './registry.js'
+import { groupPath } from './route.js'
 import { codeSamples } from './sample.js'
 import { unwrapSingleVariant } from './union.js'
 

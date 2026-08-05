@@ -1,6 +1,7 @@
 import * as Markdown from '../markdown.js'
 import type { SearchDocuments } from '../search.js'
-import { groupPath, type Ir, type IrOperation } from './parser.js'
+import type { Ir, IrOperation } from './parser.js'
+import { groupPath } from './route.js'
 
 /**
  * Builds search index documents for an OpenAPI section so the auto-generated

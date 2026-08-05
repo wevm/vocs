@@ -447,8 +447,7 @@ function applyExclusions(
   const excludedIds = new Set<string>()
   for (const tagGroup of tagGroups ?? [])
     if (names.has(tagGroup.name)) for (const id of tagGroup.groupIds) excludedIds.add(id)
-  for (const group of groups)
-    if (names.has(group.tag ?? group.name) || names.has(group.name)) excludedIds.add(group.id)
+  for (const group of groups) if (names.has(group.tag ?? group.name)) excludedIds.add(group.id)
   if (excludedIds.size === 0) return { groups, tagGroups, excluded: [] }
 
   const excluded = groups
@@ -754,11 +753,6 @@ async function buildGroups(
     .filter((group) => group.operations.length > 0)
 
   return { groups, injections }
-}
-
-/** Returns a category's route below the OpenAPI mount. */
-export function groupPath(group: Pick<IrGroup, 'id' | 'pagePath'>): string {
-  return group.pagePath || group.id
 }
 
 function normalizePagePath(value: string | undefined): string | undefined {

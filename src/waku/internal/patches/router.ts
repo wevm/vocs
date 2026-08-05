@@ -1,7 +1,7 @@
 import { createElement, type FunctionComponent, lazy, type ReactNode } from 'react'
 import { createPages } from 'waku/router/server'
 import type { Frontmatter } from '../../../internal/config.js'
-import { groupPath } from '../../../internal/openapi/parser.js'
+import { groupPath } from '../../../internal/openapi/route.js'
 import * as DedupeHead from '../dedupe-head.js'
 import {
   type ApiHandler,

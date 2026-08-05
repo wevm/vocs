@@ -327,6 +327,47 @@ describe('parse', () => {
     expect(paths['/pets']).toBeDefined()
   })
 
+  test('excludes tag identities without matching shared display names', async () => {
+    const ir = await parse(
+      OpenApi.from({
+        spec: {
+          openapi: '3.1.0',
+          info: { title: 'Transfers', version: '1.0.0' },
+          tags: [
+            { name: 'Transfers' },
+            { name: 'Funding Transfers', 'x-displayName': 'Transfers' },
+          ],
+          paths: {
+            '/transfers': {
+              get: {
+                operationId: 'listTransfers',
+                tags: ['Transfers'],
+                responses: { '200': {} },
+              },
+            },
+            '/funding/transfers': {
+              get: {
+                operationId: 'listFundingTransfers',
+                tags: ['Funding Transfers'],
+                responses: { '200': {} },
+              },
+            },
+          },
+        },
+        path: '/api',
+        exclude: ['Transfers'],
+      }),
+    )
+
+    expect(ir.groups.map((group) => ({ name: group.name, tag: group.tag }))).toEqual([
+      { name: 'Transfers', tag: 'Funding Transfers' },
+    ])
+    const content = (ir.client as { content: Record<string, unknown> }).content
+    const paths = content['paths'] as Record<string, unknown>
+    expect(paths['/transfers']).toBeUndefined()
+    expect(paths['/funding/transfers']).toBeDefined()
+  })
+
   test('excludes every tag an excluded `x-tagGroups` section claims', async () => {
     const ir = await parse(
       OpenApi.from({

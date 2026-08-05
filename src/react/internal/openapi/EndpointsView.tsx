@@ -1,6 +1,7 @@
 import type { ComponentType } from 'react'
 import LucideChevronRight from '~icons/lucide/chevron-right'
 import type { Ir } from '../../../internal/openapi/parser.js'
+import { groupPath } from '../../../internal/openapi/route.js'
 import { methodVariant } from '../../../internal/openapi/sidebar.js'
 import { Badge } from '../../Badge.js'
 import { Disclosure } from './Disclosure.client.js'
@@ -39,7 +40,7 @@ export function EndpointsView(props: EndpointsView.Props) {
           <EndpointItem
             key={operation.id}
             Link={Link}
-            href={href(`${base}/${category.id}#${operation.id}`)}
+            href={href(`${base}/${groupPath(category)}#${operation.id}`)}
             operation={operation}
           />
         ))}
@@ -69,7 +70,7 @@ export function EndpointsView(props: EndpointsView.Props) {
                 <EndpointItem
                   key={operation.id}
                   Link={Link}
-                  href={href(`${base}/${category.id}#${operation.id}`)}
+                  href={href(`${base}/${groupPath(category)}#${operation.id}`)}
                   operation={operation}
                 />
               ))}

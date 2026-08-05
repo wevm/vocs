@@ -19,6 +19,7 @@ export type {
   IrServer,
   Method,
 } from './parser.js'
-export { groupPath, methods, parse } from './parser.js'
+export { methods, parse } from './parser.js'
+export { groupPath } from './route.js'
 export type { CodeSample, ResponseSample } from './sample.js'
 export { codeSamples, harRequest, responseSamples } from './sample.js'
