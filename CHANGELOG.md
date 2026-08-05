@@ -1,5 +1,11 @@
 # vocs
 
+## 2.8.5
+
+### Patch Changes
+
+- 00bcf78: Supported OpenAPI tag display names and nested page paths through `x-displayName` and `x-pagePath`.
+
 ## 2.8.4
 
 ### Patch Changes
