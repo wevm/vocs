@@ -81,6 +81,79 @@ describe('parse', () => {
     expect(ir.groups.map((group) => group.id)).toEqual(['pets', 'store', 'default'])
   })
 
+  test('uses tag display names and page paths without changing tag identity', async () => {
+    const ir = await parse(
+      OpenApi.from({
+        spec: {
+          ...spec,
+          tags: [
+            ...spec.tags,
+            {
+              name: 'Transfers',
+              description: 'Token transfers.',
+            },
+            {
+              name: 'Funding Transfers',
+              description: 'Inbound funding transfers.',
+              'x-displayName': 'Transfers',
+              'x-pagePath': '/funding/transfers/',
+            },
+          ],
+          'x-tagGroups': [
+            { name: 'Data API', tags: ['pets', 'Transfers'] },
+            { name: 'Funding API', tags: ['Funding Transfers'] },
+          ],
+          paths: {
+            ...spec.paths,
+            '/transfers': {
+              get: {
+                operationId: 'listTransfers',
+                tags: ['Transfers'],
+                responses: { '200': {} },
+              },
+            },
+            '/funding/transfers': {
+              get: {
+                operationId: 'listFundingTransfers',
+                tags: ['Funding Transfers'],
+                responses: { '200': {} },
+              },
+            },
+          },
+        },
+        path: '/api',
+      }),
+    )
+
+    expect(
+      ir.groups
+        .filter((group) => group.name === 'Transfers')
+        .map((group) => ({
+          id: group.id,
+          operations: group.operations.map((operation) => operation.id),
+          pagePath: group.pagePath,
+          tag: group.tag,
+        })),
+    ).toEqual([
+      {
+        id: 'transfers',
+        operations: ['listtransfers'],
+        pagePath: undefined,
+        tag: undefined,
+      },
+      {
+        id: 'funding-transfers',
+        operations: ['listfundingtransfers'],
+        pagePath: 'funding/transfers',
+        tag: 'Funding Transfers',
+      },
+    ])
+    expect(ir.tagGroups).toEqual([
+      { name: 'Data API', groupIds: ['pets', 'transfers'] },
+      { name: 'Funding API', groupIds: ['funding-transfers'] },
+    ])
+  })
+
   test('extracts `x-traitTag` tags as doc-only traits, excluded from groups', async () => {
     const traitSpec = {
       openapi: '3.1.0',
@@ -252,6 +325,47 @@ describe('parse', () => {
     const paths = content['paths'] as Record<string, unknown>
     expect(paths['/inventory']).toBeUndefined()
     expect(paths['/pets']).toBeDefined()
+  })
+
+  test('excludes tag identities without matching shared display names', async () => {
+    const ir = await parse(
+      OpenApi.from({
+        spec: {
+          openapi: '3.1.0',
+          info: { title: 'Transfers', version: '1.0.0' },
+          tags: [
+            { name: 'Transfers' },
+            { name: 'Funding Transfers', 'x-displayName': 'Transfers' },
+          ],
+          paths: {
+            '/transfers': {
+              get: {
+                operationId: 'listTransfers',
+                tags: ['Transfers'],
+                responses: { '200': {} },
+              },
+            },
+            '/funding/transfers': {
+              get: {
+                operationId: 'listFundingTransfers',
+                tags: ['Funding Transfers'],
+                responses: { '200': {} },
+              },
+            },
+          },
+        },
+        path: '/api',
+        exclude: ['Transfers'],
+      }),
+    )
+
+    expect(ir.groups.map((group) => ({ name: group.name, tag: group.tag }))).toEqual([
+      { name: 'Transfers', tag: 'Funding Transfers' },
+    ])
+    const content = (ir.client as { content: Record<string, unknown> }).content
+    const paths = content['paths'] as Record<string, unknown>
+    expect(paths['/transfers']).toBeUndefined()
+    expect(paths['/funding/transfers']).toBeDefined()
   })
 
   test('excludes every tag an excluded `x-tagGroups` section claims', async () => {

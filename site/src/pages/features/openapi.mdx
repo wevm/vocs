@@ -76,6 +76,17 @@ x-tagGroups: # [!code focus]
 
 Grouping affects navigation only — each tag keeps its own page and URL. Tags not claimed by any group stay at the top level of the sidebar, after the sections.
 
+Use `x-displayName` when a tag needs an internal identity that differs from its sidebar label. Set `x-pagePath` to customize its route below the OpenAPI mount, including nested paths.
+
+```yaml [openapi.yaml]
+tags:
+  - name: Funding Transfers
+    x-displayName: Transfers # [!code focus]
+    x-pagePath: funding/transfers # [!code focus]
+```
+
+With an OpenAPI mount at `/api`, this tag renders as **Transfers** at `/api/funding/transfers`. Operations continue to reference the tag's `name`, so another tag can use the same display name without combining their operations.
+
 Use `sidebar.collapsed` to collapse generated tag sections. Set `sidebar.tagGroupsCollapsed` when the surrounding `x-tagGroups` sections need a different default.
 
 ```ts [vocs.config.ts]

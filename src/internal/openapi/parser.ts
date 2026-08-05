@@ -91,6 +91,10 @@ export type IrGroup = {
   id: string
   /** Display name of the category. */
   name: string
+  /** Route below the OpenAPI mount. Defaults to {@link id}. */
+  pagePath?: string | undefined
+  /** Original OpenAPI tag name when the display name differs. */
+  tag?: string | undefined
   /** Optional category description (Markdown). */
   description?: string | undefined
   /** Operations belonging to this category. */
@@ -207,6 +211,8 @@ type Document = {
   tags?: {
     name?: string
     description?: string
+    'x-displayName'?: string
+    'x-pagePath'?: string
     'x-traitTag'?: boolean
     'x-subtitle'?: string
     'x-parent'?: string
@@ -376,7 +382,7 @@ function buildTagGroups(document: Document, groups: IrGroup[]): IrTagGroup[] | u
   const entries = document['x-tagGroups']
   if (!entries || entries.length === 0) return undefined
 
-  const idByName = new Map(groups.map((group) => [group.name, group.id]))
+  const idByName = new Map(groups.map((group) => [group.tag ?? group.name, group.id]))
   const tagGroups: IrTagGroup[] = []
   for (const entry of entries) {
     if (!entry?.name) continue
@@ -441,7 +447,7 @@ function applyExclusions(
   const excludedIds = new Set<string>()
   for (const tagGroup of tagGroups ?? [])
     if (names.has(tagGroup.name)) for (const id of tagGroup.groupIds) excludedIds.add(id)
-  for (const group of groups) if (names.has(group.name)) excludedIds.add(group.id)
+  for (const group of groups) if (names.has(group.tag ?? group.name)) excludedIds.add(group.id)
   if (excludedIds.size === 0) return { groups, tagGroups, excluded: [] }
 
   const excluded = groups
@@ -629,6 +635,8 @@ async function buildGroups(
   const order: string[] = []
   const byName = new Map<string, IrOperation[]>()
   const descriptions = new Map<string, string | undefined>()
+  const displayNames = new Map<string, string | undefined>()
+  const pagePaths = new Map<string, string | undefined>()
   const injections: RpcInjection[] = []
 
   // Seed group order from document-level `tags` so authoring order is preserved.
@@ -639,6 +647,8 @@ async function buildGroups(
       byName.set(tag.name, [])
       order.push(tag.name)
       descriptions.set(tag.name, tag.description)
+      displayNames.set(tag.name, tag['x-displayName'])
+      pagePaths.set(tag.name, tag['x-pagePath'])
     }
   }
 
@@ -727,15 +737,26 @@ async function buildGroups(
   }
 
   const groups = order
-    .map((name) => ({
-      id: slugger.slug(name),
-      name,
-      description: descriptions.get(name),
-      operations: byName.get(name) ?? [],
-    }))
+    .map((tag) => {
+      const id = slugger.slug(tag)
+      const name = displayNames.get(tag) || tag
+      const pagePath = normalizePagePath(pagePaths.get(tag))
+      return {
+        id,
+        name,
+        ...(pagePath ? { pagePath } : {}),
+        ...(name !== tag ? { tag } : {}),
+        description: descriptions.get(tag),
+        operations: byName.get(tag) ?? [],
+      }
+    })
     .filter((group) => group.operations.length > 0)
 
   return { groups, injections }
+}
+
+function normalizePagePath(value: string | undefined): string | undefined {
+  return value?.replace(/^\/+|\/+$/g, '') || undefined
 }
 
 function buildOperation(options: {

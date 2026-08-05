@@ -1,6 +1,7 @@
 import { resolveIconSync } from '../icons.js'
 import type { SidebarItem } from '../sidebar.js'
-import type { Ir, IrOperation } from './parser.js'
+import type { Ir, IrGroup, IrOperation } from './parser.js'
+import { groupPath } from './route.js'
 
 /** Inline SVG for the webhook badge, resolved once at module load (server-side). */
 const webhookIcon = resolveIconSync('lucide:webhook')
@@ -39,10 +40,10 @@ export function methodVariant(method: string): BadgeVariant {
 export function toSidebar(ir: Ir, options: toSidebar.Options = {}): SidebarItem<true>[] {
   // Strip a trailing slash so a root mount (`/`) doesn't yield `//group`.
   const base = ir.path === '/' ? '' : ir.path.replace(/\/$/, '')
-  const operationLink = (operation: IrOperation, groupId: string) =>
-    `${base}/${groupId}#${operation.id}`
+  const operationLink = (operation: IrOperation, group: IrGroup) =>
+    `${base}/${groupPath(group)}#${operation.id}`
 
-  const groupLink = (groupId: string) => `${base}/${groupId}`
+  const groupLink = (group: IrGroup) => `${base}/${groupPath(group)}`
 
   // When `intro` items are supplied, the "Introduction" leaf becomes a
   // collapsible group: an "Overview" link to the landing page followed by the
@@ -72,11 +73,11 @@ export function toSidebar(ir: Ir, options: toSidebar.Options = {}): SidebarItem<
     items: [
       // An "Overview" entry links to the category itself; the top-level item
       // is a non-link header so its label doesn't compete with the operations.
-      { text: 'Overview', link: groupLink(group.id) },
+      { text: 'Overview', link: groupLink(group) },
       ...((groupExtras.get(group.id) ?? []) as SidebarItem<true>[]),
       ...group.operations.map((operation) => ({
         text: operation.summary || `${operation.method} ${operation.path}`,
-        link: operationLink(operation, group.id),
+        link: operationLink(operation, group),
         // Webhooks are inbound deliveries, not callable endpoints — show a
         // webhook glyph instead of the HTTP method (which is always POST).
         badge:

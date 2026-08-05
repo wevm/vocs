@@ -1,6 +1,7 @@
 import * as Markdown from '../markdown.js'
 import type { SearchDocuments } from '../search.js'
 import type { Ir, IrOperation } from './parser.js'
+import { groupPath } from './route.js'
 
 /**
  * Builds search index documents for an OpenAPI section so the auto-generated
@@ -37,7 +38,7 @@ export async function toSearchDocuments(ir: Ir): Promise<SearchDocuments.Documen
   })
 
   for (const group of ir.groups) {
-    const groupHref = `${base}/${group.id}`
+    const groupHref = `${base}/${groupPath(group)}`
 
     // Category page (`/api/<group>`).
     documents.push({

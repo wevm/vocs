@@ -19,7 +19,7 @@ const routerMocks = vi.hoisted(() => ({
   },
   specs: {
     '/api': {
-      groups: [{ id: 'payments' }],
+      groups: [{ id: 'payments', pagePath: undefined as string | undefined }],
     },
   },
 }))
@@ -56,6 +56,7 @@ const GET = async () => new Response(null)
 
 beforeEach(() => {
   routerMocks.callback = undefined
+  routerMocks.specs['/api'].groups = [{ id: 'payments', pagePath: undefined }]
 })
 
 afterEach(() => {
@@ -105,6 +106,15 @@ describe('hasInvalidStaticApiExports', () => {
 })
 
 describe('router OpenAPI metadata', () => {
+  it('mounts category pages at configured page paths', async () => {
+    routerMocks.specs['/api'].groups = [{ id: 'funding-transfers', pagePath: 'funding/transfers' }]
+
+    const pages = await createRouterPages({})
+
+    expect(pages.map((page) => page.path)).toContain('/api/funding/transfers')
+    expect(pages.map((page) => page.path)).not.toContain('/api/funding-transfers')
+  })
+
   it('forwards complete frontmatter for authored landing and child pages', async () => {
     const landingFrontmatter = {
       author: 'Tempo',

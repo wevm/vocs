@@ -39,6 +39,8 @@ export async function prepare(
   })
 
   const groupIdByName = new Map(ir.groups.map((group) => [group.name, group.id]))
+  // Raw tag identities win when multiple groups share a display name.
+  for (const group of ir.groups) groupIdByName.set(group.tag ?? group.name, group.id)
   const traitIntro: { text: string; link: string }[] = []
   const groupExtras = new Map<string, { text: string; link: string }[]>()
   const extraGroups = new Map<string, { text: string; link: string }[]>()

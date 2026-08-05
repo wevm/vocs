@@ -40,6 +40,7 @@ import type * as Config from './config.js'
 import * as Git from './git.js'
 import * as Icons from './icons.js'
 import * as OpenApiRegistry from './openapi/registry.js'
+import { groupPath } from './openapi/route.js'
 import { rehypeImageSize } from './rehype-image-size.js'
 import { remarkVocsScope } from './remark-vocs-scope.js'
 import { remarkSandbox } from './sandbox.js'
@@ -607,7 +608,7 @@ export function rehypeLinks(config: Config.Config) {
       for (const [mount, ir] of Object.entries(specs)) {
         const base = mount === '/' ? '' : mount.replace(/\/$/, '')
         openapiRoutes.add(base || '/')
-        for (const group of ir.groups) openapiRoutes.add(`${base}/${group.id}`)
+        for (const group of ir.groups) openapiRoutes.add(`${base}/${groupPath(group)}`)
       }
 
     UnistUtil.visit(tree, 'element', (node) => {

@@ -1,6 +1,7 @@
 'use client'
 
 import type { Payload } from '../internal/openapi/app.js'
+import { groupPath } from '../internal/openapi/route.js'
 import { OpenApiGuide, OpenApiPage } from '../react/internal/openapi/OpenApiPage.js'
 import { Blocks } from './blocks.js'
 import { join } from './links.js'
@@ -39,7 +40,7 @@ function Content(props: App.Props) {
   const intro = page ? <Blocks page={page} /> : undefined
 
   // Category page.
-  const group = ir.groups.find((candidate) => join(base, `/${candidate.id}`) === route)
+  const group = ir.groups.find((candidate) => join(base, `/${groupPath(candidate)}`) === route)
   if (group)
     return (
       <OpenApiPage

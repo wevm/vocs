@@ -1,6 +1,7 @@
 import { createElement, type FunctionComponent, lazy, type ReactNode } from 'react'
 import { createPages } from 'waku/router/server'
 import type { Frontmatter } from '../../../internal/config.js'
+import { groupPath } from '../../../internal/openapi/route.js'
 import * as DedupeHead from '../dedupe-head.js'
 import {
   type ApiHandler,
@@ -150,7 +151,7 @@ export function router(
         for (const entry of config.openapi ?? []) {
           openapiRoutePaths.add(entry.path)
           for (const group of specs[entry.path]?.groups ?? [])
-            openapiRoutePaths.add(`${entry.path}/${group.id}`)
+            openapiRoutePaths.add(`${entry.path}/${groupPath(group)}`)
         }
 
         // A consumer page mounted under a section path (e.g. `/api/auth`) that
@@ -357,7 +358,7 @@ export function router(
             // Mount one page per category at `${path}/${group}`.
             const ir = specs[entry.path]
             for (const group of ir?.groups ?? []) {
-              const groupRoute = `${entry.path}/${group.id}`
+              const groupRoute = `${entry.path}/${groupPath(group)}`
               const groupProps = await overrideProps(groupRoute)
               createPage({
                 path: groupRoute,

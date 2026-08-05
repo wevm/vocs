@@ -9,6 +9,7 @@ const ir = {
     {
       id: 'rpc',
       name: 'RPC',
+      pagePath: 'funding/rpc',
       operations: [
         { id: 'eth_blocknumber', method: 'POST', path: '/', summary: 'eth_blockNumber' },
         { id: 'eth_call', method: 'POST', path: '/', summary: 'eth_call' },
@@ -28,6 +29,7 @@ describe('EndpointsView', () => {
     expect(html).toContain('data-v-openapi-overview')
     expect(html).toContain('eth_blockNumber')
     expect(html).toContain('admin_peers')
+    expect(html).toContain('href="/api/funding/rpc#eth_blocknumber"')
   })
 
   test('resource renders a single category as a flat list', () => {
@@ -36,7 +38,7 @@ describe('EndpointsView', () => {
     // Operations of the matched resource are listed...
     expect(html).toContain('eth_blockNumber')
     expect(html).toContain('eth_call')
-    expect(html).toContain('href="/api/rpc#eth_blocknumber"')
+    expect(html).toContain('href="/api/funding/rpc#eth_blocknumber"')
     // ...and other categories are excluded.
     expect(html).not.toContain('admin_peers')
     // No accordion wrapper is rendered.

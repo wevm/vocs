@@ -81,4 +81,15 @@ describe('createRouter (base /api)', () => {
     expect(router.resolve('/docs/api/pets').route).toBe('/api/pets')
     expect(router.resolve('/docs/api').route).toBe('/api')
   })
+
+  test('uses configured category page paths', () => {
+    const data = payload('/api')
+    const [group] = data.ir.groups
+    if (!group) throw new Error('Expected a group')
+    group.pagePath = 'funding/transfers'
+    const router = createRouter(data, '/docs/api/funding/transfers')
+
+    expect(router.mount).toBe('/docs')
+    expect(router.resolve('/docs/api/funding/transfers').route).toBe('/api/funding/transfers')
+  })
 })
