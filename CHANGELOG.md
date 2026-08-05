@@ -1,5 +1,11 @@
 # vocs
 
+## 2.8.4
+
+### Patch Changes
+
+- 2c9323a: Added `openapi[].sidebar.tagGroupsCollapsed` to configure `x-tagGroups` sections independently from tag sections.
+
 ## 2.8.3
 
 ### Patch Changes
