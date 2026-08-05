@@ -39,6 +39,23 @@ describe('Handler.openApi', () => {
     expect(html).toContain('listPets')
   })
 
+  test('configures tag group collapse independently from categories', async () => {
+    const ref = openApi({
+      spec: { ...spec, 'x-tagGroups': [{ name: 'Data API', tags: ['Pets'] }] },
+      sidebar: { collapsed: true, tagGroupsCollapsed: false },
+    })
+    const html = await (await ref.fetch(new Request('http://localhost/'))).text()
+    const json = html.match(
+      /<script id="vocs-openapi-data" type="application\/json">(.+)<\/script>/,
+    )?.[1]
+    expect(json).toBeDefined()
+    const payload = JSON.parse(json ?? '{}') as {
+      sidebar: { collapsed?: boolean; items?: { collapsed?: boolean }[] }[]
+    }
+    expect(payload.sidebar[1]?.collapsed).toBe(false)
+    expect(payload.sidebar[1]?.items?.[0]?.collapsed).toBe(true)
+  })
+
   test('serves the prebuilt client bundle', async () => {
     const ref = openApi({ spec })
     const response = await ref.fetch(new Request('http://localhost/_vocs/openapi/client.js'))
