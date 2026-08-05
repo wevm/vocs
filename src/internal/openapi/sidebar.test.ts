@@ -130,6 +130,19 @@ describe('toSidebar', () => {
     expect(section.items[0]?.collapsed).toBe(true)
   })
 
+  test('configures tag group collapse independently from categories', () => {
+    const sidebar = toSidebar(
+      { ...ir, tagGroups: [{ name: 'Data API', groupIds: ['pets'] }] },
+      { collapsed: true, tagGroupsCollapsed: false },
+    )
+    const section = sidebar[1] as {
+      collapsed?: boolean
+      items: { collapsed?: boolean }[]
+    }
+    expect(section.collapsed).toBe(false)
+    expect(section.items[0]?.collapsed).toBe(true)
+  })
+
   test('appends groups unclaimed by tagGroups at the top level', () => {
     const sidebar = toSidebar({
       ...ir,

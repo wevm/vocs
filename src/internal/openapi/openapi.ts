@@ -55,9 +55,9 @@ export type SidebarExtras = {
    */
   intro?: SidebarItem[] | undefined
   /**
-   * Collapse the generated category groups and `x-tagGroups` sections by default.
-   * Groups containing the active page still auto-expand, so deep links stay
-   * navigable. The generated `Introduction` entry is unaffected.
+   * Collapse generated category groups by default. Also controls `x-tagGroups`
+   * sections unless `tagGroupsCollapsed` overrides it. Groups containing the
+   * active page still auto-expand. The generated `Introduction` is unaffected.
    *
    * @default false
    */
@@ -78,6 +78,13 @@ export type SidebarExtras = {
    * @example ["Data API"]
    */
   flatten?: readonly string[] | undefined
+  /**
+   * Collapse `x-tagGroups` sections independently from their generated category
+   * groups. Defaults to the value of `collapsed`.
+   *
+   * @default collapsed
+   */
+  tagGroupsCollapsed?: boolean | undefined
 }
 
 /**

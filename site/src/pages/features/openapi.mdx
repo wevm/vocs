@@ -76,6 +76,23 @@ x-tagGroups: # [!code focus]
 
 Grouping affects navigation only — each tag keeps its own page and URL. Tags not claimed by any group stay at the top level of the sidebar, after the sections.
 
+Use `sidebar.collapsed` to collapse generated tag sections. Set `sidebar.tagGroupsCollapsed` when the surrounding `x-tagGroups` sections need a different default.
+
+```ts [vocs.config.ts]
+export default defineConfig({
+  openapi: [
+    {
+      spec: './openapi.yaml',
+      path: '/api',
+      sidebar: { // [!code focus]
+        collapsed: true, // [!code focus]
+        tagGroupsCollapsed: false, // [!code focus]
+      }, // [!code focus]
+    },
+  ],
+})
+```
+
 To keep a primary API prominent, name it in `sidebar.flatten` — its tags render as top-level items (as without tag groups) while the other sections keep their headers.
 
 ```ts [vocs.config.ts]

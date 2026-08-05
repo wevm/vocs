@@ -54,8 +54,12 @@ export function sidebars(
     const collapsed = entry?.sidebar?.collapsed
     const intro = entry?.sidebar?.intro
     const flatten = entry?.sidebar?.flatten
+    const tagGroupsCollapsed = entry?.sidebar?.tagGroupsCollapsed
     const backLink = entry?.sidebar?.backLink ?? true
-    result[path] = { backLink, items: Sidebar.toSidebar(ir, { collapsed, intro, flatten }) }
+    result[path] = {
+      backLink,
+      items: Sidebar.toSidebar(ir, { collapsed, intro, flatten, tagGroupsCollapsed }),
+    }
   }
   return result
 }

@@ -61,9 +61,10 @@ export function toSidebar(ir: Ir, options: toSidebar.Options = {}): SidebarItem<
   // group id, rendered after the group's "Overview" link.
   const groupExtras = options.groupExtras ?? new Map<string, SidebarItem[]>()
 
-  // Generated category groups and sections start collapsed when `collapsed` is
-  // set. Active groups still auto-expand at render. `Introduction` is unaffected.
+  // Generated categories inherit `collapsed`. Tag-group sections can override
+  // that default independently. Active groups still auto-expand at render.
   const groupCollapsed = options.collapsed ?? false
+  const tagGroupsCollapsed = options.tagGroupsCollapsed ?? options.collapsed
 
   const groupItem = (group: Ir['groups'][number]): SidebarItem<true> => ({
     text: group.name,
@@ -100,7 +101,7 @@ export function toSidebar(ir: Ir, options: toSidebar.Options = {}): SidebarItem<
       return group ? [groupItem(group)] : []
     })
     if (flatten.has(tagGroup.name)) return items
-    return [{ text: tagGroup.name, collapsed: options.collapsed, items }]
+    return [{ text: tagGroup.name, collapsed: tagGroupsCollapsed, items }]
   })
   return [
     introduction,
@@ -116,8 +117,8 @@ export declare namespace toSidebar {
     /** Extra items injected into a generated group, keyed by group id. */
     groupExtras?: Map<string, SidebarItem[]> | undefined
     /**
-     * Collapse generated category groups and `x-tagGroups` sections by default.
-     * Active groups still auto-expand. `Introduction` is unaffected. @default false
+     * Collapse generated category groups by default. Also controls `x-tagGroups`
+     * sections unless `tagGroupsCollapsed` overrides it. @default false
      */
     collapsed?: boolean | undefined
     /**
@@ -125,5 +126,7 @@ export declare namespace toSidebar {
      * items (in place) instead of nesting under the section header.
      */
     flatten?: readonly string[] | undefined
+    /** Collapse `x-tagGroups` sections independently. @default collapsed */
+    tagGroupsCollapsed?: boolean | undefined
   }
 }

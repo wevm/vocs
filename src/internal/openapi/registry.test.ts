@@ -101,6 +101,24 @@ describe('mergeSidebar', () => {
     ])
   })
 
+  test('forwards independent tag group collapse defaults', async () => {
+    const cfg = Config.define({
+      openapi: [
+        OpenApi.from({
+          spec: { ...spec, 'x-tagGroups': [{ name: 'Data API', tags: ['pets'] }] },
+          path: '/api',
+          sidebar: { collapsed: true, tagGroupsCollapsed: false },
+        }),
+      ],
+    })
+    await Registry.build(cfg)
+
+    const sidebar = Registry.mergeSidebar(cfg).sidebar as Record<string, { items: SidebarItem[] }>
+    const section = sidebar['/api']?.items[1]
+    expect(section?.collapsed).toBe(false)
+    expect(section?.items?.[0]?.collapsed).toBe(true)
+  })
+
   test('does not mutate the input config', async () => {
     const cfg = config([{ text: 'Home', link: '/' }])
     await Registry.build(cfg)
