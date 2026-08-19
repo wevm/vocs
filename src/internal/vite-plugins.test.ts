@@ -2,10 +2,12 @@ import * as fs from 'node:fs/promises'
 import * as os from 'node:os'
 import * as path from 'node:path'
 import type { ResolvedConfig } from 'vite'
-import { afterEach, describe, expect, test } from 'vitest'
-import type * as Config from './config.js'
+import { afterEach, describe, expect, test, vi } from 'vitest'
+import * as Config from './config.js'
+import * as Llms from './llms.js'
 import type * as OpenApi from './openapi/index.js'
 import {
+  llms,
   openapiClientDocument,
   openapiClientManifest,
   openapiSchemaModelsDocument,
@@ -18,6 +20,7 @@ import {
 const tempDirs = new Set<string>()
 
 afterEach(async () => {
+  vi.restoreAllMocks()
   await Promise.all([...tempDirs].map((dir) => fs.rm(dir, { force: true, recursive: true })))
   tempDirs.clear()
 })
@@ -115,6 +118,77 @@ describe('openapi schema model modules', () => {
 
     expect(document).toContain('first schema detail')
     expect(document).not.toContain('second schema detail')
+  })
+})
+
+describe('llms', () => {
+  test('generates public artifacts in the client output directory', async () => {
+    const fixture = await createLlmsFixture()
+
+    await buildLlms(fixture.plugin, 'client', fixture.outDir)
+
+    await expect(fs.readFile(path.join(fixture.outDir, 'llms.txt'), 'utf-8')).resolves.toContain(
+      '- [Home](/index)',
+    )
+    await expect(
+      fs.readFile(path.join(fixture.outDir, 'llms-full.txt'), 'utf-8'),
+    ).resolves.toContain('# Hello')
+    await expect(
+      fs.readFile(path.join(fixture.outDir, 'assets/md/index.md'), 'utf-8'),
+    ).resolves.toContain('# Hello')
+    await expect(fs.access(path.join(fixture.fallbackOutDir, 'llms.txt'))).rejects.toThrow()
+  })
+
+  test('skips generation in server environments', async () => {
+    const fixture = await createLlmsFixture()
+    const buildContent = vi.spyOn(Llms, 'buildLlmsContent')
+
+    await buildLlms(fixture.plugin, 'rsc', fixture.outDir)
+
+    expect(buildContent).not.toHaveBeenCalled()
+    await expect(fs.access(path.join(fixture.outDir, 'llms.txt'))).rejects.toThrow()
+  })
+
+  test('generates artifacts when the environment is unavailable', async () => {
+    const fixture = await createLlmsFixture()
+
+    await buildLlms(fixture.plugin)
+
+    await expect(
+      fs.readFile(path.join(fixture.fallbackOutDir, 'llms.txt'), 'utf-8'),
+    ).resolves.toContain('- [Home](/index)')
+  })
+
+  test('builds content once across repeated output hooks', async () => {
+    const fixture = await createLlmsFixture()
+    const buildContent = vi.spyOn(Llms, 'buildLlmsContent')
+    const rscContext = { environment: { name: 'rsc' } }
+    const ssrContext = { environment: { name: 'ssr' } }
+    const clientContext = { environment: { name: 'client' } }
+
+    fixture.plugin.buildStart.call(rscContext)
+    await fixture.plugin.writeBundle.call(rscContext, { dir: fixture.outDir })
+    fixture.plugin.buildStart.call(ssrContext)
+    await fixture.plugin.writeBundle.call(ssrContext, { dir: fixture.outDir })
+    fixture.plugin.buildStart.call(clientContext)
+    await fixture.plugin.writeBundle.call(clientContext, { dir: fixture.outDir })
+    await fixture.plugin.writeBundle.call(clientContext, { dir: fixture.outDir })
+
+    expect(buildContent).toHaveBeenCalledTimes(1)
+  })
+
+  test('rebuilds content after a new build starts', async () => {
+    const fixture = await createLlmsFixture()
+    const buildContent = vi.spyOn(Llms, 'buildLlmsContent')
+
+    await buildLlms(fixture.plugin, 'client', fixture.outDir)
+    await fs.writeFile(fixture.pagePath, '---\ntitle: Updated\n---\n\n# Updated content\n')
+    await buildLlms(fixture.plugin, 'client', fixture.outDir)
+
+    expect(buildContent).toHaveBeenCalledTimes(2)
+    await expect(
+      fs.readFile(path.join(fixture.outDir, 'assets/md/index.md'), 'utf-8'),
+    ).resolves.toContain('# Updated content')
   })
 })
 
@@ -292,4 +366,39 @@ function createSitemapPlugin(
   } as ResolvedConfig)
 
   return plugin
+}
+
+type LlmsPlugin = {
+  buildStart(this: { environment?: { name: string } | undefined }): void
+  configResolved(config: ResolvedConfig): void
+  writeBundle(
+    this: { environment?: { name: string } | undefined },
+    options: { dir?: string | undefined },
+  ): Promise<void>
+}
+
+async function createLlmsFixture() {
+  const rootDir = await fs.mkdtemp(path.join(os.tmpdir(), 'vocs-llms-'))
+  tempDirs.add(rootDir)
+
+  const pagesDir = path.join(rootDir, 'src/pages')
+  const outDir = path.join(rootDir, 'client-output')
+  const fallbackOutDir = path.join(rootDir, 'dist/public')
+  const pagePath = path.join(pagesDir, 'index.mdx')
+  await fs.mkdir(pagesDir, { recursive: true })
+  await fs.writeFile(pagePath, '---\ntitle: Home\n---\n\n# Hello\n')
+
+  const plugin = llms(Config.define({ rootDir, title: 'My Docs' })) as unknown as LlmsPlugin
+  plugin.configResolved({
+    createResolver: () => async () => undefined,
+    root: rootDir,
+  } as unknown as ResolvedConfig)
+
+  return { fallbackOutDir, outDir, pagePath, plugin }
+}
+
+async function buildLlms(plugin: LlmsPlugin, environment?: string, outDir?: string) {
+  const context = environment ? { environment: { name: environment } } : {}
+  plugin.buildStart.call(context)
+  await plugin.writeBundle.call(context, outDir ? { dir: outDir } : {})
 }
