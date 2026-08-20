@@ -5,6 +5,7 @@ import * as React from 'react'
 import { useRouter } from 'waku'
 import LucideCheck from '~icons/lucide/check'
 import LucideClipboard from '~icons/lucide/clipboard'
+import { useConfig } from '../useConfig.js'
 import { getMarkdownAssetPath } from './markdown-url.js'
 
 type CopyState = 'idle' | 'copying' | 'copied' | 'error'
@@ -13,6 +14,7 @@ export function CopyForAi(props: CopyForAi.Props) {
   const { className, frontmatter } = props
 
   const router = useRouter()
+  const { basePath } = useConfig()
   const [state, setState] = React.useState<CopyState>('idle')
 
   const handleCopy = React.useCallback(async () => {
@@ -20,7 +22,7 @@ export function CopyForAi(props: CopyForAi.Props) {
 
     setState('copying')
     try {
-      const response = await fetch(getMarkdownAssetPath(router.path))
+      const response = await fetch(getMarkdownAssetPath(router.path, basePath))
       if (!response.ok) throw new Error('Failed to fetch markdown')
 
       const markdown = await response.text()
@@ -33,7 +35,7 @@ export function CopyForAi(props: CopyForAi.Props) {
       setState('error')
       setTimeout(() => setState('idle'), 2000)
     }
-  }, [router.path, state])
+  }, [basePath, router.path, state])
 
   if (frontmatter?.showAskAi === false) return null
 

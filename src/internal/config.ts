@@ -1102,10 +1102,21 @@ declare namespace resolve {
   }
 }
 
+let basePath: Promise<string> | undefined
+
+export function resolveBasePath(): Promise<string> {
+  basePath ??= resolve({ server: true })
+    .then((config) => config.basePath)
+    .catch(() => '/')
+  return basePath
+}
+
 export let global: Config | undefined
 
 export function setGlobal(config: Config) {
   global = config
+  // Keep the memoized base path in sync when the config is reloaded (dev).
+  basePath = Promise.resolve(config.basePath)
 }
 
 export function getGlobal(): Config {

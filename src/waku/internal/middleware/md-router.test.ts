@@ -8,6 +8,7 @@ vi.mock('node:fs/promises', () => ({
 
 vi.mock('../../../internal/config.js', () => ({
   resolve: vi.fn(),
+  resolveBasePath: vi.fn(async () => '/'),
 }))
 
 vi.mock('node:path', async () => {
@@ -314,5 +315,62 @@ describe('middleware', () => {
     expect(response.headers.get('content-type')).toBe('text/markdown; charset=utf-8')
     expect(await response.text()).toBe('# Hello from disk')
     expect(readFile).toHaveBeenCalledOnce()
+  })
+
+  it('resolves the markdown twin under a base path', async () => {
+    process.env['NODE_ENV'] = 'production'
+
+    const Config = await import('../../../internal/config.js')
+    vi.mocked(Config.resolveBasePath).mockResolvedValue('/docs')
+
+    const { readFile } = await import('node:fs/promises')
+    vi.mocked(readFile).mockResolvedValue('# Hello from disk')
+
+    const response = await request('http://localhost/docs/queries', {
+      accept: 'text/markdown',
+    })
+
+    expect(response.status).toBe(200)
+    expect(response.headers.get('content-type')).toBe('text/markdown; charset=utf-8')
+    expect(await response.text()).toBe('# Hello from disk')
+    expect(vi.mocked(readFile).mock.calls[0]?.[0]).toMatch(/\/public\/assets\/md\/queries\.md$/)
+  })
+
+  it('serves the base path root from `llms.txt`', async () => {
+    process.env['NODE_ENV'] = 'production'
+
+    const Config = await import('../../../internal/config.js')
+    vi.mocked(Config.resolveBasePath).mockResolvedValue('/docs')
+
+    const { readFile } = await import('node:fs/promises')
+    vi.mocked(readFile).mockResolvedValue('# Hello from disk')
+
+    const response = await request('http://localhost/docs', {
+      accept: 'text/markdown',
+    })
+
+    expect(response.status).toBe(200)
+    expect(response.headers.get('content-type')).toBe('text/markdown; charset=utf-8')
+    expect(vi.mocked(readFile).mock.calls[0]?.[0]).toMatch(/\/public\/llms\.txt$/)
+  })
+
+  it('passes generated markdown twins under a base path through without re-resolving', async () => {
+    process.env['NODE_ENV'] = 'production'
+
+    const Config = await import('../../../internal/config.js')
+    vi.mocked(Config.resolveBasePath).mockResolvedValue('/docs')
+
+    const { readFile } = await import('node:fs/promises')
+    const fetchSpy = vi.fn()
+    globalThis.fetch = fetchSpy
+
+    const response = await request('http://localhost/docs/assets/md/queries.md', {
+      'user-agent': 'Mozilla/5.0 (compatible; GPTBot/1.0; +https://openai.com/gptbot)',
+    })
+
+    expect(response.status).toBe(200)
+    expect(await response.text()).toBe('<p>ok</p>')
+    expect(readFile).not.toHaveBeenCalled()
+    expect(fetchSpy).not.toHaveBeenCalled()
   })
 })

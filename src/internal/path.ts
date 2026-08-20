@@ -63,3 +63,58 @@ export function isExternal(url: string | undefined) {
     url.startsWith('tel:')
   )
 }
+
+/**
+ * Normalize a base path into a prefix that can be concatenated with a
+ * root-absolute path. The root base path (`/`) yields an empty string.
+ *
+ * @param basePath - The configured base path (e.g. `/docs`, `/docs/`, `/`).
+ * @returns The prefix (e.g. `/docs`), or an empty string when there is none.
+ */
+export function basePathPrefix(basePath: string | undefined) {
+  if (!basePath || basePath === '/') return ''
+  return basePath.endsWith('/') ? basePath.slice(0, -1) : basePath
+}
+
+/**
+ * Prefix a root-absolute path with the configured base path.
+ *
+ * @param pathname - The root-absolute path (e.g. `/assets/md/index.md`).
+ * @param basePath - The configured base path (e.g. `/docs`).
+ * @returns The prefixed path (e.g. `/docs/assets/md/index.md`).
+ */
+export function withBasePath(pathname: string, basePath: string | undefined) {
+  return `${basePathPrefix(basePath)}${pathname}`
+}
+
+/**
+ * Remove the configured base path from a pathname, so it can be matched
+ * against base-path-agnostic routes and resolved against on-disk output.
+ *
+ * @param pathname - The incoming pathname (e.g. `/docs/assets/md/index.md`).
+ * @param basePath - The configured base path (e.g. `/docs`).
+ * @returns The pathname without the base path (e.g. `/assets/md/index.md`).
+ */
+export function stripBasePath(pathname: string, basePath: string | undefined) {
+  const prefix = basePathPrefix(basePath)
+  if (!prefix) return pathname
+  if (pathname === prefix) return '/'
+  if (!pathname.startsWith(`${prefix}/`)) return pathname
+  return pathname.slice(prefix.length)
+}
+
+/**
+ * Determine if a pathname is inside the configured base path.
+ *
+ * Matches the base path root (`/docs`, `/docs/`) and anything below it
+ * (`/docs/guide`), but not siblings that only share the prefix (`/docsearch`).
+ *
+ * @param pathname - The incoming pathname (e.g. `/docs/guide`).
+ * @param basePath - The configured base path (e.g. `/docs`).
+ * @returns Whether the pathname is inside the base path.
+ */
+export function isWithinBasePath(pathname: string, basePath: string | undefined) {
+  const prefix = basePathPrefix(basePath)
+  if (!prefix) return true
+  return pathname === prefix || pathname.startsWith(`${prefix}/`)
+}

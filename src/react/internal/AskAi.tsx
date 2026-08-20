@@ -9,6 +9,7 @@ import LucideFileText from '~icons/lucide/file-text'
 import SimpleIconsClaude from '~icons/simple-icons/claude'
 import SimpleIconsModelcontextprotocol from '~icons/simple-icons/modelcontextprotocol'
 import SimpleIconsOpenai from '~icons/simple-icons/openai'
+import * as Path from '../../internal/path.js'
 import { useConfig } from '../useConfig.js'
 import { getMarkdownAssetPath } from './markdown-url.js'
 
@@ -16,7 +17,7 @@ export function AskAi(props: AskAi.Props) {
   const { className } = props
 
   const { path } = useRouter()
-  const { mcp } = useConfig()
+  const { basePath, mcp } = useConfig()
 
   const [menuOpen, setMenuOpen] = React.useState(false)
   const [copied, setCopied] = React.useState(false)
@@ -54,8 +55,8 @@ export function AskAi(props: AskAi.Props) {
 
   const pageUrl = React.useMemo(() => {
     if (typeof window === 'undefined') return ''
-    return window.location.origin + path
-  }, [path])
+    return window.location.origin + Path.withBasePath(path, basePath)
+  }, [basePath, path])
 
   const query = React.useMemo(() => {
     return `Please research and analyze this page: ${pageUrl} so I can ask you questions about it. Once you have read it, prompt me with any questions I have. Do not post content from the page in your response. Any of my follow up questions must reference the site I gave you.`
@@ -78,8 +79,8 @@ export function AskAi(props: AskAi.Props) {
   )
 
   const markdownUrl = React.useMemo(() => {
-    return getMarkdownAssetPath(path)
-  }, [path])
+    return getMarkdownAssetPath(path, basePath)
+  }, [basePath, path])
 
   const copyPageForAi = React.useCallback(async () => {
     try {
@@ -100,8 +101,8 @@ export function AskAi(props: AskAi.Props) {
 
   const mcpUrl = React.useMemo(() => {
     if (typeof window === 'undefined') return ''
-    return `${window.location.origin}/api/mcp`
-  }, [])
+    return `${window.location.origin}${Path.withBasePath('/api/mcp', basePath)}`
+  }, [basePath])
 
   return (
     <Menu.Root open={menuOpen} onOpenChange={setMenuOpen}>
