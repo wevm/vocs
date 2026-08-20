@@ -9,6 +9,7 @@ import {
   unstable_constants as constants,
   unstable_honoMiddleware as honoMiddleware,
 } from 'waku/internals'
+import * as Path from '../../../../internal/path.js'
 
 const { DIST_PUBLIC } = constants
 const { rscMiddleware, middlewareRunner } = honoMiddleware
@@ -19,6 +20,15 @@ type MiddlewareModules = Record<
   string,
   () => Promise<{ default: (opts: { app: Hono }) => MiddlewareHandler }>
 >
+
+/**
+ * Scopes a middleware to the base path. `hono/tiny` cannot: its `PatternRouter`
+ * compiles `/docs/*` to an unanchored `^/docs`, which also matches `/docsearch`.
+ */
+function withinBasePath(basePath: string, handler: MiddlewareHandler): MiddlewareHandler {
+  return (context, next) =>
+    Path.isWithinBasePath(context.req.path, basePath) ? handler(context, next) : next()
+}
 
 const adapter: typeof import('waku/adapters/node').default = createServerEntryAdapter(
   ({ processRequest, processBuild, config, isBuild, notFoundHtml }, options) => {
@@ -45,29 +55,34 @@ const adapter: typeof import('waku/adapters/node').default = createServerEntryAd
         },
         { app },
       )
-      app.use(`${config.basePath}*`, (context, next) => {
-        const url = new URL(context.req.url)
-        // Generated markdown assets are already static output. Passing them through
-        // mdRouter here would route back to the same file.
-        if (url.pathname.startsWith(`${config.basePath}assets/`)) return next()
-        return mdRouterMiddleware(context, next)
-      })
+      app.use(
+        withinBasePath(config.basePath, (context, next) => {
+          // Generated markdown assets are already static output. Passing them through
+          // mdRouter here would route back to the same file.
+          if (context.req.path.startsWith(`${config.basePath}assets/`)) return next()
+          return mdRouterMiddleware(context, next)
+        }),
+      )
     }
 
     if (isBuild)
       app.use(
-        `${config.basePath}*`,
-        serveStatic({
-          root: path.join(config.distDir, DIST_PUBLIC),
-          rewriteRequestPath: (path) => path.slice(config.basePath.length - 1),
-        }),
+        withinBasePath(
+          config.basePath,
+          serveStatic({
+            root: path.join(config.distDir, DIST_PUBLIC),
+            rewriteRequestPath: (path) => path.slice(config.basePath.length - 1),
+          }),
+        ),
       )
 
     if (bodyLimitOptions !== false)
       app.use(bodyLimit(bodyLimitOptions ?? { maxSize: DEFAULT_BODY_LIMIT_MAX_SIZE }))
     for (const middlewareFn of middlewareFns) app.use(middlewareFn({ app }))
     app.use(middlewareRunner(typedMiddlewareModules, { app }))
-    app.use(rscMiddleware({ processRequest }))
+    // Scoped to the base path so requests outside it (`/`, `/favicon.ico`) fall
+    // through to `notFound` instead of throwing in Waku's base-path stripping.
+    app.use(withinBasePath(config.basePath, rscMiddleware({ processRequest })))
 
     return {
       fetch: app.fetch,

@@ -16,6 +16,7 @@ import * as Mdx from './mdx.js'
 import type * as OpenApi from './openapi/index.js'
 import * as OpenApiRegistry from './openapi/registry.js'
 import { type SchemaModel, schemaModelSource, schemaModels } from './openapi/schema-model.js'
+import * as Path from './path.js'
 import * as Retriever from './retriever.js'
 import { SearchDocuments, SearchIndex } from './search.js'
 import * as ShikiTransformers from './shiki-transformers.js'
@@ -207,16 +208,20 @@ export function llms(config: Config.Config): PluginOption {
     configureServer(server) {
       let content: Awaited<ReturnType<typeof buildLlmsContent>> | undefined
       server.middlewares.use(async (req, res, next) => {
-        if (req.url === '/llms.txt' || req.url === '/llms-full.txt') {
+        // The dev server serves these under the base path, matching where the
+        // build writes them, so drop it before matching the asset route.
+        const url = req.url ? Path.stripBasePath(req.url, config.basePath) : undefined
+
+        if (url === '/llms.txt' || url === '/llms-full.txt') {
           content = await buildLlmsContent()
           res.setHeader('Content-Type', 'text/plain')
-          res.end(req.url === '/llms.txt' ? content.short : content.full)
+          res.end(url === '/llms.txt' ? content.short : content.full)
           return
         }
 
-        if (req.url?.startsWith('/assets/md/')) {
+        if (url?.startsWith('/assets/md/')) {
           content = await buildLlmsContent()
-          const pagePath = req.url.slice('/assets/md'.length, -3) || '/'
+          const pagePath = url.slice('/assets/md'.length, -3) || '/'
           const result = content.results.find(
             (r) => r.path.replace(/\/$/, '') === pagePath.replace(/\/index$/, ''),
           )
