@@ -3,12 +3,24 @@
 import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import type * as Config from '../../internal/config.js'
 import { PromptFrame } from './Prompt.client.js'
+
+const mocks = vi.hoisted(() => ({
+  config: {} as Config.Config,
+}))
+
+vi.mock('virtual:vocs/config', () => ({
+  get config() {
+    return mocks.config
+  },
+}))
 
 let container: HTMLDivElement
 let root: Root
 
 beforeEach(() => {
+  mocks.config = {} as Config.Config
   container = document.createElement('div')
   document.body.append(container)
   root = createRoot(container)
@@ -103,6 +115,16 @@ describe('PromptFrame', () => {
     expect(container.querySelector('[data-v-prompt-copy]')?.getAttribute('data-state')).toBe(
       'error',
     )
+  })
+
+  it('hides Open in ChatGPT and Claude when askAi.openIn is false', async () => {
+    mocks.config = { askAi: { openIn: false } } as Config.Config
+    await render('Prompt')
+
+    expect(container.querySelector('[aria-label="Open in ChatGPT"]')).toBeNull()
+    expect(container.querySelector('[aria-label="Open in Claude"]')).toBeNull()
+    expect(container.querySelectorAll('[data-v-prompt-action]')).toHaveLength(1)
+    expect(container.querySelector('[aria-label="View Prompt"]')).not.toBeNull()
   })
 })
 

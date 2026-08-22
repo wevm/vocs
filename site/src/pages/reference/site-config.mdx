@@ -910,6 +910,37 @@ export default defineConfig({
 See [Search](/features/search) for the full guide, covering keyword-search recipes plus AI search setup.
 :::
 
+### `askAi`
+
+- **Type:**
+
+```ts
+{
+  openIn?: boolean
+}
+```
+
+Configures the Ask AI menu shown on pages.
+
+#### `askAi.openIn`
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+Show the "Open in ChatGPT/Claude" actions. Set to `false` to hide outbound links to consumer AI tools. Copy page, view as Markdown, and Copy MCP URL stay available. The same flag also hides the ChatGPT and Claude buttons on [`Prompt`](/reference/components#prompt) blocks.
+
+```ts
+export default defineConfig({
+  askAi: {
+    openIn: false
+  }
+})
+```
+
+:::tip
+See [Ask AI](/features/ask-ai) for menu actions and per-page frontmatter.
+:::
+
 ## Integrations
 
 ### `feedback`
