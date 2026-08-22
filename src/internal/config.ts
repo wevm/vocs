@@ -268,6 +268,22 @@ export type SearchQueryOptions = MiniSearchSearchOptions & {
 }
 
 /**
+ * Configuration for the Ask AI menu shown on pages.
+ */
+export type AskAiOptions = {
+  /**
+   * Show the "Open in ChatGPT/Claude" actions in the Ask AI menu and on
+   * `Prompt` blocks.
+   *
+   * Set to `false` to hide outbound links to consumer AI tools. Copy page,
+   * view as Markdown, and Copy MCP URL stay available.
+   *
+   * @default true
+   */
+  openIn?: boolean | undefined
+}
+
+/**
  * Top-level AI configuration. A home for AI-powered features; currently exposes
  * semantic search via {@link AiOptions.retriever}.
  */
@@ -365,6 +381,10 @@ export type Config<partial extends boolean = false> = MaybePartial<
      * {@link AiOptions.retriever}.
      */
     ai?: AiOptions | undefined
+    /**
+     * Configuration for the Ask AI menu shown on pages.
+     */
+    askAi?: AskAiOptions | undefined
     /**
      * Configuration for the banner fixed to the top of the page.
      */
@@ -848,6 +868,7 @@ export function define(config: define.Options = {}): Config {
   const {
     accentColor = 'light-dark(black, white)',
     ai: aiOptions,
+    askAi,
     banner,
     basePath = '/',
     cacheDir,
@@ -918,6 +939,7 @@ export function define(config: define.Options = {}): Config {
   return {
     accentColor,
     ai: aiResolved,
+    askAi,
     banner: banner
       ? {
           dismissable: true,

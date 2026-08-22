@@ -16,7 +16,8 @@ export function AskAi(props: AskAi.Props) {
   const { className } = props
 
   const { path } = useRouter()
-  const { mcp } = useConfig()
+  const { askAi, mcp } = useConfig()
+  const showOpenIn = askAi?.openIn !== false
 
   const [menuOpen, setMenuOpen] = React.useState(false)
   const [copied, setCopied] = React.useState(false)
@@ -110,6 +111,7 @@ export function AskAi(props: AskAi.Props) {
           'vocs:flex vocs:items-center vocs:justify-between vocs:cursor-pointer vocs:pl-3 vocs:pr-2 vocs:text-sm vocs:text-secondary vocs:hover:text-primary vocs:w-full vocs:h-full vocs:bg-surface vocs:hover:bg-surfaceTint vocs:border vocs:border-primary vocs:rounded-xl vocs:transition-colors vocs:duration-100',
           className,
         )}
+        data-v-ask-ai
       >
         <div className="vocs:flex vocs:items-center vocs:gap-2">Ask AI...</div>
         <div className="vocs:flex vocs:items-center vocs:gap-0.5">
@@ -124,32 +126,36 @@ export function AskAi(props: AskAi.Props) {
       <Menu.Portal>
         <Menu.Positioner side="top" align="start" sideOffset={4} className="vocs:z-100">
           <Menu.Popup className="vocs:bg-surface vocs:w-(--anchor-width) vocs:border vocs:border-primary vocs:p-2 vocs:rounded-lg vocs:shadow-lg/5 vocs:origin-(--transform-origin) vocs:transition-all vocs:duration-75 vocs:scale-100 vocs:opacity-100 vocs:data-starting-style:opacity-0 vocs:data-starting-style:scale-90">
-            <Menu.Group>
-              <Menu.GroupLabel className="vocs:flex vocs:items-center vocs:gap-1.5 vocs:px-2 vocs:py-1.5 vocs:text-secondary vocs:text-xs vocs:font-medium">
-                Open in...
-              </Menu.GroupLabel>
-              {llmProviders.map((provider) => (
-                <Menu.Item
-                  key={provider.name}
-                  className="vocs:flex vocs:items-center vocs:gap-2 vocs:px-2 vocs:py-1.5 vocs:text-primary/80 vocs:hover:text-heading vocs:hover:bg-accenta3 vocs:rounded-md vocs:text-sm vocs:cursor-pointer vocs:transition-colors"
-                  onClick={() => {
-                    // On mobile, use location.href to trigger Universal Links / App Links
-                    // which will open the native app if installed
-                    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
-                    if (isMobile) {
-                      window.location.href = provider.url
-                    } else {
-                      window.open(provider.url, '_blank')
-                    }
-                  }}
-                >
-                  <provider.icon className="vocs:size-4" />
-                  {provider.name}
-                </Menu.Item>
-              ))}
-            </Menu.Group>
+            {showOpenIn && (
+              <Menu.Group data-v-ask-ai-open-in>
+                <Menu.GroupLabel className="vocs:flex vocs:items-center vocs:gap-1.5 vocs:px-2 vocs:py-1.5 vocs:text-secondary vocs:text-xs vocs:font-medium">
+                  Open in...
+                </Menu.GroupLabel>
+                {llmProviders.map((provider) => (
+                  <Menu.Item
+                    key={provider.name}
+                    className="vocs:flex vocs:items-center vocs:gap-2 vocs:px-2 vocs:py-1.5 vocs:text-primary/80 vocs:hover:text-heading vocs:hover:bg-accenta3 vocs:rounded-md vocs:text-sm vocs:cursor-pointer vocs:transition-colors"
+                    onClick={() => {
+                      // On mobile, use location.href to trigger Universal Links / App Links
+                      // which will open the native app if installed
+                      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+                      if (isMobile) {
+                        window.location.href = provider.url
+                      } else {
+                        window.open(provider.url, '_blank')
+                      }
+                    }}
+                  >
+                    <provider.icon className="vocs:size-4" />
+                    {provider.name}
+                  </Menu.Item>
+                ))}
+              </Menu.Group>
+            )}
 
-            <Menu.Separator className="vocs:my-2 vocs:border-t vocs:border-primary" />
+            {showOpenIn && (
+              <Menu.Separator className="vocs:my-2 vocs:border-t vocs:border-primary" />
+            )}
 
             <Menu.Item
               closeOnClick={false}

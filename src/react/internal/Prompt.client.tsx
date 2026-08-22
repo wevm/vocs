@@ -6,11 +6,14 @@ import LucideScanText from '~icons/lucide/scan-text'
 import RiSparkling2Fill from '~icons/ri/sparkling-2-fill'
 import SimpleIconsClaude from '~icons/simple-icons/claude'
 import SimpleIconsOpenai from '~icons/simple-icons/openai'
+import { useConfig } from '../useConfig.js'
 
 type State = 'copied' | 'error' | 'idle'
 
 export function PromptFrame(props: PromptFrame.Props) {
   const { children, className, value } = props
+  const { askAi } = useConfig()
+  const showOpenIn = askAi?.openIn !== false
   const contentId = React.useId()
   const encodedValue = encodeURIComponent(value)
   const [expanded, setExpanded] = React.useState(false)
@@ -71,34 +74,38 @@ export function PromptFrame(props: PromptFrame.Props) {
         </button>
         <Tooltip.Provider delay={300}>
           <span data-v-prompt-actions>
-            <PromptAction
-              label="Open in ChatGPT"
-              render={
-                // biome-ignore lint/a11y/useAnchorContent: _
-                <a
-                  aria-label="Open in ChatGPT"
-                  href={`https://chatgpt.com?hints=search&q=${encodedValue}`}
-                  rel="noopener noreferrer"
-                  target="_blank"
-                />
-              }
-            >
-              <SimpleIconsOpenai aria-hidden />
-            </PromptAction>
-            <PromptAction
-              label="Open in Claude"
-              render={
-                // biome-ignore lint/a11y/useAnchorContent: _
-                <a
-                  aria-label="Open in Claude"
-                  href={`https://claude.ai/new?q=${encodedValue}`}
-                  rel="noopener noreferrer"
-                  target="_blank"
-                />
-              }
-            >
-              <SimpleIconsClaude aria-hidden />
-            </PromptAction>
+            {showOpenIn && (
+              <>
+                <PromptAction
+                  label="Open in ChatGPT"
+                  render={
+                    // biome-ignore lint/a11y/useAnchorContent: _
+                    <a
+                      aria-label="Open in ChatGPT"
+                      href={`https://chatgpt.com?hints=search&q=${encodedValue}`}
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    />
+                  }
+                >
+                  <SimpleIconsOpenai aria-hidden />
+                </PromptAction>
+                <PromptAction
+                  label="Open in Claude"
+                  render={
+                    // biome-ignore lint/a11y/useAnchorContent: _
+                    <a
+                      aria-label="Open in Claude"
+                      href={`https://claude.ai/new?q=${encodedValue}`}
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    />
+                  }
+                >
+                  <SimpleIconsClaude aria-hidden />
+                </PromptAction>
+              </>
+            )}
             <PromptAction
               label={expanded ? 'Hide Prompt' : 'View Prompt'}
               render={
