@@ -152,7 +152,7 @@
     "react": "^19",
     "react-dom": "^19",
     "vite": "^8",
-    "waku": "^1.0.0-rc.0"
+    "waku": ">=1.0.0-rc.0"
   },
   "peerDependenciesMeta": {
     "@vocs/twoslash-rust": {

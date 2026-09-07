@@ -19,6 +19,7 @@ export const METHODS = [
   'OPTIONS',
   'TRACE',
   'PATCH',
+  'QUERY',
 ] as const
 
 function isMethod(exportName: string): exportName is Method {

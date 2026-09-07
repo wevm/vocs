@@ -64,6 +64,14 @@ afterEach(() => {
 })
 
 describe('getApiHandlers', () => {
+  it('registers Waku RC QUERY handlers', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const QUERY = async () => new Response('query result')
+
+    expect(getApiHandlers({ QUERY }, '/_api/search')).toEqual({ QUERY })
+    expect(warn).not.toHaveBeenCalled()
+  })
+
   it('ignores non-function synthetic exports', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
@@ -81,7 +89,7 @@ describe('getApiHandlers', () => {
 
     expect(handlers).toEqual({ POST })
     expect(warn).toHaveBeenCalledWith(
-      'API /_api/faucet has an invalid export: fund. Valid exports are: GET, HEAD, POST, PUT, DELETE, CONNECT, OPTIONS, TRACE, PATCH',
+      'API /_api/faucet has an invalid export: fund. Valid exports are: GET, HEAD, POST, PUT, DELETE, CONNECT, OPTIONS, TRACE, PATCH, QUERY',
     )
   })
 
