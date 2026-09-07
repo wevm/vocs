@@ -92,8 +92,9 @@ export default defineConfig({
 ```
 
 Preload only fonts used above the fold. Set `fontPreload: false` (or `[]`) to
-disable these hints. Package fonts can use Vite's `?url` imports to share the
-same emitted URL as the CSS. Vocs does not infer custom font URLs from CSS.
+disable these hints. Use stable public or hosted URLs in the configuration and
+the matching URLs in CSS. Vocs does not infer custom font URLs from CSS or npm
+packages, and config files do not run through Vite's asset transformation pipeline.
 
 Custom root components must render the exported `<Head />` component to retain
 these hints. They do not rely on Vite's HTML transformation hook.

@@ -29,7 +29,7 @@ describe('Head', () => {
     const html = renderToStaticMarkup(<Head />)
     expect(html).toContain('as="font"')
     expect(html).toContain('geist.woff2')
-    expect(html).toContain('crossorigin="anonymous"')
+    expect(html).toMatch(/crossorigin="(?:anonymous)?"/)
   })
 
   test('replaces default hints with explicitly configured custom fonts', () => {
@@ -44,6 +44,16 @@ describe('Head', () => {
   test('allows sites to disable font preloading', () => {
     mocks.config = createConfig({ fontPreload: false })
     expect(renderToStaticMarkup(<Head />)).not.toContain('as="font"')
+  })
+
+  test('deduplicates hints when the root and layout both render Head', () => {
+    const html = renderToStaticMarkup(
+      <>
+        <Head />
+        <Head />
+      </>,
+    )
+    expect(html.match(/as="font"/g)).toHaveLength(1)
   })
 
   test('resolves path-aware title templates', () => {

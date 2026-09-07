@@ -1,5 +1,6 @@
 'use client'
 
+import { preload } from 'react-dom'
 import type { Meta, MetaFlat } from 'unhead/types'
 import { unpackMeta } from 'unhead/utils'
 import { useRouter } from 'waku'
@@ -23,6 +24,12 @@ export function Head(props: Head.Props) {
   const disabled = resolved === false
   const head = disabled ? {} : resolved
   const meta = head.meta ?? {}
+
+  // React emits these in the server-rendered head and deduplicates hints when
+  // both Root and Layout render Head (or a custom root renders its own Head).
+  if (!disabled && config.fontPreload !== false)
+    for (const { href, type } of config.fontPreload ?? [{ href: geistUrl, type: 'font/woff2' }])
+      preload(href, { as: 'font', type, crossOrigin: 'anonymous' })
 
   const baseTitle = frontmatter?.title ?? config.title
   const baseDescription = frontmatter?.description ?? config.description
@@ -122,21 +129,6 @@ export function Head(props: Head.Props) {
 
       {!disabled && (
         <>
-          {/* Render resource hints during SSR, including when Head is used in a custom root. */}
-          {(config.fontPreload === false
-            ? []
-            : (config.fontPreload ?? [{ href: geistUrl, type: 'font/woff2' }])
-          ).map(({ href, type }) => (
-            <link
-              key={href}
-              rel="preload"
-              as="font"
-              href={href}
-              type={type}
-              crossOrigin="anonymous"
-            />
-          ))}
-
           {/* Title */}
           {fullTitle && <title key="title">{fullTitle}</title>}
 
