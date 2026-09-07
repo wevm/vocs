@@ -1,3 +1,4 @@
+import * as ClientConfig from '../../internal/client-config.js'
 import * as Config from '../../internal/config.js'
 import * as ConfigSerializer from '../../internal/config-serializer.js'
 import type { Payload } from '../../internal/openapi/app.js'
@@ -96,8 +97,8 @@ export async function prepare(
     sidebar,
     pages,
     // Serialize functions (e.g. search/feedback adapters) so they survive the
-    // JSON embed; the browser deserializes via `virtual:vocs/config`.
-    config: ConfigSerializer.serializeFunctions(vocsConfig),
+    // JSON embed; the browser deserializes via `virtual:vocs/client-config`.
+    config: ConfigSerializer.serializeFunctions(ClientConfig.from(vocsConfig)),
   }
 }
 
