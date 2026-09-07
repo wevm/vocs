@@ -10,7 +10,7 @@ const mocks = vi.hoisted(() => ({
   config: {} as Config.Config,
 }))
 
-vi.mock('virtual:vocs/config', () => ({
+vi.mock('virtual:vocs/client-config', () => ({
   get config() {
     return mocks.config
   },

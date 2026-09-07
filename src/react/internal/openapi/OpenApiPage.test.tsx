@@ -15,7 +15,7 @@ vi.mock('waku', () => ({
   useRouter: () => ({ path: mocks.path }),
 }))
 
-vi.mock('virtual:vocs/config', () => ({
+vi.mock('virtual:vocs/client-config', () => ({
   get config() {
     return mocks.config
   },

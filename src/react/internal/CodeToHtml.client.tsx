@@ -1,6 +1,6 @@
 'use client'
 
-import { config } from 'virtual:vocs/config'
+import { config } from 'virtual:vocs/client-config'
 import { useEffect, useState } from 'react'
 
 /**

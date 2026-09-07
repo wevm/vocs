@@ -6,6 +6,7 @@ import mdxPlugin from '@mdx-js/rollup'
 import tailwindcss, { type PluginOptions as TailwindOptions } from '@tailwindcss/vite'
 import type { PluginOption, ResolvedConfig, Rolldown, ViteDevServer } from 'vite'
 import { createLogger } from 'vite'
+import * as ClientConfig from './client-config.js'
 import * as Config from './config.js'
 import * as ConfigSerializer from './config-serializer.js'
 import * as Git from './git.js'
@@ -989,6 +990,8 @@ export const getAiSearchManifest = async () =>
 export function virtualConfig(config: Config.Config): PluginOption {
   const virtualModuleId = 'virtual:vocs/config'
   const resolvedVirtualModuleId = `\0${virtualModuleId}`
+  const clientModuleId = 'virtual:vocs/client-config'
+  const resolvedClientModuleId = `\0${clientModuleId}`
 
   let mode: 'development' | 'production' = 'development'
 
@@ -1007,8 +1010,10 @@ export function virtualConfig(config: Config.Config): PluginOption {
 
         try {
           const newConfig = await Config.resolve()
-          const mod = server.moduleGraph.getModuleById(resolvedVirtualModuleId)
-          if (mod) server.moduleGraph.invalidateModule(mod)
+          for (const id of [resolvedVirtualModuleId, resolvedClientModuleId]) {
+            const mod = server.moduleGraph.getModuleById(id)
+            if (mod) server.moduleGraph.invalidateModule(mod)
+          }
           Config.setGlobal(newConfig)
           // Send the serialized (public) config only — `serializeFunctions`
           // strips `_`-prefixed fields (e.g. `_feedback`, `_localRetriever`) so secrets in
@@ -1016,7 +1021,7 @@ export function virtualConfig(config: Config.Config): PluginOption {
           server.ws.send({
             type: 'custom',
             event: 'vocs:config',
-            data: ConfigSerializer.serializeFunctions(newConfig),
+            data: ConfigSerializer.serializeFunctions(ClientConfig.from(newConfig)),
           })
           // Force full reload to ensure CSS is properly reprocessed
           server.ws.send({ type: 'full-reload' })
@@ -1025,14 +1030,19 @@ export function virtualConfig(config: Config.Config): PluginOption {
     },
     resolveId(id) {
       if (id === virtualModuleId) return resolvedVirtualModuleId
+      if (id === clientModuleId) return resolvedClientModuleId
       return
     },
     load(id) {
-      if (id === resolvedVirtualModuleId) {
+      if (id === resolvedVirtualModuleId || id === resolvedClientModuleId) {
         const currentConfig = OpenApiRegistry.mergeSidebar(Config.getGlobal() ?? config)
         const serializedConfig =
           mode === 'development' ? { ...currentConfig, baseUrl: undefined } : currentConfig
-        return `export const config = ${ConfigSerializer.serialize(serializedConfig)}`
+        return `export const config = ${JSON.stringify(
+          ConfigSerializer.serializeFunctions(
+            id === resolvedClientModuleId ? ClientConfig.from(serializedConfig) : serializedConfig,
+          ),
+        )}`
       }
       return
     },
@@ -1488,6 +1498,7 @@ export function openapi(config: Config.Config): PluginOption {
           ...Object.keys(specs).map(resolvedOpenapiClientDocumentId),
           ...openapiSchemaModelSources(specs).map(resolvedOpenapiSchemaModelsDocumentId),
           '\0virtual:vocs/config',
+          '\0virtual:vocs/client-config',
         ]) {
           const mod = server.moduleGraph.getModuleById(moduleId)
           if (mod) server.moduleGraph.invalidateModule(mod)
