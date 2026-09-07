@@ -88,6 +88,15 @@ export default defineConfig({
 })
 ```
 
+### `fontPreload`
+
+- **Type:** `false | readonly { href: string; type?: string }[]`
+- **Default:** the bundled Geist font
+
+Custom entries replace the default font hint; use `false` or `[]` to disable it.
+Vocs renders font preloads with `crossorigin="anonymous"`. Font families and
+`font-display` remain controlled by CSS. See [Fonts](/features/fonts#preloading-fonts).
+
 ### `head`
 
 - **Type:** `false | HeadTags | (path: string, context: { frontmatter }) => HeadTags | false | undefined`

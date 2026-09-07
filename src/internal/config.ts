@@ -468,6 +468,12 @@ export type Config<partial extends boolean = false> = MaybePartial<
      */
     description?: string | undefined
     /**
+     * Fonts to preload in the rendered document. Defaults to the bundled Geist
+     * font. Set false to disable, or supply only the fonts used above the fold.
+     * Custom entries replace the default; CSS still controls font families and display.
+     */
+    fontPreload?: false | readonly { href: string; type?: string | undefined }[] | undefined
+    /**
      * Edit link configuration for "suggest changes" functionality.
      */
     editLink?:
@@ -856,6 +862,7 @@ export function define(config: define.Options = {}): Config {
     codeHighlight,
     colorScheme = 'light dark',
     description,
+    fontPreload,
     head,
     iconUrl,
     jsonLd = true,
@@ -945,6 +952,7 @@ export function define(config: define.Options = {}): Config {
     },
     colorScheme,
     description,
+    fontPreload,
     editLink: config.editLink
       ? { text: 'Suggest changes to this page', ...config.editLink }
       : undefined,

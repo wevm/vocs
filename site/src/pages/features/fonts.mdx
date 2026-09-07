@@ -78,6 +78,35 @@ Map the loaded families to Vocs CSS variables.
 
 ## Recipes
 
+### Preloading Fonts
+
+Vocs preloads its bundled Geist font in the rendered document. When using custom
+fonts, replace that hint with the exact URLs used by your `@font-face` rules:
+
+```ts [vocs.config.ts]
+import { defineConfig } from 'vocs/config'
+
+export default defineConfig({
+  fontPreload: [{ href: '/fonts/brand.woff2', type: 'font/woff2' }], // [!code focus]
+})
+```
+
+Preload only fonts used above the fold. Set `fontPreload: false` (or `[]`) to
+disable these hints. Package fonts can use Vite's `?url` imports to share the
+same emitted URL as the CSS. Vocs does not infer custom font URLs from CSS.
+
+Custom root components must render the exported `<Head />` component to retain
+these hints. They do not rely on Vite's HTML transformation hook.
+
+Preloading starts the download earlier but cannot guarantee it finishes before
+the first paint. CSS controls `font-display`: use `swap` when the custom font must
+eventually replace the fallback, or `optional` to keep a slow first visit stable.
+With `optional`, a navigation can retain the fallback even after the download
+finishes. Vocs keeps the existing `swap` behavior for its bundled font.
+
+The default content and gutter geometry uses `rem` so font loading does not move
+the entire shell. You can still override `--vocs-spacing-content` in `_root.css`.
+
 ### Loading Files From `public/`
 
 Use `@font-face` when you have your own font files. Put them in `public/fonts`,

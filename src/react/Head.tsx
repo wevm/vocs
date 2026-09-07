@@ -4,6 +4,7 @@ import type { Meta, MetaFlat } from 'unhead/types'
 import { unpackMeta } from 'unhead/utils'
 import { useRouter } from 'waku'
 import type * as Config from '../internal/config.js'
+import geistUrl from '../server/fonts/geist.woff2?url'
 import * as JsonLd from './json-ld.js'
 import * as MdxPageContext from './MdxPageContext.js'
 import { useConfig } from './useConfig.js'
@@ -121,6 +122,21 @@ export function Head(props: Head.Props) {
 
       {!disabled && (
         <>
+          {/* Render resource hints during SSR, including when Head is used in a custom root. */}
+          {(config.fontPreload === false
+            ? []
+            : (config.fontPreload ?? [{ href: geistUrl, type: 'font/woff2' }])
+          ).map(({ href, type }) => (
+            <link
+              key={href}
+              rel="preload"
+              as="font"
+              href={href}
+              type={type}
+              crossOrigin="anonymous"
+            />
+          ))}
+
           {/* Title */}
           {fullTitle && <title key="title">{fullTitle}</title>}
 
