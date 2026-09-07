@@ -1,0 +1,21 @@
+{
+  "name": "performance-fixture",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "NODE_OPTIONS='--import=tsx' vite build",
+    "preview": "PORT=4183 NODE_OPTIONS='--import=tsx' node dist/preview.js"
+  },
+  "dependencies": {
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "vocs": "workspace:*",
+    "waku": "catalog:"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "catalog:",
+    "shiki": "^3.20.0",
+    "tsx": "^4.21.0",
+    "vite": "catalog:"
+  }
+}

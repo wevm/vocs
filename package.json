@@ -15,11 +15,13 @@
     "docs:twoslash": "cd site && tsx ../src/cli.ts twoslash",
     "postinstall": "pnpm dev",
     "test": "vitest ./src",
+    "test:performance": "playwright test --config tests/performance/playwright.config.ts",
     "test:twoslash-rust": "cargo test --manifest-path twoslash-rust/Cargo.toml"
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:",
     "@changesets/cli": "catalog:",
+    "@playwright/test": "1.58.2",
     "@types/estree": "^1.0.8",
     "@types/hast": "^3.0.4",
     "@types/mdast": "^4.0.4",
