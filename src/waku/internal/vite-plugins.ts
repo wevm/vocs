@@ -156,8 +156,7 @@ if (import.meta.hot) {
   import.meta.hot.accept();
 
   if (previousVersion !== undefined && previousVersion !== version) {
-    const refetchRoute = globalThis.__WAKU_REFETCH_ROUTE__;
-    if (refetchRoute) refetchRoute();
+    globalThis.__WAKU_RSC_RELOAD_LISTENERS__?.forEach((reload) => reload());
   }
 }
 `
