@@ -6,7 +6,7 @@
  * imported by both the server handler and the client entry.
  */
 
-import type { Config } from '../config.js'
+import type { ClientConfig } from '../client-config.js'
 import type { SidebarItem } from '../sidebar.js'
 import { normalizePath } from './openapi.js'
 import type { Ir } from './parser.js'
@@ -67,12 +67,12 @@ export type Payload = {
   /** Compiled override/guide pages. */
   pages: CompiledPage[]
   /**
-   * Serialized Vocs config that backs `virtual:vocs/config` in the browser
+   * Serialized Vocs config that backs `virtual:vocs/client-config` in the browser
    * bundle, so the prebuilt app renders the real Vocs layout/chrome. Functions
    * are serialized via {@link file://../config-serializer.ts config-serializer};
    * the client deserializes them on load.
    */
-  config: Config
+  config: ClientConfig
 }
 
 /** Joins a section base path with a section-relative sub-path. */

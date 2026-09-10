@@ -1,16 +1,16 @@
 'use client'
 
-import { config as initialConfig } from 'virtual:vocs/config'
+import { config as initialConfig } from 'virtual:vocs/client-config'
 import { useEffect, useState } from 'react'
-import type * as Config from '../internal/config.js'
+import type * as ClientConfig from '../internal/client-config.js'
 import * as ConfigSerializer from '../internal/config-serializer.js'
 
-export function useConfig(): Config.Config {
+export function useConfig(): ClientConfig.ClientConfig {
   const [config, setConfig] = useState(ConfigSerializer.deserializeFunctions(initialConfig))
 
   useEffect(() => {
     const handler = (event: Event) => {
-      const customEvent = event as CustomEvent<Config.Config>
+      const customEvent = event as CustomEvent<ClientConfig.ClientConfig>
       setConfig(ConfigSerializer.deserializeFunctions(customEvent.detail))
     }
     globalThis.addEventListener('vocs:config', handler)
