@@ -215,7 +215,8 @@
   --spacing-code-block-px: 1.5rem;
   --spacing-content-px: 3rem;
   --spacing-content-py: 2.5rem;
-  --spacing-content: calc(70ch + (var(--vocs-spacing-content-px) * 2));
+  /* Approximately 70 Geist characters, without moving the shell when fonts swap. */
+  --spacing-content: calc(46.4rem + (var(--vocs-spacing-content-px) * 2));
   --spacing-outline: 280px;
   --spacing-logo: max(calc((100vw - var(--vocs-spacing-content)) / 2), var(--vocs-spacing-sidebar));
   --spacing-gutter: max(calc((100vw - var(--vocs-spacing-content)) / 2), var(--vocs-spacing-sidebar));

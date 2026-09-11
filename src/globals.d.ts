@@ -84,6 +84,11 @@ declare module '*.wasm?url' {
   export default url
 }
 
+declare module '*.woff2?url' {
+  const url: string
+  export default url
+}
+
 declare module '*?arraybuffer' {
   const data: ArrayBuffer
   export default data

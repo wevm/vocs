@@ -25,6 +25,37 @@ beforeEach(() => {
 })
 
 describe('Head', () => {
+  test('preloads the bundled font in server-rendered head markup', () => {
+    const html = renderToStaticMarkup(<Head />)
+    expect(html).toContain('as="font"')
+    expect(html).toContain('geist.woff2')
+    expect(html).toMatch(/crossorigin="(?:anonymous)?"/)
+  })
+
+  test('replaces default hints with explicitly configured custom fonts', () => {
+    mocks.config = createConfig({
+      fontPreload: [{ href: '/fonts/brand.woff2', type: 'font/woff2' }],
+    })
+    const html = renderToStaticMarkup(<Head />)
+    expect(html).toContain('href="/fonts/brand.woff2"')
+    expect(html).not.toContain('geist.woff2')
+  })
+
+  test('allows sites to disable font preloading', () => {
+    mocks.config = createConfig({ fontPreload: false })
+    expect(renderToStaticMarkup(<Head />)).not.toContain('as="font"')
+  })
+
+  test('deduplicates hints when the root and layout both render Head', () => {
+    const html = renderToStaticMarkup(
+      <>
+        <Head />
+        <Head />
+      </>,
+    )
+    expect(html.match(/as="font"/g)).toHaveLength(1)
+  })
+
   test('resolves path-aware title templates', () => {
     const config = {
       title: 'Acme',
