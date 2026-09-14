@@ -9,3 +9,5 @@ tsconfig.tmp.*
 .vocs
 .env
 target
+test-results
+playwright-report

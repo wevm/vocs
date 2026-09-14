@@ -4,7 +4,8 @@
     { "path": "./create-vocs" },
     { "path": "./site" },
     { "path": "./src" },
-    { "path": "./playground" }
+    { "path": "./playground" },
+    { "path": "./tests/performance" }
   ],
   "compilerOptions": {
     "lib": ["ESNext", "DOM", "DOM.Iterable"],

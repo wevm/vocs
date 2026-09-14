@@ -39,6 +39,31 @@ jobs:
         env:
           CI: true
 
+  test-performance:
+    name: Test Production Page Loads
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
+
+      - name: Install Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Test production page loads
+        run: pnpm test:performance
+
+      - name: Upload browser evidence
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-test-results
+          path: test-results/
+          retention-days: 7
+
   test-twoslash-rust:
     name: Test twoslash-rust
     runs-on: ubuntu-latest
@@ -102,4 +127,3 @@ jobs:
 
       - name: Check twoslash
         run: pnpm docs:twoslash --lang rust
-

@@ -3,6 +3,7 @@ packages:
   - create-vocs
   - site
   - playground
+  - tests/performance/site
   - twoslash-rust
   - twoslash-rust/npm/*
 
