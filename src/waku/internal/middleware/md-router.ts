@@ -6,6 +6,7 @@ import {
   searchEngineUserAgents,
   terminalUserAgents,
 } from '../../../internal/markdown-negotiation.js'
+import * as Path from '../../../internal/path.js'
 
 const isDev = process.env['NODE_ENV'] !== 'production'
 
@@ -31,7 +32,12 @@ async function resolveContent() {
   })
 }
 
-export async function fetchMarkdown(url: URL, assetPath: string, cookie?: string) {
+export async function fetchMarkdown(
+  url: URL,
+  assetPath: string,
+  cookie?: string,
+  basePath?: string,
+) {
   // Try reading from disk first (avoids self-fetch issues with deployment protection).
   try {
     const fs = await import('node:fs/promises')
@@ -43,7 +49,7 @@ export async function fetchMarkdown(url: URL, assetPath: string, cookie?: string
   } catch {}
 
   // Fall back to HTTP fetch, forwarding cookies for auth-protected deployments.
-  const assetUrl = new URL(assetPath, url.origin)
+  const assetUrl = new URL(Path.withBasePath(assetPath, basePath), url.origin)
   const headers: HeadersInit = {}
   if (cookie) headers['cookie'] = cookie
   const response = await globalThis.fetch(assetUrl, { headers })
@@ -80,20 +86,26 @@ async function hasPublicFile(pathname: string) {
 export function middleware(): MiddlewareHandler {
   return async (context, next) => {
     const url = new URL(context.req.url)
+    const Config = await import('../../../internal/config.js')
+    const basePath = await Config.resolveBasePath()
+
+    // Routes and static output are both base-path-agnostic, so match and resolve
+    // against the pathname with the base path removed.
+    const pathname = Path.stripBasePath(url.pathname, basePath)
 
     // Generated markdown twins are static output; routing them back through
     // twin resolution would trigger a recursive self-fetch.
-    if (url.pathname.startsWith('/assets/md/')) return next()
+    if (pathname.startsWith('/assets/md/')) return next()
 
-    const isMarkdownRequest = url.pathname.endsWith('.md')
+    const isMarkdownRequest = pathname.endsWith('.md')
 
     // A file physically present in `public/` wins over markdown-twin resolution,
     // so static `.md` files (skill manifests, plain markdown) are served as-is.
-    if (isMarkdownRequest && (await hasPublicFile(url.pathname))) return next()
+    if (isMarkdownRequest && (await hasPublicFile(pathname))) return next()
 
     // Static assets (`.json`, `.svg`, `.png`, ...) have no markdown twin. Skip
     // twin resolution so a disk miss never falls back to a slow self-fetch.
-    const filename = url.pathname.split('/').pop() ?? ''
+    const filename = pathname.split('/').pop() ?? ''
     if (!isMarkdownRequest && filename.includes('.')) return next()
 
     const nextWithVary = async () => {
@@ -111,13 +123,13 @@ export function middleware(): MiddlewareHandler {
     const acceptHeader = context.req.header('accept') ?? ''
     const acceptsMarkdown = acceptHeader.includes('text/markdown')
 
-    if (url.pathname === '/' && (acceptsMarkdown || isTerminal) && !isSearchEngine) {
+    if (pathname === '/' && (acceptsMarkdown || isTerminal) && !isSearchEngine) {
       let text: string | null
       if (isDev) {
         const content = await resolveContent()
         text = content.short
       } else {
-        text = await fetchMarkdown(url, '/llms.txt', context.req.header('cookie'))
+        text = await fetchMarkdown(url, '/llms.txt', context.req.header('cookie'), basePath)
       }
       if (!text) return nextWithVary()
 
@@ -133,7 +145,7 @@ export function middleware(): MiddlewareHandler {
     if (!isMarkdownRequest && (isSearchEngine || (!isAiAgent && !isTerminal && !acceptsMarkdown)))
       return nextWithVary()
 
-    const pagePath = url.pathname.replace(/\.md$/, '').replace(/\/index$/, '')
+    const pagePath = pathname.replace(/\.md$/, '').replace(/\/index$/, '')
 
     let text: string | null
     if (isDev) {
@@ -143,10 +155,10 @@ export function middleware(): MiddlewareHandler {
       )
       text = result?.content ?? null
     } else {
-      const assetPath = url.pathname.endsWith('.md')
-        ? `/assets/md${url.pathname}`
-        : `/assets/md${url.pathname}.md`
-      text = await fetchMarkdown(url, assetPath, context.req.header('cookie'))
+      const assetPath = pathname.endsWith('.md')
+        ? `/assets/md${pathname}`
+        : `/assets/md${pathname}.md`
+      text = await fetchMarkdown(url, assetPath, context.req.header('cookie'), basePath)
     }
     if (!text) return nextWithVary()
 
