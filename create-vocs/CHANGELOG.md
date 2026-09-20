@@ -1,5 +1,11 @@
 # create-vocs
 
+## 2.0.3
+
+### Patch Changes
+
+- 540ad4c: Updated Waku to 1.0.0-rc.1, required React 19.3, and migrated client bootstrapping, router context, and stylesheet preload handling.
+
 ## 2.0.2
 
 ### Patch Changes
