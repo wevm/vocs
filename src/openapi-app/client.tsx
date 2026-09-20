@@ -1,3 +1,8 @@
+import { theme } from 'zyzz/default'
+import '../styles/index.js'
+import '../styles/markdown.js'
+import '../styles/twoslash.js'
+import '../styles/openapi.js'
 import '../styles/index.css'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
@@ -6,6 +11,8 @@ import { ScrollRestoration } from '../react/ScrollRestoration.js'
 import { App } from './App.js'
 import { read } from './payload.js'
 import { init } from './waku.js'
+
+document.documentElement.classList.add(theme.className)
 
 const payload = read()
 init(payload)

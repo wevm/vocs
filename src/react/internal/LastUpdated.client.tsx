@@ -2,7 +2,16 @@
 
 import { cx } from 'cva'
 import * as React from 'react'
+import { style, theme } from 'zyzz/default'
 import * as MdxPageContext from '../MdxPageContext.js'
+
+namespace styles {
+  export const lastUpdated = style({
+    fontSize: 'sm',
+    lineHeight: 'calc(1.25 / 0.875)',
+    color: theme.vars.color.gray['900'],
+  })
+}
 
 export function LastUpdated(props: LastUpdated.Props) {
   const { className } = props
@@ -29,7 +38,7 @@ export function LastUpdated(props: LastUpdated.Props) {
   })
 
   return (
-    <div className={cx('vocs:text-secondary vocs:text-sm', className)} data-v-last-updated>
+    <div className={cx(styles.lastUpdated().className, className)} data-v-last-updated>
       Last updated: {formatted}, {time}
     </div>
   )

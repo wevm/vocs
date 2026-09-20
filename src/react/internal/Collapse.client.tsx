@@ -1,6 +1,11 @@
 'use client'
 
 import * as React from 'react'
+import { style } from 'zyzz/default'
+
+namespace styles {
+  export const collapseHandler = style({ display: 'none' })
+}
 
 export function CollapseHandler() {
   const containerRef = React.useRef<HTMLSpanElement>(null)
@@ -72,5 +77,5 @@ export function CollapseHandler() {
     }
   }, [])
 
-  return <span ref={containerRef} className="vocs:hidden" />
+  return <span ref={containerRef} {...styles.collapseHandler()} />
 }

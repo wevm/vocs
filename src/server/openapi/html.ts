@@ -22,12 +22,10 @@ export function render(payload: Payload, assets: Assets, mount: string, css?: st
   const data = escapeJson(payload)
 
   const colorScheme = (payload.config?.colorScheme as string | undefined) ?? 'light dark'
-  const accentColor =
-    (payload.config?.accentColor as string | undefined) ?? 'light-dark(black, white)'
   const staticTheme = colorScheme === 'light' || colorScheme === 'dark' ? colorScheme : undefined
 
   return `<!doctype html>
-<html data-vocs lang="en"${staticTheme ? ` data-vocs-theme="${staticTheme}"` : ''} style="color-scheme: ${escapeAttr(colorScheme)}; --vocs-color-accent: ${escapeAttr(accentColor)}" suppressHydrationWarning>
+<html data-vocs lang="en"${staticTheme ? ` data-vocs-theme="${staticTheme}"` : ''} style="color-scheme: ${escapeAttr(colorScheme)}" suppressHydrationWarning>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />

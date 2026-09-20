@@ -1,46 +1,8 @@
-import { Card, Cards } from 'vocs'
+# Theming [Use the default theme and configure site branding]
 
-# Theming [Customize colors, typography, spacing, logos, and code themes]
+Vocs uses the [Zyzz default theme](/features/zyzz). Colors adapt to the active light or dark scheme. The same theme supplies fonts, spacing, radii, and component colors.
 
-## Overview
-
-Vocs gives you two main theming layers:
-
-- top-level site config in `vocs.config.ts` for things like accent color, color scheme, logo, icon, and code block themes
-- global CSS in `src/pages/_root.css` for fonts, surfaces, spacing, and other visual tweaks
-
-A typical theming workflow looks like:
-
-1. Set `accentColor`, `colorScheme`, `logoUrl`, and `iconUrl` in `vocs.config.ts`.
-2. Add `src/pages/_root.css` for brand fonts and background/text tuning.
-3. Override Vocs CSS variables in `_root.css` only if the defaults still feel off.
-4. Set `codeHighlight.themes` if your code blocks should use a different palette than the default.
-
-## Recipes
-
-### Set The Accent Color
-
-`accentColor` is the main way to change the feel of the entire site. Vocs sets `--vocs-color-accent` on the root document and derives the rest of the accent palette from it.
-
-```ts [vocs.config.ts]
-import { defineConfig } from 'vocs/config'
-
-export default defineConfig({
-  accentColor: '#f97316'
-})
-```
-
-You can also provide a `light-dark()` value when the accent should differ by theme:
-
-```ts [vocs.config.ts]
-import { defineConfig } from 'vocs/config'
-
-export default defineConfig({
-  accentColor: 'light-dark(#0f766e, #5eead4)'
-})
-```
-
-Prefer `accentColor` over manually overriding derived accent tokens in CSS. It keeps links, tabs, highlights, and other accent-driven UI in sync.
+Configure the color scheme, logo, icon, and syntax highlighting in `vocs.config.ts`. The `accentColor` option and the old global design tokens are no longer supported.
 
 ### Choose A Color Scheme
 
@@ -78,54 +40,6 @@ export default defineConfig({
 })
 ```
 
-### Override Tokens With `_root.css`
-
-Create `src/pages/_root.css` when you want to override colors, fonts, spacing, or other CSS tokens globally. Vocs loads this file automatically.
-
-```css [src/pages/_root.css]
-:root {
-  --vocs-color-accent: oklch(0.55 0.2 264);
-  --vocs-color-background-primary: white;
-  --vocs-font-family: 'Soehne', sans-serif;
-  --vocs-font-family-mono: 'JetBrains Mono', monospace;
-}
-
-:root[style*='color-scheme:dark'], /* [!code focus] */
-:root[style*='color-scheme: dark'] { /* [!code focus] */
-  --vocs-color-background-primary: #111827;
-}
-```
-
-The key detail is the dark-mode selector. Vocs stores the active theme on the document's `color-scheme`, so target the inline `color-scheme` value if you want CSS overrides to follow the built-in theme toggle.
-
-If you want Tailwind utilities for custom page UI, see [Tailwind CSS](/features/tailwind).
-
-### Load Custom Fonts
-
-Load fonts in `_root.css`, then point the Vocs font variables at them.
-
-```css [src/pages/_root.css]
-@font-face {
-  font-family: 'Soehne';
-  src: url('/fonts/soehne-buch.woff2') format('woff2');
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'IBM Plex Mono';
-  src: url('/fonts/ibm-plex-mono.woff2') format('woff2');
-  font-display: swap;
-}
-
-:root {
-  --vocs-font-family: 'Soehne', sans-serif;
-  --vocs-font-family-mono: 'IBM Plex Mono', monospace;
-}
-```
-
-Put the font files in `public/fonts` or another static asset path. For package-based
-font loading with Vite's CSS processing, see [Fonts](/features/fonts).
-
 ### Pick Code Block Themes
 
 Syntax highlighting is configured separately from the rest of the UI theme. Use `codeHighlight.themes` to choose the Shiki theme for light and dark mode.
@@ -145,124 +59,18 @@ export default defineConfig({
 
 You can also add language aliases or other Shiki options in the same `codeHighlight` block. See also: [Code & Syntax Highlighting](/writing/syntax-highlighting).
 
-### CSS Variables
+## Layout Dimensions
 
-Vocs exposes the following user-overridable CSS variables. Set them in `_root.css` to retune the design system end-to-end — everything else (callouts, code blocks, sidebar, etc.) is derived from these.
+Vocs retains layout-specific CSS variables for dimensions that are not design tokens. Override them in `src/pages/_root.css`.
 
-```css
+```css [src/pages/_root.css]
 :root {
-  --vocs-color-accent;                       /* Accent color — drives links, active states, focus rings, and derived accent palette. Also settable via the `accentColor` config option. */
-
-  --vocs-background-color-primary;           /* Page background. */
-  --vocs-background-color-surface;           /* Surface background — used for cards, dialogs, top nav, and as the base for tinted callout backgrounds. */
-  --vocs-background-color-surfaceMuted;      /* Muted surface — used for subdued panels and inactive controls (e.g. theme toggle background). */
-  --vocs-background-color-surfaceTint;       /* Tinted surface — used for blockquotes, table headers, hover states, and search/file-tree highlights. */
-
-  --vocs-text-color-primary;                 /* Primary body text color. */
-  --vocs-text-color-secondary;               /* Secondary text color — used for subtitles, helper text, and less prominent UI. */
-  --vocs-text-color-muted;                   /* Muted text color — used for the least prominent text (placeholders, captions). */
-
-  --vocs-color-destructive;                  /* Destructive/danger accent color — used by the `danger` callout. */
-  --vocs-color-destructive-hover;            /* Hover state for `--vocs-color-destructive`. */
-  --vocs-color-destructive-tint;             /* Tinted destructive surface color. */
-  --vocs-border-color-destructive-tint;      /* Border color for destructive tinted surfaces (e.g. the `danger` callout border). */
-
-  --vocs-color-info;                         /* Info accent color — used by the `info` callout. */
-  --vocs-color-info-hover;                   /* Hover state for `--vocs-color-info`. */
-  --vocs-background-color-info-tint;         /* Tinted info background — used as the `info` callout background. */
-  --vocs-border-color-info-tint;             /* Border color for info tinted surfaces (e.g. the `info` callout border). */
-
-  --vocs-color-note;                         /* Note accent color — used by the `note` callout. */
-  --vocs-color-note-hover;                   /* Hover state for `--vocs-color-note`. */
-  --vocs-background-color-note-tint;         /* Tinted note background — used as the `note` callout background. */
-  --vocs-border-color-note-tint;             /* Border color for note tinted surfaces (e.g. the `note` callout border). */
-
-  --vocs-color-success;                      /* Success accent color — used by the `success` callout. */
-  --vocs-color-success-hover;                /* Hover state for `--vocs-color-success`. */
-  --vocs-background-color-success-tint;      /* Tinted success background — used as the `success` callout background. */
-  --vocs-border-color-success-tint;          /* Border color for success tinted surfaces (e.g. the `success` callout border). */
-
-  --vocs-color-tip;                          /* Tip accent color — used by the `tip` callout. */
-  --vocs-color-tip-hover;                    /* Hover state for `--vocs-color-tip`. */
-  --vocs-background-color-tip-tint;          /* Tinted tip background — used as the `tip` callout background. */
-  --vocs-border-color-tip-tint;              /* Border color for tip tinted surfaces (e.g. the `tip` callout border). */
-
-  --vocs-color-warning;                      /* Warning accent color — used by the `warning` callout. */
-  --vocs-color-warning-hover;                /* Hover state for `--vocs-color-warning`. */
-  --vocs-background-color-warning-tint;      /* Tinted warning background — used as the `warning` callout background. */
-  --vocs-border-color-warning-tint;          /* Border color for warning tinted surfaces (e.g. the `warning` callout border). */
-
-  --vocs-border-color-primary;               /* Primary border color — used for the top nav, dividers, and code block borders. */
-  --vocs-border-color-secondary;             /* Secondary border color — used for subtle dividers and less prominent borders. */
-
-  --vocs-background-color-blockquote;        /* Blockquote background color. */
-  --vocs-background-color-code-block;        /* Code block background color. */
-  --vocs-background-color-code-highlighted;  /* Highlighted line background within code blocks. */
-  --vocs-background-color-inline-code;       /* Inline code background color. */
-  --vocs-border-color-code-highlighted;      /* Highlighted line border within code blocks. */
-  --vocs-border-color-tab-active;            /* Active tab indicator color. */
-  --vocs-text-color-heading;                 /* Heading text color (h1–h6). */
-  --vocs-text-color-link;                    /* Link text color. */
-  --vocs-text-color-link-hover;              /* Link hover text color. */
-  --vocs-text-color-quote;                   /* Blockquote text color. */
-
-  --vocs-text-callout;                       /* Callout font size. */
-  --vocs-text-code-block;                    /* Code block font size. */
-  --vocs-text-h1;                            /* `h1` font size. */
-  --vocs-text-h2;                            /* `h2` font size. */
-  --vocs-text-h3;                            /* `h3` font size. */
-  --vocs-text-h4;                            /* `h4` font size. */
-  --vocs-text-h5;                            /* `h5` font size. */
-  --vocs-text-h6;                            /* `h6` font size. */
-  --vocs-text-inline-code;                   /* Inline code font size. */
-  --vocs-text-subtitle;                      /* Subtitle font size. */
-  --vocs-text-td;                            /* Table cell (`td`) font size. */
-  --vocs-text-th;                            /* Table header (`th`) font size. */
-
-  --vocs-leading-base;                       /* Base line height. */
-  --vocs-leading-code;                       /* Code block line height. */
-  --vocs-leading-p;                          /* Paragraph line height. */
-  --vocs-leading-h1;                         /* `h1` line height. */
-  --vocs-leading-h2;                         /* `h2` line height. */
-  --vocs-leading-h3;                         /* `h3` line height. */
-  --vocs-leading-li;                         /* List item line height. */
-  --vocs-leading-table;                      /* Table line height. */
-
-  --vocs-spacing-banner;                     /* Banner height. */
-  --vocs-spacing-code-block-px;              /* Horizontal padding inside code blocks. */
-  --vocs-spacing-content-px;                 /* Horizontal padding around page content. */
-  --vocs-spacing-content-py;                 /* Vertical padding around page content. */
-  --vocs-spacing-content;                    /* Max width of the page content column. */
-  --vocs-spacing-outline;                    /* Width of the right-hand outline column. */
-  --vocs-spacing-logo;                       /* Width of the logo column in the top nav. */
-  --vocs-spacing-gutter;                     /* Outer gutter between the content column and the viewport edge. */
-  --vocs-spacing-sidebar-px;                 /* Horizontal padding inside the sidebar. */
-  --vocs-spacing-sidebar-py;                 /* Vertical padding inside the sidebar. */
-  --vocs-spacing-sidebar;                    /* Width of the sidebar. */
-  --vocs-spacing-topNav-px;                  /* Horizontal padding inside the top nav. */
-  --vocs-spacing-topNav;                     /* Height of the top nav. */
+  --vocs-layout-content: 760px;
+  --vocs-layout-sidebar: 260px;
+  --vocs-layout-outline: 220px;
 }
 ```
 
-## See More
+Existing layout overrides named `--vocs-spacing-content`, `--vocs-spacing-sidebar`, or `--vocs-spacing-outline` now use the `--vocs-layout-` prefix. Banner height is measured automatically.
 
-<Cards>
-  <Card
-    title="Branding and Theme"
-    description="accentColor, colorScheme, logoUrl, iconUrl, and banner options."
-    icon="palette"
-    to="/reference/site-config#branding-and-theme"
-  />
-  <Card
-    title="codeHighlight"
-    description="Shiki themes, language aliases, and syntax highlighting options."
-    icon="code"
-    to="/reference/site-config#codehighlight"
-  />
-  <Card
-    title="Fonts"
-    description="Load custom fonts with Vite and Vocs CSS variables."
-    icon="type"
-    to="/features/fonts"
-  />
-</Cards>
+For custom components, use `style` and `theme.vars` from `zyzz/default`. For font loading and CSS overrides, see [Fonts](/features/fonts).

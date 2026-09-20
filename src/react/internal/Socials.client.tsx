@@ -2,6 +2,7 @@
 
 import type { ComponentType } from 'react'
 import { Fragment } from 'react'
+import { style, theme } from 'zyzz/default'
 import SimpleIconsBluesky from '~icons/simple-icons/bluesky'
 import SimpleIconsDiscord from '~icons/simple-icons/discord'
 import SimpleIconsFarcaster from '~icons/simple-icons/farcaster'
@@ -11,6 +12,34 @@ import SimpleIconsX from '~icons/simple-icons/x'
 
 import type { SocialType } from '../../internal/config.js'
 import { useConfig } from '../useConfig.js'
+
+namespace styles {
+  export const socials = style({
+    display: 'flex',
+    height: 7,
+    alignItems: 'center',
+  })
+  export const socials2 = style({
+    marginInline: 1,
+    height: 4,
+    width: '1px',
+    backgroundColor: theme.vars.color.background['200'],
+  })
+  export const socials3 = style({
+    display: 'flex',
+    width: 7,
+    height: 7,
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: `color-mix(in oklab, ${theme.vars.color.foreground} 60%, transparent)`,
+    transitionProperty:
+      'color, background-color, border-color, outline-color, text-decoration-color, fill, stroke',
+    transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+    transitionDuration: '150ms',
+    selectors: { '&:hover': { '@media (hover: hover)': { color: theme.vars.color.foreground } } },
+  })
+  export const socials4 = style({ width: '18px', height: '18px' })
+}
 
 const icons: Record<SocialType, ComponentType<{ className?: string }>> = {
   bluesky: SimpleIconsBluesky,
@@ -37,21 +66,21 @@ export function Socials(props: Socials.Props) {
   if (!socials || socials.length === 0) return null
 
   return (
-    <div className={`vocs:flex vocs:items-center vocs:h-7 ${className ?? ''}`} data-v-socials>
+    <div className={`${styles.socials().className} ${className ?? ''}`} data-v-socials>
       {socials.map((social, i) => {
         const Icon = icons[social.icon]
         const label = labels[social.icon]
         return (
           <Fragment key={social.link}>
-            {i !== 0 && <div className="vocs:w-px vocs:h-4 vocs:bg-primary vocs:mx-1" />}
+            {i !== 0 && <div {...styles.socials2()} />}
             <a
               aria-label={label}
-              className="vocs:flex vocs:items-center vocs:justify-center vocs:size-7 vocs:text-primary/60 vocs:hover:text-primary vocs:transition-colors vocs:duration-150"
+              {...styles.socials3()}
               href={social.link}
               rel="noopener noreferrer"
               target="_blank"
             >
-              <Icon className="vocs:size-[18px]" />
+              <Icon className={styles.socials4().className} />
             </a>
           </Fragment>
         )

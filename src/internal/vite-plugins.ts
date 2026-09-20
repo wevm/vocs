@@ -3,7 +3,6 @@ import * as fs from 'node:fs/promises'
 import * as path from 'node:path'
 import { gzipSync } from 'node:zlib'
 import mdxPlugin from '@mdx-js/rollup'
-import tailwindcss, { type PluginOptions as TailwindOptions } from '@tailwindcss/vite'
 import type { PluginOption, ResolvedConfig, Rolldown, ViteDevServer } from 'vite'
 import { createLogger } from 'vite'
 import * as Config from './config.js'
@@ -25,7 +24,7 @@ import * as InlineCache from './twoslash/inline-cache.js'
 export { default as icons } from 'unplugin-icons/vite'
 export { default as arraybuffer } from 'vite-plugin-arraybuffer'
 
-export const tailwind = tailwindcss as unknown as (opts?: TailwindOptions) => PluginOption
+export { zyzz } from 'zyzz/vite'
 
 const logger = createLogger(undefined, { allowClearScreen: false, prefix: '[vocs]' })
 

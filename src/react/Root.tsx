@@ -1,3 +1,8 @@
+import { theme } from 'zyzz/default'
+import '../styles/index.js'
+import '../styles/markdown.js'
+import '../styles/twoslash.js'
+import '../styles/openapi.js'
 import { config } from 'virtual:vocs/config'
 import groupIconsStylesUrl from 'virtual:vocs/group-icons.css?url'
 import userStylesUrl from 'virtual:vocs/user-styles'
@@ -7,15 +12,16 @@ import { Root_client } from './Root.client.js'
 import { ScrollRestoration } from './ScrollRestoration.js'
 
 export async function Root({ children }: { children: React.ReactNode }) {
-  const { colorScheme, accentColor } = config
+  const { colorScheme } = config
   return (
     <html
+      className={theme.className}
       data-vocs
       {...(colorScheme === 'light' || colorScheme === 'dark'
         ? { 'data-vocs-theme': colorScheme }
         : {})}
       lang="en"
-      style={{ colorScheme, '--vocs-color-accent': accentColor } as never}
+      style={{ colorScheme }}
       suppressHydrationWarning
     >
       <head>

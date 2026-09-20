@@ -148,6 +148,7 @@ export default defineConfig({
         { text: 'Search', link: '/features/search' },
         { text: 'Slots', link: '/features/slots' },
         { text: 'SSG or SSR', link: '/features/render-strategies' },
+        { text: 'Zyzz', link: '/features/zyzz' },
         { text: 'Tailwind CSS', link: '/features/tailwind' },
         { text: 'Theming', link: '/features/theming' },
         { text: 'Vite', link: '/features/vite' },

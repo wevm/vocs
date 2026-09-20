@@ -45,7 +45,7 @@ function applyTheme(theme: 'light' | 'dark' | 'system') {
 }
 
 export function Root_client({ children }: { children: React.ReactNode }) {
-  const { accentColor, colorScheme } = useConfig()
+  const { colorScheme } = useConfig()
 
   const staticScheme = colorScheme !== 'light dark'
 
@@ -57,11 +57,7 @@ export function Root_client({ children }: { children: React.ReactNode }) {
       html.setAttribute('data-vocs-theme', colorScheme)
       html.style.colorScheme = colorScheme
     } else applyTheme(getStoredTheme())
-
-    if (html) {
-      if (!import.meta.env.PROD) html.style.setProperty('--vocs-color-accent', accentColor)
-    }
-  }, [accentColor, colorScheme, staticScheme])
+  }, [colorScheme, staticScheme])
 
   // Listen for system theme changes (needed for pages without ThemeToggle)
   useEffect(() => {

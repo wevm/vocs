@@ -114,8 +114,8 @@ export function QuickLinks() {
 
 :::code-group
 <div data-title="Preview">
-  <HomePage.Root className="vocs:py-10 vocs:px-4 vocs:gap-5">
-    <HomePage.Logo className="vocs:h-10!" />
+  <HomePage.Root>
+    <HomePage.Logo />
     <HomePage.Tagline>
       Portable docs powered by <a href="https://vitejs.dev">Vite</a> and{' '}
       <a href="https://waku.gg">Waku</a>.
@@ -206,7 +206,7 @@ Use `Link` for internal navigation, hash links, and external URLs.
 
 :::code-group
 <div data-title="Preview">
-  <div className="vocs:flex vocs:flex-wrap vocs:gap-4">
+  <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem" }}>
     <Link to="/introduction/getting-started">Get started</Link>
     <Link to="#link">Jump to this section</Link>
     <Link to="https://github.com/wevm/vocs">GitHub</Link>

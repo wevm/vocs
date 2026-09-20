@@ -2,10 +2,15 @@
 
 import { Tooltip } from '@base-ui/react/tooltip'
 import * as React from 'react'
+import { style } from 'zyzz/default'
 import LucideScanText from '~icons/lucide/scan-text'
 import RiSparkling2Fill from '~icons/ri/sparkling-2-fill'
 import SimpleIconsClaude from '~icons/simple-icons/claude'
 import SimpleIconsOpenai from '~icons/simple-icons/openai'
+
+namespace styles {
+  export const promptAction = style({ zIndex: 50 })
+}
 
 type State = 'copied' | 'error' | 'idle'
 
@@ -143,7 +148,7 @@ function PromptAction(props: PromptAction.Props) {
         {children}
       </Tooltip.Trigger>
       <Tooltip.Portal>
-        <Tooltip.Positioner className="vocs:z-50" side="top" sideOffset={6}>
+        <Tooltip.Positioner className={styles.promptAction().className} side="top" sideOffset={6}>
           <Tooltip.Popup data-v-prompt-tooltip>{label}</Tooltip.Popup>
         </Tooltip.Positioner>
       </Tooltip.Portal>

@@ -11,11 +11,11 @@ import { fileURLToPath } from 'node:url'
 import { getIconData, iconToHTML, iconToSVG } from '@iconify/utils'
 import { icons as lucide } from '@iconify-json/lucide'
 import { icons as simple } from '@iconify-json/simple-icons'
-import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import Icons from 'unplugin-icons/vite'
 import { build, type Plugin } from 'vite'
 import type { AssetFile } from '../src/server/openapi/assets.js'
+import * as Styles from './styles.ts'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const outDir = path.resolve(root, '.vocs/openapi-app')
@@ -73,16 +73,13 @@ await build({
       // The real Vocs layout/chrome only touches Waku via `useRouter`/`Link`;
       // swap it for the SPA history shim so genuine components render here.
       { find: /^waku$/, replacement: path.resolve(appDir, 'waku.tsx') },
-      // `react/Link` imports `unstable_RouterContext` from `waku/router/client`;
-      // alias it to the same shim so the real Waku client (which pulls in
-      // `react-server-dom-webpack` and leaks `__webpack_require__` into the
-      // browser bundle) stays out of the standalone build.
-      { find: /^waku\/router\/client$/, replacement: path.resolve(appDir, 'waku.tsx') },
+      // Keep Waku's RSC client out of the standalone browser bundle.
+      { find: /^waku\/router\/client-core$/, replacement: path.resolve(appDir, 'waku.tsx') },
     ],
   },
   plugins: [
     react(),
-    tailwindcss(),
+    Styles.vite(),
     Icons({
       compiler: 'jsx',
       jsx: 'react',

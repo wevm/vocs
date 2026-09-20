@@ -252,7 +252,7 @@ const app = new Hono()
 
 app.route('/docs', Handler.openApi(
   { spec: 'https://example.com/openapi.json' },
-  { css: ':root { --vocs-color-accent: #7c3aed }' }, // [!code focus]
+  { css: 'body { font-family: sans-serif }' }, // [!code focus]
 ))
 
 export default app
@@ -275,7 +275,7 @@ export default app
   />
   <Card
     title="Theming"
-    description="Customize colors, typography, and the vocs: Tailwind prefix."
+    description="Configure the default theme, typography, and site branding."
     icon="palette"
     to="/features/theming"
   />

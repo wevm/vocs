@@ -1,9 +1,63 @@
 'use client'
 
 import * as React from 'react'
+import { style, theme } from 'zyzz/default'
 import LucideCheck from '~icons/lucide/check'
 import LucideClipboard from '~icons/lucide/clipboard'
 import LucideWrapText from '~icons/lucide/wrap-text'
+
+namespace styles {
+  export const wrapButton = style({
+    position: 'absolute',
+    top: 'calc(0.25rem * 2.5)',
+    right: 10,
+    cursor: 'pointer',
+    borderRadius: 'md',
+    padding: 'calc(0.25rem * 1.5)',
+    color: theme.vars.color.gray['900'],
+    opacity: '0%',
+    transitionProperty: 'opacity',
+    transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+    transitionDuration: '150ms',
+    selectors: {
+      '&:is(:where(.vocs-group\\/code):hover *)': { '@media (hover: hover)': { opacity: '100%' } },
+      '&:hover': { '@media (hover: hover)': { color: theme.vars.color.foreground } },
+      '&[data-single-line="true"]': {
+        top: 'calc(1 / 2 * 100%)',
+        translate: '0 calc(calc(1 / 2 * 100%) * -1)',
+        transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+      },
+      '&[data-wrapped="true"]': { color: theme.vars.color.blue['900'], opacity: '100%' },
+    },
+  })
+  export const wrapButton2 = style({ width: 4, height: 4 })
+  export const copyButton = style({
+    position: 'absolute',
+    top: 'calc(0.25rem * 2.5)',
+    right: 'calc(0.25rem * 2.5)',
+    cursor: 'pointer',
+    borderRadius: 'md',
+    padding: 'calc(0.25rem * 1.5)',
+    color: theme.vars.color.gray['900'],
+    opacity: '0%',
+    transitionProperty: 'opacity',
+    transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+    transitionDuration: '150ms',
+    selectors: {
+      '&:is(:where(.vocs-group\\/code):hover *)': { '@media (hover: hover)': { opacity: '100%' } },
+      '&:hover': { '@media (hover: hover)': { color: theme.vars.color.foreground } },
+      '&[data-copied="true"]': { color: theme.vars.color.green['900'], opacity: '100%' },
+      '&[data-single-line="true"]': {
+        top: 'calc(1 / 2 * 100%)',
+        translate: '0 calc(calc(1 / 2 * 100%) * -1)',
+        transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+      },
+    },
+  })
+  export const copyButton2 = style({ width: 4, height: 4 })
+  export const copyButton3 = style({ width: 4, height: 4 })
+  export const shellLineCopyButtons = style({ display: 'none' })
+}
 
 export function WrapButton({ defaultWrapped = false }: WrapButton.Props) {
   const buttonRef = React.useRef<HTMLButtonElement>(null)
@@ -31,13 +85,13 @@ export function WrapButton({ defaultWrapped = false }: WrapButton.Props) {
       ref={buttonRef}
       aria-label={wrapped ? 'Disable word wrap' : 'Enable word wrap'}
       aria-pressed={wrapped}
-      className="vocs:absolute vocs:top-2.5 vocs:data-[single-line=true]:top-1/2 vocs:data-[single-line=true]:-translate-y-1/2 vocs:right-10 vocs:p-1.5 vocs:rounded-md vocs:opacity-0 vocs:transition-opacity vocs:duration-150 vocs:text-secondary vocs:hover:text-heading vocs:cursor-pointer vocs:group-hover/code:opacity-100 vocs:data-[wrapped=true]:opacity-100 vocs:data-[wrapped=true]:text-accent"
+      {...styles.wrapButton()}
       data-wrapped={wrapped}
       data-single-line={singleLine}
       onClick={toggle}
       type="button"
     >
-      <LucideWrapText className="vocs:size-4" />
+      <LucideWrapText className={styles.wrapButton2().className} />
     </button>
   )
 }
@@ -89,25 +143,25 @@ export function CopyButton() {
     <button
       ref={buttonRef}
       aria-label={copied ? 'Copied' : 'Copy code'}
-      className="vocs:absolute vocs:top-2.5 vocs:data-[single-line=true]:top-1/2 vocs:data-[single-line=true]:-translate-y-1/2 vocs:right-2.5 vocs:p-1.5 vocs:rounded-md vocs:opacity-0 vocs:transition-opacity vocs:duration-150 vocs:text-secondary vocs:hover:text-heading vocs:cursor-pointer vocs:group-hover/code:opacity-100 vocs:data-[copied=true]:opacity-100 vocs:data-[copied=true]:text-success"
+      {...styles.copyButton()}
       data-copied={copied}
       data-single-line={singleLine}
       onClick={copy}
       type="button"
     >
       {copied ? (
-        <LucideCheck className="vocs:size-4" />
+        <LucideCheck className={styles.copyButton2().className} />
       ) : (
-        <LucideClipboard className="vocs:size-4" />
+        <LucideClipboard className={styles.copyButton3().className} />
       )}
     </button>
   )
 }
 
 const clipboardIconHtml =
-  '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" class="vocs:size-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg>'
+  '<svg xmlns="http://www.w3.org/2000/svg" width="0.875rem" height="0.875rem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg>'
 const checkIconHtml =
-  '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" class="vocs:size-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>'
+  '<svg xmlns="http://www.w3.org/2000/svg" width="0.875rem" height="0.875rem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>'
 
 function createIconElement(html: string): HTMLElement {
   const template = document.createElement('template')
@@ -190,5 +244,5 @@ export function ShellLineCopyButtons() {
     }
   }, [])
 
-  return <span ref={containerRef} className="vocs:hidden" />
+  return <span ref={containerRef} {...styles.shellLineCopyButtons()} />
 }

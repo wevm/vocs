@@ -9,7 +9,19 @@ import {
 } from '@codesandbox/sandpack-react'
 import * as React from 'react'
 import { transform } from 'sucrase'
+import { style } from 'zyzz/default'
 import { RunButton } from './Run.js'
+
+namespace styles {
+  export const console = style({
+    color: 'foreground',
+    fontFamily: 'mono',
+    fontVariantNumeric: 'tabular-nums',
+    fontSize: 'lg',
+    marginTop: '0.125rem',
+  })
+  export const sandboxProvider = style({ position: 'relative' })
+}
 
 export function SandboxProvider(props: SandboxProvider.Props) {
   const {
@@ -58,10 +70,10 @@ export function SandboxProvider(props: SandboxProvider.Props) {
         entry: '/index.js',
       }}
       theme={'auto'}
-      className="shiki shiki-themes github-light github-dark-dimmed text-white font-mono tabular-nums text-lg mt-0.5"
+      className={`shiki shiki-themes github-light github-dark-dimmed ${styles.console().className}`}
       {...providerProps}
     >
-      <div className="vocs:relative">
+      <div {...styles.sandboxProvider()}>
         <SandpackCodeEditor
           showInlineErrors={true}
           showLineNumbers={true}
@@ -83,7 +95,7 @@ export function SandboxProvider(props: SandboxProvider.Props) {
         hidden={!showConsole}
         showSyntaxError={true}
         showHeader={false}
-        className="text-white font-mono tabular-nums text-lg mt-0.5"
+        className={styles.console().className}
         {...consoleProps}
         showResetConsoleButton={true}
         showRestartButton={true}

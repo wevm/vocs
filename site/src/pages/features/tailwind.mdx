@@ -1,137 +1,38 @@
-import { Card, Cards } from 'vocs'
+# Tailwind CSS [Add optional Tailwind utilities]
 
-# Tailwind CSS [Use Tailwind utilities in Vocs pages and components]
+Vocs uses [Zyzz](/features/zyzz) for its built-in UI. To retain Tailwind utilities in your own pages, install and configure Tailwind separately.
 
-## Overview
-
-Vocs ships Tailwind's Vite plugin in its default Vite stack. To enable Tailwind, install the `tailwindcss` package, import it from `src/pages/_root.css`, then use utilities in MDX and React components. You do not need to install `@tailwindcss/vite` or edit `vite.config.ts`.
-
-## Setup
-
-::::steps
-
-### Install Tailwind
-
-Add `tailwindcss` to your project.
-
-:::code-group
-
-```bash [npm]
-npm install -D tailwindcss
+```sh
+npm install -D tailwindcss @tailwindcss/vite
 ```
 
-```bash [pnpm]
-pnpm add -D tailwindcss
+Add the Tailwind plugin alongside Vocs in your existing Vite configuration.
+
+```ts [vite.config.ts]
+import tailwindcss from '@tailwindcss/vite'
+import { defineConfig } from 'vite'
+import { vocs } from 'vocs/vite'
+
+export default defineConfig({
+  plugins: [vocs(), tailwindcss()],
+})
 ```
 
-```bash [yarn]
-yarn add -D tailwindcss
-```
-
-```bash [bun]
-bun add -D tailwindcss
-```
-
-:::
-
-### Import Tailwind
-
-Create `src/pages/_root.css`, then import Tailwind from there. Vocs loads this file automatically on every page.
-
-:::file-tree
-- +src
-  - +pages
-    - _root.css Global styles.
-:::
-
-```css [src/pages/_root.css]
-@import 'tailwindcss';
-```
-
-Tailwind automatically scans your Vocs pages and components, so most projects do not need a Tailwind config file.
-
-::::
-
-## Recipes
-
-### Using Utilities
-
-Use Tailwind classes via `className` in JSX inside `.mdx` pages and React components. Plain Markdown syntax does not accept Tailwind classes — switch to JSX when a block needs utility styling.
-
-```mdx [src/pages/index.mdx]
-# Docs
-
-<div className="rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
-  <h2 className="m-0 text-2xl font-semibold">Deploy Contracts</h2>
-  <p className="m-0 text-zinc-600 dark:text-zinc-400">
-    Ship Solidity apps with Vite-native docs.
-  </p>
-</div>
-```
-
-### Supporting Dark Mode
-
-Vocs stores the active theme on the document's `color-scheme`. Add a custom dark variant so Tailwind's `dark:` utilities follow the Vocs theme toggle.
-
-```css [src/pages/_root.css]
-@import 'tailwindcss'
-
-@custom-variant dark (&:where(:root[style*='color-scheme:dark'] *, :root[style*='color-scheme: dark'] *)); /* [!code focus] */
-```
-
-Classes like `dark:border-zinc-800` now respond to the same theme state as the built-in Vocs UI.
-
-### Reusing Vocs Theme Tokens
-
-Map Vocs CSS variables into Tailwind theme tokens so custom components follow the docs theme.
-
-```css [src/pages/_root.css]
-@import 'tailwindcss';
-
-/* [!code focus:5] */
-@theme {
-  --color-vocs-accent: var(--vocs-color-accent);
-  --font-sans: var(--vocs-font-family);
-  --font-mono: var(--vocs-font-family-mono);
-}
-```
-
-```mdx [src/pages/index.mdx]
-<a className="font-sans text-vocs-accent" href="/introduction/getting-started">
-  Start building
-</a>
-```
-
-### Skipping Preflight
-
-`@import 'tailwindcss'` enables Tailwind's full default CSS, including Preflight. To use only Tailwind theme tokens and utilities, import those layers instead.
+Import the theme and utilities in `src/pages/_root.css`. Vocs already supplies a reset, so omit Tailwind's Preflight.
 
 ```css [src/pages/_root.css]
 @import 'tailwindcss/theme.css' layer(theme);
 @import 'tailwindcss/utilities.css' layer(utilities);
+
+@custom-variant dark (&:where([data-vocs-theme='dark'], [data-vocs-theme='dark'] *));
 ```
 
-Start with the full import unless you have a specific reason to avoid Tailwind's base styles.
+Use ordinary Tailwind classes in MDX or JSX. The old `vocs:` utilities and Vocs CSS theme tokens are no longer available.
 
-## See More
+```mdx
+<div className="rounded-lg p-4 text-zinc-900 dark:text-zinc-100">
+  Custom page content
+</div>
+```
 
-<Cards>
-  <Card
-    title="_root.css convention"
-    description="Where global styles live and how Vocs loads them."
-    icon="folder"
-    to="/introduction/project-structure"
-  />
-  <Card
-    title="Theming"
-    description="Customize colors, typography, spacing, logos, and code themes."
-    icon="palette"
-    to="/features/theming"
-  />
-  <Card
-    title="Tailwind CSS"
-    description="Official Tailwind v4 documentation."
-    icon="external-link"
-    to="https://tailwindcss.com/docs"
-  />
-</Cards>
+See the [Tailwind Vite guide](https://tailwindcss.com/docs/installation/using-vite) for additional configuration.

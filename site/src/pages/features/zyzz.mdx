@@ -1,0 +1,68 @@
+# Zyzz [Style components with the default Vocs theme]
+
+Vocs uses [Zyzz](https://github.com/wevm/zyzz) for compiled, typed styles. Its Vite plugin is included, and the document uses Zyzz's default theme for colors, typography, spacing, and radii.
+
+## Style A Component
+
+Install the same `zyzz` version used by your Vocs installation as a direct dependency. Author styles at module scope in a `.ts` or `.tsx` file, then spread the returned props onto an element.
+
+```tsx [src/components/Notice.tsx]
+import { style } from 'zyzz/default'
+
+namespace styles {
+  export const notice = style({
+    padding: 4,
+    borderRadius: 'lg',
+    backgroundColor: 'gray.100',
+    color: 'foreground',
+    fontSize: 'sm',
+  })
+}
+
+export function Notice() {
+  return <aside {...styles.notice()}>Your changes are saved.</aside>
+}
+```
+
+Numeric spacing values use the default quarter-rem scale: `padding: 4` means `1rem`. Color tokens adapt to the active light or dark scheme.
+
+Import the component into MDX. Keep style definitions in TypeScript modules so the compiler can extract them.
+
+```mdx [src/pages/index.mdx]
+import { Notice } from '../components/Notice'
+
+# Getting Started
+
+<Notice />
+```
+
+## Migrate From Tailwind
+
+Vocs no longer bundles Tailwind or generates `vocs:` utilities. Replace utility strings with module-level styles, using tokens from `zyzz/default`.
+
+```diff
++import { style } from 'zyzz/default'
++
++const panel = style({ padding: 4, borderRadius: 'lg', color: 'foreground' })
++
+-<div className="vocs:p-4 vocs:rounded-lg vocs:text-primary" />
++<div {...panel()} />
+```
+
+Use `variants` for finite choices, nested selectors for hover and data states, and media queries for responsive styles. Follow the [Zyzz Tailwind migration guide](https://github.com/wevm/zyzz/blob/main/docs/guides/tailwind.md) for composition and dynamic values.
+
+The old `--vocs-*` color, font, radius, and spacing tokens and the `accentColor` configuration option have been removed. Use `theme.vars` in Zyzz styles for compound values such as gradients. Do not reference generated CSS variable names directly.
+
+Common replacements in styles are:
+
+| Previous token | Default theme reference |
+| --- | --- |
+| `--vocs-text-color-primary` | `theme.vars.color.foreground` |
+| `--vocs-text-color-secondary` | `theme.vars.color.gray[900]` |
+| `--vocs-background-color-primary` | `theme.vars.color.background[200]` |
+| `--vocs-background-color-surface` | `theme.vars.color.surface` |
+| `--vocs-border-color-primary` | `theme.vars.color.gray[400]` |
+| `--vocs-font-sans` | `theme.vars.fontFamily.sans` |
+| `--vocs-font-mono` | `theme.vars.fontFamily.mono` |
+
+See [Theming](/features/theming) for site configuration and layout dimensions. Existing projects can also [configure Tailwind separately](/features/tailwind).

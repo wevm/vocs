@@ -365,7 +365,7 @@ function transformerLineAnchors(lineAnchors: readonly (string | undefined)[]) {
  * use the JSON property-name color (green in the default dark theme) and values
  * the JSON number color (blue). The captured values are `light-dark()` pairs, so
  * both color schemes match the response example. Runs once per highlighter;
- * failures are silent (CSS falls back to `--vocs-color-green`/`--vocs-color-blue`).
+ * failures are silent (CSS falls back to the default theme colors).
  */
 async function applyTokenColors(
   highlighter: {

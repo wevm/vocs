@@ -11,7 +11,7 @@ Vocs is a **portable documentation framework powered by Vite**. This is Vocs v2,
 Vocs v2 aims to be:
 
 - **Portable** – Built as a Vite plugin, Vocs can be plugged into any Vite-based application. No framework lock-in.
-- **Modern** – First-class React Server Components support via Waku, MDX with advanced code highlighting (Shiki + Twoslash), and Tailwind CSS.
+- **Modern** – First-class React Server Components support via Waku, MDX with advanced code highlighting (Shiki + Twoslash), and Zyzz.
 - **Developer-first** – Exceptional DX with hot reloading, TypeScript-first APIs, and minimal configuration.
 - **Performant** – Static site generation, optimized bundles, and smart caching for Twoslash.
 - **Extensible** – Modular architecture allows customization at every layer.
@@ -68,7 +68,7 @@ Vocs is built as a Vite plugin with optional Waku (React Server Components) inte
 | `src/react/internal/` | MDX-specific components (CodeBlock, Steps, etc) | Components only used within MDX |
 | `src/server/` | Server utilities | Server-side logic |
 | `src/waku/` | Waku framework integration: router, middleware, plugins | RSC-specific behavior |
-| `src/styles/` | Tailwind CSS styles | Design system changes |
+| `src/styles/` | Zyzz global styles | Design system changes |
 | `playground/` | Development playground (real Vocs site) | Testing features end-to-end |
 | `_/` | Reference implementations (read-only) | Do not modify; use for reference only |
 
@@ -76,7 +76,7 @@ Vocs is built as a Vite plugin with optional Waku (React Server Components) inte
 
 | File | Purpose | Extension Pattern |
 |------|---------|-------------------|
-| `src/vite.ts` | Core Vite plugin (MDX, Tailwind, icons, config) | New core plugins compose into the array returned here |
+| `src/vite.ts` | Core Vite plugin (MDX, Zyzz, icons, config) | New core plugins compose into the array returned here |
 | `src/waku/vite.ts` | Waku-specific Vite plugin, wraps core + adds RSC | Waku-only plugins go here |
 | `src/index.ts` | Public API exports | Only stable, public APIs; keep experimental APIs internal |
 | `src/config.ts` | Public config export (`defineConfig`) | Config schema changes |
@@ -131,7 +131,7 @@ Use this pattern for all exported functions.
 
 ### Component Props
 
-Use `declare namespace` for component props. Internal component namespaces can also hold static values (e.g., `Item.className` for shared Tailwind classes).
+Use `declare namespace` for component props. Internal component namespaces can also hold static values (e.g., `Item.className` for shared compiled classes).
 
 ```ts
 export function Callout(props: Callout.Props) { ... }
@@ -153,11 +153,11 @@ export declare namespace Callout {
 
 Hooks live in `src/react/` and follow the same client suffix convention if they use browser APIs.
 
-### Tailwind
+### Zyzz
 
-- Use `vocs:` prefix for all Tailwind classes (e.g., `vocs:flex`, `vocs:text-heading`). This isolates our design system from user Tailwind config.
+- Define styles in module-level namespaces with `style` or `variants` from `zyzz/default`. Spread applied props onto elements; use the default theme for design tokens.
 - Data attributes for styling states: `data-v-*`, `data-active`, `data-collapsed`
-- Tailwind config is in `src/styles/`
+- Global styles are in `src/styles/`. Run `pnpm dev` after changing library source to rebuild its compiled styles.
 
 ### Testing
 
@@ -288,7 +288,7 @@ import { Card, Cards } from 'vocs'
   />
   <Card
     title="Theming"
-    description="Customize colors, typography, and the vocs: Tailwind prefix."
+    description="Configure the default theme, typography, and site branding."
     icon="palette"
     to="/features/theming"
   />
@@ -350,7 +350,7 @@ Guidelines:
 | Waku | React Server Components framework | `src/waku/` |
 | Shiki | Syntax highlighting | `internal/shiki-transformers.ts`, `internal/mdx.ts` |
 | Twoslash | TypeScript code examples with type hints | `internal/twoslash/` |
-| Tailwind v4 | Styling | `src/styles/` |
+| Zyzz | Styling | `src/styles/` |
 | cva | Class variance authority for conditional styles | React components |
 | unplugin-icons | Icon loading (`~icons/lucide/*`) | React components |
 | @mdx-js/* | MDX processing | `internal/mdx.ts` |

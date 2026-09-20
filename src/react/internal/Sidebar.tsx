@@ -3,6 +3,7 @@
 import { cx } from 'cva'
 import * as React from 'react'
 import { useRouter } from 'waku'
+import { style, theme } from 'zyzz/default'
 import LucideArrowLeft from '~icons/lucide/arrow-left'
 import LucideArrowUpRight from '~icons/lucide/arrow-up-right'
 import LucideChevronRight from '~icons/lucide/chevron-right'
@@ -11,6 +12,158 @@ import * as Sidebar_core from '../../internal/sidebar.js'
 import { Badge } from '../Badge.js'
 import { Link } from '../Link.js'
 import { useSidebar } from '../useSidebar.js'
+
+namespace styles {
+  export const sidebar = style({
+    display: 'flex',
+    flex: 1,
+    flexDirection: 'column',
+    fontSize: 'sm',
+    lineHeight: 'calc(1.25 / 0.875)',
+    fontWeight: 'medium',
+    selectors: {
+      "&>*:not(:last-child)[data-collapsed='false']": { marginBottom: 4 },
+    },
+  })
+  export const backLink = style({
+    marginBottom: 4,
+    marginLeft: 'calc(0.25rem * -0.5)',
+    display: 'flex',
+    alignItems: 'center',
+    gap: 'calc(0.25rem * 1.5)',
+    color: theme.vars.color.gray['900'],
+    selectors: { '&:hover': { '@media (hover: hover)': { color: theme.vars.color.foreground } } },
+  })
+  export const backLink2 = style({ width: 4, height: 4 })
+  export const itemBadge = style({ marginLeft: 2, flexShrink: 0 })
+  export const item = style({
+    display: 'inline-flex',
+    minWidth: 0,
+    alignItems: 'center',
+    gap: 1,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  })
+  export const item2 = style({
+    width: 3,
+    height: 3,
+    flexShrink: 0,
+  })
+  export const item3 = style({
+    minWidth: 0,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  })
+  export const item4 = style({
+    minWidth: 0,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  })
+  export const element = style({
+    marginInline: 'calc(0.25rem * -3)',
+    marginBlock: 'calc(0.25rem * -0.5)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderRadius: 'md',
+    paddingInline: 3,
+    paddingBlock: 'calc(0.25rem * 1.5)',
+    color: `color-mix(in oklab, ${theme.vars.color.foreground} 80%, transparent)`,
+    selectors: {
+      '&:not(*[data-link])': { cursor: 'default' },
+      '&[aria-disabled="true"]': { pointerEvents: 'none', cursor: 'not-allowed', opacity: '60%' },
+      '&[data-active]': {
+        backgroundColor: theme.vars.color.blue['300'],
+        color: 'blue.900 !important',
+      },
+      '&[data-link]': {
+        selectors: {
+          '&:hover': { '@media (hover: hover)': { color: theme.vars.color.foreground } },
+        },
+      },
+      '&[data-condensed="true"]': { paddingBlock: '0.3rem', fontSize: '13px' },
+    },
+  })
+  export const section = style({
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 1,
+  })
+  export const section2 = style({ width: 3, height: 3 })
+  export const section3 = style({
+    marginRight: 'calc(0.25rem * -1)',
+    marginLeft: 2,
+    flexShrink: 0,
+    borderRadius: 'md',
+    padding: 1,
+    color: `color-mix(in oklab, ${theme.vars.color.gray['900']} 80%, transparent)`,
+    selectors: { '&:hover': { '@media (hover: hover)': { color: theme.vars.color.foreground } } },
+  })
+  export const section4 = style({
+    transitionProperty: 'transform, translate, scale, rotate',
+    transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+    transitionDuration: '200ms',
+    selectors: { '&[data-collapsed]': { rotate: '90deg' } },
+  })
+  export const section5 = style({
+    display: 'inline-flex',
+    minWidth: 0,
+    alignItems: 'center',
+  })
+  export const section6 = style({
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  })
+  export const section7 = style({
+    color: `color-mix(in oklab, ${theme.vars.color.gray['900']} 80%, transparent)`,
+  })
+  export const section8 = style({
+    transitionProperty: 'transform, translate, scale, rotate',
+    transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+    transitionDuration: '200ms',
+    selectors: { '&[data-collapsed]': { rotate: '90deg' } },
+  })
+  export const section9 = style({ height: '1em' })
+  export const section10 = style({
+    borderLeftStyle: 'solid',
+    borderLeftWidth: '1px',
+    borderColor: theme.vars.color.gray['400'],
+    paddingLeft: 4,
+  })
+  export const element2 = style({
+    selectors: {
+      '&[data-collapsable="true"]': {
+        selectors: {
+          '&:hover': {
+            '@media (hover: hover)': { cursor: 'pointer', color: theme.vars.color.blue['900'] },
+          },
+        },
+      },
+    },
+  })
+  export const element3 = style({
+    minWidth: 0,
+    flex: 1,
+    color: 'inherit',
+    selectors: { '&:hover': { '@media (hover: hover)': { color: 'inherit' } } },
+  })
+  export const element4 = style({
+    marginInline: 'calc(0.25rem * -3)',
+    display: 'flex',
+    height: '2.5em',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderRadius: 'md',
+    paddingInline: 3,
+    fontWeight: 'medium',
+    color: theme.vars.color.foreground,
+    selectors: { '&[data-collapsable="true"]': { cursor: 'pointer' } },
+  })
+}
 
 const maxDepth = 5
 
@@ -136,13 +289,7 @@ export function Sidebar(props: Sidebar.Props) {
   return (
     <HashIdsContext.Provider value={hashIds}>
       <ActiveAnchorContext.Provider value={activeAnchor}>
-        <nav
-          className={cx(
-            "vocs:flex-1 vocs:flex vocs:flex-col vocs:text-sm vocs:font-[450] vocs:[&>*:not(:last-child)[data-collapsed='false']]:mb-4",
-            className,
-          )}
-          data-v-sidebar
-        >
+        <nav className={cx(styles.sidebar().className, className)} data-v-sidebar>
           {sidebar.backLink && <BackLink onNavigate={onNavigate} />}
           {sidebar.items.map((item, i) => (
             <Section
@@ -163,12 +310,12 @@ function BackLink(props: { onNavigate?: (() => void) | undefined }) {
   const { onNavigate } = props
   return (
     <Link
-      className="vocs:flex vocs:items-center vocs:gap-1.5 vocs:text-secondary vocs:hover:text-heading vocs:mb-4 vocs:-ml-0.5"
+      className={styles.backLink().className}
       data-v-sidebar-back-link
       onClick={onNavigate}
       to="/"
     >
-      <LucideArrowLeft className="vocs:size-4" />
+      <LucideArrowLeft className={styles.backLink2().className} />
       <span>Back</span>
     </Link>
   )
@@ -188,7 +335,7 @@ function ItemBadge(props: { badge: Sidebar_core.SidebarItemBadge }) {
     typeof props.badge === 'string' ? { text: props.badge, icon: undefined } : props.badge
   return (
     <Badge
-      className="vocs:shrink-0 vocs:ml-2"
+      className={styles.itemBadge().className}
       data-v-sidebar-item-badge
       data-v-icon={badge.icon ? '' : undefined}
       variant={badge.variant ?? 'info'}
@@ -308,9 +455,9 @@ function Item(props: Item.Props) {
           rel="noopener noreferrer"
           onClick={onNavigate}
         >
-          <span className="vocs:inline-flex vocs:items-center vocs:gap-1 vocs:min-w-0 vocs:truncate">
+          <span {...styles.item()}>
             {text}
-            <LucideArrowUpRight className="vocs:size-3 vocs:shrink-0" />
+            <LucideArrowUpRight className={styles.item2().className} />
           </span>
           {badge && <ItemBadge badge={badge} />}
         </a>
@@ -326,7 +473,7 @@ function Item(props: Item.Props) {
         onClick={onNavigate}
         {...(active && { 'data-active': true })}
       >
-        <span className="vocs:min-w-0 vocs:truncate">{text}</span>
+        <span {...styles.item3()}>{text}</span>
         {badge && <ItemBadge badge={badge} />}
       </Link>
     )
@@ -340,7 +487,7 @@ function Item(props: Item.Props) {
       data-v-sidebar-item
       ref={itemRef as never}
     >
-      <span className="vocs:min-w-0 vocs:truncate">{text}</span>
+      <span {...styles.item4()}>{text}</span>
       {badge && <ItemBadge badge={badge} />}
     </div>
   )
@@ -354,8 +501,7 @@ namespace Item {
     scrollRef?: React.RefObject<HTMLDivElement | null>
   }
 
-  export const className =
-    'vocs:flex vocs:data-link:hover:text-heading vocs:not-data-link:cursor-default vocs:justify-between vocs:-mx-3 vocs:px-3 vocs:py-1.5 vocs:text-primary/80 vocs:-my-0.5 vocs:items-center vocs:rounded-md vocs:data-active:bg-accenta3 vocs:data-active:text-accent8! vocs:aria-disabled:opacity-60 vocs:aria-disabled:cursor-not-allowed vocs:aria-disabled:pointer-events-none vocs:data-[condensed=true]:text-[13px] vocs:data-[condensed=true]:py-[0.3rem]'
+  export const className = styles.element().className
 }
 
 /** @internal */
@@ -422,9 +568,11 @@ function Section(props: Section.Props) {
                 {...(groupLinkIsActive && { 'data-active': true })}
               >
                 <Link className={Section.headerLinkClassName} onClick={onNavigate} to={link}>
-                  <span className="vocs:inline-flex vocs:items-center vocs:gap-1">
+                  <span {...styles.section()}>
                     {text}
-                    {groupLinkIsExternal && <LucideArrowUpRight className="vocs:size-3" />}
+                    {groupLinkIsExternal && (
+                      <LucideArrowUpRight className={styles.section2().className} />
+                    )}
                   </span>
                 </Link>
 
@@ -434,12 +582,12 @@ function Section(props: Section.Props) {
                   <button
                     aria-expanded={!collapsed}
                     aria-label={`Toggle ${text} section`}
-                    className="vocs:ml-2 vocs:-mr-1 vocs:shrink-0 vocs:rounded-md vocs:p-1 vocs:text-secondary/80 vocs:hover:text-heading"
+                    {...styles.section3()}
                     onClick={() => setCollapsed((x) => !x)}
                     type="button"
                   >
                     <LucideChevronRight
-                      className="vocs:data-collapsed:rotate-90 vocs:transition-transform vocs:duration-200 vocs:ease-in-out"
+                      className={styles.section4().className}
                       {...(!collapsed ? { 'data-collapsed': false } : {})}
                     />
                   </button>
@@ -465,15 +613,15 @@ function Section(props: Section.Props) {
                     }
                   : {})}
               >
-                <span className="vocs:inline-flex vocs:items-center vocs:min-w-0">
-                  <span className="vocs:truncate">{text}</span>
+                <span {...styles.section5()}>
+                  <span {...styles.section6()}>{text}</span>
                   {badge && <ItemBadge badge={badge} />}
                 </span>
 
                 {collapsable && (
-                  <div className="vocs:text-secondary/80">
+                  <div {...styles.section7()}>
                     <LucideChevronRight
-                      className="vocs:data-collapsed:rotate-90 vocs:transition-transform vocs:duration-200 vocs:ease-in-out"
+                      className={styles.section8().className}
                       {...(!collapsed ? { 'data-collapsed': false } : {})}
                     />
                   </div>
@@ -482,12 +630,12 @@ function Section(props: Section.Props) {
             )
 
           // Empty header.
-          return <div className="vocs:h-[1em]" data-empty />
+          return <div {...styles.section9()} data-empty />
         })()}
 
         {!collapsed && (
           <div
-            className={depth > 0 ? 'vocs:pl-4 vocs:border-l vocs:border-primary' : ''}
+            className={depth > 0 ? styles.section10().className : ''}
             data-v-sidebar-section-content
           >
             {items.length > 0 &&
@@ -518,14 +666,9 @@ namespace Section {
     scrollRef: React.RefObject<HTMLDivElement | null>
   }
 
-  export const childHeaderClassName = cx(
-    Item.className,
-    'vocs:data-[collapsable=true]:hover:text-accent vocs:data-[collapsable=true]:hover:cursor-pointer',
-  )
+  export const childHeaderClassName = cx(Item.className, styles.element2().className)
 
-  export const headerLinkClassName =
-    'vocs:flex-1 vocs:min-w-0 vocs:text-inherit vocs:hover:text-inherit'
+  export const headerLinkClassName = styles.element3().className
 
-  export const rootHeaderClassName =
-    'vocs:h-[2.5em] vocs:px-3 vocs:-mx-3 vocs:rounded-md vocs:flex vocs:items-center vocs:justify-between vocs:text-heading vocs:font-medium vocs:data-[collapsable=true]:cursor-pointer'
+  export const rootHeaderClassName = styles.element4().className
 }

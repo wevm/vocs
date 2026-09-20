@@ -167,7 +167,7 @@ export declare namespace openApi {
      *
      * @example
      * ```ts
-     * Handler.openApi({ spec }, { css: ':root { --vocs-color-accent: #7c3aed }' })
+     * Handler.openApi({ spec }, { css: 'body { font-family: sans-serif }' })
      * ```
      *
      * @example

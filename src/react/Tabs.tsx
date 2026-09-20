@@ -3,6 +3,46 @@
 import { Tabs as BaseTabs } from '@base-ui/react/tabs'
 import { useQueryState } from 'nuqs'
 import * as React from 'react'
+import { style, theme } from 'zyzz/default'
+
+namespace styles {
+  export const tabs = style({
+    display: 'flex',
+    borderBottomStyle: 'solid',
+    borderBottomWidth: '1px',
+    borderColor: theme.vars.color.gray['400'],
+  })
+  export const tabs2 = style({
+    marginBottom: '-1px',
+    display: 'flex',
+    height: 10,
+    cursor: 'pointer',
+    alignItems: 'center',
+    borderBottomStyle: 'solid',
+    borderBottomWidth: '1.5px',
+    borderColor: 'transparent',
+    paddingInline: 2,
+    fontSize: '15px',
+    fontWeight: 350,
+    color: theme.vars.color.gray['900'],
+    transitionProperty:
+      'color, background-color, border-color, outline-color, text-decoration-color, fill, stroke',
+    transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+    transitionDuration: '100ms',
+    selectors: {
+      '&[data-active]': {
+        borderColor: theme.vars.color.blue['700'],
+        fontWeight: 'medium',
+        color: theme.vars.color.foreground,
+        borderBottomStyle: 'solid',
+        transitionProperty:
+          'color, background-color, border-color, outline-color, text-decoration-color, fill, stroke',
+        transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+      },
+    },
+  })
+  export const tab = style({ paddingTop: 4 })
+}
 
 let tabsCounter = 0
 
@@ -53,13 +93,9 @@ export function Tabs(props: Tabs.Props) {
 
   return (
     <BaseTabs.Root onValueChange={(value) => setTab(value)} value={tab}>
-      <BaseTabs.List className="vocs:flex vocs:border-b vocs:border-primary">
+      <BaseTabs.List className={styles.tabs().className}>
         {tabs.map((t) => (
-          <BaseTabs.Tab
-            className="vocs:flex vocs:-mb-px vocs:h-10 vocs:cursor-pointer vocs:items-center vocs:border-b-[1.5px] vocs:border-transparent vocs:px-2 vocs:text-[15px] vocs:font-[350] vocs:text-secondary vocs:data-active:border-accent7 vocs:data-active:text-heading vocs:data-active:font-medium vocs:transition-colors vocs:duration-100"
-            key={t.value}
-            value={t.value}
-          >
+          <BaseTabs.Tab className={styles.tabs2().className} key={t.value} value={t.value}>
             {t.title}
           </BaseTabs.Tab>
         ))}
@@ -80,7 +116,7 @@ export function Tab(props: Tab.Props) {
   const { title, children } = props
   const value = toKebabCase(title)
   return (
-    <BaseTabs.Panel className="vocs:pt-4" value={value}>
+    <BaseTabs.Panel className={styles.tab().className} value={value}>
       {children}
     </BaseTabs.Panel>
   )

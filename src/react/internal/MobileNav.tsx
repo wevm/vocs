@@ -5,6 +5,7 @@ import { Menu } from '@base-ui/react/menu'
 import { cx } from 'cva'
 import * as React from 'react'
 import { useRouter } from 'waku'
+import { style, theme } from 'zyzz/default'
 import LucideArrowUpRight from '~icons/lucide/arrow-up-right'
 import LucideChevronDown from '~icons/lucide/chevron-down'
 import LucideTextAlignJustify from '~icons/lucide/text-align-justify'
@@ -16,6 +17,213 @@ import { useConfig } from '../useConfig.js'
 import * as Sidebar from './Sidebar.js'
 import * as Socials from './Socials.client.js'
 import * as ThemeToggle from './ThemeToggle.client.js'
+
+namespace styles {
+  export const mobileNav = style({
+    display: 'flex',
+    width: 8,
+    height: 8,
+    cursor: 'pointer',
+    alignItems: 'center',
+    justifyContent: 'center',
+  })
+  export const mobileNav2 = style({
+    position: 'fixed',
+    inset: 0,
+    zIndex: 40,
+    backgroundColor: 'color-mix(in oklab, black 50%, transparent)',
+    backdropFilter: 'blur(8px)',
+    transitionProperty: 'opacity',
+    transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+    transitionDuration: '200ms',
+    selectors: {
+      '&[data-ending-style]': { opacity: '0%' },
+      '&[data-starting-style]': { opacity: '0%' },
+    },
+  })
+  export const mobileNav3 = style({
+    position: 'fixed',
+    top: 0,
+    right: 0,
+    zIndex: 50,
+    height: '100%',
+    width: '320px',
+    borderLeftStyle: 'solid',
+    borderLeftWidth: '1px',
+    borderColor: theme.vars.color.gray['400'],
+    backgroundColor: theme.vars.color.background['200'],
+    boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
+    transitionProperty: 'transform, translate, scale, rotate',
+    transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+    transitionDuration: '200ms',
+    selectors: {
+      '&[data-ending-style]': {
+        translate: '100% 0',
+        borderLeftStyle: 'solid',
+        boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
+        transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+      },
+      '&[data-starting-style]': {
+        translate: '100% 0',
+        borderLeftStyle: 'solid',
+        boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
+        transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+      },
+    },
+  })
+  export const mobileNav4 = style({
+    display: 'flex',
+    height: 'var(--vocs-layout-topNav)',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 1,
+    paddingInline: 2,
+  })
+  export const mobileNav5 = style({
+    position: 'absolute',
+    width: '1px',
+    height: '1px',
+    padding: '0',
+    margin: '-1px',
+    overflow: 'hidden',
+    clipPath: 'inset(50%)',
+    whiteSpace: 'nowrap',
+    borderWidth: '0',
+  })
+  export const mobileNav6 = style({
+    display: 'flex',
+    width: 8,
+    height: 8,
+    cursor: 'pointer',
+    alignItems: 'center',
+    justifyContent: 'center',
+  })
+  export const mobileNav7 = style({
+    display: 'flex',
+    height: 'calc(100% - var(--vocs-layout-topNav))',
+    flexDirection: 'column',
+    overflowY: 'auto',
+    paddingInline: 4,
+    paddingBottom: 4,
+  })
+  export const mobileNav8 = style({
+    marginTop: 'auto',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingTop: 4,
+  })
+  export const mobileTopNav = style({
+    display: 'flex',
+    flex: 1,
+    cursor: 'pointer',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderRadius: 'md',
+    borderStyle: 'solid',
+    borderWidth: '1px',
+    borderColor: theme.vars.color.gray['400'],
+    backgroundColor: theme.vars.color.surface,
+    paddingInline: 2,
+    paddingBlock: 'calc(0.25rem * 1.5)',
+    fontSize: '14px',
+    fontWeight: 'medium',
+    color: theme.vars.color.foreground,
+  })
+  export const mobileTopNav2 = style({
+    width: 4,
+    height: 4,
+    color: `color-mix(in oklab, ${theme.vars.color.gray['900']} 80%, transparent)`,
+  })
+  export const mobileTopNav3 = style({ zIndex: 60 })
+  export const mobileTopNav4 = style({
+    width: 'var(--anchor-width)',
+    transformOrigin: 'var(--transform-origin)',
+    scale: '100% 100%',
+    borderRadius: 'lg',
+    borderStyle: 'solid',
+    borderWidth: '1px',
+    borderColor: theme.vars.color.gray['400'],
+    backgroundColor: theme.vars.color.surface,
+    padding: 2,
+    opacity: '100%',
+    boxShadow:
+      '0 10px 15px -3px oklab(from rgb(0 0 0 / 0.1) l a b / 5%), 0 4px 6px -4px oklab(from rgb(0 0 0 / 0.1) l a b / 5%)',
+    transitionProperty: 'all',
+    transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+    transitionDuration: '75ms',
+    selectors: {
+      '&[data-starting-style]': {
+        scale: '90% 90%',
+        opacity: '0%',
+        borderStyle: 'solid',
+        boxShadow:
+          '0 10px 15px -3px oklab(from rgb(0 0 0 / 0.1) l a b / 5%), 0 4px 6px -4px oklab(from rgb(0 0 0 / 0.1) l a b / 5%)',
+        transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+      },
+    },
+  })
+  export const mobileTopNav5 = style({
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingInline: 2,
+    paddingBlock: 'calc(0.25rem * 1.5)',
+    fontSize: '14px',
+    fontWeight: 'medium',
+    color: `color-mix(in oklab, ${theme.vars.color.foreground} 80%, transparent)`,
+  })
+  export const mobileTopNav6 = style({
+    marginLeft: 2,
+    display: 'flex',
+    cursor: 'pointer',
+    alignItems: 'center',
+    gap: 1,
+    borderRadius: 'md',
+    paddingBlock: 1,
+    paddingRight: 2,
+    paddingLeft: 2,
+    fontSize: '13px',
+    fontWeight: 'medium',
+    color: `color-mix(in oklab, ${theme.vars.color.foreground} 80%, transparent)`,
+    selectors: {
+      '&:hover': { '@media (hover: hover)': { color: theme.vars.color.foreground } },
+      '&[data-checked]': {
+        backgroundColor: theme.vars.color.blue['300'],
+        color: 'blue.900 !important',
+      },
+    },
+  })
+  export const mobileTopNav7 = style({
+    width: 3,
+    height: 3,
+    color: `color-mix(in oklab, ${theme.vars.color.gray['900']} 60%, transparent)`,
+  })
+  export const mobileTopNav8 = style({
+    display: 'flex',
+    cursor: 'pointer',
+    alignItems: 'center',
+    gap: 1,
+    borderRadius: 'md',
+    paddingInline: 2,
+    paddingBlock: 'calc(0.25rem * 1.5)',
+    fontSize: '14px',
+    fontWeight: 'medium',
+    color: `color-mix(in oklab, ${theme.vars.color.foreground} 80%, transparent)`,
+    selectors: {
+      '&:hover': { '@media (hover: hover)': { color: theme.vars.color.foreground } },
+      '&[data-checked]': {
+        backgroundColor: theme.vars.color.blue['300'],
+        color: 'blue.900 !important',
+      },
+    },
+  })
+  export const mobileTopNav9 = style({
+    width: 3,
+    height: 3,
+    color: `color-mix(in oklab, ${theme.vars.color.gray['900']} 60%, transparent)`,
+  })
+}
 
 export function MobileNav(props: MobileNav.Props) {
   const { className } = props
@@ -31,42 +239,27 @@ export function MobileNav(props: MobileNav.Props) {
     <Dialog.Root open={dialogOpen} onOpenChange={setDialogOpen}>
       <Dialog.Trigger
         aria-label="Open menu"
-        className={cx(
-          'vocs:flex vocs:items-center vocs:justify-center vocs:cursor-pointer vocs:size-8',
-          className,
-        )}
+        className={cx(styles.mobileNav().className, className)}
       >
         <LucideTextAlignJustify />
       </Dialog.Trigger>
       <Dialog.Portal>
-        <Dialog.Backdrop className="vocs:fixed vocs:inset-0 vocs:bg-black/50 vocs:backdrop-blur-sm vocs:z-40 vocs:transition-opacity vocs:duration-200 vocs:data-starting-style:opacity-0 vocs:data-ending-style:opacity-0" />
-        <Dialog.Popup
-          className="vocs:fixed vocs:top-0 vocs:right-0 vocs:h-full vocs:w-[320px] vocs:bg-primary vocs:border-l vocs:border-primary vocs:z-50 vocs:shadow-xl vocs:transition-transform vocs:duration-200 vocs:data-starting-style:translate-x-full vocs:data-ending-style:translate-x-full"
-          data-v-mobile-nav
-        >
-          <div className="vocs:flex vocs:justify-between vocs:items-center vocs:gap-1 vocs:px-2 vocs:h-topNav">
-            <Dialog.Title className="vocs:sr-only">Menu</Dialog.Title>
+        <Dialog.Backdrop className={styles.mobileNav2().className} />
+        <Dialog.Popup className={styles.mobileNav3().className} data-v-mobile-nav>
+          <div {...styles.mobileNav4()}>
+            <Dialog.Title className={styles.mobileNav5().className}>Menu</Dialog.Title>
 
             <MobileTopNav onNavigate={() => setDialogOpen(false)} />
 
-            <Dialog.Close
-              aria-label="Close menu"
-              className="vocs:flex vocs:items-center vocs:justify-center vocs:cursor-pointer vocs:size-8"
-            >
+            <Dialog.Close aria-label="Close menu" className={styles.mobileNav6().className}>
               <LucideX />
             </Dialog.Close>
           </div>
 
-          <div
-            className="vocs:overflow-y-auto vocs:h-[calc(100%-var(--vocs-spacing-topNav))] vocs:px-4 vocs:pb-4 vocs:flex vocs:flex-col"
-            ref={sidebarScrollRef}
-          >
+          <div {...styles.mobileNav7()} ref={sidebarScrollRef}>
             <Sidebar.Sidebar onNavigate={() => setDialogOpen(false)} scrollRef={sidebarScrollRef} />
 
-            <div
-              className="vocs:mt-auto vocs:pt-4 vocs:flex vocs:justify-between vocs:items-center"
-              data-v-mobile-nav-footer
-            >
+            <div {...styles.mobileNav8()} data-v-mobile-nav-footer>
               <Socials.Socials />
               {showThemeToggle && <ThemeToggle.ThemeToggle />}
             </div>
@@ -114,27 +307,32 @@ function MobileTopNav(props: MobileTopNav.Props) {
   if (items.length === 0) return null
   return (
     <Menu.Root open={menuOpen} onOpenChange={setMenuOpen}>
-      <Menu.Trigger className="vocs:flex vocs:flex-1 vocs:items-center vocs:justify-between vocs:border vocs:border-primary vocs:bg-surface vocs:px-2 vocs:py-1.5 vocs:text-heading vocs:text-[14px] vocs:font-[450] vocs:rounded-md vocs:cursor-pointer">
+      <Menu.Trigger className={styles.mobileTopNav().className}>
         <span>{activeItem?.text}</span>
-        <LucideChevronDown className="vocs:text-secondary/80 vocs:size-4" />
+        <LucideChevronDown className={styles.mobileTopNav2().className} />
       </Menu.Trigger>
       <Menu.Portal>
-        <Menu.Positioner side="bottom" align="start" sideOffset={4} className="vocs:z-60">
-          <Menu.Popup className="vocs:bg-surface vocs:w-(--anchor-width) vocs:border vocs:border-primary vocs:p-2 vocs:rounded-lg vocs:shadow-lg/5 vocs:origin-(--transform-origin) vocs:transition-all vocs:duration-75 vocs:scale-100 vocs:opacity-100 vocs:data-starting-style:opacity-0 vocs:data-starting-style:scale-90">
+        <Menu.Positioner
+          side="bottom"
+          align="start"
+          sideOffset={4}
+          className={styles.mobileTopNav3().className}
+        >
+          <Menu.Popup className={styles.mobileTopNav4().className}>
             <Menu.RadioGroup value={activeLink}>
               {items.map((item, i) => {
                 if (item.items) {
                   return (
                     // biome-ignore lint/suspicious/noArrayIndexKey: _
                     <Menu.Group key={i}>
-                      <Menu.GroupLabel className="vocs:flex vocs:items-center vocs:justify-between vocs:px-2 vocs:py-1.5 vocs:text-primary/80 vocs:text-[14px] vocs:font-[450]">
+                      <Menu.GroupLabel className={styles.mobileTopNav5().className}>
                         {item.text}
                       </Menu.GroupLabel>
                       {item.items.map((child, j) => {
                         const isExternal = child.external ?? Path.isExternal(child.link)
                         return (
                           <Menu.RadioItem
-                            className="vocs:flex vocs:items-center vocs:gap-1 vocs:hover:text-heading vocs:ml-2 vocs:pl-2 vocs:pr-2 vocs:py-1 vocs:text-primary/80 vocs:data-checked:bg-accenta3 vocs:data-checked:text-accent8! vocs:rounded-md vocs:text-[13px] vocs:font-[450] vocs:cursor-pointer"
+                            className={styles.mobileTopNav6().className}
                             // biome-ignore lint/suspicious/noArrayIndexKey: _
                             key={j}
                             value={child.link}
@@ -145,7 +343,7 @@ function MobileTopNav(props: MobileTopNav.Props) {
                           >
                             {child.text}
                             {isExternal && (
-                              <LucideArrowUpRight className="vocs:size-3 vocs:text-secondary/60" />
+                              <LucideArrowUpRight className={styles.mobileTopNav7().className} />
                             )}
                           </Menu.RadioItem>
                         )
@@ -157,7 +355,7 @@ function MobileTopNav(props: MobileTopNav.Props) {
                 const isExternal = item.external ?? Path.isExternal(item.link)
                 return (
                   <Menu.RadioItem
-                    className="vocs:flex vocs:items-center vocs:gap-1 vocs:hover:text-heading vocs:px-2 vocs:py-1.5 vocs:text-primary/80 vocs:data-checked:bg-accenta3 vocs:data-checked:text-accent8! vocs:rounded-md vocs:text-[14px] vocs:font-[450] vocs:cursor-pointer"
+                    className={styles.mobileTopNav8().className}
                     // biome-ignore lint/suspicious/noArrayIndexKey: _
                     key={i}
                     value={item.link}
@@ -168,7 +366,7 @@ function MobileTopNav(props: MobileTopNav.Props) {
                   >
                     {item.text}
                     {isExternal && (
-                      <LucideArrowUpRight className="vocs:size-3 vocs:text-secondary/60" />
+                      <LucideArrowUpRight className={styles.mobileTopNav9().className} />
                     )}
                   </Menu.RadioItem>
                 )

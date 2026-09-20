@@ -154,7 +154,6 @@ describe('OpenAPI page metadata', () => {
 
 function createConfig(): Config.Config {
   return {
-    accentColor: 'light-dark(black, white)',
     basePath: '/',
     baseUrl: 'https://example.com',
     cacheDir: '/tmp/vocs-cache',

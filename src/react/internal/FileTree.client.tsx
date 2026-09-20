@@ -2,26 +2,117 @@
 
 import { Popover } from '@base-ui/react/popover'
 import * as React from 'react'
+import { style, theme } from 'zyzz/default'
 import LucideInfo from '~icons/lucide/info'
 
-const triggerBaseClassName =
-  'vocs:flex vocs:items-center vocs:gap-2 vocs:whitespace-nowrap vocs:justify-self-start vocs:rounded-md vocs:px-2 vocs:py-0.5 vocs:-mx-2 vocs:-my-0.5 vocs:border vocs:border-transparent vocs:transition-colors vocs:data-[highlighted=true]:bg-surfaceTint vocs:data-[highlighted=true]:border-primary'
+namespace styles {
+  export const element = style({
+    marginInline: 'calc(0.25rem * -2)',
+    marginBlock: 'calc(0.25rem * -0.5)',
+    display: 'flex',
+    alignItems: 'center',
+    gap: 2,
+    justifySelf: 'flex-start',
+    borderRadius: 'md',
+    borderStyle: 'solid',
+    borderWidth: '1px',
+    borderColor: 'transparent',
+    paddingInline: 2,
+    paddingBlock: 'calc(0.25rem * 0.5)',
+    whiteSpace: 'nowrap',
+    transitionProperty:
+      'color, background-color, border-color, outline-color, text-decoration-color, fill, stroke',
+    transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+    transitionDuration: '150ms',
+    selectors: {
+      '&[data-highlighted="true"]': {
+        borderColor: theme.vars.color.gray['400'],
+        backgroundColor: theme.vars.color.gray['100'],
+      },
+    },
+  })
+  export const element2 = style({
+    selectors: {
+      '&:hover': {
+        '@media (hover: hover)': {
+          borderColor: theme.vars.color.gray['400'],
+          backgroundColor: theme.vars.color.gray['100'],
+        },
+      },
+      '&[data-popup-open]': {
+        borderColor: theme.vars.color.gray['400'],
+        backgroundColor: theme.vars.color.gray['100'],
+      },
+    },
+  })
+  export const element3 = style({
+    margin: 0,
+    backgroundColor: 'transparent',
+    selectors: { '&:not(*:disabled)': { cursor: 'pointer' } },
+  })
+  export const element4 = style({
+    lineHeight: 'calc(1.25 / 0.875)',
+    zIndex: 50,
+    maxWidth: '300px',
+    borderRadius: 'md',
+    borderStyle: 'solid',
+    borderWidth: '1px',
+    borderColor: theme.vars.color.gray['400'],
+    backgroundColor: theme.vars.color.surface,
+    paddingInline: 3,
+    paddingBlock: 2,
+    fontFamily: theme.vars.fontFamily.sans,
+    fontSize: 'sm',
+    color: theme.vars.color.foreground,
+    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+  })
+  export const infoIndicator = style({
+    display: 'flex',
+    width: 4,
+    height: 4,
+    flexShrink: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: theme.vars.color.gray['800'],
+  })
+  export const infoIndicator2 = style({
+    width: 'calc(0.25rem * 3.5)',
+    height: 'calc(0.25rem * 3.5)',
+  })
+  export const folderToggle = style({ flexShrink: 0 })
+  export const folderToggle2 = style({
+    display: 'flex',
+    flexDirection: 'column',
+    overflow: 'visible',
+  })
+  export const folderToggle3 = style({
+    position: 'relative',
+    display: 'flex',
+    alignItems: 'center',
+    paddingBlock: 1,
+  })
+  export const folderToggle4 = style({
+    display: 'grid',
+    width: 'fit-content',
+    alignItems: 'center',
+    columnGap: 4,
+    color: theme.vars.color.foreground,
+  })
+  export const folderToggle5 = style({ whiteSpace: 'nowrap', color: theme.vars.color.gray['800'] })
+}
 
-const tooltipTriggerClassName =
-  'vocs:hover:bg-surfaceTint vocs:hover:border-primary vocs:data-[popup-open]:bg-surfaceTint vocs:data-[popup-open]:border-primary'
+const triggerBaseClassName = styles.element().className
 
-const folderButtonClassName = 'vocs:bg-transparent vocs:m-0 vocs:not-disabled:cursor-pointer'
+const tooltipTriggerClassName = styles.element2().className
 
-const popupClassName =
-  'vocs:max-w-[300px] vocs:bg-surface vocs:border vocs:border-primary vocs:rounded-md vocs:px-3 vocs:py-2 vocs:text-sm vocs:text-primary vocs:font-sans vocs:leading-snug vocs:shadow-md vocs:z-50'
+const folderButtonClassName = styles.element3().className
+
+const popupClassName = styles.element4().className
 
 function InfoIndicator() {
   return (
-    <span
-      aria-hidden="true"
-      className="vocs:shrink-0 vocs:flex vocs:items-center vocs:justify-center vocs:size-4 vocs:text-muted"
-    >
-      <LucideInfo className="vocs:size-3.5" />
+    <span aria-hidden="true" {...styles.infoIndicator()}>
+      <LucideInfo className={styles.infoIndicator2().className} />
     </span>
   )
 }
@@ -86,18 +177,15 @@ export function FolderToggle(props: FolderToggle.Props) {
 
   const folderInner = (
     <>
-      <span className="vocs:shrink-0">{isOpen && hasChildren ? folderOpenIcon : folderIcon}</span>
+      <span {...styles.folderToggle()}>{isOpen && hasChildren ? folderOpenIcon : folderIcon}</span>
       <span>{name}</span>
     </>
   )
 
   return (
-    <div className="vocs:flex vocs:flex-col vocs:overflow-visible">
-      <div className="vocs:relative vocs:flex vocs:items-center vocs:py-1">
-        <div
-          className="vocs:grid vocs:items-center vocs:gap-x-4 vocs:w-fit vocs:text-primary"
-          style={rowStyle}
-        >
+    <div {...styles.folderToggle2()}>
+      <div {...styles.folderToggle3()}>
+        <div {...styles.folderToggle4()} style={rowStyle}>
           {tooltip ? (
             <Popover.Root>
               <Popover.Trigger
@@ -136,7 +224,7 @@ export function FolderToggle(props: FolderToggle.Props) {
               {folderInner}
             </button>
           )}
-          {comment && <span className="vocs:text-muted vocs:whitespace-nowrap">{comment}</span>}
+          {comment && <span {...styles.folderToggle5()}>{comment}</span>}
         </div>
       </div>
       {hasChildren && isOpen && folderContent}

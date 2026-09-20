@@ -187,7 +187,7 @@ export type Config = {
    * vocs: {
    *   title: 'Acme Docs',
    *   logoUrl: '/logo.svg',
-   *   theme: { accentColor: '#7c3aed' },
+   *   theme: { colorScheme: 'dark' },
    *   topNav: [{ text: 'Home', link: 'https://acme.com' }],
    * }
    * ```

@@ -1,6 +1,11 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { style } from 'zyzz/default'
+
+namespace styles {
+  export const twoslashCompletionList = style({ animation: 'blink 1s step-end infinite' })
+}
 
 export function TwoslashCompletionList(props: TwoslashCompletionList.Props) {
   const { children, className } = props
@@ -30,7 +35,7 @@ export function TwoslashCompletionList(props: TwoslashCompletionList.Props) {
 
   return (
     <span className={className} data-v-twoslash-completion>
-      <span className="vocs:animate-blink" data-v-twoslash-completion-cursor>
+      <span {...styles.twoslashCompletionList()} data-v-twoslash-completion-cursor>
         |
       </span>
       <span data-v-twoslash-completion-popup ref={setList}>

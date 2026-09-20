@@ -8,7 +8,7 @@ import * as MdxPageContext from '../MdxPageContext.js'
 import { useConfig } from '../useConfig.js'
 
 const storageKeyPrefix = 'vocs-banner-dismissed'
-const cssVar = '--vocs-spacing-banner'
+const cssVar = '--vocs-layout-banner'
 
 function hashContent(content: string): string {
   let hash = 0

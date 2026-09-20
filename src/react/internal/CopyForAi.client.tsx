@@ -3,9 +3,35 @@
 import { cx } from 'cva'
 import * as React from 'react'
 import { useRouter } from 'waku'
+import { style, theme } from 'zyzz/default'
 import LucideCheck from '~icons/lucide/check'
 import LucideClipboard from '~icons/lucide/clipboard'
 import { getMarkdownAssetPath } from './markdown-url.js'
+
+namespace styles {
+  export const copyForAi = style({
+    display: 'flex',
+    cursor: 'pointer',
+    alignItems: 'center',
+    gap: 2,
+    fontSize: '13px',
+    color: theme.vars.color.gray['900'],
+    transitionProperty:
+      'color, background-color, border-color, outline-color, text-decoration-color, fill, stroke',
+    transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+    transitionDuration: '150ms',
+    selectors: {
+      '&:hover': { '@media (hover: hover)': { color: theme.vars.color.foreground } },
+      '&:disabled': { cursor: 'default' },
+    },
+  })
+  export const copyForAi2 = style({
+    width: 4,
+    height: 4,
+    color: theme.vars.color.blue['900'],
+  })
+  export const copyForAi3 = style({ width: 4, height: 4 })
+}
 
 type CopyState = 'idle' | 'copying' | 'copied' | 'error'
 
@@ -40,19 +66,16 @@ export function CopyForAi(props: CopyForAi.Props) {
   return (
     <button
       aria-label="Copy page content as markdown for AI"
-      className={cx(
-        'vocs:flex vocs:items-center vocs:gap-2 vocs:text-[13px] vocs:text-secondary vocs:hover:text-heading vocs:cursor-pointer vocs:disabled:cursor-default vocs:transition-colors',
-        className,
-      )}
+      className={cx(styles.copyForAi().className, className)}
       data-v-copy-for-ai
       disabled={state === 'copying'}
       onClick={handleCopy}
       type="button"
     >
       {state === 'copied' ? (
-        <LucideCheck className="vocs:size-4 vocs:text-accent" />
+        <LucideCheck className={styles.copyForAi2().className} />
       ) : (
-        <LucideClipboard className="vocs:size-4" />
+        <LucideClipboard className={styles.copyForAi3().className} />
       )}
       <span>Copy page for AI</span>
     </button>

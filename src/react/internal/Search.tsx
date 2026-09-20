@@ -6,6 +6,7 @@ import MiniSearch from 'minisearch'
 import { useQueryState } from 'nuqs'
 import * as React from 'react'
 import { useRouter } from 'waku'
+import { style, theme } from 'zyzz/default'
 import LucideArrowRight from '~icons/lucide/arrow-right'
 import LucideExternalLink from '~icons/lucide/external-link'
 import LucideFile from '~icons/lucide/file'
@@ -18,6 +19,336 @@ import { append, fuse } from '../../internal/search-fusion.js'
 import { Link } from '../Link.js'
 import { useConfig } from '../useConfig.js'
 import { DialogTrigger } from './DialogTrigger.js'
+
+namespace styles {
+  export const search = style({ height: '100%', width: '100%' })
+  export const search2 = style({
+    position: 'fixed',
+    inset: 0,
+    zIndex: 100,
+    backgroundColor: 'color-mix(in oklab, black 60%, transparent)',
+    backdropFilter: 'blur(8px)',
+    transitionProperty: 'opacity',
+    transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+    transitionDuration: '150ms',
+    selectors: {
+      '&[data-ending-style]': { opacity: '0%' },
+      '&[data-starting-style]': { opacity: '0%' },
+    },
+  })
+  export const search3 = style({
+    position: 'fixed',
+    top: '5%',
+    left: 'calc(1 / 2 * 100%)',
+    zIndex: 101,
+    display: 'flex',
+    maxHeight: '70vh',
+    width: '90vw',
+    maxWidth: '600px',
+    transformOrigin: 'top',
+    translate: 'calc(calc(1 / 2 * 100%) * -1) 0',
+    flexDirection: 'column',
+    overflow: 'hidden',
+    borderRadius: '2xl',
+    borderStyle: 'solid',
+    borderWidth: '1px',
+    borderColor: theme.vars.color.gray['400'],
+    backgroundColor: theme.vars.color.surface,
+    boxShadow: '0 25px 50px -12px rgb(0 0 0 / 0.25)',
+    transitionProperty: 'all',
+    transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+    transitionDuration: '150ms',
+    selectors: {
+      '&[data-ending-style]': {
+        scale: '95% 95%',
+        opacity: '0%',
+        translate: 'calc(calc(1 / 2 * 100%) * -1) 0',
+        borderStyle: 'solid',
+        boxShadow: '0 25px 50px -12px rgb(0 0 0 / 0.25)',
+        transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+      },
+      '&[data-starting-style]': {
+        scale: '95% 95%',
+        opacity: '0%',
+        translate: 'calc(calc(1 / 2 * 100%) * -1) 0',
+        borderStyle: 'solid',
+        boxShadow: '0 25px 50px -12px rgb(0 0 0 / 0.25)',
+        transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+      },
+    },
+    '@media (width >= 40rem)': { top: '15%' },
+  })
+  export const search4 = style({
+    position: 'absolute',
+    width: '1px',
+    height: '1px',
+    padding: '0',
+    margin: '-1px',
+    overflow: 'hidden',
+    clipPath: 'inset(50%)',
+    whiteSpace: 'nowrap',
+    borderWidth: '0',
+  })
+  export const search5 = style({
+    position: 'absolute',
+    width: '1px',
+    height: '1px',
+    padding: '0',
+    margin: '-1px',
+    overflow: 'hidden',
+    clipPath: 'inset(50%)',
+    whiteSpace: 'nowrap',
+    borderWidth: '0',
+  })
+  export const search6 = style({
+    display: 'flex',
+    alignItems: 'center',
+    gap: 3,
+    borderBottomStyle: 'solid',
+    borderBottomWidth: '1px',
+    borderColor: theme.vars.color.gray['400'],
+    paddingInline: 4,
+    paddingBlock: 3,
+  })
+  export const search7 = style({
+    width: 5,
+    height: 5,
+    flexShrink: 0,
+    color: theme.vars.color.gray['900'],
+  })
+  export const search8 = style({
+    flex: 1,
+    backgroundColor: 'transparent',
+    fontSize: 'base',
+    lineHeight: 'calc(1.5 / 1)',
+    color: theme.vars.color.foreground,
+    outlineStyle: 'none',
+    selectors: { '&::placeholder': { color: theme.vars.color.gray['900'] } },
+  })
+  export const search9 = style({
+    display: 'flex',
+    flexShrink: 0,
+    alignItems: 'center',
+    gap: 2,
+  })
+  export const search10 = style({
+    fontSize: 'xs',
+    lineHeight: 'calc(1 / 0.75)',
+    color: theme.vars.color.gray['900'],
+  })
+  export const search11 = style({
+    width: 4,
+    height: 4,
+    flexShrink: 0,
+    animation: 'spin 1s linear infinite',
+    color: theme.vars.color.gray['900'],
+  })
+  export const search12 = style({ flex: 1, overflowY: 'auto', paddingBlock: 2 })
+  export const search13 = style({
+    paddingInline: 4,
+    paddingBlock: 2,
+    fontSize: 'xs',
+    lineHeight: 'calc(1 / 0.75)',
+    fontWeight: 'medium',
+    color: theme.vars.color.gray['900'],
+  })
+  export const search14 = style({
+    paddingInline: 4,
+    paddingBlock: 8,
+    textAlign: 'center',
+    color: theme.vars.color.gray['900'],
+  })
+  export const search15 = style({
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderTopStyle: 'solid',
+    borderTopWidth: '1px',
+    borderColor: theme.vars.color.gray['400'],
+    paddingInline: 4,
+    paddingBlock: 2,
+    fontSize: 'xs',
+    lineHeight: 'calc(1 / 0.75)',
+    color: theme.vars.color.gray['900'],
+    '@media (width < 40rem)': { display: 'none' },
+  })
+  export const search16 = style({ display: 'flex', alignItems: 'center', gap: 3 })
+  export const search17 = style({ display: 'flex', alignItems: 'center', gap: 1 })
+  export const search18 = style({
+    borderRadius: 'sm',
+    borderStyle: 'solid',
+    borderWidth: '1px',
+    borderColor: theme.vars.color.gray['400'],
+    backgroundColor: theme.vars.color.background['200'],
+    paddingInline: 'calc(0.25rem * 1.5)',
+    paddingBlock: 'calc(0.25rem * 0.5)',
+    fontSize: '10px',
+  })
+  export const search19 = style({
+    borderRadius: 'sm',
+    borderStyle: 'solid',
+    borderWidth: '1px',
+    borderColor: theme.vars.color.gray['400'],
+    backgroundColor: theme.vars.color.background['200'],
+    paddingInline: 'calc(0.25rem * 1.5)',
+    paddingBlock: 'calc(0.25rem * 0.5)',
+    fontSize: '10px',
+  })
+  export const search20 = style({ display: 'flex', alignItems: 'center', gap: 1 })
+  export const search21 = style({
+    borderRadius: 'sm',
+    borderStyle: 'solid',
+    borderWidth: '1px',
+    borderColor: theme.vars.color.gray['400'],
+    backgroundColor: theme.vars.color.background['200'],
+    paddingInline: 'calc(0.25rem * 1.5)',
+    paddingBlock: 'calc(0.25rem * 0.5)',
+    fontSize: '10px',
+  })
+  export const search22 = style({ display: 'flex', alignItems: 'center', gap: 1 })
+  export const search23 = style({
+    borderRadius: 'sm',
+    borderStyle: 'solid',
+    borderWidth: '1px',
+    borderColor: theme.vars.color.gray['400'],
+    backgroundColor: theme.vars.color.background['200'],
+    paddingInline: 'calc(0.25rem * 1.5)',
+    paddingBlock: 'calc(0.25rem * 0.5)',
+    fontSize: '10px',
+  })
+  export const result = style({
+    cursor: 'pointer',
+    paddingInline: 4,
+    paddingBlock: 2,
+    color: theme.vars.color.foreground,
+    transitionProperty:
+      'color, background-color, border-color, outline-color, text-decoration-color, fill, stroke',
+    transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+    transitionDuration: '150ms',
+    selectors: {
+      '&:hover': { '@media (hover: hover)': { backgroundColor: theme.vars.color.gray['100'] } },
+      '&[data-selected="true"]': {
+        backgroundColor: theme.vars.color.blue['300'],
+        color: theme.vars.color.foreground,
+      },
+    },
+  })
+  export const result2 = style({
+    display: 'flex',
+    alignItems: 'flex-start',
+    gap: 3,
+  })
+  export const result3 = style({
+    marginTop: 'calc(0.25rem * 0.5)',
+    width: 4,
+    height: 4,
+    flexShrink: 0,
+    color: theme.vars.color.gray['900'],
+    selectors: {
+      '&:is(:where(.vocs-group)[data-selected="true"] *)': { color: theme.vars.color.blue['900'] },
+    },
+  })
+  export const result4 = style({
+    display: 'flex',
+    minWidth: 0,
+    flexDirection: 'column',
+    gap: 'calc(0.25rem * 0.5)',
+  })
+  export const result5 = style({
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    fontSize: 'xs',
+    lineHeight: 'calc(1 / 0.75)',
+    color: theme.vars.color.gray['900'],
+  })
+  export const result6 = style({
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    fontWeight: 'medium',
+    color: theme.vars.color.foreground,
+  })
+  export const result7 = style({
+    overflow: 'hidden',
+    lineClamp: 2,
+    fontSize: 'sm',
+    lineHeight: 'calc(1.25 / 0.875)',
+    color: theme.vars.color.gray['900'],
+  })
+  export const resultSkeleton = style({ display: 'flex', flexDirection: 'column' })
+  export const resultSkeleton2 = style({
+    display: 'flex',
+    alignItems: 'flex-start',
+    gap: 3,
+    paddingInline: 4,
+    paddingBlock: 2,
+  })
+  export const resultSkeleton3 = style({
+    marginTop: 'calc(0.25rem * 0.5)',
+    width: 4,
+    height: 4,
+    flexShrink: 0,
+    animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+    borderRadius: 'sm',
+    backgroundColor: theme.vars.color.gray['100'],
+  })
+  export const resultSkeleton4 = style({
+    display: 'flex',
+    flex: 1,
+    flexDirection: 'column',
+    gap: 'calc(0.25rem * 1.5)',
+  })
+  export const resultSkeleton5 = style({
+    height: 3,
+    width: 'calc(1 / 3 * 100%)',
+    animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+    borderRadius: 'sm',
+    backgroundColor: theme.vars.color.gray['100'],
+  })
+  export const resultSkeleton6 = style({
+    height: 3,
+    width: 'calc(3 / 4 * 100%)',
+    animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+    borderRadius: 'sm',
+    backgroundColor: theme.vars.color.gray['100'],
+  })
+  export const jumpTo = style({
+    cursor: 'pointer',
+    paddingInline: 4,
+    paddingBlock: 2,
+    color: theme.vars.color.foreground,
+    transitionProperty:
+      'color, background-color, border-color, outline-color, text-decoration-color, fill, stroke',
+    transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+    transitionDuration: '150ms',
+    selectors: {
+      '&:hover': { '@media (hover: hover)': { backgroundColor: theme.vars.color.gray['100'] } },
+      '&[data-selected="true"]': {
+        backgroundColor: theme.vars.color.blue['300'],
+        color: theme.vars.color.foreground,
+      },
+    },
+  })
+  export const jumpTo2 = style({ display: 'flex', alignItems: 'center', gap: 2 })
+  export const jumpTo3 = style({
+    marginRight: 1,
+    width: 4,
+    height: 4,
+    flexShrink: 0,
+    color: theme.vars.color.gray['900'],
+    selectors: {
+      '&:is(:where(.vocs-group)[data-selected="true"] *)': { color: theme.vars.color.blue['900'] },
+    },
+  })
+  export const jumpTo4 = style({ color: theme.vars.color.gray['900'] })
+  export const jumpTo5 = style({ fontWeight: 'medium', color: theme.vars.color.foreground })
+  export const highlightMatches = style({
+    borderRadius: 'sm',
+    backgroundColor: theme.vars.color.blue['400'],
+    color: theme.vars.color.blue['900'],
+  })
+}
 
 const recentSearchesKey = 'vocs-recent-searches'
 const maxRecentSearches = 5
@@ -350,7 +681,7 @@ export function Search(props: Search.Props) {
   return (
     <Dialog.Root open={open} onOpenChange={handleOpenChange}>
       <Dialog.Trigger
-        className={cx(trigger ? undefined : 'vocs:w-full vocs:h-full', className)}
+        className={cx(trigger ? undefined : styles.search().className, className)}
         render={
           trigger ?? (
             <DialogTrigger icon={LucideSearch} triggerKey="K">
@@ -360,18 +691,15 @@ export function Search(props: Search.Props) {
         }
       />
       <Dialog.Portal>
-        <Dialog.Backdrop className="vocs:fixed vocs:inset-0 vocs:bg-black/60 vocs:backdrop-blur-sm vocs:z-[100] vocs:transition-opacity vocs:duration-150 vocs:data-starting-style:opacity-0 vocs:data-ending-style:opacity-0" />
-        <Dialog.Popup
-          className="vocs:fixed vocs:top-[5%] vocs:sm:top-[15%] vocs:left-1/2 vocs:-translate-x-1/2 vocs:w-[90vw] vocs:max-w-[600px] vocs:max-h-[70vh] vocs:bg-surface vocs:border vocs:border-primary vocs:rounded-2xl vocs:shadow-2xl vocs:z-[101] vocs:flex vocs:flex-col vocs:overflow-hidden vocs:transition-all vocs:duration-150 vocs:origin-top vocs:data-starting-style:opacity-0 vocs:data-starting-style:scale-95 vocs:data-ending-style:opacity-0 vocs:data-ending-style:scale-95"
-          onKeyDown={handleKeyDown}
-        >
-          <Dialog.Title className="vocs:sr-only">Search documentation</Dialog.Title>
-          <Dialog.Description className="vocs:sr-only">
+        <Dialog.Backdrop className={styles.search2().className} />
+        <Dialog.Popup className={styles.search3().className} onKeyDown={handleKeyDown}>
+          <Dialog.Title className={styles.search4().className}>Search documentation</Dialog.Title>
+          <Dialog.Description className={styles.search5().className}>
             Search through documentation pages. Use arrow keys to navigate, enter to select.
           </Dialog.Description>
 
-          <div className="vocs:flex vocs:items-center vocs:gap-3 vocs:px-4 vocs:py-3 vocs:border-b vocs:border-primary">
-            <LucideSearch className="vocs:size-5 vocs:text-secondary vocs:shrink-0" />
+          <div {...styles.search6()}>
+            <LucideSearch className={styles.search7().className} />
             <input
               aria-autocomplete="list"
               aria-controls="search-results"
@@ -379,7 +707,7 @@ export function Search(props: Search.Props) {
               autoComplete="off"
               // biome-ignore lint/a11y/noAutofocus: _
               autoFocus
-              className="vocs:flex-1 vocs:bg-transparent vocs:text-heading vocs:placeholder:text-secondary vocs:outline-none vocs:text-base"
+              {...styles.search8()}
               onChange={(e) => setQuery(e.target.value || null)}
               placeholder="Search..."
               role="combobox"
@@ -388,24 +716,20 @@ export function Search(props: Search.Props) {
               value={query}
             />
             {semanticLoading && (
-              <div className="vocs:flex vocs:items-center vocs:gap-2 vocs:shrink-0">
-                <span className="vocs:text-xs vocs:text-secondary">Enhancing Results</span>
+              <div {...styles.search9()}>
+                <span {...styles.search10()}>Enhancing Results</span>
                 <LucideLoaderCircle
                   aria-label="Searching"
-                  className="vocs:size-4 vocs:shrink-0 vocs:text-secondary vocs:animate-spin"
+                  className={styles.search11().className}
                 />
               </div>
             )}
           </div>
 
-          <div className="vocs:flex-1 vocs:overflow-y-auto vocs:py-2">
+          <div {...styles.search12()}>
             {allItems.length > 0 ? (
               <>
-                {!query.trim() && (
-                  <div className="vocs:px-4 vocs:py-2 vocs:text-xs vocs:text-secondary vocs:font-medium">
-                    Recent searches
-                  </div>
-                )}
+                {!query.trim() && <div {...styles.search13()}>Recent searches</div>}
                 <ul
                   ref={listRef}
                   aria-label={query.trim() ? 'Search results' : 'Recent searches'}
@@ -449,33 +773,25 @@ export function Search(props: Search.Props) {
             ) : query.trim() && semanticLoading ? (
               <ResultSkeleton />
             ) : (
-              <div className="vocs:px-4 vocs:py-8 vocs:text-center vocs:text-secondary">
+              <div {...styles.search14()}>
                 {!query.trim() ? 'Start typing to search...' : 'No results found'}
               </div>
             )}
           </div>
 
-          <div className="vocs:max-sm:hidden vocs:flex vocs:items-center vocs:justify-between vocs:px-4 vocs:py-2 vocs:border-t vocs:border-primary vocs:text-xs vocs:text-secondary">
-            <div className="vocs:flex vocs:items-center vocs:gap-3">
-              <span className="vocs:flex vocs:items-center vocs:gap-1">
-                <kbd className="vocs:bg-primary vocs:border vocs:border-primary vocs:rounded vocs:px-1.5 vocs:py-0.5 vocs:text-[10px]">
-                  ↑
-                </kbd>
-                <kbd className="vocs:bg-primary vocs:border vocs:border-primary vocs:rounded vocs:px-1.5 vocs:py-0.5 vocs:text-[10px]">
-                  ↓
-                </kbd>
+          <div {...styles.search15()}>
+            <div {...styles.search16()}>
+              <span {...styles.search17()}>
+                <kbd {...styles.search18()}>↑</kbd>
+                <kbd {...styles.search19()}>↓</kbd>
                 <span>navigate</span>
               </span>
-              <span className="vocs:flex vocs:items-center vocs:gap-1">
-                <kbd className="vocs:bg-primary vocs:border vocs:border-primary vocs:rounded vocs:px-1.5 vocs:py-0.5 vocs:text-[10px]">
-                  ↵
-                </kbd>
+              <span {...styles.search20()}>
+                <kbd {...styles.search21()}>↵</kbd>
                 <span>select</span>
               </span>
-              <span className="vocs:flex vocs:items-center vocs:gap-1">
-                <kbd className="vocs:bg-primary vocs:border vocs:border-primary vocs:rounded vocs:px-1.5 vocs:py-0.5 vocs:text-[10px]">
-                  esc
-                </kbd>
+              <span {...styles.search22()}>
+                <kbd {...styles.search23()}>esc</kbd>
                 <span>close</span>
               </span>
             </div>
@@ -517,24 +833,22 @@ function Result(props: Result.Props) {
     // biome-ignore lint/a11y/useFocusableInteractive: _
     <li
       aria-selected={selected}
-      className="vocs:group vocs:px-4 vocs:py-2 vocs:cursor-pointer vocs:transition-colors vocs:text-primary vocs:hover:bg-surfaceTint vocs:data-[selected=true]:bg-accenta3 vocs:data-[selected=true]:text-heading"
+      className={styles.result({ className: 'vocs-group' }).className}
       data-selected={selected}
       // biome-ignore lint/a11y/noNoninteractiveElementToInteractiveRole: _
       role="option"
     >
-      <Link className="vocs:flex vocs:items-start vocs:gap-3" onClick={onClick} to={result.href}>
-        <Icon className="vocs:size-4 vocs:mt-0.5 vocs:shrink-0 vocs:text-secondary vocs:group-data-[selected=true]:text-accent7" />
-        <div className="vocs:flex vocs:flex-col vocs:gap-0.5 vocs:min-w-0">
-          {breadcrumb && (
-            <div className="vocs:text-xs vocs:text-secondary vocs:truncate">{breadcrumb}</div>
-          )}
-          <div className="vocs:font-medium vocs:truncate vocs:text-heading">
+      <Link className={styles.result2().className} onClick={onClick} to={result.href}>
+        <Icon className={styles.result3().className} />
+        <div {...styles.result4()}>
+          {breadcrumb && <div {...styles.result5()}>{breadcrumb}</div>}
+          <div {...styles.result6()}>
             {queryTerms.length > 0
               ? highlightMatches(result.title, queryTerms, result.terms)
               : result.title}
           </div>
           {result.text && (
-            <div className="vocs:text-sm vocs:text-secondary vocs:line-clamp-2">
+            <div {...styles.result7()}>
               {queryTerms.length > 0
                 ? highlightMatches(
                     getSnippet(result.text, queryTerms, result.terms),
@@ -562,17 +876,17 @@ declare namespace Result {
 /** Placeholder rows shown while semantic results are loading. */
 function ResultSkeleton() {
   return (
-    <div aria-hidden className="vocs:flex vocs:flex-col">
+    <div aria-hidden {...styles.resultSkeleton()}>
       {Array.from({ length: 5 }).map((_, i) => (
         <div
           // biome-ignore lint/suspicious/noArrayIndexKey: static placeholder list
           key={i}
-          className="vocs:flex vocs:items-start vocs:gap-3 vocs:px-4 vocs:py-2"
+          {...styles.resultSkeleton2()}
         >
-          <div className="vocs:size-4 vocs:mt-0.5 vocs:shrink-0 vocs:rounded vocs:bg-surfaceTint vocs:animate-pulse" />
-          <div className="vocs:flex vocs:flex-col vocs:gap-1.5 vocs:flex-1">
-            <div className="vocs:h-3 vocs:w-1/3 vocs:rounded vocs:bg-surfaceTint vocs:animate-pulse" />
-            <div className="vocs:h-3 vocs:w-3/4 vocs:rounded vocs:bg-surfaceTint vocs:animate-pulse" />
+          <div {...styles.resultSkeleton3()} />
+          <div {...styles.resultSkeleton4()}>
+            <div {...styles.resultSkeleton5()} />
+            <div {...styles.resultSkeleton6()} />
           </div>
         </div>
       ))}
@@ -588,15 +902,15 @@ function JumpTo(props: JumpTo.Props) {
     // biome-ignore lint/a11y/useFocusableInteractive: _
     <li
       aria-selected={selected}
-      className="vocs:group vocs:px-4 vocs:py-2 vocs:cursor-pointer vocs:transition-colors vocs:text-primary vocs:hover:bg-surfaceTint vocs:data-[selected=true]:bg-accenta3 vocs:data-[selected=true]:text-heading"
+      className={styles.jumpTo({ className: 'vocs-group' }).className}
       data-selected={selected}
       // biome-ignore lint/a11y/noNoninteractiveElementToInteractiveRole: _
       role="option"
     >
-      <Link className="vocs:flex vocs:items-center vocs:gap-2" onClick={onClick} to={result.href}>
-        <LucideArrowRight className="vocs:size-4 vocs:shrink-0 vocs:mr-1 vocs:text-secondary vocs:group-data-[selected=true]:text-accent7" />
-        <span className="vocs:text-secondary">Jump to</span>
-        <span className="vocs:text-heading vocs:font-medium">
+      <Link className={styles.jumpTo2().className} onClick={onClick} to={result.href}>
+        <LucideArrowRight className={styles.jumpTo3().className} />
+        <span {...styles.jumpTo4()}>Jump to</span>
+        <span {...styles.jumpTo5()}>
           {highlightMatches(result.title, queryTerms, result.terms)}
         </span>
       </Link>
@@ -660,7 +974,7 @@ function highlightMatches(
   return parts.map((part, i) =>
     terms.some((term) => part.toLowerCase().includes(term.toLowerCase())) ? (
       // biome-ignore lint/suspicious/noArrayIndexKey: stable order
-      <mark key={i} className="vocs:bg-accenta4 vocs:text-accent9 vocs:rounded-sm">
+      <mark key={i} {...styles.highlightMatches()}>
         {part}
       </mark>
     ) : (

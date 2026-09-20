@@ -1,9 +1,27 @@
 'use client'
 
 import { cx } from 'cva'
+import { style, theme } from 'zyzz/default'
 import LucideSquarePen from '~icons/lucide/square-pen'
 import * as MdxPageContext from '../MdxPageContext.js'
 import { useConfig } from '../useConfig.js'
+
+namespace styles {
+  export const editLink = style({
+    display: 'flex',
+    alignItems: 'center',
+    gap: 2,
+    fontSize: 'sm',
+    lineHeight: 'calc(1.25 / 0.875)',
+    color: theme.vars.color.gray['900'],
+    transitionProperty:
+      'color, background-color, border-color, outline-color, text-decoration-color, fill, stroke',
+    transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+    transitionDuration: '150ms',
+    selectors: { '&:hover': { '@media (hover: hover)': { color: theme.vars.color.foreground } } },
+  })
+  export const editLink2 = style({ width: 4, height: 4 })
+}
 
 export function EditLink(props: EditLink.Props) {
   const { className } = props
@@ -21,16 +39,13 @@ export function EditLink(props: EditLink.Props) {
 
   return (
     <a
-      className={cx(
-        'vocs:flex vocs:items-center vocs:gap-2 vocs:text-secondary vocs:text-sm vocs:hover:text-heading vocs:transition-colors',
-        className,
-      )}
+      className={cx(styles.editLink().className, className)}
       data-v-edit-link
       href={url}
       rel="noopener noreferrer"
       target="_blank"
     >
-      <LucideSquarePen className="vocs:size-4" />
+      <LucideSquarePen className={styles.editLink2().className} />
       {text}
     </a>
   )

@@ -138,11 +138,11 @@ type Props = {
 export default function GuidesWrapper({ children, frontmatter, path }: Props) {
   return (
     <div>
-      <header className="vocs:mb-6 vocs:border-b vocs:pb-4">
-        <p className="vocs:text-xs vocs:text-secondary">Guides · {path}</p>
+      <header style={{ marginBottom: "1.5rem", borderBottom: "1px solid", paddingBottom: "1rem" }}>
+        <p style={{ fontSize: "0.75rem" }}>Guides · {path}</p>
         {frontmatter.title && <h1>{frontmatter.title}</h1>}
         {frontmatter.description && (
-          <p className="vocs:text-secondary">{frontmatter.description}</p>
+          <p>{frontmatter.description}</p>
         )}
       </header>
       {children}

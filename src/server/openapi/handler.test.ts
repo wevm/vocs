@@ -87,9 +87,9 @@ describe('Handler.openApi', () => {
 
   describe('custom css', () => {
     test('injects an inline CSS string into the shell head, after the bundle styles', async () => {
-      const ref = openApi({ spec }, { css: ':root { --vocs-color-accent: #7c3aed }' })
+      const ref = openApi({ spec }, { css: 'body { font-family: sans-serif }' })
       const html = await (await ref.fetch(new Request('http://localhost/'))).text()
-      expect(html).toContain('<style>:root { --vocs-color-accent: #7c3aed }</style>')
+      expect(html).toContain('<style>body { font-family: sans-serif }</style>')
       // Custom CSS comes after the design-system stylesheets so it wins.
       expect(html.indexOf('rel="stylesheet"')).toBeLessThan(html.indexOf('<style>'))
     })

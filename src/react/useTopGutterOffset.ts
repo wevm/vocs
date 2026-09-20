@@ -21,7 +21,7 @@ const state = {
 
 function hasBanner(): boolean {
   const bannerHeight = getComputedStyle(document.documentElement).getPropertyValue(
-    '--vocs-spacing-banner',
+    '--vocs-layout-banner',
   )
   return Boolean(bannerHeight && bannerHeight !== '0px')
 }

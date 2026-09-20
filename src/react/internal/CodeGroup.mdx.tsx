@@ -3,6 +3,41 @@
 import { Tabs } from '@base-ui/react/tabs'
 import { useQueryState } from 'nuqs'
 import * as React from 'react'
+import { style, theme } from 'zyzz/default'
+
+namespace styles {
+  export const codeGroupPanels = style({ display: 'grid' })
+  export const codeGroupPanels2 = style({
+    gridColumnStart: '1',
+    gridRowStart: '1',
+    minWidth: 0,
+    selectors: {
+      ':is(& > *)': {
+        borderTopLeftRadius: '0',
+        borderTopRightRadius: '0',
+        borderTopStyle: 'solid',
+        borderTopWidth: '0px',
+      },
+      '&[data-hidden]': { visibility: 'hidden' },
+    },
+  })
+  export const codeGroupPanels3 = style({
+    selectors: {
+      ':where(& > :not(:last-child))': {
+        marginBlockStart: 'calc(calc(0.25rem * 3) * 0)',
+        marginBlockEnd: 'calc(calc(0.25rem * 3) * calc(1 - 0))',
+        borderStyle: 'solid',
+      },
+    },
+    borderRadius: 'lg',
+    borderStyle: 'solid',
+    borderWidth: '1px',
+    borderColor: theme.vars.color.gray['400'],
+    backgroundColor: theme.vars.color.background['200'],
+    padding: 5,
+    '@media (width < 48rem)': { marginInline: 'calc(0.25rem * -4)', borderRadius: '0' },
+  })
+}
 
 const packageManagers = new Set(['npm', 'pnpm', 'yarn', 'bun'])
 
@@ -106,7 +141,7 @@ function CodeGroupTabs({ items }: { items: CodeGroupItem[] }) {
 
 function CodeGroupPanels({ items }: { items: CodeGroupItem[] }) {
   return (
-    <div className="vocs:grid">
+    <div {...styles.codeGroupPanels()}>
       {items.map(({ value, content }, i) => {
         const isCodeBlock =
           content &&
@@ -115,7 +150,7 @@ function CodeGroupPanels({ items }: { items: CodeGroupItem[] }) {
           'data-v-code-container' in (content.props as React.ComponentProps<'div'>)
         return (
           <Tabs.Panel
-            className="vocs:col-start-1 vocs:row-start-1 vocs:min-w-0 vocs:*:rounded-t-none vocs:*:border-t-0 vocs:data-hidden:invisible"
+            className={styles.codeGroupPanels2().className}
             data-v-code-group-panel
             keepMounted
             key={value || i.toString()}
@@ -124,9 +159,7 @@ function CodeGroupPanels({ items }: { items: CodeGroupItem[] }) {
             {isCodeBlock ? (
               <CodeBlock node={content} />
             ) : (
-              <div className="vocs:bg-code-block vocs:border vocs:border-primary vocs:rounded-lg vocs:p-5 vocs:space-y-3 vocs:max-md:-mx-4 vocs:max-md:rounded-none">
-                {content}
-              </div>
+              <div {...styles.codeGroupPanels3()}>{content}</div>
             )}
           </Tabs.Panel>
         )

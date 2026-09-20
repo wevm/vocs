@@ -279,7 +279,6 @@ function renderHead(frontmatter: Config.Frontmatter | undefined, props: Head.Pro
 
 function createConfig(config: Partial<Config.Config> = {}): Config.Config {
   const baseConfig: Config.Config = {
-    accentColor: 'light-dark(black, white)',
     basePath: '/',
     baseUrl: 'https://example.com',
     cacheDir: '/tmp/vocs-cache',

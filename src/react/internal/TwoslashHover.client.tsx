@@ -3,7 +3,21 @@
 import { Popover } from '@base-ui/react/popover'
 import type * as React from 'react'
 import { useCallback, useEffect, useState } from 'react'
+import { style, theme } from 'zyzz/default'
 import { prewarm } from './CodeToHtml.client.js'
+
+namespace styles {
+  export const twoslashHover = style({
+    selectors: {
+      '&[data-side="bottom"]': { top: '-8px' },
+      '&[data-side="left"]': { right: '-13px', rotate: '90deg' },
+      '&[data-side="right"]': { left: '-13px', rotate: 'calc(90deg * -1)' },
+      '&[data-side="top"]': { bottom: '-8px', rotate: '180deg' },
+    },
+  })
+  export const arrowSvg = style({ fill: theme.vars.color.surface })
+  export const arrowSvg2 = style({ fill: theme.vars.color.gray['400'] })
+}
 
 export function TwoslashHover(props: TwoslashHover.Props) {
   const { className = '', children, trigger } = props
@@ -74,7 +88,7 @@ export function TwoslashHover(props: TwoslashHover.Props) {
           style={{ zIndex: 50 }}
         >
           <Popover.Popup className={className} initialFocus={false}>
-            <Popover.Arrow className="vocs:data-[side=bottom]:top-[-8px] vocs:data-[side=left]:right-[-13px] vocs:data-[side=left]:rotate-90 vocs:data-[side=right]:left-[-13px] vocs:data-[side=right]:-rotate-90 vocs:data-[side=top]:bottom-[-8px] vocs:data-[side=top]:rotate-180">
+            <Popover.Arrow className={styles.twoslashHover().className}>
               <ArrowSvg />
             </Popover.Arrow>
             <div data-v-content ref={ref}>
@@ -127,11 +141,11 @@ function ArrowSvg(props: React.ComponentProps<'svg'>) {
     <svg width="20" height="10" viewBox="0 0 20 10" fill="none" {...props}>
       <title>Arrow</title>
       <path
-        className="vocs:fill-(--vocs-background-color-surface)"
+        {...styles.arrowSvg()}
         d="M9.66437 2.60207L4.80758 6.97318C4.07308 7.63423 3.11989 8 2.13172 8H0V10H20V8H18.5349C17.5468 8 16.5936 7.63423 15.8591 6.97318L11.0023 2.60207C10.622 2.2598 10.0447 2.25979 9.66437 2.60207Z"
       />
       <path
-        className="vocs:fill-(--vocs-border-color-primary)"
+        {...styles.arrowSvg2()}
         d="M10.3333 3.34539L5.47654 7.71648C4.55842 8.54279 3.36693 9 2.13172 9H0V8H2.13172C3.11989 8 4.07308 7.63423 4.80758 6.97318L9.66437 2.60207C10.0447 2.25979 10.622 2.2598 11.0023 2.60207L15.8591 6.97318C16.5936 7.63423 17.5468 8 18.5349 8H20V9H18.5349C17.2998 9 16.1083 8.54278 15.1901 7.71648L10.3333 3.34539Z"
       />
     </svg>

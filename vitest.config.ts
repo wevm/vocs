@@ -4,11 +4,13 @@ import { type IconifyJSON, icons as lucide } from '@iconify-json/lucide'
 import { icons as simple } from '@iconify-json/simple-icons'
 import Icons from 'unplugin-icons/vite'
 import { defineConfig } from 'vitest/config'
+import * as Styles from './scripts/styles.ts'
 
 export default defineConfig({
   // Resolve `~icons/*` imports the same way the Vocs Vite plugin does
   // (src/vite.ts), so components that import icons can be rendered in tests.
   plugins: [
+    Styles.vite(),
     Icons({
       compiler: 'jsx',
       customCollections: {

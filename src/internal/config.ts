@@ -351,16 +351,6 @@ export type Config<partial extends boolean = false> = MaybePartial<
   partial,
   {
     /**
-     * Accent color.
-     *
-     * - Use `light-dark()` syntax to define colors for light + dark schemes.
-     * - Use a string to define a single color for all schemes.
-     *
-     * @default "light-dark(white, black)"
-     *
-     */
-    accentColor: `light-dark(${string}, ${string})` | (string & {})
-    /**
      * AI-powered features. Currently exposes semantic search via
      * {@link AiOptions.retriever}.
      */
@@ -846,7 +836,6 @@ export type Frontmatter = {
 
 export function define(config: define.Options = {}): Config {
   const {
-    accentColor = 'light-dark(black, white)',
     ai: aiOptions,
     banner,
     basePath = '/',
@@ -916,7 +905,6 @@ export function define(config: define.Options = {}): Config {
   const aiResolved = (aiPublic ? { retriever: aiPublic } : undefined) as AiOptions | undefined
 
   return {
-    accentColor,
     ai: aiResolved,
     banner: banner
       ? {

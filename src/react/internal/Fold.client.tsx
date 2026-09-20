@@ -1,6 +1,11 @@
 'use client'
 
 import * as React from 'react'
+import { style } from 'zyzz/default'
+
+namespace styles {
+  export const foldHandler = style({ display: 'none' })
+}
 
 export function FoldHandler() {
   const containerRef = React.useRef<HTMLSpanElement>(null)
@@ -53,5 +58,5 @@ export function FoldHandler() {
     }
   }, [])
 
-  return <span ref={containerRef} className="vocs:hidden" />
+  return <span ref={containerRef} {...styles.foldHandler()} />
 }

@@ -36,7 +36,7 @@ beforeEach(() => {
 afterEach(() => {
   act(() => root.unmount())
   container.remove()
-  document.documentElement.style.removeProperty('--vocs-spacing-banner')
+  document.documentElement.style.removeProperty('--vocs-layout-banner')
   vi.restoreAllMocks()
 })
 

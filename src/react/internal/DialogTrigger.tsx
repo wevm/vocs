@@ -2,6 +2,77 @@
 
 import { cx } from 'cva'
 import * as React from 'react'
+import { style, theme } from 'zyzz/default'
+
+namespace styles {
+  export const element = style({
+    display: 'flex',
+    height: '100%',
+    width: '100%',
+    cursor: 'pointer',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderRadius: 'xl',
+    borderStyle: 'solid',
+    borderWidth: '1px',
+    borderColor: theme.vars.color.gray['400'],
+    backgroundColor: theme.vars.color.surface,
+    paddingRight: 2,
+    paddingLeft: 3,
+    fontSize: 'sm',
+    lineHeight: 'calc(1.25 / 0.875)',
+    color: theme.vars.color.gray['900'],
+    transitionProperty:
+      'color, background-color, border-color, outline-color, text-decoration-color, fill, stroke',
+    transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+    transitionDuration: '100ms',
+    selectors: {
+      '&:hover': {
+        '@media (hover: hover)': {
+          backgroundColor: theme.vars.color.gray['100'],
+          color: theme.vars.color.foreground,
+        },
+      },
+    },
+  })
+  export const element2 = style({ display: 'flex', alignItems: 'center', gap: 2 })
+  export const element3 = style({ width: 4, height: 4 })
+  export const element4 = style({
+    display: 'flex',
+    alignItems: 'center',
+    gap: 'calc(0.25rem * 0.5)',
+  })
+  export const element5 = style({
+    display: 'flex',
+    height: 5,
+    width: 'auto',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 'sm',
+    borderStyle: 'solid',
+    borderWidth: '1px',
+    borderColor: theme.vars.color.gray['400'],
+    backgroundColor: theme.vars.color.background['200'],
+    paddingInline: 'calc(0.25rem * 0.75)',
+    fontSize: 'xs',
+    lineHeight: 'calc(1 / 0.75)',
+  })
+  export const element6 = style({
+    display: 'flex',
+    height: 5,
+    width: 'auto',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 'sm',
+    borderStyle: 'solid',
+    borderWidth: '1px',
+    borderColor: theme.vars.color.gray['400'],
+    backgroundColor: theme.vars.color.background['200'],
+    paddingInline: 'calc(0.25rem * 0.75)',
+    fontSize: 'xs',
+    lineHeight: 'calc(1 / 0.75)',
+  })
+}
 
 export const DialogTrigger = React.forwardRef<HTMLButtonElement, DialogTrigger.Props>(
   function DialogTrigger(props, ref) {
@@ -17,24 +88,17 @@ export const DialogTrigger = React.forwardRef<HTMLButtonElement, DialogTrigger.P
     return (
       <button
         ref={ref}
-        className={cx(
-          'vocs:flex vocs:items-center vocs:justify-between vocs:cursor-pointer vocs:pl-3 vocs:pr-2 vocs:text-sm vocs:text-secondary vocs:hover:text-primary vocs:w-full vocs:h-full vocs:bg-surface vocs:hover:bg-surfaceTint vocs:border vocs:border-primary vocs:rounded-xl vocs:transition-colors vocs:duration-100',
-          className,
-        )}
+        className={cx(styles.element().className, className)}
         type="button"
         {...rest}
       >
-        <div className="vocs:flex vocs:items-center vocs:gap-2">
-          {Icon && <Icon className="vocs:size-4" />}
+        <div {...styles.element2()}>
+          {Icon && <Icon className={styles.element3().className} />}
           {children}
         </div>
-        <div className="vocs:flex vocs:items-center vocs:gap-0.5">
-          <div className="vocs:bg-primary vocs:text-xs vocs:flex vocs:items-center vocs:justify-center vocs:h-5 vocs:w-auto vocs:px-0.75 vocs:border vocs:border-primary vocs:rounded-sm">
-            {modifierKey}
-          </div>{' '}
-          <div className="vocs:bg-primary vocs:text-xs vocs:flex vocs:items-center vocs:justify-center vocs:h-5 vocs:w-auto vocs:px-0.75 vocs:border vocs:border-primary vocs:rounded-sm">
-            {triggerKey}
-          </div>
+        <div {...styles.element4()}>
+          <div {...styles.element5()}>{modifierKey}</div>{' '}
+          <div {...styles.element6()}>{triggerKey}</div>
         </div>
       </button>
     )

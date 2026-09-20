@@ -1,12 +1,12 @@
 {
   "scripts": {
-    "build": "pnpm --filter create-vocs build && pnpm --filter @vocs/twoslash-rust build && pnpm --filter @vocs/twoslash-rust build:npm && node scripts/build-openapi-standalone.ts && zile",
+    "build": "pnpm --filter create-vocs build && pnpm --filter @vocs/twoslash-rust build && pnpm --filter @vocs/twoslash-rust build:npm && node scripts/build-openapi-standalone.ts && zile && node scripts/build-styles.ts",
     "clean": "tsc -b --clean && rm -rf dist",
     "changeset:publish": "pnpm build && zile publish:prepare && changeset publish && zile publish:post",
     "changeset:version": "changeset version",
     "check": "biome check --fix --unsafe",
     "check:types": "tsc -b",
-    "dev": "pnpm --filter create-vocs dev && zile dev",
+    "dev": "pnpm --filter create-vocs dev && zile && node scripts/build-styles.ts",
     "dev:playground": "pnpm --filter playground dev",
     "dev:playground:twoslash": "cd playground && tsx ../src/cli.ts twoslash",
     "docs:build": "pnpm --filter site build",
@@ -91,7 +91,6 @@
     "@shikijs/types": "^3.20.0",
     "@svgr/core": "^8.1.0",
     "@svgr/plugin-jsx": "^8.1.0",
-    "@tailwindcss/vite": "^4.3.0",
     "@takumi-rs/image-response": "^0.62.7",
     "@takumi-rs/wasm": "^0.62.7",
     "@vitejs/plugin-react": "catalog:",
@@ -132,8 +131,6 @@
     "remark-stringify": "^11.0.0",
     "shiki": "^3.20.0",
     "sucrase": "^3.35.1",
-    "tailwindcss": "^4.3.0",
-    "tailwindcss-logical": "^4.1.0",
     "tsx": "^4.21.0",
     "twoslash": "^0.3.6",
     "unhead": "^3.1.7",
@@ -145,7 +142,8 @@
     "vite-plugin-arraybuffer": "^0.1.1",
     "vite-plugin-wasm": "^3.6.0",
     "yaml": "^2.8.2",
-    "zod": "^4.3.5"
+    "zod": "^4.3.5",
+    "zyzz": "https://pkg.pr.new/zyzz@a9d5659"
   },
   "peerDependencies": {
     "@vocs/twoslash-rust": "^0.1.0",

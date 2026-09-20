@@ -1,6 +1,26 @@
 'use client'
 
 import * as React from 'react'
+import { style } from 'zyzz/default'
+
+namespace styles {
+  export const steps = style({
+    selectors: {
+      ':where(& > :not(:last-child))': {
+        marginBlockStart: 'calc(calc(0.25rem * 6) * 0)',
+        marginBlockEnd: 'calc(calc(0.25rem * 6) * calc(1 - 0))',
+      },
+    },
+  })
+  export const steps2 = style({
+    selectors: {
+      ':where(& > :not(:last-child))': {
+        marginBlockStart: 'calc(calc(0.25rem * 6) * 0)',
+        marginBlockEnd: 'calc(calc(0.25rem * 6) * calc(1 - 0))',
+      },
+    },
+  })
+}
 
 export function Steps(props: React.PropsWithChildren<React.ComponentProps<'div'>>) {
   const children = React.Children.toArray(props.children)
@@ -20,7 +40,7 @@ export function Steps(props: React.PropsWithChildren<React.ComponentProps<'div'>
         if (!title || typeof title !== 'object' || !('type' in title) || title.type === undefined) {
           return (
             // biome-ignore lint/suspicious/noArrayIndexKey: _
-            <div className="vocs:space-y-6" data-v-content key={i}>
+            <div {...styles.steps()} data-v-content key={i}>
               <div data-v-step-title>{title}</div>
               <div data-v-step-content>{rest}</div>
             </div>
@@ -30,7 +50,7 @@ export function Steps(props: React.PropsWithChildren<React.ComponentProps<'div'>
         const TitleElement = title.type
         return (
           // biome-ignore lint/suspicious/noArrayIndexKey: _
-          <div className="vocs:space-y-6" data-v-content key={i}>
+          <div {...styles.steps2()} data-v-content key={i}>
             <TitleElement {...title.props} data-v-step-title />
             <div data-v-step-content>{rest}</div>
           </div>

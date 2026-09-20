@@ -29,6 +29,7 @@ type Page =
   | { path: '/features/tailwind'; render: 'static' }
   | { path: '/features/theming'; render: 'static' }
   | { path: '/features/vite'; render: 'static' }
+  | { path: '/features/zyzz'; render: 'static' }
   | { path: '/'; render: 'static' }
   | { path: '/introduction/getting-started'; render: 'static' }
   | { path: '/introduction/project-structure'; render: 'static' }

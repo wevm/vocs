@@ -1,23 +1,181 @@
 'use client'
 
 import { Tabs as BaseTabs } from '@base-ui/react/tabs'
-import { cva, cx } from 'cva'
+import { cx } from 'cva'
 import * as React from 'react'
+import { style, theme, variants } from 'zyzz/default'
 import { Link } from './Link.js'
 import { useConfig } from './useConfig.js'
 
+namespace styles {
+  export const button = variants({
+    base: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: 'lg',
+      paddingInline: 5,
+      paddingBlock: 'calc(0.25rem * 2.5)',
+      fontSize: '15px',
+      fontWeight: 'medium',
+      textDecorationLine: 'none',
+      transitionProperty:
+        'color, background-color, border-color, outline-color, text-decoration-color, fill, stroke',
+      transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+      transitionDuration: '150ms',
+    },
+    variants: {
+      variant: {
+        default: {
+          borderStyle: 'solid',
+          borderWidth: '1px',
+          borderColor: theme.vars.color.gray['400'],
+          backgroundColor: theme.vars.color.surface,
+          color: theme.vars.color.foreground,
+          selectors: {
+            '&:hover': {
+              '@media (hover: hover)': { backgroundColor: theme.vars.color.gray['100'] },
+            },
+          },
+        },
+        accent: {
+          borderColor: 'transparent',
+          backgroundColor: theme.vars.color.blue['700'],
+          color: theme.vars.color.white,
+          selectors: { '&:hover': { '@media (hover: hover)': { opacity: '90%' } } },
+        },
+      },
+    },
+    defaultVariants: { variant: 'default' },
+  })
+
+  export const root = style({
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: 8,
+    paddingInline: 6,
+    paddingTop: 16,
+    paddingBottom: 16,
+    textAlign: 'center',
+    '@media (width >= 48rem)': { paddingTop: 24 },
+  })
+  export const logo = style({
+    fontSize: '5xl',
+    lineHeight: 1,
+    fontWeight: 'bold',
+    letterSpacing: '-0.025em',
+    color: theme.vars.color.foreground,
+    '@media (width >= 48rem)': { fontSize: '6xl', lineHeight: 1 },
+  })
+  export const logo2 = style({
+    height: 12,
+    '@media (width >= 48rem)': { height: 14 },
+  })
+  export const logo3 = style({
+    height: 12,
+    '@media (width >= 48rem)': { height: 14 },
+    selectors: {
+      '&:where([style*=":dark"], [style*=":dark"] *, [style*=": dark"], [style*=": dark"] *)': {
+        display: 'none',
+      },
+    },
+  })
+  export const logo4 = style({
+    display: 'none',
+    height: 12,
+    '@media (width >= 48rem)': { height: 14 },
+    selectors: {
+      '&:where([style*=":dark"], [style*=":dark"] *, [style*=": dark"], [style*=": dark"] *)': {
+        display: 'block',
+      },
+    },
+  })
+  export const tagline = style({
+    lineHeight: 'calc(1.75 / 1.25)',
+    maxWidth: '42rem',
+    fontSize: 'xl',
+    color: theme.vars.color.foreground,
+    '@media (width >= 48rem)': { fontSize: '2xl', lineHeight: 'calc(2 / 1.5)' },
+  })
+  export const description = style({
+    lineHeight: 'calc(1.5 / 1)',
+    maxWidth: '36rem',
+    fontSize: 'base',
+    color: theme.vars.color.gray['900'],
+    '@media (width >= 48rem)': { fontSize: 'lg', lineHeight: 'calc(1.75 / 1.125)' },
+  })
+  export const buttons = style({
+    display: 'flex',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 3,
+  })
+
+  export const installPackage = style({ maxWidth: '24rem', minWidth: '300px' })
+  export const installPackage2 = style({
+    marginBottom: 2,
+    display: 'flex',
+    justifyContent: 'center',
+    gap: 1,
+  })
+  export const installPackage3 = style({
+    cursor: 'pointer',
+    borderRadius: 'md',
+    paddingInline: 3,
+    paddingBlock: 'calc(0.25rem * 1.5)',
+    fontSize: 'sm',
+    lineHeight: 'calc(1.25 / 0.875)',
+    fontWeight: 'medium',
+    color: theme.vars.color.gray['900'],
+    transitionProperty: 'all',
+    transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+    transitionDuration: '150ms',
+    selectors: {
+      '&:hover': {
+        '@media (hover: hover)': {
+          backgroundColor: `color-mix(in oklab, ${theme.vars.color.gray['100']} 50%, transparent)`,
+          color: theme.vars.color.foreground,
+        },
+      },
+      '&[data-active]': {
+        backgroundColor: theme.vars.color.gray['100'],
+        color: theme.vars.color.foreground,
+      },
+    },
+  })
+  export const installPackage4 = style({
+    cursor: 'pointer',
+    borderRadius: 'lg',
+    borderStyle: 'solid',
+    borderWidth: '1px',
+    borderColor: theme.vars.color.gray['400'],
+    backgroundColor: theme.vars.color.surface,
+    paddingInline: 4,
+    paddingBlock: 3,
+    fontFamily: theme.vars.fontFamily.mono,
+    fontSize: 'sm',
+    lineHeight: 'calc(1.25 / 0.875)',
+    color: theme.vars.color.gray['900'],
+    transitionProperty:
+      'color, background-color, border-color, outline-color, text-decoration-color, fill, stroke',
+    transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+    transitionDuration: '150ms',
+    selectors: {
+      '&:hover': {
+        '@media (hover: hover)': {
+          borderColor: `color-mix(in oklab, ${theme.vars.color.blue['700']} 50%, transparent)`,
+        },
+      },
+    },
+  })
+  export const installPackage5 = style({ color: theme.vars.color.blue['900'] })
+  export const installPackage6 = style({ color: theme.vars.color.blue['900'] })
+}
+
 export function Root(props: Root.Props) {
   const { children, className } = props
-  return (
-    <div
-      className={cx(
-        'vocs:flex vocs:flex-col vocs:items-center vocs:pt-16 vocs:md:pt-24 vocs:pb-16 vocs:px-6 vocs:text-center vocs:gap-8',
-        className,
-      )}
-    >
-      {children}
-    </div>
-  )
+  return <div className={cx(styles.root().className, className)}>{children}</div>
 }
 
 export declare namespace Root {
@@ -31,33 +189,15 @@ export function Logo(props: Logo.Props) {
   const { className } = props
   const { logoUrl, title } = useConfig()
 
-  if (!logoUrl)
-    return (
-      <h1
-        className={cx(
-          'vocs:text-5xl vocs:md:text-6xl vocs:font-bold vocs:text-heading vocs:tracking-tight',
-          className,
-        )}
-      >
-        {title}
-      </h1>
-    )
+  if (!logoUrl) return <h1 className={cx(styles.logo().className, className)}>{title}</h1>
 
   if (typeof logoUrl === 'string')
-    return <img alt={title} className={cx('vocs:h-12 vocs:md:h-14', className)} src={logoUrl} />
+    return <img alt={title} className={cx(styles.logo2().className, className)} src={logoUrl} />
 
   return (
     <>
-      <img
-        alt={title}
-        className={cx('vocs:h-12 vocs:md:h-14 vocs:dark:hidden', className)}
-        src={logoUrl.light}
-      />
-      <img
-        alt={title}
-        className={cx('vocs:h-12 vocs:md:h-14 vocs:hidden vocs:dark:block', className)}
-        src={logoUrl.dark}
-      />
+      <img alt={title} className={cx(styles.logo3().className, className)} src={logoUrl.light} />
+      <img alt={title} className={cx(styles.logo4().className, className)} src={logoUrl.dark} />
     </>
   )
 }
@@ -70,16 +210,7 @@ export declare namespace Logo {
 
 export function Tagline(props: Tagline.Props) {
   const { children, className } = props
-  return (
-    <p
-      className={cx(
-        'vocs:text-xl vocs:md:text-2xl vocs:text-primary vocs:max-w-2xl vocs:leading-relaxed',
-        className,
-      )}
-    >
-      {children}
-    </p>
-  )
+  return <p className={cx(styles.tagline().className, className)}>{children}</p>
 }
 
 export declare namespace Tagline {
@@ -91,16 +222,7 @@ export declare namespace Tagline {
 
 export function Description(props: Description.Props) {
   const { children, className } = props
-  return (
-    <p
-      className={cx(
-        'vocs:text-base vocs:md:text-lg vocs:text-secondary vocs:max-w-xl vocs:leading-relaxed',
-        className,
-      )}
-    >
-      {children}
-    </p>
-  )
+  return <p className={cx(styles.description().className, className)}>{children}</p>
 }
 
 export declare namespace Description {
@@ -112,11 +234,7 @@ export declare namespace Description {
 
 export function Buttons(props: Buttons.Props) {
   const { children, className } = props
-  return (
-    <div className={cx('vocs:flex vocs:flex-wrap vocs:justify-center vocs:gap-3', className)}>
-      {children}
-    </div>
-  )
+  return <div className={cx(styles.buttons().className, className)}>{children}</div>
 }
 
 export declare namespace Buttons {
@@ -126,28 +244,11 @@ export declare namespace Buttons {
   }
 }
 
-const buttonVariants = cva(
-  'vocs:inline-flex vocs:items-center vocs:justify-center vocs:px-5 vocs:py-2.5 vocs:rounded-lg vocs:text-[15px] vocs:font-medium vocs:transition-colors vocs:no-underline',
-  {
-    variants: {
-      variant: {
-        default:
-          'vocs:bg-surface vocs:border vocs:border-primary vocs:text-heading vocs:hover:bg-surfaceTint',
-        accent:
-          'vocs:bg-accent vocs:text-accentInvert vocs:border-transparent vocs:hover:opacity-90',
-      },
-    },
-    defaultVariants: {
-      variant: 'default',
-    },
-  },
-)
-
 export function Button(props: Button.Props) {
   const { children, href, variant, className } = props
 
   return (
-    <Link to={href} className={buttonVariants({ variant, className })}>
+    <Link to={href} {...styles.button({ variant, className })}>
       {children}
     </Link>
   )
@@ -193,33 +294,29 @@ export function InstallPackage(props: InstallPackage.Props) {
 
   return (
     <BaseTabs.Root
-      className="vocs:min-w-[300px] vocs:max-w-sm"
+      className={styles.installPackage().className}
       onValueChange={(value) => setSelected(value as PackageManager)}
       value={selected}
     >
-      <BaseTabs.List className="vocs:flex vocs:justify-center vocs:gap-1 vocs:mb-2">
+      <BaseTabs.List className={styles.installPackage2().className}>
         {packageManagers.map((pm) => (
-          <BaseTabs.Tab
-            className="vocs:px-3 vocs:py-1.5 vocs:text-sm vocs:font-medium vocs:text-secondary vocs:rounded-md vocs:transition-all vocs:duration-150 vocs:cursor-pointer vocs:hover:text-heading vocs:hover:bg-surfaceTint/50 vocs:data-active:bg-surfaceTint vocs:data-active:text-heading"
-            key={pm}
-            value={pm}
-          >
+          <BaseTabs.Tab className={styles.installPackage3().className} key={pm} value={pm}>
             {pm}
           </BaseTabs.Tab>
         ))}
       </BaseTabs.List>
       {packageManagers.map((pm) => (
         <BaseTabs.Panel
-          className="vocs:bg-surface vocs:border vocs:border-primary vocs:rounded-lg vocs:py-3 vocs:px-4 vocs:font-mono vocs:text-sm vocs:text-secondary vocs:cursor-pointer vocs:transition-colors vocs:hover:border-accent7/50"
+          className={styles.installPackage4().className}
           key={pm}
           onClick={handleCopy}
           value={pm}
         >
           {copied ? (
-            <span className="vocs:text-accent7">Copied!</span>
+            <span {...styles.installPackage5()}>Copied!</span>
           ) : (
             <>
-              <span className="vocs:text-accent7">{pm}</span> {getCommand(pm).replace(`${pm} `, '')}
+              <span {...styles.installPackage6()}>{pm}</span> {getCommand(pm).replace(`${pm} `, '')}
             </>
           )}
         </BaseTabs.Panel>

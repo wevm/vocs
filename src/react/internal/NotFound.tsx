@@ -1,40 +1,94 @@
 import { Link } from 'waku'
+import { style, theme } from 'zyzz/default'
 import LucideFileQuestion from '~icons/lucide/file-question'
 import LucideHome from '~icons/lucide/home'
 
+namespace styles {
+  export const notFound = style({
+    display: 'flex',
+    minHeight: '60vh',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingInline: 6,
+    paddingBlock: 16,
+    textAlign: 'center',
+  })
+  export const notFound2 = style({
+    marginBottom: 6,
+    display: 'flex',
+    width: 20,
+    height: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 'calc(infinity * 1px)',
+    borderStyle: 'solid',
+    borderWidth: '1px',
+    borderColor: theme.vars.color.gray['400'],
+    backgroundColor: theme.vars.color.surface,
+    color: theme.vars.color.gray['900'],
+  })
+  export const notFound3 = style({ width: 10, height: 10 })
+  export const notFound4 = style({
+    marginBottom: 3,
+    fontSize: '4xl',
+    lineHeight: '1em',
+    fontWeight: 'medium',
+    letterSpacing: '-0.04em',
+    color: theme.vars.color.foreground,
+  })
+  export const notFound5 = style({
+    marginBottom: 8,
+    maxWidth: '28rem',
+    lineHeight: '1.625em',
+    letterSpacing: '0em',
+    color: theme.vars.color.gray['900'],
+  })
+  export const notFound6 = style({
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 2,
+    borderRadius: 'lg',
+    borderStyle: 'solid',
+    borderWidth: '1px',
+    borderColor: theme.vars.color.gray['400'],
+    backgroundColor: theme.vars.color.surface,
+    paddingInline: 5,
+    paddingBlock: 'calc(0.25rem * 2.5)',
+    fontWeight: 'medium',
+    color: theme.vars.color.foreground,
+    transitionProperty:
+      'color, background-color, border-color, outline-color, text-decoration-color, fill, stroke',
+    transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+    transitionDuration: '150ms',
+    selectors: {
+      '&:hover': { '@media (hover: hover)': { backgroundColor: theme.vars.color.gray['100'] } },
+    },
+  })
+  export const notFound7 = style({
+    width: 4,
+    height: 4,
+    color: theme.vars.color.gray['900'],
+  })
+}
+
 export function NotFound() {
   return (
-    <div
-      className="vocs:flex vocs:flex-col vocs:items-center vocs:justify-center vocs:min-h-[60vh] vocs:px-6 vocs:py-16 vocs:text-center"
-      data-v-not-found
-    >
-      <div
-        className="vocs:flex vocs:items-center vocs:justify-center vocs:size-20 vocs:rounded-full vocs:bg-surface vocs:border vocs:border-primary vocs:text-secondary vocs:mb-6"
-        data-v-not-found-icon
-      >
-        <LucideFileQuestion className="vocs:size-10" />
+    <div {...styles.notFound()} data-v-not-found>
+      <div {...styles.notFound2()} data-v-not-found-icon>
+        <LucideFileQuestion className={styles.notFound3().className} />
       </div>
 
-      <h1
-        className="vocs:text-heading vocs:text-h1 vocs:font-medium vocs:tracking-[-0.04em] vocs:leading-h1 vocs:mb-3"
-        data-v-not-found-title
-      >
+      <h1 {...styles.notFound4()} data-v-not-found-title>
         Page not found
       </h1>
 
-      <p
-        className="vocs:text-secondary vocs:leading-p vocs:tracking-normal vocs:max-w-md vocs:mb-8"
-        data-v-not-found-description
-      >
+      <p {...styles.notFound5()} data-v-not-found-description>
         The page you're looking for doesn't exist or has been moved.
       </p>
 
-      <Link
-        className="vocs:inline-flex vocs:items-center vocs:gap-2 vocs:px-5 vocs:py-2.5 vocs:rounded-lg vocs:bg-surface vocs:border vocs:border-primary vocs:text-heading vocs:font-medium vocs:transition-colors vocs:duration-150 vocs:hover:bg-surfaceMuted"
-        data-v-not-found-link
-        to="/"
-      >
-        <LucideHome className="vocs:size-4 vocs:text-secondary" />
+      <Link className={styles.notFound6().className} data-v-not-found-link to="/">
+        <LucideHome className={styles.notFound7().className} />
         Back to home
       </Link>
     </div>

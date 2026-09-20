@@ -23,7 +23,7 @@ Export `Footer` from `_slots.tsx` to render content beneath every page.
 ```tsx [src/pages/_slots.tsx]
 export function Footer() { // [!code focus:5]
   return (
-    <div className="vocs:text-center vocs:text-secondary vocs:text-sm vocs:pt-6">
+    <div style={{ textAlign: "center", fontSize: "0.875rem", paddingTop: "1.5rem" }}>
       © 2025 My Project. All rights reserved.
     </div>
   )
@@ -37,9 +37,9 @@ Export `OutlineFooter` for a short pointer below the outline (e.g. a community l
 ```tsx [src/pages/_slots.tsx]
 export function OutlineFooter() { // [!code focus:8]
   return (
-    <div className="vocs:text-xs vocs:text-secondary">
+    <div style={{ fontSize: "0.75rem" }}>
       Need help?{' '}
-      <a className="vocs:text-accent vocs:hover:underline" href="https://discord.gg/example">
+      <a style={{ textDecoration: "underline" }} href="https://discord.gg/example">
         Join our Discord
       </a>
     </div>
@@ -53,7 +53,7 @@ Export `SidebarHeader` to put a version switcher, badge, or product picker above
 
 ```tsx [src/pages/_slots.tsx]
 export function SidebarHeader() { // [!code focus]
-  return <div className="vocs:px-4 vocs:py-2 vocs:text-sm">v2.0 · Beta</div> // [!code focus]
+  return <div style={{ padding: "0.5rem 1rem", fontSize: "0.875rem" }}>v2.0 · Beta</div> // [!code focus]
 } // [!code focus]
 ```
 
@@ -69,7 +69,7 @@ import { useEffect, useState } from 'react'
 export function SidebarHeader() {
   const [theme, setTheme] = useState('light') // [!code focus]
   useEffect(() => setTheme(document.documentElement.dataset.theme ?? 'light'), []) // [!code focus]
-  return <div className="vocs:px-4 vocs:py-2 vocs:text-sm">Theme: {theme}</div>
+  return <div style={{ padding: "0.5rem 1rem", fontSize: "0.875rem" }}>Theme: {theme}</div>
 }
 ```
 
@@ -96,7 +96,7 @@ export function SidebarHeader() {
   />
   <Card
     title="Theming"
-    description="Customize colors, typography, and the vocs: Tailwind prefix."
+    description="Configure the default theme, typography, and site branding."
     icon="palette"
     to="/features/theming"
   />

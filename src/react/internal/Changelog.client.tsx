@@ -3,12 +3,385 @@
 import { cx } from 'cva'
 import * as React from 'react'
 import { createPortal } from 'react-dom'
+import { style, theme } from 'zyzz/default'
 import LucideChevronDown from '~icons/lucide/chevron-down'
 import LucideExternalLink from '~icons/lucide/external-link'
 import LucideHistory from '~icons/lucide/history'
 import type * as ChangelogTypes from '../../internal/changelog.js'
 import { Badge } from '../Badge.js'
 import { Link } from '../Link.js'
+
+namespace styles {
+  export const versionIndicator = style({ backgroundColor: 'blue.700' })
+  export const changelog = style({
+    paddingBlock: 12,
+    textAlign: 'center',
+    color: theme.vars.color.gray['900'],
+  })
+  export const changelog2 = style({ position: 'relative' })
+  export const changelog3 = style({ display: 'flex', width: '100%', flexDirection: 'column' })
+  export const skeleton = style({
+    display: 'flex',
+    width: '100%',
+    animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+    flexDirection: 'column',
+  })
+  export const skeleton2 = style({
+    position: 'relative',
+    display: 'flex',
+    gap: 8,
+    borderBottomStyle: 'solid',
+    borderBottomWidth: '1px',
+    borderColor: theme.vars.color.gray['400'],
+    paddingBlock: 6,
+    '@media (width >= 48rem)': { gap: 12 },
+  })
+  export const skeleton3 = style({
+    display: 'none',
+    width: 36,
+    flexShrink: 0,
+    '@media (width >= 48rem)': { display: 'block' },
+  })
+  export const skeleton4 = style({
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 2,
+  })
+  export const skeleton5 = style({
+    height: 8,
+    width: 24,
+    borderRadius: 'md',
+    backgroundColor: theme.vars.color.gray['100'],
+  })
+  export const skeleton6 = style({
+    height: 4,
+    width: 28,
+    borderRadius: 'sm',
+    backgroundColor: theme.vars.color.gray['100'],
+  })
+  export const skeleton7 = style({
+    minWidth: 0,
+    flex: 1,
+    selectors: {
+      ':where(& > :not(:last-child))': {
+        marginBlockStart: 'calc(calc(0.25rem * 4) * 0)',
+        marginBlockEnd: 'calc(calc(0.25rem * 4) * calc(1 - 0))',
+      },
+    },
+  })
+  export const skeleton8 = style({
+    display: 'flex',
+    alignItems: 'center',
+    gap: 3,
+    '@media (width >= 48rem)': { display: 'none' },
+  })
+  export const skeleton9 = style({
+    height: 7,
+    width: 20,
+    borderRadius: 'md',
+    backgroundColor: theme.vars.color.gray['100'],
+  })
+  export const skeleton10 = style({
+    height: 4,
+    width: 24,
+    borderRadius: 'sm',
+    backgroundColor: theme.vars.color.gray['100'],
+  })
+  export const skeleton11 = style({
+    selectors: {
+      ':where(& > :not(:last-child))': {
+        marginBlockStart: 'calc(calc(0.25rem * 3) * 0)',
+        marginBlockEnd: 'calc(calc(0.25rem * 3) * calc(1 - 0))',
+      },
+    },
+  })
+  export const skeleton12 = style({
+    height: 4,
+    width: '100%',
+    borderRadius: 'sm',
+    backgroundColor: theme.vars.color.gray['100'],
+  })
+  export const skeleton13 = style({
+    height: 4,
+    width: 'calc(5 / 6 * 100%)',
+    borderRadius: 'sm',
+    backgroundColor: theme.vars.color.gray['100'],
+  })
+  export const skeleton14 = style({
+    height: 4,
+    width: 'calc(4 / 6 * 100%)',
+    borderRadius: 'sm',
+    backgroundColor: theme.vars.color.gray['100'],
+  })
+  export const skeleton15 = style({
+    height: 4,
+    width: 'calc(3 / 4 * 100%)',
+    borderRadius: 'sm',
+    backgroundColor: theme.vars.color.gray['100'],
+  })
+  export const versionOutline = style({
+    position: 'fixed',
+    top: 'calc(var(--vocs-layout-topNav) + var(--vocs-layout-banner) + 1.5rem)',
+    right: 'max(2rem, calc((100vw - 1200px) / 2))',
+    zIndex: 50,
+    display: 'none',
+    maxHeight: 'calc(100vh - var(--vocs-layout-topNav) - var(--vocs-layout-banner) - 3rem)',
+    width: 48,
+    fontSize: '13px',
+    '@media (width >= 80rem)': { display: 'block' },
+  })
+  export const versionOutline2 = style({
+    marginBottom: 3,
+    display: 'flex',
+    alignItems: 'center',
+    gap: 'calc(0.25rem * 1.5)',
+    fontSize: '13px',
+    fontWeight: 'medium',
+  })
+  export const versionOutline3 = style({
+    width: 'calc(0.25rem * 3.5)',
+    height: 'calc(0.25rem * 3.5)',
+  })
+  export const versionOutline4 = style({
+    position: 'relative',
+    display: 'flex',
+    flexDirection: 'column',
+    overscrollBehavior: 'contain',
+    borderLeftStyle: 'solid',
+    borderLeftWidth: '2px',
+    borderColor: theme.vars.color.gray['400'],
+  })
+  export const versionOutline5 = style({ scrollMarginBlock: 'calc(0.25rem * 4)' })
+  export const versionOutline6 = style({
+    lineHeight: 'calc(1 / 0.75)',
+    display: 'block',
+    cursor: 'pointer',
+    paddingBlock: 1,
+    paddingLeft: 3,
+    fontFamily: theme.vars.fontFamily.mono,
+    fontSize: 'xs',
+    transitionProperty:
+      'color, background-color, border-color, outline-color, text-decoration-color, fill, stroke',
+    transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+    transitionDuration: '100ms',
+  })
+  export const versionOutline7 = style({ color: theme.vars.color.blue['900'] })
+  export const versionOutline8 = style({
+    color: theme.vars.color.gray['900'],
+    selectors: { '&:hover': { '@media (hover: hover)': { color: theme.vars.color.foreground } } },
+  })
+  export const release = style({
+    position: 'relative',
+    display: 'flex',
+    scrollMarginTop: 'calc(0.25rem * 20)',
+    gap: 8,
+    '@media (width >= 48rem)': { gap: 12 },
+  })
+  export const release2 = style({
+    display: 'none',
+    width: 36,
+    flexShrink: 0,
+    '@media (width >= 48rem)': { display: 'block' },
+  })
+  export const release3 = style({
+    position: 'sticky',
+    top: 20,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 2,
+    paddingBlock: 6,
+  })
+  export const release4 = style({
+    position: 'absolute',
+    top: 8,
+    left: 'calc(100% + 1rem)',
+    zIndex: 10,
+    height: 'calc(0.25rem * 2.5)',
+    width: 'calc(0.25rem * 2.5)',
+    borderRadius: 'calc(infinity * 1px)',
+  })
+  export const release5 = style({
+    display: 'inline-flex',
+    width: 'fit-content',
+    maxWidth: '100%',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    gap: 'calc(0.25rem * 1.5)',
+    borderRadius: 'md',
+    borderStyle: 'solid',
+    borderWidth: '1px',
+    borderColor: theme.vars.color.gray['400'],
+    backgroundColor: theme.vars.color.gray['100'],
+    paddingInline: 'calc(0.25rem * 2.5)',
+    paddingBlock: 1,
+    fontFamily: theme.vars.fontFamily.mono,
+    fontSize: 'sm',
+    lineHeight: 'calc(1.25 / 0.875)',
+    fontWeight: 'medium',
+    color: theme.vars.color.foreground,
+    transitionProperty:
+      'color, background-color, border-color, outline-color, text-decoration-color, fill, stroke',
+    transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+    transitionDuration: '150ms',
+    selectors: {
+      '&:hover': {
+        '@media (hover: hover)': {
+          backgroundColor: `color-mix(in oklab, ${theme.vars.color.gray['100']} 80%, transparent)`,
+        },
+      },
+    },
+  })
+  export const release6 = style({ minWidth: 0, wordBreak: 'break-all' })
+  export const release7 = style({
+    width: 3,
+    height: 3,
+    flexShrink: 0,
+    opacity: '60%',
+  })
+  export const release8 = style({
+    fontSize: 'sm',
+    lineHeight: 'calc(1.25 / 0.875)',
+    color: theme.vars.color.gray['900'],
+  })
+  export const release9 = style({ width: 'fit-content' })
+  export const release10 = style({
+    position: 'absolute',
+    top: 8,
+    bottom: 0,
+    left: 36,
+    marginLeft: 4,
+    display: 'none',
+    width: '1px',
+    borderLeftStyle: 'solid',
+    borderLeftWidth: '1px',
+    borderColor: theme.vars.color.gray['400'],
+    '@media (width >= 48rem)': { display: 'block' },
+  })
+  export const release11 = style({
+    minWidth: 0,
+    flex: 1,
+    borderBottomStyle: 'solid',
+    borderBottomWidth: '1px',
+    borderColor: theme.vars.color.gray['400'],
+    paddingBlock: 6,
+    selectors: { '&:last-child': { borderBottomStyle: 'solid', borderBottomWidth: '0px' } },
+  })
+  export const release12 = style({
+    marginBottom: 4,
+    display: 'flex',
+    alignItems: 'center',
+    gap: 3,
+    '@media (width >= 48rem)': { display: 'none' },
+  })
+  export const release13 = style({
+    display: 'inline-flex',
+    maxWidth: '100%',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    gap: 'calc(0.25rem * 1.5)',
+    borderRadius: 'md',
+    borderStyle: 'solid',
+    borderWidth: '1px',
+    borderColor: theme.vars.color.gray['400'],
+    backgroundColor: theme.vars.color.gray['100'],
+    paddingInline: 'calc(0.25rem * 2.5)',
+    paddingBlock: 1,
+    fontFamily: theme.vars.fontFamily.mono,
+    fontSize: 'sm',
+    lineHeight: 'calc(1.25 / 0.875)',
+    fontWeight: 'medium',
+    color: theme.vars.color.foreground,
+    transitionProperty:
+      'color, background-color, border-color, outline-color, text-decoration-color, fill, stroke',
+    transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+    transitionDuration: '150ms',
+    selectors: {
+      '&:hover': {
+        '@media (hover: hover)': {
+          backgroundColor: `color-mix(in oklab, ${theme.vars.color.gray['100']} 80%, transparent)`,
+        },
+      },
+    },
+  })
+  export const release14 = style({ minWidth: 0, wordBreak: 'break-all' })
+  export const release15 = style({
+    width: 3,
+    height: 3,
+    flexShrink: 0,
+    opacity: '60%',
+  })
+  export const release16 = style({
+    fontSize: 'sm',
+    lineHeight: 'calc(1.25 / 0.875)',
+    color: theme.vars.color.gray['900'],
+  })
+  export const release17 = style({
+    marginBottom: 4,
+    fontSize: '2xl',
+    lineHeight: 'calc(2 / 1.5)',
+    fontWeight: 'semibold',
+    color: theme.vars.color.foreground,
+  })
+  export const release18 = style({ position: 'relative' })
+  export const release19 = style({
+    maxWidth: 'none',
+    overflow: 'hidden',
+    transitionProperty: 'max-height',
+    transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+    transitionDuration: '300ms',
+  })
+  export const release20 = style({ maxHeight: '600px' })
+  export const release21 = style({
+    position: 'absolute',
+    right: 0,
+    bottom: 0,
+    left: 0,
+    display: 'flex',
+    justifyContent: 'center',
+    backgroundImage: `linear-gradient(to top in oklab, ${theme.vars.color.surface}, transparent)`,
+    paddingTop: 16,
+    paddingBottom: 2,
+  })
+  export const release22 = style({
+    display: 'inline-flex',
+    cursor: 'pointer',
+    alignItems: 'center',
+    gap: 'calc(0.25rem * 1.5)',
+    borderRadius: 'md',
+    borderStyle: 'solid',
+    borderWidth: '1px',
+    borderColor: theme.vars.color.gray['400'],
+    backgroundColor: theme.vars.color.gray['100'],
+    paddingInline: 3,
+    paddingBlock: 'calc(0.25rem * 1.5)',
+    fontSize: 'sm',
+    lineHeight: 'calc(1.25 / 0.875)',
+    fontWeight: 'medium',
+    color: theme.vars.color.foreground,
+    transitionProperty:
+      'color, background-color, border-color, outline-color, text-decoration-color, fill, stroke',
+    transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+    transitionDuration: '150ms',
+    selectors: {
+      '&:hover': {
+        '@media (hover: hover)': {
+          backgroundColor: `color-mix(in oklab, ${theme.vars.color.gray['100']} 80%, transparent)`,
+        },
+      },
+    },
+  })
+  export const release23 = style({ width: 4, height: 4 })
+  export const markdown = style({
+    selectors: {
+      ':where(& > :not(:last-child))': {
+        marginBlockStart: 'calc(calc(0.25rem * 6) * 0)',
+        marginBlockEnd: 'calc(calc(0.25rem * 6) * calc(1 - 0))',
+      },
+      '&>*:first-child': { marginTop: 0 },
+      '&>*:last-child': { marginBottom: 0 },
+    },
+  })
+}
 
 const collapsedHeight = 600
 
@@ -47,12 +420,12 @@ export function Changelog(props: Changelog.Props): React.JSX.Element {
   }, [releases])
 
   if (releases.length === 0) {
-    return <div className="vocs:text-secondary vocs:py-12 vocs:text-center">No releases found.</div>
+    return <div {...styles.changelog()}>No releases found.</div>
   }
 
   return (
-    <div className={cx('vocs:relative', className)} data-v-changelog>
-      <div className="vocs:flex vocs:flex-col vocs:w-full">
+    <div className={cx(styles.changelog2().className, className)} data-v-changelog>
+      <div {...styles.changelog3()}>
         {releases.map((release, index) => (
           <Release key={release.version} release={release} isLast={index === releases.length - 1} />
         ))}
@@ -72,34 +445,31 @@ export declare namespace Changelog {
 
 export function Skeleton(): React.JSX.Element {
   return (
-    <div className="vocs:flex vocs:flex-col vocs:w-full vocs:animate-pulse" data-v-changelog>
+    <div {...styles.skeleton()} data-v-changelog>
       {[1, 2, 3].map((i) => (
-        <div
-          key={i}
-          className="vocs:relative vocs:flex vocs:gap-8 vocs:md:gap-12 vocs:py-6 vocs:border-b vocs:border-primary"
-        >
+        <div key={i} {...styles.skeleton2()}>
           {/* Left column skeleton */}
-          <div className="vocs:hidden vocs:md:block vocs:w-36 vocs:shrink-0">
-            <div className="vocs:flex vocs:flex-col vocs:gap-2">
-              <div className="vocs:h-8 vocs:w-24 vocs:bg-surfaceTint vocs:rounded-md" />
-              <div className="vocs:h-4 vocs:w-28 vocs:bg-surfaceTint vocs:rounded" />
+          <div {...styles.skeleton3()}>
+            <div {...styles.skeleton4()}>
+              <div {...styles.skeleton5()} />
+              <div {...styles.skeleton6()} />
             </div>
           </div>
 
           {/* Right column skeleton */}
-          <div className="vocs:flex-1 vocs:min-w-0 vocs:space-y-4">
+          <div {...styles.skeleton7()}>
             {/* Mobile header skeleton */}
-            <div className="vocs:md:hidden vocs:flex vocs:items-center vocs:gap-3">
-              <div className="vocs:h-7 vocs:w-20 vocs:bg-surfaceTint vocs:rounded-md" />
-              <div className="vocs:h-4 vocs:w-24 vocs:bg-surfaceTint vocs:rounded" />
+            <div {...styles.skeleton8()}>
+              <div {...styles.skeleton9()} />
+              <div {...styles.skeleton10()} />
             </div>
 
             {/* Content skeleton */}
-            <div className="vocs:space-y-3">
-              <div className="vocs:h-4 vocs:w-full vocs:bg-surfaceTint vocs:rounded" />
-              <div className="vocs:h-4 vocs:w-5/6 vocs:bg-surfaceTint vocs:rounded" />
-              <div className="vocs:h-4 vocs:w-4/6 vocs:bg-surfaceTint vocs:rounded" />
-              <div className="vocs:h-4 vocs:w-3/4 vocs:bg-surfaceTint vocs:rounded" />
+            <div {...styles.skeleton11()}>
+              <div {...styles.skeleton12()} />
+              <div {...styles.skeleton13()} />
+              <div {...styles.skeleton14()} />
+              <div {...styles.skeleton15()} />
             </div>
           </div>
         </div>
@@ -181,18 +551,15 @@ function VersionOutline(props: VersionOutline.Props): React.JSX.Element | null {
   if (!mounted) return null
 
   const outline = (
-    <nav
-      className="vocs:hidden vocs:xl:block vocs:text-[13px] vocs:fixed vocs:right-[max(2rem,calc((100vw-1200px)/2))] vocs:top-[calc(var(--vocs-spacing-topNav)+var(--vocs-spacing-banner)+1.5rem)] vocs:max-h-[calc(100vh-var(--vocs-spacing-topNav)-var(--vocs-spacing-banner)-3rem)] vocs:w-48 vocs:z-50"
-      data-v-version-outline
-    >
-      <div className="vocs:flex vocs:items-center vocs:gap-1.5 vocs:text-[13px] vocs:font-medium vocs:mb-3">
-        <LucideHistory className="vocs:size-3.5" />
+    <nav {...styles.versionOutline()} data-v-version-outline>
+      <div {...styles.versionOutline2()}>
+        <LucideHistory className={styles.versionOutline3().className} />
         Versions
       </div>
 
       <ul
         ref={containerRef}
-        className="vocs:relative vocs:flex vocs:flex-col vocs:border-l-2 vocs:border-primary vocs:overscroll-contain"
+        {...styles.versionOutline4()}
         style={{ maxHeight: 'calc(100vh - 12rem)', overflowY: 'auto', scrollbarWidth: 'thin' }}
       >
         <div
@@ -202,11 +569,12 @@ function VersionOutline(props: VersionOutline.Props): React.JSX.Element | null {
             left: -2,
             width: 2,
             borderRadius: 9999,
-            backgroundColor: 'var(--vocs-color-accent)',
+
             transition: 'transform 150ms ease-out, height 150ms ease-out',
             zIndex: 10,
             ...indicatorStyle,
           }}
+          {...styles.versionIndicator()}
           data-v-version-indicator
         />
 
@@ -217,13 +585,15 @@ function VersionOutline(props: VersionOutline.Props): React.JSX.Element | null {
               key={release.version}
               data-v-version-item
               data-version={release.version}
-              className="vocs:scroll-my-4"
+              {...styles.versionOutline5()}
             >
               <Link
                 to={`#${release.version}`}
                 className={cx(
-                  'vocs:block vocs:leading-snug vocs:py-1 vocs:pl-3 vocs:cursor-pointer vocs:font-mono vocs:text-xs vocs:transition-colors vocs:duration-100',
-                  isActive ? 'vocs:text-accent' : 'vocs:text-secondary vocs:hover:text-link',
+                  styles.versionOutline6().className,
+                  isActive
+                    ? styles.versionOutline7().className
+                    : styles.versionOutline8().className,
                 )}
                 data-active={isActive}
               >
@@ -269,36 +639,27 @@ function Release(props: Release.Props): React.JSX.Element {
   }, [release.date])
 
   return (
-    <article
-      id={release.version}
-      className="vocs:relative vocs:flex vocs:gap-8 vocs:md:gap-12 vocs:scroll-mt-20"
-      data-v-changelog-release
-    >
+    <article id={release.version} {...styles.release()} data-v-changelog-release>
       {/* Left column - sticky version/date */}
-      <div className="vocs:hidden vocs:md:block vocs:w-36 vocs:shrink-0">
-        <div className="vocs:sticky vocs:top-20 vocs:flex vocs:flex-col vocs:gap-2 vocs:py-6">
+      <div {...styles.release2()}>
+        <div {...styles.release3()}>
           {/* Timeline dot */}
-          <div className="vocs:absolute vocs:left-[calc(100%+1rem)] vocs:top-8 vocs:w-2.5 vocs:h-2.5 vocs:rounded-full vocs:bg-secondary vocs:z-10" />
+          <div {...styles.release4()} />
 
           {/* Version badge */}
-          <a
-            href={release.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="vocs:inline-flex vocs:flex-wrap vocs:items-center vocs:gap-1.5 vocs:text-sm vocs:font-mono vocs:font-medium vocs:text-heading vocs:bg-surfaceTint vocs:border vocs:border-primary vocs:px-2.5 vocs:py-1 vocs:rounded-md vocs:w-fit vocs:max-w-full vocs:hover:bg-surfaceTint/80 vocs:transition-colors"
-          >
-            <span className="vocs:break-all vocs:min-w-0">{release.version}</span>
-            <LucideExternalLink className="vocs:size-3 vocs:opacity-60 vocs:shrink-0" />
+          <a href={release.url} target="_blank" rel="noopener noreferrer" {...styles.release5()}>
+            <span {...styles.release6()}>{release.version}</span>
+            <LucideExternalLink className={styles.release7().className} />
           </a>
 
           {/* Date */}
-          <time dateTime={release.date} className="vocs:text-sm vocs:text-secondary">
+          <time dateTime={release.date} {...styles.release8()}>
             {formattedDate}
           </time>
 
           {/* Prerelease badge */}
           {release.prerelease && (
-            <Badge variant="warning" className="vocs:w-fit">
+            <Badge variant="warning" className={styles.release9().className}>
               Pre-release
             </Badge>
           )}
@@ -306,24 +667,17 @@ function Release(props: Release.Props): React.JSX.Element {
       </div>
 
       {/* Timeline line */}
-      {!isLast && (
-        <div className="vocs:hidden vocs:md:block vocs:absolute vocs:left-36 vocs:top-8 vocs:bottom-0 vocs:ml-4 vocs:w-px vocs:border-l vocs:border-primary" />
-      )}
+      {!isLast && <div {...styles.release10()} />}
 
       {/* Right column - content */}
-      <div className="vocs:flex-1 vocs:min-w-0 vocs:py-6 vocs:border-b vocs:border-primary vocs:last:border-b-0">
+      <div {...styles.release11()}>
         {/* Mobile version/date header */}
-        <div className="vocs:md:hidden vocs:flex vocs:items-center vocs:gap-3 vocs:mb-4">
-          <a
-            href={release.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="vocs:inline-flex vocs:flex-wrap vocs:items-center vocs:gap-1.5 vocs:text-sm vocs:font-mono vocs:font-medium vocs:text-heading vocs:bg-surfaceTint vocs:border vocs:border-primary vocs:px-2.5 vocs:py-1 vocs:rounded-md vocs:max-w-full vocs:hover:bg-surfaceTint/80 vocs:transition-colors"
-          >
-            <span className="vocs:break-all vocs:min-w-0">{release.version}</span>
-            <LucideExternalLink className="vocs:size-3 vocs:opacity-60 vocs:shrink-0" />
+        <div {...styles.release12()}>
+          <a href={release.url} target="_blank" rel="noopener noreferrer" {...styles.release13()}>
+            <span {...styles.release14()}>{release.version}</span>
+            <LucideExternalLink className={styles.release15().className} />
           </a>
-          <time dateTime={release.date} className="vocs:text-sm vocs:text-secondary">
+          <time dateTime={release.date} {...styles.release16()}>
             {formattedDate}
           </time>
           {release.prerelease && <Badge variant="warning">Pre-release</Badge>}
@@ -331,32 +685,26 @@ function Release(props: Release.Props): React.JSX.Element {
 
         {/* Release title */}
         {release.title && release.title !== release.version && (
-          <h2 className="vocs:text-2xl vocs:font-semibold vocs:text-heading vocs:mb-4">
-            {release.title}
-          </h2>
+          <h2 {...styles.release17()}>{release.title}</h2>
         )}
 
         {/* Release body */}
-        <div className="vocs:relative">
+        <div {...styles.release18()}>
           <div
             ref={contentRef}
             className={cx(
-              'vocs:prose vocs:prose-sm vocs:max-w-none vocs:overflow-hidden vocs:transition-[max-height] vocs:duration-300',
-              !expanded && needsExpansion && 'vocs:max-h-[600px]',
+              styles.release19().className,
+              !expanded && needsExpansion && styles.release20().className,
             )}
           >
             <Markdown html={release.bodyHtml ?? ''} />
           </div>
 
           {needsExpansion && !expanded && (
-            <div className="vocs:absolute vocs:bottom-0 vocs:left-0 vocs:right-0 vocs:pt-16 vocs:pb-2 vocs:flex vocs:justify-center vocs:bg-gradient-to-t vocs:from-surface vocs:to-transparent">
-              <button
-                type="button"
-                onClick={() => setExpanded(true)}
-                className="vocs:inline-flex vocs:items-center vocs:gap-1.5 vocs:px-3 vocs:py-1.5 vocs:text-sm vocs:font-medium vocs:text-heading vocs:bg-surfaceTint vocs:hover:bg-surfaceTint/80 vocs:border vocs:border-primary vocs:rounded-md vocs:transition-colors vocs:cursor-pointer"
-              >
+            <div {...styles.release21()}>
+              <button type="button" onClick={() => setExpanded(true)} {...styles.release22()}>
                 Show more
-                <LucideChevronDown className="vocs:size-4" />
+                <LucideChevronDown className={styles.release23().className} />
               </button>
             </div>
           )}
@@ -379,7 +727,7 @@ function Markdown(props: Markdown.Props): React.JSX.Element {
 
   return (
     <div
-      className="vocs:space-y-6 vocs:[&>*:first-child]:mt-0 vocs:[&>*:last-child]:mb-0"
+      {...styles.markdown()}
       data-v-content
       // biome-ignore lint/security/noDangerouslySetInnerHtml: _
       dangerouslySetInnerHTML={{ __html: html }}
