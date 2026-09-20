@@ -26,6 +26,7 @@ export {
   unstable_virtualConfigPlugin as virtualConfig,
 } from 'waku/vite-plugins'
 export { fsRouterTypegenPlugin as fsRouterTypegen } from './patches/vite-plugins/fs-router-typegen.js'
+export { patchReactDomPlugin as patchReactDom } from './patches/vite-plugins/patch-react-dom.js'
 
 export function buildId(): Plugin {
   const key = 'import.meta.env.WAKU_BUILD_ID'
@@ -226,15 +227,16 @@ export default adapter(
         return `
 import { StrictMode, createElement } from 'react';
 import { createRoot, hydrateRoot } from 'react-dom/client';
+import { unstable_defaultRootOptions as defaultRootOptions } from 'waku/client';
 import { Router } from 'waku/router/client';
 import 'virtual:vocs/mdx-hmr';
 
 const rootElement = createElement(StrictMode, null, createElement(Router));
 
 if (globalThis.__WAKU_HYDRATE__) {
-  hydrateRoot(document, rootElement);
+  hydrateRoot(document, rootElement, defaultRootOptions);
 } else {
-  createRoot(document).render(rootElement);
+  createRoot(document, defaultRootOptions).render(rootElement);
 }
 
 if (import.meta.hot)

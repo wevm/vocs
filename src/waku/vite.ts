@@ -50,6 +50,7 @@ export async function vocs(options: vocs.Options = {}): Promise<PluginOption[]> 
     Plugins.virtualConfig(wakuConfig),
     Plugins.adapterAlias(wakuConfig),
     Plugins.notFound(),
+    Plugins.patchReactDom(),
     Plugins.patchRsdw(),
     Plugins.buildMetadata(wakuConfig),
     Plugins.staticBuild(wakuConfig),

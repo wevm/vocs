@@ -9,15 +9,15 @@
     "preview": "vocs preview"
   },
   "dependencies": {
-    "react": "^19",
-    "react-dom": "^19",
+    "react": "~19.3.0",
+    "react-dom": "~19.3.0",
     "vocs": "latest",
-    "waku": "^1.0.0-beta.3"
+    "waku": "^1.0.0-rc.1"
   },
   "devDependencies": {
     "@types/node": "^22",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6",
     "typescript": "^5",
     "vite": "^8"

@@ -2,7 +2,7 @@
 
 import { useContext, useEffect, useState } from 'react'
 import { Link as WakuLink } from 'waku'
-import { unstable_RouterContext as WakuRouterContext } from 'waku/router/client'
+import { RouterHostContext_UNSTABLE as WakuRouterContext } from 'waku/router/client-core'
 import * as Path from '../internal/path.js'
 
 const viewportPrefetchDelayMs = 2_000
