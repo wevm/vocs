@@ -173,6 +173,7 @@ export function langWatcher(config: Config.Config): PluginOption {
 export function llms(config: Config.Config): PluginOption {
   const { description, title } = config
   let viteConfig: ResolvedConfig
+  let buildContentPromise: ReturnType<typeof buildLlmsContent> | undefined
 
   const { rehypePlugins, remarkPlugins } = Mdx.getCompileOptions('txt', config)
 
@@ -204,6 +205,11 @@ export function llms(config: Config.Config): PluginOption {
     configResolved(config) {
       viteConfig = config
     },
+    buildStart() {
+      const environment = this.environment?.name
+      if (environment && environment !== 'client') return
+      buildContentPromise = undefined
+    },
     configureServer(server) {
       let content: Awaited<ReturnType<typeof buildLlmsContent>> | undefined
       server.middlewares.use(async (req, res, next) => {
@@ -230,9 +236,14 @@ export function llms(config: Config.Config): PluginOption {
         next()
       })
     },
-    async buildEnd() {
-      const content = await buildLlmsContent()
-      const outDir = path.resolve(viteConfig.root, config.outDir, 'public')
+    async writeBundle(options) {
+      // LLM and Markdown artifacts belong to the public client output.
+      const environment = this.environment?.name
+      if (environment && environment !== 'client') return
+
+      buildContentPromise ??= buildLlmsContent()
+      const content = await buildContentPromise
+      const outDir = options.dir ?? path.resolve(viteConfig.root, config.outDir, 'public')
       await fs.mkdir(outDir, { recursive: true })
       await Promise.all([
         fs.writeFile(path.join(outDir, 'llms-full.txt'), content.full, { encoding: 'utf-8' }),
