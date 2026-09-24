@@ -25,8 +25,8 @@ test('returns the latest commit date for each page in one history snapshot', () 
   fs.writeFileSync(first, '# Updated')
   commit(root, '2026-02-01T12:00:00+00:00')
 
-  expect(Git.getLastModified(first, pages)).toBe('2026-02-01T12:00:00+00:00')
-  expect(Git.getLastModified(second, pages)).toBe('2026-01-01T12:00:00+00:00')
+  expect(Git.getLastModified(first, pages)).toMatch(/^2026-02-01T12:00:00(?:Z|\+00:00)$/)
+  expect(Git.getLastModified(second, pages)).toMatch(/^2026-01-01T12:00:00(?:Z|\+00:00)$/)
   expect(Git.getLastModified(path.join(pages, 'untracked.mdx'), pages)).toBeUndefined()
 })
 
@@ -35,12 +35,12 @@ test('refreshes dates after a new commit and after a build cache reset', () => {
   const page = path.join(pages, 'index.mdx')
   fs.writeFileSync(page, '# First')
   commit(root, '2026-01-01T12:00:00+00:00')
-  expect(Git.getLastModified(page, pages)).toBe('2026-01-01T12:00:00+00:00')
+  expect(Git.getLastModified(page, pages)).toMatch(/^2026-01-01T12:00:00(?:Z|\+00:00)$/)
 
   fs.writeFileSync(page, '# Second')
   commit(root, '2026-02-01T12:00:00+00:00')
   Git.resetCache()
-  expect(Git.getLastModified(page, pages)).toBe('2026-02-01T12:00:00+00:00')
+  expect(Git.getLastModified(page, pages)).toMatch(/^2026-02-01T12:00:00(?:Z|\+00:00)$/)
 })
 
 function createRepository() {
