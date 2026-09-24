@@ -479,7 +479,7 @@ export function recmaMdxLayout(config: Config.Config) {
       return `import _Layout from '${layoutPath}';`
     }
 
-    const lastModified = Git.getLastModified(sourcePath)
+    const lastModified = Git.getLastModified(sourcePath, pagesDirPath)
 
     const importAst = EstreeUtil.fromJs(
       `import { MdxPageContext as _MdxPageContext } from 'vocs';
