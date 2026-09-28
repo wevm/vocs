@@ -1,5 +1,13 @@
 # vocs
 
+## 2.10.1
+
+### Patch Changes
+
+- 6fddcde: Read page modification dates from one Git history snapshot per build instead of running a Git log for each page.
+- 4f08d1e: Generate Markdown exports after the client bundle so server passes do not repeat the work and output cleanup preserves the files.
+- ce99cd7: Added a viewport-prefetch opt-out and disabled viewport prefetching for persistent logo links while preserving intent-based prefetching.
+
 ## 2.10.0
 
 ### Minor Changes
