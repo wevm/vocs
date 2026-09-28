@@ -1,12 +1,14 @@
 import * as fs from 'node:fs/promises'
 import * as os from 'node:os'
 import * as path from 'node:path'
-import { isFileServingAllowed, type ResolvedConfig, resolveConfig } from 'vite'
-import { afterEach, describe, expect, test } from 'vitest'
-import type * as Config from './config.js'
+import { build, isFileServingAllowed, type ResolvedConfig, resolveConfig } from 'vite'
+import { afterEach, describe, expect, test, vi } from 'vitest'
+import * as Config from './config.js'
+import * as Llms from './llms.js'
 import type * as OpenApi from './openapi/index.js'
 import {
   cacheProtection,
+  llms,
   openapiClientDocument,
   openapiClientManifest,
   openapiSchemaModelsDocument,
@@ -39,7 +41,53 @@ describe('cache protection', () => {
 
 const tempDirs = new Set<string>()
 
+test('builds Markdown exports once after the client output', async () => {
+  const rootDir = await fs.realpath(await fs.mkdtemp(path.join(os.tmpdir(), 'vocs-llms-build-')))
+  tempDirs.add(rootDir)
+  await fs.mkdir(path.join(rootDir, 'src/pages'), { recursive: true })
+  await fs.writeFile(path.join(rootDir, 'src/pages/index.mdx'), '# Hello')
+  await fs.writeFile(path.join(rootDir, 'index.html'), '<html><body>Hello</body></html>')
+  await fs.writeFile(path.join(rootDir, 'server.js'), 'export const hello = "world"')
+  await fs.mkdir(path.join(rootDir, 'dist/public'), { recursive: true })
+  await fs.writeFile(path.join(rootDir, 'dist/public/stale.txt'), 'old output')
+
+  const config = Config.define({
+    rootDir,
+    srcDir: 'src',
+    outDir: 'dist',
+    title: 'Docs',
+    codeHighlight: { langs: [] },
+  })
+  const scan = vi.spyOn(Llms, 'getPagesFromDir')
+  const options = { root: rootDir, configFile: false as const, logLevel: 'silent' as const }
+
+  await build({
+    ...options,
+    plugins: [llms(config)],
+    build: { ssr: 'server.js', outDir: 'dist/server' },
+  })
+  expect(scan).not.toHaveBeenCalled()
+
+  await build({
+    ...options,
+    plugins: [llms(config)],
+    build: { outDir: 'dist/public', emptyOutDir: true },
+  })
+  expect(scan).toHaveBeenCalledTimes(1)
+  await expect(fs.access(path.join(rootDir, 'dist/public/stale.txt'))).rejects.toThrow()
+  await expect(fs.readFile(path.join(rootDir, 'dist/public/llms.txt'), 'utf-8')).resolves.toContain(
+    '# Docs',
+  )
+  await expect(
+    fs.readFile(path.join(rootDir, 'dist/public/llms-full.txt'), 'utf-8'),
+  ).resolves.toContain('# Hello')
+  await expect(
+    fs.readFile(path.join(rootDir, 'dist/public/assets/md/index.md'), 'utf-8'),
+  ).resolves.toContain('# Hello')
+})
+
 afterEach(async () => {
+  vi.restoreAllMocks()
   await Promise.all([...tempDirs].map((dir) => fs.rm(dir, { force: true, recursive: true })))
   tempDirs.clear()
 })
