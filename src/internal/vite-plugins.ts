@@ -8,6 +8,7 @@ import type { PluginOption, ResolvedConfig, Rolldown, ViteDevServer } from 'vite
 import { createLogger } from 'vite'
 import * as Config from './config.js'
 import * as ConfigSerializer from './config-serializer.js'
+import { assertSafeContentSymlinks } from './file-boundary.js'
 import * as Git from './git.js'
 import * as Icons from './icons.js'
 import * as Langs from './langs.js'
@@ -28,6 +29,15 @@ export { default as arraybuffer } from 'vite-plugin-arraybuffer'
 export const tailwind = tailwindcss as unknown as (opts?: TailwindOptions) => PluginOption
 
 const logger = createLogger(undefined, { allowClearScreen: false, prefix: '[vocs]' })
+
+export function fileBoundaries(config: Config.Config): PluginOption {
+  return {
+    name: 'vocs:file-boundaries',
+    async config() {
+      await assertSafeContentSymlinks(config)
+    },
+  }
+}
 
 export function cacheProtection(cacheDir: string): PluginOption {
   return {
