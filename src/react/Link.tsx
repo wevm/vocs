@@ -61,8 +61,9 @@ export function Link(props: Link.Props) {
   const router = useContext(WakuRouterContext)
   const routerPath = router?.route.path
   const isExternal = Path.isExternal(props.to)
+  const prefetchOnView = unstable_prefetchOnView || undefined
   const prefetchOnViewReady = useViewportPrefetchReady(
-    Boolean(unstable_prefetchOnView) && !isExternal && routerPath !== undefined,
+    Boolean(prefetchOnView) && !isExternal && routerPath !== undefined,
   )
 
   if (isExternal) return <a {...rest} href={props.to} rel="noopener noreferrer" target="_blank" />
@@ -75,13 +76,21 @@ export function Link(props: Link.Props) {
       {...rest}
       to={resolvedTo}
       unstable_prefetchOnEnter={unstable_prefetchOnEnter}
-      {...(prefetchOnViewReady ? { unstable_prefetchOnView } : {})}
+      {...(prefetchOnViewReady && prefetchOnView
+        ? { unstable_prefetchOnView: prefetchOnView }
+        : {})}
     />
   )
 }
 
 export namespace Link {
-  export type Props = Omit<React.ComponentProps<typeof WakuLink>, 'to'> & {
+  export type Props = Omit<
+    React.ComponentProps<typeof WakuLink>,
+    'to' | 'unstable_prefetchOnView'
+  > & {
     to: string
+    unstable_prefetchOnView?:
+      | React.ComponentProps<typeof WakuLink>['unstable_prefetchOnView']
+      | false
   }
 }
