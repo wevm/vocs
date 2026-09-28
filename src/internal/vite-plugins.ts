@@ -277,7 +277,8 @@ export function llms(config: Config.Config): PluginOption {
         next()
       })
     },
-    async buildEnd() {
+    async writeBundle() {
+      if (this.environment.name !== 'client') return
       const content = await buildLlmsContent()
       const outDir = path.resolve(viteConfig.root, config.outDir, 'public')
       await fs.mkdir(outDir, { recursive: true })
