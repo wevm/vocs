@@ -143,16 +143,26 @@ export function createPhysicalSourceGetter(
 ): createPhysicalSourceGetter.ReturnType {
   const { srcDir, rootDir } = options
   const cache = new Map<string, string>()
+  const sourceDir = path.resolve(rootDir, srcDir)
 
   return (fileName: string) => {
-    if (!fileName.startsWith('~')) return undefined
+    if (!fileName.startsWith('~/')) return undefined
 
     const cached = cache.get(fileName)
     if (cached !== undefined) return cached
 
-    const filePath = path.resolve(rootDir, srcDir, fileName.replace('~', '.'))
+    const filePath = path.resolve(sourceDir, fileName.slice(2))
     try {
-      const content = fs.readFileSync(filePath, 'utf-8').replace(/\n$/, '')
+      const realSourceDir = fs.realpathSync(sourceDir)
+      const realPath = fs.realpathSync(filePath)
+      const relativePath = path.relative(realSourceDir, realPath)
+      if (
+        relativePath.startsWith('..' + path.sep) ||
+        relativePath === '..' ||
+        path.isAbsolute(relativePath)
+      )
+        return undefined
+      const content = fs.readFileSync(realPath, 'utf-8').replace(/\n$/, '')
       cache.set(fileName, content)
       return content
     } catch {
