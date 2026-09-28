@@ -1025,13 +1025,11 @@ export function virtualConfig(config: Config.Config): PluginOption {
           const mod = server.moduleGraph.getModuleById(resolvedVirtualModuleId)
           if (mod) server.moduleGraph.invalidateModule(mod)
           Config.setGlobal(newConfig)
-          // Send the serialized (public) config only — `serializeFunctions`
-          // strips `_`-prefixed fields (e.g. `_feedback`, `_localRetriever`) so secrets in
-          // server-only adapters never reach the browser over the HMR channel.
+          // Send only client-facing config over the HMR channel.
           server.ws.send({
             type: 'custom',
             event: 'vocs:config',
-            data: ConfigSerializer.serializeFunctions(newConfig),
+            data: ConfigSerializer.serializeFunctions(ConfigSerializer.forClient(newConfig)),
           })
           // Force full reload to ensure CSS is properly reprocessed
           server.ws.send({ type: 'full-reload' })
@@ -1047,7 +1045,7 @@ export function virtualConfig(config: Config.Config): PluginOption {
         const currentConfig = OpenApiRegistry.mergeSidebar(Config.getGlobal() ?? config)
         const serializedConfig =
           mode === 'development' ? { ...currentConfig, baseUrl: undefined } : currentConfig
-        return `export const config = ${ConfigSerializer.serialize(serializedConfig)}`
+        return `export const config = ${ConfigSerializer.serialize(ConfigSerializer.forClient(serializedConfig))}`
       }
       return
     },

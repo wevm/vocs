@@ -1,8 +1,43 @@
 import { describe, expect, test } from 'vitest'
 import { define } from './config.js'
-import { deserialize, serialize } from './config-serializer.js'
+import { deserialize, forClient, serialize } from './config-serializer.js'
 
 describe('config serializer', () => {
+  test('includes browser settings without exposing server paths or MCP sources', () => {
+    const config = define({
+      rootDir: '/tmp/private-root-sentinel',
+      title: 'Public title',
+      mcp: {
+        enabled: true,
+        sources: [
+          {
+            type: 'custom',
+            async listFiles() {
+              return []
+            },
+            async readFile() {
+              return 'private-token-sentinel'
+            },
+            async getTree() {
+              return { files: [], truncated: false }
+            },
+          },
+        ],
+      },
+    })
+
+    const client = forClient(config)
+    const serialized = serialize(client)
+
+    expect(client.title).toBe('Public title')
+    expect(client.mcp).toEqual({ enabled: true })
+    expect(serialized).not.toContain('private-root-sentinel')
+    expect(serialized).not.toContain('private-token-sentinel')
+    expect(serialized).not.toContain('cacheDir')
+    expect(serialized).not.toContain('rootDir')
+    expect(serialized).not.toContain('sources')
+  })
+
   test('round trips route-aware head and title callbacks', () => {
     const config = define({
       head: (path) => {

@@ -95,9 +95,9 @@ export async function prepare(
     title: vocsConfig.title ?? ir.info.title,
     sidebar,
     pages,
-    // Serialize functions (e.g. search/feedback adapters) so they survive the
+    // Serialize client-facing functions (e.g. search callbacks) so they survive the
     // JSON embed; the browser deserializes via `virtual:vocs/config`.
-    config: ConfigSerializer.serializeFunctions(vocsConfig),
+    config: ConfigSerializer.serializeFunctions(ConfigSerializer.forClient(vocsConfig)),
   }
 }
 

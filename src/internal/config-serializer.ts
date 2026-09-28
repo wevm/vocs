@@ -1,6 +1,38 @@
 import type { Config } from './config.js'
 
-export function serialize(config: Config): string {
+export function forClient(config: Config): Partial<Config> {
+  return {
+    accentColor: config.accentColor,
+    ai: config.ai,
+    banner: config.banner,
+    basePath: config.basePath,
+    baseUrl: config.baseUrl,
+    codeHighlight: {
+      langAlias: config.codeHighlight.langAlias,
+      langs: config.codeHighlight.langs,
+      themes: config.codeHighlight.themes,
+    },
+    colorScheme: config.colorScheme,
+    description: config.description,
+    editLink: config.editLink,
+    feedback: config.feedback,
+    head: config.head,
+    iconUrl: config.iconUrl,
+    jsonLd: config.jsonLd,
+    logoUrl: config.logoUrl,
+    mcp: config.mcp ? { enabled: config.mcp.enabled } : undefined,
+    ogImageUrl: config.ogImageUrl,
+    renderStrategy: config.renderStrategy,
+    search: config.search,
+    sidebar: config.sidebar,
+    socials: config.socials,
+    title: config.title,
+    titleTemplate: config.titleTemplate,
+    topNav: config.topNav,
+  }
+}
+
+export function serialize(config: Partial<Config>): string {
   return JSON.stringify(serializeFunctions(config))
 }
 
