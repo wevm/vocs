@@ -17,6 +17,7 @@ export async function vocs(): Promise<PluginOption[]> {
   const config = await Config.resolve()
 
   return [
+    Plugins.fileBoundaries(config),
     Plugins.aiSearch(config),
     Plugins.arraybuffer(),
     Plugins.cacheProtection(config.cacheDir),

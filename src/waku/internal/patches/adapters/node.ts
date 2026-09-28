@@ -1,6 +1,5 @@
 import path from 'node:path'
 import { serve } from '@hono/node-server'
-import { serveStatic } from '@hono/node-server/serve-static'
 import type { MiddlewareHandler } from 'hono'
 import { bodyLimit } from 'hono/body-limit'
 import { Hono } from 'hono/tiny'
@@ -9,6 +8,7 @@ import {
   unstable_constants as constants,
   unstable_honoMiddleware as honoMiddleware,
 } from 'waku/internals'
+import { serveStaticWithinRoot } from './serve-static.js'
 
 const { DIST_PUBLIC } = constants
 const { rscMiddleware, middlewareRunner } = honoMiddleware
@@ -57,7 +57,7 @@ const adapter: typeof import('waku/adapters/node').default = createServerEntryAd
     if (isBuild)
       app.use(
         `${config.basePath}*`,
-        serveStatic({
+        serveStaticWithinRoot({
           root: path.join(config.distDir, DIST_PUBLIC),
           rewriteRequestPath: (path) => path.slice(config.basePath.length - 1),
         }),
