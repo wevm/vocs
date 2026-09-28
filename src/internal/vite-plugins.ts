@@ -29,6 +29,28 @@ export const tailwind = tailwindcss as unknown as (opts?: TailwindOptions) => Pl
 
 const logger = createLogger(undefined, { allowClearScreen: false, prefix: '[vocs]' })
 
+export function cacheProtection(cacheDir: string): PluginOption {
+  return {
+    name: 'vocs:cache-protection',
+    config(config) {
+      return {
+        server: {
+          fs: {
+            deny: [
+              '.env',
+              '.env.*',
+              '*.{crt,pem}',
+              '**/.git/**',
+              ...(config.server?.fs?.deny ?? []),
+              `${cacheDir.replaceAll('\\', '/')}/**`,
+            ],
+          },
+        },
+      }
+    },
+  }
+}
+
 /**
  * Configures dependencies.
  *
