@@ -1,11 +1,12 @@
 import * as fs from 'node:fs/promises'
 import * as os from 'node:os'
 import * as path from 'node:path'
-import type { ResolvedConfig } from 'vite'
+import { isFileServingAllowed, type ResolvedConfig, resolveConfig } from 'vite'
 import { afterEach, describe, expect, test } from 'vitest'
 import type * as Config from './config.js'
 import type * as OpenApi from './openapi/index.js'
 import {
+  cacheProtection,
   openapiClientDocument,
   openapiClientManifest,
   openapiSchemaModelsDocument,
@@ -14,6 +15,27 @@ import {
   resolveSitemapLastmod,
   sitemap,
 } from './vite-plugins.js'
+
+describe('cache protection', () => {
+  test('denies cache files while preserving normal files and Vite defaults', async () => {
+    const rootDir = await fs.mkdtemp(path.join(os.tmpdir(), 'vocs-cache-protection-'))
+    tempDirs.add(rootDir)
+    const cacheDir = path.join(rootDir, 'node_modules/.cache/vocs')
+    await fs.mkdir(cacheDir, { recursive: true })
+    await fs.writeFile(path.join(cacheDir, 'private.json'), 'private')
+    await fs.writeFile(path.join(rootDir, 'public.json'), 'public')
+    await fs.writeFile(path.join(rootDir, '.env'), 'SECRET=private')
+
+    const resolved = await resolveConfig(
+      { root: rootDir, configFile: false, plugins: [cacheProtection(cacheDir)] },
+      'serve',
+    )
+
+    expect(isFileServingAllowed(resolved, path.join(cacheDir, 'private.json'))).toBe(false)
+    expect(isFileServingAllowed(resolved, path.join(rootDir, '.env'))).toBe(false)
+    expect(isFileServingAllowed(resolved, path.join(rootDir, 'public.json'))).toBe(true)
+  })
+})
 
 const tempDirs = new Set<string>()
 

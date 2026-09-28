@@ -19,6 +19,7 @@ export async function vocs(): Promise<PluginOption[]> {
   return [
     Plugins.aiSearch(config),
     Plugins.arraybuffer(),
+    Plugins.cacheProtection(config.cacheDir),
     Plugins.deps(),
     Plugins.gitDates(),
     Plugins.groupIcons(config),
