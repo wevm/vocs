@@ -170,6 +170,21 @@ export function langWatcher(config: Config.Config): PluginOption {
   }
 }
 
+export function gitDates(): PluginOption {
+  return {
+    name: 'vocs:git-dates',
+    configResolved() {
+      Git.resetCache()
+    },
+    buildApp: {
+      order: 'pre',
+      async handler() {
+        Git.resetCache()
+      },
+    },
+  }
+}
+
 export function llms(config: Config.Config): PluginOption {
   const { description, title } = config
   let viteConfig: ResolvedConfig
@@ -419,7 +434,7 @@ export function sitemap(config: Config.Config): PluginOption {
         if (!resolveSitemapInclude(config, pagePath, filePath)) return
 
         const loc = `${siteUrl.replace(/\/$/, '')}${pagePath}`
-        const gitDate = Git.getLastModified(page)
+        const gitDate = Git.getLastModified(page, pagesDir)
         const lastmod = gitDate
           ? (gitDate.split('T')[0] as string)
           : ((await fs.stat(page)).mtime.toISOString().split('T')[0] as string)
