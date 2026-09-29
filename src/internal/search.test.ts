@@ -567,7 +567,7 @@ Regular text after.
           "anchor": "lists",
           "isPage": true,
           "subtitle": "",
-          "text": " First itemSecond itemNested unorderedAnother nestedThird item Unordered firstUnordered secondNested item",
+          "text": " First item Second item Nested unordered Another nested Third item Unordered first Unordered second Nested item",
           "title": "Lists",
           "titles": [],
         },
@@ -620,7 +620,7 @@ const x = 1
           "title": "Code and Syntax",
         },
         {
-          "textPreview": " MethodDescriptiongetGets datasetSets data",
+          "textPreview": " Method Description get Gets data set Sets data",
           "title": "Tables",
         },
       ]
@@ -714,8 +714,34 @@ Then do this.
           "anchor": "tables",
           "isPage": true,
           "subtitle": "",
-          "text": " MethodDescriptionReturnsgetBalanceReturns balancebigintgetBlockReturns block infoBlock",
+          "text": " Method Description Returns getBalance Returns balance bigint getBlock Returns block info Block",
           "title": "Tables",
+          "titles": [],
+        },
+      ]
+    `)
+  })
+
+  it('keeps table cells and list items as separate terms', () => {
+    const content = `
+# Deployments
+
+| Contract | Address |
+| -------- | ------- |
+| AccessManager | \`0x0fCEfa3f1047F35521A49cD8B06faBd588665d7F\` |
+| OracleRegistry | \`0xc388b72ab90be82b230d919f9c05c87f9397f485\` |
+
+- first item
+- second item
+`
+    expect(Search.extract(content, config).sections).toMatchInlineSnapshot(`
+      [
+        {
+          "anchor": "deployments",
+          "isPage": true,
+          "subtitle": "",
+          "text": " Contract Address AccessManager 0x0fCEfa3f1047F35521A49cD8B06faBd588665d7F OracleRegistry 0xc388b72ab90be82b230d919f9c05c87f9397f485 first item second item",
+          "title": "Deployments",
           "titles": [],
         },
       ]
@@ -736,7 +762,7 @@ Then do this.
           "anchor": "tasks",
           "isPage": true,
           "subtitle": "",
-          "text": " Todo itemDone itemAnother todo",
+          "text": " Todo item Done item Another todo",
           "title": "Tasks",
           "titles": [],
         },
