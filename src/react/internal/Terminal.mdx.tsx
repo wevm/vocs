@@ -1,12 +1,50 @@
 'use client'
 
 import * as React from 'react'
+import { cx } from 'zyzz'
+import { style } from '../../styles/zyzz.config.js'
 
 /**
  * Terminal component that stitches command and output code blocks together.
  * The first code block is the command (with copy button).
  * Subsequent code blocks are output (no copy, visually connected).
  */
+
+namespace styles {
+  export const root = style({
+    display: 'flex',
+    flexDirection: 'column',
+  })
+
+  export const item = style({
+    selectors: {
+      '& [data-v-code-container]': {
+        marginBlock: '0',
+      },
+    },
+  })
+
+  export const joinedTop = style({
+    selectors: {
+      '& [data-v-code-container], & [data-v-code-container] pre': {
+        borderTopLeftRadius: '0 !custom',
+        borderTopRightRadius: '0 !custom',
+      },
+    },
+  })
+
+  export const joinedBottom = style({
+    selectors: {
+      '& [data-v-code-container], & [data-v-code-container] pre': {
+        borderBottomRightRadius: '0 !custom',
+        borderBottomLeftRadius: '0 !custom',
+        borderBottomStyle: 'solid',
+        borderBottomWidth: '0px',
+      },
+    },
+  })
+}
+
 export function Terminal(props: Terminal.Props) {
   const { children } = props
 
@@ -27,7 +65,7 @@ export function Terminal(props: Terminal.Props) {
   if (!items.length) return null
 
   return (
-    <div data-v-terminal-container className="vocs:flex vocs:flex-col">
+    <div data-v-terminal-container {...styles.root()}>
       {items.map((item, i) => {
         const key = `${item.type}-${i}`
         const isFirst = i === 0
@@ -37,26 +75,7 @@ export function Terminal(props: Terminal.Props) {
             key={key}
             data-v-terminal-item
             data-v-terminal-type={item.type}
-            className={[
-              // Remove vertical margin on container
-              'vocs:[&_[data-v-code-container]]:my-0',
-              // Top corners for non-first items (keep border for separator)
-              !isFirst &&
-                [
-                  'vocs:[&_[data-v-code-container]]:rounded-t-none',
-                  'vocs:[&_[data-v-code-container]_pre]:rounded-t-none',
-                ].join(' '),
-              // Bottom corners/border for non-last items (remove border to avoid double)
-              !isLast &&
-                [
-                  'vocs:[&_[data-v-code-container]]:rounded-b-none',
-                  'vocs:[&_[data-v-code-container]]:border-b-0',
-                  'vocs:[&_[data-v-code-container]_pre]:rounded-b-none',
-                  'vocs:[&_[data-v-code-container]_pre]:border-b-0',
-                ].join(' '),
-            ]
-              .filter(Boolean)
-              .join(' ')}
+            {...cx(styles.item(), !isFirst && styles.joinedTop(), !isLast && styles.joinedBottom())}
           >
             {item.content}
           </div>

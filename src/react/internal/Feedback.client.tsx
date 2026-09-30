@@ -1,11 +1,142 @@
 'use client'
 
-import { cx } from 'cva'
 import * as React from 'react'
 import { useRouter } from 'waku'
 import LucideThumbsDown from '~icons/lucide/thumbs-down'
 import LucideThumbsUp from '~icons/lucide/thumbs-up'
+import { style, vars } from '../../styles/zyzz.config.js'
 import { useConfig } from '../useConfig.js'
+
+namespace styles {
+  export const confirmation = style({
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '2',
+    fontSize: '13px !custom',
+    color: 'secondary',
+  })
+
+  export const prompt = style({
+    fontWeight: 'medium',
+    color: 'heading',
+  })
+
+  export const form = style({
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '3',
+    fontSize: '13px !custom',
+  })
+
+  export const categories = style({
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 'oneAndHalf',
+  })
+
+  export const category = style({
+    display: 'flex',
+    cursor: 'pointer',
+    alignItems: 'center',
+    gap: '2',
+    color: 'secondary',
+    selectors: {
+      '&:hover': {
+        '@media (hover: hover)': {
+          color: 'heading',
+        },
+      },
+    },
+  })
+
+  export const categoryInput = style({
+    width: '4',
+    height: '4',
+    accentColor: 'accent',
+  })
+
+  export const submit = style({
+    cursor: 'pointer',
+    alignSelf: 'flex-start',
+    borderRadius: 'lg',
+    backgroundColor: 'surfaceTint',
+    paddingInline: '4',
+    paddingBlock: '2',
+    fontWeight: 'medium',
+    color: 'heading',
+    selectors: {
+      '&:hover': {
+        '@media (hover: hover)': {
+          opacity: '80%',
+        },
+      },
+      '&:disabled': {
+        cursor: 'not-allowed',
+        opacity: '50%',
+      },
+    },
+  })
+
+  export const root = style({
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '2',
+    fontSize: '13px !custom',
+  })
+
+  export const actions = style({
+    display: 'flex',
+    gap: 'half',
+  })
+
+  export const vote = style({
+    display: 'flex',
+    width: '8',
+    height: '8',
+    cursor: 'pointer',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: 'secondary',
+    transitionProperty:
+      'color, background-color, border-color, outline-color, text-decoration-color, fill, stroke',
+    transitionTimingFunction: 'standard',
+    transitionDuration: 'standard',
+    selectors: {
+      '&:hover': {
+        '@media (hover: hover)': {
+          color: 'heading',
+        },
+      },
+    },
+  })
+
+  export const icon = style({
+    width: '5',
+    height: '5',
+  })
+
+  export const message = style({
+    minHeight: '16',
+    width: '100% !custom',
+    resize: 'none',
+    borderRadius: 'lg',
+    borderStyle: 'solid',
+    borderWidth: '1px',
+    borderColor: 'primary',
+    backgroundColor: 'primary',
+    padding: '2',
+    fontSize: '13px !custom',
+    color: 'heading',
+    selectors: {
+      '&::placeholder': {
+        color: 'secondary',
+        '@supports (color: color-mix(in lab, red, red))': {
+          color: `color-mix(in oklab, ${vars.textColor.secondary} 60%, transparent) !custom`,
+        },
+      },
+    },
+  })
+}
 
 type FeedbackState = 'initial' | 'positive' | 'negative' | 'submitted'
 
@@ -76,38 +207,25 @@ export function Feedback(props: Feedback.Props) {
 
   if (state === 'submitted') {
     return (
-      <div
-        className={cx(
-          'vocs:flex vocs:flex-col vocs:gap-2 vocs:text-[13px] vocs:text-secondary',
-          className,
-        )}
-        data-v-feedback
-      >
-        <p className="vocs:text-heading vocs:font-medium">Thank you for your feedback!</p>
+      <div {...styles.confirmation({ className })} data-v-feedback>
+        <p {...styles.prompt()}>Thank you for your feedback!</p>
       </div>
     )
   }
 
   if (state === 'positive' || state === 'negative') {
     return (
-      <form
-        className={cx('vocs:flex vocs:flex-col vocs:gap-3 vocs:text-[13px]', className)}
-        data-v-feedback
-        onSubmit={handleSubmit}
-      >
-        <p className="vocs:text-heading vocs:font-medium">
+      <form {...styles.form({ className })} data-v-feedback onSubmit={handleSubmit}>
+        <p {...styles.prompt()}>
           {state === 'positive' ? 'What did you like?' : 'What went wrong?'}
         </p>
 
-        <div className="vocs:flex vocs:flex-col vocs:gap-1.5">
+        <div {...styles.categories()}>
           {categories.map((cat) => (
-            <label
-              key={cat}
-              className="vocs:flex vocs:items-center vocs:gap-2 vocs:cursor-pointer vocs:text-secondary vocs:hover:text-heading"
-            >
+            <label key={cat} {...styles.category()}>
               <input
                 checked={category === cat}
-                className="vocs:size-4 vocs:accent-accent"
+                {...styles.categoryInput()}
                 name="category"
                 onChange={() => setCategory(cat)}
                 type="radio"
@@ -118,17 +236,13 @@ export function Feedback(props: Feedback.Props) {
         </div>
 
         <textarea
-          className="vocs:w-full vocs:min-h-16 vocs:p-2 vocs:text-[13px] vocs:bg-primary vocs:border vocs:border-primary vocs:rounded-lg vocs:resize-none vocs:text-heading vocs:placeholder:text-secondary/60 focus:vocs:outline-none focus:vocs:border-accent"
+          {...styles.message()}
           onChange={(e) => setMessage(e.target.value)}
           placeholder="Tell us more about your experience."
           value={message}
         />
 
-        <button
-          className="vocs:self-start vocs:px-4 vocs:py-2 vocs:bg-surfaceTint vocs:text-heading vocs:font-medium vocs:rounded-lg vocs:cursor-pointer vocs:hover:opacity-80 vocs:disabled:opacity-50 vocs:disabled:cursor-not-allowed"
-          disabled={isSubmitting}
-          type="submit"
-        >
+        <button {...styles.submit()} disabled={isSubmitting} type="submit">
           {isSubmitting ? 'Submitting...' : 'Submit'}
         </button>
       </form>
@@ -136,27 +250,24 @@ export function Feedback(props: Feedback.Props) {
   }
 
   return (
-    <div
-      className={cx('vocs:flex vocs:flex-col vocs:gap-2 vocs:text-[13px]', className)}
-      data-v-feedback
-    >
-      <p className="vocs:text-heading vocs:font-medium">Was this helpful?</p>
-      <div className="vocs:flex vocs:gap-0.5">
+    <div {...styles.root({ className })} data-v-feedback>
+      <p {...styles.prompt()}>Was this helpful?</p>
+      <div {...styles.actions()}>
         <button
           aria-label="Yes, this was helpful"
-          className="vocs:flex vocs:items-center vocs:justify-center vocs:size-8 vocs:text-secondary vocs:hover:text-heading vocs:cursor-pointer vocs:transition-colors"
+          {...styles.vote()}
           onClick={() => setState('positive')}
           type="button"
         >
-          <LucideThumbsUp className="vocs:size-5" />
+          <LucideThumbsUp {...styles.icon()} />
         </button>
         <button
           aria-label="No, this was not helpful"
-          className="vocs:flex vocs:items-center vocs:justify-center vocs:size-8 vocs:text-secondary vocs:hover:text-heading vocs:cursor-pointer vocs:transition-colors"
+          {...styles.vote()}
           onClick={() => setState('negative')}
           type="button"
         >
-          <LucideThumbsDown className="vocs:size-5" />
+          <LucideThumbsDown {...styles.icon()} />
         </button>
       </div>
     </div>

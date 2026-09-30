@@ -3,6 +3,46 @@
 import { Tabs as BaseTabs } from '@base-ui/react/tabs'
 import { useQueryState } from 'nuqs'
 import * as React from 'react'
+import { style } from '../styles/zyzz.config.js'
+
+namespace styles {
+  export const tabList = style({
+    display: 'flex',
+    borderBottomStyle: 'solid',
+    borderBottomWidth: '1px',
+    borderColor: 'primary',
+  })
+
+  export const tab = style({
+    marginBottom: '-1px !custom',
+    display: 'flex',
+    height: '10',
+    cursor: 'pointer',
+    alignItems: 'center',
+    borderBottomStyle: 'solid',
+    borderBottomWidth: '1.5px',
+    borderColor: 'transparent !custom',
+    paddingInline: '2',
+    fontSize: '15px !custom',
+    fontWeight: '350 !custom',
+    color: 'secondary',
+    transitionProperty:
+      'color, background-color, border-color, outline-color, text-decoration-color, fill, stroke',
+    transitionTimingFunction: 'standard',
+    transitionDuration: '100ms !custom',
+    selectors: {
+      '&[data-active]': {
+        borderColor: 'accent7',
+        fontWeight: 'medium',
+        color: 'heading',
+      },
+    },
+  })
+
+  export const panel = style({
+    paddingTop: '4',
+  })
+}
 
 let tabsCounter = 0
 
@@ -53,13 +93,9 @@ export function Tabs(props: Tabs.Props) {
 
   return (
     <BaseTabs.Root onValueChange={(value) => setTab(value)} value={tab}>
-      <BaseTabs.List className="vocs:flex vocs:border-b vocs:border-primary">
+      <BaseTabs.List {...styles.tabList()}>
         {tabs.map((t) => (
-          <BaseTabs.Tab
-            className="vocs:flex vocs:-mb-px vocs:h-10 vocs:cursor-pointer vocs:items-center vocs:border-b-[1.5px] vocs:border-transparent vocs:px-2 vocs:text-[15px] vocs:font-[350] vocs:text-secondary vocs:data-active:border-accent7 vocs:data-active:text-heading vocs:data-active:font-medium vocs:transition-colors vocs:duration-100"
-            key={t.value}
-            value={t.value}
-          >
+          <BaseTabs.Tab {...styles.tab()} key={t.value} value={t.value}>
             {t.title}
           </BaseTabs.Tab>
         ))}
@@ -80,7 +116,7 @@ export function Tab(props: Tab.Props) {
   const { title, children } = props
   const value = toKebabCase(title)
   return (
-    <BaseTabs.Panel className="vocs:pt-4" value={value}>
+    <BaseTabs.Panel {...styles.panel()} value={value}>
       {children}
     </BaseTabs.Panel>
   )

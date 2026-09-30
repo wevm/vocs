@@ -41,6 +41,7 @@ export async function vocs(): Promise<PluginOption[]> {
     Plugins.search(config),
     Plugins.sitemap(config),
     Plugins.slots(config),
+    Plugins.styles(),
     Plugins.tailwind(),
     Plugins.userStyles(config),
     Plugins.virtualConfig(config),

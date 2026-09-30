@@ -1,7 +1,73 @@
 'use client'
 
-import { cx } from 'cva'
 import * as React from 'react'
+import { style } from '../../styles/zyzz.config.js'
+
+namespace styles {
+  export const button = style({
+    display: 'flex',
+    height: '100% !custom',
+    width: '100% !custom',
+    cursor: 'pointer',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderRadius: 'xl',
+    borderStyle: 'solid',
+    borderWidth: '1px',
+    borderColor: 'primary',
+    backgroundColor: 'surface',
+    paddingRight: '2',
+    paddingLeft: '3',
+    fontSize: 'sm',
+    lineHeight: 'sm',
+    color: 'secondary',
+    transitionProperty:
+      'color, background-color, border-color, outline-color, text-decoration-color, fill, stroke',
+    transitionTimingFunction: 'standard',
+    transitionDuration: '100ms !custom',
+    selectors: {
+      '&:hover': {
+        '@media (hover: hover)': {
+          backgroundColor: 'surfaceTint',
+          color: 'primary',
+        },
+      },
+    },
+  })
+
+  export const label = style({
+    display: 'flex',
+    alignItems: 'center',
+    gap: '2',
+  })
+
+  export const icon = style({
+    width: '4',
+    height: '4',
+  })
+
+  export const shortcut = style({
+    display: 'flex',
+    alignItems: 'center',
+    gap: 'half',
+  })
+
+  export const shortcutKey = style({
+    display: 'flex',
+    height: '5',
+    width: 'auto !custom',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 'sm',
+    borderStyle: 'solid',
+    borderWidth: '1px',
+    borderColor: 'primary',
+    backgroundColor: 'primary',
+    paddingInline: 'threeQuarters',
+    fontSize: 'xs',
+    lineHeight: 'xs',
+  })
+}
 
 export const DialogTrigger = React.forwardRef<HTMLButtonElement, DialogTrigger.Props>(
   function DialogTrigger(props, ref) {
@@ -15,26 +81,14 @@ export const DialogTrigger = React.forwardRef<HTMLButtonElement, DialogTrigger.P
     }, [])
 
     return (
-      <button
-        ref={ref}
-        className={cx(
-          'vocs:flex vocs:items-center vocs:justify-between vocs:cursor-pointer vocs:pl-3 vocs:pr-2 vocs:text-sm vocs:text-secondary vocs:hover:text-primary vocs:w-full vocs:h-full vocs:bg-surface vocs:hover:bg-surfaceTint vocs:border vocs:border-primary vocs:rounded-xl vocs:transition-colors vocs:duration-100',
-          className,
-        )}
-        type="button"
-        {...rest}
-      >
-        <div className="vocs:flex vocs:items-center vocs:gap-2">
-          {Icon && <Icon className="vocs:size-4" />}
+      <button ref={ref} {...styles.button({ className })} type="button" {...rest}>
+        <div {...styles.label()}>
+          {Icon && <Icon {...styles.icon()} />}
           {children}
         </div>
-        <div className="vocs:flex vocs:items-center vocs:gap-0.5">
-          <div className="vocs:bg-primary vocs:text-xs vocs:flex vocs:items-center vocs:justify-center vocs:h-5 vocs:w-auto vocs:px-0.75 vocs:border vocs:border-primary vocs:rounded-sm">
-            {modifierKey}
-          </div>{' '}
-          <div className="vocs:bg-primary vocs:text-xs vocs:flex vocs:items-center vocs:justify-center vocs:h-5 vocs:w-auto vocs:px-0.75 vocs:border vocs:border-primary vocs:rounded-sm">
-            {triggerKey}
-          </div>
+        <div {...styles.shortcut()}>
+          <div {...styles.shortcutKey()}>{modifierKey}</div>{' '}
+          <div {...styles.shortcutKey()}>{triggerKey}</div>
         </div>
       </button>
     )

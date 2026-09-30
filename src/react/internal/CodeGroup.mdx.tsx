@@ -3,6 +3,49 @@
 import { Tabs } from '@base-ui/react/tabs'
 import { useQueryState } from 'nuqs'
 import * as React from 'react'
+import { style, vars } from '../../styles/zyzz.config.js'
+
+namespace styles {
+  export const panels = style({
+    display: 'grid',
+  })
+
+  export const panel = style({
+    gridColumnStart: '1',
+    gridRowStart: '1',
+    minWidth: '0',
+    selectors: {
+      ':is(& > *)': {
+        borderTopLeftRadius: '0 !custom',
+        borderTopRightRadius: '0 !custom',
+        borderTopStyle: 'solid',
+        borderTopWidth: '0px',
+      },
+      '&[data-hidden]': {
+        visibility: 'hidden',
+      },
+    },
+  })
+
+  export const panelContent = style({
+    borderRadius: 'lg',
+    borderStyle: 'solid',
+    borderWidth: '1px',
+    borderColor: 'primary',
+    backgroundColor: 'code-block',
+    padding: '5',
+    '@media (width < 748px)': {
+      marginInline: `calc(${vars.spacing.unit} * -4) !custom`,
+      borderRadius: '0 !custom',
+    },
+    selectors: {
+      ':where(& > :not(:last-child))': {
+        marginBlockStart: '0 !custom',
+        marginBlockEnd: '3',
+      },
+    },
+  })
+}
 
 const packageManagers = new Set(['npm', 'pnpm', 'yarn', 'bun'])
 
@@ -106,7 +149,7 @@ function CodeGroupTabs({ items }: { items: CodeGroupItem[] }) {
 
 function CodeGroupPanels({ items }: { items: CodeGroupItem[] }) {
   return (
-    <div className="vocs:grid">
+    <div {...styles.panels()}>
       {items.map(({ value, content }, i) => {
         const isCodeBlock =
           content &&
@@ -115,7 +158,7 @@ function CodeGroupPanels({ items }: { items: CodeGroupItem[] }) {
           'data-v-code-container' in (content.props as React.ComponentProps<'div'>)
         return (
           <Tabs.Panel
-            className="vocs:col-start-1 vocs:row-start-1 vocs:min-w-0 vocs:*:rounded-t-none vocs:*:border-t-0 vocs:data-hidden:invisible"
+            {...styles.panel()}
             data-v-code-group-panel
             keepMounted
             key={value || i.toString()}
@@ -124,9 +167,7 @@ function CodeGroupPanels({ items }: { items: CodeGroupItem[] }) {
             {isCodeBlock ? (
               <CodeBlock node={content} />
             ) : (
-              <div className="vocs:bg-code-block vocs:border vocs:border-primary vocs:rounded-lg vocs:p-5 vocs:space-y-3 vocs:max-md:-mx-4 vocs:max-md:rounded-none">
-                {content}
-              </div>
+              <div {...styles.panelContent()}>{content}</div>
             )}
           </Tabs.Panel>
         )

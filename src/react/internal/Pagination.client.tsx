@@ -1,13 +1,112 @@
 'use client'
 
-import { cx } from 'cva'
 import * as React from 'react'
 import { useRouter } from 'waku'
 import LucideArrowLeft from '~icons/lucide/arrow-left'
 import LucideArrowRight from '~icons/lucide/arrow-right'
 import * as Sidebar from '../../internal/sidebar.js'
+import { style } from '../../styles/zyzz.config.js'
 import { Link } from '../Link.js'
 import { useSidebar } from '../useSidebar.js'
+
+namespace styles {
+  export const root = style({
+    display: 'flex',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: '4',
+    '@media (width < 40rem)': {
+      flexDirection: 'column',
+    },
+  })
+
+  export const previousLink = style({
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 'oneAndHalf',
+    '@media (width < 40rem)': {
+      width: '100% !custom',
+      borderRadius: 'lg',
+      borderStyle: 'solid',
+      borderWidth: '1px',
+      borderColor: 'primary',
+      padding: '3',
+    },
+  })
+
+  export const linkHeading = style({
+    display: 'flex',
+    alignItems: 'center',
+    gap: '2',
+    fontSize: 'lg',
+    lineHeight: 'lg',
+    fontWeight: 'medium',
+    color: 'heading',
+    transitionProperty:
+      'color, background-color, border-color, outline-color, text-decoration-color, fill, stroke',
+    transitionTimingFunction: 'standard',
+    transitionDuration: 'standard',
+    selectors: {
+      '&:is(:where(.vocs\\:group):hover *)': {
+        '@media (hover: hover)': {
+          color: 'accent8',
+        },
+      },
+    },
+  })
+
+  export const arrowIcon = style({
+    width: '4',
+    height: '4',
+  })
+
+  export const label = style({
+    display: 'flex',
+    alignItems: 'center',
+    gap: 'oneAndHalf',
+    fontSize: 'xs',
+    lineHeight: 'xs',
+    color: 'secondary',
+  })
+
+  export const nextLabel = style({
+    display: 'flex',
+    alignItems: 'center',
+    gap: '1',
+    '@media (width < 40rem)': {
+      display: 'none',
+    },
+  })
+
+  export const nextLink = style({
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-end',
+    gap: 'oneAndHalf',
+    '@media (width < 40rem)': {
+      width: '100% !custom',
+      borderRadius: 'lg',
+      borderStyle: 'solid',
+      borderWidth: '1px',
+      borderColor: 'primary',
+      padding: '3',
+    },
+  })
+
+  export const shortcut = style({
+    borderRadius: '0.25rem !custom',
+    borderStyle: 'solid',
+    borderWidth: '1px',
+    borderColor: 'primary',
+    backgroundColor: 'surface',
+    paddingInline: 'oneAndHalf',
+    paddingBlock: 'half',
+    fontFamily: 'mono',
+    fontSize: 'xs',
+    lineHeight: 'xs',
+    color: 'secondary',
+  })
+}
 
 export function Pagination(props: Pagination.Props) {
   const { className } = props
@@ -38,26 +137,16 @@ export function Pagination(props: Pagination.Props) {
   if (!prev && !next) return null
 
   return (
-    <nav
-      aria-label="Pagination"
-      className={cx(
-        'vocs:flex vocs:max-sm:flex-col vocs:justify-between vocs:items-start vocs:gap-4',
-        className,
-      )}
-      data-v-pagination
-    >
+    <nav aria-label="Pagination" {...styles.root({ className })} data-v-pagination>
       {prev?.link ? (
-        <Link
-          className="vocs:flex vocs:max-sm:w-full vocs:max-sm:border vocs:max-sm:border-primary vocs:max-sm:rounded-lg vocs:max-sm:p-3 vocs:flex-col vocs:gap-1.5 vocs:group"
-          to={prev.link}
-        >
-          <span className="vocs:flex vocs:items-center vocs:gap-2 vocs:text-heading vocs:text-lg vocs:font-medium vocs:group-hover:text-accent8 vocs:transition-colors">
-            <LucideArrowLeft className="vocs:size-4" />
+        <Link {...styles.previousLink({ className: 'vocs:group' })} to={prev.link}>
+          <span {...styles.linkHeading()}>
+            <LucideArrowLeft {...styles.arrowIcon()} />
             {prev.text}
           </span>
-          <span className="vocs:flex vocs:items-center vocs:gap-1.5 vocs:text-secondary vocs:text-xs">
+          <span {...styles.label()}>
             Previous
-            <span className="vocs:max-sm:hidden vocs:flex vocs:items-center vocs:gap-1">
+            <span {...styles.nextLabel()}>
               <Kbd>Shift</Kbd>
               <Kbd>←</Kbd>
             </span>
@@ -68,17 +157,14 @@ export function Pagination(props: Pagination.Props) {
       )}
 
       {next?.link ? (
-        <Link
-          className="vocs:flex vocs:max-sm:w-full vocs:max-sm:border vocs:max-sm:border-primary vocs:max-sm:rounded-lg vocs:max-sm:p-3 vocs:flex-col vocs:items-end vocs:gap-1.5 vocs:group"
-          to={next.link}
-        >
-          <span className="vocs:flex vocs:items-center vocs:gap-2 vocs:text-heading vocs:text-lg vocs:font-medium vocs:group-hover:text-accent8 vocs:transition-colors">
+        <Link {...styles.nextLink({ className: 'vocs:group' })} to={next.link}>
+          <span {...styles.linkHeading()}>
             {next.text}
-            <LucideArrowRight className="vocs:size-4" />
+            <LucideArrowRight {...styles.arrowIcon()} />
           </span>
-          <span className="vocs:flex vocs:items-center vocs:gap-1.5 vocs:text-secondary vocs:text-xs">
+          <span {...styles.label()}>
             Next
-            <span className="vocs:max-sm:hidden vocs:flex vocs:items-center vocs:gap-1">
+            <span {...styles.nextLabel()}>
               <Kbd>Shift</Kbd>
               <Kbd>→</Kbd>
             </span>
@@ -100,11 +186,7 @@ export declare namespace Pagination {
 // biome-ignore lint/correctness/noUnusedVariables: _
 function Kbd(props: Kbd.Props) {
   const { children } = props
-  return (
-    <kbd className="vocs:bg-surface vocs:border vocs:border-primary vocs:rounded vocs:px-1.5 vocs:py-0.5 vocs:text-xs vocs:font-mono vocs:text-secondary">
-      {children}
-    </kbd>
-  )
+  return <kbd {...styles.shortcut()}>{children}</kbd>
 }
 
 declare namespace Kbd {

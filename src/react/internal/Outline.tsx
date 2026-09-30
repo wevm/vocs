@@ -1,17 +1,247 @@
 'use client'
 
 import { Popover } from '@base-ui/react/popover'
-import { cx } from 'cva'
 import * as React from 'react'
 import { Link, useRouter } from 'waku'
 import LucideArrowUp from '~icons/lucide/arrow-up'
 import LucideChevronRight from '~icons/lucide/chevron-right'
 import LucideTextAlignStart from '~icons/lucide/text-align-start'
+import { style, vars } from '../../styles/zyzz.config.js'
 import * as MdxPageContext from '../MdxPageContext.js'
 import { useTopGutterOffset } from '../useTopGutterOffset.js'
 import * as CopyForAi from './CopyForAi.client.js'
 import * as Feedback from './Feedback.client.js'
 import { getHeadingText } from './getHeadingText.js'
+
+namespace styles {
+  export const mobileRoot = style({
+    position: 'sticky',
+    zIndex: 10,
+    maxHeight: '12',
+    borderTopStyle: 'solid',
+    borderTopWidth: '0px',
+    borderBottomStyle: 'solid',
+    borderBottomWidth: '1px',
+    borderColor: 'primary',
+    backgroundColor: 'surface',
+    paddingInline: 'content-px',
+    paddingBlock: '3',
+    transitionProperty: 'top',
+    transitionTimingFunction: 'standard',
+    transitionDuration: '150ms !custom',
+    '@media (width >= 1080px)': {
+      borderTopLeftRadius: '2xl',
+      borderTopStyle: 'solid',
+      borderTopWidth: '1px',
+      borderLeftStyle: 'solid',
+      borderLeftWidth: '1px',
+    },
+    '@media (width >= 1376px)': {
+      display: 'none',
+    },
+  })
+
+  export const mobileHeader = style({
+    display: 'flex',
+    width: '100% !custom',
+    alignItems: 'center',
+    gap: '1',
+    fontSize: '13px !custom',
+    fontWeight: 'medium',
+  })
+
+  export const trigger = style({
+    display: 'flex',
+    cursor: 'pointer',
+    alignItems: 'center',
+    gap: '1',
+    WebkitUserSelect: 'none',
+    userSelect: 'none',
+  })
+
+  export const triggerIcon = style({
+    width: 'threeAndHalf',
+    height: 'threeAndHalf',
+  })
+
+  export const chevronIcon = style({
+    width: 'threeAndHalf',
+    height: 'threeAndHalf',
+    translate: '0 1px !custom',
+    color: 'secondary',
+    '@supports (color: color-mix(in lab, red, red))': {
+      color: `color-mix(in oklab, ${vars.textColor.secondary} 80%, transparent) !custom`,
+    },
+    transitionProperty: 'transform, translate, scale, rotate',
+    transitionTimingFunction: 'standard',
+    transitionDuration: '200ms !custom',
+    selectors: {
+      '&[data-popup-open]': {
+        rotate: '90deg',
+      },
+    },
+  })
+
+  export const popup = style({
+    position: 'relative',
+    zIndex: 50,
+    maxHeight: '60vh !custom',
+    width: `calc(100vw - ${vars.spacing.gutter} - 2 * ${vars.spacing['content-px']}) !custom`,
+    maxWidth: '70ch !custom',
+    transformOrigin: 'var(--transform-origin)',
+    scale: '100% 100%',
+    overflowY: 'auto',
+    borderRadius: 'lg',
+    borderStyle: 'solid',
+    borderWidth: '1px',
+    borderColor: 'primary',
+    backgroundColor: 'primary',
+    padding: '3',
+    opacity: '100%',
+    boxShadow:
+      '0 0 #0000, 0 0 #0000, 0 0 #0000, 0 0 #0000, 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
+    transitionProperty: 'all',
+    transitionTimingFunction: 'standard',
+    transitionDuration: '150ms !custom',
+    '@media (width >= 1376px)': {
+      display: 'none',
+    },
+    selectors: {
+      '&[data-ending-style]': {
+        scale: '95% 95%',
+        opacity: '0%',
+      },
+      '&[data-starting-style]': {
+        scale: '95% 95%',
+        opacity: '0%',
+      },
+    },
+  })
+
+  export const scrollToTop = style({
+    marginLeft: 'auto !custom',
+    display: 'flex',
+    cursor: 'pointer',
+    alignItems: 'center',
+    gap: '1',
+    color: 'secondary',
+    '@supports (color: color-mix(in lab, red, red))': {
+      color: `color-mix(in oklab, ${vars.textColor.secondary} 80%, transparent) !custom`,
+    },
+    WebkitUserSelect: 'none',
+    userSelect: 'none',
+    selectors: {
+      '&:hover': {
+        '@media (hover: hover)': {
+          color: 'heading',
+        },
+      },
+    },
+  })
+
+  export const desktopRoot = style({
+    position: 'fixed',
+    right: '0',
+    zIndex: 10,
+    display: 'flex',
+    width: 'gutter',
+    scrollbarWidth: 'none',
+    flexDirection: 'column',
+    overflowX: 'clip',
+    overflowY: 'auto',
+    paddingBlock: 'content-py',
+    paddingRight: '8',
+    paddingLeft: '1',
+    '@media (width < 1376px)': {
+      display: 'none',
+    },
+    selectors: {
+      '&::-webkit-scrollbar': {
+        display: 'none',
+      },
+    },
+  })
+
+  export const navigation = style({
+    display: 'flex',
+    flexShrink: 0,
+    flexDirection: 'column',
+    gap: '3',
+    fontSize: '13px !custom',
+  })
+
+  export const actions = style({
+    display: 'flex',
+    flexShrink: 0,
+    alignItems: 'center',
+    gap: '1',
+    fontSize: '13px !custom',
+    fontWeight: 'medium',
+  })
+
+  export const action = style({
+    marginTop: '6',
+    maxWidth: 'outlineContent',
+  })
+
+  export const footer = style({
+    marginTop: '6',
+  })
+
+  export const items = style({
+    position: 'relative',
+    display: 'flex',
+    flexDirection: 'column',
+    borderColor: 'primary',
+    fontSize: '13px !custom',
+    '@media (width >= 1376px)': {
+      borderLeftStyle: 'solid',
+      borderLeftWidth: '2px',
+    },
+  })
+
+  export const indicator = style({
+    position: 'absolute',
+    left: '-2px !custom',
+    width: 'half',
+    borderRadius: 'calc(infinity * 1px) !custom',
+    backgroundColor: 'accent',
+    transitionProperty: 'transform,height',
+    transitionTimingFunction: 'out',
+    transitionDuration: '150ms !custom',
+    willChange: 'transform',
+    '@media (width < 1376px)': {
+      display: 'none',
+    },
+  })
+
+  export const item = style({
+    scrollMarginBlock: '4',
+  })
+
+  export const link = style({
+    display: 'block',
+    cursor: 'pointer',
+    paddingBlock: 'threeQuarters',
+    paddingLeft: '3',
+    fontWeight: '450 !custom',
+    color: 'secondary',
+    transitionProperty:
+      'color, background-color, border-color, outline-color, text-decoration-color, fill, stroke',
+    transitionTimingFunction: 'standard',
+    transitionDuration: '100ms !custom',
+    selectors: {
+      '&:hover': {
+        '@media (hover: hover)': {
+          color: 'link',
+        },
+      },
+      '&[data-active="true"]': {
+        color: 'accent',
+      },
+    },
+  })
+}
 
 function useOutlineItems(options: { minLevel: number; maxLevel: number }) {
   const { minLevel, maxLevel } = options
@@ -153,22 +383,19 @@ export function Outline(props: Outline.Props) {
     <>
       {/* Mobile: popover in flow */}
       <div
-        className={cx(
-          'vocs:min-[1376px]:hidden vocs:sticky vocs:z-10 vocs:bg-surface vocs:px-content-px vocs:py-3 vocs:border-b vocs:border-t-0 vocs:border-primary vocs:lg:border-t vocs:lg:border-l vocs:lg:rounded-tl-2xl vocs:max-h-12 vocs:transition-[top] vocs:duration-150',
-          className,
-        )}
+        {...styles.mobileRoot({ className })}
         style={{
           top: `calc(var(--vocs-spacing-topNav) + var(--vocs-spacing-banner) - ${topOffset}px)`,
         }}
         data-v-outline
         data-v-outline-mobile
       >
-        <div className="vocs:flex vocs:w-full vocs:items-center vocs:gap-1 vocs:text-[13px] vocs:font-medium">
+        <div {...styles.mobileHeader()}>
           <Popover.Root open={popoverOpen} onOpenChange={setPopoverOpen}>
-            <Popover.Trigger className="vocs:flex vocs:items-center vocs:gap-1 vocs:cursor-pointer vocs:select-none">
-              <LucideTextAlignStart className="vocs:size-3.5" />
+            <Popover.Trigger {...styles.trigger()}>
+              <LucideTextAlignStart {...styles.triggerIcon()} />
               On this page
-              <LucideChevronRight className="vocs:size-3.5 vocs:text-secondary/80 vocs:transition-transform vocs:duration-200 vocs:data-[popup-open]:rotate-90 vocs:translate-y-px" />
+              <LucideChevronRight {...styles.chevronIcon()} />
             </Popover.Trigger>
             <Popover.Portal>
               <Popover.Positioner
@@ -178,10 +405,7 @@ export function Outline(props: Outline.Props) {
                 collisionAvoidance={{ side: 'none' }}
                 style={{ zIndex: 50 }}
               >
-                <Popover.Popup
-                  className="vocs:relative vocs:z-50 vocs:bg-primary vocs:border vocs:border-primary vocs:rounded-lg vocs:shadow-lg vocs:p-3 vocs:max-h-[60vh] vocs:overflow-y-auto vocs:w-[calc(100vw-var(--vocs-spacing-gutter)-2*var(--vocs-spacing-content-px))] vocs:max-w-[70ch] vocs:origin-(--transform-origin) vocs:transition-all vocs:duration-150 vocs:scale-100 vocs:opacity-100 vocs:data-starting-style:opacity-0 vocs:data-starting-style:scale-95 vocs:data-ending-style:opacity-0 vocs:data-ending-style:scale-95 vocs:min-[1376px]:hidden"
-                  data-v-outline-popup
-                >
+                <Popover.Popup {...styles.popup()} data-v-outline-popup>
                   <Items
                     items={items}
                     activeId={activeId}
@@ -196,10 +420,10 @@ export function Outline(props: Outline.Props) {
           {showReturnToTop && (
             <button
               type="button"
-              className="vocs:ml-auto vocs:flex vocs:items-center vocs:gap-1 vocs:text-secondary/80 vocs:hover:text-heading vocs:cursor-pointer vocs:select-none"
+              {...styles.scrollToTop()}
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             >
-              <LucideArrowUp className="vocs:size-3.5" />
+              <LucideArrowUp {...styles.triggerIcon()} />
               Return to top
             </button>
           )}
@@ -208,10 +432,7 @@ export function Outline(props: Outline.Props) {
 
       {/* Desktop: fixed sidebar */}
       <div
-        className={cx(
-          'vocs:max-[1376px]:hidden vocs:fixed vocs:z-10 vocs:flex vocs:flex-col vocs:w-gutter vocs:py-content-py vocs:pr-8 vocs:pl-1 vocs:right-0 vocs:overflow-y-auto vocs:overflow-x-clip vocs:scrollbar-none',
-          className,
-        )}
+        {...styles.desktopRoot({ className })}
         style={{
           top: 'calc(var(--vocs-spacing-topNav) + var(--vocs-spacing-banner))',
           maxHeight: 'calc(100vh - var(--vocs-spacing-topNav) - var(--vocs-spacing-banner))',
@@ -219,24 +440,21 @@ export function Outline(props: Outline.Props) {
         data-v-outline
         data-v-gutter-right
       >
-        <nav
-          className="vocs:flex vocs:flex-col vocs:text-[13px] vocs:gap-3 vocs:shrink-0"
-          data-v-outline-nav
-        >
-          <div className="vocs:flex vocs:items-center vocs:gap-1 vocs:text-[13px] vocs:font-medium vocs:shrink-0">
-            <LucideTextAlignStart className="vocs:size-3.5" />
+        <nav {...styles.navigation()} data-v-outline-nav>
+          <div {...styles.actions()}>
+            <LucideTextAlignStart {...styles.triggerIcon()} />
             On this page
           </div>
 
           <Items items={items} activeId={activeId} minLevel={minLevel} />
         </nav>
 
-        <CopyForAi.CopyForAi className="vocs:mt-6 vocs:max-w-68.5" frontmatter={frontmatter} />
+        <CopyForAi.CopyForAi {...styles.action()} frontmatter={frontmatter} />
 
-        <Feedback.Feedback className="vocs:mt-6 vocs:max-w-68.5" frontmatter={frontmatter} />
+        <Feedback.Feedback {...styles.action()} frontmatter={frontmatter} />
 
         {Footer && (
-          <div className="vocs:mt-6" data-v-outline-footer>
+          <div {...styles.footer()} data-v-outline-footer>
             <Footer />
           </div>
         )}
@@ -397,16 +615,8 @@ function Items(props: Items.Props) {
   }, [activeId])
 
   return (
-    <ul
-      ref={containerRef}
-      className="vocs:relative vocs:flex vocs:flex-col vocs:min-[1376px]:border-l-2 vocs:border-primary vocs:text-[13px]"
-      data-v-outline-items
-    >
-      <div
-        className="vocs:absolute vocs:left-[-2px] vocs:w-0.5 vocs:rounded-full vocs:bg-accent vocs:transition-[transform,height] vocs:duration-150 vocs:ease-out vocs:will-change-transform vocs:max-[1376px]:hidden"
-        style={indicatorStyle}
-        data-v-outline-indicator
-      />
+    <ul ref={containerRef} {...styles.items()} data-v-outline-items>
+      <div {...styles.indicator()} style={indicatorStyle} data-v-outline-indicator />
 
       {topLevelItems.map((item) => (
         <OutlineItem
@@ -436,15 +646,10 @@ const OutlineItem = React.memo(function OutlineItem(props: {
 
   return (
     <>
-      <li
-        data-v-outline-item
-        data-item-id={item.id}
-        data-active={isActive}
-        className="vocs:scroll-my-4"
-      >
+      <li data-v-outline-item data-item-id={item.id} data-active={isActive} {...styles.item()}>
         <Link
           to={`#${item.id}`}
-          className="vocs:block vocs:leading-snug vocs:py-0.75 vocs:pl-3 vocs:cursor-pointer vocs:font-[450] vocs:transition-colors vocs:duration-100 vocs:text-secondary vocs:data-[active=true]:text-accent vocs:hover:text-link"
+          {...styles.link()}
           style={{ paddingLeft: `${indent + 12}px` }}
           data-active={isActive}
           onClick={onSelect}

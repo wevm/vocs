@@ -1,6 +1,18 @@
 'use client'
 
 import * as React from 'react'
+import { style } from '../../styles/zyzz.config.js'
+
+namespace styles {
+  export const step = style({
+    selectors: {
+      ':where(& > :not(:last-child))': {
+        marginBlockStart: '0 !custom',
+        marginBlockEnd: '6',
+      },
+    },
+  })
+}
 
 export function Steps(props: React.PropsWithChildren<React.ComponentProps<'div'>>) {
   const children = React.Children.toArray(props.children)
@@ -20,7 +32,7 @@ export function Steps(props: React.PropsWithChildren<React.ComponentProps<'div'>
         if (!title || typeof title !== 'object' || !('type' in title) || title.type === undefined) {
           return (
             // biome-ignore lint/suspicious/noArrayIndexKey: _
-            <div className="vocs:space-y-6" data-v-content key={i}>
+            <div {...styles.step()} data-v-content key={i}>
               <div data-v-step-title>{title}</div>
               <div data-v-step-content>{rest}</div>
             </div>
@@ -30,7 +42,7 @@ export function Steps(props: React.PropsWithChildren<React.ComponentProps<'div'>
         const TitleElement = title.type
         return (
           // biome-ignore lint/suspicious/noArrayIndexKey: _
-          <div className="vocs:space-y-6" data-v-content key={i}>
+          <div {...styles.step()} data-v-content key={i}>
             <TitleElement {...title.props} data-v-step-title />
             <div data-v-step-content>{rest}</div>
           </div>

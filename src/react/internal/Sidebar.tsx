@@ -1,16 +1,240 @@
 'use client'
 
-import { cx } from 'cva'
 import * as React from 'react'
 import { useRouter } from 'waku'
+import { cx } from 'zyzz'
 import LucideArrowLeft from '~icons/lucide/arrow-left'
 import LucideArrowUpRight from '~icons/lucide/arrow-up-right'
 import LucideChevronRight from '~icons/lucide/chevron-right'
 import * as Path from '../../internal/path.js'
 import * as Sidebar_core from '../../internal/sidebar.js'
+import { style, vars } from '../../styles/zyzz.config.js'
 import { Badge } from '../Badge.js'
 import { Link } from '../Link.js'
 import { useSidebar } from '../useSidebar.js'
+
+namespace styles {
+  export const root = style({
+    display: 'flex',
+    flex: 1,
+    flexDirection: 'column',
+    fontSize: 'sm',
+    lineHeight: 'sm',
+    fontWeight: '450 !custom',
+    selectors: {
+      "&>*:not(:last-child)[data-collapsed='false']": {
+        marginBottom: '4',
+      },
+    },
+  })
+
+  export const backLink = style({
+    marginBottom: '4',
+    marginLeft: `calc(${vars.spacing.unit} * -0.5) !custom`,
+    display: 'flex',
+    alignItems: 'center',
+    gap: 'oneAndHalf',
+    color: 'secondary',
+    selectors: {
+      '&:hover': {
+        '@media (hover: hover)': {
+          color: 'heading',
+        },
+      },
+    },
+  })
+
+  export const backIcon = style({
+    width: '4',
+    height: '4',
+  })
+
+  export const itemBadge = style({
+    marginLeft: '2',
+    flexShrink: 0,
+  })
+
+  export const itemIcon = style({
+    display: 'inline-flex',
+    minWidth: '0',
+    alignItems: 'center',
+    gap: '1',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  })
+
+  export const externalIcon = style({
+    width: '3',
+    height: '3',
+    flexShrink: 0,
+  })
+
+  export const itemLabel = style({
+    minWidth: '0',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  })
+
+  export const item = style({
+    marginInline: `calc(${vars.spacing.unit} * -3) !custom`,
+    marginBlock: `calc(${vars.spacing.unit} * -0.5) !custom`,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderRadius: 'md',
+    paddingInline: '3',
+    paddingBlock: 'oneAndHalf',
+    color: 'primary',
+    '@supports (color: color-mix(in lab, red, red))': {
+      color: `color-mix(in oklab, ${vars.textColor.primary} 80%, transparent) !custom`,
+    },
+    selectors: {
+      '&:not(*[data-link])': {
+        cursor: 'default',
+      },
+      '&[aria-disabled="true"]': {
+        pointerEvents: 'none',
+        cursor: 'not-allowed',
+        opacity: '60%',
+      },
+      '&[data-active]': {
+        backgroundColor: 'accenta3',
+        color: 'accent8 !important',
+      },
+      '&[data-link]': {
+        selectors: {
+          '&:hover': {
+            '@media (hover: hover)': {
+              color: 'heading',
+            },
+          },
+        },
+      },
+      '&[data-condensed="true"]': {
+        paddingBlock: '0.3rem !custom',
+        fontSize: '13px !custom',
+      },
+    },
+  })
+
+  export const sectionIcon = style({
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '1',
+  })
+
+  export const sectionExternalIcon = style({
+    width: '3',
+    height: '3',
+  })
+
+  export const sectionToggle = style({
+    marginRight: `calc(${vars.spacing.unit} * -1) !custom`,
+    marginLeft: '2',
+    flexShrink: 0,
+    borderRadius: 'md',
+    padding: '1',
+    color: 'secondary',
+    '@supports (color: color-mix(in lab, red, red))': {
+      color: `color-mix(in oklab, ${vars.textColor.secondary} 80%, transparent) !custom`,
+    },
+    selectors: {
+      '&:hover': {
+        '@media (hover: hover)': {
+          color: 'heading',
+        },
+      },
+    },
+  })
+
+  export const sectionChevron = style({
+    transitionProperty: 'transform, translate, scale, rotate',
+    transitionTimingFunction: 'in-out',
+    transitionDuration: '200ms !custom',
+    selectors: {
+      '&[data-collapsed]': {
+        rotate: '90deg',
+      },
+    },
+  })
+
+  export const sectionToggleLabel = style({
+    display: 'inline-flex',
+    minWidth: '0',
+    alignItems: 'center',
+  })
+
+  export const sectionLabel = style({
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  })
+
+  export const sectionHeading = style({
+    color: 'secondary',
+    '@supports (color: color-mix(in lab, red, red))': {
+      color: `color-mix(in oklab, ${vars.textColor.secondary} 80%, transparent) !custom`,
+    },
+  })
+
+  export const emptyHeading = style({
+    height: '1em !custom',
+  })
+
+  export const nestedSection = style({
+    borderLeftStyle: 'solid',
+    borderLeftWidth: '1px',
+    borderColor: 'primary',
+    paddingLeft: '4',
+  })
+
+  export const childHeading = style({
+    selectors: {
+      '&[data-collapsable="true"]': {
+        selectors: {
+          '&:hover': {
+            '@media (hover: hover)': {
+              cursor: 'pointer',
+              color: 'accent',
+            },
+          },
+        },
+      },
+    },
+  })
+
+  export const headingLink = style({
+    minWidth: '0',
+    flex: 1,
+    color: 'inherit !custom',
+    selectors: {
+      '&:hover': {
+        '@media (hover: hover)': {
+          color: 'inherit !custom',
+        },
+      },
+    },
+  })
+
+  export const rootHeading = style({
+    marginInline: `calc(${vars.spacing.unit} * -3) !custom`,
+    display: 'flex',
+    height: '2.5em !custom',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderRadius: 'md',
+    paddingInline: '3',
+    fontWeight: 'medium',
+    color: 'heading',
+    selectors: {
+      '&[data-collapsable="true"]': {
+        cursor: 'pointer',
+      },
+    },
+  })
+}
 
 const maxDepth = 5
 
@@ -136,13 +360,7 @@ export function Sidebar(props: Sidebar.Props) {
   return (
     <HashIdsContext.Provider value={hashIds}>
       <ActiveAnchorContext.Provider value={activeAnchor}>
-        <nav
-          className={cx(
-            "vocs:flex-1 vocs:flex vocs:flex-col vocs:text-sm vocs:font-[450] vocs:[&>*:not(:last-child)[data-collapsed='false']]:mb-4",
-            className,
-          )}
-          data-v-sidebar
-        >
+        <nav {...styles.root({ className })} data-v-sidebar>
           {sidebar.backLink && <BackLink onNavigate={onNavigate} />}
           {sidebar.items.map((item, i) => (
             <Section
@@ -162,13 +380,8 @@ export function Sidebar(props: Sidebar.Props) {
 function BackLink(props: { onNavigate?: (() => void) | undefined }) {
   const { onNavigate } = props
   return (
-    <Link
-      className="vocs:flex vocs:items-center vocs:gap-1.5 vocs:text-secondary vocs:hover:text-heading vocs:mb-4 vocs:-ml-0.5"
-      data-v-sidebar-back-link
-      onClick={onNavigate}
-      to="/"
-    >
-      <LucideArrowLeft className="vocs:size-4" />
+    <Link {...styles.backLink()} data-v-sidebar-back-link onClick={onNavigate} to="/">
+      <LucideArrowLeft {...styles.backIcon()} />
       <span>Back</span>
     </Link>
   )
@@ -188,7 +401,7 @@ function ItemBadge(props: { badge: Sidebar_core.SidebarItemBadge }) {
     typeof props.badge === 'string' ? { text: props.badge, icon: undefined } : props.badge
   return (
     <Badge
-      className="vocs:shrink-0 vocs:ml-2"
+      {...styles.itemBadge()}
       data-v-sidebar-item-badge
       data-v-icon={badge.icon ? '' : undefined}
       variant={badge.variant ?? 'info'}
@@ -298,7 +511,7 @@ function Item(props: Item.Props) {
     if (isExternal)
       return (
         <a
-          className={Item.className}
+          {...styles.item()}
           data-condensed={condensed && depth > 1}
           data-link={true}
           data-v-sidebar-item
@@ -308,16 +521,16 @@ function Item(props: Item.Props) {
           rel="noopener noreferrer"
           onClick={onNavigate}
         >
-          <span className="vocs:inline-flex vocs:items-center vocs:gap-1 vocs:min-w-0 vocs:truncate">
+          <span {...styles.itemIcon()}>
             {text}
-            <LucideArrowUpRight className="vocs:size-3 vocs:shrink-0" />
+            <LucideArrowUpRight {...styles.externalIcon()} />
           </span>
           {badge && <ItemBadge badge={badge} />}
         </a>
       )
     return (
       <Link
-        className={Item.className}
+        {...styles.item()}
         data-condensed={condensed && depth > 1}
         data-link={true}
         data-v-sidebar-item
@@ -326,7 +539,7 @@ function Item(props: Item.Props) {
         onClick={onNavigate}
         {...(active && { 'data-active': true })}
       >
-        <span className="vocs:min-w-0 vocs:truncate">{text}</span>
+        <span {...styles.itemLabel()}>{text}</span>
         {badge && <ItemBadge badge={badge} />}
       </Link>
     )
@@ -334,13 +547,13 @@ function Item(props: Item.Props) {
   return (
     <div
       aria-disabled={disabled}
-      className={Item.className}
+      {...styles.item()}
       data-condensed={condensed && depth > 1}
       data-link={link ? true : undefined}
       data-v-sidebar-item
       ref={itemRef as never}
     >
-      <span className="vocs:min-w-0 vocs:truncate">{text}</span>
+      <span {...styles.itemLabel()}>{text}</span>
       {badge && <ItemBadge badge={badge} />}
     </div>
   )
@@ -353,9 +566,6 @@ namespace Item {
     onNavigate?: (() => void) | undefined
     scrollRef?: React.RefObject<HTMLDivElement | null>
   }
-
-  export const className =
-    'vocs:flex vocs:data-link:hover:text-heading vocs:not-data-link:cursor-default vocs:justify-between vocs:-mx-3 vocs:px-3 vocs:py-1.5 vocs:text-primary/80 vocs:-my-0.5 vocs:items-center vocs:rounded-md vocs:data-active:bg-accenta3 vocs:data-active:text-accent8! vocs:aria-disabled:opacity-60 vocs:aria-disabled:cursor-not-allowed vocs:aria-disabled:pointer-events-none vocs:data-[condensed=true]:text-[13px] vocs:data-[condensed=true]:py-[0.3rem]'
 }
 
 /** @internal */
@@ -414,17 +624,23 @@ function Section(props: Section.Props) {
           if (text && link)
             return (
               <div
-                className={depth > 0 ? Section.childHeaderClassName : Section.rootHeaderClassName}
+                {...cx(
+                  depth > 0 && styles.item(),
+                  depth > 0 && styles.childHeading(),
+                  !(depth > 0) && styles.rootHeading(),
+                )}
                 data-condensed={condensed && depth > 1}
                 data-collapsed={collapsed}
                 data-collapsable={collapsable}
                 data-v-sidebar-section-header
                 {...(groupLinkIsActive && { 'data-active': true })}
               >
-                <Link className={Section.headerLinkClassName} onClick={onNavigate} to={link}>
-                  <span className="vocs:inline-flex vocs:items-center vocs:gap-1">
+                <Link {...styles.headingLink()} onClick={onNavigate} to={link}>
+                  <span {...styles.sectionIcon()}>
                     {text}
-                    {groupLinkIsExternal && <LucideArrowUpRight className="vocs:size-3" />}
+                    {groupLinkIsExternal && (
+                      <LucideArrowUpRight {...styles.sectionExternalIcon()} />
+                    )}
                   </span>
                 </Link>
 
@@ -434,12 +650,12 @@ function Section(props: Section.Props) {
                   <button
                     aria-expanded={!collapsed}
                     aria-label={`Toggle ${text} section`}
-                    className="vocs:ml-2 vocs:-mr-1 vocs:shrink-0 vocs:rounded-md vocs:p-1 vocs:text-secondary/80 vocs:hover:text-heading"
+                    {...styles.sectionToggle()}
                     onClick={() => setCollapsed((x) => !x)}
                     type="button"
                   >
                     <LucideChevronRight
-                      className="vocs:data-collapsed:rotate-90 vocs:transition-transform vocs:duration-200 vocs:ease-in-out"
+                      {...styles.sectionChevron()}
                       {...(!collapsed ? { 'data-collapsed': false } : {})}
                     />
                   </button>
@@ -451,7 +667,11 @@ function Section(props: Section.Props) {
           if (text)
             return (
               <div
-                className={depth > 0 ? Section.childHeaderClassName : Section.rootHeaderClassName}
+                {...cx(
+                  depth > 0 && styles.item(),
+                  depth > 0 && styles.childHeading(),
+                  !(depth > 0) && styles.rootHeading(),
+                )}
                 data-condensed={condensed && depth > 1}
                 data-collapsed={collapsed}
                 data-collapsable={collapsable}
@@ -465,15 +685,15 @@ function Section(props: Section.Props) {
                     }
                   : {})}
               >
-                <span className="vocs:inline-flex vocs:items-center vocs:min-w-0">
-                  <span className="vocs:truncate">{text}</span>
+                <span {...styles.sectionToggleLabel()}>
+                  <span {...styles.sectionLabel()}>{text}</span>
                   {badge && <ItemBadge badge={badge} />}
                 </span>
 
                 {collapsable && (
-                  <div className="vocs:text-secondary/80">
+                  <div {...styles.sectionHeading()}>
                     <LucideChevronRight
-                      className="vocs:data-collapsed:rotate-90 vocs:transition-transform vocs:duration-200 vocs:ease-in-out"
+                      {...styles.sectionChevron()}
                       {...(!collapsed ? { 'data-collapsed': false } : {})}
                     />
                   </div>
@@ -482,14 +702,11 @@ function Section(props: Section.Props) {
             )
 
           // Empty header.
-          return <div className="vocs:h-[1em]" data-empty />
+          return <div {...styles.emptyHeading()} data-empty />
         })()}
 
         {!collapsed && (
-          <div
-            className={depth > 0 ? 'vocs:pl-4 vocs:border-l vocs:border-primary' : ''}
-            data-v-sidebar-section-content
-          >
+          <div {...cx(depth > 0 && styles.nestedSection())} data-v-sidebar-section-content>
             {items.length > 0 &&
               depth < maxDepth &&
               items.map((item, i) => (
@@ -517,15 +734,4 @@ namespace Section {
     onNavigate?: (() => void) | undefined
     scrollRef: React.RefObject<HTMLDivElement | null>
   }
-
-  export const childHeaderClassName = cx(
-    Item.className,
-    'vocs:data-[collapsable=true]:hover:text-accent vocs:data-[collapsable=true]:hover:cursor-pointer',
-  )
-
-  export const headerLinkClassName =
-    'vocs:flex-1 vocs:min-w-0 vocs:text-inherit vocs:hover:text-inherit'
-
-  export const rootHeaderClassName =
-    'vocs:h-[2.5em] vocs:px-3 vocs:-mx-3 vocs:rounded-md vocs:flex vocs:items-center vocs:justify-between vocs:text-heading vocs:font-medium vocs:data-[collapsable=true]:cursor-pointer'
 }

@@ -1,8 +1,16 @@
 'use client'
 
-import { cx } from 'cva'
 import * as React from 'react'
+import { style } from '../../styles/zyzz.config.js'
 import * as MdxPageContext from '../MdxPageContext.js'
+
+namespace styles {
+  export const root = style({
+    fontSize: 'sm',
+    lineHeight: 'sm',
+    color: 'secondary',
+  })
+}
 
 export function LastUpdated(props: LastUpdated.Props) {
   const { className } = props
@@ -29,7 +37,7 @@ export function LastUpdated(props: LastUpdated.Props) {
   })
 
   return (
-    <div className={cx('vocs:text-secondary vocs:text-sm', className)} data-v-last-updated>
+    <div {...styles.root({ className })} data-v-last-updated>
       Last updated: {formatted}, {time}
     </div>
   )

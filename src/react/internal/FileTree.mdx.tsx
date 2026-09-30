@@ -1,7 +1,108 @@
+import { cx } from 'zyzz'
 import LucideFile from '~icons/lucide/file'
 import LucideFolder from '~icons/lucide/folder'
 import LucideFolderOpen from '~icons/lucide/folder-open'
+import { style, vars } from '../../styles/zyzz.config.js'
 import { FileRowTrigger, FolderToggle } from './FileTree.client.js'
+
+namespace styles {
+  export const root = style({
+    overflowX: 'auto',
+    borderRadius: 'lg',
+    borderStyle: 'solid',
+    borderWidth: '1px',
+    borderColor: 'primary',
+    backgroundColor: 'code-block',
+    paddingInline: '5',
+    paddingBlock: '4',
+    fontFamily: 'mono',
+    fontSize: 'sm',
+    lineHeight: 'sm',
+  })
+
+  export const rootList = style({
+    padding: '0',
+  })
+
+  export const nestedList = style({
+    borderLeftStyle: 'solid',
+    borderLeftWidth: '1px',
+    borderColor: 'primary',
+  })
+
+  export const item = style({
+    position: 'relative',
+    overflow: 'visible',
+  })
+
+  export const itemRow = style({
+    position: 'relative',
+    display: 'flex',
+    alignItems: 'center',
+    paddingBlock: '1',
+  })
+
+  export const label = style({
+    display: 'grid',
+    alignItems: 'center',
+    columnGap: '4',
+    color: 'primary',
+  })
+
+  export const iconContainer = style({
+    flexShrink: 0,
+  })
+
+  export const ellipsis = style({
+    color: 'muted',
+  })
+
+  export const name = style({
+    marginInline: `calc(${vars.spacing.unit} * -2) !custom`,
+    marginBlock: `calc(${vars.spacing.unit} * -0.5) !custom`,
+    display: 'flex',
+    alignItems: 'center',
+    gap: '2',
+    justifySelf: 'flex-start',
+    borderRadius: 'md',
+    paddingInline: '2',
+    paddingBlock: 'half',
+    whiteSpace: 'nowrap',
+    selectors: {
+      '&[data-highlighted="true"]': {
+        borderStyle: 'solid',
+        borderWidth: '1px',
+        borderColor: 'primary',
+        backgroundColor: 'surfaceTint',
+      },
+    },
+  })
+
+  export const comment = style({
+    whiteSpace: 'nowrap',
+    color: 'muted',
+  })
+
+  export const folderIcon = style({
+    width: '4',
+    height: '4',
+    color: 'secondary',
+  })
+
+  export const list = style({
+    margin: '0',
+    listStyleType: 'none',
+    overflow: 'visible',
+  })
+
+  export const fileIcon = style({
+    display: 'flex',
+    width: '4',
+    height: '4',
+    alignItems: 'center',
+    justifyContent: 'center',
+  })
+}
 
 export function FileTree(props: FileTree.Props) {
   const items: FileTree.Item[] = JSON.parse(props['data-v-file-tree-items'] ?? '[]')
@@ -10,7 +111,7 @@ export function FileTree(props: FileTree.Props) {
     <div
       data-v
       data-v-file-tree
-      className="vocs:bg-code-block vocs:py-4 vocs:px-5 vocs:rounded-lg vocs:border vocs:border-primary vocs:text-sm vocs:font-mono vocs:overflow-x-auto"
+      {...styles.root()}
       style={
         {
           '--vocs-file-tree-label-column': FileTree.getLabelColumnSize(items),
@@ -45,7 +146,11 @@ export namespace FileTree {
     const { depth, items } = props
     return (
       <ul
-        className={`vocs:list-none vocs:m-0 vocs:overflow-visible ${depth === 0 ? 'vocs:p-0' : 'vocs:border-l vocs:border-primary'}`}
+        {...cx(
+          styles.list(),
+          depth === 0 && styles.rootList(),
+          !(depth === 0) && styles.nestedList(),
+        )}
         style={
           depth === 0
             ? undefined
@@ -86,7 +191,7 @@ export namespace FileTree {
       : undefined
 
     return (
-      <li className="vocs:relative vocs:overflow-visible">
+      <li {...styles.item()}>
         {isFolder ? (
           <FolderToggle
             name={item.name}
@@ -102,11 +207,8 @@ export namespace FileTree {
             }
           />
         ) : (
-          <div className="vocs:relative vocs:flex vocs:items-center vocs:py-1">
-            <div
-              className="vocs:grid vocs:items-center vocs:gap-x-4 vocs:text-primary"
-              style={rowStyle}
-            >
+          <div {...styles.itemRow()}>
+            <div {...styles.label()} style={rowStyle}>
               {item.tooltip ? (
                 <FileRowTrigger
                   content={item.tooltip}
@@ -114,32 +216,23 @@ export namespace FileTree {
                   highlighted={item.highlighted}
                 >
                   {item.name !== '...' && (
-                    <span className="vocs:shrink-0">
+                    <span {...styles.iconContainer()}>
                       <FileIcon icon={item.icon} />
                     </span>
                   )}
-                  <span className={item.name === '...' ? 'vocs:text-muted' : undefined}>
-                    {item.name}
-                  </span>
+                  <span {...cx(item.name === '...' && styles.ellipsis())}>{item.name}</span>
                 </FileRowTrigger>
               ) : (
-                <span
-                  className="vocs:flex vocs:items-center vocs:gap-2 vocs:whitespace-nowrap vocs:justify-self-start vocs:data-[highlighted=true]:bg-surfaceTint vocs:data-[highlighted=true]:border vocs:data-[highlighted=true]:border-primary vocs:rounded-md vocs:px-2 vocs:py-0.5 vocs:-mx-2 vocs:-my-0.5"
-                  data-highlighted={item.highlighted}
-                >
+                <span {...styles.name()} data-highlighted={item.highlighted}>
                   {item.name !== '...' && (
-                    <span className="vocs:shrink-0">
+                    <span {...styles.iconContainer()}>
                       <FileIcon icon={item.icon} />
                     </span>
                   )}
-                  <span className={item.name === '...' ? 'vocs:text-muted' : undefined}>
-                    {item.name}
-                  </span>
+                  <span {...cx(item.name === '...' && styles.ellipsis())}>{item.name}</span>
                 </span>
               )}
-              {item.comment && (
-                <span className="vocs:text-muted vocs:whitespace-nowrap">{item.comment}</span>
-              )}
+              {item.comment && <span {...styles.comment()}>{item.comment}</span>}
             </div>
           </div>
         )}
@@ -175,20 +268,20 @@ export namespace FileTree {
   }
 
   function FolderIcon({ open }: { open: boolean }) {
-    if (open) return <LucideFolderOpen className="vocs:size-4 vocs:text-secondary" />
-    return <LucideFolder className="vocs:size-4 vocs:text-secondary" />
+    if (open) return <LucideFolderOpen {...styles.folderIcon()} />
+    return <LucideFolder {...styles.folderIcon()} />
   }
 
   function FileIcon({ icon }: { icon: string | undefined }) {
     if (icon) {
       return (
         <span
-          className="vocs:size-4 vocs:flex vocs:items-center vocs:justify-center [&>svg]:vocs:size-4"
+          {...styles.fileIcon()}
           // biome-ignore lint/security/noDangerouslySetInnerHtml: resolved SVG from iconify at build time
           dangerouslySetInnerHTML={{ __html: icon }}
         />
       )
     }
-    return <LucideFile className="vocs:size-4 vocs:text-secondary" />
+    return <LucideFile {...styles.folderIcon()} />
   }
 }

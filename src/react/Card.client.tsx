@@ -1,30 +1,93 @@
 'use client'
 
 import type { ReactNode } from 'react'
+import { style, vars } from '../styles/zyzz.config.js'
 import { Link } from './Link.js'
+
+namespace styles {
+  export const root = style({
+    position: 'relative',
+    display: 'flex',
+    flexDirection: 'column',
+    borderRadius: 'md',
+    borderStyle: 'solid',
+    borderWidth: '1px',
+    borderColor: 'primary',
+    backgroundColor: 'surfaceTint',
+    '@supports (color: color-mix(in lab, red, red))': {
+      backgroundColor: `color-mix(in oklab, ${vars.backgroundColor.surfaceTint} 70%, transparent) !custom`,
+    },
+    padding: '4',
+    textDecorationLine: 'none',
+    transitionProperty:
+      'color, background-color, border-color, outline-color, text-decoration-color, fill, stroke',
+    transitionTimingFunction: 'standard',
+    transitionDuration: 'standard',
+    selectors: {
+      ':where(& > :not(:last-child))': {
+        marginBlockStart: '0 !custom',
+        marginBlockEnd: '2',
+      },
+      '&:hover': {
+        '@media (hover: hover)': {
+          backgroundColor: 'surfaceTint',
+        },
+      },
+    },
+  })
+
+  export const externalIcon = style({
+    position: 'absolute',
+    top: '4',
+    right: '4',
+  })
+
+  export const icon = style({
+    display: 'flex',
+    width: '8',
+    height: '8',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 'lg',
+    borderStyle: 'solid',
+    borderWidth: '1px',
+    borderColor: 'primary',
+    backgroundColor: 'surface',
+    color: 'accent',
+  })
+
+  export const title = style({
+    fontSize: '15px !custom',
+    fontWeight: 'medium',
+    color: 'heading',
+  })
+
+  export const description = style({
+    fontSize: 'sm',
+    lineHeight: 'sm',
+    color: 'secondary',
+  })
+}
 
 export function CardLink(props: CardLink.Props) {
   const { descriptionHtml, iconHtml, title, to, topRight } = props
 
   return (
-    <Link
-      to={to}
-      className="vocs:relative vocs:flex vocs:flex-col vocs:space-y-2 vocs:rounded-md vocs:bg-surfaceTint/70 vocs:border vocs:border-primary vocs:p-4 vocs:no-underline vocs:transition-colors vocs:hover:bg-surfaceTint"
-    >
-      {topRight ? <div className="vocs:absolute vocs:top-4 vocs:right-4">{topRight}</div> : null}
+    <Link to={to} {...styles.root()}>
+      {topRight ? <div {...styles.externalIcon()}>{topRight}</div> : null}
 
       {iconHtml ? (
         <div
-          className="vocs:size-8 vocs:flex vocs:items-center vocs:justify-center vocs:rounded-lg vocs:border vocs:border-primary vocs:bg-surface vocs:text-accent"
+          {...styles.icon()}
           // biome-ignore lint/security/noDangerouslySetInnerHtml: user-provided icon strings are already supported by Card.
           dangerouslySetInnerHTML={{ __html: iconHtml }}
         />
       ) : null}
 
-      <div className="vocs:text-[15px] vocs:font-medium vocs:text-heading">{title}</div>
+      <div {...styles.title()}>{title}</div>
 
       <div
-        className="vocs:text-sm vocs:leading-relaxed vocs:text-secondary"
+        {...styles.description()}
         // biome-ignore lint/security/noDangerouslySetInnerHtml: markdown descriptions are rendered before they reach the client.
         dangerouslySetInnerHTML={{ __html: descriptionHtml }}
       />

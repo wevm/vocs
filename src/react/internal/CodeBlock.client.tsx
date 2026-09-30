@@ -1,9 +1,95 @@
 'use client'
 
 import * as React from 'react'
+import { Html } from 'zyzz/runtime'
 import LucideCheck from '~icons/lucide/check'
 import LucideClipboard from '~icons/lucide/clipboard'
 import LucideWrapText from '~icons/lucide/wrap-text'
+import { style } from '../../styles/zyzz.config.js'
+
+namespace styles {
+  export const wrapButton = style({
+    position: 'absolute',
+    top: 'twoAndHalf',
+    right: '10',
+    cursor: 'pointer',
+    borderRadius: 'md',
+    padding: 'oneAndHalf',
+    color: 'secondary',
+    opacity: '0%',
+    transitionProperty: 'opacity',
+    transitionTimingFunction: 'standard',
+    transitionDuration: '150ms !custom',
+    selectors: {
+      '&:is(:where(.vocs\\:group\\/code):hover *)': {
+        '@media (hover: hover)': {
+          opacity: '100%',
+        },
+      },
+      '&:hover': {
+        '@media (hover: hover)': {
+          color: 'heading',
+        },
+      },
+      '&[data-single-line="true"]': {
+        top: 'calc(1 / 2 * 100%) !custom',
+        translate: '0 calc(calc(1 / 2 * 100%) * -1) !custom',
+      },
+      '&[data-wrapped="true"]': {
+        color: 'accent',
+        opacity: '100%',
+      },
+    },
+  })
+
+  export const wrapIcon = style({
+    width: '4',
+    height: '4',
+  })
+
+  export const copyButton = style({
+    position: 'absolute',
+    top: 'twoAndHalf',
+    right: 'twoAndHalf',
+    cursor: 'pointer',
+    borderRadius: 'md',
+    padding: 'oneAndHalf',
+    color: 'secondary',
+    opacity: '0%',
+    transitionProperty: 'opacity',
+    transitionTimingFunction: 'standard',
+    transitionDuration: '150ms !custom',
+    selectors: {
+      '&:is(:where(.vocs\\:group\\/code):hover *)': {
+        '@media (hover: hover)': {
+          opacity: '100%',
+        },
+      },
+      '&:hover': {
+        '@media (hover: hover)': {
+          color: 'heading',
+        },
+      },
+      '&[data-copied="true"]': {
+        color: 'success',
+        opacity: '100%',
+      },
+      '&[data-single-line="true"]': {
+        top: 'calc(1 / 2 * 100%) !custom',
+        translate: '0 calc(calc(1 / 2 * 100%) * -1) !custom',
+      },
+    },
+  })
+
+  export const lineCopyButtons = style({
+    display: 'none',
+  })
+
+  export const copyIcon = style({
+    width: 'threeAndHalf',
+    height: 'threeAndHalf',
+  })
+}
 
 export function WrapButton({ defaultWrapped = false }: WrapButton.Props) {
   const buttonRef = React.useRef<HTMLButtonElement>(null)
@@ -31,13 +117,13 @@ export function WrapButton({ defaultWrapped = false }: WrapButton.Props) {
       ref={buttonRef}
       aria-label={wrapped ? 'Disable word wrap' : 'Enable word wrap'}
       aria-pressed={wrapped}
-      className="vocs:absolute vocs:top-2.5 vocs:data-[single-line=true]:top-1/2 vocs:data-[single-line=true]:-translate-y-1/2 vocs:right-10 vocs:p-1.5 vocs:rounded-md vocs:opacity-0 vocs:transition-opacity vocs:duration-150 vocs:text-secondary vocs:hover:text-heading vocs:cursor-pointer vocs:group-hover/code:opacity-100 vocs:data-[wrapped=true]:opacity-100 vocs:data-[wrapped=true]:text-accent"
+      {...styles.wrapButton()}
       data-wrapped={wrapped}
       data-single-line={singleLine}
       onClick={toggle}
       type="button"
     >
-      <LucideWrapText className="vocs:size-4" />
+      <LucideWrapText {...styles.wrapIcon()} />
     </button>
   )
 }
@@ -89,25 +175,19 @@ export function CopyButton() {
     <button
       ref={buttonRef}
       aria-label={copied ? 'Copied' : 'Copy code'}
-      className="vocs:absolute vocs:top-2.5 vocs:data-[single-line=true]:top-1/2 vocs:data-[single-line=true]:-translate-y-1/2 vocs:right-2.5 vocs:p-1.5 vocs:rounded-md vocs:opacity-0 vocs:transition-opacity vocs:duration-150 vocs:text-secondary vocs:hover:text-heading vocs:cursor-pointer vocs:group-hover/code:opacity-100 vocs:data-[copied=true]:opacity-100 vocs:data-[copied=true]:text-success"
+      {...styles.copyButton()}
       data-copied={copied}
       data-single-line={singleLine}
       onClick={copy}
       type="button"
     >
-      {copied ? (
-        <LucideCheck className="vocs:size-4" />
-      ) : (
-        <LucideClipboard className="vocs:size-4" />
-      )}
+      {copied ? <LucideCheck {...styles.wrapIcon()} /> : <LucideClipboard {...styles.wrapIcon()} />}
     </button>
   )
 }
 
-const clipboardIconHtml =
-  '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" class="vocs:size-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg>'
-const checkIconHtml =
-  '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" class="vocs:size-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>'
+const clipboardIconHtml = `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" ${Html.serialize(Html.from(styles.copyIcon()))} fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg>`
+const checkIconHtml = `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" ${Html.serialize(Html.from(styles.copyIcon()))} fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>`
 
 function createIconElement(html: string): HTMLElement {
   const template = document.createElement('template')
@@ -190,5 +270,5 @@ export function ShellLineCopyButtons() {
     }
   }, [])
 
-  return <span ref={containerRef} className="vocs:hidden" />
+  return <span ref={containerRef} {...styles.lineCopyButtons()} />
 }

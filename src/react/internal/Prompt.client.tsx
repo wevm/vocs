@@ -6,6 +6,13 @@ import LucideScanText from '~icons/lucide/scan-text'
 import RiSparkling2Fill from '~icons/ri/sparkling-2-fill'
 import SimpleIconsClaude from '~icons/simple-icons/claude'
 import SimpleIconsOpenai from '~icons/simple-icons/openai'
+import { style } from '../../styles/zyzz.config.js'
+
+namespace styles {
+  export const tooltipPositioner = style({
+    zIndex: 50,
+  })
+}
 
 type State = 'copied' | 'error' | 'idle'
 
@@ -143,7 +150,7 @@ function PromptAction(props: PromptAction.Props) {
         {children}
       </Tooltip.Trigger>
       <Tooltip.Portal>
-        <Tooltip.Positioner className="vocs:z-50" side="top" sideOffset={6}>
+        <Tooltip.Positioner {...styles.tooltipPositioner()} side="top" sideOffset={6}>
           <Tooltip.Popup data-v-prompt-tooltip>{label}</Tooltip.Popup>
         </Tooltip.Positioner>
       </Tooltip.Portal>

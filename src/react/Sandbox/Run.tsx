@@ -3,6 +3,17 @@
 import { RoundedButton, RunIcon, useSandpack } from '@codesandbox/sandpack-react'
 import * as React from 'react'
 import { transform } from 'sucrase'
+import { style } from '../../styles/zyzz.config.js'
+
+namespace styles {
+  export const button = style({
+    position: 'absolute',
+    top: '2',
+    right: '2',
+    display: 'flex',
+    gap: '1',
+  })
+}
 
 export function RunButton(props: { autoRun: boolean }) {
   const { autoRun } = props
@@ -24,7 +35,7 @@ export function RunButton(props: { autoRun: boolean }) {
   if (hasRun && autoRun) return null
 
   return (
-    <div className="vocs:absolute vocs:top-2 vocs:right-2 vocs:flex vocs:gap-1">
+    <div {...styles.button()}>
       <RoundedButton onClick={transpileAndRun}>
         <RunIcon />
       </RoundedButton>

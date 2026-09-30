@@ -2,7 +2,6 @@
 
 import { Dialog } from '@base-ui/react/dialog'
 import { Menu } from '@base-ui/react/menu'
-import { cx } from 'cva'
 import * as React from 'react'
 import { useRouter } from 'waku'
 import LucideArrowUpRight from '~icons/lucide/arrow-up-right'
@@ -11,11 +10,244 @@ import LucideTextAlignJustify from '~icons/lucide/text-align-justify'
 import LucideX from '~icons/lucide/x'
 import * as Path from '../../internal/path.js'
 import * as TopNav_core from '../../internal/topNav.js'
+import { style, vars } from '../../styles/zyzz.config.js'
 import { Link } from '../Link.js'
 import { useConfig } from '../useConfig.js'
 import * as Sidebar from './Sidebar.js'
 import * as Socials from './Socials.client.js'
 import * as ThemeToggle from './ThemeToggle.client.js'
+
+namespace styles {
+  export const trigger = style({
+    display: 'flex',
+    width: '8',
+    height: '8',
+    cursor: 'pointer',
+    alignItems: 'center',
+    justifyContent: 'center',
+  })
+
+  export const backdrop = style({
+    position: 'fixed',
+    inset: '0',
+    zIndex: 40,
+    backgroundColor: 'black',
+    '@supports (color: color-mix(in lab, red, red))': {
+      backgroundColor: `color-mix(in oklab, ${vars.color.black} 50%, transparent) !custom`,
+    },
+    WebkitBackdropFilter: `blur(${vars.blur.sm})        `,
+    backdropFilter: `blur(${vars.blur.sm})        `,
+    transitionProperty: 'opacity',
+    transitionTimingFunction: 'standard',
+    transitionDuration: '200ms !custom',
+    selectors: {
+      '&[data-ending-style]': {
+        opacity: '0%',
+      },
+      '&[data-starting-style]': {
+        opacity: '0%',
+      },
+    },
+  })
+
+  export const popup = style({
+    position: 'fixed',
+    top: '0',
+    right: '0',
+    zIndex: 50,
+    height: '100% !custom',
+    width: '320px !custom',
+    borderLeftStyle: 'solid',
+    borderLeftWidth: '1px',
+    borderColor: 'primary',
+    backgroundColor: 'primary',
+    boxShadow:
+      '0 0 #0000, 0 0 #0000, 0 0 #0000, 0 0 #0000, 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
+    transitionProperty: 'transform, translate, scale, rotate',
+    transitionTimingFunction: 'standard',
+    transitionDuration: '200ms !custom',
+    selectors: {
+      '&[data-ending-style]': {
+        translate: '100% 0 !custom',
+      },
+      '&[data-starting-style]': {
+        translate: '100% 0 !custom',
+      },
+    },
+  })
+
+  export const header = style({
+    display: 'flex',
+    height: 'topNav',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: '1',
+    paddingInline: '2',
+  })
+
+  export const title = style({
+    position: 'absolute',
+    width: '1px !custom',
+    height: '1px !custom',
+    padding: '0 !custom',
+    margin: '-1px !custom',
+    overflow: 'hidden',
+    clipPath: 'inset(50%)',
+    whiteSpace: 'nowrap',
+    borderWidth: '0',
+  })
+
+  export const content = style({
+    display: 'flex',
+    height: `calc(100% - ${vars.spacing.topNav}) !custom`,
+    flexDirection: 'column',
+    overflowY: 'auto',
+    paddingInline: '4',
+    paddingBottom: '4',
+  })
+
+  export const footer = style({
+    marginTop: 'auto !custom',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingTop: '4',
+  })
+
+  export const topNavTrigger = style({
+    display: 'flex',
+    flex: 1,
+    cursor: 'pointer',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderRadius: 'md',
+    borderStyle: 'solid',
+    borderWidth: '1px',
+    borderColor: 'primary',
+    backgroundColor: 'surface',
+    paddingInline: '2',
+    paddingBlock: 'oneAndHalf',
+    fontSize: '14px !custom',
+    fontWeight: '450 !custom',
+    color: 'heading',
+  })
+
+  export const chevronIcon = style({
+    width: '4',
+    height: '4',
+    color: 'secondary',
+    '@supports (color: color-mix(in lab, red, red))': {
+      color: `color-mix(in oklab, ${vars.textColor.secondary} 80%, transparent) !custom`,
+    },
+  })
+
+  export const topNavPositioner = style({
+    zIndex: 60,
+  })
+
+  export const topNavPopup = style({
+    width: 'var(--anchor-width) !custom',
+    transformOrigin: 'var(--transform-origin)',
+    scale: '100% 100%',
+    borderRadius: 'lg',
+    borderStyle: 'solid',
+    borderWidth: '1px',
+    borderColor: 'primary',
+    backgroundColor: 'surface',
+    padding: '2',
+    opacity: '100%',
+    boxShadow:
+      '0 0 #0000, 0 0 #0000, 0 0 #0000, 0 0 #0000, 0 10px 15px -3px oklab(from rgb(0 0 0 / 0.1) l a b / 5%), 0 4px 6px -4px oklab(from rgb(0 0 0 / 0.1) l a b / 5%)',
+    transitionProperty: 'all',
+    transitionTimingFunction: 'standard',
+    transitionDuration: '75ms !custom',
+    selectors: {
+      '&[data-starting-style]': {
+        scale: '90% 90%',
+        opacity: '0%',
+      },
+    },
+  })
+
+  export const groupLabel = style({
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingInline: '2',
+    paddingBlock: 'oneAndHalf',
+    fontSize: '14px !custom',
+    fontWeight: '450 !custom',
+    color: 'primary',
+    '@supports (color: color-mix(in lab, red, red))': {
+      color: `color-mix(in oklab, ${vars.textColor.primary} 80%, transparent) !custom`,
+    },
+  })
+
+  export const childItem = style({
+    marginLeft: '2',
+    display: 'flex',
+    cursor: 'pointer',
+    alignItems: 'center',
+    gap: '1',
+    borderRadius: 'md',
+    paddingBlock: '1',
+    paddingRight: '2',
+    paddingLeft: '2',
+    fontSize: '13px !custom',
+    fontWeight: '450 !custom',
+    color: 'primary',
+    '@supports (color: color-mix(in lab, red, red))': {
+      color: `color-mix(in oklab, ${vars.textColor.primary} 80%, transparent) !custom`,
+    },
+    selectors: {
+      '&:hover': {
+        '@media (hover: hover)': {
+          color: 'heading',
+        },
+      },
+      '&[data-checked]': {
+        backgroundColor: 'accenta3',
+        color: 'accent8 !important',
+      },
+    },
+  })
+
+  export const externalIcon = style({
+    width: '3',
+    height: '3',
+    color: 'secondary',
+    '@supports (color: color-mix(in lab, red, red))': {
+      color: `color-mix(in oklab, ${vars.textColor.secondary} 60%, transparent) !custom`,
+    },
+  })
+
+  export const topLevelItem = style({
+    display: 'flex',
+    cursor: 'pointer',
+    alignItems: 'center',
+    gap: '1',
+    borderRadius: 'md',
+    paddingInline: '2',
+    paddingBlock: 'oneAndHalf',
+    fontSize: '14px !custom',
+    fontWeight: '450 !custom',
+    color: 'primary',
+    '@supports (color: color-mix(in lab, red, red))': {
+      color: `color-mix(in oklab, ${vars.textColor.primary} 80%, transparent) !custom`,
+    },
+    selectors: {
+      '&:hover': {
+        '@media (hover: hover)': {
+          color: 'heading',
+        },
+      },
+      '&[data-checked]': {
+        backgroundColor: 'accenta3',
+        color: 'accent8 !important',
+      },
+    },
+  })
+}
 
 export function MobileNav(props: MobileNav.Props) {
   const { className } = props
@@ -29,44 +261,26 @@ export function MobileNav(props: MobileNav.Props) {
 
   return (
     <Dialog.Root open={dialogOpen} onOpenChange={setDialogOpen}>
-      <Dialog.Trigger
-        aria-label="Open menu"
-        className={cx(
-          'vocs:flex vocs:items-center vocs:justify-center vocs:cursor-pointer vocs:size-8',
-          className,
-        )}
-      >
+      <Dialog.Trigger aria-label="Open menu" {...styles.trigger({ className })}>
         <LucideTextAlignJustify />
       </Dialog.Trigger>
       <Dialog.Portal>
-        <Dialog.Backdrop className="vocs:fixed vocs:inset-0 vocs:bg-black/50 vocs:backdrop-blur-sm vocs:z-40 vocs:transition-opacity vocs:duration-200 vocs:data-starting-style:opacity-0 vocs:data-ending-style:opacity-0" />
-        <Dialog.Popup
-          className="vocs:fixed vocs:top-0 vocs:right-0 vocs:h-full vocs:w-[320px] vocs:bg-primary vocs:border-l vocs:border-primary vocs:z-50 vocs:shadow-xl vocs:transition-transform vocs:duration-200 vocs:data-starting-style:translate-x-full vocs:data-ending-style:translate-x-full"
-          data-v-mobile-nav
-        >
-          <div className="vocs:flex vocs:justify-between vocs:items-center vocs:gap-1 vocs:px-2 vocs:h-topNav">
-            <Dialog.Title className="vocs:sr-only">Menu</Dialog.Title>
+        <Dialog.Backdrop {...styles.backdrop()} />
+        <Dialog.Popup {...styles.popup()} data-v-mobile-nav>
+          <div {...styles.header()}>
+            <Dialog.Title {...styles.title()}>Menu</Dialog.Title>
 
             <MobileTopNav onNavigate={() => setDialogOpen(false)} />
 
-            <Dialog.Close
-              aria-label="Close menu"
-              className="vocs:flex vocs:items-center vocs:justify-center vocs:cursor-pointer vocs:size-8"
-            >
+            <Dialog.Close aria-label="Close menu" {...styles.trigger()}>
               <LucideX />
             </Dialog.Close>
           </div>
 
-          <div
-            className="vocs:overflow-y-auto vocs:h-[calc(100%-var(--vocs-spacing-topNav))] vocs:px-4 vocs:pb-4 vocs:flex vocs:flex-col"
-            ref={sidebarScrollRef}
-          >
+          <div {...styles.content()} ref={sidebarScrollRef}>
             <Sidebar.Sidebar onNavigate={() => setDialogOpen(false)} scrollRef={sidebarScrollRef} />
 
-            <div
-              className="vocs:mt-auto vocs:pt-4 vocs:flex vocs:justify-between vocs:items-center"
-              data-v-mobile-nav-footer
-            >
+            <div {...styles.footer()} data-v-mobile-nav-footer>
               <Socials.Socials />
               {showThemeToggle && <ThemeToggle.ThemeToggle />}
             </div>
@@ -114,27 +328,25 @@ function MobileTopNav(props: MobileTopNav.Props) {
   if (items.length === 0) return null
   return (
     <Menu.Root open={menuOpen} onOpenChange={setMenuOpen}>
-      <Menu.Trigger className="vocs:flex vocs:flex-1 vocs:items-center vocs:justify-between vocs:border vocs:border-primary vocs:bg-surface vocs:px-2 vocs:py-1.5 vocs:text-heading vocs:text-[14px] vocs:font-[450] vocs:rounded-md vocs:cursor-pointer">
+      <Menu.Trigger {...styles.topNavTrigger()}>
         <span>{activeItem?.text}</span>
-        <LucideChevronDown className="vocs:text-secondary/80 vocs:size-4" />
+        <LucideChevronDown {...styles.chevronIcon()} />
       </Menu.Trigger>
       <Menu.Portal>
-        <Menu.Positioner side="bottom" align="start" sideOffset={4} className="vocs:z-60">
-          <Menu.Popup className="vocs:bg-surface vocs:w-(--anchor-width) vocs:border vocs:border-primary vocs:p-2 vocs:rounded-lg vocs:shadow-lg/5 vocs:origin-(--transform-origin) vocs:transition-all vocs:duration-75 vocs:scale-100 vocs:opacity-100 vocs:data-starting-style:opacity-0 vocs:data-starting-style:scale-90">
+        <Menu.Positioner side="bottom" align="start" sideOffset={4} {...styles.topNavPositioner()}>
+          <Menu.Popup {...styles.topNavPopup()}>
             <Menu.RadioGroup value={activeLink}>
               {items.map((item, i) => {
                 if (item.items) {
                   return (
                     // biome-ignore lint/suspicious/noArrayIndexKey: _
                     <Menu.Group key={i}>
-                      <Menu.GroupLabel className="vocs:flex vocs:items-center vocs:justify-between vocs:px-2 vocs:py-1.5 vocs:text-primary/80 vocs:text-[14px] vocs:font-[450]">
-                        {item.text}
-                      </Menu.GroupLabel>
+                      <Menu.GroupLabel {...styles.groupLabel()}>{item.text}</Menu.GroupLabel>
                       {item.items.map((child, j) => {
                         const isExternal = child.external ?? Path.isExternal(child.link)
                         return (
                           <Menu.RadioItem
-                            className="vocs:flex vocs:items-center vocs:gap-1 vocs:hover:text-heading vocs:ml-2 vocs:pl-2 vocs:pr-2 vocs:py-1 vocs:text-primary/80 vocs:data-checked:bg-accenta3 vocs:data-checked:text-accent8! vocs:rounded-md vocs:text-[13px] vocs:font-[450] vocs:cursor-pointer"
+                            {...styles.childItem()}
                             // biome-ignore lint/suspicious/noArrayIndexKey: _
                             key={j}
                             value={child.link}
@@ -144,9 +356,7 @@ function MobileTopNav(props: MobileTopNav.Props) {
                             render={<Link to={child.link!} />}
                           >
                             {child.text}
-                            {isExternal && (
-                              <LucideArrowUpRight className="vocs:size-3 vocs:text-secondary/60" />
-                            )}
+                            {isExternal && <LucideArrowUpRight {...styles.externalIcon()} />}
                           </Menu.RadioItem>
                         )
                       })}
@@ -157,7 +367,7 @@ function MobileTopNav(props: MobileTopNav.Props) {
                 const isExternal = item.external ?? Path.isExternal(item.link)
                 return (
                   <Menu.RadioItem
-                    className="vocs:flex vocs:items-center vocs:gap-1 vocs:hover:text-heading vocs:px-2 vocs:py-1.5 vocs:text-primary/80 vocs:data-checked:bg-accenta3 vocs:data-checked:text-accent8! vocs:rounded-md vocs:text-[14px] vocs:font-[450] vocs:cursor-pointer"
+                    {...styles.topLevelItem()}
                     // biome-ignore lint/suspicious/noArrayIndexKey: _
                     key={i}
                     value={item.link}
@@ -167,9 +377,7 @@ function MobileTopNav(props: MobileTopNav.Props) {
                     render={<Link to={item.link!} />}
                   >
                     {item.text}
-                    {isExternal && (
-                      <LucideArrowUpRight className="vocs:size-3 vocs:text-secondary/60" />
-                    )}
+                    {isExternal && <LucideArrowUpRight {...styles.externalIcon()} />}
                   </Menu.RadioItem>
                 )
               })}

@@ -2,6 +2,7 @@ import { config } from 'virtual:vocs/config'
 import groupIconsStylesUrl from 'virtual:vocs/group-icons.css?url'
 import userStylesUrl from 'virtual:vocs/user-styles'
 import stylesUrl from '../styles/index.css?url'
+import { vars } from '../styles/zyzz.config.js'
 import { Head } from './Head.js'
 import { Root_client } from './Root.client.js'
 import { ScrollRestoration } from './ScrollRestoration.js'
@@ -10,6 +11,7 @@ export async function Root({ children }: { children: React.ReactNode }) {
   const { colorScheme, accentColor } = config
   return (
     <html
+      {...vars()}
       data-vocs
       {...(colorScheme === 'light' || colorScheme === 'dark'
         ? { 'data-vocs-theme': colorScheme }

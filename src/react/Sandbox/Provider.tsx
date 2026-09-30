@@ -9,7 +9,14 @@ import {
 } from '@codesandbox/sandpack-react'
 import * as React from 'react'
 import { transform } from 'sucrase'
+import { style } from '../../styles/zyzz.config.js'
 import { RunButton } from './Run.js'
+
+namespace styles {
+  export const root = style({
+    position: 'relative',
+  })
+}
 
 export function SandboxProvider(props: SandboxProvider.Props) {
   const {
@@ -61,7 +68,7 @@ export function SandboxProvider(props: SandboxProvider.Props) {
       className="shiki shiki-themes github-light github-dark-dimmed text-white font-mono tabular-nums text-lg mt-0.5"
       {...providerProps}
     >
-      <div className="vocs:relative">
+      <div {...styles.root()}>
         <SandpackCodeEditor
           showInlineErrors={true}
           showLineNumbers={true}

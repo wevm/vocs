@@ -6,6 +6,7 @@ import mdxPlugin from '@mdx-js/rollup'
 import tailwindcss, { type PluginOptions as TailwindOptions } from '@tailwindcss/vite'
 import type { PluginOption, ResolvedConfig, Rolldown, ViteDevServer } from 'vite'
 import { createLogger } from 'vite'
+import { zyzz } from 'zyzz/vite'
 import * as Config from './config.js'
 import * as ConfigSerializer from './config-serializer.js'
 import { assertSafeContentSymlinks } from './file-boundary.js'
@@ -25,6 +26,12 @@ import * as InlineCache from './twoslash/inline-cache.js'
 
 export { default as icons } from 'unplugin-icons/vite'
 export { default as arraybuffer } from 'vite-plugin-arraybuffer'
+
+/** Compile source exports during repository development. Published modules are precompiled. */
+export function styles(): PluginOption {
+  const root = path.resolve(import.meta.dirname, '..')
+  return path.basename(root) === 'src' ? zyzz({ include: [root], script: false }) : []
+}
 
 export const tailwind = tailwindcss as unknown as (opts?: TailwindOptions) => PluginOption
 

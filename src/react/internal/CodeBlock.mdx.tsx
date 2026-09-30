@@ -1,7 +1,22 @@
-import { cx } from 'cva'
+import { cx as classes } from 'cva'
+import { cx } from 'zyzz'
+import { style } from '../../styles/zyzz.config.js'
 import { CopyButton, ShellLineCopyButtons, WrapButton } from './CodeBlock.client.js'
 import { CollapseHandler } from './Collapse.client.js'
 import { FoldHandler } from './Fold.client.js'
+
+namespace styles {
+  export const code = style({
+    position: 'relative',
+  })
+
+  export const titledCode = style({
+    borderTopLeftRadius: '0 !custom',
+    borderTopRightRadius: '0 !custom',
+    borderTopStyle: 'solid',
+    borderTopWidth: '0px',
+  })
+}
 
 export function CodeBlock(props: CodeBlock.Props) {
   const {
@@ -24,10 +39,9 @@ export function CodeBlock(props: CodeBlock.Props) {
       )}
       <pre
         {...props}
-        className={cx(
-          className,
-          'vocs:relative vocs:group/code',
-          title ? ' vocs:rounded-t-none vocs:border-t-0' : '',
+        {...cx(
+          styles.code({ className: classes(className, 'vocs:group/code') }),
+          Boolean(title) && styles.titledCode(),
         )}
         data-v-wrapped={showWrap !== undefined ? '' : undefined}
         data-v

@@ -1,11 +1,47 @@
 'use client'
 
-import { cx } from 'cva'
 import * as React from 'react'
 import { useRouter } from 'waku'
 import LucideCheck from '~icons/lucide/check'
 import LucideClipboard from '~icons/lucide/clipboard'
+import { style } from '../../styles/zyzz.config.js'
 import { getMarkdownAssetPath } from './markdown-url.js'
+
+namespace styles {
+  export const button = style({
+    display: 'flex',
+    cursor: 'pointer',
+    alignItems: 'center',
+    gap: '2',
+    fontSize: '13px !custom',
+    color: 'secondary',
+    transitionProperty:
+      'color, background-color, border-color, outline-color, text-decoration-color, fill, stroke',
+    transitionTimingFunction: 'standard',
+    transitionDuration: 'standard',
+    selectors: {
+      '&:hover': {
+        '@media (hover: hover)': {
+          color: 'heading',
+        },
+      },
+      '&:disabled': {
+        cursor: 'default',
+      },
+    },
+  })
+
+  export const checkIcon = style({
+    width: '4',
+    height: '4',
+    color: 'accent',
+  })
+
+  export const clipboardIcon = style({
+    width: '4',
+    height: '4',
+  })
+}
 
 type CopyState = 'idle' | 'copying' | 'copied' | 'error'
 
@@ -40,19 +76,16 @@ export function CopyForAi(props: CopyForAi.Props) {
   return (
     <button
       aria-label="Copy page content as markdown for AI"
-      className={cx(
-        'vocs:flex vocs:items-center vocs:gap-2 vocs:text-[13px] vocs:text-secondary vocs:hover:text-heading vocs:cursor-pointer vocs:disabled:cursor-default vocs:transition-colors',
-        className,
-      )}
+      {...styles.button({ className })}
       data-v-copy-for-ai
       disabled={state === 'copying'}
       onClick={handleCopy}
       type="button"
     >
       {state === 'copied' ? (
-        <LucideCheck className="vocs:size-4 vocs:text-accent" />
+        <LucideCheck {...styles.checkIcon()} />
       ) : (
-        <LucideClipboard className="vocs:size-4" />
+        <LucideClipboard {...styles.clipboardIcon()} />
       )}
       <span>Copy page for AI</span>
     </button>

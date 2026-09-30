@@ -15,6 +15,7 @@ import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import Icons from 'unplugin-icons/vite'
 import { build, type Plugin } from 'vite'
+import { zyzz } from 'zyzz/vite'
 import type { AssetFile } from '../src/server/openapi/assets.js'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
@@ -62,7 +63,7 @@ console.log('[vocs] Building standalone OpenAPI bundle…')
 
 await build({
   configFile: false,
-  root,
+  root: appDir,
   // Relative base so bundle-internal references (dynamic-import chunks, CSS
   // `url()` fonts) resolve against the served asset URL — and therefore route
   // back to the handler wherever it is mounted.
@@ -81,6 +82,7 @@ await build({
     ],
   },
   plugins: [
+    zyzz({ include: [path.join(root, 'src')], script: false }),
     react(),
     tailwindcss(),
     Icons({

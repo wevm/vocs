@@ -1,7 +1,41 @@
 'use client'
 
-import { cx } from 'cva'
 import { useRouter } from 'waku'
+import { style, vars } from '../../styles/zyzz.config.js'
+
+namespace styles {
+  export const link = style({
+    pointerEvents: 'none',
+    position: 'fixed',
+    top: '3',
+    left: '3',
+    zIndex: 50,
+    translate: '0 -100% !custom',
+    borderRadius: 'lg',
+    borderStyle: 'dashed',
+    borderWidth: '2px',
+    borderColor: 'accent8',
+    backgroundColor: 'surface',
+    paddingInline: '4',
+    paddingBlock: '2',
+    fontSize: 'sm',
+    lineHeight: 'sm',
+    fontWeight: 'medium',
+    color: 'accent8',
+    opacity: '0%',
+    transitionProperty: 'all',
+    transitionTimingFunction: 'standard',
+    transitionDuration: '150ms !custom',
+    outlineStyle: 'none',
+    selectors: {
+      '&:focus': {
+        pointerEvents: 'auto',
+        translate: `0 calc(${vars.spacing.unit} * 0) !custom`,
+        opacity: '100%',
+      },
+    },
+  })
+}
 
 export function SkipToContent(props: SkipToContent.Props) {
   const { className } = props
@@ -13,17 +47,7 @@ export function SkipToContent(props: SkipToContent.Props) {
     // a skip link. The href carries the page path because a hash-only href
     // would resolve against the `<base>` tag and navigate to the site root.
     <a
-      className={cx(
-        'vocs:fixed vocs:top-3 vocs:left-3 vocs:z-50',
-        'vocs:px-4 vocs:py-2',
-        'vocs:text-accent8 vocs:text-sm vocs:font-medium',
-        'vocs:bg-surface vocs:border-2 vocs:border-dashed vocs:border-accent8 vocs:rounded-lg',
-        'vocs:outline-none',
-        'vocs:opacity-0 vocs:pointer-events-none vocs:-translate-y-full',
-        'vocs:focus:opacity-100 vocs:focus:pointer-events-auto vocs:focus:translate-y-0',
-        'vocs:transition-all vocs:duration-150',
-        className,
-      )}
+      {...styles.link({ className })}
       data-v-skip-to-content
       href={`${path.split('#')[0]}#vocs-content`}
     >

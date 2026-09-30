@@ -1,13 +1,21 @@
 import * as Icons from '../internal/icons.js'
 import * as Markdown from '../internal/markdown.js'
+import { style } from '../styles/zyzz.config.js'
 import { CardLink } from './Card.client.js'
 
+namespace styles {
+  export const root = style({
+    display: 'grid',
+    gridTemplateColumns: 'repeat(1, minmax(0, 1fr))',
+    gap: '4',
+    '@media (width >= 748px)': {
+      gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+    },
+  })
+}
+
 export function Cards(props: Cards.Props) {
-  return (
-    <div className="vocs:grid vocs:grid-cols-1 vocs:md:grid-cols-2 vocs:gap-4">
-      {props.children}
-    </div>
-  )
+  return <div {...styles.root()}>{props.children}</div>
 }
 
 export declare namespace Cards {

@@ -1,4 +1,5 @@
 import type { Payload } from '../../internal/openapi/app.js'
+import { vars } from '../../styles/zyzz.config.js'
 import { type Assets, assetRoot } from './assets.js'
 
 /**
@@ -27,7 +28,7 @@ export function render(payload: Payload, assets: Assets, mount: string, css?: st
   const staticTheme = colorScheme === 'light' || colorScheme === 'dark' ? colorScheme : undefined
 
   return `<!doctype html>
-<html data-vocs lang="en"${staticTheme ? ` data-vocs-theme="${staticTheme}"` : ''} style="color-scheme: ${escapeAttr(colorScheme)}; --vocs-color-accent: ${escapeAttr(accentColor)}" suppressHydrationWarning>
+<html data-vocs class="${escapeAttr(vars().className)}" lang="en"${staticTheme ? ` data-vocs-theme="${staticTheme}"` : ''} style="color-scheme: ${escapeAttr(colorScheme)}; --vocs-color-accent: ${escapeAttr(accentColor)}" suppressHydrationWarning>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />

@@ -5,9 +5,11 @@
 @import "tailwindcss/utilities.css" layer(vocs_utilities) prefix(vocs);
 
 @import "./theme.css" layer(vocs_theme);
+@import "./compatibility.css";
 @import "./markdown.css" layer(vocs_components);
 @import "./twoslash.css" layer(vocs_components);
 @import "./openapi.css" layer(vocs_components);
+@import "./zyzz.css";
 
 @custom-variant dark (&:where([style*=":dark"], [style*=":dark"] *, [style*=": dark"], [style*=": dark"] *));
 

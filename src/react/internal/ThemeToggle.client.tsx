@@ -2,11 +2,61 @@
 
 import { Radio } from '@base-ui/react/radio'
 import { RadioGroup } from '@base-ui/react/radio-group'
-import { cx } from 'cva'
 import * as React from 'react'
 import LucideMonitor from '~icons/lucide/monitor'
 import LucideMoon from '~icons/lucide/moon'
 import LucideSun from '~icons/lucide/sun'
+import { style, vars } from '../../styles/zyzz.config.js'
+
+namespace styles {
+  export const root = style({
+    display: 'flex',
+    width: 'fit-content !custom',
+    alignItems: 'center',
+    borderRadius: 'calc(infinity * 1px) !custom',
+    borderStyle: 'solid',
+    borderWidth: '1px',
+    borderColor: 'primary',
+    backgroundColor: 'surface',
+    padding: 'half',
+  })
+
+  export const icon = style({
+    width: '4',
+    height: '4',
+  })
+
+  export const option = style({
+    display: 'flex',
+    width: '7',
+    height: '7',
+    cursor: 'pointer',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 'calc(infinity * 1px) !custom',
+    color: 'primary',
+    '@supports (color: color-mix(in lab, red, red))': {
+      color: `color-mix(in oklab, ${vars.textColor.primary} 60%, transparent) !custom`,
+    },
+    transitionProperty: 'all',
+    transitionTimingFunction: 'standard',
+    transitionDuration: '150ms !custom',
+    selectors: {
+      '&:hover': {
+        '@media (hover: hover)': {
+          color: 'primary',
+        },
+      },
+      '&[data-checked]': {
+        borderStyle: 'solid',
+        borderWidth: '1px',
+        borderColor: 'secondary',
+        backgroundColor: 'surfaceMuted',
+        color: 'heading',
+      },
+    },
+  })
+}
 
 const storageKey = 'vocs-theme'
 
@@ -79,23 +129,20 @@ export function ThemeToggle(props: ThemeToggle.Props) {
   return (
     <RadioGroup
       aria-label="Theme selection"
-      className={cx(
-        'vocs:flex vocs:w-fit vocs:items-center vocs:p-0.5 vocs:rounded-full vocs:bg-surface vocs:border vocs:border-primary',
-        className,
-      )}
+      {...styles.root({ className })}
       onValueChange={(value) => setTheme(value as Theme)}
       value={theme}
     >
       <Option label="Light theme" value="light">
-        <LucideSun className="vocs:size-4" />
+        <LucideSun {...styles.icon()} />
       </Option>
 
       <Option label="Dark theme" value="dark">
-        <LucideMoon className="vocs:size-4" />
+        <LucideMoon {...styles.icon()} />
       </Option>
 
       <Option label="System theme" value="system">
-        <LucideMonitor className="vocs:size-4" />
+        <LucideMonitor {...styles.icon()} />
       </Option>
     </RadioGroup>
   )
@@ -112,11 +159,7 @@ function Option(props: Option.Props) {
   const { children, label, value } = props
 
   return (
-    <Radio.Root
-      aria-label={label}
-      className="vocs:flex vocs:items-center vocs:justify-center vocs:size-7 vocs:rounded-full vocs:cursor-pointer vocs:transition-all vocs:duration-150 vocs:text-primary/60 vocs:hover:text-primary vocs:data-checked:bg-surfaceMuted vocs:data-checked:text-heading vocs:data-checked:border vocs:data-checked:border-secondary"
-      value={value}
-    >
+    <Radio.Root aria-label={label} {...styles.option()} value={value}>
       {children}
     </Radio.Root>
   )

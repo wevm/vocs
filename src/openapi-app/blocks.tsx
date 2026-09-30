@@ -1,7 +1,20 @@
 import type { CompiledPage, PageBlock } from '../internal/openapi/app.js'
 import { Endpoints } from '../react/internal/openapi/Endpoints.js'
+import { style } from '../styles/zyzz.config.js'
 
 /** Renders a compiled override/guide page's ordered blocks. */
+
+namespace styles {
+  export const article = style({
+    selectors: {
+      ':where(& > :not(:last-child))': {
+        marginBlockStart: '0 !custom',
+        marginBlockEnd: '6',
+      },
+    },
+  })
+}
+
 export function Blocks(props: { page: CompiledPage }) {
   return (
     <>
@@ -24,7 +37,7 @@ function Block(props: { block: PageBlock }) {
   // Mirrors `Layout`'s content article 1:1.
   return (
     <article
-      className="vocs:space-y-6"
+      {...styles.article()}
       data-v-content
       // biome-ignore lint/security/noDangerouslySetInnerHtml: server-compiled trusted page content
       dangerouslySetInnerHTML={{ __html: block.html }}

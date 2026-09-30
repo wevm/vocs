@@ -1,5 +1,13 @@
 import LucideLink from '~icons/lucide/link'
+import { style } from '../../../styles/zyzz.config.js'
 import { Link } from '../../Link.js'
+
+namespace styles {
+  export const icon = style({
+    width: '0.75em !custom',
+    height: '0.75em !custom',
+  })
+}
 
 /**
  * A copy-link anchor appended to an OpenAPI heading. Reuses the markdown
@@ -15,7 +23,7 @@ export function HeadingAnchor(props: HeadingAnchor.Props) {
       aria-label="Copy link and go to this section"
       title="Copy link and go to this section"
     >
-      <LucideLink className="heading-anchor-icon vocs:size-[0.75em]" />
+      <LucideLink {...styles.icon({ className: 'heading-anchor-icon' })} />
     </Link>
   )
 }
