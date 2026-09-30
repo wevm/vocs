@@ -44,6 +44,47 @@ function resultText(result: Awaited<ReturnType<Client['callTool']>>): string {
   return content[0]?.text ?? ''
 }
 
+describe('read_page', () => {
+  it('reads a page by its documented slash path', async () => {
+    const config = Config.define({ rootDir: dir, mcp: { enabled: true } })
+    const server = Mcp.createServer(config)
+    const client = await connect(server)
+    const result = await client.callTool({
+      name: 'read_page',
+      arguments: { pagePath: '/deploy' },
+    })
+
+    expect(result.isError).not.toBe(true)
+    expect(resultText(result)).toContain('Publish your documentation site')
+  })
+
+  it('does not read files outside the pages directory', async () => {
+    const secret = path.join(dir, 'secret.mdx')
+    fs.writeFileSync(secret, 'SECRET_OUTSIDE_PAGES\n')
+
+    const config = Config.define({ rootDir: dir, mcp: { enabled: true } })
+    const server = Mcp.createServer(config)
+    const client = await connect(server)
+
+    const traversal = await client.callTool({
+      name: 'read_page',
+      arguments: { pagePath: '../../secret' },
+    })
+    expect(traversal.isError).toBe(true)
+    expect(resultText(traversal)).toBe('Page not found: ../../secret')
+    expect(resultText(traversal)).not.toContain('SECRET_OUTSIDE_PAGES')
+
+    const absolute = secret.replace(/\.mdx$/, '')
+    const absResult = await client.callTool({
+      name: 'read_page',
+      arguments: { pagePath: absolute },
+    })
+    expect(absResult.isError).toBe(true)
+    expect(resultText(absResult)).toBe(`Page not found: ${absolute}`)
+    expect(resultText(absResult)).not.toContain('SECRET_OUTSIDE_PAGES')
+  })
+})
+
 describe('search_docs', () => {
   it('uses the AI retriever when configured', async () => {
     const config = Config.define({
