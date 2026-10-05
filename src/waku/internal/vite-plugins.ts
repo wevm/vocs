@@ -28,6 +28,23 @@ export {
 export { fsRouterTypegenPlugin as fsRouterTypegen } from './patches/vite-plugins/fs-router-typegen.js'
 export { patchReactDomPlugin as patchReactDom } from './patches/vite-plugins/patch-react-dom.js'
 
+// Vocs already deduplicates metadata in its router. Disable Waku's additional
+// transform without importing plugin exports that are unavailable in RC.1.
+export function htmlTransform(): Plugin {
+  const moduleId = 'virtual:vite-rsc-waku/html-transform'
+  return {
+    name: 'vocs:html-transform',
+    resolveId(id) {
+      if (id === moduleId) return `\0${moduleId}`
+      return
+    },
+    load(id) {
+      if (id === `\0${moduleId}`) return 'export default undefined;'
+      return
+    },
+  }
+}
+
 export function buildId(): Plugin {
   const key = 'import.meta.env.WAKU_BUILD_ID'
   const buildId = randomBytes(6).toString('base64url')

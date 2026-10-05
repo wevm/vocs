@@ -19,6 +19,8 @@ export async function Root({ children }: { children: React.ReactNode }) {
       suppressHydrationWarning
     >
       <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="stylesheet" href={stylesUrl} />
         {userStylesUrl && <link rel="stylesheet" href={userStylesUrl} />}
         {groupIconsStylesUrl && <link rel="stylesheet" href={groupIconsStylesUrl} />}

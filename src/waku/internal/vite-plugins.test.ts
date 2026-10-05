@@ -73,3 +73,19 @@ test.each([
     expect(hydrateRoot).not.toHaveBeenCalled()
   }
 })
+
+test('HTML transform preserves Vocs metadata without requiring RC.2 plugin exports', async () => {
+  const { createServer } = await import('vite')
+  const { htmlTransform } = await import('./vite-plugins.js')
+  const server = await createServer({
+    configFile: false,
+    plugins: [htmlTransform()],
+    server: { middlewareMode: true, watch: null },
+  })
+  try {
+    const module = await server.ssrLoadModule('virtual:vite-rsc-waku/html-transform')
+    expect(module).toHaveProperty('default', undefined)
+  } finally {
+    await server.close()
+  }
+})
