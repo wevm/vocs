@@ -1,6 +1,7 @@
 import * as fs from 'node:fs/promises'
 import * as os from 'node:os'
 import * as path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { build, isFileServingAllowed, type ResolvedConfig, resolveConfig } from 'vite'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 import * as Config from './config.js'
@@ -8,6 +9,7 @@ import * as Llms from './llms.js'
 import type * as OpenApi from './openapi/index.js'
 import {
   cacheProtection,
+  deps,
   llms,
   openapiClientDocument,
   openapiClientManifest,
@@ -17,6 +19,37 @@ import {
   resolveSitemapLastmod,
   sitemap,
 } from './vite-plugins.js'
+
+describe('dependencies', () => {
+  test.each([false, true])('prebundles Mermaid only when installed: %s', async (installed) => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), 'vocs-deps-'))
+    tempDirs.add(root)
+    if (installed) {
+      await fs.mkdir(path.join(root, 'node_modules'))
+      await fs.symlink(
+        path.dirname(fileURLToPath(import.meta.resolve('mermaid/package.json'))),
+        path.join(root, 'node_modules/mermaid'),
+        'junction',
+      )
+    }
+
+    const resolved = await resolveConfig(
+      {
+        root,
+        configFile: false,
+        plugins: [deps()],
+        optimizeDeps: { include: ['custom-dependency'] },
+      },
+      'serve',
+    )
+
+    expect(resolved.optimizeDeps.include?.includes('mermaid')).toBe(installed)
+    expect(resolved.environments['client']?.optimizeDeps.include?.includes('mermaid')).toBe(
+      installed,
+    )
+    expect(resolved.optimizeDeps.include).toContain('custom-dependency')
+  })
+})
 
 describe('cache protection', () => {
   test('denies cache files while preserving normal files and Vite defaults', async () => {

@@ -69,6 +69,9 @@ export function cacheProtection(cacheDir: string): PluginOption {
 export function deps(): PluginOption {
   return {
     name: 'vocs:deps',
+    async configResolved(config) {
+      if (await config.createResolver()('mermaid')) config.optimizeDeps.include?.push('mermaid')
+    },
     config(config) {
       const { rollupOptions: _rollupOptions, ...build } = config?.build ?? {}
       return {
