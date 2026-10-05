@@ -1,5 +1,11 @@
 # vocs
 
+## 2.10.2
+
+### Patch Changes
+
+- e4d801d: Added Waku rc.2 support while preserving metadata rendering, document defaults, and rc.1 compatibility.
+
 ## 2.10.1
 
 ### Patch Changes
