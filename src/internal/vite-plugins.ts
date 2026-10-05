@@ -1,5 +1,6 @@
 import crypto from 'node:crypto'
 import * as fs from 'node:fs/promises'
+import { createRequire } from 'node:module'
 import * as path from 'node:path'
 import { gzipSync } from 'node:zlib'
 import mdxPlugin from '@mdx-js/rollup'
@@ -70,6 +71,17 @@ export function deps(): PluginOption {
   return {
     name: 'vocs:deps',
     config(config) {
+      const mermaid = (() => {
+        try {
+          createRequire(path.resolve(config.root ?? process.cwd(), 'package.json')).resolve(
+            'mermaid',
+          )
+          return ['mermaid']
+        } catch {
+          return []
+        }
+      })()
+
       const { rollupOptions: _rollupOptions, ...build } = config?.build ?? {}
       return {
         build: {
@@ -104,6 +116,7 @@ export function deps(): PluginOption {
             'vocs > escape-carriage',
             'vocs > lines-and-columns',
             'vocs > lz-string',
+            ...mermaid,
             'vocs > react-error-boundary',
             'vocs > ts-interface-checker',
             ...(config?.optimizeDeps?.include ?? []),
