@@ -44,7 +44,9 @@ describe('dependencies', () => {
     )
 
     expect(resolved.optimizeDeps.include?.includes('mermaid')).toBe(installed)
-    expect(resolved.environments.client?.optimizeDeps.include?.includes('mermaid')).toBe(installed)
+    expect(resolved.environments['client']?.optimizeDeps.include?.includes('mermaid')).toBe(
+      installed,
+    )
     expect(resolved.optimizeDeps.include).toContain('custom-dependency')
   })
 })
