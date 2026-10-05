@@ -187,15 +187,6 @@ That wrapper will apply to the MDX pages in `guide`. Nested directories can defi
 
 Use `_root.tsx` and `_layout.tsx` only when you need lower-level Waku layout control. For most page shell changes, start with frontmatter layouts or `_mdx-wrapper.tsx`.
 
-If your custom `_root.tsx` renders its own `<html>` and `<head>`, include the document defaults below. Waku rc.2 no longer adds these tags automatically. Vocs's default root includes them.
-
-```tsx
-<head>
-  <meta charSet="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-</head>
-```
-
 [Read Layouts](/features/layouts)
 
 ## Slots
