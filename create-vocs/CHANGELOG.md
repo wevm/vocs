@@ -1,5 +1,11 @@
 # create-vocs
 
+## 2.0.4
+
+### Patch Changes
+
+- e4d801d: Added Waku rc.2 support while preserving metadata rendering, document defaults, and rc.1 compatibility.
+
 ## 2.0.3
 
 ### Patch Changes
