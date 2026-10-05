@@ -56,6 +56,7 @@ export async function vocs(options: vocs.Options = {}): Promise<PluginOption[]> 
     Plugins.staticBuild(wakuConfig),
     Plugins.privateDir(wakuConfig),
     Plugins.htmlShell(),
+    Plugins.htmlTransform(),
     Plugins.fsRouterTypegen(wakuConfig),
     Plugins.preview(),
     Plugins.vocsConfig(config),
