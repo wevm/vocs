@@ -1,7 +1,7 @@
 import * as fs from 'node:fs/promises'
-import { createRequire } from 'node:module'
 import * as os from 'node:os'
 import * as path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { build, isFileServingAllowed, type ResolvedConfig, resolveConfig } from 'vite'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 import * as Config from './config.js'
@@ -25,10 +25,9 @@ describe('dependencies', () => {
     const root = await fs.mkdtemp(path.join(os.tmpdir(), 'vocs-deps-'))
     tempDirs.add(root)
     if (installed) {
-      const require = createRequire(import.meta.url)
       await fs.mkdir(path.join(root, 'node_modules'))
       await fs.symlink(
-        path.dirname(require.resolve('mermaid/package.json')),
+        path.dirname(fileURLToPath(import.meta.resolve('mermaid/package.json'))),
         path.join(root, 'node_modules/mermaid'),
         'junction',
       )
@@ -45,6 +44,7 @@ describe('dependencies', () => {
     )
 
     expect(resolved.optimizeDeps.include?.includes('mermaid')).toBe(installed)
+    expect(resolved.environments.client?.optimizeDeps.include?.includes('mermaid')).toBe(installed)
     expect(resolved.optimizeDeps.include).toContain('custom-dependency')
   })
 })
