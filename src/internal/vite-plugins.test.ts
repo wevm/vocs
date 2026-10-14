@@ -2,15 +2,25 @@ import * as fs from 'node:fs/promises'
 import * as os from 'node:os'
 import * as path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { build, isFileServingAllowed, type ResolvedConfig, resolveConfig } from 'vite'
+import {
+  build,
+  createServer,
+  isFileServingAllowed,
+  isRunnableDevEnvironment,
+  type ResolvedConfig,
+  resolveConfig,
+} from 'vite'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 import * as Config from './config.js'
 import * as Llms from './llms.js'
 import type * as OpenApi from './openapi/index.js'
+import * as OpenApiSpec from './openapi/openapi.js'
+import * as OpenApiRegistry from './openapi/registry.js'
 import {
   cacheProtection,
   deps,
   llms,
+  openapi,
   openapiClientDocument,
   openapiClientManifest,
   openapiSchemaModelsDocument,
@@ -141,7 +151,7 @@ describe('openapi client modules', () => {
   })
 
   test('serializes only the requested client document', () => {
-    const document = openapiClientDocument(specs, '/first')
+    const document = JSON.stringify(openapiClientDocument(specs, '/first'))
 
     expect(document).toContain('first-client')
     expect(document).not.toContain('second-client')
@@ -214,10 +224,47 @@ describe('openapi schema model modules', () => {
 
   test('serializes only the requested category models', () => {
     const source = JSON.stringify(['/first', 'pets'])
-    const document = openapiSchemaModelsDocument(specs, source)
+    const document = JSON.stringify(openapiSchemaModelsDocument(specs, source))
 
     expect(document).toContain('first schema detail')
     expect(document).not.toContain('second schema detail')
+  })
+})
+
+describe('openapi modules', () => {
+  test('dev runners read parsed specs without serializing them', async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), 'vocs-openapi-'))
+    tempDirs.add(root)
+    const config = Config.define({
+      rootDir: root,
+      openapi: [
+        OpenApiSpec.from({
+          path: '/api',
+          spec: { openapi: '3.1.0', info: { title: 'Petstore' }, paths: {} },
+        }),
+      ],
+    })
+    Config.setGlobal(config)
+    OpenApiRegistry.invalidate()
+    const server = await createServer({
+      configFile: false,
+      logLevel: 'silent',
+      root,
+      plugins: [openapi(config)],
+      server: { middlewareMode: true, ws: false },
+    })
+    try {
+      const environment = server.environments.ssr
+      if (!isRunnableDevEnvironment(environment)) throw new Error('expected a runnable environment')
+      const { specs } = await environment.runner.import('virtual:vocs/openapi')
+      const result = await environment.transformRequest('virtual:vocs/openapi')
+
+      expect(specs).toBe(await OpenApiRegistry.build(config))
+      expect(result?.code).not.toContain('Petstore')
+    } finally {
+      await server.close()
+      OpenApiRegistry.invalidate()
+    }
   })
 })
 
