@@ -1,8 +1,11 @@
 import { randomBytes } from 'node:crypto'
 import { existsSync } from 'node:fs'
 import * as fs from 'node:fs/promises'
+import { findSourceMap } from 'node:module'
 import * as path from 'node:path'
-import type { Plugin } from 'vite'
+import { fileURLToPath } from 'node:url'
+import { createRunnableDevEnvironment, type Plugin, type ResolvedConfig } from 'vite'
+import { ESModulesEvaluator, type ModuleRunnerContext } from 'vite/module-runner'
 import type { Config as WakuConfig } from 'waku/config'
 import * as VocsConfig from '../../internal/config.js'
 import {
@@ -81,6 +84,46 @@ export function rsdwNoExternal(): Plugin {
       }
     },
   }
+}
+
+/**
+ * Runs dev server modules without their inline source maps compiled in. Node and V8
+ * otherwise each retain a copy per module; Vite still maps stack frames lazily.
+ */
+export function serverSourceMaps(): Plugin {
+  const createEnvironment = (name: string, config: ResolvedConfig) =>
+    createRunnableDevEnvironment(name, config, {
+      runnerOptions: {
+        evaluator: new ServerSourceMapsEvaluator(),
+        sourcemapInterceptor: { retrieveSourceMap: retrieveNodeSourceMap },
+      },
+    })
+
+  return {
+    name: 'vocs:server-source-maps',
+    apply: 'serve',
+    configEnvironment(name, options) {
+      if (name !== 'rsc' && name !== 'ssr') return
+      if (options.dev?.createEnvironment) return
+      return { dev: { createEnvironment } }
+    },
+  }
+}
+
+class ServerSourceMapsEvaluator extends ESModulesEvaluator {
+  override runInlinedModule(context: ModuleRunnerContext, code: string) {
+    // Remove every map comment, since Node reads the last one (optimized deps keep their own).
+    return super.runInlinedModule(context, code.replace(/^\/\/# sourceMappingURL=.*$/gm, ''))
+  }
+}
+
+// Vite's interceptor replaces Node's stack mapping for every frame, so frames outside the
+// runner (e.g. files loaded by tsx) fall back to the maps Node already holds.
+function retrieveNodeSourceMap(source: string) {
+  const map = findSourceMap(source)?.payload
+  if (!map) return null
+  const toPath = (url: string) => (url.startsWith('file:') ? fileURLToPath(url) : url)
+  return { url: toPath(source), map: { ...map, sources: map.sources.map(toPath) } }
 }
 
 /**
