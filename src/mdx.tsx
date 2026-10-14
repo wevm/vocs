@@ -6,6 +6,7 @@ import { Changelog } from './react/internal/Changelog.mdx.js'
 import { CodeBlock } from './react/internal/CodeBlock.mdx.js'
 import { CodeGroup } from './react/internal/CodeGroup.mdx.js'
 import { CodeToHtml } from './react/internal/CodeToHtml.js'
+import { CodeTree } from './react/internal/CodeTree.mdx.js'
 import { FileTree } from './react/internal/FileTree.mdx.js'
 import { Mermaid } from './react/internal/Mermaid.mdx.js'
 import { Steps } from './react/internal/Steps.mdx.js'
@@ -74,6 +75,8 @@ export const components: MDXComponents = {
     if (props.className?.includes('twoslash-hover')) return <TwoslashHover {...props} />
     return <span {...props} />
   },
+  // Code block contents emitted by `rehypeStaticCode`.
+  VocsCodeTree: CodeTree,
   table(props: React.PropsWithChildren<React.ComponentProps<'table'>>) {
     return (
       <div data-v-table-wrapper>

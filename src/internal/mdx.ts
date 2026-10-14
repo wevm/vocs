@@ -42,6 +42,7 @@ import * as Icons from './icons.js'
 import * as OpenApiRegistry from './openapi/registry.js'
 import { groupPath } from './openapi/route.js'
 import { rehypeImageSize } from './rehype-image-size.js'
+import { rehypeStaticCode } from './rehype-static-code.js'
 import { remarkVocsScope } from './remark-vocs-scope.js'
 import { remarkSandbox } from './sandbox.js'
 import * as ShikiTransformers from './shiki-transformers.js'
@@ -387,6 +388,8 @@ export function getCompileOptions(
           rehypeCodeInLink,
           rehypeImageSize(config),
           rehypeLinks(config),
+          // Must run last: later plugins cannot see inside the serialized HTML.
+          rehypeStaticCode,
         ],
         remarkPlugins: [
           remarkMermaid,
