@@ -1,5 +1,5 @@
 import { createContext, runInContext } from 'node:vm'
-import type { Plugin } from 'vite'
+import type { Plugin, RunnableDevEnvironment } from 'vite'
 import type { ModuleRunner } from 'vite/module-runner'
 import { expect, test, vi } from 'vitest'
 import { mdxHmr } from './vite-plugins.js'
@@ -117,7 +117,7 @@ export function boom(): never {
   }
   const withRunner = async <value>(
     plugins: Plugin[],
-    fn: (runner: ModuleRunner) => Promise<value>,
+    fn: (runner: ModuleRunner, environment: RunnableDevEnvironment) => Promise<value>,
   ) => {
     const server = await createServer({
       configFile: false,
@@ -129,7 +129,7 @@ export function boom(): never {
     try {
       const environment = server.environments.ssr
       if (!isRunnableDevEnvironment(environment)) throw new Error('Expected a runnable environment')
-      return await fn(environment.runner)
+      return await fn(environment.runner, environment)
     } finally {
       await server.close()
     }
@@ -167,12 +167,27 @@ export function boom(): never {
     expect(viteStack).toContain(`${viteFile}:5:9`)
     expect(findSourceMap(viteFile)).toBeDefined()
 
-    const [vocsStack, nativeStack] = await withRunner([serverSourceMaps()], async (runner) => [
-      stackOf((await runner.import(vocsFile)).boom),
-      stackOf(native.boom),
-    ])
+    const [vocsStack, nativeStack, vocsCode, editedStack] = await withRunner(
+      [serverSourceMaps()],
+      async (runner, environment) => {
+        const vocsStack = stackOf((await runner.import(vocsFile)).boom)
+        const vocsCode = environment.moduleGraph.getModuleById(vocsFile)?.transformResult?.code
+
+        // An edit moves the throw down two lines.
+        await fs.writeFile(vocsFile, `// one\n// two\n${source}`)
+        const module = environment.moduleGraph.getModuleById(vocsFile)
+        if (module) environment.moduleGraph.invalidateModule(module)
+        for (const node of runner.evaluatedModules.getModulesByFile(vocsFile) ?? [])
+          runner.evaluatedModules.invalidateModule(node)
+        const editedStack = stackOf((await runner.import(vocsFile)).boom)
+
+        return [vocsStack, stackOf(native.boom), vocsCode, editedStack]
+      },
+    )
     expect(vocsStack).toContain(`${vocsFile}:5:9`)
     expect(findSourceMap(vocsFile)).toBeUndefined()
+    expect(vocsCode).not.toContain('sourceMappingURL')
+    expect(editedStack).toContain(`${vocsFile}:7:9`)
     expect(nativeStack).toContain(`${nativeFile}:5:9`)
   } finally {
     process.setSourceMapsEnabled(enabled)
