@@ -25,8 +25,12 @@ export {
   unstable_staticBuildPlugin as staticBuild,
   unstable_virtualConfigPlugin as virtualConfig,
 } from 'waku/vite-plugins'
+export { crawlEndContextPlugin as crawlEndContext } from './patches/vite-plugins/crawl-end-context.js'
 export { fsRouterTypegenPlugin as fsRouterTypegen } from './patches/vite-plugins/fs-router-typegen.js'
-export { patchReactDomPlugin as patchReactDom } from './patches/vite-plugins/patch-react-dom.js'
+export {
+  patchReactDomPlugin as patchReactDom,
+  patchReactDomServerPlugin as patchReactDomServer,
+} from './patches/vite-plugins/patch-react-dom.js'
 
 // Vocs already deduplicates metadata in its router. Disable Waku's additional
 // transform without importing plugin exports that are unavailable in RC.1.
