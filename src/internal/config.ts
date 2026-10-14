@@ -1078,6 +1078,12 @@ export async function resolve(options: resolve.Options = {}): Promise<Config> {
   const configFile = getConfigFile({ rootDir })
   if (!configFile) return define({})
 
+  // `loadConfigFromFile` imports a fresh bundle per call and Node never unloads modules,
+  // so reuse the loaded config until the config file or one of its imports changes.
+  const file = path.resolve(rootDir, configFile)
+  const cached = loadedConfigs.get(file)
+  if (cached && cached.stamp === stamp(cached.files)) return define({ ...cached.config, rootDir })
+
   // Resolved via a non-literal specifier so bundlers (esbuild/Wrangler) don't
   // statically pull Vite (and its esbuild/lightningcss/rollup deps) into edge
   // consumers that only import `Config.define` through `vocs/server`. This branch
@@ -1092,7 +1098,18 @@ export async function resolve(options: resolve.Options = {}): Promise<Config> {
   )
   if (!result) return define({ rootDir })
 
+  const files = [
+    file,
+    ...(result.dependencies as string[]).map((dependency) => path.resolve(rootDir, dependency)),
+  ]
+  loadedConfigs.set(file, { config: result.config, files, stamp: stamp(files) })
   return define({ ...result.config, rootDir })
+}
+
+const loadedConfigs = new Map<string, { config: define.Options; files: string[]; stamp: string }>()
+
+function stamp(files: readonly string[]) {
+  return files.map((file) => fs.statSync(file, { throwIfNoEntry: false })?.mtimeMs).join()
 }
 
 declare namespace resolve {
