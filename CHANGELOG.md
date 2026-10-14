@@ -1,5 +1,19 @@
 # vocs
 
+## 2.10.3
+
+### Patch Changes
+
+- 4b8ec1c: Stopped dev server requests from re-bundling and re-importing `vocs.config.ts` until the config or one of its imports changes.
+- 66bfd9c: Reduced dev server memory by skipping source maps for generated config and search index modules.
+- 9447ca3: Loaded only the configured or inferred Shiki languages up front and lazily loaded other fence languages on first use, reducing dev server memory and cold-start time.
+- 203e918: Reduced dev server memory by passing parsed OpenAPI data to in-process environments instead of serializing it into virtual modules.
+- 10112a1: Reduced dev server memory by evaluating server modules without their inline source maps, which Node and V8 each retained, while keeping stack traces mapped to source.
+- 66bfd9c: Reduced dev server memory by compiling MDX without the `jsxDEV` source locations that React 19 ignores.
+- 4b8ec1c: Released finished page renders from dev server memory that React DOM server context and Vite's crawl-end timer kept alive.
+- 66bfd9c: Reduced dev server memory by no longer inlining source maps into server module code, mapping stack frames from the module graph instead.
+- 4b8ec1c: Reduced dev server memory on code-heavy pages by rendering code block contents through one shared renderer, with static markup as HTML strings.
+
 ## 2.10.2
 
 ### Patch Changes
