@@ -316,7 +316,9 @@ export function llms(config: Config.Config): PluginOption {
  */
 export function mdx(config: Config.Config): PluginOption {
   const { checkDeadlinks, twoslash } = config
-  const plugin = mdxPlugin(Mdx.getCompileOptions('react', config))
+  // React 19 ignores the source locations that `jsxDEV` output passes per element, which
+  // only grow each page module in dev.
+  const plugin = mdxPlugin({ development: false, ...Mdx.getCompileOptions('react', config) })
 
   let mode: 'development' | 'production' = 'development'
 
