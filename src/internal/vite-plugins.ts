@@ -316,7 +316,9 @@ export function llms(config: Config.Config): PluginOption {
  */
 export function mdx(config: Config.Config): PluginOption {
   const { checkDeadlinks, twoslash } = config
-  const plugin = mdxPlugin(Mdx.getCompileOptions('react', config))
+  // React 19 ignores the source locations that `jsxDEV` output passes per element, which
+  // only grow each page module in dev.
+  const plugin = mdxPlugin({ development: false, ...Mdx.getCompileOptions('react', config) })
 
   let mode: 'development' | 'production' = 'development'
 
@@ -826,7 +828,11 @@ export function search(config: Config.Config): PluginOption {
 
       if (mode === 'development') {
         const json = index ? JSON.stringify(index.toJSON()) : '{}'
-        return `export const getSearchIndex = async () => ${JSON.stringify(json)}`
+        // Generated data needs no source map (see `virtualConfig`).
+        return {
+          code: `export const getSearchIndex = async () => ${JSON.stringify(json)}`,
+          map: { mappings: '' },
+        }
       }
 
       // Production: return fetch-based loader
@@ -998,7 +1004,10 @@ export const getAiSearchManifest = async () =>
 
       const manifest = toPublicManifest(await buildManifest())
       if (mode === 'development')
-        return `export const getAiSearchIndex = async () => ${JSON.stringify(JSON.stringify(manifest))}`
+        return {
+          code: `export const getAiSearchIndex = async () => ${JSON.stringify(JSON.stringify(manifest))}`,
+          map: { mappings: '' },
+        }
 
       const base = basePath.endsWith('/') ? basePath : `${basePath}/`
       return `export const getAiSearchIndex = async () => await (await fetch("${base}assets/ai-search-index-${publicHash}.json")).text()`
@@ -1081,7 +1090,12 @@ export function virtualConfig(config: Config.Config): PluginOption {
         const currentConfig = OpenApiRegistry.mergeSidebar(Config.getGlobal() ?? config)
         const serializedConfig =
           mode === 'development' ? { ...currentConfig, baseUrl: undefined } : currentConfig
-        return `export const config = ${ConfigSerializer.serialize(ConfigSerializer.forClient(serializedConfig))}`
+        // An empty map tells Vite to skip generating one, which for generated data is mostly
+        // a second copy of the module, retained by every environment.
+        return {
+          code: `export const config = ${ConfigSerializer.serialize(ConfigSerializer.forClient(serializedConfig))}`,
+          map: { mappings: '' },
+        }
       }
       return
     },

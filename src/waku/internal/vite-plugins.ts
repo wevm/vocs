@@ -4,8 +4,19 @@ import * as fs from 'node:fs/promises'
 import { findSourceMap } from 'node:module'
 import * as path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { createRunnableDevEnvironment, type Plugin, type ResolvedConfig } from 'vite'
-import { ESModulesEvaluator, type ModuleRunnerContext } from 'vite/module-runner'
+import {
+  createRunnableDevEnvironment,
+  type Plugin,
+  type ResolvedConfig,
+  type RunnableDevEnvironment,
+  type TransformResult,
+} from 'vite'
+import {
+  ESModulesEvaluator,
+  type EvaluatedModuleNode,
+  EvaluatedModules,
+  type ModuleRunnerContext,
+} from 'vite/module-runner'
 import type { Config as WakuConfig } from 'waku/config'
 import * as VocsConfig from '../../internal/config.js'
 import {
@@ -87,17 +98,25 @@ export function rsdwNoExternal(): Plugin {
 }
 
 /**
- * Runs dev server modules without their inline source maps compiled in. Node and V8
- * otherwise each retain a copy per module; Vite still maps stack frames lazily.
+ * Runs dev server modules without inline source maps. Module code, Node, and V8 would
+ * otherwise each retain a copy per module; Vite maps stack frames from the module graph.
  */
 export function serverSourceMaps(): Plugin {
-  const createEnvironment = (name: string, config: ResolvedConfig) =>
-    createRunnableDevEnvironment(name, config, {
+  const createEnvironment = (name: string, config: ResolvedConfig) => {
+    const evaluator = new ServerSourceMapsEvaluator()
+    const environment: RunnableDevEnvironment = createRunnableDevEnvironment(name, config, {
+      remoteRunner: { inlineSourceMap: false },
       runnerOptions: {
-        evaluator: new ServerSourceMapsEvaluator(),
+        evaluator,
+        evaluatedModules: new ServerEvaluatedModules(
+          (id) => environment.moduleGraph.getModuleById(id)?.transformResult?.map,
+          evaluator.startOffset,
+        ),
         sourcemapInterceptor: { retrieveSourceMap: retrieveNodeSourceMap },
       },
     })
+    return environment
+  }
 
   return {
     name: 'vocs:server-source-maps',
@@ -111,9 +130,40 @@ export function serverSourceMaps(): Plugin {
 }
 
 class ServerSourceMapsEvaluator extends ESModulesEvaluator {
-  override runInlinedModule(context: ModuleRunnerContext, code: string) {
-    // Remove every map comment, since Node reads the last one (optimized deps keep their own).
-    return super.runInlinedModule(context, code.replace(/^\/\/# sourceMappingURL=.*$/gm, ''))
+  override runInlinedModule(
+    context: ModuleRunnerContext,
+    code: string,
+    module?: Readonly<EvaluatedModuleNode>,
+  ) {
+    // Optimized deps keep their own map comments, which Node would read and retain.
+    const body = code.replace(/^\/\/# sourceMappingURL=.*$/gm, '')
+    // Named frames let Vite map stacks and React collect component stacks.
+    return super.runInlinedModule(context, module ? `${body}\n//# sourceURL=${module.id}` : body)
+  }
+}
+
+class ServerEvaluatedModules extends EvaluatedModules {
+  constructor(
+    private readonly getMap: (id: string) => TransformResult['map'] | undefined,
+    private readonly startOffset: number,
+  ) {
+    super()
+  }
+
+  override getModuleSourceMapById(id: string) {
+    const module = this.getModuleById(id)
+    const map = module?.meta && !module.map ? this.getMap(id) : undefined
+    if (!module?.meta || !map || !('version' in map)) return super.getModuleSourceMapById(id)
+    // Vite's map decoder is internal, so it decodes an inline map built only when a frame needs it.
+    const mappings = ';'.repeat(this.startOffset) + map.mappings
+    const inline = Buffer.from(JSON.stringify({ ...map, mappings })).toString('base64')
+    const { meta } = module
+    module.meta = { ...meta, code: `//# sourceMappingURL=data:application/json;base64,${inline}` }
+    try {
+      return super.getModuleSourceMapById(id)
+    } finally {
+      module.meta = meta
+    }
   }
 }
 
