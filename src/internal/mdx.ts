@@ -710,10 +710,11 @@ export function rehypeShiki(
   const transformerLangs =
     rawTransformers?.flatMap((t) => ('langs' in t ? (t.langs as LanguageRegistration[]) : [])) ?? []
 
-  // Merge default languages with user-provided languages and transformer languages
+  // Preload configured (by default, inferred) languages and alias targets, which lazy loading cannot resolve.
+  // `lazy` loads any other valid fence language on first use.
   const mergedLangs = [
-    ...Object.values(defaultLanguages),
     ...(userLangs ?? []),
+    ...Object.values(options.langAlias ?? {}),
     ...transformerLangs,
   ]
 
@@ -727,7 +728,7 @@ export function rehypeShiki(
       rootStyle: false,
       themes,
       langs: mergedLangs,
-      // TODO: infer `langs` for faster cold start.
+      lazy: true,
       transformers: [
         // Must run before the twoslash transformer so `this.meta.sourceMap` is
         // available to the inline types cache.

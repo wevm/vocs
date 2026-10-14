@@ -1,10 +1,12 @@
 import * as path from 'node:path'
 import type * as Estree from 'estree'
 import type * as MdAst from 'mdast'
+import rehypeStringify from 'rehype-stringify'
 import remarkDirective from 'remark-directive'
 import remarkFrontmatter from 'remark-frontmatter'
 import remarkGfm from 'remark-gfm'
 import remarkParse from 'remark-parse'
+import remarkRehype from 'remark-rehype'
 import ruby from 'shiki/langs/ruby.mjs'
 import { unified } from 'unified'
 import { describe, expect, it } from 'vitest'
@@ -15,6 +17,7 @@ import {
   recmaMdxLayout,
   rehypeHeadingAnchors,
   rehypeLinks,
+  rehypeShiki,
   remarkBenchmarks,
   remarkChangelog,
   remarkCodeTitle,
@@ -991,5 +994,38 @@ describe('rehypeHeadingAnchors', () => {
     const anchor = headingAnchor('#overview')
     run([anchor], 'src/pages/blog/[slug].mdx')
     expect(anchor.properties['href']).toBe('#overview')
+  })
+})
+
+describe('rehypeShiki', () => {
+  async function highlight(markdown: string) {
+    const [plugin, options] = rehypeShiki({
+      langs: ['ts'],
+      langAlias: { sol: 'solidity' },
+      themes: { light: 'github-light', dark: 'github-dark-dimmed' },
+      twoslash: false,
+    })
+    const file = await unified()
+      .use(remarkParse)
+      .use(remarkRehype)
+      .use(plugin, options)
+      .use(rehypeStringify)
+      .process(markdown)
+    return String(file)
+  }
+
+  it('loads fence languages missing from `langs` on first use', async () => {
+    const html = await highlight(
+      ['```go', 'package main', '```', '', '```sol', 'contract A {}', '```'].join('\n'),
+    )
+
+    expect(html).toContain('--shiki-light:#D73A49;--shiki-dark:#F47067">package</span>')
+    expect(html).toContain('--shiki-light:#D73A49;--shiki-dark:#F47067">contract</span>')
+  })
+
+  it('falls back to plaintext for unknown languages', async () => {
+    const html = await highlight(['```notalanguage', 'package main', '```'].join('\n'))
+
+    expect(html).toContain('<span>package main</span>')
   })
 })
