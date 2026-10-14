@@ -4,8 +4,8 @@ import * as path from 'node:path'
 import { gzipSync } from 'node:zlib'
 import mdxPlugin from '@mdx-js/rollup'
 import tailwindcss, { type PluginOptions as TailwindOptions } from '@tailwindcss/vite'
-import type { PluginOption, ResolvedConfig, Rolldown, ViteDevServer } from 'vite'
-import { createLogger } from 'vite'
+import type { Environment, PluginOption, ResolvedConfig, Rolldown, ViteDevServer } from 'vite'
+import { createLogger, isRunnableDevEnvironment } from 'vite'
 import * as Config from './config.js'
 import * as ConfigSerializer from './config-serializer.js'
 import { assertSafeContentSymlinks } from './file-boundary.js'
@@ -1447,10 +1447,8 @@ export function openapiClientManifest(specs: Record<string, OpenApi.Ir>): string
 export function openapiClientDocument(
   specs: Record<string, OpenApi.Ir>,
   mount: string,
-): string | undefined {
-  const client = specs[mount]?.client
-  if (!client) return undefined
-  return `export const client = ${JSON.stringify(client)}`
+): OpenApi.Ir['client'] | undefined {
+  return specs[mount]?.client
 }
 
 export function openapiSchemaModelsManifest(specs: Record<string, OpenApi.Ir>): string {
@@ -1466,14 +1464,35 @@ export function openapiSchemaModelsManifest(specs: Record<string, OpenApi.Ir>): 
 export function openapiSchemaModelsDocument(
   specs: Record<string, OpenApi.Ir>,
   source: string,
-): string | undefined {
+): Record<string, SchemaModel> | undefined {
   for (const ir of Object.values(specs)) {
     const group = ir.groups.find((candidate) => schemaModelSource(ir.path, candidate.id) === source)
-    if (!group) continue
-    const models: Record<string, SchemaModel> = schemaModels(group)
-    return `export const models = ${JSON.stringify(models)}`
+    if (group) return schemaModels(group)
   }
   return undefined
+}
+
+const openapiModuleValues = Symbol.for('vocs.openapi.modules')
+
+/** Emits a module that exports `value` as `name`. */
+function openapiValueModule(
+  environment: Environment,
+  id: string,
+  name: string,
+  value: unknown,
+): Rolldown.SourceDescription {
+  // Runnable dev environments evaluate in this process, so they read the parsed value
+  // instead of transforming and retaining a serialized copy per environment.
+  if (isRunnableDevEnvironment(environment)) {
+    const globals = globalThis as { [openapiModuleValues]?: Record<string, unknown> }
+    const store = globals[openapiModuleValues] ?? {}
+    globals[openapiModuleValues] = store
+    store[id] = value
+    return {
+      code: `export const ${name} = globalThis[Symbol.for('vocs.openapi.modules')][${JSON.stringify(id)}]`,
+    }
+  }
+  return { code: `export const ${name} = ${JSON.stringify(value)}`, map: { mappings: '' } }
 }
 
 function openapiSchemaModelSources(specs: Record<string, OpenApi.Ir>): string[] {
@@ -1575,18 +1594,18 @@ export function openapi(config: Config.Config): PluginOption {
         return openapiSchemaModelsManifest(specs)
 
       if (clientMount !== undefined) {
-        const document = openapiClientDocument(specs, clientMount)
-        if (!document) this.error(`No OpenAPI spec is mounted at ${clientMount}.`)
-        return document
+        const client = openapiClientDocument(specs, clientMount)
+        if (!client) this.error(`No OpenAPI spec is mounted at ${clientMount}.`)
+        return openapiValueModule(this.environment, id, 'client', client)
       }
 
       if (schemaModelsSource !== undefined) {
-        const document = openapiSchemaModelsDocument(specs, schemaModelsSource)
-        if (!document) this.error(`No OpenAPI schema models found for ${schemaModelsSource}.`)
-        return document
+        const models = openapiSchemaModelsDocument(specs, schemaModelsSource)
+        if (!models) this.error(`No OpenAPI schema models found for ${schemaModelsSource}.`)
+        return openapiValueModule(this.environment, id, 'models', models)
       }
 
-      return `export const specs = ${JSON.stringify(specs)}`
+      return openapiValueModule(this.environment, id, 'specs', specs)
     },
   }
 }
