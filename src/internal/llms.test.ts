@@ -76,15 +76,17 @@ This is the home page.`,
     expect(result.short).toMatchInlineSnapshot(`
       "# My Docs
 
-      - [Home](/index): Welcome to the docs"
+      - [Home](/index.md): Welcome to the docs"
     `)
     expect(result.full).toMatchInlineSnapshot(`
       "# My Docs
 
       <!--
       Sitemap:
-      - [Home](/index): Welcome to the docs
+      - [Home](/index.md): Welcome to the docs
       -->
+
+      <!-- Source: / -->
 
       # Welcome
 
@@ -93,7 +95,7 @@ This is the home page.`,
     `)
   })
 
-  test('pages without title are excluded', async () => {
+  test('pages without title use their route and report a finding', async () => {
     const result = await buildLlmsContent({
       pages: [
         { path: '/no-title', content: 'No heading, no frontmatter.' },
@@ -106,15 +108,23 @@ This is the home page.`,
     expect(result.short).toMatchInlineSnapshot(`
       "# My Docs
 
-      - [With Title](/with-title)"
+      - [/no-title](/no-title.md)
+      - [With Title](/with-title.md)"
     `)
     expect(result.full).toMatchInlineSnapshot(`
       "# My Docs
 
       <!--
       Sitemap:
-      - [With Title](/with-title)
+      - [/no-title](/no-title.md)
+      - [With Title](/with-title.md)
       -->
+
+      <!-- Source: /no-title -->
+
+      No heading, no frontmatter.
+
+      <!-- Source: /with-title -->
 
       Content here.
       "
@@ -131,15 +141,17 @@ This is the home page.`,
     expect(result.short).toMatchInlineSnapshot(`
       "# My Docs
 
-      - [My Page Title](/page)"
+      - [My Page Title](/page.md)"
     `)
     expect(result.full).toMatchInlineSnapshot(`
       "# My Docs
 
       <!--
       Sitemap:
-      - [My Page Title](/page)
+      - [My Page Title](/page.md)
       -->
+
+      <!-- Source: /page -->
 
       # My Page Title
 
@@ -475,27 +487,35 @@ import { Invalid } from './Invalid'
     expect(result.short).toMatchInlineSnapshot(`
       "# My Docs
 
-      - [Home](/index)
-      - [About](/about)
-      - [API](/api/)
-      - [Getting Started](/guide/getting-started)"
+      - [Home](/index.md)
+      - [About](/about.md)
+      - [API](/api.md)
+      - [Getting Started](/guide/getting-started.md)"
     `)
     expect(result.full).toMatchInlineSnapshot(`
       "# My Docs
 
       <!--
       Sitemap:
-      - [Home](/index)
-      - [About](/about)
-      - [API](/api/)
-      - [Getting Started](/guide/getting-started)
+      - [Home](/index.md)
+      - [About](/about.md)
+      - [API](/api.md)
+      - [Getting Started](/guide/getting-started.md)
       -->
+
+      <!-- Source: / -->
 
       Welcome home.
 
+      <!-- Source: /about -->
+
       About this project.
 
+      <!-- Source: /api/ -->
+
       API reference docs.
+
+      <!-- Source: /guide/getting-started -->
 
       Learn the basics.
       "
@@ -529,10 +549,10 @@ import { Invalid } from './Invalid'
     expect(result.short).toMatchInlineSnapshot(`
       "# My Docs
 
-      - [What is Vocs](/guide/what-is-vocs)
-      - [Getting Started](/guide/getting-started)
-      - [Markdown](/guide/markdown)
-      - [Site Config](/reference/site-config)"
+      - [What is Vocs](/guide/what-is-vocs.md)
+      - [Getting Started](/guide/getting-started.md)
+      - [Markdown](/guide/markdown.md)
+      - [Site Config](/reference/site-config.md)"
     `)
   })
 
@@ -559,9 +579,9 @@ import { Invalid } from './Invalid'
     expect(result.short).toMatchInlineSnapshot(`
       "# My Docs
 
-      - [Structure](/guide/structure)
-      - [Theming](/guide/theming)
-      - [Components](/reference/components)"
+      - [Structure](/guide/structure.md)
+      - [Theming](/guide/theming.md)
+      - [Components](/reference/components.md)"
     `)
   })
 
@@ -580,9 +600,9 @@ import { Invalid } from './Invalid'
     expect(result.short).toMatchInlineSnapshot(`
       "# My Docs
 
-      - [Getting Started](/guide/getting-started)
-      - [About](/about)
-      - [Zebra](/zebra)"
+      - [Getting Started](/guide/getting-started.md)
+      - [About](/about.md)
+      - [Zebra](/zebra.md)"
     `)
   })
 
@@ -603,8 +623,8 @@ import { Invalid } from './Invalid'
     expect(result.short).toMatchInlineSnapshot(`
       "# My Docs
 
-      - [Getting Started](/guide/getting-started)
-      - [What is Vocs](/guide/what-is-vocs)"
+      - [Getting Started](/guide/getting-started.md)
+      - [What is Vocs](/guide/what-is-vocs.md)"
     `)
   })
 
@@ -618,15 +638,17 @@ import { Invalid } from './Invalid'
     expect(result.short).toMatchInlineSnapshot(`
       "# My Docs
 
-      - [Home](/index)"
+      - [Home](/index.md)"
     `)
     expect(result.full).toMatchInlineSnapshot(`
       "# My Docs
 
       <!--
       Sitemap:
-      - [Home](/index)
+      - [Home](/index.md)
       -->
+
+      <!-- Source: / -->
 
       This is the homepage.
       "
@@ -643,15 +665,17 @@ import { Invalid } from './Invalid'
     expect(result.short).toMatchInlineSnapshot(`
       "# My Docs
 
-      - [Page](/page)"
+      - [Page](/page.md)"
     `)
     expect(result.full).toMatchInlineSnapshot(`
       "# My Docs
 
       <!--
       Sitemap:
-      - [Page](/page)
+      - [Page](/page.md)
       -->
+
+      <!-- Source: /page -->
 
       Content.
       "
@@ -662,7 +686,7 @@ import { Invalid } from './Invalid'
     `)
   })
 
-  test('prepends guidance to page content without repeating it in llms-full.txt', async () => {
+  test('uses identical page bodies including guidance in llms-full.txt', async () => {
     const pagePrelude =
       "> **Can't find what you're looking for?** Use `search_docs` on the docs MCP server."
     const result = await buildLlmsContent({
@@ -678,7 +702,7 @@ import { Invalid } from './Invalid'
       Content.
       "
     `)
-    expect(result.full).not.toContain(pagePrelude)
+    expect(result.full).toContain(result.results[0]?.content)
   })
 
   test('description is included in output when provided', async () => {
@@ -694,7 +718,7 @@ import { Invalid } from './Invalid'
 
       A great documentation site
 
-      - [Home](/index)"
+      - [Home](/index.md)"
     `)
     expect(result.full).toMatchInlineSnapshot(`
       "# My Docs
@@ -703,8 +727,10 @@ import { Invalid } from './Invalid'
 
       <!--
       Sitemap:
-      - [Home](/index)
+      - [Home](/index.md)
       -->
+
+      <!-- Source: / -->
 
       Welcome to the docs.
       "
@@ -730,15 +756,17 @@ title: Component
     expect(result.short).toMatchInlineSnapshot(`
       "# My Docs
 
-      - [Component](/component)"
+      - [Component](/component.md)"
     `)
     expect(result.full).toMatchInlineSnapshot(`
       "# My Docs
 
       <!--
       Sitemap:
-      - [Component](/component)
+      - [Component](/component.md)
       -->
+
+      <!-- Source: /component -->
 
       <Component />
       "
@@ -834,7 +862,7 @@ Child prose.
     `)
     expect(result.full).toContain(result.results[0]?.content)
     expect(result.full).not.toContain('<Panel')
-    expect(result.short).toContain('- [Component](/component)')
+    expect(result.short).toContain('- [Component](/component.md)')
   })
 
   test('strips inline twoslash cache comments from code blocks', async () => {
@@ -864,7 +892,7 @@ const a = 1
     `)
   })
 
-  test('strips nested expressions without removing later content', async () => {
+  test('retains unsupported expressions for validation without removing later content', async () => {
     const result = await buildLlmsContent({
       pages: [
         {
@@ -888,7 +916,10 @@ title: Agents
       ...plugins,
     })
 
-    expect(result.results[0]?.content).not.toContain('.tabs')
+    expect(result.results[0]?.content).toContain('.tabs')
+    expect(result.report.diagnostics.some((item) => item.rule === 'unhandled-expression')).toBe(
+      true,
+    )
     expect(result.results[0]?.content).toContain('## Agent resources')
     expect(result.results[0]?.content).toContain('/llms.txt')
     expect(result.results[0]?.content).toContain('Documentation index')

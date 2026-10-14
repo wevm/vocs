@@ -1,0 +1,315 @@
+import * as fs from 'node:fs/promises'
+import * as os from 'node:os'
+import * as path from 'node:path'
+import { afterEach, describe, expect, test, vi } from 'vitest'
+import { buildLlmsContent, getPagesFromDir } from './llms.js'
+import { inlineMarkdownComponents } from './markdown-components.js'
+import { inspect, manifest, resolveValidation } from './markdown-output.js'
+import {
+  remarkDefaultFrontmatter,
+  remarkExtractFrontmatter,
+  remarkFrontmatter,
+  remarkStripFrontmatter,
+  remarkStripJs,
+} from './mdx.js'
+
+const roots: string[] = []
+afterEach(async () => {
+  vi.unstubAllEnvs()
+  await Promise.all(roots.splice(0).map((root) => fs.rm(root, { recursive: true, force: true })))
+})
+async function fixture() {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'vocs-output-'))
+  roots.push(root)
+  await fs.writeFile(
+    path.join(root, 'components.ts'),
+    `
+export function Panel() { return null }
+export function Label() { return null }
+export default Panel
+export const markdown = {
+  Panel: (props, context) => [
+    { type: 'heading', depth: 2, children: [{ type: 'text', value: props.title }] },
+    ...context.renderChildren(),
+  ],
+  Label: (props) => [{ type: 'text', value: props.value }],
+  Icon: () => [],
+  default: () => [{ type: 'paragraph', children: [{ type: 'text', value: 'Default renderer' }] }],
+}
+`,
+  )
+  return root
+}
+const plugins = {
+  rehypePlugins: [],
+  remarkPlugins: [
+    remarkFrontmatter,
+    remarkDefaultFrontmatter,
+    remarkExtractFrontmatter,
+    remarkStripFrontmatter,
+    remarkStripJs,
+  ],
+}
+
+describe('validation modes', () => {
+  test.each([
+    [{}, 'warn', 'default'],
+    [{ config: 'fail' }, 'fail', 'config'],
+    [{ config: 'fail', environment: 'warn' }, 'warn', 'environment'],
+    [{ config: 'fail', environment: 'warn', cli: 'fail' }, 'fail', 'cli'],
+  ] as const)('resolves %j', (options, validation, validationSource) => {
+    vi.stubEnv('VOCS_MARKDOWN_VALIDATION', undefined)
+    expect(resolveValidation(options)).toEqual({ validation, validationSource })
+  })
+  test.each(['skip', '', 'false'])('rejects invalid mode %j', (environment) => {
+    expect(() => resolveValidation({ environment })).toThrow('Expected warn or fail')
+  })
+  test('runs identical checks in both modes and retains unsupported syntax', async () => {
+    const options = {
+      ...plugins,
+      title: 'Docs',
+      pages: [
+        {
+          path: '/guide',
+          content: '# Guide\n\n<Unknown />\n\n{runtimeValue}\n\n```tsx\n<Example />\n```',
+        },
+      ],
+    }
+    const warn = await buildLlmsContent({ ...options, validation: 'warn' })
+    const fail = await buildLlmsContent({ ...options, validation: 'fail' })
+    expect(warn.report.diagnostics).toEqual(fail.report.diagnostics)
+    expect(warn.report.diagnostics.map((item) => item.rule)).toEqual([
+      'unhandled-component',
+      'unhandled-expression',
+    ])
+    expect(warn.results[0]?.content).toContain('{runtimeValue}')
+    expect(warn.full).toContain(warn.results[0]?.content)
+  })
+})
+
+describe('component declarations', () => {
+  test('resolves aliases, namespace and default imports, nested children, and inline output', async () => {
+    const root = await fixture()
+    const result = await inlineMarkdownComponents(
+      `import Default, { Panel as Box, Label, Icon } from './components.ts'
+import * as UI from './components.ts'
+
+<Box title="Instructions">
+
+Read <Label value={'carefully'} />.
+
+<UI.Panel title="Nested">
+
+Preserved children.
+
+</UI.Panel>
+
+<Icon />
+
+</Box>
+
+<Default />`,
+      path.join(root, 'guide.mdx'),
+    )
+    expect(result).toContain('## Instructions')
+    expect(result).toContain('Read carefully.')
+    expect(result).toContain('## Nested')
+    expect(result).toContain('Preserved children.')
+    expect(result).toContain('Default renderer')
+    expect(result).not.toContain('<Icon')
+    expect(result).not.toContain('<Box')
+  })
+  test('matches config overrides by module identity and export, before loading browser modules', async () => {
+    const root = await fixture()
+    await fs.writeFile(path.join(root, 'browser.ts'), 'throw new Error("browser only")')
+    const result = await inlineMarkdownComponents(
+      `import { Panel as Box } from './browser.ts'\nimport { Panel } from './components.ts'\n\n<Box />\n\n<Panel title="Original" />`,
+      path.join(root, 'guide.mdx'),
+      {
+        rootDir: root,
+        components: [
+          {
+            module: './browser.ts',
+            export: 'Panel',
+            render: () => [{ type: 'paragraph', children: [{ type: 'text', value: 'Override' }] }],
+          },
+        ],
+      },
+    )
+    expect(result).toContain('Override')
+    expect(result).toContain('## Original')
+  })
+  test.each([
+    'title={load()}',
+    '{...props}',
+    'title={name}',
+    // biome-ignore lint/suspicious/noTemplateCurlyInString: _
+    'title={`Hello ${name}`}',
+  ])('does not execute dynamic props: %s', async (props) => {
+    const root = await fixture()
+    const source = `import { Panel } from './components.ts'\n\n<Panel ${props} />`
+    expect(await inlineMarkdownComponents(source, path.join(root, 'guide.mdx'))).toBe(source)
+  })
+  test('rejects block nodes in inline positions and renderer crashes', async () => {
+    const root = await fixture()
+    await expect(
+      inlineMarkdownComponents(
+        `import { Panel } from './components.ts'\n\nText <Panel title="Invalid" />.`,
+        path.join(root, 'guide.mdx'),
+      ),
+    ).rejects.toThrow('phrasing nodes')
+    await expect(
+      inlineMarkdownComponents(
+        `import { Panel } from './components.ts'\n\n<Panel />`,
+        path.join(root, 'guide.mdx'),
+        {
+          rootDir: root,
+          components: [
+            {
+              module: './components.ts',
+              export: 'Panel',
+              render: () => {
+                throw new Error('Renderer failed')
+              },
+            },
+          ],
+        },
+      ),
+    ).rejects.toThrow('Renderer failed')
+  })
+  test('flattens all built-in tabs with labels and card links', async () => {
+    const root = await fixture()
+    const result = await inlineMarkdownComponents(
+      `import { Tabs, Tab, Card } from 'vocs'\n\n<Tabs>\n\n<Tab title="REST">\n\nREST instructions.\n\n</Tab>\n\n<Tab title="MCP">\n\n<Card title="Reference" to="/reference" description="API schemas" />\n\n</Tab>\n\n</Tabs>`,
+      path.join(root, 'guide.mdx'),
+    )
+    expect(result).toContain('### REST')
+    expect(result).toContain('### MCP')
+    expect(result).toContain('[Reference](/reference): API schemas')
+    expect(inspect(result.replace(/^import .*\n/, ''), '/guide')).toEqual([])
+  })
+})
+
+test('checks explicit export links, but ignores code and normal application links', () => {
+  const findings = inspect(
+    '# Guide\n\n[Missing](./missing.md)\n\n[App](/dashboard)\n\n`<Inline />`\n\n```tsx\n<Fenced />\n```',
+    '/guide',
+    new Set(['/guide']),
+  )
+  expect(findings).toEqual([
+    expect.objectContaining({ rule: 'broken-export-link', file: '/guide' }),
+  ])
+})
+
+test('includes untitled and unlisted pages; reports duplicate authored routes', async () => {
+  const result = await buildLlmsContent({
+    ...plugins,
+    title: 'Docs',
+    pages: [
+      { path: '/untitled', content: 'Useful content.' },
+      { path: '/untitled', content: 'Duplicate.' },
+      { path: '/other', content: '# Other' },
+    ],
+  })
+  expect(result.results).toHaveLength(2)
+  expect(result.short).toContain('[/untitled](/untitled.md)')
+  expect(result.report.diagnostics.map((item) => item.rule)).toEqual([
+    'duplicate-page',
+    'missing-title',
+  ])
+})
+
+test('page discovery removes only complete index path segments and notices deletions', async () => {
+  const root = await fixture()
+  await fs.writeFile(path.join(root, 'index.mdx'), '# Home')
+  await fs.writeFile(path.join(root, '_partial.mdx'), '# Excluded partial')
+  await fs.writeFile(path.join(root, 'search-index.mdx'), '# Search')
+  expect((await getPagesFromDir(root)).map((page) => page.path).sort()).toEqual([
+    '/',
+    '/search-index',
+  ])
+  await fs.rm(path.join(root, 'search-index.mdx'))
+  expect((await getPagesFromDir(root)).map((page) => page.path)).toEqual(['/'])
+})
+
+test('manifest is deterministic and detects any changed artifact bytes', () => {
+  const original = manifest({ '/b.md': 'B', '/a.md': 'A' })
+  expect(original).toEqual(manifest({ '/a.md': 'A', '/b.md': 'B' }))
+  expect(original.files['/a.md']).not.toEqual(manifest({ '/a.md': 'Updated' }).files['/a.md'])
+})
+
+test.each([
+  [200, 'text/markdown; charset=utf-8', 'Expected', 0],
+  [200, 'text/html', '<html>Fallback</html>', 1],
+  [200, 'text/plain', 'Stale', 1],
+  [404, 'text/plain', 'Missing', 1],
+])('deployment verification: %s %s', async (status, contentType, body, count) => {
+  const { verifyDeployment } = await import('./markdown-output.js')
+  const fetch = vi
+    .fn<typeof globalThis.fetch>()
+    .mockResolvedValue(new Response(body, { status, headers: { 'content-type': contentType } }))
+  const diagnostics = await verifyDeployment({
+    url: 'https://preview.example/docs',
+    manifest: manifest({ '/guide.md': 'Expected' }),
+    fetch,
+  })
+  expect(diagnostics).toHaveLength(count)
+  expect(String(fetch.mock.calls[0]?.[0])).toBe('https://preview.example/docs/guide.md')
+})
+
+test('deployment network failures produce actionable diagnostics', async () => {
+  const { verifyDeployment } = await import('./markdown-output.js')
+  const fetch = vi.fn<typeof globalThis.fetch>().mockRejectedValue(new Error('Timeout'))
+  expect(
+    await verifyDeployment({
+      url: 'https://preview.example',
+      manifest: manifest({ '/guide.md': 'Expected' }),
+      fetch,
+    }),
+  ).toEqual([{ rule: 'deployment-mismatch', file: '/guide.md', message: 'Timeout' }])
+})
+
+test('normalizes relative links and escapes index metadata for aggregation', async () => {
+  const result = await buildLlmsContent({
+    ...plugins,
+    title: 'Docs',
+    pages: [
+      {
+        path: '/guides/start',
+        content:
+          '---\ntitle: "A [guide]"\ndescription: |\n  First line\n  Second line\n---\n\n[Next](./next.md)\n\n[Section](#details)\n\n![Image](../image.png)',
+      },
+      { path: '/guides/next', content: '# Next' },
+    ],
+  })
+  expect(result.short).toContain('A \\[guide\\]')
+  expect(result.short).toContain('First line Second line')
+  expect(result.results.find((page) => page.path === '/guides/start')?.content).toContain(
+    '](/guides/next.md)',
+  )
+  expect(result.results.find((page) => page.path === '/guides/start')?.content).toContain(
+    '](/guides/start#details)',
+  )
+  expect(result.results.find((page) => page.path === '/guides/start')?.content).toContain(
+    '](/image.png)',
+  )
+  expect(result.report.diagnostics).toEqual([])
+})
+
+test('built-in callouts support inline MDX syntax without inserting block nodes', async () => {
+  const root = await fixture()
+  const result = await inlineMarkdownComponents(
+    `import { Callout } from 'vocs'\n\n<Callout title="Note">Preserve this content.</Callout>`,
+    path.join(root, 'guide.mdx'),
+  )
+  expect(result).toContain('Note:')
+  expect(result).toContain('Preserve this content.')
+  expect(result).not.toContain('<Callout')
+})
+
+test('valid HTML comments do not hide unresolved components or change locations', () => {
+  expect(inspect('<!-- Generated content -->\n\n<Unknown />', '/guide')).toEqual([
+    expect.objectContaining({ rule: 'unhandled-component', line: 3 }),
+  ])
+  expect(inspect('<!-- Only a comment -->', '/guide')).toEqual([])
+})

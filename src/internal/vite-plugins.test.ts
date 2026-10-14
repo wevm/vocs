@@ -129,6 +129,47 @@ test('builds Markdown exports once after the client output', async () => {
   ).resolves.toContain('# Hello')
 })
 
+test.each([
+  ['warn', undefined, false],
+  ['fail', undefined, true],
+  ['fail', 'warn', false],
+] as const)('enforces Markdown mode %s with override %s', async (validation, override, rejects) => {
+  const rootDir = await fs.realpath(await fs.mkdtemp(path.join(os.tmpdir(), 'vocs-output-mode-')))
+  tempDirs.add(rootDir)
+  await fs.mkdir(path.join(rootDir, 'src/pages'), { recursive: true })
+  await fs.writeFile(path.join(rootDir, 'src/pages/index.mdx'), '# Hello\n\n<Unknown />')
+  await fs.writeFile(path.join(rootDir, 'index.html'), '<html><body>Hello</body></html>')
+  vi.stubEnv('VOCS_MARKDOWN_VALIDATION', override)
+  try {
+    const config = Config.define({
+      rootDir,
+      title: 'Docs',
+      codeHighlight: { langs: [] },
+      markdown: { output: { validation } },
+    })
+    const run = build({
+      root: rootDir,
+      configFile: false,
+      logLevel: 'silent',
+      plugins: [llms(config)],
+      build: { outDir: 'dist/public' },
+    })
+    if (rejects) await expect(run).rejects.toThrow('unhandled-component')
+    else {
+      await run
+      const manifest = JSON.parse(
+        await fs.readFile(path.join(rootDir, 'dist/public/markdown-manifest.json'), 'utf8'),
+      )
+      expect(Object.keys(manifest.files)).toEqual(['/index.md', '/llms-full.txt', '/llms.txt'])
+      expect(await fs.readFile(path.join(rootDir, 'dist/public/llms-full.txt'), 'utf8')).toContain(
+        '<Unknown />',
+      )
+    }
+  } finally {
+    vi.unstubAllEnvs()
+  }
+})
+
 afterEach(async () => {
   vi.restoreAllMocks()
   await Promise.all([...tempDirs].map((dir) => fs.rm(dir, { force: true, recursive: true })))

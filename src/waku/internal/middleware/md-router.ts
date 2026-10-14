@@ -28,6 +28,8 @@ async function resolveContent() {
     rehypePlugins,
     remarkPlugins,
     sidebar: config.sidebar,
+    validation: config.markdown?.output?.validation,
+    componentOptions: { components: config.markdown?.output?.components, rootDir: config.rootDir },
   })
 }
 

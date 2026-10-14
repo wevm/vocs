@@ -7,7 +7,7 @@ import { cac } from 'cac'
 import * as vite from 'vite'
 import * as Config from './internal/config.js'
 import * as Llms from './internal/llms.js'
-import * as MarkdownAudit from './internal/markdown-audit.js'
+import * as MarkdownOutput from './internal/markdown-output.js'
 import * as Mdx from './internal/mdx.js'
 import { vocs } from './waku/vite.js'
 
@@ -55,25 +55,45 @@ cli
   })
 
 cli
-  .command('markdown-audit [root]', 'Find MDX components that remain in generated Markdown')
+  .command('markdown-audit [root]', 'Validate generated Markdown exports')
   .option('--json', 'Write the audit report as JSON')
-  .action(async (root: string | undefined, options: { json?: boolean }) => {
-    const rootDir = path.resolve(root ?? process.cwd())
-    const config = await Config.resolve({ rootDir })
-    const pagesDir = path.resolve(config.rootDir, config.srcDir, config.pagesDir)
-    const pages = await Llms.getPagesFromDir(pagesDir)
-    const { rehypePlugins, remarkPlugins } = Mdx.getCompileOptions('txt', config)
-    const viteConfig = await vite.resolveConfig({ root: rootDir }, 'build', 'production')
-    const resolve = viteConfig.createResolver({ asSrc: true })
-    const report = await MarkdownAudit.audit({
-      componentOptions: { resolve: (source, importer) => resolve(source, importer) },
-      pages,
-      rehypePlugins,
-      remarkPlugins,
-    })
-
-    console.log(options.json ? JSON.stringify(report, null, 2) : MarkdownAudit.format(report))
-    if (report.components.length > 0 || report.errors.length > 0) process.exitCode = 1
+  .option('--validation <mode>', 'Enforce findings with warn or fail')
+  .action(async (root: string | undefined, options: { json?: boolean; validation?: string }) => {
+    try {
+      const rootDir = path.resolve(root ?? process.cwd())
+      const config = await Config.resolve({ rootDir })
+      const mode = MarkdownOutput.resolveValidation({
+        cli: options.validation,
+        config: config.markdown?.output?.validation,
+      })
+      const pagesDir = path.resolve(config.rootDir, config.srcDir, config.pagesDir)
+      const pages = await Llms.getPagesFromDir(pagesDir)
+      const openapiPages = await Llms.getOpenApiPages(config)
+      const { rehypePlugins, remarkPlugins } = Mdx.getCompileOptions('txt', config)
+      const viteConfig = await vite.resolveConfig({ root: rootDir }, 'build', 'production')
+      const resolve = viteConfig.createResolver({ asSrc: true })
+      const content = await Llms.buildLlmsContent({
+        title: config.title,
+        description: config.description,
+        pagePrelude: Llms.getMarkdownPagePrelude(config),
+        sidebar: config.sidebar,
+        componentOptions: {
+          resolve: (source, importer) => resolve(source, importer),
+          components: config.markdown?.output?.components,
+          rootDir,
+        },
+        pages: [...openapiPages, ...pages],
+        rehypePlugins,
+        remarkPlugins,
+      })
+      const report = { ...content.report, ...mode }
+      console.log(options.json ? JSON.stringify(report, null, 2) : MarkdownOutput.format(report))
+      if (report.validation === 'fail' && report.diagnostics.length) process.exitCode = 1
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error)
+      console.error(options.json ? JSON.stringify({ error: message }) : message)
+      process.exitCode = 2
+    }
   })
 
 cli

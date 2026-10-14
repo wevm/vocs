@@ -1,5 +1,10 @@
 export { useRouter } from 'waku'
 export * as Feedback from './internal/feedback.js'
+export type {
+  MarkdownComponentOverride,
+  MarkdownOutputConfig,
+  MarkdownRenderer,
+} from './internal/markdown-output.js'
 export * as McpSource from './internal/mcp-source.js'
 export { Badge } from './react/Badge.js'
 export { Callout } from './react/Callout.js'

@@ -597,7 +597,7 @@ export default defineConfig({
 
 ### `markdown`
 
-- **Type:** `@mdx-js/rollup` options with `outputRemarkPlugins`
+- **Type:** `@mdx-js/rollup` options with `output` and `outputRemarkPlugins`
 
 Extends the underlying MDX compilation pipeline. Use this when you need to add custom remark, rehype, or recma plugins.
 
@@ -610,6 +610,21 @@ export default defineConfig({
   }
 })
 ```
+
+Use `markdown.output` to configure [Markdown export validation and component renderers](/features/agent-support#validate-exports):
+
+```ts
+export default defineConfig({
+  markdown: {
+    output: {
+      validation: 'fail', // 'warn' (default) or 'fail'; identical checks
+      components: [], // Optional overrides matched by module and export name
+    },
+  },
+})
+```
+
+`VOCS_MARKDOWN_VALIDATION=warn` overrides enforcement for one build. It does not skip checks.
 
 Use `outputRemarkPlugins` for remark transforms that should apply only to authored page bodies used in per-page `.md` output and `llms-full.txt`, not the rendered site. They run after `remarkPlugins`.
 
