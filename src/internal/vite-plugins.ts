@@ -828,7 +828,11 @@ export function search(config: Config.Config): PluginOption {
 
       if (mode === 'development') {
         const json = index ? JSON.stringify(index.toJSON()) : '{}'
-        return `export const getSearchIndex = async () => ${JSON.stringify(json)}`
+        // Generated data needs no source map (see `virtualConfig`).
+        return {
+          code: `export const getSearchIndex = async () => ${JSON.stringify(json)}`,
+          map: { mappings: '' },
+        }
       }
 
       // Production: return fetch-based loader
@@ -1000,7 +1004,10 @@ export const getAiSearchManifest = async () =>
 
       const manifest = toPublicManifest(await buildManifest())
       if (mode === 'development')
-        return `export const getAiSearchIndex = async () => ${JSON.stringify(JSON.stringify(manifest))}`
+        return {
+          code: `export const getAiSearchIndex = async () => ${JSON.stringify(JSON.stringify(manifest))}`,
+          map: { mappings: '' },
+        }
 
       const base = basePath.endsWith('/') ? basePath : `${basePath}/`
       return `export const getAiSearchIndex = async () => await (await fetch("${base}assets/ai-search-index-${publicHash}.json")).text()`
@@ -1083,7 +1090,12 @@ export function virtualConfig(config: Config.Config): PluginOption {
         const currentConfig = OpenApiRegistry.mergeSidebar(Config.getGlobal() ?? config)
         const serializedConfig =
           mode === 'development' ? { ...currentConfig, baseUrl: undefined } : currentConfig
-        return `export const config = ${ConfigSerializer.serialize(ConfigSerializer.forClient(serializedConfig))}`
+        // An empty map tells Vite to skip generating one, which for generated data is mostly
+        // a second copy of the module, retained by every environment.
+        return {
+          code: `export const config = ${ConfigSerializer.serialize(ConfigSerializer.forClient(serializedConfig))}`,
+          map: { mappings: '' },
+        }
       }
       return
     },
