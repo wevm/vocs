@@ -65,7 +65,11 @@ export function rehypeStaticCode() {
               value: {
                 type: 'mdxJsxAttributeValueExpression',
                 value: '',
-                data: { estree: EstreeUtil.fromJs(`(${JSON.stringify(root)})`) },
+                // One string literal keeps the module small: MDX prints an object literal one
+                // property per line, and Vite source-maps every token of it.
+                data: {
+                  estree: EstreeUtil.fromJs(`JSON.parse(${JSON.stringify(JSON.stringify(root))})`),
+                },
               },
             },
           ],

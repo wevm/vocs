@@ -94,10 +94,14 @@ describe('rehypeStaticCode', () => {
     const { code } = await render([rehypeStaticCode])
     expect(code.match(/_jsx\(VocsCodeTree/g)).toHaveLength(1)
     expect(code).not.toContain('_components.span')
+    // The tree is emitted as one JSON string literal.
+    const literals = [...code.matchAll(/tree: JSON\.parse\(("(?:[^"\\]|\\.)*")\)/g)]
+    expect(literals).toHaveLength(1)
+    const tree = JSON.parse(literals[0]?.[1] ?? '""') as string
     // The static line and the popup container become HTML strings.
-    expect(code.match(/"tagName": "vocs-static-html"/g)).toHaveLength(2)
+    expect(tree.match(/"tagName":"vocs-static-html"/g)).toHaveLength(2)
     // The Twoslash hover and the internal link stay elements for MDX components.
-    expect(code).toContain('"twoslash-hover"')
-    expect(code).toMatch(/"tagName": "a",\s*"properties": \{\s*"href": "\/guide"/)
+    expect(tree).toContain('"twoslash-hover"')
+    expect(tree).toMatch(/"tagName":"a","properties":\{"href":"\/guide"/)
   })
 })
