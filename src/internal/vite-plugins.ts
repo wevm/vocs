@@ -1410,6 +1410,14 @@ const resolvedOpenapiSchemaModelsVirtualModuleId = `\0${openapiSchemaModelsVirtu
 const openapiSchemaModelsDocumentPrefix = `${openapiSchemaModelsVirtualModuleId}:`
 const resolvedOpenapiSchemaModelsDocumentPrefix = `\0${openapiSchemaModelsDocumentPrefix}`
 
+/**
+ * Exports a value as a JSON string literal. Object literals of large specs get
+ * pretty-printed by transforms and held several times over in dev.
+ */
+function jsonExport(name: string, value: unknown): string {
+  return `export const ${name} = JSON.parse(${JSON.stringify(JSON.stringify(value))})`
+}
+
 function openapiClientDocumentId(mount: string): string {
   return `${openapiClientDocumentPrefix}${encodeURIComponent(mount)}`
 }
@@ -1450,7 +1458,7 @@ export function openapiClientDocument(
 ): string | undefined {
   const client = specs[mount]?.client
   if (!client) return undefined
-  return `export const client = ${JSON.stringify(client)}`
+  return jsonExport('client', client)
 }
 
 export function openapiSchemaModelsManifest(specs: Record<string, OpenApi.Ir>): string {
@@ -1471,7 +1479,7 @@ export function openapiSchemaModelsDocument(
     const group = ir.groups.find((candidate) => schemaModelSource(ir.path, candidate.id) === source)
     if (!group) continue
     const models: Record<string, SchemaModel> = schemaModels(group)
-    return `export const models = ${JSON.stringify(models)}`
+    return jsonExport('models', models)
   }
   return undefined
 }
@@ -1586,7 +1594,7 @@ export function openapi(config: Config.Config): PluginOption {
         return document
       }
 
-      return `export const specs = ${JSON.stringify(specs)}`
+      return jsonExport('specs', specs)
     },
   }
 }
