@@ -1092,8 +1092,12 @@ export function virtualConfig(config: Config.Config): PluginOption {
           mode === 'development' ? { ...currentConfig, baseUrl: undefined } : currentConfig
         // An empty map tells Vite to skip generating one, which for generated data is mostly
         // a second copy of the module, retained by every environment.
+        const value =
+          this.environment?.config.consumer === 'server'
+            ? ConfigSerializer.forServer(serializedConfig)
+            : ConfigSerializer.forClient(serializedConfig)
         return {
-          code: `export const config = ${ConfigSerializer.serialize(ConfigSerializer.forClient(serializedConfig))}`,
+          code: `export const config = ${ConfigSerializer.serialize(value)}`,
           map: { mappings: '' },
         }
       }

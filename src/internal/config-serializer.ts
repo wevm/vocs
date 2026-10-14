@@ -32,6 +32,15 @@ export function forClient(config: Config): Partial<Config> {
   }
 }
 
+/**
+ * Config for server environments: the browser subset plus the server-only
+ * fields that server modules read, such as the `openapi` entries the router
+ * registers generated pages from.
+ */
+export function forServer(config: Config): Partial<Config> {
+  return { ...forClient(config), openapi: config.openapi }
+}
+
 export function serialize(config: Partial<Config>): string {
   return JSON.stringify(serializeFunctions(config))
 }

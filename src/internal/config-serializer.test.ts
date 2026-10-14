@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 import { define } from './config.js'
-import { deserialize, forClient, serialize } from './config-serializer.js'
+import { deserialize, forClient, forServer, serialize } from './config-serializer.js'
 
 describe('config serializer', () => {
   test('includes browser settings without exposing server paths or MCP sources', () => {
@@ -36,6 +36,14 @@ describe('config serializer', () => {
     expect(serialized).not.toContain('cacheDir')
     expect(serialized).not.toContain('rootDir')
     expect(serialized).not.toContain('sources')
+  })
+
+  test('keeps OpenAPI entries for server environments only', () => {
+    const config = define({ openapi: [{ path: '/api', spec: './openapi.json' }] })
+
+    expect(forClient(config).openapi).toBeUndefined()
+    expect(forServer(config).openapi).toEqual(config.openapi)
+    expect(forServer(config).title).toBe(forClient(config).title)
   })
 
   test('round trips route-aware head and title callbacks', () => {
