@@ -4,8 +4,12 @@ import type * as HAst from 'hast'
 import { createElement } from 'react'
 import * as runtime from 'react/jsx-runtime'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+import { CodeTree } from '../react/internal/CodeTree.mdx.js'
 import { rehypeStaticCode } from './rehype-static-code.js'
+
+// `CodeTree` renders through the same components as the MDX content.
+vi.mock('../mdx.js', () => ({ useMDXComponents: () => components }))
 
 const text = (value: string): HAst.Text => ({ type: 'text', value })
 const element = (
@@ -57,6 +61,7 @@ const components = {
     }),
   code: (props: object) => createElement('code', { ...props, 'data-v': true }),
   span: (props: object) => createElement('span', props),
+  VocsCodeTree: CodeTree,
 }
 
 async function render(plugins: (() => (tree: HAst.Root) => void)[]) {
@@ -85,13 +90,14 @@ describe('rehypeStaticCode', () => {
     expect(after.container.innerHTML).toContain('data-v-overflow-fade="true"')
   })
 
-  it('serializes static subtrees and keeps component elements', async () => {
+  it('renders code block contents through one call site', async () => {
     const { code } = await render([rehypeStaticCode])
+    expect(code.match(/_jsx\(VocsCodeTree/g)).toHaveLength(1)
+    expect(code).not.toContain('_components.span')
     // The static line and the popup container become HTML strings.
-    expect(code.match(/dangerouslySetInnerHTML/g)).toHaveLength(2)
-    // The Twoslash hover and the internal link still render through MDX components.
-    expect(code).toMatch(/_components\.span, \{\s*className: "twoslash-hover"/)
-    expect(code).toMatch(/_components\.a, \{\s*href: "\/guide"/)
-    expect(code).not.toMatch(/_components\.a, \{\s*href: "https:\/\/viem\.sh"/)
+    expect(code.match(/"tagName": "vocs-static-html"/g)).toHaveLength(2)
+    // The Twoslash hover and the internal link stay elements for MDX components.
+    expect(code).toContain('"twoslash-hover"')
+    expect(code).toMatch(/"tagName": "a",\s*"properties": \{\s*"href": "\/guide"/)
   })
 })

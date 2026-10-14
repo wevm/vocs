@@ -5,9 +5,9 @@ import * as UnistUtil from 'unist-util-visit'
 import { isExternal } from './path.js'
 
 /**
- * Rehype plugin that renders static subtrees of code blocks as HTML strings.
- * React development builds retain debug info for every JSX element, so emitting
- * each highlighted token as an element costs hundreds of MB per code-heavy page.
+ * Rehype plugin that keeps code blocks cheap for React development builds, which
+ * retain debug info per JSX call site. Code block contents render through one
+ * `CodeTree` call site, and static subtrees render as HTML strings.
  */
 export function rehypeStaticCode() {
   // Markers that `components.div` renders as other components.
@@ -22,8 +22,6 @@ export function rehypeStaticCode() {
         if (!isStatic(node)) return
         // A leaf element gains nothing from becoming an HTML string.
         if (!node.children.some((child) => child.type === 'element')) return UnistUtil.SKIP
-        const attributes = toAttributes(node)
-        if (!attributes) return
         UnistUtil.visit(node, 'element', (child) => {
           // Matches what `components.a` and `Link` render for external URLs.
           if (child.tagName === 'a')
@@ -37,26 +35,43 @@ export function rehypeStaticCode() {
           for (const [key, value] of Object.entries(child.properties))
             if (value === true && /^(data|aria)([A-Z]|-)/.test(key)) child.properties[key] = 'true'
         })
-        const html = hastToHtml({ type: 'root', children: node.children })
         parent.children[index] = {
-          type: 'mdxJsxTextElement',
-          name: node.tagName,
+          type: 'element',
+          // Rendered by `CodeTree` (see `src/react/internal/CodeTree.mdx.tsx`).
+          tagName: 'vocs-static-html',
+          properties: {
+            ...node.properties,
+            tag: node.tagName,
+            html: hastToHtml({ type: 'root', children: node.children }),
+          },
+          children: [],
+        }
+        return UnistUtil.SKIP
+      })
+      // MDX keeps the `pre` itself, since parents such as `CodeGroup` read its props.
+      const root: HAst.Root = { type: 'root', children: pre.children }
+      if (!isHast(root)) return UnistUtil.SKIP
+      UnistUtil.visit(root, (node) => {
+        delete node.position
+      })
+      pre.children = [
+        {
+          type: 'mdxJsxFlowElement',
+          name: 'VocsCodeTree',
           attributes: [
-            ...attributes,
             {
               type: 'mdxJsxAttribute',
-              name: 'dangerouslySetInnerHTML',
+              name: 'tree',
               value: {
                 type: 'mdxJsxAttributeValueExpression',
                 value: '',
-                data: { estree: EstreeUtil.fromJs(`({ __html: ${JSON.stringify(html)} })`) },
+                data: { estree: EstreeUtil.fromJs(`(${JSON.stringify(root)})`) },
               },
             },
           ],
           children: [],
-        } as unknown as HAst.Element
-        return UnistUtil.SKIP
-      })
+        } as unknown as HAst.ElementContent,
+      ]
       return UnistUtil.SKIP
     })
   }
@@ -86,26 +101,10 @@ export function rehypeStaticCode() {
     return Array.isArray(value) ? value.join(' ') : String(value ?? '')
   }
 
-  /** Converts properties to JSX attributes, or returns `undefined` when one needs React casing. */
-  function toAttributes(node: HAst.Element) {
-    const attributes = []
-    for (const [key, value] of Object.entries(node.properties)) {
-      if (value === undefined || value === null || value === false) continue
-      const name =
-        key === 'className' || key === 'class'
-          ? 'className'
-          : /^(data|aria)-/.test(key)
-            ? key
-            : /^(data|aria)[A-Z]/.test(key)
-              ? key.replace(/[A-Z]/g, (char) => `-${char.toLowerCase()}`)
-              : undefined
-      if (!name) return undefined
-      attributes.push({
-        type: 'mdxJsxAttribute',
-        name,
-        value: Array.isArray(value) ? value.join(' ') : value === true ? null : String(value),
-      })
-    }
-    return attributes
+  /** Whether the tree holds only nodes that `hast-util-to-jsx-runtime` can render. */
+  function isHast(node: HAst.Root | HAst.RootContent): boolean {
+    if (node.type === 'text' || node.type === 'comment') return true
+    if (node.type !== 'element' && node.type !== 'root') return false
+    return node.children.every(isHast)
   }
 }
