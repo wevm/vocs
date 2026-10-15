@@ -209,8 +209,9 @@ export async function buildLlmsContent(options: buildLlmsContent.Options) {
     diagnostics,
   }
   const full = [
-    ...(options.transform ? [short, ''] : llmsTxtContent),
-    sitemap,
+    // The transformed index already contains navigation. Appending the original
+    // sitemap would reintroduce URLs that the transform deliberately rewrote.
+    ...(options.transform ? [short, ''] : [...llmsTxtContent, sitemap]),
     ...pageResults.map((page) => `<!-- Source: ${page.path} -->\n\n${page.content}`),
   ]
   return { full: full.join('\n'), results: pageResults, short, report }

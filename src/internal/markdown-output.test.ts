@@ -537,3 +537,19 @@ describe('review regressions', () => {
     expect(result.report.diagnostics).toEqual([])
   })
 })
+
+test('full exports do not reintroduce untransformed navigation', async () => {
+  const result = await buildLlmsContent({
+    ...plugins,
+    title: 'Docs',
+    pages: [{ path: '/docs/guide', title: 'Guide', content: '# Guide' }],
+    transform: ({ index, pages }) => ({
+      index: index.replaceAll('](/docs/', '](https://example.com/docs/'),
+      pages,
+    }),
+  })
+  expect(result.short).toContain('](https://example.com/docs/guide.md)')
+  expect(result.full).toContain(result.short)
+  expect(result.full).not.toContain('](/docs/')
+  expect(result.report.diagnostics).toEqual([])
+})
