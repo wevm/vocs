@@ -286,7 +286,12 @@ export function getCompileOptions(
   recmaPlugins: PluggableList
 } {
   const { cacheDir, codeHighlight, markdown, rootDir, srcDir, twoslash } = config
-  const { jsxImportSource = 'react', outputRemarkPlugins, ...markdownOptions } = markdown ?? {}
+  const {
+    jsxImportSource = 'react',
+    outputRemarkPlugins,
+    output: _output,
+    ...markdownOptions
+  } = markdown ?? {}
 
   // Extract language names from twoslash transformers (e.g., rust, toml from experimental_rust)
   const twoslashTransformerLangs =
@@ -1338,7 +1343,13 @@ export function remarkTerminal() {
 export function remarkStripJs() {
   return (tree: MdAst.Root) => {
     UnistUtil.visit(tree, (node, index, parent) => {
-      if (node.type !== 'mdxjsEsm' && node.type !== 'mdxFlowExpression') return
+      // Keep runtime expressions for output plugins and the final audit. Only imports/exports
+      // and comment-only expressions are safe to remove without losing content.
+      if (
+        node.type !== 'mdxjsEsm' &&
+        !(node.type === 'mdxFlowExpression' && !node.data?.estree?.body.length)
+      )
+        return
       if (index === undefined || !parent) return
       parent.children.splice(index, 1)
       return [UnistUtil.SKIP, index]

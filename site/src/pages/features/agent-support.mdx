@@ -38,8 +38,7 @@ This is useful for copying documentation into AI conversations or for custom int
 
 When the [MCP server](/features/mcp-server) is enabled, each generated Markdown page starts
 with its endpoint and suggests using `search_docs`. If feedback is also configured,
-the prelude suggests the `submit_feedback` tool. These instructions are not repeated in
-`llms.txt` or `llms-full.txt`.
+the prelude suggests the `submit_feedback` tool. The full export contains these same page bodies; the index contains links only.
 
 ## llms.txt Files
 
@@ -57,76 +56,234 @@ These files are generated at build time and served at the root of your site. No 
 
 Vocs is a library for creating documentation websites.
 
-- [What is Vocs?](/introduction/what-is-vocs): Learn about Vocs and its features
-- [Getting Started](/introduction/getting-started): Quick start guide
-- [Agent Support](/features/agent-support): Machine-readable docs for AI agents
+- [What is Vocs?](/introduction/what-is-vocs.md): Learn about Vocs and its features
+- [Getting Started](/introduction/getting-started.md): Quick start guide
+- [Agent Support](/features/agent-support.md): Machine-readable docs for AI agents
 ```
 
-## Custom Component Markdown
+## Component Markdown
 
-Custom MDX components can provide Markdown for AI-facing output without changing their interactive rendering. Define `toMarkdown` on the component, then use the component as a standalone MDX tag.
+Export a `markdown` map from a component module. Keys are component export names; values
+are build-time renderers returning Markdown AST nodes. The React component continues to
+render normally in the website.
 
-```tsx [src/components/ClientPrompt.tsx]
-const prompt = 'Add mppx to my app as a client.'
+```tsx [src/components/Demo.tsx]
+import type { MarkdownRenderer } from 'vocs'
 
-export const ClientPrompt = Object.assign(
-  function ClientPrompt() {
-    return <pre>{prompt}</pre>
-  },
+export function Demo({ title, sourceUrl }: { title: string; sourceUrl: string }) {
+  return <a href={sourceUrl}>{title}</a>
+}
+
+const renderDemo: MarkdownRenderer<{ title: string; sourceUrl: string }> = (props) => [
   {
-    toMarkdown: () => ({
-      type: 'code',
-      lang: 'text',
-      value: prompt,
-    }),
+    type: 'paragraph',
+    children: [{
+      type: 'link',
+      url: props.sourceUrl,
+      children: [{ type: 'text', value: props.title }],
+    }],
   },
-)
+]
+
+export const markdown = { Demo: renderDemo }
 ```
 
 ```mdx [src/pages/quickstart.mdx]
-import { ClientPrompt } from '../components/ClientPrompt'
+import { Demo as Example } from '../components/Demo'
 
-<ClientPrompt />
+<Example title="Runnable example" sourceUrl="https://github.com/example/demo" />
 ```
 
-Vocs invokes the hook only while generating `.md`, `llms.txt`, and `llms-full.txt`. The hook must return a Markdown AST node or an array of nodes; components without a hook remain unchanged.
+Aliases resolve to the original export. Default exports use the key `default`; namespace
+imports such as `UI.Demo` use the key `Demo`. Components with the same name in different
+modules do not share a renderer. Re-exporting a React component through a barrel also
+requires re-exporting a matching `markdown` map from that barrel.
 
-### Audit Markdown Components
+### Children and omissions
 
-Dry render every page locally to find components that remain as MDX in AI-facing Markdown:
+```ts
+import type { MarkdownRenderer } from 'vocs'
+
+export const markdown = {
+  Panel: (_props, context) => context.renderChildren(),
+  DecorativeIcon: () => [],
+} satisfies Record<string, MarkdownRenderer>
+```
+
+`context.renderChildren()` returns already transformed children. `context.pageUrl` is the
+containing page's route. `context.inline` identifies a component inside a paragraph. Inline component renderers must return phrasing nodes, such as
+text, links, or inline code; block nodes cannot appear inside paragraphs.
+
+Vocs provides renderers for `Cards`, `Card`, `Tabs`, `Tab`, `Badge`, and `Callout` imported
+from `vocs`. Tabs expand every tab, including labels. Existing standalone, prop-free
+`Component.toMarkdown()` hooks remain supported for compatibility.
+
+Renderers receive static strings, booleans, numbers, arrays, and objects. Vocs never
+evaluates MDX calls, variable references, spreads, or interpolated templates to obtain
+props. Unsupported expressions remain in output and are reported. JSX inside code
+examples is preserved and is not a finding.
+
+### Customize final exports
+
+Use `markdown.output.transform` for site-wide text changes such as sectioned indexes,
+source attribution, or canonical links. It runs after component renderers, output remark
+plugins, and the configured page prelude, in builds, development, and `markdown-audit`.
+
+```ts [vocs.config.ts]
+import { defineConfig } from 'vocs/config'
+
+export default defineConfig({
+  markdown: {
+    output: {
+      validation: 'fail',
+      transform: ({ index, pages }) => ({
+        index: `${index}\n\n> Generated documentation index.`,
+        pages: Object.fromEntries(
+          Object.entries(pages).map(([route, content]) => [
+            route,
+            `> Source: ${route}\n\n${content}`,
+          ]),
+        ),
+      }),
+    },
+  },
+})
+```
+
+`pages` maps canonical routes (`/guide`, or `/` for the home page) to Markdown strings.
+Return `index` and the same page keys; adding, removing, or renaming routes is a generation
+error in either mode. Async transforms are supported. The public `MarkdownOutputTransform`
+type is exported from `vocs` for separately defined hooks.
+
+Vocs assembles `llms-full.txt` from the transformed index and the exact transformed page
+bodies. Validation and manifest hashing happen afterward. An unsupported component added
+by this hook is reported under the selected mode, just like one left by a renderer.
+Do not rewrite generated files in a later Vite hook: those bytes would no longer match the
+validated output or its manifest. Keep the hook deterministic and free of request-specific
+data, and preserve the index links when adding sections or notes. Markdown files in the
+public directory (such as `public/SKILL.md`) are valid link targets; they are not
+automatically added to the generated index or full export.
+
+Component modules share a loader across page exports. Local source edits, including edits
+to imported helpers, invalidate that loader for the next export. Browser-only modules still
+need config overrides; caching does not execute browser dependencies in Node.
+
+### Third-party and browser-only components
+
+Component modules are imported during generation. Modules that require browser globals,
+CSS loaders, or unavailable runtime dependencies should use a config renderer instead.
+Overrides are resolved relative to the site root, using the same import resolver as MDX:
+
+```ts [vocs.config.ts]
+import { defineConfig } from 'vocs/config'
+
+export default defineConfig({
+  markdown: {
+    output: {
+      validation: 'fail',
+      components: [{
+        module: './src/components/LiveChart.tsx',
+        export: 'LiveChart',
+        render: () => [{
+          type: 'paragraph',
+          children: [{ type: 'text', value: 'Open the website to explore the live chart.' }],
+        }],
+      }],
+    },
+  },
+})
+```
+
+Config overrides take precedence over module declarations and built-in renderers. An
+explicit empty array omits content; unknown components are never silently discarded.
+Keep renderers deterministic and free of request-specific data. External data should be
+resolved as part of the site's build snapshot.
+
+Existing `markdown.outputRemarkPlugins` still run after component expansion. Validation
+inspects the final output after these plugins, so a plugin can handle a component instead
+of a module declaration.
+
+## Validate exports
+
+`markdown.output.validation` selects enforcement for **the same checks**:
+
+- `warn` (default): report all findings and continue.
+- `fail`: report all findings and block the production build.
+
+Checks cover unrendered components and expressions, missing titles, empty output,
+duplicate authored routes, and broken links explicitly targeting generated `.md` pages.
+Pages without titles remain included, with their route as the fallback title. Generated
+OpenAPI pages intentionally take precedence over authored pages at the same mount.
+Ordinary application links and remote links are outside the Markdown-export link check.
+
+All discovered Markdown pages and generated OpenAPI pages feed the index and full export;
+the sidebar controls ordering, not inclusion. Source changes and deletions are reflected
+on the next build. React-only application routes need authored Markdown to be included.
+Generation errors, including renderer exceptions, always fail because no usable artifact
+can be produced.
+
+Override enforcement for a single build without skipping checks:
+
+```sh
+VOCS_MARKDOWN_VALIDATION=warn pnpm build
+```
+
+The build reports the effective mode and environment override. Invalid modes are errors.
+
+### Audit locally or in CI
 
 ```sh
 vocs markdown-audit
+vocs markdown-audit --validation fail
+vocs markdown-audit --json
 ```
 
-The report groups results by component, then lists each affected page and a suggested fix. It exits with status `1` when a component remains unrendered, so it can be used in CI. Add `--json` for machine-readable output.
-
-#### Example Output
-
-```txt
-[vocs] Markdown audit found 1 component left after dry rendering 1 page (2 occurrences).
-
-Components:
-  InteractiveWidget (2 occurrences)
-    Fix: add `InteractiveWidget.toMarkdown` to return a Markdown AST node.
-    /guides/setup (2 occurrences)
-```
-
-#### JSON Output
+Precedence is CLI flag, environment variable, config, then the `warn` default. Exit codes:
+`0` for success or warnings, `1` for findings in `fail` mode, `2` when generation or the audit
+cannot complete. Diagnostics include the rule, page, and generated-output position when
+available; positions are not original MDX source locations.
 
 ```json
 {
-  "components": [
-    {
-      "name": "InteractiveWidget",
-      "unsupportedUsages": 0,
-      "count": 2,
-      "pages": [{ "path": "/guides/setup", "count": 2 }]
-    }
-  ],
-  "errors": []
+  "validation": "fail",
+  "validationSource": "config",
+  "diagnostics": [{
+    "rule": "unhandled-component",
+    "file": "/guides/setup",
+    "component": "InteractiveWidget",
+    "message": "Add a markdown renderer for <InteractiveWidget>.",
+    "line": 3,
+    "column": 1
+  }]
 }
 ```
+
+### Verify a deployment
+
+Builds write `markdown-manifest.json` alongside `llms.txt`, containing SHA-256 hashes of
+both exports and every page body. Save this file from the build artifact; comparing only
+two files fetched from a deployment cannot establish that the deployment is current.
+
+```ts
+import { readFile } from 'node:fs/promises'
+import { MarkdownOutput } from 'vocs/server/markdown'
+
+const manifest = JSON.parse(await readFile('dist/public/markdown-manifest.json', 'utf8'))
+const diagnostics = await MarkdownOutput.verifyDeployment({
+  url: 'https://preview.example.com',
+  manifest,
+})
+if (diagnostics.length) throw new Error(JSON.stringify(diagnostics, null, 2))
+```
+
+This checks HTTP status, content type, and exact response hashes, catching stale CDN
+responses and HTML fallback pages. Run it before promoting a preview and after production
+promotion. Supply a URL including the deployment's base path when applicable.
+
+Non-Vocs generators can use `MarkdownOutput.inspect`, `manifest`, and `verifyDeployment`
+from the Node-only `vocs/server/markdown` entrypoint. `MarkdownExports.buildLlmsContent` exposes the shared generation
+pipeline for callers supplying content records and remark plugins. These helpers return
+findings; callers choose how to enforce `warn` or `fail`.
 
 ## Best Practices
 

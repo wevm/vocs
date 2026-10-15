@@ -1,15 +1,24 @@
 import fs from 'node:fs/promises'
+import * as path from 'node:path'
+import type { Root } from 'mdast'
 import remarkMdx from 'remark-mdx'
 import remarkParse from 'remark-parse'
 import remarkStringify from 'remark-stringify'
 import type { PluggableList } from 'unified'
 import { unified } from 'unified'
+import { visit } from 'unist-util-visit'
 import type * as Config from './config.js'
 import * as MarkdownComponents from './markdown-components.js'
 import * as MarkdownImports from './markdown-imports.js'
+import * as MarkdownOutput from './markdown-output.js'
 import * as OpenApiMarkdown from './openapi/markdown.js'
 import type * as Sidebar from './sidebar.js'
 
+/**
+ * Compile one content inventory into page Markdown and both LLM exports.
+ * Returns diagnostics without enforcing them; Vite and CLI callers apply the selected mode.
+ * Renderer and parse failures reject because they cannot produce a trustworthy artifact.
+ */
 export async function buildLlmsContent(options: buildLlmsContent.Options) {
   const {
     componentOptions,
@@ -23,10 +32,22 @@ export async function buildLlmsContent(options: buildLlmsContent.Options) {
 
   // Dedupe by path (first occurrence wins), so consumer-authored source pages
   // take precedence over generated pages (e.g. OpenAPI) mounted at the same path.
+  const diagnostics: MarkdownOutput.Diagnostic[] = []
   const seen = new Set<string>()
   const pages = options.pages.filter((page) => {
     const key = normalizePath(page.path)
-    if (seen.has(key)) return false
+    if (seen.has(key)) {
+      // Generated OpenAPI pages intentionally overlay authored pages at their mount.
+      if (
+        !options.pages.some((candidate) => normalizePath(candidate.path) === key && candidate.title)
+      )
+        diagnostics.push({
+          rule: 'duplicate-page',
+          file: page.path,
+          message: 'Multiple source pages publish the same Markdown route.',
+        })
+      return false
+    }
     seen.add(key)
     return true
   })
@@ -61,7 +82,10 @@ export async function buildLlmsContent(options: buildLlmsContent.Options) {
               rawContent,
               page.content.path,
               (source, filePath) =>
-                MarkdownComponents.inlineMarkdownComponents(source, filePath, componentOptions),
+                MarkdownComponents.inlineMarkdownComponents(source, filePath, {
+                  ...componentOptions,
+                  pageUrl: page.path,
+                }),
             )
       const file = await unified()
         .use(remarkParse)
@@ -69,22 +93,43 @@ export async function buildLlmsContent(options: buildLlmsContent.Options) {
         .use(remarkStringify)
         .use(remarkPlugins)
         .use(rehypePlugins)
+        .use(() => (tree: Root) => {
+          // Aggregated pages lose their original URL context. Resolve links once so
+          // the standalone and full exports can retain exactly the same body.
+          visit(tree, (node) => {
+            if (node.type !== 'link' && node.type !== 'image' && node.type !== 'definition') return
+            if (/^(?:[a-z][a-z\d+.-]*:|\/)/i.test(node.url)) return
+            // Index source files resolve sibling links within their directory, while
+            // fragment-only links still target the canonical page route.
+            const isIndex =
+              typeof page.content !== 'string' && /(?:^|[/\\])index\.mdx?$/.test(page.content.path)
+            const base =
+              isIndex && !node.url.startsWith('#') && !node.url.startsWith('?')
+                ? `${page.path.replace(/\/$/, '')}/`
+                : page.path
+            const url = new URL(node.url, `https://vocs.invalid${base}`)
+            node.url = `${url.pathname}${url.search}${url.hash}`
+          })
+        })
         .process(content)
 
       const { title, description } = (file?.data?.['frontmatter'] ?? {}) as Config.Frontmatter
-      if (!title) return null
+      if (!title)
+        diagnostics.push({
+          rule: 'missing-title',
+          file: page.path,
+          message: 'Provide a page title; the route is used as a fallback.',
+        })
 
       return {
         content: String(file),
         file,
-        title,
+        title: title || page.path,
         description,
         path: page.path,
       }
     }),
-  )
-    .then((data) => data.filter((data): data is NonNullable<typeof data> => data !== null))
-    .then((data) => sortResults(data, sidebar))
+  ).then((data) => sortResults(data, sidebar))
 
   const llmsTxtContent: string[] = [`# ${title}`, '']
   if (description) llmsTxtContent.push(description, '')
@@ -92,24 +137,90 @@ export async function buildLlmsContent(options: buildLlmsContent.Options) {
   const nav = []
   for (const { title, description, path } of results)
     nav.push(
-      `- [${title}](${path === '/' ? '/index' : path})${description ? `: ${description}` : ''}`,
+      `- [${escapeLabel(title)}](${path === '/' ? '/index' : path.replace(/\/$/, '')}.md)${description ? `: ${description.replace(/\s+/g, ' ').trim()}` : ''}`,
     )
 
   const sitemap = ['<!--', 'Sitemap:', ...nav, '-->', ''].join('\n')
-  const short = [...llmsTxtContent, ...nav]
-  const full = [...llmsTxtContent, sitemap, ...results.map((r) => r.content)]
-  const pageResults = pagePrelude
+  let short = [...llmsTxtContent, ...nav].join('\n')
+
+  let pageResults = pagePrelude
     ? results.map((result) => ({
         ...result,
         content: `${pagePrelude}\n\n${result.content}`,
       }))
     : results
 
-  return { full: full.join('\n'), results: pageResults, short: short.join('\n') }
+  if (options.transform) {
+    const transformed = await options.transform({
+      index: short,
+      pages: Object.fromEntries(pageResults.map((page) => [page.path, page.content])),
+    })
+    // Hooks may change text, not silently drop/add/rename routes. Keep routing,
+    // metadata, ordering, and the full-export inventory owned by the framework.
+    if (
+      !transformed ||
+      typeof transformed.index !== 'string' ||
+      !transformed.pages ||
+      typeof transformed.pages !== 'object' ||
+      Array.isArray(transformed.pages) ||
+      Object.keys(transformed.pages).length !== pageResults.length ||
+      pageResults.some(
+        (page) =>
+          !Object.hasOwn(transformed.pages, page.path) ||
+          typeof transformed.pages[page.path] !== 'string',
+      )
+    )
+      throw new TypeError(
+        'markdown.output.transform must return an index and the same page routes with string content.',
+      )
+    short = transformed.index
+    pageResults = pageResults.map((page) => ({
+      ...page,
+      content: transformed.pages[page.path] as string,
+    }))
+  }
+
+  // Public Markdown assets (for example SKILL.md) are valid link targets but
+  // remain outside the generated page inventory and full-text export.
+  const linkTargets = new Set(seen)
+  if (options.publicDir) {
+    const publicDir = options.publicDir
+    const files = await fs.readdir(publicDir, { recursive: true }).catch((error) => {
+      if (error.code === 'ENOENT') return []
+      throw error
+    })
+    for (const file of files) {
+      if (!file.endsWith('.md') || !(await fs.stat(path.join(publicDir, file))).isFile()) continue
+      linkTargets.add(
+        `/${file.split(path.sep).join('/')}`.replace(/\.md$/, '').replace(/\/index$/, '') || '/',
+      )
+    }
+  }
+  // Validate aggregate framing too: site metadata and index transforms may contain MDX.
+  diagnostics.push(...MarkdownOutput.inspect(short, '/llms.txt', linkTargets))
+  for (const page of pageResults)
+    diagnostics.push(...MarkdownOutput.inspect(page.content, page.path, linkTargets))
+  diagnostics.sort(
+    (a, b) =>
+      a.file.localeCompare(b.file) || (a.line ?? 0) - (b.line ?? 0) || a.rule.localeCompare(b.rule),
+  )
+  const report = {
+    ...MarkdownOutput.resolveValidation({ config: options.validation }),
+    diagnostics,
+  }
+  const full = [
+    ...(options.transform ? [short, ''] : llmsTxtContent),
+    sitemap,
+    ...pageResults.map((page) => `<!-- Source: ${page.path} -->\n\n${page.content}`),
+  ]
+  return { full: full.join('\n'), results: pageResults, short, report }
 }
 
 export declare namespace buildLlmsContent {
   type Options = {
+    publicDir?: string | false | undefined
+    validation?: 'warn' | 'fail' | undefined
+    transform?: MarkdownOutput.MarkdownOutputTransform | undefined
     componentOptions?: MarkdownComponents.inlineMarkdownComponents.Options | undefined
     pages: Page[]
     title: string
@@ -133,6 +244,7 @@ export declare namespace buildLlmsContent {
   }
 }
 
+/** Shared page guidance, included identically in individual and full Markdown exports. */
 export function getMarkdownPagePrelude(config: getMarkdownPagePrelude.Options) {
   if (!config.mcp?.enabled) return undefined
 
@@ -232,14 +344,33 @@ function isExternalLink(link: string): boolean {
   return /^[a-zA-Z][a-zA-Z\d+\-.]*:/.test(link)
 }
 
+/** Discover authored Markdown routes, excluding private underscore-prefixed files/directories. */
 export async function getPagesFromDir(pagesDir: string): Promise<buildLlmsContent.Page[]> {
   const files = await Array.fromAsync(fs.glob(`${pagesDir}/**/*.{md,mdx}`))
-  return files.map((file) => ({
-    path: file
-      .replace(pagesDir, '')
-      .replace(/\.mdx?$/, '')
-      .replace(/\/$/, '')
-      .replace(/index$/, ''),
-    content: { path: file },
-  }))
+  return files
+    .filter(
+      (file) =>
+        !path
+          .relative(pagesDir, file)
+          .split(path.sep)
+          .some((part) => part.startsWith('_')),
+    )
+    .sort()
+    .map((file) => ({
+      path:
+        file
+          .replace(pagesDir, '')
+          .replace(/\.mdx?$/, '')
+          .replace(/\/$/, '')
+          .replace(/(^|\/)index$/, '$1')
+          .replace(/\/$/, '') || '/',
+      content: { path: file },
+    }))
+}
+
+function escapeLabel(value: string) {
+  return value
+    .replace(/\s+/g, ' ')
+    .replace(/[\\[\]]/g, '\\$&')
+    .trim()
 }

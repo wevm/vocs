@@ -9,28 +9,6 @@ import {
 
 const isDev = process.env['NODE_ENV'] !== 'production'
 
-async function resolveContent() {
-  const path = await import('node:path')
-  const Config = await import('../../../internal/config.js')
-  const Llms = await import('../../../internal/llms.js')
-  const Mdx = await import('../../../internal/mdx.js')
-
-  const config = await Config.resolve({ server: true })
-  const { rehypePlugins, remarkPlugins } = Mdx.getCompileOptions('txt', config)
-  const pagesDir = path.resolve(config.rootDir, config.srcDir, config.pagesDir)
-  const pages = await Llms.getPagesFromDir(pagesDir)
-  const openapiPages = await Llms.getOpenApiPages(config)
-  return Llms.buildLlmsContent({
-    pages: [...openapiPages, ...pages],
-    title: config.title,
-    description: config.description,
-    pagePrelude: Llms.getMarkdownPagePrelude(config),
-    rehypePlugins,
-    remarkPlugins,
-    sidebar: config.sidebar,
-  })
-}
-
 export async function fetchMarkdown(url: URL, assetPath: string, cookie?: string) {
   // Try reading from disk first (avoids self-fetch issues with deployment protection).
   try {
@@ -42,6 +20,12 @@ export async function fetchMarkdown(url: URL, assetPath: string, cookie?: string
     return await fs.readFile(filePath, 'utf-8')
   } catch {}
 
+  return fetchMarkdownFromServer(url, assetPath, cookie)
+}
+
+// Development requests use the Vite plugin's resolver-aware generation pipeline.
+// Never read a previous build's files while the development server is running.
+async function fetchMarkdownFromServer(url: URL, assetPath: string, cookie?: string) {
   // Fall back to HTTP fetch, forwarding cookies for auth-protected deployments.
   const assetUrl = new URL(assetPath, url.origin)
   const headers: HeadersInit = {}
@@ -112,13 +96,8 @@ export function middleware(): MiddlewareHandler {
     const acceptsMarkdown = acceptHeader.includes('text/markdown')
 
     if (url.pathname === '/' && (acceptsMarkdown || isTerminal) && !isSearchEngine) {
-      let text: string | null
-      if (isDev) {
-        const content = await resolveContent()
-        text = content.short
-      } else {
-        text = await fetchMarkdown(url, '/llms.txt', context.req.header('cookie'))
-      }
+      const read = isDev ? fetchMarkdownFromServer : fetchMarkdown
+      const text = await read(url, '/llms.txt', context.req.header('cookie'))
       if (!text) return nextWithVary()
 
       context.res = new Response(text, {
@@ -133,21 +112,11 @@ export function middleware(): MiddlewareHandler {
     if (!isMarkdownRequest && (isSearchEngine || (!isAiAgent && !isTerminal && !acceptsMarkdown)))
       return nextWithVary()
 
-    const pagePath = url.pathname.replace(/\.md$/, '').replace(/\/index$/, '')
-
-    let text: string | null
-    if (isDev) {
-      const content = await resolveContent()
-      const result = content.results.find(
-        (r) => r.path.replace(/\/$/, '') === pagePath.replace(/\/$/, ''),
-      )
-      text = result?.content ?? null
-    } else {
-      const assetPath = url.pathname.endsWith('.md')
-        ? `/assets/md${url.pathname}`
-        : `/assets/md${url.pathname}.md`
-      text = await fetchMarkdown(url, assetPath, context.req.header('cookie'))
-    }
+    const assetPath = url.pathname.endsWith('.md')
+      ? `/assets/md${url.pathname}`
+      : `/assets/md${url.pathname}.md`
+    const read = isDev ? fetchMarkdownFromServer : fetchMarkdown
+    const text = await read(url, assetPath, context.req.header('cookie'))
     if (!text) return nextWithVary()
 
     context.res = new Response(text, {

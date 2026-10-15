@@ -1,7 +1,9 @@
+import { createHash } from 'node:crypto'
 import * as fs from 'node:fs/promises'
 import * as os from 'node:os'
 import * as path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { Hono } from 'hono'
 import {
   build,
   createServer,
@@ -11,6 +13,7 @@ import {
   resolveConfig,
 } from 'vite'
 import { afterEach, describe, expect, test, vi } from 'vitest'
+import * as MdRouter from '../waku/internal/middleware/md-router.js'
 import * as Config from './config.js'
 import * as Llms from './llms.js'
 import type * as OpenApi from './openapi/index.js'
@@ -127,6 +130,147 @@ test('builds Markdown exports once after the client output', async () => {
   await expect(
     fs.readFile(path.join(rootDir, 'dist/public/assets/md/index.md'), 'utf-8'),
   ).resolves.toContain('# Hello')
+})
+
+test.each([
+  ['warn', undefined, false],
+  ['fail', undefined, true],
+  ['fail', 'warn', false],
+] as const)('enforces Markdown mode %s with override %s', async (validation, override, rejects) => {
+  const rootDir = await fs.realpath(await fs.mkdtemp(path.join(os.tmpdir(), 'vocs-output-mode-')))
+  tempDirs.add(rootDir)
+  await fs.mkdir(path.join(rootDir, 'src/pages'), { recursive: true })
+  await fs.writeFile(path.join(rootDir, 'src/pages/index.mdx'), '# Hello\n\n<Unknown />')
+  await fs.writeFile(path.join(rootDir, 'index.html'), '<html><body>Hello</body></html>')
+  vi.stubEnv('VOCS_MARKDOWN_VALIDATION', override)
+  try {
+    const config = Config.define({
+      rootDir,
+      title: 'Docs',
+      codeHighlight: { langs: [] },
+      markdown: { output: { validation } },
+    })
+    const run = build({
+      root: rootDir,
+      configFile: false,
+      logLevel: 'silent',
+      plugins: [llms(config)],
+      build: { outDir: 'dist/public' },
+    })
+    if (rejects) await expect(run).rejects.toThrow('unhandled-component')
+    else {
+      await run
+      const manifest = JSON.parse(
+        await fs.readFile(path.join(rootDir, 'dist/public/markdown-manifest.json'), 'utf8'),
+      )
+      expect(Object.keys(manifest.files)).toEqual(['/index.md', '/llms-full.txt', '/llms.txt'])
+      expect(await fs.readFile(path.join(rootDir, 'dist/public/llms-full.txt'), 'utf8')).toContain(
+        '<Unknown />',
+      )
+    }
+  } finally {
+    vi.unstubAllEnvs()
+  }
+})
+
+test('uses final transforms in development and fingerprints their production bytes', async () => {
+  const rootDir = await fs.realpath(await fs.mkdtemp(path.join(os.tmpdir(), 'vocs-transform-')))
+  tempDirs.add(rootDir)
+  await fs.mkdir(path.join(rootDir, 'src/pages'), { recursive: true })
+  await fs.writeFile(
+    path.join(rootDir, 'component.ts'),
+    `export const markdown = { Panel: () => [{ type: 'paragraph', children: [{ type: 'text', value: 'Alias rendered' }] }] }`,
+  )
+  await fs.writeFile(
+    path.join(rootDir, 'src/pages/index.mdx'),
+    "import { Panel } from 'site-components'\n\n# Hello\n\n<Panel />",
+  )
+  await fs.writeFile(path.join(rootDir, 'index.html'), '<html><body>Hello</body></html>')
+  const config = Config.define({
+    rootDir,
+    title: 'Docs',
+    codeHighlight: { langs: [] },
+    markdown: {
+      output: {
+        validation: 'fail',
+        transform: ({ index, pages }) => ({
+          index: `${index}\n\nIndex annotation.`,
+          pages: Object.fromEntries(
+            Object.entries(pages).map(([route, content]) => [
+              route,
+              `${content}\n\nPage annotation.`,
+            ]),
+          ),
+        }),
+      },
+    },
+  })
+  const server = await createServer({
+    root: rootDir,
+    configFile: false,
+    logLevel: 'silent',
+    plugins: [
+      llms(config),
+      {
+        name: 'test-negotiated-markdown',
+        configureServer(server) {
+          const app = new Hono()
+          app.use('*', MdRouter.middleware())
+          app.get('*', (context) => context.notFound())
+          server.middlewares.use(async (request, response, next) => {
+            if (request.url !== '/index') return next()
+            const result = await app.request(`http://${request.headers.host}/index`, {
+              headers: { accept: 'text/markdown' },
+            })
+            response.statusCode = result.status
+            result.headers.forEach((value, name) => {
+              response.setHeader(name, value)
+            })
+            response.end(await result.text())
+          })
+        },
+      },
+    ],
+    resolve: { alias: { 'site-components': path.join(rootDir, 'component.ts') } },
+    server: { host: '127.0.0.1', port: 0 },
+  })
+  try {
+    await server.listen()
+    const address = server.httpServer?.address()
+    if (!address || typeof address === 'string') throw new Error('Missing server address')
+    const origin = `http://127.0.0.1:${address.port}`
+    expect(await (await fetch(`${origin}/llms.txt`)).text()).toContain('Index annotation.')
+    const page = await (await fetch(`${origin}/assets/md/index.md`)).text()
+    expect(page).toContain('Page annotation.')
+    expect(page).toContain('Alias rendered')
+    const negotiated = await fetch(`${origin}/index`, { headers: { accept: 'text/markdown' } })
+    expect(negotiated.status).toBe(200)
+    expect(await negotiated.text()).toBe(page)
+    expect((await fetch(`${origin}/assets/md/missing.md`)).status).toBe(404)
+  } finally {
+    await server.close()
+  }
+  await build({
+    root: rootDir,
+    configFile: false,
+    logLevel: 'silent',
+    plugins: [llms(config)],
+    resolve: { alias: { 'site-components': path.join(rootDir, 'component.ts') } },
+    build: { outDir: 'dist/public' },
+  })
+  const directory = path.join(rootDir, 'dist/public')
+  const index = await fs.readFile(path.join(directory, 'llms.txt'), 'utf8')
+  const page = await fs.readFile(path.join(directory, 'assets/md/index.md'), 'utf8')
+  const full = await fs.readFile(path.join(directory, 'llms-full.txt'), 'utf8')
+  const manifest = JSON.parse(
+    await fs.readFile(path.join(directory, 'markdown-manifest.json'), 'utf8'),
+  )
+  expect(index).toContain('Index annotation.')
+  expect(page).toContain('Page annotation.')
+  expect(full).toContain(index)
+  expect(full).toContain(page)
+  expect(manifest.files['/index.md']).toBe(createHash('sha256').update(page).digest('hex'))
+  expect(manifest.files['/llms.txt']).toBe(createHash('sha256').update(index).digest('hex'))
 })
 
 afterEach(async () => {

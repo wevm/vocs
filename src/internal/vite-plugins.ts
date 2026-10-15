@@ -13,6 +13,7 @@ import * as Git from './git.js'
 import * as Icons from './icons.js'
 import * as Langs from './langs.js'
 import * as Llms from './llms.js'
+import * as MarkdownOutput from './markdown-output.js'
 import * as Mdx from './mdx.js'
 import type * as OpenApi from './openapi/index.js'
 import * as OpenApiRegistry from './openapi/registry.js'
@@ -242,7 +243,12 @@ export function llms(config: Config.Config): PluginOption {
       rehypePlugins,
       remarkPlugins,
       sidebar: config.sidebar,
+      validation: config.markdown?.output?.validation,
+      transform: config.markdown?.output?.transform,
+      publicDir: viteConfig.publicDir,
       componentOptions: {
+        components: config.markdown?.output?.components,
+        rootDir: config.rootDir,
         resolve: (source, importer) => resolve(source, importer),
       },
     })
@@ -273,7 +279,10 @@ export function llms(config: Config.Config): PluginOption {
           if (result) {
             res.setHeader('Content-Type', 'text/markdown; charset=utf-8')
             res.end(result.content)
+            return
           }
+          res.statusCode = 404
+          res.end()
           return
         }
 
@@ -283,9 +292,33 @@ export function llms(config: Config.Config): PluginOption {
     async writeBundle() {
       if (this.environment.name !== 'client') return
       const content = await buildLlmsContent()
+      const message = MarkdownOutput.format(content.report)
+      if (content.report.diagnostics.length && content.report.validation === 'fail')
+        this.error(message)
+      else if (
+        content.report.diagnostics.length ||
+        content.report.validationSource === 'environment'
+      )
+        this.warn(message)
       const outDir = path.resolve(viteConfig.root, config.outDir, 'public')
       await fs.mkdir(outDir, { recursive: true })
+      // This directory belongs exclusively to generated exports. Clear deleted routes on rebuild.
+      await fs.rm(path.join(outDir, 'assets/md'), { recursive: true, force: true })
+      const manifest = MarkdownOutput.manifest({
+        '/llms.txt': content.short,
+        '/llms-full.txt': content.full,
+        ...Object.fromEntries(
+          content.results.map((page) => [
+            `${page.path === '/' ? '/index' : page.path.replace(/\/$/, '')}.md`,
+            page.content,
+          ]),
+        ),
+      })
       await Promise.all([
+        fs.writeFile(
+          path.join(outDir, 'markdown-manifest.json'),
+          JSON.stringify(manifest, null, 2),
+        ),
         fs.writeFile(path.join(outDir, 'llms-full.txt'), content.full, { encoding: 'utf-8' }),
         fs.writeFile(path.join(outDir, 'llms.txt'), content.short, { encoding: 'utf-8' }),
         ...content.results.map(async ({ content, path: pagePath }) => {

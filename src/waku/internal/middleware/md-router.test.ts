@@ -95,6 +95,26 @@ describe('middleware', () => {
     })
   }
 
+  it.each([
+    ['/', '/llms.txt'],
+    ['/guide', '/assets/md/guide.md'],
+    ['/guide.md', '/assets/md/guide.md'],
+  ])('uses current Vite output for negotiated dev request %s', async (route, asset) => {
+    process.env['NODE_ENV'] = 'development'
+    const { readFile } = await import('node:fs/promises')
+    vi.mocked(readFile).mockResolvedValue('stale build')
+    const fetchSpy = vi.fn().mockResolvedValue(new Response('# Resolved alias'))
+    globalThis.fetch = fetchSpy
+    const response = await request(`http://localhost${route}`, {
+      accept: 'text/markdown',
+      cookie: 'session=test',
+    })
+    expect(await response.text()).toBe('# Resolved alias')
+    expect(fetchSpy.mock.calls[0]?.[0].pathname).toBe(asset)
+    expect(fetchSpy.mock.calls[0]?.[1].headers).toEqual({ cookie: 'session=test' })
+    expect(readFile).not.toHaveBeenCalled()
+  })
+
   it('passes search engine crawlers through to HTML', async () => {
     process.env['NODE_ENV'] = 'production'
 

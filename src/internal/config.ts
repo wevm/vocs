@@ -10,6 +10,7 @@ import type { PluggableList } from 'unified'
 import type * as Changelog from './changelog.js'
 import type * as Feedback from './feedback.js'
 import * as Langs from './langs.js'
+import type * as MarkdownOutput from './markdown-output.js'
 import type * as McpSource from './mcp-source.js'
 import type * as Mdx from './mdx.js'
 import type * as OpenApi from './openapi/index.js'
@@ -93,6 +94,8 @@ export type SitemapOptions = {
 }
 
 export type MarkdownOptions = MdxRollup.Options & {
+  /** Generation and validation shared by all machine-readable Markdown exports. */
+  output?: MarkdownOutput.MarkdownOutputConfig | undefined
   /**
    * Remark plugins applied only when Vocs generates Markdown for authored pages.
    *
@@ -1076,7 +1079,7 @@ export async function resolve(options: resolve.Options = {}): Promise<Config> {
   }
 
   const configFile = getConfigFile({ rootDir })
-  if (!configFile) return define({})
+  if (!configFile) return define({ rootDir })
 
   // `loadConfigFromFile` imports a fresh bundle per call and Node never unloads modules,
   // so reuse the loaded config until the config file or one of its imports changes.
@@ -1093,7 +1096,7 @@ export async function resolve(options: resolve.Options = {}): Promise<Config> {
   const vite = await import(/* @vite-ignore */ viteSpecifier)
   const result = await vite.loadConfigFromFile(
     { command: 'build', mode: 'development' },
-    configFile,
+    file,
     rootDir,
   )
   if (!result) return define({ rootDir })
