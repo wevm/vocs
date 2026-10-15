@@ -10,7 +10,7 @@ import type { PluggableList } from 'unified'
 import type * as Changelog from './changelog.js'
 import type * as Feedback from './feedback.js'
 import * as Langs from './langs.js'
-import type { MarkdownOutputConfig } from './markdown-output.js'
+import type * as MarkdownOutput from './markdown-output.js'
 import type * as McpSource from './mcp-source.js'
 import type * as Mdx from './mdx.js'
 import type * as OpenApi from './openapi/index.js'
@@ -95,7 +95,7 @@ export type SitemapOptions = {
 
 export type MarkdownOptions = MdxRollup.Options & {
   /** Generation and validation shared by all machine-readable Markdown exports. */
-  output?: MarkdownOutputConfig | undefined
+  output?: MarkdownOutput.MarkdownOutputConfig | undefined
   /**
    * Remark plugins applied only when Vocs generates Markdown for authored pages.
    *

@@ -279,7 +279,10 @@ export function llms(config: Config.Config): PluginOption {
           if (result) {
             res.setHeader('Content-Type', 'text/markdown; charset=utf-8')
             res.end(result.content)
+            return
           }
+          res.statusCode = 404
+          res.end()
           return
         }
 

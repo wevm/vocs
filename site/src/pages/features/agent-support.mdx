@@ -266,7 +266,7 @@ two files fetched from a deployment cannot establish that the deployment is curr
 
 ```ts
 import { readFile } from 'node:fs/promises'
-import { MarkdownOutput } from 'vocs/server'
+import { MarkdownOutput } from 'vocs/server/markdown'
 
 const manifest = JSON.parse(await readFile('dist/public/markdown-manifest.json', 'utf8'))
 const diagnostics = await MarkdownOutput.verifyDeployment({
@@ -281,7 +281,7 @@ responses and HTML fallback pages. Run it before promoting a preview and after p
 promotion. Supply a URL including the deployment's base path when applicable.
 
 Non-Vocs generators can use `MarkdownOutput.inspect`, `manifest`, and `verifyDeployment`
-from `vocs/server`. `MarkdownExports.buildLlmsContent` exposes the shared generation
+from the Node-only `vocs/server/markdown` entrypoint. `MarkdownExports.buildLlmsContent` exposes the shared generation
 pipeline for callers supplying content records and remark plugins. These helpers return
 findings; callers choose how to enforce `warn` or `fail`.
 

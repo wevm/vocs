@@ -462,3 +462,78 @@ test('public Markdown assets are valid links without joining the generated inven
   expect(result.results).toHaveLength(1)
   expect(result.full).not.toContain('# Skill')
 })
+
+describe('review regressions', () => {
+  test.each([
+    '<ui.Panel />',
+    '<_Panel />',
+    '<$Panel />',
+  ])('diagnoses component form %s', (content) => {
+    expect(inspect(content, '/guide')).toEqual(
+      expect.arrayContaining([expect.objectContaining({ rule: 'unhandled-component' })]),
+    )
+  })
+  test.each([
+    '<div>Text</div>',
+    '<my-element />',
+    '<linearGradient />',
+    '<svg:path />',
+  ])('allows intrinsic markup %s', (content) => {
+    expect(inspect(content, '/guide')).toEqual([])
+  })
+  test.each([
+    ['/café.md', '/café'],
+    ['/caf%C3%A9.md', '/café'],
+    ['/hello%20world.md', '/hello world'],
+    ['/100%25.md', '/100%'],
+    ['/bad%ZZ.md', '/bad%ZZ'],
+  ])('validates encoded link %s', (url, route) => {
+    expect(inspect(`[Page](${url})`, '/guide', new Set([route]))).toEqual([])
+  })
+  test('does not treat encoded slashes as route separators', () => {
+    expect(inspect('[Page](/one%2Ftwo.md)', '/guide', new Set(['/one/two']))).toEqual([
+      expect.objectContaining({ rule: 'broken-export-link' }),
+    ])
+  })
+  test.each([
+    'warn',
+    'fail',
+  ] as const)('checks aggregate metadata in %s mode', async (validation) => {
+    const result = await buildLlmsContent({
+      ...plugins,
+      validation,
+      title: 'Docs {preview}',
+      description: '<Metadata />',
+      pages: [{ path: '/guide', title: 'Guide', content: '# Guide' }],
+    })
+    expect(result.report.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ file: '/llms.txt', rule: 'unhandled-expression' }),
+        expect.objectContaining({ file: '/llms.txt', rule: 'unhandled-component' }),
+      ]),
+    )
+  })
+  test('resolves index siblings, parent links, images, definitions, and fragments', async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), 'vocs-index-links-'))
+    roots.push(root)
+    await fs.mkdir(path.join(root, 'guides'))
+    await fs.writeFile(
+      path.join(root, 'guides/index.mdx'),
+      '# Guides\n\n[Next](./next.md) [Parent](../intro.md) [Here](#details)\n\n![Image](./image.png)\n\n[Reference][next]\n\n[next]: ./next.md',
+    )
+    await fs.writeFile(path.join(root, 'guides/next.mdx'), '# Next\n\n[Sibling](../intro.md)')
+    await fs.writeFile(path.join(root, 'intro.mdx'), '# Intro')
+    const result = await buildLlmsContent({
+      ...plugins,
+      title: 'Docs',
+      pages: await getPagesFromDir(root),
+    })
+    const index = result.results.find((page) => page.path === '/guides')?.content
+    expect(index).toContain('[Next](/guides/next.md)')
+    expect(index).toContain('[Parent](/intro.md)')
+    expect(index).toContain('[Here](/guides#details)')
+    expect(index).toContain('![Image](/guides/image.png)')
+    expect(index).toContain('[next]: /guides/next.md')
+    expect(result.report.diagnostics).toEqual([])
+  })
+})

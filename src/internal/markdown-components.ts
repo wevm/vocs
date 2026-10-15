@@ -14,7 +14,7 @@ import { unified } from 'unified'
 import { visit } from 'unist-util-visit'
 import * as FileVersions from './file-versions.js'
 import * as MarkdownBuiltins from './markdown-builtins.js'
-import type { MarkdownComponentOverride, MarkdownRenderer } from './markdown-output.js'
+import type * as MarkdownOutput from './markdown-output.js'
 
 type MdxEsm = MdAst.RootContent & {
   data?: { estree?: Estree.Program }
@@ -78,7 +78,7 @@ export async function inlineMarkdownComponents(
           ? members.join('.')
           : [original.exportName, ...members].join('.'),
     }
-    let renderer: MarkdownRenderer | undefined
+    let renderer: MarkdownOutput.MarkdownRenderer | undefined
     let legacy = false
     if (componentImport) {
       const resolved =
@@ -102,12 +102,14 @@ export async function inlineMarkdownComponents(
       if (!renderer) {
         if (!modules.has(resolved)) modules.set(resolved, loadModule(resolved, filePath))
         const module = await modules.get(resolved)
-        const map = module?.['markdown'] as Record<string, MarkdownRenderer> | undefined
+        const map = module?.['markdown'] as
+          | Record<string, MarkdownOutput.MarkdownRenderer>
+          | undefined
         renderer = map?.[componentImport.exportName]
         if (!renderer && isStaticMdxComponent(node)) {
           const component = module?.[componentImport.exportName] as MarkdownComponent | undefined
           if (component?.toMarkdown) {
-            renderer = component.toMarkdown.bind(component) as MarkdownRenderer
+            renderer = component.toMarkdown.bind(component) as MarkdownOutput.MarkdownRenderer
             legacy = true
           }
         }
@@ -186,7 +188,7 @@ export async function inlineMarkdownComponents(
 export declare namespace inlineMarkdownComponents {
   type Options = {
     resolve?: (source: string, importer: string) => Promise<string | undefined>
-    components?: readonly MarkdownComponentOverride[] | undefined
+    components?: readonly MarkdownOutput.MarkdownComponentOverride[] | undefined
     rootDir?: string | undefined
     pageUrl?: string | undefined
   }

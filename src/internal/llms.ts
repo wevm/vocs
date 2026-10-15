@@ -99,7 +99,15 @@ export async function buildLlmsContent(options: buildLlmsContent.Options) {
           visit(tree, (node) => {
             if (node.type !== 'link' && node.type !== 'image' && node.type !== 'definition') return
             if (/^(?:[a-z][a-z\d+.-]*:|\/)/i.test(node.url)) return
-            const url = new URL(node.url, `https://vocs.invalid${page.path}`)
+            // Index source files resolve sibling links within their directory, while
+            // fragment-only links still target the canonical page route.
+            const isIndex =
+              typeof page.content !== 'string' && /(?:^|[/\\])index\.mdx?$/.test(page.content.path)
+            const base =
+              isIndex && !node.url.startsWith('#') && !node.url.startsWith('?')
+                ? `${page.path.replace(/\/$/, '')}/`
+                : page.path
+            const url = new URL(node.url, `https://vocs.invalid${base}`)
             node.url = `${url.pathname}${url.search}${url.hash}`
           })
         })
@@ -170,7 +178,6 @@ export async function buildLlmsContent(options: buildLlmsContent.Options) {
       ...page,
       content: transformed.pages[page.path] as string,
     }))
-    diagnostics.push(...MarkdownOutput.inspect(short, '/llms.txt'))
   }
 
   // Public Markdown assets (for example SKILL.md) are valid link targets but
@@ -189,6 +196,8 @@ export async function buildLlmsContent(options: buildLlmsContent.Options) {
       )
     }
   }
+  // Validate aggregate framing too: site metadata and index transforms may contain MDX.
+  diagnostics.push(...MarkdownOutput.inspect(short, '/llms.txt', linkTargets))
   for (const page of pageResults)
     diagnostics.push(...MarkdownOutput.inspect(page.content, page.path, linkTargets))
   diagnostics.sort(

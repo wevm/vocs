@@ -88,7 +88,7 @@ export declare namespace resolveValidation {
 }
 
 /** Inspect the final output AST. Code and inline-code nodes are intentionally opaque. */
-export function inspect(content: string, file: string, pages?: ReadonlySet<string>): Diagnostic[] {
+export function inspect(...[content, file, pages]: inspect.Options): inspect.ReturnType {
   const diagnostics: Diagnostic[] = []
   let tree: Root
   try {
@@ -112,7 +112,19 @@ export function inspect(content: string, file: string, pages?: ReadonlySet<strin
     ) {
       const url = new URL(node.url, `https://vocs.invalid${file}`)
       if (url.pathname.endsWith('.md')) {
-        const route = url.pathname.replace(/\.md$/, '').replace(/\/index$/, '') || '/'
+        // URL parsing encodes Unicode and spaces; inventory routes come from filenames.
+        // Decode each segment separately so an encoded slash cannot change route boundaries.
+        const pathname = url.pathname
+          .split('/')
+          .map((segment) => {
+            try {
+              return decodeURIComponent(segment).replaceAll('/', '%2F')
+            } catch {
+              return segment
+            }
+          })
+          .join('/')
+        const route = pathname.replace(/\.md$/, '').replace(/\/index$/, '') || '/'
         if (!pages.has(route))
           diagnostics.push({
             rule: 'broken-export-link',
@@ -145,7 +157,7 @@ export function inspect(content: string, file: string, pages?: ReadonlySet<strin
             column: node.position?.start.column,
           })
       }
-      if (!node.name || !/^[A-Z]/.test(node.name)) return
+      if (!node.name || /^[a-z][\w:-]*$/.test(node.name)) return
       diagnostics.push({
         rule: 'unhandled-component',
         file,
@@ -172,8 +184,13 @@ export function inspect(content: string, file: string, pages?: ReadonlySet<strin
   return diagnostics
 }
 
+export declare namespace inspect {
+  type Options = [content: string, file: string, pages?: ReadonlySet<string>]
+  type ReturnType = Diagnostic[]
+}
+
 /** Deterministic hashes let deployment tooling compare served bytes with this build. */
-export function manifest(files: Record<string, string>) {
+export function manifest(files: manifest.Options): manifest.ReturnType {
   return {
     version: 1,
     files: Object.fromEntries(
@@ -182,6 +199,11 @@ export function manifest(files: Record<string, string>) {
         .map(([path, content]) => [path, createHash('sha256').update(content).digest('hex')]),
     ),
   }
+}
+
+export declare namespace manifest {
+  type Options = Record<string, string>
+  type ReturnType = { version: 1; files: Record<string, string> }
 }
 
 /** Shared terminal formatting for the CLI and Vite's warning/error hooks. */

@@ -1,8 +1,8 @@
 import type { BlockContent, PhrasingContent, RootContent } from 'mdast'
-import type { MarkdownRenderer } from './markdown-output.js'
+import type * as MarkdownOutput from './markdown-output.js'
 
 /** Built-in components use the same renderer contract as site-owned modules. */
-export const markdown: Record<string, MarkdownRenderer> = {
+export const markdown: Record<string, MarkdownOutput.MarkdownRenderer> = {
   Cards: (_props, context) => context.renderChildren(),
   Tabs: (_props, context) => context.renderChildren(),
   Tab: (props, context) => [

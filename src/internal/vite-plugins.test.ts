@@ -3,6 +3,7 @@ import * as fs from 'node:fs/promises'
 import * as os from 'node:os'
 import * as path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { Hono } from 'hono'
 import {
   build,
   createServer,
@@ -12,6 +13,7 @@ import {
   resolveConfig,
 } from 'vite'
 import { afterEach, describe, expect, test, vi } from 'vitest'
+import * as MdRouter from '../waku/internal/middleware/md-router.js'
 import * as Config from './config.js'
 import * as Llms from './llms.js'
 import type * as OpenApi from './openapi/index.js'
@@ -175,7 +177,14 @@ test('uses final transforms in development and fingerprints their production byt
   const rootDir = await fs.realpath(await fs.mkdtemp(path.join(os.tmpdir(), 'vocs-transform-')))
   tempDirs.add(rootDir)
   await fs.mkdir(path.join(rootDir, 'src/pages'), { recursive: true })
-  await fs.writeFile(path.join(rootDir, 'src/pages/index.mdx'), '# Hello')
+  await fs.writeFile(
+    path.join(rootDir, 'component.ts'),
+    `export const markdown = { Panel: () => [{ type: 'paragraph', children: [{ type: 'text', value: 'Alias rendered' }] }] }`,
+  )
+  await fs.writeFile(
+    path.join(rootDir, 'src/pages/index.mdx'),
+    "import { Panel } from 'site-components'\n\n# Hello\n\n<Panel />",
+  )
   await fs.writeFile(path.join(rootDir, 'index.html'), '<html><body>Hello</body></html>')
   const config = Config.define({
     rootDir,
@@ -200,7 +209,29 @@ test('uses final transforms in development and fingerprints their production byt
     root: rootDir,
     configFile: false,
     logLevel: 'silent',
-    plugins: [llms(config)],
+    plugins: [
+      llms(config),
+      {
+        name: 'test-negotiated-markdown',
+        configureServer(server) {
+          const app = new Hono()
+          app.use('*', MdRouter.middleware())
+          app.get('*', (context) => context.notFound())
+          server.middlewares.use(async (request, response, next) => {
+            if (request.url !== '/index') return next()
+            const result = await app.request(`http://${request.headers.host}/index`, {
+              headers: { accept: 'text/markdown' },
+            })
+            response.statusCode = result.status
+            result.headers.forEach((value, name) => {
+              response.setHeader(name, value)
+            })
+            response.end(await result.text())
+          })
+        },
+      },
+    ],
+    resolve: { alias: { 'site-components': path.join(rootDir, 'component.ts') } },
     server: { host: '127.0.0.1', port: 0 },
   })
   try {
@@ -209,7 +240,13 @@ test('uses final transforms in development and fingerprints their production byt
     if (!address || typeof address === 'string') throw new Error('Missing server address')
     const origin = `http://127.0.0.1:${address.port}`
     expect(await (await fetch(`${origin}/llms.txt`)).text()).toContain('Index annotation.')
-    expect(await (await fetch(`${origin}/assets/md/index.md`)).text()).toContain('Page annotation.')
+    const page = await (await fetch(`${origin}/assets/md/index.md`)).text()
+    expect(page).toContain('Page annotation.')
+    expect(page).toContain('Alias rendered')
+    const negotiated = await fetch(`${origin}/index`, { headers: { accept: 'text/markdown' } })
+    expect(negotiated.status).toBe(200)
+    expect(await negotiated.text()).toBe(page)
+    expect((await fetch(`${origin}/assets/md/missing.md`)).status).toBe(404)
   } finally {
     await server.close()
   }
@@ -218,6 +255,7 @@ test('uses final transforms in development and fingerprints their production byt
     configFile: false,
     logLevel: 'silent',
     plugins: [llms(config)],
+    resolve: { alias: { 'site-components': path.join(rootDir, 'component.ts') } },
     build: { outDir: 'dist/public' },
   })
   const directory = path.join(rootDir, 'dist/public')
