@@ -1,5 +1,22 @@
 # vocs
 
+## 2.11.0
+
+### Minor Changes
+
+- d6f1d13: Add automatic Markdown output validation with `warn` and `fail` modes, a build-time environment override, and module-level `markdown` component renderers. Component declarations support static props, children, aliases, namespace imports, and site overrides matched by module/export identity.
+
+  Generate Markdown links and complete page bodies from one inventory, retain untitled pages with diagnostics, preserve unsupported expressions for validation, and emit a deterministic artifact manifest with deployment verification helpers. `markdown-audit` now honors the configured enforcement mode (default `warn`) and returns structured diagnostics; use `--validation fail` to retain blocking CI behavior.
+
+  Support final-output transforms before validation and hashing, and reuse component module loaders with local-source invalidation.
+
+  Expose Node-only Markdown generation and verification helpers from `vocs/server/markdown`, keeping them out of the runtime server entrypoint. Validate aggregate metadata and encoded links, resolve directory-index siblings correctly, and reuse Vite alias resolution for negotiated development Markdown.
+
+### Patch Changes
+
+- 9d5f727: Preserve transformed navigation in `llms-full.txt`. When a final-output transform supplies an index, omit the original sitemap so canonical URL rewrites are not undone by a duplicate navigation block.
+- 339f12b: Restored generated OpenAPI pages in builds. Server environments again receive the `openapi` entries from `virtual:vocs/config`, which the router reads to register them; browsers still receive only client-facing config.
+
 ## 2.10.3
 
 ### Patch Changes
