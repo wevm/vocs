@@ -439,3 +439,26 @@ describe('shared component loader', () => {
     expect(await inlineMarkdownComponents(source, page)).toContain('Recovered')
   })
 })
+
+test('public Markdown assets are valid links without joining the generated inventory', async () => {
+  const publicDir = await fs.mkdtemp(path.join(os.tmpdir(), 'vocs-public-'))
+  roots.push(publicDir)
+  await fs.writeFile(path.join(publicDir, 'SKILL.md'), '# Skill')
+  const result = await buildLlmsContent({
+    title: 'Docs',
+    ...plugins,
+    publicDir,
+    pages: [
+      {
+        path: '/guide',
+        title: 'Guide',
+        content: '# Guide\n\n[Skill](/SKILL.md) [Missing](/missing.md)',
+      },
+    ],
+  })
+  expect(result.report.diagnostics.map((item) => item.message)).toEqual([
+    'No generated Markdown page for /missing.md.',
+  ])
+  expect(result.results).toHaveLength(1)
+  expect(result.full).not.toContain('# Skill')
+})

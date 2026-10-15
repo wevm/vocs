@@ -77,6 +77,7 @@ cli
         description: config.description,
         pagePrelude: Llms.getMarkdownPagePrelude(config),
         transform: config.markdown?.output?.transform,
+        publicDir: viteConfig.publicDir,
         sidebar: config.sidebar,
         componentOptions: {
           resolve: (source, importer) => resolve(source, importer),

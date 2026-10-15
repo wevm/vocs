@@ -160,7 +160,9 @@ bodies. Validation and manifest hashing happen afterward. An unsupported compone
 by this hook is reported under the selected mode, just like one left by a renderer.
 Do not rewrite generated files in a later Vite hook: those bytes would no longer match the
 validated output or its manifest. Keep the hook deterministic and free of request-specific
-data, and preserve the index links when adding sections or notes.
+data, and preserve the index links when adding sections or notes. Markdown files in the
+public directory (such as `public/SKILL.md`) are valid link targets; they are not
+automatically added to the generated index or full export.
 
 Component modules share a loader across page exports. Local source edits, including edits
 to imported helpers, invalidate that loader for the next export. Browser-only modules still

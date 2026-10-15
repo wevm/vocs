@@ -30,6 +30,7 @@ async function resolveContent() {
     sidebar: config.sidebar,
     validation: config.markdown?.output?.validation,
     transform: config.markdown?.output?.transform,
+    publicDir: path.resolve(config.rootDir, 'public'),
     componentOptions: { components: config.markdown?.output?.components, rootDir: config.rootDir },
   })
 }

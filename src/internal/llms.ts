@@ -173,8 +173,24 @@ export async function buildLlmsContent(options: buildLlmsContent.Options) {
     diagnostics.push(...MarkdownOutput.inspect(short, '/llms.txt'))
   }
 
+  // Public Markdown assets (for example SKILL.md) are valid link targets but
+  // remain outside the generated page inventory and full-text export.
+  const linkTargets = new Set(seen)
+  if (options.publicDir) {
+    const publicDir = options.publicDir
+    const files = await fs.readdir(publicDir, { recursive: true }).catch((error) => {
+      if (error.code === 'ENOENT') return []
+      throw error
+    })
+    for (const file of files) {
+      if (!file.endsWith('.md') || !(await fs.stat(path.join(publicDir, file))).isFile()) continue
+      linkTargets.add(
+        `/${file.split(path.sep).join('/')}`.replace(/\.md$/, '').replace(/\/index$/, '') || '/',
+      )
+    }
+  }
   for (const page of pageResults)
-    diagnostics.push(...MarkdownOutput.inspect(page.content, page.path, seen))
+    diagnostics.push(...MarkdownOutput.inspect(page.content, page.path, linkTargets))
   diagnostics.sort(
     (a, b) =>
       a.file.localeCompare(b.file) || (a.line ?? 0) - (b.line ?? 0) || a.rule.localeCompare(b.rule),
@@ -193,6 +209,7 @@ export async function buildLlmsContent(options: buildLlmsContent.Options) {
 
 export declare namespace buildLlmsContent {
   type Options = {
+    publicDir?: string | false | undefined
     validation?: 'warn' | 'fail' | undefined
     transform?: MarkdownOutput.MarkdownOutputTransform | undefined
     componentOptions?: MarkdownComponents.inlineMarkdownComponents.Options | undefined

@@ -245,6 +245,7 @@ export function llms(config: Config.Config): PluginOption {
       sidebar: config.sidebar,
       validation: config.markdown?.output?.validation,
       transform: config.markdown?.output?.transform,
+      publicDir: viteConfig.publicDir,
       componentOptions: {
         components: config.markdown?.output?.components,
         rootDir: config.rootDir,
