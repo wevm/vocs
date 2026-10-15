@@ -123,6 +123,49 @@ evaluates MDX calls, variable references, spreads, or interpolated templates to 
 props. Unsupported expressions remain in output and are reported. JSX inside code
 examples is preserved and is not a finding.
 
+### Customize final exports
+
+Use `markdown.output.transform` for site-wide text changes such as sectioned indexes,
+source attribution, or canonical links. It runs after component renderers, output remark
+plugins, and the configured page prelude, in builds, development, and `markdown-audit`.
+
+```ts [vocs.config.ts]
+import { defineConfig } from 'vocs/config'
+
+export default defineConfig({
+  markdown: {
+    output: {
+      validation: 'fail',
+      transform: ({ index, pages }) => ({
+        index: `${index}\n\n> Generated documentation index.`,
+        pages: Object.fromEntries(
+          Object.entries(pages).map(([route, content]) => [
+            route,
+            `> Source: ${route}\n\n${content}`,
+          ]),
+        ),
+      }),
+    },
+  },
+})
+```
+
+`pages` maps canonical routes (`/guide`, or `/` for the home page) to Markdown strings.
+Return `index` and the same page keys; adding, removing, or renaming routes is a generation
+error in either mode. Async transforms are supported. The public `MarkdownOutputTransform`
+type is exported from `vocs` for separately defined hooks.
+
+Vocs assembles `llms-full.txt` from the transformed index and the exact transformed page
+bodies. Validation and manifest hashing happen afterward. An unsupported component added
+by this hook is reported under the selected mode, just like one left by a renderer.
+Do not rewrite generated files in a later Vite hook: those bytes would no longer match the
+validated output or its manifest. Keep the hook deterministic and free of request-specific
+data, and preserve the index links when adding sections or notes.
+
+Component modules share a loader across page exports. Local source edits, including edits
+to imported helpers, invalidate that loader for the next export. Browser-only modules still
+need config overrides; caching does not execute browser dependencies in Node.
+
 ### Third-party and browser-only components
 
 Component modules are imported during generation. Modules that require browser globals,

@@ -313,3 +313,129 @@ test('valid HTML comments do not hide unresolved components or change locations'
   ])
   expect(inspect('<!-- Only a comment -->', '/guide')).toEqual([])
 })
+
+describe('final output transform', () => {
+  test('uses final page bytes in full output and manifest, preserving metadata and order', async () => {
+    const result = await buildLlmsContent({
+      ...plugins,
+      title: 'Docs',
+      pages: [{ path: '/guide', content: '# Guide\n\nBody.' }],
+      pagePrelude: '> Shared prelude',
+      transform: async ({ index, pages }) => ({
+        index: `${index}\n\n> Custom index note`,
+        pages: Object.fromEntries(
+          Object.entries(pages).map(([route, content]) => [
+            route,
+            `> Source: ${route}\n\n${content}`,
+          ]),
+        ),
+      }),
+    })
+    expect(result.short).toContain('Custom index note')
+    expect(result.results[0]?.content).toContain('> Source: /guide\n\n> Shared prelude')
+    expect(result.full).toContain(result.short)
+    expect(result.full).toContain(result.results[0]?.content)
+    expect(result.results[0]?.title).toBe('Guide')
+    expect(result.report.diagnostics).toEqual([])
+    const page = result.results[0]
+    if (!page) throw new Error('Expected generated guide')
+    expect(manifest({ '/guide.md': page.content })).not.toEqual(
+      manifest({ '/guide.md': '# Guide\n\nBody.' }),
+    )
+  })
+  test.each([
+    'warn',
+    'fail',
+  ] as const)('validates transformed pages and index in %s mode', async (validation) => {
+    const result = await buildLlmsContent({
+      ...plugins,
+      title: 'Docs',
+      validation,
+      pages: [{ path: '/guide', content: '# Guide' }],
+      transform: ({ index }) => ({
+        index: `${index}\n\n<IndexWidget />`,
+        pages: { '/guide': '<PageWidget />' },
+      }),
+    })
+    expect(result.report.validation).toBe(validation)
+    expect(result.report.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ file: '/llms.txt', component: 'IndexWidget' }),
+        expect.objectContaining({ file: '/guide', component: 'PageWidget' }),
+      ]),
+    )
+  })
+  test.each([
+    {},
+    { '/guide': '# Guide', '/extra': 'Extra' },
+    { '/renamed': '# Guide' },
+    { '/guide': 42 },
+  ])('rejects inventory changes or invalid content: %j', async (pages) => {
+    await expect(
+      buildLlmsContent({
+        ...plugins,
+        title: 'Docs',
+        pages: [{ path: '/guide', content: '# Guide' }],
+        // Invalid JavaScript config still receives runtime validation.
+        transform: () => ({ index: '# Index', pages }) as never,
+      }),
+    ).rejects.toThrow('same page routes')
+  })
+  test('propagates transform failures even in warn mode', async () => {
+    await expect(
+      buildLlmsContent({
+        ...plugins,
+        title: 'Docs',
+        validation: 'warn',
+        pages: [],
+        transform: () => {
+          throw new Error('Data unavailable')
+        },
+      }),
+    ).rejects.toThrow('Data unavailable')
+  })
+})
+
+describe('shared component loader', () => {
+  test('evaluates a module once across pages and concurrent exports', async () => {
+    const root = await fixture()
+    await fs.writeFile(
+      path.join(root, 'shared.ts'),
+      `
+      let count = 0
+      export const markdown = { Counter: () => [{ type: 'paragraph', children: [{ type: 'text', value: String(++count) }] }] }
+    `,
+    )
+    const source = "import { Counter } from './shared.js'\n\n<Counter />"
+    const outputs = await Promise.all(
+      ['a', 'b'].map((name) => inlineMarkdownComponents(source, path.join(root, `${name}.mdx`))),
+    )
+    expect(outputs.map((output) => output.trim().split('\n').at(-1)).sort()).toEqual(['1', '2'])
+  })
+  test('refreshes transitive source changes and recovers after a source error', async () => {
+    const root = await fixture()
+    await fs.writeFile(path.join(root, 'package.json'), JSON.stringify({ type: 'module' }))
+    const child = path.join(root, 'value.ts')
+    await fs.writeFile(child, "export const value = 'Before'")
+    await fs.writeFile(
+      path.join(root, 'live.ts'),
+      `
+      import { value } from './value.js'
+      export const markdown = { Live: () => [{ type: 'paragraph', children: [{ type: 'text', value }] }] }
+    `,
+    )
+    const source = "import { Live } from './live.js'\n\n<Live />"
+    const page = path.join(root, 'guide.mdx')
+    expect(await inlineMarkdownComponents(source, page)).toContain('Before')
+    await fs.writeFile(child, "export const value = 'After'")
+    const future = new Date(Date.now() + 2000)
+    await fs.utimes(child, future, future)
+    expect(await inlineMarkdownComponents(source, page)).toContain('After')
+    await fs.writeFile(child, "throw new Error('broken'); export const value = 'broken'")
+    await fs.utimes(child, new Date(+future + 2000), new Date(+future + 2000))
+    expect(await inlineMarkdownComponents(source, page)).toContain('<Live />')
+    await fs.writeFile(child, "export const value = 'Recovered'")
+    await fs.utimes(child, new Date(+future + 4000), new Date(+future + 4000))
+    expect(await inlineMarkdownComponents(source, page)).toContain('Recovered')
+  })
+})

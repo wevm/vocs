@@ -133,14 +133,45 @@ export async function buildLlmsContent(options: buildLlmsContent.Options) {
     )
 
   const sitemap = ['<!--', 'Sitemap:', ...nav, '-->', ''].join('\n')
-  const short = [...llmsTxtContent, ...nav]
+  let short = [...llmsTxtContent, ...nav].join('\n')
 
-  const pageResults = pagePrelude
+  let pageResults = pagePrelude
     ? results.map((result) => ({
         ...result,
         content: `${pagePrelude}\n\n${result.content}`,
       }))
     : results
+
+  if (options.transform) {
+    const transformed = await options.transform({
+      index: short,
+      pages: Object.fromEntries(pageResults.map((page) => [page.path, page.content])),
+    })
+    // Hooks may change text, not silently drop/add/rename routes. Keep routing,
+    // metadata, ordering, and the full-export inventory owned by the framework.
+    if (
+      !transformed ||
+      typeof transformed.index !== 'string' ||
+      !transformed.pages ||
+      typeof transformed.pages !== 'object' ||
+      Array.isArray(transformed.pages) ||
+      Object.keys(transformed.pages).length !== pageResults.length ||
+      pageResults.some(
+        (page) =>
+          !Object.hasOwn(transformed.pages, page.path) ||
+          typeof transformed.pages[page.path] !== 'string',
+      )
+    )
+      throw new TypeError(
+        'markdown.output.transform must return an index and the same page routes with string content.',
+      )
+    short = transformed.index
+    pageResults = pageResults.map((page) => ({
+      ...page,
+      content: transformed.pages[page.path] as string,
+    }))
+    diagnostics.push(...MarkdownOutput.inspect(short, '/llms.txt'))
+  }
 
   for (const page of pageResults)
     diagnostics.push(...MarkdownOutput.inspect(page.content, page.path, seen))
@@ -153,16 +184,17 @@ export async function buildLlmsContent(options: buildLlmsContent.Options) {
     diagnostics,
   }
   const full = [
-    ...llmsTxtContent,
+    ...(options.transform ? [short, ''] : llmsTxtContent),
     sitemap,
     ...pageResults.map((page) => `<!-- Source: ${page.path} -->\n\n${page.content}`),
   ]
-  return { full: full.join('\n'), results: pageResults, short: short.join('\n'), report }
+  return { full: full.join('\n'), results: pageResults, short, report }
 }
 
 export declare namespace buildLlmsContent {
   type Options = {
     validation?: 'warn' | 'fail' | undefined
+    transform?: MarkdownOutput.MarkdownOutputTransform | undefined
     componentOptions?: MarkdownComponents.inlineMarkdownComponents.Options | undefined
     pages: Page[]
     title: string

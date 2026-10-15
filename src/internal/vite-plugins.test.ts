@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import * as fs from 'node:fs/promises'
 import * as os from 'node:os'
 import * as path from 'node:path'
@@ -168,6 +169,70 @@ test.each([
   } finally {
     vi.unstubAllEnvs()
   }
+})
+
+test('uses final transforms in development and fingerprints their production bytes', async () => {
+  const rootDir = await fs.realpath(await fs.mkdtemp(path.join(os.tmpdir(), 'vocs-transform-')))
+  tempDirs.add(rootDir)
+  await fs.mkdir(path.join(rootDir, 'src/pages'), { recursive: true })
+  await fs.writeFile(path.join(rootDir, 'src/pages/index.mdx'), '# Hello')
+  await fs.writeFile(path.join(rootDir, 'index.html'), '<html><body>Hello</body></html>')
+  const config = Config.define({
+    rootDir,
+    title: 'Docs',
+    codeHighlight: { langs: [] },
+    markdown: {
+      output: {
+        validation: 'fail',
+        transform: ({ index, pages }) => ({
+          index: `${index}\n\nIndex annotation.`,
+          pages: Object.fromEntries(
+            Object.entries(pages).map(([route, content]) => [
+              route,
+              `${content}\n\nPage annotation.`,
+            ]),
+          ),
+        }),
+      },
+    },
+  })
+  const server = await createServer({
+    root: rootDir,
+    configFile: false,
+    logLevel: 'silent',
+    plugins: [llms(config)],
+    server: { host: '127.0.0.1', port: 0 },
+  })
+  try {
+    await server.listen()
+    const address = server.httpServer?.address()
+    if (!address || typeof address === 'string') throw new Error('Missing server address')
+    const origin = `http://127.0.0.1:${address.port}`
+    expect(await (await fetch(`${origin}/llms.txt`)).text()).toContain('Index annotation.')
+    expect(await (await fetch(`${origin}/assets/md/index.md`)).text()).toContain('Page annotation.')
+  } finally {
+    await server.close()
+  }
+  await build({
+    root: rootDir,
+    configFile: false,
+    logLevel: 'silent',
+    plugins: [llms(config)],
+    build: { outDir: 'dist/public' },
+  })
+  const directory = path.join(rootDir, 'dist/public')
+  const index = await fs.readFile(path.join(directory, 'llms.txt'), 'utf8')
+  const page = await fs.readFile(path.join(directory, 'assets/md/index.md'), 'utf8')
+  const full = await fs.readFile(path.join(directory, 'llms-full.txt'), 'utf8')
+  const manifest = JSON.parse(
+    await fs.readFile(path.join(directory, 'markdown-manifest.json'), 'utf8'),
+  )
+  expect(index).toContain('Index annotation.')
+  expect(page).toContain('Page annotation.')
+  expect(full).toContain(index)
+  expect(full).toContain(page)
+  expect(manifest.files['/index.md']).toBe(createHash('sha256').update(page).digest('hex'))
+  expect(manifest.files['/llms.txt']).toBe(createHash('sha256').update(index).digest('hex'))
 })
 
 afterEach(async () => {

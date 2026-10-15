@@ -27,12 +27,27 @@ export type MarkdownComponentOverride = {
   render: MarkdownRenderer
 }
 
+/** Final text customization, shared by build, development, and the audit command.
+ * Return the same page routes. Vocs assembles the full export from these exact
+ * page bodies, then validates and fingerprints the final output.
+ */
+export type MarkdownOutputTransform = (output: {
+  /** Generated llms.txt, including every page in sidebar order. */
+  index: string
+  /** Page bodies keyed by canonical route (e.g. `/guide`, or `/` for the home page). */
+  pages: Readonly<Record<string, string>>
+}) =>
+  | { index: string; pages: Readonly<Record<string, string>> }
+  | Promise<{ index: string; pages: Readonly<Record<string, string>> }>
+
 /** Options shared by page Markdown, llms.txt, llms-full.txt, and the audit command. */
 export type MarkdownOutputConfig = {
   /** Same checks in both modes. Defaults to `warn`; `fail` blocks builds with findings. */
   validation?: 'warn' | 'fail' | undefined
   /** Site overrides take precedence over module-level `markdown` declarations. */
   components?: readonly MarkdownComponentOverride[] | undefined
+  /** Customize final text before validation and hashing; keep the page inventory intact. */
+  transform?: MarkdownOutputTransform | undefined
 }
 
 export type Diagnostic = {

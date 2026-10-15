@@ -1,6 +1,6 @@
 import * as fs from 'node:fs'
 import * as path from 'node:path'
-import { pathToFileURL } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 import type * as Estree from 'estree'
 import type * as MdAst from 'mdast'
 import { gfmToMarkdown } from 'mdast-util-gfm'
@@ -9,9 +9,10 @@ import { toMarkdown } from 'mdast-util-to-markdown'
 import remarkGfm from 'remark-gfm'
 import remarkMdx from 'remark-mdx'
 import remarkParse from 'remark-parse'
-import { tsImport } from 'tsx/esm/api'
+import { register } from 'tsx/esm/api'
 import { unified } from 'unified'
 import { visit } from 'unist-util-visit'
+import * as FileVersions from './file-versions.js'
 import * as MarkdownBuiltins from './markdown-builtins.js'
 import type { MarkdownComponentOverride, MarkdownRenderer } from './markdown-output.js'
 
@@ -233,13 +234,13 @@ async function loadModule(
   filePath: string,
 ): Promise<Record<string, unknown> | undefined> {
   try {
-    const module = await tsImport(source, { parentURL: pathToFileURL(filePath).href })
+    const module = await importComponent(source, pathToFileURL(filePath).href)
     // tsx wraps CommonJS modules in a default export.
     return 'default' in module &&
-      typeof module.default === 'object' &&
-      module.default !== null &&
-      !('toMarkdown' in module.default)
-      ? { ...module, ...module.default }
+      typeof module['default'] === 'object' &&
+      module['default'] !== null &&
+      !('toMarkdown' in module['default'])
+      ? { ...module, ...module['default'] }
       : module
   } catch {
     // Browser-only modules need a config renderer. Keep their JSX for the final audit.
@@ -290,6 +291,56 @@ function readProps(node: MdxJsxElement): Record<string, unknown> | undefined {
   } catch {
     return undefined
   }
+}
+
+type ComponentLoader = {
+  /** Versions of the source files the loader imported, outside `node_modules`. */
+  files: FileVersions.FileVersions
+  import: (specifier: string, parentURL: string) => Promise<Record<string, unknown>>
+  modules: Map<string, Promise<Record<string, unknown>>>
+}
+
+// Every `tsImport` call registers new loader hooks and imports the component's
+// whole module graph under a new namespace, and Node never frees those modules.
+// Share one namespace across components and exports, and start a new one only
+// after a file it imported changes, so edited components still render fresh.
+const loaderKey = Symbol.for('vocs.markdown-components.loader')
+const globals = globalThis as { [key: symbol]: unknown }
+const componentLoaders = (globals[loaderKey] ?? { count: 0, current: undefined }) as {
+  count: number
+  current: ComponentLoader | undefined
+}
+globals[loaderKey] = componentLoaders
+
+function importComponent(source: string, parentURL: string) {
+  const loader = getComponentLoader()
+  const key = `${source}\0${parentURL}`
+  const cached = loader.modules.get(key)
+  if (cached) return cached
+  const module = loader.import(source, parentURL)
+  loader.modules.set(key, module)
+  // Failed imports retry on the next export.
+  module.catch(() => loader.modules.delete(key))
+  return module
+}
+
+function getComponentLoader(): ComponentLoader {
+  const current = componentLoaders.current
+  if (current && !FileVersions.changed(current.files)) return current
+
+  const files: FileVersions.FileVersions = new Map()
+  const api = register({
+    namespace: `vocs-markdown-components-${++componentLoaders.count}`,
+    onImport(url) {
+      if (!url.startsWith('file:')) return
+      const file = fileURLToPath(url)
+      if (files.has(file) || file.split(path.sep).includes('node_modules')) return
+      files.set(file, FileVersions.version(file))
+    },
+  })
+  const loader = { files, import: api.import, modules: new Map() }
+  componentLoaders.current = loader
+  return loader
 }
 
 function resolveComponentImport(source: string, filePath: string) {

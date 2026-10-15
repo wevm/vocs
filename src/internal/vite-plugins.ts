@@ -244,6 +244,7 @@ export function llms(config: Config.Config): PluginOption {
       remarkPlugins,
       sidebar: config.sidebar,
       validation: config.markdown?.output?.validation,
+      transform: config.markdown?.output?.transform,
       componentOptions: {
         components: config.markdown?.output?.components,
         rootDir: config.rootDir,

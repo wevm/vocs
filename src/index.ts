@@ -3,6 +3,7 @@ export * as Feedback from './internal/feedback.js'
 export type {
   MarkdownComponentOverride,
   MarkdownOutputConfig,
+  MarkdownOutputTransform,
   MarkdownRenderer,
 } from './internal/markdown-output.js'
 export * as McpSource from './internal/mcp-source.js'
