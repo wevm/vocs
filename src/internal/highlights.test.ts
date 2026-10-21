@@ -86,13 +86,56 @@ describe('Highlights', () => {
       { ...options, lang: 'typescript' as const },
       { ...options, meta: { __raw: 'twoslash' } },
       { ...options, themes: { light: { name: 'custom', settings: [] } } },
-      { ...options, decorations: [{ start: 0, end: 5, properties: { class: 'mark' } }] },
     ]
     for (const options of cases) {
       const code = 'const x = 1'
       expect(highlighter.codeToHast(code, options)).toEqual(original(code, options))
     }
     expect(fallback).toHaveBeenCalledTimes(cases.length)
+    shiki.dispose()
+  })
+
+  it('decorates UTF-16 ranges inside tokens and across CRLF lines without Shiki tokenization', async () => {
+    const shiki = await createHighlighter({ themes: Object.values(themes), langs: [] })
+    const fallback = vi.spyOn(shiki, 'codeToHast')
+    const highlighter = Highlights.from(shiki)
+    const source = 'const value = "👋 café"\r\nconsole.log(value)'
+    const options = {
+      lang: 'ts',
+      themes,
+      defaultColor: 'light-dark()',
+      rootStyle: false,
+      decorations: [
+        {
+          start: source.indexOf('café'),
+          end: source.indexOf('café') + 4,
+          properties: { 'data-anchor': 'cafe' },
+        },
+        {
+          start: { line: 0, character: source.indexOf('👋') },
+          end: { line: 1, character: 7 },
+          properties: { 'data-dim': 'yes' },
+          alwaysWrap: true,
+        },
+      ],
+    } as const
+    const html = hastToHtml(
+      highlighter.codeToHast(source, { ...options, decorations: [...options.decorations] }),
+    )
+    expect(fallback).not.toHaveBeenCalled()
+    expect(html).toMatchInlineSnapshot(`
+      "<pre class="shiki shiki-themes github-light github-dark-dimmed" tabindex="0"><code><span class="line"><span style="color:light-dark(#d73a49, #f47067)">const </span><span style="color:light-dark(#24292e, #d1d7e0)">value </span><span style="color:light-dark(#d73a49, #f47067)">= </span><span style="color:light-dark(#032f62, #96d0ff)">"</span><span data-dim="yes"><span style="color:light-dark(#032f62, #96d0ff)">👋 </span><span style="color:light-dark(#032f62, #96d0ff)" data-anchor="cafe">café</span><span style="color:light-dark(#032f62, #96d0ff)">"</span></span></span>
+      <span class="line"><span data-dim="yes"><span style="color:light-dark(#24292e, #d1d7e0)">console</span></span><span style="color:light-dark(#d73a49, #d1d7e0)">.</span><span style="color:light-dark(#6f42c1, #dcbdfb)">log</span><span style="color:light-dark(#005cc5, #d1d7e0)">(</span><span style="color:light-dark(#24292e, #d1d7e0)">value</span><span style="color:light-dark(#005cc5, #d1d7e0)">)</span></span></code></pre>"
+    `)
+    expect(() =>
+      highlighter.codeToHast(source, {
+        lang: 'ts',
+        themes,
+        decorations: [{ start: -1, end: 2 }],
+      }),
+    ).toThrowErrorMatchingInlineSnapshot(
+      `[ShikiError: Invalid decoration offset: -1. Code length: 43]`,
+    )
     shiki.dispose()
   })
 

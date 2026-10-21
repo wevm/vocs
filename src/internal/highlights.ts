@@ -1,7 +1,7 @@
 import { codeToTokens, isSupportedLanguage, type Theme } from '@pierre/highlights'
 import * as themes from '@pierre/highlights/themes'
 import type { HighlighterGeneric, ShikiTransformerContextCommon } from 'shiki'
-import { isSpecialLang, tokensToHast } from 'shiki/core'
+import { isSpecialLang, tokensToHast, transformerDecorations } from 'shiki/core'
 
 const bundledThemes = new Map(
   Object.entries(themes)
@@ -46,7 +46,6 @@ export function from<Lang extends string, ThemeName extends string>(
         options.customLanguages?.includes(lang) ||
         /\btwoslash\b/.test(codeOptions.meta?.__raw ?? '') ||
         !Object.keys(selectedThemes).length ||
-        codeOptions.decorations ||
         codeOptions.colorReplacements ||
         codeOptions.grammarState ||
         codeOptions.grammarContextCode ||
@@ -83,6 +82,10 @@ export function from<Lang extends string, ThemeName extends string>(
       let tokens = result.tokens
       for (const transformer of transformers)
         tokens = transformer.tokens?.call(sourceContext, tokens) || tokens
+      // Shiki's renderer applies decorations, but their boundaries must first
+      // split Highlights tokens at the same UTF-16 offsets as Shiki tokens.
+      if (codeOptions.decorations?.length)
+        tokens = transformerDecorations().tokens?.call(sourceContext, tokens) || tokens
       return tokensToHast(
         tokens,
         {

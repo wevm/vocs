@@ -674,7 +674,8 @@ See [Code & Syntax Highlighting](/writing/syntax-highlighting) for themes, trans
 
 Set `codeHighlight.engine` to `'highlights'` to use [Pierre Highlights](https://diffs.com/highlights)
 for MDX code blocks. Shiki remains the default. Highlights uses Vocs' existing HAST renderer
-and annotation transformers, with its own token boundaries and syntax colors. Twoslash blocks,
+and annotation transformers, with its own token boundaries and syntax colors. Range decorations
+are supported, including nested and multiline ranges. Twoslash blocks,
 custom grammars, unsupported languages or themes, and advanced Shiki token options automatically
 use Shiki. Client-side code samples and hover popups continue to use Shiki.
 
