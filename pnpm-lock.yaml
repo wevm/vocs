@@ -98,6 +98,9 @@ importers:
       '@modelcontextprotocol/sdk':
         specifier: ^1.25.2
         version: 1.25.3(hono@4.12.22)(zod@4.3.6)
+      '@pierre/highlights':
+        specifier: ^0.2.0
+        version: 0.2.0
       '@remix-run/node-fetch-server':
         specifier: ^0.13.0
         version: 0.13.0
@@ -1242,6 +1245,9 @@ packages:
 
   '@phosphor-icons/core@2.1.1':
     resolution: {integrity: sha512-v4ARvrip4qBCImOE5rmPUylOEK4iiED9ZyKjcvzuezqMaiRASCHKcRIuvvxL/twvLpkfnEODCOJp5dM4eZilxQ==}
+
+  '@pierre/highlights@0.2.0':
+    resolution: {integrity: sha512-hTpcOU1EzDAP4bYtEhxmMu2jwMvtkUydRUBUpWMSHTs3dw0IaC3Ld5ansMy18L0GE3b6Vfl2OGkLK+pWWpnBmw==}
 
   '@react-hook/intersection-observer@3.1.2':
     resolution: {integrity: sha512-mWU3BMkmmzyYMSuhO9wu3eJVP21N8TcgYm9bZnTrMwuM818bEk+0NRM3hP+c/TqA9Ln5C7qE53p1H0QMtzYdvQ==}
@@ -6026,6 +6032,8 @@ snapshots:
   '@oxc-project/types@0.132.0': {}
 
   '@phosphor-icons/core@2.1.1': {}
+
+  '@pierre/highlights@0.2.0': {}
 
   '@react-hook/intersection-observer@3.1.2(react@19.3.0)':
     dependencies:

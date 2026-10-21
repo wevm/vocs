@@ -2,6 +2,7 @@ import * as fs from 'node:fs'
 import * as path from 'node:path'
 import type { CompileOptions } from '@mdx-js/mdx'
 import shiki, { type RehypeShikiOptions } from '@shikijs/rehype'
+import shikiFromHighlighter from '@shikijs/rehype/core'
 import * as EstreeUtil from 'esast-util-from-js'
 import type * as Estree from 'estree'
 import type * as HAst from 'hast'
@@ -20,6 +21,7 @@ import type {
   LanguageRegistration,
   ShikiTransformer,
 } from 'shiki'
+import { getSingletonHighlighter } from 'shiki'
 import { bundledLanguages } from 'shiki/bundle/web'
 import dockerfile from 'shiki/langs/dockerfile.mjs'
 import go from 'shiki/langs/go.mjs'
@@ -705,7 +707,15 @@ export { remarkVocsScope } from './remark-vocs-scope.js'
 export function rehypeShiki(
   options: ExactPartial<rehypeShiki.Options> = {},
 ): [typeof shiki, RehypeShikiOptions] {
-  const { cacheDir, langs: userLangs, srcDir, rootDir, themes, twoslash = true } = options
+  const {
+    cacheDir,
+    engine = 'shiki',
+    langs: userLangs,
+    srcDir,
+    rootDir,
+    themes,
+    twoslash = true,
+  } = options
 
   // Process twoslash transformers - inject cacheDir if they're factory functions
   const rawTransformers =
@@ -726,8 +736,41 @@ export function rehypeShiki(
     ...transformerLangs,
   ]
 
+  const plugin: typeof shiki =
+    engine === 'highlights'
+      ? function (options) {
+          const handler = Promise.all([
+            getSingletonHighlighter({
+              themes: Object.values(themes ?? {}) as never,
+              langs: mergedLangs,
+            }),
+            import('./highlights.js'),
+          ]).then(([shiki, Highlights]) =>
+            shikiFromHighlighter.call(
+              this,
+              Highlights.from(shiki, {
+                langAlias: options.langAlias,
+                unresolvedGrammars: userLangs?.some(
+                  (lang) => typeof lang !== 'string' && getLanguageNames([lang]).length === 0,
+                ),
+                customLanguages: getLanguageNames([
+                  ...(userLangs?.filter((lang) => typeof lang !== 'string') ?? []),
+                  ...transformerLangs,
+                ]),
+              }),
+              options,
+            ),
+          )
+          return async (tree, file) => {
+            const result = await (await handler)(tree, file, () => {})
+            if (result instanceof Error) throw result
+            return result
+          }
+        }
+      : shiki
+
   return [
-    shiki,
+    plugin,
     {
       ...(options ?? {}),
       defaultColor: 'light-dark()',
@@ -777,6 +820,8 @@ export function rehypeShiki(
 export declare namespace rehypeShiki {
   export type Options = UnionOmit<ExactPartial<RehypeShikiOptions>, 'inline' | 'rootStyle'> &
     UnionOmit<CodeOptionsMultipleThemes<BuiltinTheme>, 'defaultColor'> & {
+      /** Syntax engine for MDX code blocks. Unsupported Highlights features use Shiki. */
+      engine?: 'shiki' | 'highlights' | undefined
       cacheDir?: string | undefined
       rootDir?: string | undefined
       shellPrompt?: ShikiTransformers.shellPrompt.Options | undefined
