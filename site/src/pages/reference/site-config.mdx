@@ -644,6 +644,7 @@ Useful fields include:
 
 ```ts
 {
+  engine?: 'shiki' | 'highlights'
   themes?: { light: string; dark: string }
   langs?: string[]
   langAlias?: Record<string, string>
@@ -670,6 +671,25 @@ export default defineConfig({
 :::tip
 See [Code & Syntax Highlighting](/writing/syntax-highlighting) for themes, transformers, and language aliases.
 :::
+
+Set `codeHighlight.engine` to `'highlights'` to use [Pierre Highlights](https://diffs.com/highlights)
+for MDX code blocks, client-side samples, and hover popups. Shiki remains the default. Highlights
+uses Vocs' existing HAST renderer and annotation transformers, with its own token boundaries and syntax colors. Range decorations
+are supported, including nested and multiline ranges. Twoslash keeps its existing analysis,
+caching, and popup rendering while Highlights supplies the syntax tokens. Custom grammars,
+unsupported languages or themes, and advanced Shiki token options automatically use Shiki.
+
+Supported languages skip loading Shiki grammars. Custom transformer configurations retain
+Shiki grammar loading for compatibility with hooks that request grammar-dependent tokens.
+In the browser, the Shiki highlighter initializes only when a snippet needs fallback.
+
+```ts
+export default defineConfig({
+  codeHighlight: {
+    engine: 'highlights', // [!code focus]
+  },
+})
+```
 
 ### `twoslash`
 

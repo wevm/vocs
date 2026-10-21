@@ -23,6 +23,10 @@ export default defineConfig({
       vocs: path.resolve(import.meta.dirname, 'src'),
       // Virtual modules are provided by Vite plugins at dev/build time and don't
       // exist under vitest; map the ones imported by tested components to stubs.
+      'virtual:vocs/langs': path.resolve(
+        import.meta.dirname,
+        'src/internal/test/virtual-langs.stub.ts',
+      ),
       'virtual:vocs/config': path.resolve(
         import.meta.dirname,
         'src/internal/test/virtual-config.stub.ts',
