@@ -2,6 +2,7 @@
 
 import { config } from 'virtual:vocs/config'
 import { useEffect, useState } from 'react'
+import type { CodeToHastOptions } from 'shiki'
 
 /**
  * Lazily highlights code on the client.
@@ -13,7 +14,7 @@ import { useEffect, useState } from 'react'
  * popups are only ever seen on hover.
  *
  * Instead we render the snippet as plain text in the RSC payload and highlight
- * it on the client. Because the popup only mounts when it opens, the Shiki
+ * it on the client. Because the popup only mounts when it opens, the highlighting
  * bundle is dynamically imported and the snippet highlighted on demand.
  */
 export function CodeToHtml(props: CodeToHtml.Props) {
@@ -87,7 +88,7 @@ export function CodeToHtml(props: CodeToHtml.Props) {
   }, [code, lang, shrinkIndent, dimRanges, lineAnchors, anchorRanges, colorRanges, html])
 
   if (html)
-    // biome-ignore lint/security/noDangerouslySetInnerHtml: highlighted by Shiki
+    // biome-ignore lint/security/noDangerouslySetInnerHtml: highlighted by the configured engine
     return <div dangerouslySetInnerHTML={{ __html: html }} />
 
   // While highlighting, render a skeleton that mirrors the snippet's line
@@ -185,28 +186,50 @@ let highlighterPromise:
 function getHighlighter() {
   if (!highlighterPromise)
     highlighterPromise = (async () => {
-      const [{ bundledLanguages, createHighlighter, hastToHtml }, { langs }] = await Promise.all([
-        import('shiki/bundle/web'),
-        import('virtual:vocs/langs'),
-      ])
+      const [{ bundledLanguages, bundledLanguagesInfo, createHighlighter, hastToHtml }, { langs }] =
+        await Promise.all([import('shiki/bundle/web'), import('virtual:vocs/langs')])
       const { codeHighlight } = config
-      const { langAlias = {}, themes } = codeHighlight
+      const { engine, langAlias = {}, themes } = codeHighlight
       const extraLanguages = new Map(
-        langs.flatMap((lang) => [lang.name, ...(lang.aliases ?? [])].map((name) => [name, lang])),
+        langs.flatMap((lang) =>
+          [
+            lang.name,
+            ...(lang.aliases ?? []),
+            ...(bundledLanguagesInfo.find((info) => info.id === lang.name)?.aliases ?? []),
+          ].map((name) => [name, lang]),
+        ),
       )
       // Note: `langAlias` is intentionally not passed to the highlighter.
       // Passing a custom `langAlias` registers languages under their alias name
       // when lazily loaded (e.g. `loadLanguage('ts')` registers as `ts` instead
       // of `typescript`), which then makes `codeToHast({ lang })` fail to resolve
       // the grammar. We resolve aliases to their base language ourselves below.
-      const highlighter = await createHighlighter({
-        themes: Object.values(themes) as never,
-        langs: [],
-      })
+      const Highlights =
+        engine === 'highlights' ? await import('../../internal/highlights.js') : undefined
+      const adapterOptions = {
+        langAlias,
+        customLanguages: [...extraLanguages.keys()],
+        codeOptions: { themes },
+      }
+      let shikiPromise: ReturnType<typeof createHighlighter> | undefined
+      async function render(code: string, options: CodeToHastOptions) {
+        if (Highlights?.supports(options, adapterOptions)) return Highlights.render(code, options)
+        shikiPromise ??= createHighlighter({
+          themes: Object.values(themes) as never,
+          langs: [],
+        })
+        const highlighter = await shikiPromise
+        const extraLanguage = extraLanguages.get(options.lang)
+        if (!highlighter.getLoadedLanguages().includes(options.lang)) {
+          if (extraLanguage) await highlighter.loadLanguage(extraLanguage)
+          else await highlighter.loadLanguage(options.lang as never)
+        }
+        return highlighter.codeToHast(code, options)
+      }
       // Capture the active theme's JSON property-name/number colors once and
       // expose them as CSS variables, so request samples can recolor query/path
       // parameter names/values to match the JSON response example (openapi.css).
-      void applyTokenColors(highlighter, themes)
+      void applyTokenColors(render, themes)
       return {
         async codeToHtml(
           code: string,
@@ -219,11 +242,12 @@ function getHighlighter() {
         ) {
           const base = langAlias[lang] ?? lang
           const extraLanguage = extraLanguages.get(base)
-          const resolvedLang = base in bundledLanguages ? base : (extraLanguage?.name ?? 'txt')
-          if (!highlighter.getLoadedLanguages().includes(resolvedLang)) {
-            if (extraLanguage) await highlighter.loadLanguage(extraLanguage)
-            else await highlighter.loadLanguage(resolvedLang as never)
-          }
+          const resolvedLang =
+            extraLanguage?.name ??
+            (base in bundledLanguages ||
+            Highlights?.supports({ lang: base, themes }, adapterOptions)
+              ? base
+              : 'txt')
           // Clamp/validate ranges so a bad offset can't throw inside Shiki.
           const decorations = [
             ...(dimRanges ?? [])
@@ -253,7 +277,7 @@ function getHighlighter() {
                 properties: { 'data-v-openapi-token': kind },
               })),
           ]
-          const hast = highlighter.codeToHast(code, {
+          const hast = await render(code, {
             defaultColor: 'light-dark()',
             lang: resolvedLang,
             rootStyle: false,
@@ -313,7 +337,7 @@ export function getCached(
   )
 }
 
-/** Highlights a snippet (memoized), loading the Shiki bundle on first use. */
+/** Highlights a snippet (memoized), loading the configured engine on first use. */
 export async function highlight(
   code: string,
   lang: string,
@@ -340,7 +364,7 @@ export async function highlight(
   return html
 }
 
-/** Eagerly loads the Shiki bundle so the first real highlight is fast. */
+/** Eagerly loads the configured engine so the first real highlight is fast. */
 export function prewarm() {
   void getHighlighter()
 }
@@ -368,30 +392,24 @@ function transformerLineAnchors(lineAnchors: readonly (string | undefined)[]) {
  * failures are silent (CSS falls back to `--vocs-color-green`/`--vocs-color-blue`).
  */
 async function applyTokenColors(
-  highlighter: {
-    getLoadedLanguages: () => string[]
-    loadLanguage: (lang: never) => Promise<unknown>
-    codeToHast: (code: string, options: never) => unknown
-  },
+  render: (code: string, options: CodeToHastOptions) => Promise<unknown>,
   themes: Record<string, unknown>,
 ) {
   if (typeof document === 'undefined') return
   try {
-    if (!highlighter.getLoadedLanguages().includes('json'))
-      await highlighter.loadLanguage('json' as never)
-    const hast = highlighter.codeToHast('{ "a": "abc", "b": 123 }', {
+    const hast = (await render('{ "a": "abc", "b": 123 }', {
       defaultColor: 'light-dark()',
       lang: 'json',
       themes,
-    } as never) as HastRoot
+    } as CodeToHastOptions)) as HastRoot
     // Names use the JSON property-name color (`"a"`); values the number color
     // (`123`). In the default dark theme these are green and blue respectively.
     const colors: { key?: string; value?: string } = {}
     walkHast(hast, (text, style) => {
       const color = style.match(/color:\s*([^;]+)/)?.[1]?.trim()
       if (!color) return
-      if (text === '"a"') colors.key ??= color
-      else if (text === '123') colors.value ??= color
+      if (text.trim() === '"a"') colors.key ??= color
+      else if (text.trim() === '123') colors.value ??= color
     })
     const root = document.documentElement
     if (colors.key) root.style.setProperty('--vocs-openapi-token-key', colors.key)

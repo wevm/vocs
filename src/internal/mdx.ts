@@ -22,7 +22,7 @@ import type {
   ShikiTransformer,
 } from 'shiki'
 import { getSingletonHighlighter } from 'shiki'
-import { bundledLanguages } from 'shiki/bundle/web'
+import { bundledLanguages, bundledLanguagesInfo } from 'shiki/bundle/web'
 import dockerfile from 'shiki/langs/dockerfile.mjs'
 import go from 'shiki/langs/go.mjs'
 import protobuf from 'shiki/langs/protobuf.mjs'
@@ -736,31 +736,37 @@ export function rehypeShiki(
     ...transformerLangs,
   ]
 
+  const hasCustomTransformers = !!(options.transformers?.length || rawTransformers?.length)
   const plugin: typeof shiki =
     engine === 'highlights'
       ? function (options) {
-          const handler = Promise.all([
-            getSingletonHighlighter({
+          const handler = import('./highlights.js').then(async (Highlights) => {
+            const adapterOptions = {
+              langAlias: options.langAlias,
+              unresolvedGrammars: userLangs?.some(
+                (lang) => typeof lang !== 'string' && getLanguageNames([lang]).length === 0,
+              ),
+              customLanguages: getLanguageNames([
+                ...(userLangs?.filter((lang) => typeof lang !== 'string') ?? []),
+                ...transformerLangs,
+              ]).flatMap((name) => [
+                name,
+                ...(bundledLanguagesInfo.find((lang) => lang.id === name)?.aliases ?? []),
+              ]),
+              // User hooks may request grammar-dependent tokens during preprocessing.
+              codeOptions: hasCustomTransformers ? undefined : options,
+            }
+            const shiki = await getSingletonHighlighter({
               themes: Object.values(themes ?? {}) as never,
-              langs: mergedLangs,
-            }),
-            import('./highlights.js'),
-          ]).then(([shiki, Highlights]) =>
-            shikiFromHighlighter.call(
-              this,
-              Highlights.from(shiki, {
-                langAlias: options.langAlias,
-                unresolvedGrammars: userLangs?.some(
-                  (lang) => typeof lang !== 'string' && getLanguageNames([lang]).length === 0,
-                ),
-                customLanguages: getLanguageNames([
-                  ...(userLangs?.filter((lang) => typeof lang !== 'string') ?? []),
-                  ...transformerLangs,
-                ]),
-              }),
-              options,
-            ),
-          )
+              langs: mergedLangs.filter(
+                (lang) =>
+                  typeof lang !== 'string' ||
+                  !adapterOptions.codeOptions ||
+                  !Highlights.supports({ ...options, lang }, adapterOptions),
+              ),
+            })
+            return shikiFromHighlighter.call(this, Highlights.from(shiki, adapterOptions), options)
+          })
           return async (tree, file) => {
             const result = await (await handler)(tree, file, () => {})
             if (result instanceof Error) throw result

@@ -1,11 +1,17 @@
 import rehypeStringify from 'rehype-stringify'
 import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
+import * as Shiki from 'shiki'
 import { createHighlighter, hastToHtml } from 'shiki'
 import { unified } from 'unified'
 import { describe, expect, it, vi } from 'vitest'
 import * as Highlights from './highlights.js'
 import { rehypeShiki } from './mdx.js'
+
+vi.mock('shiki', async (original) => {
+  const actual = await original<typeof import('shiki')>()
+  return { ...actual, getSingletonHighlighter: vi.fn(actual.getSingletonHighlighter) }
+})
 
 const themes = { light: 'github-light', dark: 'github-dark-dimmed' } as const
 
@@ -84,7 +90,6 @@ describe('Highlights', () => {
       { ...options, lang: 'cue' as const },
       { ...options, lang: 'text' as const },
       { ...options, lang: 'typescript' as const },
-      { ...options, meta: { __raw: 'twoslash' } },
       { ...options, themes: { light: { name: 'custom', settings: [] } } },
     ]
     for (const options of cases) {
@@ -146,6 +151,106 @@ describe('Highlights', () => {
       "<pre class="shiki shiki-themes github-light github-dark-dimmed" tabindex="0"><code data-language="astro"><span class="line"><span style="color:light-dark(#005cc5, #d1d7e0)">&#x3C;</span><span style="color:light-dark(#22863a, #8ddb8c)">div</span><span style="color:light-dark(#005cc5, #d1d7e0)">></span><span style="color:light-dark(#24292e, #d1d7e0)">Hello</span><span style="color:light-dark(#005cc5, #d1d7e0)">&#x3C;/</span><span style="color:light-dark(#22863a, #8ddb8c)">div</span><span style="color:light-dark(#005cc5, #d1d7e0)">></span></span></code></pre>
       <pre class="shiki shiki-themes github-light github-dark-dimmed" tabindex="0"><code><span class="line"><span>&#x3C;script></span></span></code></pre>"
     `)
+  })
+
+  it('loads grammars only for compatibility fallbacks, including lazy aliases', async () => {
+    const shiki = await createHighlighter({ themes: Object.values(themes), langs: [] })
+    const highlighter = Highlights.from(shiki, {
+      codeOptions: { themes },
+      langAlias: { example: 'typescript' },
+    })
+    await highlighter.loadLanguage('ts', 'json', 'example' as never)
+    expect(shiki.getLoadedLanguages()).toEqual([])
+    expect(
+      hastToHtml(highlighter.codeToHast('const x = 1', { lang: 'example', themes })),
+    ).toContain('const ')
+    await highlighter.loadLanguage('cue')
+    expect(shiki.getLoadedLanguages()).toContain('cue')
+    expect(highlighter.codeToHast('x: 1', { lang: 'cue', themes })).toEqual(
+      shiki.codeToHast('x: 1', { lang: 'cue', themes }),
+    )
+    shiki.dispose()
+  })
+
+  it('skips configured supported grammars in the MDX plugin but loads unsupported ones', async () => {
+    const create = vi.mocked(Shiki.getSingletonHighlighter)
+    create.mockClear()
+    try {
+      await highlight('```ts\nconst x = 1\n```\n\n```cue\nx: 1\n```', {
+        langs: ['ts', 'json', 'cue'],
+        langAlias: { example: 'typescript' },
+      })
+      expect(create.mock.lastCall?.[0]?.langs).toEqual(['cue'])
+    } finally {
+      create.mockClear()
+    }
+  })
+
+  it('loads supported grammars when advanced options or custom themes require fallback', async () => {
+    const customTheme = { name: 'custom', settings: [] }
+    const shiki = await createHighlighter({
+      themes: [customTheme, ...Object.values(themes)],
+      langs: [],
+    })
+    for (const codeOptions of [
+      { themes, includeExplanation: true },
+      { themes: { light: customTheme } },
+    ]) {
+      const highlighter = Highlights.from(shiki, { codeOptions })
+      await highlighter.loadLanguage('ts')
+      const options = { ...codeOptions, lang: 'ts' }
+      expect(highlighter.codeToHast('const x = 1', options)).toEqual(
+        shiki.codeToHast('const x = 1', options),
+      )
+    }
+    expect(shiki.getLoadedLanguages()).toContain('typescript')
+    shiki.dispose()
+  })
+
+  it('renders Twoslash through the MDX plugin with lazy alias loading', async () => {
+    const html = await highlight('```example twoslash\nconst value = 42\nvalue\n// ^?\n```', {
+      langs: [],
+      langAlias: { example: 'typescript' },
+      twoslash: { typesCache: { read: () => null, write: () => {} } },
+    })
+    expect(html).toContain('twoslash lsp')
+    expect(html).toContain('data-v-code="const value: 42"')
+    expect(html).not.toContain('// ^?')
+  })
+
+  it('tokenizes the language selected by preprocess hooks', () => {
+    const code = '<div>Hello</div>'
+    const expected = Highlights.render(code, { lang: 'tsx', themes })
+    const actual = Highlights.render('placeholder', {
+      lang: 'ts',
+      themes,
+      transformers: [
+        {
+          preprocess() {
+            this.options.lang = 'tsx'
+            return code
+          },
+        },
+      ],
+    })
+    expect(actual).toEqual(expected)
+  })
+
+  it('retains grammar loading for user hooks requesting grammar-dependent tokens', async () => {
+    let calls = 0
+    await highlight('```ts\nconst value = 1\n```', {
+      langs: [],
+      transformers: [
+        {
+          preprocess(code) {
+            const result = this.codeToTokens(code, { lang: 'ts', themes, includeExplanation: true })
+            expect(result.tokens.flat().some((token) => token.explanation?.length)).toBe(true)
+            calls++
+          },
+        },
+      ],
+    })
+    expect(calls).toBe(1)
   })
 
   it('runs ordered preprocess, token, and HAST hooks with shared context', async () => {
