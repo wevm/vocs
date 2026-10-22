@@ -119,11 +119,12 @@ export function appendSearch(destination: string, search: string): string {
 }
 
 /**
- * Interpolates path parameters into a template string.
+ * Interpolates path parameters into a template string. Segments that do not
+ * name a source parameter (e.g., a port in `http://localhost:8080`) are kept.
  */
 function interpolate(template: string, params: Record<string, string | undefined>): string {
-  return template.replace(/:(\w+)(\*|\+|\?)?/g, (_, key) => {
-    const value = params[key]
-    return value ?? ''
+  return template.replace(/:(\w+)(\*|\+|\?)?/g, (match, key) => {
+    if (!Object.hasOwn(params, key)) return match
+    return params[key] ?? ''
   })
 }
