@@ -388,10 +388,16 @@ export function vocsConfig(config: VocsConfig.Config): Plugin {
               rolldownOptions: {
                 external: ['fsevents', 'vite'],
                 output: {
-                  manualChunks(id) {
-                    // Only bundle files explicitly imported by vocs.config
-                    if (imports.has(id)) return 'vocs.config'
-                    return undefined
+                  codeSplitting: {
+                    groups: [
+                      {
+                        name(id) {
+                          // Only bundle files explicitly imported by vocs.config
+                          if (imports.has(id)) return 'vocs.config'
+                          return undefined
+                        },
+                      },
+                    ],
                   },
                 },
               },
