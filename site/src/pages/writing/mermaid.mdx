@@ -1,6 +1,6 @@
 import { Card, Cards } from 'vocs'
 
-# Mermaid Diagrams [Render diagrams from text using Mermaid]
+# Mermaid Diagrams [Compile diagrams from text to SVG at build time]
 
 ## Usage
 
@@ -16,7 +16,7 @@ graph LR
 ```
 ````
 
-The block renders as an SVG diagram with built-in light/dark theming, loading states, and error fallbacks:
+Vocs compiles the block to an SVG diagram at build time with [Ondine](https://ondine.sh). Pages ship the SVG, not a diagram renderer, and the diagram follows the light/dark color scheme:
 
 ```mermaid
 graph LR
@@ -28,7 +28,7 @@ graph LR
 
 ## Supported Diagrams
 
-Vocs supports the full Mermaid syntax, including:
+Ondine accepts the same syntax as Mermaid, including:
 
 - **Flowcharts** (`graph`, `flowchart`)
 - **Sequence diagrams**
@@ -43,7 +43,7 @@ Vocs supports the full Mermaid syntax, including:
 - **Quadrant charts**
 - **C4 diagrams**
 
-See the [Mermaid documentation](https://mermaid.js.org/intro/) for full syntax reference.
+See the [Mermaid documentation](https://mermaid.js.org/intro/) for the syntax reference, and the [Ondine documentation](https://ondine.sh) for every supported diagram type.
 
 ## Examples
 
@@ -141,11 +141,23 @@ classDiagram
 
 ## Theming
 
-Mermaid diagrams inherit Vocs's light/dark color scheme automatically. Customize the diagram appearance through the [Mermaid theme variables](https://mermaid.js.org/config/theming.html) by adding `%%{init}%%` directives at the top of a diagram, or globally via your `_root.css`.
+Each diagram reads its colors, font, corners, and strokes from `--ondine-*` CSS custom properties. Vocs sets the colors and font from its theme, so diagrams match the page in both color schemes. Override any property in your `_root.css`:
+
+```css [src/pages/_root.css]
+/* Rounds node corners and draws thinner strokes */
+.ondine {
+  --ondine-radius: 6px;
+  --ondine-stroke: 1.5px;
+}
+```
+
+See [Ondine theming](https://ondine.sh/docs/guides/theming) for the full list of properties.
 
 ## How It Works
 
-The remark pipeline converts `mermaid` code blocks into a `<div data-v-mermaid-chart="...">` element. A small client-side component loads `mermaid` lazily and renders the SVG into the placeholder. The Mermaid runtime is only bundled on pages that actually use a diagram.
+The remark pipeline replaces each `mermaid` code block with a `<div class="ondine-diagram">` that contains the compiled `<svg>`. No diagram code runs in the browser. Markdown exports, such as per-page `.md` files and `llms.txt`, keep the original `mermaid` code block.
+
+A diagram that fails to compile stops the build with an error that names the file, line, and column.
 
 ## See More
 

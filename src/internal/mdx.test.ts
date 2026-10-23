@@ -1,6 +1,12 @@
+import * as fs from 'node:fs/promises'
+import * as os from 'node:os'
 import * as path from 'node:path'
+import { compile, run } from '@mdx-js/mdx'
 import type * as Estree from 'estree'
 import type * as MdAst from 'mdast'
+import { createElement } from 'react'
+import * as runtime from 'react/jsx-runtime'
+import { renderToStaticMarkup } from 'react-dom/server'
 import rehypeStringify from 'rehype-stringify'
 import remarkDirective from 'remark-directive'
 import remarkFrontmatter from 'remark-frontmatter'
@@ -64,6 +70,24 @@ function getCodeTitlePlugin(config: Config.Config) {
   if (!codeTitlePlugin) throw new Error('remarkCodeTitle plugin not found')
 
   return codeTitlePlugin[1]
+}
+
+async function renderPage(value: string) {
+  const rootDir = await fs.mkdtemp(path.join(os.tmpdir(), 'vocs-mdx-'))
+  try {
+    const file = path.join(rootDir, 'page.mdx')
+    await fs.writeFile(file, value)
+
+    const config = Config.define({ rootDir })
+    const { providerImportSource: _, ...compileOptions } = getCompileOptions('react', config)
+    const code = String(
+      await compile({ path: file, value }, { ...compileOptions, outputFormat: 'function-body' }),
+    )
+    const { default: Content } = await run(code, { ...runtime, baseUrl: import.meta.url })
+    return renderToStaticMarkup(createElement(Content))
+  } finally {
+    await fs.rm(rootDir, { force: true, recursive: true })
+  }
 }
 
 function transformCodeNode(
@@ -606,6 +630,22 @@ describe('getCompileOptions', () => {
     expect(reactOptions.remarkPlugins).not.toContain(outputRemarkPlugin)
     expect(txtOptions).not.toHaveProperty('outputRemarkPlugins')
     expect(reactOptions).not.toHaveProperty('outputRemarkPlugins')
+  })
+
+  it('compiles mermaid fences to inline SVG', async () => {
+    const html = await renderPage('```mermaid\nflowchart LR\n  A --> B\n```')
+
+    expect(html).toMatch(
+      /^<div class="ondine-diagram" data-ondine-diagram="flowchart" data-v=""><svg [^>]*class="ondine ondine-flowchart"/,
+    )
+    expect(html).toContain('style="max-width:100%;height:auto;--_bg:var(--ondine-bg,#fff)')
+    expect(html).toMatch(/<\/svg><\/div>$/)
+  })
+
+  it('throws with the location of a mermaid fence that fails to compile', async () => {
+    await expect(renderPage('# Diagram\n\n```mermaid\nflowchart LR\n  A -->\n```')).rejects.toThrow(
+      /page\.mdx:\d+:\d+: /,
+    )
   })
 })
 

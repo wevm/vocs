@@ -8,6 +8,7 @@ import type * as Estree from 'estree'
 import type * as HAst from 'hast'
 import type * as MdAst from 'mdast'
 import { toString as mdastToString } from 'mdast-util-to-string'
+import { remarkOndine } from 'ondine/remark'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import rehypeSlug from 'rehype-slug'
 import remarkDirective from 'remark-directive'
@@ -93,41 +94,6 @@ function getLanguageNames(langs: readonly unknown[] | undefined): string[] {
     const { aliases, name } = lang as LanguageRegistration
     return name ? [name, ...(aliases ?? [])] : (aliases ?? [])
   })
-}
-
-/**
- * Remark plugin that transforms mermaid code blocks into Mermaid components.
- * Replaces ```mermaid code blocks with a paragraph that has hName/hProperties
- * to become a div with data-v-mermaid-chart attribute.
- */
-export function remarkMermaid(): remarkMermaid.ReturnType {
-  return (tree: MdAst.Root) => {
-    UnistUtil.visit(tree, 'code', (node, index, parent) => {
-      if (index === undefined || !parent) return
-      if (node.lang !== 'mermaid') return
-
-      const chart = node.value.trim()
-
-      // Replace the code node with a paragraph that transforms to a div
-      const replacement = {
-        type: 'paragraph',
-        children: [],
-        data: {
-          hName: 'div',
-          hProperties: {
-            'data-v-mermaid-chart': chart,
-          },
-        },
-      } satisfies MdAst.Paragraph
-
-      parent.children.splice(index, 1, replacement)
-      return UnistUtil.SKIP
-    })
-  }
-}
-
-export declare namespace remarkMermaid {
-  type ReturnType = (tree: MdAst.Root) => void
 }
 
 /** Masks prompt bodies during parsing so MDX syntax remains literal prompt text. */
@@ -399,7 +365,8 @@ export function getCompileOptions(
           rehypeStaticCode,
         ],
         remarkPlugins: [
-          remarkMermaid,
+          // Compiles `mermaid` code blocks to inline SVG at build time.
+          remarkOndine,
           remarkFrontmatter,
           remarkDirective,
           [remarkFileTree, config] as Pluggable,
