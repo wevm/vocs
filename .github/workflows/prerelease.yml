@@ -4,6 +4,7 @@ on: [push, pull_request]
 jobs:
   # Fast path: publish vocs and create-vocs immediately (no Rust build needed)
   publish-core:
+    if: ${{ github.repository_owner == 'wevm' }}
     runs-on: ubuntu-latest
 
     steps:
@@ -22,6 +23,7 @@ jobs:
 
   # Slow path: build Rust binaries then publish twoslash-rust packages
   build-twoslash-rust:
+    if: ${{ github.repository_owner == 'wevm' }}
     strategy:
       fail-fast: false
       matrix:
@@ -62,6 +64,7 @@ jobs:
           if-no-files-found: error
 
   publish-twoslash-rust:
+    if: ${{ github.repository_owner == 'wevm' }}
     needs: build-twoslash-rust
     runs-on: ubuntu-latest
 

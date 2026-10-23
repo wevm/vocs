@@ -11,11 +11,13 @@ concurrency:
 jobs:
   verify:
     name: Verify
+    if: ${{ github.repository_owner == 'wevm' }}
     uses: ./.github/workflows/verify.yml
     secrets: inherit
 
   build-twoslash-rust:
     name: Build twoslash-rust
+    if: ${{ github.repository_owner == 'wevm' }}
     needs: verify
     strategy:
       fail-fast: false
@@ -58,6 +60,7 @@ jobs:
 
   changesets:
     name: Changesets
+    if: ${{ github.repository_owner == 'wevm' }}
     needs: build-twoslash-rust
     permissions:
       contents: write
