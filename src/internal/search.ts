@@ -415,7 +415,7 @@ export function extract(source: string, config: Config.Config): extract.ReturnTy
 
     // Accumulate text for current section
     if (currentSection) {
-      const text = mdastToString(node)
+      const text = nodeToSearchText(node)
       if (text) currentSection.text += ` ${text}`
     }
   }
@@ -434,6 +434,28 @@ export declare namespace extract {
   type ReturnType = {
     searchPriority: number | undefined
     sections: Section[]
+  }
+}
+
+/**
+ * Plain text of a block node for indexing. `mdastToString` concatenates the
+ * children of container nodes with no separator, so a table collapses into a
+ * single token (`MethodDescriptionReturnsgetBalance…`) and adjacent list items
+ * fuse together (`First itemSecond item`). Join rows, cells, list items and
+ * nested blocks with a space so each value is tokenized on its own.
+ */
+function nodeToSearchText(node: MdAst.RootContent): string {
+  switch (node.type) {
+    case 'table':
+      return node.children
+        .map((row) => row.children.map((cell) => mdastToString(cell)).join(' '))
+        .join(' ')
+    case 'blockquote':
+    case 'list':
+    case 'listItem':
+      return node.children.map((child) => nodeToSearchText(child)).join(' ')
+    default:
+      return mdastToString(node)
   }
 }
 
