@@ -177,6 +177,8 @@ export default defineConfig({
 
 If your production URL is `https://example.com/docs`, set `basePath` to `'/docs'`.
 
+Root-absolute [`logoUrl`](#logourl) and [`iconUrl`](#iconurl) values, such as `'/logo.svg'`, are served from under the base path (`/docs/logo.svg`), so write them relative to your `public/` directory.
+
 ### `baseUrl`
 
 - **Type:** `string`
