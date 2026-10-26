@@ -1,6 +1,7 @@
 'use client'
 
 import { Tabs as BaseTabs } from '@base-ui/react/tabs'
+import { cx } from 'cva'
 import { useQueryState } from 'nuqs'
 import * as React from 'react'
 
@@ -77,10 +78,19 @@ export declare namespace Tabs {
 }
 
 export function Tab(props: Tab.Props) {
-  const { title, children } = props
+  const { className, title, children } = props
   const value = toKebabCase(title)
   return (
-    <BaseTabs.Panel className="vocs:pt-4" value={value}>
+    // Inactive panels stay mounted (hidden) so their state survives tab switches,
+    // and render as page content so Markdown blocks and headings inside a tab
+    // get the same spacing and heading styles as the rest of the page.
+    <BaseTabs.Panel
+      className={cx('vocs:pt-4 vocs:space-y-6', className)}
+      data-v-content
+      keepMounted
+      render={<article />}
+      value={value}
+    >
       {children}
     </BaseTabs.Panel>
   )
@@ -89,6 +99,7 @@ export function Tab(props: Tab.Props) {
 export declare namespace Tab {
   type Props = {
     children: React.ReactNode
+    className?: string | undefined
     title: string
   }
 }

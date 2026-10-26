@@ -97,33 +97,31 @@ function getLanguageNames(langs: readonly unknown[] | undefined): string[] {
 
 /**
  * Remark plugin that transforms mermaid code blocks into Mermaid components.
- * Replaces ```mermaid code blocks with a `VocsMermaid` element and imports
- * it only into pages that have one, so sites without diagrams never bundle
- * Mermaid.
+ * Replaces ```mermaid code blocks with a paragraph that has hName/hProperties
+ * to become a div with data-v-mermaid-chart attribute.
  */
 export function remarkMermaid(): remarkMermaid.ReturnType {
   return (tree: MdAst.Root) => {
-    let found = false
     UnistUtil.visit(tree, 'code', (node, index, parent) => {
       if (index === undefined || !parent) return
       if (node.lang !== 'mermaid') return
 
-      found = true
-      parent.children.splice(index, 1, {
-        type: 'mdxJsxFlowElement',
-        name: 'VocsMermaid',
-        attributes: [{ type: 'mdxJsxAttribute', name: 'chart', value: node.value.trim() }],
-        children: [],
-      })
-      return UnistUtil.SKIP
-    })
-    if (!found) return
+      const chart = node.value.trim()
 
-    const value = `import { Mermaid as VocsMermaid } from 'vocs/mdx/mermaid'`
-    tree.children.push({
-      type: 'mdxjsEsm',
-      value,
-      data: { estree: EstreeUtil.fromJs(value, { module: true }) },
+      // Replace the code node with a paragraph that transforms to a div
+      const replacement = {
+        type: 'paragraph',
+        children: [],
+        data: {
+          hName: 'div',
+          hProperties: {
+            'data-v-mermaid-chart': chart,
+          },
+        },
+      } satisfies MdAst.Paragraph
+
+      parent.children.splice(index, 1, replacement)
+      return UnistUtil.SKIP
     })
   }
 }

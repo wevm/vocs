@@ -197,11 +197,6 @@
       "src": "./src/mdx.tsx",
       "default": "./dist/mdx.js"
     },
-    "./mdx/mermaid": {
-      "types": "./dist/react/internal/Mermaid.mdx.d.ts",
-      "src": "./src/react/internal/Mermaid.mdx.tsx",
-      "default": "./dist/react/internal/Mermaid.mdx.js"
-    },
     "./server": {
       "types": "./dist/server/index.d.ts",
       "src": "./src/server/index.ts",
