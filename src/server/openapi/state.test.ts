@@ -75,4 +75,25 @@ describe('prepare', () => {
       expect.arrayContaining([expect.objectContaining({ text: 'Funding Transfers' })]),
     )
   })
+
+  test('hides trait links named in sidebar.hide while keeping their pages', async () => {
+    const payload = await prepare({
+      path: '/api',
+      sidebar: { hide: ['Funding guide'] },
+      spec: {
+        openapi: '3.1.0',
+        info: { title: 'Funding', version: '1.0.0' },
+        tags: [
+          { name: 'Funding guide', description: 'Funding guide.', 'x-traitTag': true },
+          { name: 'Welcome', description: 'Welcome.', 'x-traitTag': true },
+        ],
+        paths: {},
+      },
+    })
+
+    const links = JSON.stringify(payload.sidebar)
+    expect(links).not.toContain('/api/funding-guide')
+    expect(links).toContain('/api/welcome')
+    expect(payload.pages.map((page) => page.path)).toContain('/funding-guide')
+  })
 })
