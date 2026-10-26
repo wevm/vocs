@@ -1,9 +1,0 @@
-/*
- * Clears Tailwind's default color palette so Vocs's own (`vocs:`-prefixed)
- * utilities only resolve the Vocs palette. Kept out of `theme.css` so sites
- * can import the Vocs theme tokens into their own Tailwind build without
- * losing their palette.
- */
-@theme {
-  --color-*: initial;
-}

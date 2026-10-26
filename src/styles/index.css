@@ -4,7 +4,6 @@
 @import "tailwindcss/preflight.css" layer(vocs_base);
 @import "tailwindcss/utilities.css" layer(vocs_utilities) prefix(vocs);
 
-@import "./theme-reset.css" layer(vocs_theme);
 @import "./theme.css" layer(vocs_theme);
 @import "./markdown.css" layer(vocs_components);
 @import "./twoslash.css" layer(vocs_components);

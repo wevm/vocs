@@ -1,4 +1,6 @@
 @theme {
+  --color-*: initial;
+
   /* #region Font Family */
 
   --font-sans: var(
