@@ -44,7 +44,11 @@ export async function prepare(
   const traitIntro: { text: string; link: string }[] = []
   const groupExtras = new Map<string, { text: string; link: string }[]>()
   const extraGroups = new Map<string, { text: string; link: string }[]>()
+  // `sidebar.hide` also drops trait links (by tag name, or by their `x-parent`);
+  // their pages stay routable.
+  const hide = new Set(config.sidebar?.hide ?? [])
   for (const trait of ir.traits) {
+    if (hide.has(trait.name) || (trait.parent && hide.has(trait.parent))) continue
     if (!trait.parent) {
       traitIntro.push(item(trait))
       continue
@@ -70,7 +74,11 @@ export async function prepare(
     ...top,
     ...Sidebar.toSidebar(ir, {
       intro,
+      introduction: config.sidebar?.introduction,
       groupExtras,
+      groupItems: config.sidebar?.groupItems,
+      tagGroupItems: config.sidebar?.tagGroupItems,
+      hide: config.sidebar?.hide,
       collapsed,
       flatten,
       tagGroupsCollapsed,
