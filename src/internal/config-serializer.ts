@@ -7,11 +7,9 @@ export function forClient(config: Config): Partial<Config> {
     banner: config.banner,
     basePath: config.basePath,
     baseUrl: config.baseUrl,
-    // The browser loads grammars on demand (and from `virtual:vocs/langs`), so `langs`
-    // stays on the server: custom grammar registrations can be megabytes.
     codeHighlight: {
-      engine: config.codeHighlight.engine,
       langAlias: config.codeHighlight.langAlias,
+      langs: config.codeHighlight.langs,
       themes: config.codeHighlight.themes,
     },
     colorScheme: config.colorScheme,
