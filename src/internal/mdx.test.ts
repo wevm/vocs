@@ -1,4 +1,5 @@
 import * as path from 'node:path'
+import { compile } from '@mdx-js/mdx'
 import type * as Estree from 'estree'
 import type * as MdAst from 'mdast'
 import rehypeStringify from 'rehype-stringify'
@@ -25,6 +26,7 @@ import {
   remarkFilename,
   remarkFileTree,
   remarkLangCommaAttrs,
+  remarkMermaid,
   remarkPrompt,
   remarkRestoreUnknownTextDirectives,
   remarkSubheading,
@@ -420,6 +422,33 @@ describe('recmaMdxLayout', () => {
     } as never)
 
     expect(tree).toEqual(createMdxProgram())
+  })
+})
+
+describe('remarkMermaid', () => {
+  async function compileMdx(source: string, format: 'md' | 'mdx' = 'mdx') {
+    const result = await compile(source, { format, remarkPlugins: [remarkMermaid] })
+    return String(result)
+  }
+
+  it('imports Mermaid only into pages with a mermaid block', async () => {
+    const withDiagram = await compileMdx('# Hi\n\n```mermaid\ngraph LR\n  A --> B\n```\n')
+    expect(withDiagram).toContain('import {Mermaid as VocsMermaid} from "vocs/mdx/mermaid"')
+    expect(withDiagram).toContain(
+      '_jsx(VocsMermaid, {\n      chart: "graph LR\\n  A --> B"\n    })',
+    )
+
+    const withoutDiagram = await compileMdx('# Hi\n\n```ts\nconst a = 1\n```\n')
+    expect(withoutDiagram).not.toContain('mermaid')
+  })
+
+  it('imports Mermaid once into Markdown pages', async () => {
+    const output = await compileMdx(
+      '```mermaid\ngraph LR\n```\n\n```mermaid\ngraph TD\n```\n',
+      'md',
+    )
+    expect(output.match(/from "vocs\/mdx\/mermaid"/g)).toHaveLength(1)
+    expect(output.match(/_jsx\(VocsMermaid/g)).toHaveLength(2)
   })
 })
 

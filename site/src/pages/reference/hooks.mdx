@@ -56,34 +56,3 @@ router.replace('/reference/components')
 router.back()
 ```
 :::
-
-## useActiveSidebarAnchor
-
-Use `useActiveSidebarAnchor` in client components to highlight the in-page section being read, the same way the sidebar does for hash links such as OpenAPI operations. Pass the links your navigation renders: it tracks the `#fragment` links that point at the current page and returns the id of the last linked section that scrolled to the top of the viewport, or `null` above the first one. Headings without a link count as part of the preceding linked section.
-
-:::code-group
-```tsx [Usage]
-'use client'
-
-import { Link, useActiveSidebarAnchor } from 'vocs'
-
-const links = ['/api#list-pets', '/api#create-pet']
-
-export function OperationNav() {
-  const activeId = useActiveSidebarAnchor(links) // [!code focus]
-
-  return links.map((link) => (
-    <Link
-      aria-current={link.endsWith(`#${activeId}`) ? 'location' : undefined} // [!code focus]
-      key={link}
-      to={link}
-    >
-      {link.split('#')[1]}
-    </Link>
-  ))
-}
-```
-```tsx [Syntax]
-const activeId: string | null = useActiveSidebarAnchor(links)
-```
-:::

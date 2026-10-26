@@ -11,8 +11,7 @@ import { isExternal } from './path.js'
  */
 export function rehypeStaticCode() {
   // Markers that `components.div` renders as other components.
-  const componentDivs =
-    /^data-?v-?(benchmarks|changelog|code-?group|file-?tree|mermaid-?chart|steps|terminal)$/i
+  const componentDivs = /^data-?v-?(benchmarks|changelog|code-?group|file-?tree|steps|terminal)$/i
 
   return (tree: HAst.Root) => {
     UnistUtil.visit(tree, 'element', (pre) => {
