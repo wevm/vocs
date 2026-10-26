@@ -252,7 +252,10 @@
       "src": "./src/waku/vite.ts",
       "default": "./dist/waku/vite.js"
     },
-    "./styles/theme.css": "./src/styles/theme.css",
+    "./styles/theme.css": {
+      "src": "./src/styles/theme.css",
+      "default": "./src/styles/theme.css"
+    },
     "./styles/*": {
       "types": "./dist/styles/*.d.ts",
       "src": "./src/styles/*.css",
