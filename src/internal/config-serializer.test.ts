@@ -38,6 +38,32 @@ describe('config serializer', () => {
     expect(serialized).not.toContain('sources')
   })
 
+  test('sends the browser highlight settings without grammar registrations', () => {
+    const grammar = {
+      name: 'custom-grammar-sentinel',
+      scopeName: 'source.custom',
+      patterns: [{ match: 'custom-pattern-sentinel', name: 'keyword' }],
+      repository: {},
+    }
+    const config = define({
+      codeHighlight: {
+        engine: 'highlights',
+        langAlias: { sol: 'solidity' },
+        langs: [grammar],
+      },
+    })
+
+    const client = forClient(config)
+    const serialized = serialize(client)
+
+    expect(client.codeHighlight?.engine).toBe('highlights')
+    expect(client.codeHighlight?.langAlias).toEqual(config.codeHighlight.langAlias)
+    expect(client.codeHighlight?.themes).toEqual(config.codeHighlight.themes)
+    expect(client.codeHighlight).not.toHaveProperty('langs')
+    expect(serialized).not.toContain('custom-pattern-sentinel')
+    expect(config.codeHighlight.langs).toEqual([grammar])
+  })
+
   test('keeps OpenAPI entries for server environments only', () => {
     const config = define({ openapi: [{ path: '/api', spec: './openapi.json' }] })
 
