@@ -50,10 +50,13 @@ export function Tabs(props: Tabs.Props) {
     if (!params.has(stateKey) && tabs[0]?.value) setTab(tabs[0].value)
   }, [stateKey, tabs, setTab])
 
-  if (!hasMounted) return null
+  // Server rendering has no effects, so render every panel there (with the first
+  // tab active) and switch to the URL's tab after mount, which keeps hydration
+  // consistent and puts all tab content in the HTML.
+  const value = hasMounted ? tab : (tabs[0]?.value ?? '')
 
   return (
-    <BaseTabs.Root onValueChange={(value) => setTab(value)} value={tab}>
+    <BaseTabs.Root onValueChange={(value) => setTab(value)} value={value}>
       <BaseTabs.List className="vocs:flex vocs:border-b vocs:border-primary">
         {tabs.map((t) => (
           <BaseTabs.Tab

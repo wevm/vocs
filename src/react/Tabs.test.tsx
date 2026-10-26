@@ -3,6 +3,7 @@
 import { withNuqsTestingAdapter } from 'nuqs/adapters/testing'
 import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
+import { renderToString } from 'react-dom/server'
 import { afterEach, beforeEach, expect, test } from 'vitest'
 import { Tab, Tabs } from './Tabs.js'
 
@@ -86,4 +87,22 @@ test('renders panels as page content and forwards className', () => {
   const [panel] = panels()
   expect(panel?.hasAttribute('data-v-content')).toBe(true)
   expect(panel?.className).toMatchInlineSnapshot(`"vocs:pt-4 vocs:space-y-6 custom"`)
+})
+
+test('renders every panel on the server', () => {
+  const Wrapper = withNuqsTestingAdapter()
+  const html = renderToString(
+    <Wrapper>
+      <Tabs stateKey="ssr">
+        <Tab title="React">
+          <h2 id="react">React</h2>
+        </Tab>
+        <Tab title="Vue">
+          <h2 id="vue">Vue</h2>
+        </Tab>
+      </Tabs>
+    </Wrapper>,
+  )
+  expect(html).toContain('id="react"')
+  expect(html).toContain('id="vue"')
 })
