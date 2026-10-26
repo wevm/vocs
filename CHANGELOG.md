@@ -1,5 +1,13 @@
 # vocs
 
+## 2.11.1
+
+### Patch Changes
+
+- cbd2824: MCP `read_page` now resolves the page under the pages directory and rejects `..` / absolute paths that escape it.
+- 726d910: Fixed redirects dropping the port from external destinations. A destination such as `http://localhost:8080/:path*` no longer treats `:8080` as a path parameter.
+- a90303a: Separate table cells, list items and nested blocks with a space when extracting page text for the search index. Previously they were concatenated with no separator, so a whole table became one token and values inside it (for example contract addresses) could not be found.
+
 ## 2.11.0
 
 ### Minor Changes
