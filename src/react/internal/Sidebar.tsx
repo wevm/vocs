@@ -10,6 +10,7 @@ import * as Path from '../../internal/path.js'
 import * as Sidebar_core from '../../internal/sidebar.js'
 import { Badge } from '../Badge.js'
 import { Link } from '../Link.js'
+import { decode, useActiveSidebarAnchor } from '../useActiveSidebarAnchor.js'
 import { useSidebar } from '../useSidebar.js'
 
 const maxDepth = 5
@@ -17,108 +18,13 @@ const maxDepth = 5
 /** Active in-page anchor id, for hash-link sidebar items (e.g. OpenAPI). */
 const ActiveAnchorContext = React.createContext<string | null>(null)
 
-/**
- * The set of in-page anchor ids that the sidebar links to on the current page.
- * Used so page-level items only defer their active state to corresponding
- * sidebar items — not to arbitrary headings or hash links for another page.
- */
-const HashIdsContext = React.createContext<ReadonlySet<string>>(new Set())
-
-/** Collects the `#fragment` ids of hash-link sidebar items for the current page. */
-function collectHashIds(
-  items: Sidebar_core.SidebarItem[],
-  path: string,
-  ids = new Set<string>(),
-): Set<string> {
-  const pagePath = path.split('#')[0] ?? path
+/** Collects the links of all sidebar items. */
+function collectLinks(items: Sidebar_core.SidebarItem[], links: string[] = []): string[] {
   for (const item of items) {
-    if (item.link?.includes('#') && !Path.isExternal(item.link)) {
-      const [itemPath, id] = item.link.split('#')
-      if (id && (!itemPath || Path.matches(pagePath, itemPath))) ids.add(id)
-    }
-    if (item.items) collectHashIds(item.items, pagePath, ids)
+    if (item.link) links.push(item.link)
+    if (item.items) collectLinks(item.items, links)
   }
-  return ids
-}
-
-/**
- * Tracks the in-page section currently in view, so hash-link sidebar items
- * (used by the OpenAPI section) can show active state. Mirrors the Outline's
- * IntersectionObserver approach.
- */
-function useActiveAnchor(hashIds: ReadonlySet<string>, path: string): string | null {
-  const [activeId, setActiveId] = React.useState<string | null>(null)
-
-  React.useEffect(() => {
-    if (hashIds.size === 0 || typeof window === 'undefined') return
-
-    // OpenAPI pages render inside `article[data-v-content]` too, so the generic
-    // markdown selector would also match operation sub-headings (Parameters,
-    // Responses, schema anchors, …) whose ids have no sidebar entry — hijacking
-    // the active anchor as you scroll through a section. On those pages observe
-    // only the group header (`<h1>`) and per-operation titles, which back the
-    // hash-link sidebar items, so the active item persists across the section.
-    const isOpenApi = document.querySelector('[data-v-openapi]') !== null
-    const selector = isOpenApi
-      ? '[data-v-openapi-h1][id], [data-v-openapi-operation-title][id]'
-      : 'article[data-v-content] :is(h2, h3, h4, h5, h6)[id]'
-
-    // Reset on every client-side navigation. If the destination hash belongs
-    // to a nested heading without a sidebar item, keep its nearest preceding
-    // sidebar anchor active instead of falling back to the page-level item.
-    // Reading `path` here — rather than only `window.location` — keeps it a
-    // genuine effect dependency so navigation reliably re-runs this.
-    const hashFromPath = path.includes('#') ? path.slice(path.indexOf('#') + 1) : ''
-    const hash = hashFromPath || (window.location.hash ? window.location.hash.slice(1) : '')
-    let initialId = hashIds.has(hash) ? hash : null
-    const target = hash ? document.getElementById(hash) : null
-    if (!initialId && target) {
-      for (const element of document.querySelectorAll(selector)) {
-        const position = element.compareDocumentPosition(target)
-        if (element === target || position & Node.DOCUMENT_POSITION_PRECEDING) break
-        if (hashIds.has(element.id)) initialId = element.id
-      }
-    }
-    setActiveId(initialId)
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries)
-          if (entry.isIntersecting) {
-            setActiveId(entry.target.id)
-            break
-          }
-      },
-      { rootMargin: '0px 0px -80% 0px' },
-    )
-
-    const observeAll = () => {
-      observer.disconnect()
-      for (const element of document.querySelectorAll(selector)) {
-        // Nested headings without matching sidebar items belong to the current
-        // section. Observing them would reactivate the page-level item.
-        if (!hashIds.has(element.id)) continue
-        // Skip changelog release-body headings — they have no sidebar entry and
-        // would hijack the active section as you scroll through the changelog.
-        if (element.closest('[data-v-changelog]')) continue
-        observer.observe(element)
-      }
-    }
-    observeAll()
-
-    const content =
-      document.querySelector('article[data-v-content]') ??
-      document.querySelector('[data-v-openapi]')
-    const mutation = content ? new MutationObserver(observeAll) : null
-    if (content && mutation) mutation.observe(content, { childList: true, subtree: true })
-
-    return () => {
-      observer.disconnect()
-      mutation?.disconnect()
-    }
-  }, [hashIds, path])
-
-  return activeId
+  return links
 }
 
 export function Sidebar(props: Sidebar.Props) {
@@ -129,33 +35,30 @@ export function Sidebar(props: Sidebar.Props) {
     () => Sidebar_core.length(sidebar.items, { startDepth: 2 }) > 25,
     [sidebar.items],
   )
-  const { path } = useRouter()
-  const hashIds = React.useMemo(() => collectHashIds(sidebar.items, path), [sidebar.items, path])
-  const activeAnchor = useActiveAnchor(hashIds, path)
+  const links = React.useMemo(() => collectLinks(sidebar.items), [sidebar.items])
+  const activeAnchor = useActiveSidebarAnchor(links)
 
   return (
-    <HashIdsContext.Provider value={hashIds}>
-      <ActiveAnchorContext.Provider value={activeAnchor}>
-        <nav
-          className={cx(
-            "vocs:flex-1 vocs:flex vocs:flex-col vocs:text-sm vocs:font-[450] vocs:[&>*:not(:last-child)[data-collapsed='false']]:mb-4",
-            className,
-          )}
-          data-v-sidebar
-        >
-          {sidebar.backLink && <BackLink onNavigate={onNavigate} />}
-          {sidebar.items.map((item, i) => (
-            <Section
-              key={`${item.text}-${i}`}
-              {...item}
-              condensed={condenseSidebar}
-              onNavigate={onNavigate}
-              scrollRef={scrollRef}
-            />
-          ))}
-        </nav>
-      </ActiveAnchorContext.Provider>
-    </HashIdsContext.Provider>
+    <ActiveAnchorContext.Provider value={activeAnchor}>
+      <nav
+        className={cx(
+          "vocs:flex-1 vocs:flex vocs:flex-col vocs:text-sm vocs:font-[450] vocs:[&>*:not(:last-child)[data-collapsed='false']]:mb-4",
+          className,
+        )}
+        data-v-sidebar
+      >
+        {sidebar.backLink && <BackLink onNavigate={onNavigate} />}
+        {sidebar.items.map((item, i) => (
+          <Section
+            key={`${item.text}-${i}`}
+            {...item}
+            condensed={condenseSidebar}
+            onNavigate={onNavigate}
+            scrollRef={scrollRef}
+          />
+        ))}
+      </nav>
+    </ActiveAnchorContext.Provider>
   )
 }
 
@@ -224,26 +127,20 @@ function Item(props: Item.Props) {
   const { path } = useRouter()
   const isExternal = external ?? Path.isExternal(link)
   const activeAnchor = React.useContext(ActiveAnchorContext)
-  const hashIds = React.useContext(HashIdsContext)
-  const hashId = link?.includes('#') ? link.split('#')[1] : undefined
+  const hashId = link?.includes('#') ? decode(link.slice(link.indexOf('#') + 1)) : undefined
   const active = React.useMemo(() => {
-    if (isExternal) return false
+    if (isExternal || !link) return false
+    // Hash links count only for the page they point at (`#id` is the current page).
+    const pagePath = link.split('#')[0] || (path.split('#')[0] ?? path)
+    if (!Path.matches(path, pagePath)) return false
     if (hashId) return hashId === activeAnchor
-    if (!Path.matches(path, link)) return false
-    // Page-level item (e.g. the OpenAPI "Overview"). When in-page anchor
-    // tracking is active, only highlight it while viewing the top of the page —
-    // i.e. when the active section is the page's top heading (whose id matches
-    // the last path segment) or no section is active yet. Otherwise the matching
-    // anchor item below it is highlighted instead.
+    // Page-level item (e.g. the OpenAPI "Overview"). Highlight it until a linked
+    // section is reached — or while that section is the page's top heading
+    // (whose id matches the last path segment).
     if (activeAnchor == null) return true
-    const topId = (link?.split('#')[0] ?? '').split('/').filter(Boolean).pop()
-    if (activeAnchor === topId) return true
-    // Only defer to the active anchor when it corresponds to an actual hash-link
-    // sidebar item (a sibling section on this same page). Otherwise the anchor is
-    // just an in-page heading on a standalone guide page that lives under a
-    // section whose sidebar uses hash links elsewhere — keep this item active.
-    return !hashIds.has(activeAnchor)
-  }, [path, link, isExternal, hashId, activeAnchor, hashIds])
+    const topId = pagePath.split('/').filter(Boolean).pop()
+    return activeAnchor === topId
+  }, [path, link, isExternal, hashId, activeAnchor])
 
   const itemRef = React.useRef<HTMLElement>(null)
   const prevPath = React.useRef(path)
@@ -324,6 +221,7 @@ function Item(props: Item.Props) {
         to={link}
         ref={itemRef as never}
         onClick={onNavigate}
+        aria-current={active ? (hashId ? 'location' : 'page') : undefined}
         {...(active && { 'data-active': true })}
       >
         <span className="vocs:min-w-0 vocs:truncate">{text}</span>
@@ -421,7 +319,12 @@ function Section(props: Section.Props) {
                 data-v-sidebar-section-header
                 {...(groupLinkIsActive && { 'data-active': true })}
               >
-                <Link className={Section.headerLinkClassName} onClick={onNavigate} to={link}>
+                <Link
+                  aria-current={groupLinkIsActive ? 'page' : undefined}
+                  className={Section.headerLinkClassName}
+                  onClick={onNavigate}
+                  to={link}
+                >
                   <span className="vocs:inline-flex vocs:items-center vocs:gap-1">
                     {text}
                     {groupLinkIsExternal && <LucideArrowUpRight className="vocs:size-3" />}
