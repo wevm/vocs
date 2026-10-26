@@ -399,6 +399,25 @@ describe('toSidebar', () => {
     expect(section.items.map((item) => item.text)).toEqual(['pets'])
     expect(toSidebar(ir, { hide: ['pets'] }).map((item) => item.text)).toEqual(['Introduction'])
   })
+
+  test('drops a section whose groups are all hidden', () => {
+    const sectioned: Ir = { ...ir, tagGroups: [{ name: 'Data API', groupIds: ['pets'] }] }
+    expect(toSidebar(sectioned, { hide: ['pets'] }).map((item) => item.text)).toEqual([
+      'Introduction',
+    ])
+  })
+
+  test('ignores Object.prototype names in groupItems and tagGroupItems', () => {
+    const sectioned: Ir = {
+      ...ir,
+      groups: [{ ...(ir.groups[0] as Ir['groups'][number]), name: 'toString', tag: 'toString' }],
+      tagGroups: [{ name: 'constructor', groupIds: [(ir.groups[0] as Ir['groups'][number]).id] }],
+    }
+    const sidebar = toSidebar(sectioned, { groupItems: {}, tagGroupItems: {} })
+    const section = sidebar[1] as { items: { items: { text?: string }[] }[] }
+    expect(section.items).toHaveLength(1)
+    expect(section.items[0]?.items.every((item) => typeof item === 'object')).toBe(true)
+  })
 })
 
 describe('webhook badges', () => {

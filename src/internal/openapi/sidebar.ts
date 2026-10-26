@@ -71,9 +71,12 @@ export function toSidebar(ir: Ir, options: toSidebar.Options = {}): SidebarItem<
   const groupItems = options.groupItems ?? {}
   const tagGroupItems = options.tagGroupItems ?? {}
   const hide = new Set(options.hide ?? [])
+  // Own-property lookups, so names like `constructor` don't hit Object.prototype.
+  const lookup = (items: Record<string, SidebarItem[]>, name: string) =>
+    (Object.hasOwn(items, name) ? items[name] : undefined) ?? []
   const names = (group: IrGroup) => [...new Set([group.tag ?? group.name, group.name])]
   const itemsFor = (group: IrGroup) =>
-    names(group).flatMap((name) => groupItems[name] ?? []) as SidebarItem<true>[]
+    names(group).flatMap((name) => lookup(groupItems, name)) as SidebarItem<true>[]
   // Hidden groups keep their pages; only their sidebar items are dropped.
   const visible = (group: IrGroup) => !names(group).some((name) => hide.has(name))
 
@@ -115,13 +118,15 @@ export function toSidebar(ir: Ir, options: toSidebar.Options = {}): SidebarItem<
   const sections = tagGroups.flatMap((tagGroup) => {
     if (hide.has(tagGroup.name)) return []
     const items = [
-      ...((tagGroupItems[tagGroup.name] ?? []) as SidebarItem<true>[]),
+      ...(lookup(tagGroupItems, tagGroup.name) as SidebarItem<true>[]),
       ...tagGroup.groupIds.flatMap((id) => {
         const group = groupById.get(id)
         return group && visible(group) ? [groupItem(group)] : []
       }),
     ]
     if (flatten.has(tagGroup.name)) return items
+    // A section whose entries are all hidden is left out rather than empty.
+    if (items.length === 0) return []
     return [{ text: tagGroup.name, collapsed: tagGroupsCollapsed, items }]
   })
   return [
