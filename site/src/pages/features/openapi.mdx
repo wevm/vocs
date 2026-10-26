@@ -120,6 +120,49 @@ export default defineConfig({
 })
 ```
 
+### Add Items to Generated Groups
+
+Use `sidebar.groupItems` to add links inside a generated tag group, after its **Overview** link, keyed by tag name (or `x-displayName`). Use `sidebar.tagGroupItems` to add links at the top of an `x-tagGroups` section, keyed by section name. Flattened sections render them in place, before their tags.
+
+```ts [vocs.config.ts]
+export default defineConfig({
+  openapi: [
+    {
+      spec: './openapi.yaml',
+      path: '/api',
+      sidebar: { // [!code focus]
+        groupItems: { // [!code focus]
+          Transactions: [{ text: 'Guide', link: '/api/transactions-guide' }], // [!code focus]
+        }, // [!code focus]
+        tagGroupItems: { // [!code focus]
+          'Platform API': [{ text: 'About the platform', link: '/api/platform' }], // [!code focus]
+        }, // [!code focus]
+      }, // [!code focus]
+    },
+  ],
+})
+```
+
+Set `sidebar.introduction: false` to drop the generated **Introduction** entry and render `sidebar.intro` items at the top level in its place. Include a link to the landing page in `intro` yourself.
+
+```ts [vocs.config.ts]
+export default defineConfig({
+  openapi: [
+    {
+      spec: './openapi.yaml',
+      path: '/api',
+      sidebar: {
+        introduction: false, // [!code focus]
+        intro: [
+          { text: 'Overview', link: '/api' },
+          { text: 'Authentication', link: '/api/auth' },
+        ],
+      },
+    },
+  ],
+})
+```
+
 ### Hide Tags or Sections
 
 Name tags or `x-tagGroups` sections in `exclude` to leave them out of the reference entirely — no sidebar items, category pages, or search entries, and their operations are stripped from the interactive client. The source spec is untouched, so a spec served separately (e.g. `/openapi.json`) still documents them.
@@ -131,6 +174,22 @@ export default defineConfig({
       spec: './openapi.yaml',
       path: '/api',
       exclude: ['Platform API'], // [!code focus]
+    },
+  ],
+})
+```
+
+To keep a tag's page but leave it out of the sidebar (e.g. because `intro` or a guide already links it), name it in `sidebar.hide` instead. Hidden tags and sections keep their pages, search entries and playground operations.
+
+```ts [vocs.config.ts]
+export default defineConfig({
+  openapi: [
+    {
+      spec: './openapi.yaml',
+      path: '/api',
+      sidebar: { // [!code focus]
+        hide: ['Webhooks'], // [!code focus]
+      }, // [!code focus]
     },
   ],
 })

@@ -55,6 +55,35 @@ export type SidebarExtras = {
    */
   intro?: SidebarItem[] | undefined
   /**
+   * Render the generated `Introduction` entry. Set to `false` to render
+   * `intro` items at the top level in its place instead (e.g. when `intro`
+   * already links the landing page).
+   *
+   * @default true
+   */
+  introduction?: boolean | undefined
+  /**
+   * Extra items for generated category groups, keyed by tag name (or
+   * `x-displayName`). They render after the group's `Overview` link, e.g. a
+   * guide page for that category.
+   *
+   * @example { Payments: [{ text: 'Guide', link: '/api/payments-guide' }] }
+   */
+  groupItems?: Record<string, SidebarItem[]> | undefined
+  /**
+   * Extra items for `x-tagGroups` sections, keyed by section name. They render
+   * before the section's categories (in place for `flatten`ed sections).
+   *
+   * @example { 'Data API': [{ text: 'Quickstart', link: '/api/quickstart' }] }
+   */
+  tagGroupItems?: Record<string, SidebarItem[]> | undefined
+  /**
+   * Names of tags or `x-tagGroups` sections to leave out of the sidebar. Unlike
+   * `exclude`, their pages, search entries and operations stay available, so
+   * they can be linked from elsewhere (e.g. `intro` or `top`).
+   */
+  hide?: readonly string[] | undefined
+  /**
    * Collapse generated category groups by default. Also controls `x-tagGroups`
    * sections unless `tagGroupsCollapsed` overrides it. Groups containing the
    * active page still auto-expand. The generated `Introduction` is unaffected.

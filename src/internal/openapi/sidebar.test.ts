@@ -322,6 +322,83 @@ describe('toSidebar', () => {
       ],
     })
   })
+  test('renders intro items at the top level when introduction is false', () => {
+    const sidebar = toSidebar(ir, {
+      introduction: false,
+      intro: [
+        { text: 'Overview', link: '/api' },
+        { text: 'Authentication', link: '/api/authentication' },
+      ],
+    })
+    expect(sidebar.map((item) => item.text)).toEqual(['Overview', 'Authentication', 'pets'])
+  })
+
+  test('injects groupItems by tag or display name after a group Overview link', () => {
+    const sidebar = toSidebar(
+      { ...ir, groups: [{ ...(ir.groups[0] as Ir['groups'][number]), name: 'Pets', tag: 'pets' }] },
+      {
+        groupItems: {
+          pets: [{ text: 'Guide', link: '/api/pets-guide' }],
+          Pets: [{ text: 'Rate limits', link: '/api/rate-limits' }],
+        },
+      },
+    )
+    const group = sidebar[1] as { items: { text?: string }[] }
+    expect(group.items.map((item) => item.text)).toEqual([
+      'Overview',
+      'Guide',
+      'Rate limits',
+      'List pets',
+      'POST /pets',
+    ])
+  })
+
+  test('prepends tagGroupItems to sections, in place for flattened sections', () => {
+    const sectioned: Ir = {
+      ...ir,
+      groups: [...ir.groups, { id: 'platform', name: 'Platform', operations: [] }],
+      tagGroups: [
+        { name: 'Data API', groupIds: ['pets'] },
+        { name: 'Platform API', groupIds: ['platform'] },
+      ],
+    }
+    const sidebar = toSidebar(sectioned, {
+      flatten: ['Data API'],
+      tagGroupItems: {
+        'Data API': [{ text: 'Quickstart', link: '/api/quickstart' }],
+        'Platform API': [{ text: 'About', link: '/api/platform' }],
+      },
+    })
+    expect(sidebar.map((item) => item.text)).toEqual([
+      'Introduction',
+      'Quickstart',
+      'pets',
+      'Platform API',
+    ])
+    const section = sidebar[3] as { items: { text?: string }[] }
+    expect(section.items.map((item) => item.text)).toEqual(['About', 'Platform'])
+  })
+
+  test('hides groups and sections from the sidebar by name', () => {
+    const sectioned: Ir = {
+      ...ir,
+      groups: [
+        ...ir.groups,
+        { id: 'platform', name: 'Platform', operations: [] },
+        { id: 'mcp', name: 'MCP', operations: [] },
+        { id: 'internal', name: 'Internal', operations: [] },
+      ],
+      tagGroups: [
+        { name: 'Data API', groupIds: ['pets', 'platform'] },
+        { name: 'Internal API', groupIds: ['internal'] },
+      ],
+    }
+    const sidebar = toSidebar(sectioned, { hide: ['Platform', 'MCP', 'Internal API'] })
+    expect(sidebar.map((item) => item.text)).toEqual(['Introduction', 'Data API'])
+    const section = sidebar[1] as { items: { text?: string }[] }
+    expect(section.items.map((item) => item.text)).toEqual(['pets'])
+    expect(toSidebar(ir, { hide: ['pets'] }).map((item) => item.text)).toEqual(['Introduction'])
+  })
 })
 
 describe('webhook badges', () => {

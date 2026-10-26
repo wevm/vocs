@@ -70,7 +70,11 @@ export async function prepare(
     ...top,
     ...Sidebar.toSidebar(ir, {
       intro,
+      introduction: config.sidebar?.introduction,
       groupExtras,
+      groupItems: config.sidebar?.groupItems,
+      tagGroupItems: config.sidebar?.tagGroupItems,
+      hide: config.sidebar?.hide,
       collapsed,
       flatten,
       tagGroupsCollapsed,

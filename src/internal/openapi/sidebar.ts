@@ -49,18 +49,33 @@ export function toSidebar(ir: Ir, options: toSidebar.Options = {}): SidebarItem<
   // collapsible group: an "Overview" link to the landing page followed by the
   // extra items (e.g. authentication/versioning guide pages).
   const intro = options.intro ?? []
-  const introduction: SidebarItem<true> =
-    intro.length > 0
-      ? {
-          text: 'Introduction',
-          collapsed: false,
-          items: [{ text: 'Overview', link: ir.path }, ...intro] as SidebarItem<true>[],
-        }
-      : { text: 'Introduction', link: ir.path }
+  // With `introduction: false`, `intro` items render at the top level in
+  // place of the generated entry.
+  const introduction: SidebarItem<true>[] =
+    options.introduction === false
+      ? (intro as SidebarItem<true>[])
+      : [
+          intro.length > 0
+            ? {
+                text: 'Introduction',
+                collapsed: false,
+                items: [{ text: 'Overview', link: ir.path }, ...intro] as SidebarItem<true>[],
+              }
+            : { text: 'Introduction', link: ir.path },
+        ]
 
   // Extra items (e.g. `x-parent` guide pages) injected into a group, keyed by
   // group id, rendered after the group's "Overview" link.
   const groupExtras = options.groupExtras ?? new Map<string, SidebarItem[]>()
+  // Configured items and hidden names match a group's tag or display name.
+  const groupItems = options.groupItems ?? {}
+  const tagGroupItems = options.tagGroupItems ?? {}
+  const hide = new Set(options.hide ?? [])
+  const names = (group: IrGroup) => [...new Set([group.tag ?? group.name, group.name])]
+  const itemsFor = (group: IrGroup) =>
+    names(group).flatMap((name) => groupItems[name] ?? []) as SidebarItem<true>[]
+  // Hidden groups keep their pages; only their sidebar items are dropped.
+  const visible = (group: IrGroup) => !names(group).some((name) => hide.has(name))
 
   // Generated categories inherit `collapsed`. Tag-group sections can override
   // that default independently. Active groups still auto-expand at render.
@@ -75,6 +90,7 @@ export function toSidebar(ir: Ir, options: toSidebar.Options = {}): SidebarItem<
       // is a non-link header so its label doesn't compete with the operations.
       { text: 'Overview', link: groupLink(group) },
       ...((groupExtras.get(group.id) ?? []) as SidebarItem<true>[]),
+      ...itemsFor(group),
       ...group.operations.map((operation) => ({
         text: operation.summary || `${operation.method} ${operation.path}`,
         link: operationLink(operation, group),
@@ -89,7 +105,7 @@ export function toSidebar(ir: Ir, options: toSidebar.Options = {}): SidebarItem<
   })
 
   const tagGroups = ir.tagGroups ?? []
-  if (tagGroups.length === 0) return [introduction, ...ir.groups.map(groupItem)]
+  if (tagGroups.length === 0) return [...introduction, ...ir.groups.filter(visible).map(groupItem)]
 
   // `x-tagGroups` sections render as collapsible headers. Sections named in
   // `flatten` spread their categories in place instead.
@@ -97,17 +113,21 @@ export function toSidebar(ir: Ir, options: toSidebar.Options = {}): SidebarItem<
   const groupById = new Map(ir.groups.map((group) => [group.id, group]))
   const claimed = new Set(tagGroups.flatMap((tagGroup) => tagGroup.groupIds))
   const sections = tagGroups.flatMap((tagGroup) => {
-    const items = tagGroup.groupIds.flatMap((id) => {
-      const group = groupById.get(id)
-      return group ? [groupItem(group)] : []
-    })
+    if (hide.has(tagGroup.name)) return []
+    const items = [
+      ...((tagGroupItems[tagGroup.name] ?? []) as SidebarItem<true>[]),
+      ...tagGroup.groupIds.flatMap((id) => {
+        const group = groupById.get(id)
+        return group && visible(group) ? [groupItem(group)] : []
+      }),
+    ]
     if (flatten.has(tagGroup.name)) return items
     return [{ text: tagGroup.name, collapsed: tagGroupsCollapsed, items }]
   })
   return [
-    introduction,
+    ...introduction,
     ...sections,
-    ...ir.groups.filter((group) => !claimed.has(group.id)).map(groupItem),
+    ...ir.groups.filter((group) => !claimed.has(group.id) && visible(group)).map(groupItem),
   ]
 }
 
@@ -115,6 +135,17 @@ export declare namespace toSidebar {
   type Options = {
     /** Items nested under the generated `Introduction` entry. */
     intro?: SidebarItem[] | undefined
+    /**
+     * Render the generated `Introduction` entry. When `false`, `intro` items
+     * render at the top level in its place. @default true
+     */
+    introduction?: boolean | undefined
+    /** Extra items injected into a generated group, keyed by tag name or display name. */
+    groupItems?: Record<string, SidebarItem[]> | undefined
+    /** Extra items prepended to an `x-tagGroups` section, keyed by section name. */
+    tagGroupItems?: Record<string, SidebarItem[]> | undefined
+    /** Tags or `x-tagGroups` sections to leave out of the sidebar (pages stay routable). */
+    hide?: readonly string[] | undefined
     /** Extra items injected into a generated group, keyed by group id. */
     groupExtras?: Map<string, SidebarItem[]> | undefined
     /**

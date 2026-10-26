@@ -5,7 +5,6 @@ import * as React from 'react'
 import { useRouter } from 'waku'
 import LucideThumbsDown from '~icons/lucide/thumbs-down'
 import LucideThumbsUp from '~icons/lucide/thumbs-up'
-import * as Path from '../../internal/path.js'
 import { useConfig } from '../useConfig.js'
 
 type FeedbackState = 'initial' | 'positive' | 'negative' | 'submitted'
@@ -55,7 +54,7 @@ export function Feedback(props: Feedback.Props) {
 
     setIsSubmitting(true)
     try {
-      const response = await fetch(Path.withBasePath('/api/feedback', config.basePath), {
+      const response = await fetch('/api/feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
