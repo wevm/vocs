@@ -27,13 +27,19 @@ class ObserverMock {
 }
 
 /** Viewport `top` of each element by id. Elements without one are not rendered. */
+// Document positions of headings; their viewport top is the position minus `scroll`.
 let tops: Record<string, number>
+let scroll: number
 let container: HTMLDivElement
 let root: Root
 
 beforeEach(() => {
   ;(globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true
   tops = {}
+  scroll = 0
+  vi.spyOn(window, 'scrollY', 'get').mockImplementation(() => scroll)
+  // jsdom has no layout, so give the page room to scroll past every heading.
+  vi.spyOn(document.documentElement, 'scrollHeight', 'get').mockReturnValue(10_000)
   vi.stubGlobal('MutationObserver', ObserverMock)
   vi.stubGlobal('ResizeObserver', ObserverMock)
   vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => {
@@ -41,7 +47,7 @@ beforeEach(() => {
     return 0
   })
   vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
-    const top = tops[this.id] ?? 0
+    const top = (tops[this.id] ?? 0) - scroll
     return {
       bottom: top + 20,
       height: 20,
@@ -257,8 +263,10 @@ async function renderSidebar() {
   await act(async () => root.render(<Sidebar scrollRef={{ current: null }} />))
 }
 
+/** Scrolls so the headings reach the given viewport positions (all shifted alike). */
 async function scrollTo(positions: Record<string, number>) {
-  tops = { ...tops, ...positions }
+  const [id, top] = Object.entries(positions)[0] as [string, number]
+  scroll = (tops[id] ?? 0) - top
   await act(async () => window.dispatchEvent(new Event('scroll')))
 }
 

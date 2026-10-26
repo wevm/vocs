@@ -13,7 +13,9 @@ import * as Path from '../internal/path.js'
  *   to other pages and links without a fragment are ignored.
  * @returns The id of the active section, or `null` above the first linked section.
  */
-export function useActiveSidebarAnchor(links: readonly string[]): string | null {
+export function useActiveSidebarAnchor(
+  links: useActiveSidebarAnchor.Links,
+): useActiveSidebarAnchor.ReturnType {
   const { path, hash } = useRouter()
   const pagePath = path.split('#')[0] ?? path
 
@@ -37,7 +39,10 @@ export function useActiveSidebarAnchor(links: readonly string[]): string | null 
       return
     }
 
-    let anchors: { element: HTMLElement; margin: number }[] = []
+    // Document offsets of the visible anchors, measured only when the layout
+    // may have changed, so scrolling does no per-anchor DOM reads.
+    let anchors: { id: string; margin: number; offset: number }[] = []
+    let padding = 0
     let stale = true
     let frame = 0
 
@@ -52,34 +57,35 @@ export function useActiveSidebarAnchor(links: readonly string[]): string | null 
         )
           // Changelog release bodies can repeat ids of linked sections.
           .filter((element) => anchorIds.has(element.id) && !element.closest('[data-v-changelog]'))
+          .filter((element) => element.getClientRects().length > 0)
           .map((element) => ({
-            element,
+            id: element.id,
             margin: Number.parseFloat(getComputedStyle(element).scrollMarginTop) || 0,
+            offset: element.getBoundingClientRect().top + window.scrollY,
           }))
+        padding =
+          Number.parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0
       }
 
       // A section is active once its heading reaches the position the browser
       // scrolls anchors to, below the sticky mobile outline when it is shown.
-      const padding =
-        Number.parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0
       const outline = document.querySelector('[data-v-outline-mobile]')
       const outlineBottom = outline?.getClientRects().length
         ? outline.getBoundingClientRect().bottom
         : 0
 
-      const visible = anchors.filter(({ element }) => element.getClientRects().length > 0)
+      const scrollY = window.scrollY
       let id: string | null = null
-      for (const { element, margin } of visible) {
-        if (element.getBoundingClientRect().top > Math.max(padding + margin, outlineBottom) + 2)
-          break
-        id = element.id
+      for (const anchor of anchors) {
+        if (anchor.offset - scrollY > Math.max(padding + anchor.margin, outlineBottom) + 2) break
+        id = anchor.id
       }
 
       // A short final section may never reach that position.
-      const last = visible.at(-1)?.element
+      const last = anchors.at(-1)
       const bottom = document.documentElement.scrollHeight - 2
-      if (last && window.scrollY > 0 && window.scrollY + window.innerHeight >= bottom)
-        if (last.getBoundingClientRect().top < window.innerHeight) id = last.id
+      if (last && scrollY > 0 && scrollY + window.innerHeight >= bottom)
+        if (last.offset - scrollY < window.innerHeight) id = last.id
 
       setId(id)
     }
@@ -101,7 +107,7 @@ export function useActiveSidebarAnchor(links: readonly string[]): string | null 
     // headings after this effect runs.
     const mutation = new MutationObserver(invalidate)
     mutation.observe(document.body, { childList: true, subtree: true })
-    const resize = new ResizeObserver(schedule)
+    const resize = new ResizeObserver(invalidate)
     resize.observe(document.documentElement)
 
     return () => {
@@ -116,6 +122,13 @@ export function useActiveSidebarAnchor(links: readonly string[]): string | null 
 
   // Ignore the previous page's section until the effect has run for this one.
   return active.path === pagePath ? active.id : null
+}
+
+export declare namespace useActiveSidebarAnchor {
+  /** Links to track. Only `#fragment` links to the current page are used. */
+  type Links = readonly string[]
+  /** The id of the active section, or `null` above the first linked section. */
+  type ReturnType = string | null
 }
 
 /** Decoded `#fragment` ids of the links that point at `pagePath`. */
