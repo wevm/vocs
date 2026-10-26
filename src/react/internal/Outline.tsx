@@ -74,6 +74,22 @@ function useOutlineItems(options: { minLevel: number; maxLevel: number }) {
     return () => observer.disconnect()
   }, [router.path, minLevel, maxLevel])
 
+  // When the visible headings change (such as after switching tabs), an active
+  // heading that left the outline is replaced by the last heading above the
+  // observer's band, or the first heading when none has been scrolled past.
+  React.useEffect(() => {
+    if (typeof window === 'undefined' || items.length === 0) return
+    setActiveId((current) => {
+      if (current && items.some((item) => item.id === current)) return current
+      let id = items[0]?.id ?? null
+      for (const item of items) {
+        const element = document.getElementById(item.id)
+        if (element && element.getBoundingClientRect().top <= window.innerHeight * 0.2) id = item.id
+      }
+      return id
+    })
+  }, [items])
+
   React.useEffect(() => {
     if (typeof window === 'undefined') return
     if (items.length === 0) return
