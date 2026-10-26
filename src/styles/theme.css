@@ -1,6 +1,4 @@
 @theme {
-  --color-*: initial;
-
   /* #region Font Family */
 
   --font-sans: var(
@@ -197,7 +195,6 @@
 
   /* #region Leading */
 
-  --leading-*: initial;
   --leading-base: 1.5em;
   --leading-code: 1.75em;
   --leading-p: 1.625em;

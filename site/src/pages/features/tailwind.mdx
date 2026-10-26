@@ -81,6 +81,24 @@ Vocs stores the active theme on the document's `color-scheme`. Add a custom dark
 
 Classes like `dark:border-zinc-800` now respond to the same theme state as the built-in Vocs UI.
 
+### Importing Vocs Theme Tokens
+
+Import `vocs/styles/theme.css` after Tailwind to get the full Vocs design system (surfaces, text, borders, callout colors, spacing) as Tailwind utilities. Your Tailwind color palette and line heights stay available alongside it.
+
+```css [src/pages/_root.css]
+@import 'tailwindcss';
+@import 'vocs/styles/theme.css'; /* [!code focus] */
+```
+
+```mdx [src/pages/index.mdx]
+<div className="rounded-lg border border-primary bg-surface p-4">
+  <h2 className="m-0 text-heading">Deploy Contracts</h2>
+  <p className="m-0 text-zinc-500">Ship Solidity apps with Vite-native docs.</p>
+</div>
+```
+
+Tokens Vocs also defines, such as `--font-sans` and the `md`/`lg` breakpoints, take the Vocs values. Declare them again in your own `@theme` block after the import to override them.
+
 ### Reusing Vocs Theme Tokens
 
 Map Vocs CSS variables into Tailwind theme tokens so custom components follow the docs theme.

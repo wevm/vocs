@@ -1,0 +1,10 @@
+/*
+ * Clears Tailwind's default colors and line heights so Vocs's own
+ * (`vocs:`-prefixed) utilities only resolve the Vocs tokens. Kept out of `theme.css` so sites
+ * can import the Vocs theme tokens into their own Tailwind build without
+ * losing their palette or line heights.
+ */
+@theme {
+  --color-*: initial;
+  --leading-*: initial;
+}
