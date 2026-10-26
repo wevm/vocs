@@ -149,6 +149,24 @@ describe('Redirects.resolve', () => {
     `)
   })
 
+  it('preserves port in external destination', () => {
+    const rules = Redirects.from([
+      { source: '/api/:path*', destination: 'http://localhost:8080/api/:path*' },
+    ])
+    const result = Redirects.resolve('/api/users', rules)
+
+    expect(result).toMatchInlineSnapshot(`
+      {
+        "destination": "http://localhost:8080/api/users",
+        "params": {
+          "path": "users",
+        },
+        "source": "/api/:path*",
+        "status": 307,
+      }
+    `)
+  })
+
   it('returns undefined for no match', () => {
     const rules = Redirects.from([{ source: '/about', destination: '/' }])
     const result = Redirects.resolve('/contact', rules)
