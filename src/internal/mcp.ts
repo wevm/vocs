@@ -86,12 +86,7 @@ export function createServer(config: Config, options: createServer.Options = {})
       },
     },
     async ({ pagePath }) => {
-      const possiblePaths = [
-        path.join(pagesDir, `${pagePath}.mdx`),
-        path.join(pagesDir, `${pagePath}.md`),
-        path.join(pagesDir, pagePath, 'index.mdx'),
-        path.join(pagesDir, pagePath, 'index.md'),
-      ]
+      const possiblePaths = pageFilesUnder(pagesDir, pagePath)
 
       for (const filePath of possiblePaths) {
         try {
@@ -378,6 +373,20 @@ export function createServer(config: Config, options: createServer.Options = {})
   }
 
   return server
+}
+
+function pageFilesUnder(pagesDir: string, pagePath: string): string[] {
+  const relative = pagePath.replace(/^\/+/, '')
+  const root = path.resolve(pagesDir)
+  const prefix = root.endsWith(path.sep) ? root : `${root}${path.sep}`
+  return [
+    path.join(pagesDir, `${relative}.mdx`),
+    path.join(pagesDir, `${relative}.md`),
+    path.join(pagesDir, relative, 'index.mdx'),
+    path.join(pagesDir, relative, 'index.md'),
+  ]
+    .map((candidate) => path.resolve(candidate))
+    .filter((resolved) => resolved === root || resolved.startsWith(prefix))
 }
 
 function resolvePageUrl(config: Pick<Config, 'basePath' | 'baseUrl'>, pagePath: string) {
