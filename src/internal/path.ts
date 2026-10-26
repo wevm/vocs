@@ -63,3 +63,45 @@ export function isExternal(url: string | undefined) {
     url.startsWith('tel:')
   )
 }
+
+/**
+ * Normalize a base path into a prefix that can be concatenated with a
+ * root-absolute path. The root base path (`/`) yields an empty string.
+ *
+ * @param basePath - The configured base path (e.g. `/docs`, `/docs/`, `/`).
+ * @returns The prefix (e.g. `/docs`), or an empty string when there is none.
+ */
+export function basePathPrefix(basePath: string | undefined) {
+  if (!basePath || basePath === '/') return ''
+  return basePath.endsWith('/') ? basePath.slice(0, -1) : basePath
+}
+
+/**
+ * Prefix a root-absolute path with the configured base path.
+ *
+ * @param pathname - The root-absolute path (e.g. `/api/feedback`).
+ * @param basePath - The configured base path (e.g. `/docs`).
+ * @returns The prefixed path (e.g. `/docs/api/feedback`).
+ */
+export function withBasePath(pathname: string, basePath: string | undefined) {
+  return `${basePathPrefix(basePath)}${pathname}`
+}
+
+/**
+ * Prefix a configured asset URL (e.g. `logoUrl`, `iconUrl`) with the base path.
+ *
+ * Only root-absolute URLs (`/logo.svg`) are prefixed. External, protocol-relative,
+ * relative and `data:` URLs, and URLs that already start with the base path, are
+ * returned as-is.
+ *
+ * @param url - The asset URL (e.g. `/logo.svg`).
+ * @param basePath - The configured base path (e.g. `/docs`).
+ * @returns The asset URL under the base path (e.g. `/docs/logo.svg`).
+ */
+export function withBasePathAsset(url: string, basePath: string | undefined) {
+  const prefix = basePathPrefix(basePath)
+  if (!prefix) return url
+  if (!url.startsWith('/') || url.startsWith('//')) return url
+  if (url === prefix || url.startsWith(`${prefix}/`)) return url
+  return `${prefix}${url}`
+}

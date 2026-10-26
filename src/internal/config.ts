@@ -15,6 +15,7 @@ import type * as McpSource from './mcp-source.js'
 import type * as Mdx from './mdx.js'
 import type * as OpenApi from './openapi/index.js'
 import { from as resolveOpenApi } from './openapi/openapi.js'
+import * as Path from './path.js'
 import type * as Redirects from './redirects.js'
 import * as Retriever from './retriever.js'
 import type * as Sidebar from './sidebar.js'
@@ -957,9 +958,9 @@ export function define(config: define.Options = {}): Config {
     _retriever: existingRetriever ?? retrieverResolved?.private,
     groupIcons: config.groupIcons,
     head,
-    iconUrl,
+    iconUrl: resolveAssetUrl(iconUrl, basePath),
     jsonLd,
-    logoUrl,
+    logoUrl: resolveAssetUrl(logoUrl, basePath),
     markdown,
     mcp,
     ogImageUrl,
@@ -1028,6 +1029,19 @@ export function define(config: define.Options = {}): Config {
     topNav,
     trailingSlashRedirect,
     twoslash,
+  }
+}
+
+/** Serve root-absolute `logoUrl`/`iconUrl` values from under the base path. */
+function resolveAssetUrl(
+  url: string | ThemeValue<string> | undefined,
+  basePath: string,
+): string | ThemeValue<string> | undefined {
+  if (!url) return url
+  if (typeof url === 'string') return Path.withBasePathAsset(url, basePath)
+  return {
+    light: Path.withBasePathAsset(url.light, basePath),
+    dark: Path.withBasePathAsset(url.dark, basePath),
   }
 }
 

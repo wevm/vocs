@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { compile, matches } from './path.js'
+import { basePathPrefix, compile, matches, withBasePath, withBasePathAsset } from './path.js'
 
 describe('compile', () => {
   test('compiles static path', () => {
@@ -75,5 +75,64 @@ describe('matches', () => {
   test('handles splat routes', () => {
     expect(matches('/docs/api/auth', '/docs/*')).toBeTruthy()
     expect(matches('/docs', '/docs/*')).toBeTruthy()
+  })
+})
+
+describe('basePathPrefix', () => {
+  test('returns an empty string for the root base path', () => {
+    expect(basePathPrefix('/')).toBe('')
+    expect(basePathPrefix('')).toBe('')
+    expect(basePathPrefix(undefined)).toBe('')
+  })
+
+  test('strips the trailing slash', () => {
+    expect(basePathPrefix('/docs')).toBe('/docs')
+    expect(basePathPrefix('/docs/')).toBe('/docs')
+  })
+})
+
+describe('withBasePath', () => {
+  test('leaves the path untouched for the root base path', () => {
+    expect(withBasePath('/api/feedback', '/')).toBe('/api/feedback')
+    expect(withBasePath('/api/feedback', undefined)).toBe('/api/feedback')
+  })
+
+  test('prefixes the base path', () => {
+    expect(withBasePath('/api/feedback', '/docs')).toBe('/docs/api/feedback')
+    expect(withBasePath('/api/feedback', '/docs/')).toBe('/docs/api/feedback')
+  })
+})
+
+describe('withBasePathAsset', () => {
+  test('leaves the url untouched for the root base path', () => {
+    expect(withBasePathAsset('/logo.svg', '/')).toBe('/logo.svg')
+    expect(withBasePathAsset('/logo.svg', undefined)).toBe('/logo.svg')
+  })
+
+  test('prefixes root-absolute urls', () => {
+    expect(withBasePathAsset('/logo.svg', '/docs')).toBe('/docs/logo.svg')
+    expect(withBasePathAsset('/img/logo.svg', '/docs/')).toBe('/docs/img/logo.svg')
+  })
+
+  test('leaves urls that already include the base path untouched', () => {
+    expect(withBasePathAsset('/docs/logo.svg', '/docs')).toBe('/docs/logo.svg')
+    expect(withBasePathAsset('/docs/logo.svg', '/docs/')).toBe('/docs/logo.svg')
+  })
+
+  test('prefixes urls that only share a prefix with the base path', () => {
+    expect(withBasePathAsset('/docsearch.svg', '/docs')).toBe('/docs/docsearch.svg')
+  })
+
+  test('leaves external, relative and data urls untouched', () => {
+    expect(withBasePathAsset('https://example.com/logo.svg', '/docs')).toBe(
+      'https://example.com/logo.svg',
+    )
+    expect(withBasePathAsset('//cdn.example.com/logo.svg', '/docs')).toBe(
+      '//cdn.example.com/logo.svg',
+    )
+    expect(withBasePathAsset('logo.svg', '/docs')).toBe('logo.svg')
+    expect(withBasePathAsset('data:image/svg+xml,<svg/>', '/docs')).toBe(
+      'data:image/svg+xml,<svg/>',
+    )
   })
 })
