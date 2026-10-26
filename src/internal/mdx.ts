@@ -445,6 +445,10 @@ export function getCompileOptions(
   }
 }
 
+function toPosixPath(value: string): string {
+  return value.split(path.sep).join('/')
+}
+
 /**
  * Recma plugin that wraps the MDX default export with MdxLayout.
  * This gives the layout access to frontmatter and path props.
@@ -461,8 +465,10 @@ export function recmaMdxLayout(config: Config.Config) {
     if (!vfile.path) return
 
     const sourcePath = path.resolve(vfile.path)
-    const filePath = path.relative(pagesDirPath, sourcePath)
-    if (filePath.startsWith('..') || path.isAbsolute(filePath)) return
+    const relativePath = path.relative(pagesDirPath, sourcePath)
+    if (relativePath.startsWith('..') || path.isAbsolute(relativePath)) return
+    // Interpolated into generated JS below, where a Windows `\` would start an escape.
+    const filePath = toPosixPath(relativePath)
 
     const defaultExportIndex = tree.body.findIndex(
       (node) => node.type === 'ExportDefaultDeclaration',
@@ -481,12 +487,13 @@ export function recmaMdxLayout(config: Config.Config) {
         path.dirname(dir) === dir
       )
         return `import { Layout as _Layout } from 'vocs';`
-      if (layoutPaths.has(dir)) return `import _Layout from '${layoutPaths.get(dir)}';`
+      if (layoutPaths.has(dir))
+        return `import _Layout from ${JSON.stringify(toPosixPath(layoutPaths.get(dir)!))};`
       const layoutPath = path.join(dir, '_mdx-wrapper.tsx')
       const layoutFile = fs.existsSync(layoutPath)
       if (!layoutFile) return getMdxLayoutImport(path.dirname(dir))
       layoutPaths.set(dir, layoutPath)
-      return `import _Layout from '${layoutPath}';`
+      return `import _Layout from ${JSON.stringify(toPosixPath(layoutPath))};`
     }
 
     const lastModified = Git.getLastModified(sourcePath, pagesDirPath)
@@ -503,7 +510,7 @@ export function recmaMdxLayout(config: Config.Config) {
       `export function Page(props = {}) {
         const _frontmatter = { 
           ...frontmatter, 
-          filePath: "${filePath}",
+          filePath: ${JSON.stringify(filePath)},
           lastModified: ${lastModified ? `"${lastModified}"` : 'undefined'},
         };
         return _createElement(
