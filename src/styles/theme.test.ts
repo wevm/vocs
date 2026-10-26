@@ -29,10 +29,18 @@ describe('theme.css', () => {
       `@import 'tailwindcss/theme.css';
        @import 'vocs/styles/theme.css';
        @import 'tailwindcss/utilities.css';`,
-      ['bg-red-500', 'text-zinc-600', 'bg-surface', 'text-heading', 'border-primary'],
+      [
+        'bg-red-500',
+        'text-zinc-600',
+        'leading-tight',
+        'bg-surface',
+        'text-heading',
+        'border-primary',
+      ],
     )
     expect(css).toContain('.bg-red-500')
     expect(css).toContain('.text-zinc-600')
+    expect(css).toContain('.leading-tight')
     expect(css).toContain('.bg-surface')
     expect(css).toContain('.text-heading')
     expect(css).toContain('.border-primary')
@@ -43,11 +51,13 @@ describe('index.css', () => {
   test('resets the default palette for vocs utilities', async () => {
     const css = await build(`@import './index.css';`, [
       'vocs:bg-red-500',
+      'vocs:leading-tight',
       'vocs:bg-surface',
       'vocs:text-heading',
     ])
     expect(css).not.toContain('bg-red-500')
     expect(css).not.toContain('--vocs-color-red-500')
+    expect(css).not.toContain('leading-tight')
     expect(css).toContain('.vocs\\:bg-surface')
     expect(css).toContain('.vocs\\:text-heading')
   })
