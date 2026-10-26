@@ -107,8 +107,13 @@ export function useActiveSidebarAnchor(
     // headings after this effect runs.
     const mutation = new MutationObserver(invalidate)
     mutation.observe(document.body, { childList: true, subtree: true })
+    // Watch the content itself: expanding a kept-mounted panel (such as an
+    // OpenAPI disclosure) grows the page without adding nodes or resizing the
+    // viewport-sized root element.
     const resize = new ResizeObserver(invalidate)
-    resize.observe(document.documentElement)
+    resize.observe(document.body)
+    for (const element of document.querySelectorAll('article[data-v-content], [data-v-openapi]'))
+      resize.observe(element)
 
     return () => {
       cancelAnimationFrame(frame)
@@ -145,11 +150,18 @@ function ids(links: readonly string[], pagePath: string): string[] {
   return [...result]
 }
 
-/** @internal */
-export function decode(fragment: string) {
+/** @internal Decodes a URL fragment, returning it unchanged when it is malformed. */
+export function decode(fragment: decode.Fragment): decode.ReturnType {
   try {
     return decodeURIComponent(fragment)
   } catch {
     return fragment
   }
+}
+
+export declare namespace decode {
+  /** A URL fragment without the leading `#`, possibly percent-encoded. */
+  type Fragment = string
+  /** The decoded fragment. */
+  type ReturnType = string
 }

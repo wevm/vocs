@@ -74,7 +74,8 @@ export function OperationNav() {
 
   return links.map((link) => (
     <Link
-      aria-current={link.endsWith(`#${activeId}`) ? 'location' : undefined} // [!code focus]
+      // Compare the decoded fragment: the hook returns DOM ids, such as `café` for `#caf%C3%A9`.
+      aria-current={activeId !== null && decodeURIComponent(link.split('#')[1] ?? '') === activeId ? 'location' : undefined} // [!code focus]
       key={link}
       to={link}
     >
