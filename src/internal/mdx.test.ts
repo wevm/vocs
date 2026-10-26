@@ -1,3 +1,5 @@
+import * as fs from 'node:fs'
+import * as os from 'node:os'
 import * as path from 'node:path'
 import type * as Estree from 'estree'
 import type * as MdAst from 'mdast'
@@ -420,6 +422,66 @@ describe('recmaMdxLayout', () => {
     } as never)
 
     expect(tree).toEqual(createMdxProgram())
+  })
+
+  describe('page in a nested directory', () => {
+    function setup() {
+      const rootDir = fs.mkdtempSync(path.join(os.tmpdir(), 'vocs-layout-'))
+      const config = Config.define({ rootDir })
+      const pagesDirPath = path.resolve(rootDir, config.srcDir, config.pagesDir)
+      const pageDir = path.join(pagesDirPath, 'testing', 'unit-tests')
+      fs.mkdirSync(pageDir, { recursive: true })
+      const layoutPath = path.join(pagesDirPath, 'testing', '_mdx-wrapper.tsx')
+      fs.writeFileSync(layoutPath, 'export default function Layout() { return null }')
+
+      const tree = createMdxProgram()
+      recmaMdxLayout(config)()(tree, {
+        basename: 'index.md',
+        dirname: pageDir,
+        path: path.join(pageDir, 'index.md'),
+      } as never)
+      return { layoutPath, rootDir, tree }
+    }
+
+    function find(node: unknown, match: (node: Record<string, unknown>) => boolean): unknown {
+      if (!node || typeof node !== 'object') return
+      if (match(node as Record<string, unknown>)) return node
+      for (const value of Object.values(node)) {
+        const found = find(value, match)
+        if (found) return found
+      }
+    }
+
+    it('records the page path with forward slashes', () => {
+      const { rootDir, tree } = setup()
+      try {
+        const property = find(
+          tree,
+          (node) =>
+            node.type === 'Property' && (node.key as { name?: string }).name === 'filePath',
+        ) as { value: { value: string } }
+        expect(property.value.value).toBe('testing/unit-tests/index.md')
+      } finally {
+        fs.rmSync(rootDir, { force: true, recursive: true })
+      }
+    })
+
+    it('imports the layout through a path with forward slashes', () => {
+      const { layoutPath, rootDir, tree } = setup()
+      try {
+        const declaration = find(
+          tree,
+          (node) =>
+            node.type === 'ImportDeclaration' &&
+            (node.specifiers as { local: { name: string } }[]).some(
+              (specifier) => specifier.local.name === '_Layout',
+            ),
+        ) as { source: { value: string } }
+        expect(declaration.source.value).toBe(layoutPath.split(path.sep).join('/'))
+      } finally {
+        fs.rmSync(rootDir, { force: true, recursive: true })
+      }
+    })
   })
 })
 
