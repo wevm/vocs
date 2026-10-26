@@ -1,5 +1,22 @@
 # vocs
 
+## 2.12.0
+
+### Minor Changes
+
+- 9e4fbeb: Added OpenAPI `sidebar` options to shape the generated sidebar without editing the spec: `groupItems` adds links inside a tag group (after its Overview link), `tagGroupItems` adds links at the top of an `x-tagGroups` section, `hide` leaves tags or sections out of the sidebar while keeping their pages, and `introduction: false` renders `intro` items at the top level instead of under a generated Introduction entry.
+- 06a7e0f: Fixed the sidebar's active in-page section. It now follows the last linked heading that reached the top of the viewport, so it stays correct when scrolling up or jumping over several sections, ignores hash links to other pages, and matches percent-encoded fragments. Active sidebar links now set `aria-current` (`page` for pages, `location` for in-page sections).
+
+  Added the `useActiveSidebarAnchor` hook so custom navigation can track the same active section.
+
+### Patch Changes
+
+- 71c0c26: Fixed `logoUrl`, `iconUrl` and page feedback when a `basePath` is configured. Root-absolute logo and icon URLs (such as `/logo.svg`) are now served from under the base path, and the feedback widget posts to `{basePath}/api/feedback`. URLs that already include the base path are left as-is.
+- 6f64e49: Stopped sending `codeHighlight.langs` to the browser and included `codeHighlight.engine`. The browser loads grammars on demand, so configured grammars (which can be megabytes, such as Ruby and its embedded languages) no longer bloat the client config, and `engine: 'highlights'` now also applies to client-rendered code blocks.
+- b43a5ff: Bundled Mermaid only for sites with a `mermaid` code block: pages now import the diagram component themselves, so sites without diagrams no longer emit Mermaid's chunks when `mermaid` is installed.
+- ff5d2af: Kept inactive `<Tabs>` panels rendered on the server so their content is in the HTML, and made the page outline skip headings inside hidden tab panels.
+- 68242d0: Stop `theme.css` from wiping the importing site's Tailwind color palette and line heights, and export it as `vocs/styles/theme.css`. The `--color-*` and `--leading-*` resets now live in Vocs's own stylesheet, so sites can `@import 'vocs/styles/theme.css'` after `tailwindcss` and use Vocs tokens (`bg-surface`, `text-heading`, `border-primary`, …) alongside Tailwind's default colors and `leading-*` utilities.
+
 ## 2.11.1
 
 ### Patch Changes
