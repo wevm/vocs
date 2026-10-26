@@ -12,6 +12,7 @@ import { useTopGutterOffset } from '../useTopGutterOffset.js'
 import * as CopyForAi from './CopyForAi.client.js'
 import * as Feedback from './Feedback.client.js'
 import { getHeadingText } from './getHeadingText.js'
+import { getOutlineHeadings } from './getOutlineHeadings.js'
 
 function useOutlineItems(options: { minLevel: number; maxLevel: number }) {
   const { minLevel, maxLevel } = options
@@ -24,12 +25,7 @@ function useOutlineItems(options: { minLevel: number; maxLevel: number }) {
     if (typeof window === 'undefined') return
 
     const scanHeadings = () => {
-      const headingElements = Array.from(
-        document.querySelectorAll('article[data-v-content] :is(h2, h3, h4, h5, h6)[id]'),
-        // Changelog release bodies render as nested `[data-v-content]` inside the
-        // main article; their headings have their own `Versions` outline, so keep
-        // them out of the page outline (otherwise they flood/leak into it).
-      ).filter((element) => !element.closest('[data-v-changelog]'))
+      const headingElements = getOutlineHeadings(document)
       const newItems = headingElements
         .map((element) => {
           const level = Number.parseInt(element.tagName[1] ?? '0', 10)
@@ -66,10 +62,33 @@ function useOutlineItems(options: { minLevel: number; maxLevel: number }) {
     if (!article) return
 
     const observer = new MutationObserver(scanHeadings)
-    observer.observe(article, { childList: true, subtree: true })
+    // Also watch `hidden` so switching tabs (or toggling any hidden content)
+    // re-scans the outline for the headings that are visible.
+    observer.observe(article, {
+      attributeFilter: ['hidden'],
+      attributes: true,
+      childList: true,
+      subtree: true,
+    })
 
     return () => observer.disconnect()
   }, [router.path, minLevel, maxLevel])
+
+  // When the visible headings change (such as after switching tabs), an active
+  // heading that left the outline is replaced by the last heading above the
+  // observer's band, or the first heading when none has been scrolled past.
+  React.useEffect(() => {
+    if (typeof window === 'undefined' || items.length === 0) return
+    setActiveId((current) => {
+      if (current && items.some((item) => item.id === current)) return current
+      let id = items[0]?.id ?? null
+      for (const item of items) {
+        const element = document.getElementById(item.id)
+        if (element && element.getBoundingClientRect().top <= window.innerHeight * 0.2) id = item.id
+      }
+      return id
+    })
+  }, [items])
 
   React.useEffect(() => {
     if (typeof window === 'undefined') return

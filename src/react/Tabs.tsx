@@ -1,6 +1,7 @@
 'use client'
 
 import { Tabs as BaseTabs } from '@base-ui/react/tabs'
+import { cx } from 'cva'
 import { useQueryState } from 'nuqs'
 import * as React from 'react'
 
@@ -49,10 +50,13 @@ export function Tabs(props: Tabs.Props) {
     if (!params.has(stateKey) && tabs[0]?.value) setTab(tabs[0].value)
   }, [stateKey, tabs, setTab])
 
-  if (!hasMounted) return null
+  // Server rendering has no effects, so render every panel there (with the first
+  // tab active) and switch to the URL's tab after mount, which keeps hydration
+  // consistent and puts all tab content in the HTML.
+  const value = hasMounted ? tab : (tabs[0]?.value ?? '')
 
   return (
-    <BaseTabs.Root onValueChange={(value) => setTab(value)} value={tab}>
+    <BaseTabs.Root onValueChange={(value) => setTab(value)} value={value}>
       <BaseTabs.List className="vocs:flex vocs:border-b vocs:border-primary">
         {tabs.map((t) => (
           <BaseTabs.Tab
@@ -77,10 +81,19 @@ export declare namespace Tabs {
 }
 
 export function Tab(props: Tab.Props) {
-  const { title, children } = props
+  const { className, title, children } = props
   const value = toKebabCase(title)
   return (
-    <BaseTabs.Panel className="vocs:pt-4" value={value}>
+    // Inactive panels stay mounted (hidden) so their state survives tab switches,
+    // and render as page content so Markdown blocks and headings inside a tab
+    // get the same spacing and heading styles as the rest of the page.
+    <BaseTabs.Panel
+      className={cx('vocs:pt-4 vocs:space-y-6', className)}
+      data-v-content
+      keepMounted
+      render={<article />}
+      value={value}
+    >
       {children}
     </BaseTabs.Panel>
   )
@@ -89,6 +102,7 @@ export function Tab(props: Tab.Props) {
 export declare namespace Tab {
   type Props = {
     children: React.ReactNode
+    className?: string | undefined
     title: string
   }
 }
