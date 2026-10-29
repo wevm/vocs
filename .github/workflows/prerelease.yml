@@ -46,7 +46,7 @@ jobs:
           submodules: recursive
 
       - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
+        uses: wevm/actions/vendor/dtolnay/rust-toolchain/rev-b725eda52536@73e899a58d51092d694fbaf94b7a1d8c09bfea28
         with:
           targets: ${{ matrix.target }}
 

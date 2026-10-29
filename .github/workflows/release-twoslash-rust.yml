@@ -12,7 +12,7 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v4
-      - uses: rust-lang/crates-io-auth-action@v1
+      - uses: wevm/actions/vendor/rust-lang/crates-io-auth-action/rev-3268eb413133@73e899a58d51092d694fbaf94b7a1d8c09bfea28
         id: auth
       - run: cargo publish
         working-directory: twoslash-rust
