@@ -56,7 +56,7 @@ jobs:
           components: rustfmt
 
       - name: Cache Rust
-        uses: wevm/actions/vendor/Swatinem/rust-cache/v2.8.2@73e899a58d51092d694fbaf94b7a1d8c09bfea28 # v2
+        uses: wevm/actions/vendor/Swatinem/rust-cache/v2.8.2@73e899a58d51092d694fbaf94b7a1d8c09bfea28
         with:
           workspaces: twoslash-rust
 
@@ -86,7 +86,7 @@ jobs:
         uses: wevm/actions/vendor/dtolnay/rust-toolchain/rev-b725eda52536@73e899a58d51092d694fbaf94b7a1d8c09bfea28
 
       - name: Cache Rust
-        uses: wevm/actions/vendor/Swatinem/rust-cache/v2.8.2@73e899a58d51092d694fbaf94b7a1d8c09bfea28 # v2
+        uses: wevm/actions/vendor/Swatinem/rust-cache/v2.8.2@73e899a58d51092d694fbaf94b7a1d8c09bfea28
         with:
           workspaces: twoslash-rust
 
