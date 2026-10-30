@@ -83,7 +83,7 @@ jobs:
 
       - name: PR or publish
         id: changesets
-        uses: changesets/action@v1
+        uses: wevm/actions/vendor/changesets/action/wagmi@73e899a58d51092d694fbaf94b7a1d8c09bfea28
         with:
           title: 'chore: version packages'
           commit: 'chore: version packages'
