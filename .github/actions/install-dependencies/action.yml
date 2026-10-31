@@ -5,7 +5,7 @@ runs:
   using: 'composite'
   steps:
     - name: Set up pnpm
-      uses: wevm/actions/vendor/pnpm/action-setup/v6@73e899a58d51092d694fbaf94b7a1d8c09bfea28
+      uses: wevm/actions/vendor/pnpm/action-setup/v6@8963daf30237417f873c8e2f17e3bf9415e3a7b9
 
     - name: Set up Node
       uses: actions/setup-node@v4

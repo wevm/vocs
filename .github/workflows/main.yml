@@ -41,7 +41,7 @@ jobs:
           submodules: recursive
 
       - name: Install Rust
-        uses: wevm/actions/vendor/dtolnay/rust-toolchain/rev-b725eda52536@73e899a58d51092d694fbaf94b7a1d8c09bfea28
+        uses: wevm/actions/vendor/dtolnay/rust-toolchain/rev-b725eda52536@8963daf30237417f873c8e2f17e3bf9415e3a7b9
         with:
           targets: ${{ matrix.target }}
 
@@ -83,7 +83,7 @@ jobs:
 
       - name: PR or publish
         id: changesets
-        uses: wevm/actions/vendor/changesets/action/wagmi@73e899a58d51092d694fbaf94b7a1d8c09bfea28
+        uses: wevm/actions/vendor/changesets/action/wagmi@8963daf30237417f873c8e2f17e3bf9415e3a7b9
         with:
           title: 'chore: version packages'
           commit: 'chore: version packages'
