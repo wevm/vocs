@@ -27,7 +27,7 @@ jobs:
         working-directory: twoslash-rust
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           submodules: recursive
 
@@ -53,7 +53,7 @@ jobs:
         shell: bash
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: bindings-${{ matrix.target }}
           path: twoslash-rust/target/${{ matrix.target }}/release/twoslash-rust
@@ -67,17 +67,17 @@ jobs:
         working-directory: twoslash-rust
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: wevm/actions/vendor/pnpm/action-setup/v6@8963daf30237417f873c8e2f17e3bf9415e3a7b9
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           registry-url: 'https://registry.npmjs.org'
 
       - name: Download all artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: twoslash-rust/artifacts
 
