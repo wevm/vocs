@@ -137,6 +137,8 @@ function CodeGroupPanels({ items }: { items: CodeGroupItem[] }) {
 
 function CodeBlock({ node }: { node: React.ReactNode }): React.ReactElement | null {
   if (!React.isValidElement(node)) return null
+  // The `<pre>` with its buttons, from `CodeBlock.mdx.tsx`
+  if ('data-v-code-block' in (node.props as React.ComponentProps<'div'>)) return node
   if (node.type === 'pre') return node
   const children = React.Children.toArray((node.props as { children?: React.ReactNode })?.children)
   for (const child of children) {
