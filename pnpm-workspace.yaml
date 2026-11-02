@@ -6,6 +6,12 @@ packages:
   - twoslash-rust
   - twoslash-rust/npm/*
 
+allowBuilds:
+  es5-ext: false
+  esbuild: false
+  simple-git-hooks: false
+  vue-demi: false
+
 catalog:
   '@biomejs/biome': ^2.3.10
   '@changesets/cli': ^2.29.8

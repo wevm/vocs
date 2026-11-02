@@ -4,14 +4,8 @@ description: 'Prepare repository and all dependencies'
 runs:
   using: 'composite'
   steps:
-    - name: Set up pnpm
-      uses: wevm/actions/vendor/pnpm/action-setup/v6@8963daf30237417f873c8e2f17e3bf9415e3a7b9
-
-    - name: Set up Node
-      uses: actions/setup-node@v4
+    - name: Install dependencies
+      uses: wevm/actions/.github/actions/pnpm@b518cf981b50a4c745a8b7335fc693f34b108a75 # v1.0.1
       with:
         node-version: '24.22.1'
-
-    - name: Install dependencies
-      shell: bash
-      run: pnpm install
+        skip-cache: 'true'
