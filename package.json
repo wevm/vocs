@@ -41,7 +41,7 @@
     "waku": "catalog:",
     "zile": "catalog:"
   },
-  "packageManager": "pnpm@10.25.0",
+  "packageManager": "pnpm@12.16.1",
   "devEngines": {
     "runtime": {
       "name": "node",
