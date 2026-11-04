@@ -10,7 +10,7 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
@@ -29,7 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Clone repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
@@ -48,7 +48,7 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Install Rust
         uses: wevm/actions/vendor/dtolnay/rust-toolchain/rev-b725eda52536@8963daf30237417f873c8e2f17e3bf9415e3a7b9
@@ -77,7 +77,7 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
