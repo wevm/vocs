@@ -433,10 +433,34 @@ export function reconstructDocs(
   return result || undefined
 }
 
+/** Twoslash today emits `{@link` with newlines around the target (`\n{@link \nX\n}\n`). */
+const JOINED_JSDOC_LINK = /\n?\{@(link|linkcode|linkplain) \n([^}]*)\n\}\n?/g
+/** Inline form as written in source / `@example` text. */
+const INLINE_JSDOC_LINK = /\{@(link|linkcode|linkplain)\s+([^}]*)\}/g
+
+function formatJsdocLink(tag: string, inner: string): string {
+  const [, target = '', text = ''] = /^\s*([^\s|]+)\s*\|?\s*([\s\S]*?)\s*$/.exec(inner) ?? []
+  if (/^[a-z][\w+.-]*:\/\//i.test(target)) {
+    return text ? `[${text}](${target})` : `<${target}>`
+  }
+  const label = text || target
+  return tag === 'linkcode' || (tag === 'link' && !text) ? `\`${label}\`` : label
+}
+
+/** Rewrites `{@link}` / `{@linkcode}` / `{@linkplain}` to markdown instead of deleting them. */
+export function rewriteJsdocLinks(text: string): string {
+  return text
+    // Joined twoslash form ate the surrounding newlines — keep a separating space.
+    .replace(JOINED_JSDOC_LINK, (_full, tag: string, inner: string) => ` ${formatJsdocLink(tag, inner)}`)
+    .replace(INLINE_JSDOC_LINK, (_full, tag: string, inner: string) => formatJsdocLink(tag, inner))
+    .replace(/ +([.,;:!?])/g, '$1')
+    .replace(/ {2,}/g, ' ')
+}
+
 function processHoverDocs(docs: string, markdownPatterns: RegExp[]): string {
-  let processed = docs
-    // Remove inline JSDoc tags like {@link}
-    .replace(/\{@\w+\s+[^}]*\}/g, '')
+  let processed = rewriteJsdocLinks(docs)
+    // Drop other inline JSDoc tags (not link/linkcode/linkplain — already rewritten).
+    .replace(/\{@(?!link(?:code|plain)?\b)\w+\s+[^}]*\}/g, '')
     // Convert Rust-style reference links [`Foo`] to inline links if URL follows
     // e.g., [`Provider`](url) is already valid markdown
     // but [`Provider`] alone should become `Provider` (code only, no broken link)
