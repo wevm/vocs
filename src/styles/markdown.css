@@ -665,6 +665,20 @@ pre[data-v] {
   }
 }
 
+/* Holds the `<pre>` and its buttons, so it takes the margins the `<pre>` would have. */
+[data-v-code-block] {
+  /* biome-ignore lint/correctness/noUnknownFunction: _ */
+  @media (width <= theme(--breakpoint-md)) {
+    & {
+      @apply vocs:-mx-4;
+    }
+
+    & > pre[data-v] {
+      @apply vocs:mx-0;
+    }
+  }
+}
+
 :not(.shiki) > code {
   @apply vocs:px-code-block-px;
 }
@@ -893,8 +907,12 @@ pre[data-v-shell] {
     @apply vocs:select-none vocs:opacity-50;
   }
 
+  & [data-v-shell-copy-track] {
+    @apply vocs:absolute vocs:inset-0 vocs:flex vocs:items-center vocs:justify-end vocs:pointer-events-none;
+  }
+
   & [data-v-shell-copy] {
-    @apply vocs:absolute vocs:right-2.5 vocs:top-1/2 vocs:-translate-y-1/2 vocs:p-1 vocs:rounded-md vocs:opacity-0 vocs:transition-opacity vocs:duration-150 vocs:text-secondary vocs:hover:text-heading vocs:cursor-pointer;
+    @apply vocs:sticky vocs:right-2.5 vocs:mr-2.5 vocs:p-1 vocs:rounded-md vocs:opacity-0 vocs:transition-opacity vocs:duration-150 vocs:text-secondary vocs:hover:text-heading vocs:cursor-pointer vocs:pointer-events-auto;
   }
 
   & .line[data-v-shell-line]:hover [data-v-shell-copy],
