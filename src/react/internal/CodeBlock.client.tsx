@@ -5,20 +5,27 @@ import LucideCheck from '~icons/lucide/check'
 import LucideClipboard from '~icons/lucide/clipboard'
 import LucideWrapText from '~icons/lucide/wrap-text'
 
+/** Finds the `<pre>` a code block button belongs to (see `CodeBlock.mdx.tsx`). */
+function getPre(button: HTMLElement | null) {
+  return (
+    button?.closest('[data-v-code-block]')?.querySelector<HTMLPreElement>(':scope > pre') ?? null
+  )
+}
+
 export function WrapButton({ defaultWrapped = false }: WrapButton.Props) {
   const buttonRef = React.useRef<HTMLButtonElement>(null)
   const [wrapped, setWrapped] = React.useState(defaultWrapped)
   const [singleLine, setSingleLine] = React.useState(false)
 
   React.useEffect(() => {
-    const pre = buttonRef.current?.parentElement as HTMLPreElement | null
+    const pre = getPre(buttonRef.current)
     if (!pre) return
     const lineCount = pre.querySelectorAll('.line').length
     setSingleLine(lineCount <= 1)
   }, [])
 
   const toggle = React.useCallback(() => {
-    const pre = buttonRef.current?.parentElement as HTMLPreElement | null
+    const pre = getPre(buttonRef.current)
     if (!pre) return
     const next = !wrapped
     setWrapped(next)
@@ -55,7 +62,7 @@ export function CopyButton() {
   const [hasShellPrompts, setHasShellPrompts] = React.useState(false)
 
   React.useEffect(() => {
-    const pre = buttonRef.current?.parentElement as HTMLPreElement | null
+    const pre = getPre(buttonRef.current)
     if (!pre) return
     const lineCount = pre.querySelectorAll('.line').length
     setSingleLine(lineCount <= 1)
@@ -71,7 +78,7 @@ export function CopyButton() {
   }, [copied])
 
   const copy = React.useCallback(() => {
-    const pre = buttonRef.current?.parentElement as HTMLPreElement | null
+    const pre = getPre(buttonRef.current)
     if (!pre) return
 
     const node = pre.cloneNode(true) as HTMLPreElement
@@ -123,10 +130,14 @@ export function ShellLineCopyButtons() {
     if (!pre) return
     const shellLines = Array.from(pre.querySelectorAll('.line[data-v-shell-line]')) as HTMLElement[]
 
-    const buttons: HTMLButtonElement[] = []
+    const tracks: HTMLSpanElement[] = []
 
     for (const line of shellLines) {
       if (line.querySelector('[data-v-shell-copy]')) continue
+
+      // Spans the whole line, so the button can stick to the visible edge when the code scrolls
+      const track = document.createElement('span')
+      track.setAttribute('data-v-shell-copy-track', '')
 
       const button = document.createElement('button')
       button.setAttribute('aria-label', 'Copy command')
@@ -141,7 +152,7 @@ export function ShellLineCopyButtons() {
       button.addEventListener('click', () => {
         const clone = line.cloneNode(true) as HTMLElement
         clone.querySelector('[data-v-shell-prompt]')?.remove()
-        clone.querySelector('[data-v-shell-copy]')?.remove()
+        clone.querySelector('[data-v-shell-copy-track]')?.remove()
         let text = clone.textContent?.trim() ?? ''
 
         // Collect continuation lines (lines after backslash continuations)
@@ -153,7 +164,7 @@ export function ShellLineCopyButtons() {
             if (!next) continue
             if (next.hasAttribute('data-v-shell-line')) break
             const nextClone = next.cloneNode(true) as HTMLElement
-            nextClone.querySelector('[data-v-shell-copy]')?.remove()
+            nextClone.querySelector('[data-v-shell-copy-track]')?.remove()
             const nextText = nextClone.textContent ?? ''
             if (!nextText.trim()) break
             text += '\n' + nextText
@@ -181,12 +192,13 @@ export function ShellLineCopyButtons() {
         }, 1_000)
       })
 
-      line.appendChild(button)
-      buttons.push(button)
+      track.appendChild(button)
+      line.appendChild(track)
+      tracks.push(track)
     }
 
     return () => {
-      for (const btn of buttons) btn.remove()
+      for (const track of tracks) track.remove()
     }
   }, [])
 
