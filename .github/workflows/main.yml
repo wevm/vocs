@@ -36,12 +36,12 @@ jobs:
         working-directory: twoslash-rust
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           submodules: recursive
 
       - name: Install Rust
-        uses: wevm/actions/vendor/dtolnay/rust-toolchain/rev-b725eda52536@8963daf30237417f873c8e2f17e3bf9415e3a7b9
+        uses: wevm/actions/vendor/dtolnay/rust-toolchain/rev-b725eda52536@b518cf981b50a4c745a8b7335fc693f34b108a75
         with:
           targets: ${{ matrix.target }}
 
@@ -52,7 +52,7 @@ jobs:
         run: strip target/${{ matrix.target }}/release/twoslash-rust
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: bindings-${{ matrix.target }}
           path: twoslash-rust/target/${{ matrix.target }}/release/twoslash-rust
@@ -71,19 +71,19 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
 
       - name: Download all artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: twoslash-rust/artifacts
 
       - name: PR or publish
         id: changesets
-        uses: wevm/actions/vendor/changesets/action/v1@6d24d44bb98809270f8d2a19d584f29aeb384be5
+        uses: wevm/actions/vendor/changesets/action/v1@31d7c5bc5f75932a367cf341ca5e26818eb9ec9d
         with:
           title: 'chore: version packages'
           commit: 'chore: version packages'
