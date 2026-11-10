@@ -865,6 +865,67 @@ Child prose.
     expect(result.short).toContain('- [Component](/component.md)')
   })
 
+  test('expands code includes from snippet files and virtual files', async () => {
+    const rootDir = fs.mkdtempSync(path.join(os.tmpdir(), 'vocs-llms-includes-'))
+
+    try {
+      fs.mkdirSync(path.join(rootDir, 'src/snippets'), { recursive: true })
+      fs.writeFileSync(
+        path.join(rootDir, 'src/snippets/forge-test.sh'),
+        `// [!region command]
+$ forge test
+// [!endregion command]
+// [!region output]
+Ran 2 tests
+// [!endregion output]
+`,
+      )
+
+      const config = Config.define({ rootDir })
+      const { rehypePlugins, remarkPlugins } = getCompileOptions('txt', config)
+      const result = await buildLlmsContent({
+        pages: [
+          {
+            path: '/testing',
+            content: `---
+title: Testing
+---
+
+\`\`\`sh
+// [!include ~/snippets/forge-test.sh:command]
+\`\`\`
+
+\`\`\`ts [config.ts]
+export const value = 1
+\`\`\`
+
+\`\`\`ts
+// [!include config.ts]
+\`\`\`
+
+\`\`\`sh
+// [!include ~/../outside.sh]
+\`\`\``,
+          },
+        ],
+        title: 'My Docs',
+        rehypePlugins,
+        remarkPlugins,
+      })
+
+      const content = result.results[0]?.content
+      expect(content).toContain('```sh\n$ forge test\n```')
+      expect(content).not.toContain('Ran 2 tests')
+      expect(content).toContain('```ts\nexport const value = 1\n```')
+      expect(content).not.toContain('[!include config.ts]')
+      expect(content).not.toContain('[!include ~/snippets')
+      // Includes outside the source directory stay unexpanded.
+      expect(content).toContain('// [!include ~/../outside.sh]')
+    } finally {
+      fs.rmSync(rootDir, { force: true, recursive: true })
+    }
+  })
+
   test('strips inline twoslash cache comments from code blocks', async () => {
     const result = await buildLlmsContent({
       pages: [

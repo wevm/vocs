@@ -326,6 +326,7 @@ export function getCompileOptions(
           remarkStripFrontmatter,
           remarkStripJs,
           remarkStripInlineCache,
+          [remarkInclude, { rootDir, srcDir }] as Pluggable,
           // Parse directive syntax (`::name`/`:::name`) so data-backed
           // directives can render real markdown below. Unhandled directives
           // round-trip back to their source form on stringify.
@@ -1568,6 +1569,32 @@ export function remarkFilename(): remarkFilename.ReturnType {
 }
 
 export declare namespace remarkFilename {
+  type ReturnType = (tree: MdAst.Root) => void
+}
+
+/**
+ * Remark plugin that expands `// [!include ...]` markers in code blocks for
+ * Markdown output (llms.txt, `.md` pages, search).
+ *
+ * The React build expands them while highlighting (`notationInclude` for `~/`
+ * files, `remarkFilename` for virtual files), which Markdown output does not
+ * run, so the markers would otherwise be published as-is.
+ */
+export function remarkInclude(options: remarkInclude.Options): remarkInclude.ReturnType {
+  const getPhysicalSource = Snippets.createPhysicalSourceGetter(options)
+  return (tree: MdAst.Root) => {
+    const codeNodes = getCodeNodes(tree)
+    const getSource = Snippets.combineSourceGetters(
+      getPhysicalSource,
+      Snippets.createVirtualSourceGetter({ virtualFiles: getVirtualFiles(codeNodes) }),
+    )
+    for (const node of codeNodes)
+      node.value = Snippets.processIncludes({ code: node.value, getSource })
+  }
+}
+
+export declare namespace remarkInclude {
+  type Options = { rootDir: string; srcDir: string }
   type ReturnType = (tree: MdAst.Root) => void
 }
 
