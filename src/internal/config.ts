@@ -940,7 +940,14 @@ export function define(config: define.Options = {}): Config {
         sol: 'solidity',
         ...(codeHighlight?.langAlias ?? {}),
       },
-      langs: codeHighlight?.langs ?? (Langs.infer({ rootDir, srcDir, pagesDir }) as never),
+      langs:
+        codeHighlight?.langs ??
+        (Langs.infer({
+          langAlias: codeHighlight?.langAlias,
+          rootDir,
+          srcDir,
+          pagesDir,
+        }) as never),
       themes: {
         light: 'github-light',
         dark: 'github-dark-dimmed',
