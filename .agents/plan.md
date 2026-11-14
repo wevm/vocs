@@ -106,7 +106,7 @@ Goal: a prompt becomes a streamed, refinable page with a permalink.
 - [x] Twoslash failures return to the agent as a failed render.
 - [ ] Server rendering of whole blocks for permalinks, and `vocs/rsc` `Blocks`. `machines.render` lands here: a generated block renders inside one awaited page tool call, which has no lifecycle of its own.
 - [x] Tabs and copy buttons on permalinks: one inline module, `Enhance.script`, with no React and no extra request.
-- [ ] Hydration of registered demos on permalinks.
+- [x] Registered demos: `demos` in the config, `virtual:vocs/demos` for the reader's page, and server-rendered islands that `virtual:vocs/islands` hydrates on permalinks.
 - [x] `Storage`: `Storage.cloudflare` and `Storage.memory`. Saved pages, `<Page />`, and server-rendered permalinks that load no WebAssembly and send no request after the document.
 - [ ] Mermaid on permalinks: render diagrams in the handler, or at save, so a permalink shows the SVG instead of the source.
 - [ ] A chat reply can become a page.
@@ -193,9 +193,9 @@ Each budget is set in the phase that first measures it. CI fails when a budget i
 | Time to first token, warm, real gateway  | Phase 0 | To be measured with Cloudflare credentials                                                                                                                           |
 | Worker bundle, gzip                      | Phase 0 | 3 MB, every Worker module (measured 1.85 MB in spike B, and 2.52 MB in Phase 2 with Shiki, Twoslash, and a 0.81 MB `viem` type snapshot)                             |
 | Warm block render in a Worker            | Phase 0 | Shiki 20 ms, Twoslash 250 ms (measured 7 ms and 155 ms)                                                                                                              |
-| Page entry JavaScript with React, gzip   | Phase 1 | 180 kB (measured 160 kB). Raised from 100 kB in Phase 2, because the Lexical composer adds about 75 kB                                                               |
+| Page entry JavaScript with React, gzip   | Phase 1 | 180 kB, the entry and every chunk it imports statically (measured 164 kB). Raised from 100 kB in Phase 2, because the Lexical composer adds about 75 kB              |
 | Diagram compiler module, Brotli          | Phase 2 | 700 kB (measured 513 kB). Loads on the first `mermaid` block only                                                                                                    |
-| Permalink time to first byte             | Phase 2 | 200 ms warm (measured in local workerd: 53 ms for the first permalink of an isolate, 6 ms warm median over 10 requests). Not a CI gate yet                           |
+| Permalink time to first byte             | Phase 2 | 200 ms warm (measured in local workerd: 53 ms for the first permalink of an isolate, 6 ms warm median over 10 requests, and 7 ms with a demo). Not a CI gate yet     |
 
 ## Risks
 
