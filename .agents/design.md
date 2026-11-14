@@ -18,15 +18,11 @@ Hand-written pages are limited to the visual index and concept posts. Everything
 
 ## Public API
 
-The package ships these entrypoints. Each adapter kind has its own entrypoint, so a site bundles only the backends it imports.
+The package ships these entrypoints. Adapters are namespaces on the root entrypoint: `Source`, `Search`, `Model`, and `Storage`. The package sets `sideEffects: false`, so a site bundles only the backends it calls.
 
 | Entrypoint                           | Exports                                                                                                                                      | Runs in                            |
 | ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
-| `vocs`                               | `defineConfig`, `type Config`, `type Block`, `type Reader`                                                                                   | Anywhere                           |
-| `vocs/sources`                       | `files`, `github`, `googleDocs`, `url`, `openapi`, `mcp`, `endpoint`, `from`, `type Source`                                                  | Handler and build                  |
-| `vocs/search`                        | `cloudflare`, `vectorize`, `memory`, `from`, `type Search`                                                                                   | Handler and build                  |
-| `vocs/models`                        | `cloudflare`, `from`, `type Model`                                                                                                           | Handler                            |
-| `vocs/storage`                       | `cloudflare`, `memory`, `from`, `type Storage`                                                                                               | Handler                            |
+| `vocs`                               | `defineConfig`, `Source`, `Search`, `Model`, `Storage`, `type Config`, `type Block`, `type Reader`                                           | Anywhere                           |
 | `vocs/server`                        | `Handler`                                                                                                                                    | Any `fetch` runtime                |
 | `vocs/client`                        | `Client` (headless agent, turns, pages, saved pages)                                                                                         | Browser                            |
 | `vocs/react`                         | `Docs`, `Ask`, `Page`, `Blocks`, and the block components (`Callout`, `Card`, `Cards`, `Code`, `CodeGroup`, `FileTree`, `Steps`, `Terminal`) | Browser and SSR                    |
@@ -39,11 +35,7 @@ The package ships these entrypoints. Each adapter kind has its own entrypoint, s
 
 ```ts
 // vocs.config.ts
-import { defineConfig } from 'vocs'
-import * as Model from 'vocs/models'
-import * as Search from 'vocs/search'
-import * as Source from 'vocs/sources'
-import * as Storage from 'vocs/storage'
+import { defineConfig, Model, Search, Source, Storage } from 'vocs'
 
 export default defineConfig({
   title: 'Tempo',
@@ -69,7 +61,7 @@ export default defineConfig({
 Every adapter is a plain object with a `type` literal and async operations. Each kind has a `from` factory for custom backends. Optional capabilities are optional operations.
 
 ```ts
-// vocs/sources
+// Source
 type Source = {
   type: string // 'github'
   name: string
@@ -82,7 +74,7 @@ type Source = {
   tools?(context: Context): Promise<readonly Tool[]> // actions, such as MCP tools
 }
 
-// vocs/search
+// Search
 type Search = {
   type: string
   index?(
@@ -98,14 +90,14 @@ type Search = {
   status?(context: Context): Promise<{ state: 'failed' | 'indexing' | 'ready' }>
 }
 
-// vocs/models
+// Model
 type Model = {
   type: string
   models: readonly string[] // the only model IDs the gateway forwards
   complete(request: Model.Request, context: Context): Promise<Response> // a streamed completion
 }
 
-// vocs/storage
+// Storage
 type Storage = {
   type: string
   delete(key: string, context: Context): Promise<void>
@@ -125,21 +117,17 @@ type Context = {
 }
 ```
 
-| Entrypoint     | Factory                                     | Backend                                                      |
-| -------------- | ------------------------------------------- | ------------------------------------------------------------ |
-| `vocs/sources` | `files({ include, exclude? })`              | Files in the repository                                      |
-|                | `github({ repo, ref?, paths? })`            | A GitHub repository, pinned at a commit in `snapshot` mode   |
-|                | `googleDocs({ folder })`                    | Drive export as `text/markdown`                              |
-|                | `url({ url })`                              | One URL, such as another site's `llms.txt`                   |
-|                | `openapi({ url })`                          | One file per operation                                       |
-|                | `mcp({ name, url })`                        | Resources as files and tools as agent tools                  |
-|                | `endpoint({ name, url, schema })`           | One typed tool, such as an API called with the reader's key  |
-| `vocs/search`  | `cloudflare({ instance })`                  | Cloudflare AI Search, built-in storage through the Items API |
-|                | `vectorize({ index, embedding, reranker })` | Workers AI embeddings, Vectorize, Workers AI reranker        |
-|                | `memory()`                                  | A vector index packed at build, no service                   |
-| `vocs/models`  | `cloudflare({ gateway, models })`           | Cloudflare AI Gateway                                        |
-| `vocs/storage` | `cloudflare({ binding })`                   | Workers KV                                                   |
-|                | `memory()`                                  | Process memory, for development and tests                    |
+| Namespace | Factory                                     | Backend                                                     |
+| --------- | ------------------------------------------- | ----------------------------------------------------------- |
+|           | `github({ repo, ref?, paths? })`            | A GitHub repository, pinned at a commit in `snapshot` mode  |
+|           | `googleDocs({ folder })`                    | Drive export as `text/markdown`                             |
+|           | `url({ url })`                              | One URL, such as another site's `llms.txt`                  |
+|           | `openapi({ url })`                          | One file per operation                                      |
+|           | `mcp({ name, url })`                        | Resources as files and tools as agent tools                 |
+|           | `endpoint({ name, url, schema })`           | One typed tool, such as an API called with the reader's key |
+|           | `vectorize({ index, embedding, reranker })` | Workers AI embeddings, Vectorize, Workers AI reranker       |
+|           | `memory()`                                  | A vector index packed at build, no service                  |
+|           | `memory()`                                  | Process memory, for development and tests                   |
 
 ### Server
 
@@ -314,9 +302,17 @@ Every element is targetable with plain CSS. Three layers cover most needs:
 ```
 
 - The default theme sits in `@layer vocs`, so unlayered host CSS wins.
-- Rendered markup has no utility classes. Tailwind users target parts with variants such as `data-[vocs=callout]:rounded-none`.
+- Generated class names are private and change between releases. Host CSS targets `data-vocs` attributes, never classes. Tailwind users target parts with variants such as `data-[vocs=callout]:rounded-none`.
 - Server-rendered HTML carries the same attributes.
 - Quick mode loads `src/styles.css` when it exists.
+
+### Authoring with zyzz
+
+Vocs authors its own styles with [zyzz](https://zyzz.style): typed `style()` and `variants()` definitions in a `namespace styles` beside each component, tokens from one `defineVars` set, and `layers: ['vocs']` in `src/zyzz.config.ts`.
+
+- The package build compiles every style ahead of time. `vocs/styles.css` is static CSS, and `vocs/react` applies precompiled class names. Hosts, including hosts that use Tailwind or their own zyzz config, need no zyzz setup.
+- The `zyzz/oxlint` plugin runs in `pnpm check`. It enforces valid styles, no conflicting `className` or `style` props, no unused styles, logical properties, and tokens for colors, radii, and fonts.
+- zyzz names its custom properties `--z-<category>-<key>`, such as `--z-radius-md` (verified with `zyzz build` at 0.0.44). The public tokens stay `--vocs-*`. Phase 2 decides how zyzz tokens read them, and how they avoid collisions with a host's own `--z-*` properties.
 
 ## Lifecycles
 
@@ -339,7 +335,8 @@ Each of these is an XState machine with named states for success, failure, and c
 | Who pays for inference | The site, through its own gateway on Cloudflare AI Gateway                                              |
 | Hand-written pages     | Visual index and concept posts only                                                                     |
 | Source modes           | Every source supports `snapshot` and `runtime`                                                          |
-| Adapters               | One entrypoint per kind: `vocs/sources`, `vocs/search`, `vocs/models`, `vocs/storage`                   |
+| Adapters               | Namespaces on the root entrypoint: `Source`, `Search`, `Model`, `Storage`                               |
+| Styles                 | Authored with zyzz, compiled ahead of time to static CSS. Hosts never need zyzz.                        |
 | Core                   | A web-standard handler, with a client, React components, a Vite plugin, and a CLI around it             |
 | State                  | XState machines with enumerated states, no boolean flags                                                |
 | Quick-mode framework   | A thin layer on `@vitejs/plugin-rsc` and `@cloudflare/vite-plugin`, with TanStack Start as the fallback |

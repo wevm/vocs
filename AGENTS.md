@@ -14,7 +14,7 @@ Adapted from the general sections of these guidance files, retrieved 2026-11-14.
 - Vocs is documentation that readers talk to. A [nanocode](https://nanocode.xyz) agent runs in the reader's page, reads the site's sources, and answers in chat or generates a page of typed blocks. `.agents/design.md` holds the design and `.agents/plan.md` holds the phases and their acceptance gates.
 - The core is a web-standard handler, `(Request) => Response`, in `vocs/server`. The CLI, the Vite plugin, the React components, and the quick-mode app are layers around it. The handler runs anywhere `fetch` runs.
 - Two consumption modes share one core. Quick mode is a `package.json` and a `vocs.config.ts`. Custom mode embeds `vocs/server`, `vocs/client`, and `vocs/react` in a host app. A feature is done when it works in both modes.
-- Adapters are public entrypoints, one per kind: `vocs/sources`, `vocs/search`, `vocs/models`, and `vocs/storage`. Consumers import them as namespaces, such as `import * as Source from 'vocs/sources'`.
+- Adapters are namespaces on the root entrypoint: `Source`, `Search`, `Model`, and `Storage`. Consumers call them as `Source.github(...)` after `import { Source } from 'vocs'`.
 - This branch is a rewrite from a fresh slate. Vocs v1 and the Vocs on `main` are prior art only. Do not port, copy, or mirror their code, APIs, or file layout. Read them only to learn which problems exist.
 - The model never runs arbitrary code in the reader's page. It emits typed blocks, and a `demo` block names only a component the site registered.
 - Every rendered element is public styling API: a `data-vocs` name, `data-vocs-part` names, state attributes, and `--vocs-*` tokens. Change them only with a semver-major release.
@@ -89,7 +89,7 @@ Adapted from the general sections of these guidance files, retrieved 2026-11-14.
 
 - Use an adapter when one contract has several interchangeable backends: sources, search, models, and storage. Do not add an adapter layer for a single implementation.
 - An adapter is a plain object with a `type` literal and async operations. Build it with a factory named for the backend, such as `Search.cloudflare(options)`, and provide `from(adapter)` for custom backends.
-- Each adapter kind has its own entrypoint (`src/sources/index.ts` for `vocs/sources`), with one module per backend. A consumer that imports one backend bundles no other backend.
+- Each adapter kind is one module re-exported from `src/index.ts` as a namespace (`export * as Source from './Source.js'`), with one module per backend under `src/internal/`. A site that calls one backend bundles no other backend, and the bundle budget checks it.
 - Type the contract by the smallest capability the core consumes, not by a concrete SDK client.
 - Adapters receive the request context (`env`, reader) on every call. They read secrets and bindings per call and never capture them at module scope.
 - Optional capabilities are optional operations, such as `index?` on a search adapter. Never signal a capability with a boolean.
@@ -217,7 +217,7 @@ Lifecycles in Vocs that are machines from the start: the agent turn, the agent m
 - Await or return every promise. Mark `void` only with a reason.
 - Read a request body once. Forward bodies as streams.
 - Reach services through bindings, not public URLs, when the handler runs on Workers.
-- Code in `vocs`, `vocs/server`, and the adapter entrypoints runs on Workers, Node, Bun, and Deno. Only `vocs/vite` and the CLI may import Node built-ins.
+- Code in `vocs` and `vocs/server` runs on Workers, Node, Bun, and Deno. Only `vocs/vite` and the CLI may import Node built-ins.
 
 ## Performance
 
@@ -247,10 +247,14 @@ Lifecycles in Vocs that are machines from the start: the agent turn, the agent m
 
 ## Styling Conventions
 
+- Author styles with zyzz: `style()` and `variants()` in a `namespace styles` at the bottom of the component module, with helpers from `src/zyzz.config.ts`. Handwritten stylesheets, CSS modules, Tailwind, and inline `style` objects are banned.
+- Apply styles by spreading the call (`{...styles.callout()}`). Pass `className` and `style` into the call, and compose with `cx`. Never put `className` or a second style spread beside it.
 - Every element carries a stable `data-vocs` name. Its pieces carry `data-vocs-part`, and its states carry attributes such as `data-state` and `data-kind`. State attributes take enumerated values, never `true` and `false`.
-- Read every color, font, radius, and space from a `--vocs-*` custom property.
-- Put the default theme in `@layer vocs`, so unlayered host CSS wins without `!important`.
-- Do not put utility classes in rendered markup. Server-rendered HTML carries the same attributes as client-rendered HTML.
+- Read every color, font, radius, and space from a zyzz token. The tokens resolve to the public `--vocs-*` custom properties.
+- Put every style in the zyzz `vocs` layer (`'@layer vocs'`), so unlayered host CSS wins without `!important`.
+- Generated class names are private. Public styling hooks are `data-vocs` attributes and `--vocs-*` tokens only. Server-rendered HTML carries the same attributes as client-rendered HTML.
+- The package build compiles styles ahead of time. Hosts never need zyzz.
+- `pnpm check` runs the `zyzz/oxlint` rules configured in `vite.config.ts`. Fix a diagnostic instead of suppressing it, unless the comment states why the declaration is intentional.
 - Respect `prefers-reduced-motion` and `prefers-color-scheme`. Use accessible native controls with keyboard activation, visible focus, and accessible names.
 
 ## Code Documentation
@@ -350,8 +354,8 @@ For in-session explanations to maintainers, not committed to the repository.
 
 ## Repository Layout
 
-- `src/`: one directory per entrypoint (`server/`, `client/`, `react/`, `rsc/`, `vite/`, `cli/`, `sources/`, `search/`, `models/`, `storage/`), PascalCase modules, and `internal/` for unexported helpers. `src/index.ts` is the `vocs` entrypoint.
-- `src/styles/`: `styles.css` (tokens and the default theme) and `tokens.css`.
+- `src/`: `src/index.ts` is the `vocs` entrypoint, with `Source.ts`, `Search.ts`, `Model.ts`, and `Storage.ts` beside it. One directory per other entrypoint (`server/`, `client/`, `react/`, `rsc/`, `vite/`, `cli/`), PascalCase modules, and `internal/` for unexported helpers and adapter backends.
+- `src/zyzz.config.ts`: the zyzz tokens and layers. Its compiled CSS ships as `vocs/styles.css` and `vocs/tokens.css`.
 - `playground/quick` and `playground/custom`: the two consumption modes, with one shared `vocs.config.ts` shape. End-to-end tests run against them.
 - `test/e2e/`: Playwright suites. `test/workers/`: stand-in services. `test/fixtures/`: reusable input corpora.
 - `.agents/design.md` holds the design and public API. `.agents/plan.md` tracks phases, acceptance gates, and budgets.
@@ -359,7 +363,8 @@ For in-session explanations to maintainers, not committed to the repository.
 ## Tooling
 
 - Declare all package dependencies with `catalog:` references. Keep versions in `pnpm-workspace.yaml`, never inline in package manifests.
-- Prettier, ESLint, and Biome are banned. Use Vite+ with oxfmt for formatting and oxlint for linting, configured in `vite.config.ts`.
+- Prettier, ESLint, and Biome are banned. Use Vite+ with oxfmt for formatting and oxlint for linting, configured in `vite.config.ts`. Lint includes the `zyzz/oxlint` plugin.
+- Use zyzz for every style.
 - Use zile for library builds and development linking. Zile derives build inputs from package entrypoints.
 - Use TypeScript 7 for type checks.
 - Put scripts, devDependencies, and packageManager before `[!start-pkg]` in package.json. Package metadata and runtime dependencies follow it.
