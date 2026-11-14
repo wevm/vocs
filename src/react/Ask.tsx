@@ -7,6 +7,7 @@
 import * as React from 'react'
 import { Client } from '../client/index.js'
 import { styles as layout } from './Page.js'
+import { style, vars } from '../zyzz.config.js'
 
 /** A prompt box with streamed answers and the files each answer read. */
 export function Ask(props: Ask.Props) {
@@ -73,13 +74,16 @@ export function Message(props: Message.Props) {
       aria-busy={!['cancelled', 'done', 'failed'].includes(state.status)}
       data-vocs="message"
       data-state={state.status}
+      {...styles.message()}
     >
-      <p data-vocs-part="prompt">{props.turn.prompt}</p>
-      <div aria-live="polite" data-vocs-part="answer">
+      <p data-vocs-part="prompt" {...styles.prompt()}>
+        {props.turn.prompt}
+      </p>
+      <div aria-live="polite" data-vocs-part="answer" {...styles.answer()}>
         {state.status === 'failed' ? state.error : state.text}
       </div>
       {state.files.length > 0 && (
-        <ul data-vocs-part="files">
+        <ul data-vocs-part="files" {...styles.files()}>
           {state.files.map((file) => (
             <li key={file.path}>{file.url ? <a href={file.url}>{file.path}</a> : file.path}</li>
           ))}
@@ -105,4 +109,36 @@ export declare namespace Message {
     onPage?: (() => void) | undefined
     turn: Client.Turn
   }
+}
+
+namespace styles {
+  export const answer = style({
+    '@layer vocs': { lineHeight: 1.6, overflowWrap: 'anywhere', whiteSpace: 'pre-wrap' },
+  })
+
+  export const files = style({
+    '@layer vocs': {
+      color: vars.color.muted,
+      fontSize: 'sm',
+      margin: 0,
+      overflowWrap: 'anywhere',
+      paddingInlineStart: 4,
+    },
+  })
+
+  export const message = style({
+    '@layer vocs': { display: 'flex', flexDirection: 'column', gap: 3 },
+  })
+
+  export const prompt = style({
+    '@layer vocs': {
+      alignSelf: 'flex-end',
+      backgroundColor: vars.color.surface,
+      borderRadius: vars.radius.lg,
+      margin: 0,
+      maxWidth: '85% !custom',
+      paddingBlock: 2,
+      paddingInline: 3,
+    },
+  })
 }

@@ -171,15 +171,28 @@ export namespace styles {
       flexDirection: 'column',
       fontFamily: vars.fontFamily.sans,
       minHeight: '100dvh !custom',
+      // Widths such as `full` and `page` include padding and borders, so nothing overflows a phone.
+      '&, & *, & *::before, & *::after': { boxSizing: 'border-box' },
     },
   })
 
   export const group = style({
-    '@layer vocs': { display: 'flex', flexDirection: 'column', gap: 1 },
+    '@layer vocs': {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 1,
+      '@media (max-width: 48rem)': { flexShrink: 0 },
+    },
   })
 
   export const groupTitle = style({
-    '@layer vocs': { fontSize: 'sm', fontWeight: 600, margin: 0, paddingInline: 2 },
+    '@layer vocs': {
+      fontSize: 'sm',
+      fontWeight: 600,
+      margin: 0,
+      paddingInline: 2,
+      '@media (max-width: 48rem)': { display: 'none' },
+    },
   })
 
   export const header = style({
@@ -223,6 +236,7 @@ export namespace styles {
       paddingInline: 2,
       textAlign: 'start',
       width: 'full',
+      '@media (max-width: 48rem)': { whiteSpace: 'nowrap' },
       '&:hover': { color: vars.color.foreground },
       '&[data-state="active"]': {
         backgroundColor: vars.color.surface,
@@ -240,6 +254,7 @@ export namespace styles {
       listStyle: 'none',
       margin: 0,
       padding: 0,
+      '@media (max-width: 48rem)': { flexDirection: 'row' },
     },
   })
 
@@ -252,11 +267,16 @@ export namespace styles {
       minWidth: 0,
       paddingBlock: 8,
       paddingInline: 6,
+      '@media (max-width: 48rem)': { paddingBlock: 6, paddingInline: 4 },
     },
   })
 
   export const pages = style({
-    '@layer vocs': { display: 'flex', flex: 1 },
+    '@layer vocs': {
+      display: 'flex',
+      flex: 1,
+      '@media (max-width: 48rem)': { flexDirection: 'column' },
+    },
   })
 
   export const pageTitle = style({
@@ -275,6 +295,18 @@ export namespace styles {
       paddingBlock: 8,
       paddingInline: 4,
       width: 'sidebar',
+      // A phone shows the pages as one row that scrolls sideways, above the page.
+      '@media (max-width: 48rem)': {
+        borderBlockEndColor: 'border',
+        borderBlockEndStyle: 'solid',
+        borderBlockEndWidth: '1px',
+        borderInlineEndWidth: 0,
+        flexDirection: 'row',
+        gap: 1,
+        overflowX: 'auto',
+        paddingBlock: 2,
+        width: 'full',
+      },
     },
   })
 

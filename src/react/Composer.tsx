@@ -244,10 +244,14 @@ namespace styles {
     '@layer vocs': {
       color: vars.color.muted,
       insetBlockStart: 0,
+      insetInlineEnd: 1,
       insetInlineStart: 1,
+      overflow: 'hidden',
       pointerEvents: 'none',
       position: 'absolute',
+      textOverflow: 'ellipsis',
       userSelect: 'none',
+      whiteSpace: 'nowrap',
     },
   })
 
