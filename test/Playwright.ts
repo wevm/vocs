@@ -26,3 +26,12 @@ export const test = base.extend<{ page: Page }>({
 export async function hydrated(page: Page) {
   await expect(page.locator('[data-vocs=ask]')).toHaveAttribute('data-state', /.+/)
 }
+
+/** Opens `<Docs />`, picks a composer mode, and submits a prompt. */
+export async function compose(page: Page, mode: 'Chat' | 'Docs' | 'Page', prompt: string) {
+  await page.goto('/')
+  await expect(page.locator('[data-vocs=composer]')).toBeVisible()
+  await page.getByRole('radio', { name: mode }).click()
+  await page.getByRole('textbox', { name: 'What do you want to learn?' }).fill(prompt)
+  await page.keyboard.press('Enter')
+}

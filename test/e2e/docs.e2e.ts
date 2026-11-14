@@ -4,16 +4,7 @@
  * the render route with Twoslash, and a revision changes the pages in place.
  * @module
  */
-import type { Page } from '@playwright/test'
-import { expect, test } from '../Playwright.js'
-
-async function compose(page: Page, mode: 'Chat' | 'Docs' | 'Page', prompt: string) {
-  await page.goto('/')
-  await expect(page.locator('[data-vocs=composer]')).toBeVisible()
-  await page.getByRole('radio', { name: mode }).click()
-  await page.getByRole('textbox', { name: 'What do you want to learn?' }).fill(prompt)
-  await page.keyboard.press('Enter')
-}
+import { compose, expect, test } from '../Playwright.js'
 
 test('writes one page, and the page tools reject an invalid block and a type error', async ({
   page,
@@ -48,12 +39,12 @@ test('writes docs with a sidebar, and renders a diagram', async ({ page }) => {
     'Attach a Memo',
     'Pay Fees in Stablecoins',
   ])
-  await expect(sidebar.getByRole('button', { name: 'Overview' })).toHaveAttribute(
+  await expect(sidebar.getByRole('link', { name: 'Overview' })).toHaveAttribute(
     'aria-current',
     'page',
   )
 
-  await sidebar.getByRole('button', { name: 'Pay Fees in Stablecoins' }).click()
+  await sidebar.getByRole('link', { name: 'Pay Fees in Stablecoins' }).click()
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Pay Fees in Stablecoins')
   await expect(page.locator('[data-vocs=mermaid]')).toHaveAttribute('data-state', 'rendered')
   await expect(page.locator('[data-vocs=mermaid] svg')).toContainText('Fee token')
@@ -66,7 +57,7 @@ test('type-checks code with Twoslash, and shows types', async ({ page }) => {
   })
   await page
     .getByRole('navigation', { name: 'Pages' })
-    .getByRole('button', { name: 'Attach a Memo' })
+    .getByRole('link', { name: 'Attach a Memo' })
     .click()
 
   const code = page.locator('[data-vocs=code]', { hasText: 'client.ts' })
