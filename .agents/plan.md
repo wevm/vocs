@@ -22,14 +22,54 @@ Goal: a clean toolchain, and measured answers to the three risks.
 - [x] `AGENTS.md`, `.agents/design.md`, and this plan.
 - [x] CI on `next`: check, types, and tests.
 - [x] zyzz in the toolchain, with the `zyzz/oxlint` rules in `vite.config.ts`.
-- [ ] Playwright harness: `test/Playwright.ts` with console-error failure and `hydrated(page)`, and a CI job.
-- [ ] Stand-in model Worker in `test/workers/model` that replays scripted turns over the gateway's API.
-- [ ] **Spike A, the agent in a page.** Pin one `nanocode-ts` release. Run one turn in a browser over sqlite-wasm, with 50 Tempo Markdown files in a `nanocode-ts/bash` memory filesystem and a Worker route to Cloudflare AI Gateway. Record module load, time to first token, and turn time.
-- [ ] **Spike B, rendering in a Worker.** Render a Shiki block and a Twoslash block in a Worker. Record bundle size, startup time, CPU time per block, and peak memory against the Workers Paid limits: 64 MiB, 1 s startup, 128 MB, 30 s CPU.
-- [ ] **Spike C, AI Search.** Upload 50 files with `items.upload` from a Worker, then query with a `source` filter. Record time to searchable and result quality on 10 questions.
-- [ ] Decide how `vocs` depends on nanocode-ts, since a published package cannot depend on a tarball URL: an npm release, or a vendored build.
+- [x] Playwright harness: `test/Playwright.ts` with console-error failure and `hydrated(page)`, and a CI job.
+- [x] Stand-in model Worker in `test/workers/model` that replays a scripted turn over the OpenAI Responses API.
+- [x] **Spike A, the agent in a page** (`spikes/agent`), with the stand-in model. The run against the real gateway waits for Cloudflare credentials.
+- [x] **Spike B, rendering in a Worker** (`spikes/render`), in local workerd.
+- [ ] **Spike C, AI Search** (`spikes/search/run.ts`). The script is ready. The run waits for Cloudflare credentials.
+- [x] Decide how `vocs` depends on nanocode-ts. Decision below.
 
 Done when: CI passes on `next`, the Playwright harness runs one smoke test, and the spike numbers and the Twoslash placement are recorded in this file.
+
+### Phase 0 results
+
+Measured on 2026-11-14 in an orb: 4 vCPU Intel Xeon at 2.60 GHz, headless Chromium 159, workerd 1.20261113.1, `nanocode-ts` `0624213`.
+
+**Spike A, the agent in a page.** One turn over 50 Tempo pages (`tempoxyz/docs` at `e8f91d4`, 328 KB, 84 KB gzip), with the stand-in model, five fresh browser contexts, medians:
+
+| Measurement                                                            | Value                                      |
+| ---------------------------------------------------------------------- | ------------------------------------------ |
+| `nanocode_wasm.wasm`                                                   | 13.00 MB raw, 4.57 MB gzip, 3.12 MB Brotli |
+| sqlite-wasm                                                            | 0.88 MB raw, 0.35 MB Brotli                |
+| Page JavaScript (nanocode-ts, bash, sqlite glue)                       | 845 KB raw, 281 KB gzip, 240 KB Brotli     |
+| Compile both modules and mount 50 files, from localhost                | 120 ms                                     |
+| Turn overhead with an instant model: two model calls and one `rg` cell | 280 ms                                     |
+| WebAssembly memory after the turn                                      | 7 MB                                       |
+
+- Over a network, the download dominates: 3.71 MB Brotli is about 0.6 s at 50 Mbit/s and 3 s at 10 Mbit/s. The agent must load on the first prompt, and should prefetch when the prompt box takes focus.
+- Code Mode drives the shell through one `exec` custom tool (`tools.exec_command({ cmd })` in a JavaScript cell). `code_mode: true` and `workspace: bash.cwd` are required, or the session offers no workspace tools.
+- The default Codex session also offers `image_gen` and `apply_patch`. Vocs must restrict the tool set.
+- Model requests are OpenAI Responses API calls (`POST <endpoint>/responses`, SSE). `Model.cloudflare` forwards that API to AI Gateway.
+- Not measured yet: real time to first token and turn time through AI Gateway. These need `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN`, and a gateway.
+
+**Spike B, rendering in a Worker.** Local workerd, a fresh isolate per sample, 10 warm requests each:
+
+| Measurement                                        | Value                                           | Limit (Workers Paid)  |
+| -------------------------------------------------- | ----------------------------------------------- | --------------------- |
+| Bundle (Shiki, Twoslash, TypeScript 6)             | 11.4 MB raw, 1.85 MB gzip                       | 10 MB gzip, 64 MB raw |
+| Startup CPU (`wrangler check startup`, three runs) | 80 ms, of which TypeScript evaluation is 50 ms  | 1 s                   |
+| Shiki block, cold isolate / warm                   | 181 ms / 7 ms                                   | 30 s CPU              |
+| Twoslash with lib types, cold / warm               | 1.6 s / 19 ms (cold includes the CDN lib fetch) | 30 s CPU              |
+| Twoslash importing `viem`, cold / warm             | 10 to 20 s / 155 ms                             | 30 s CPU              |
+| Types fetched for the `viem` sample                | 2,604 files, 23.4 MB                            |                       |
+
+- TypeScript 6 runs in workerd with `nodejs_compat` only when `__filename` is defined, because it detects Node through `process`. Twoslash must use `@shikijs/twoslash/core`, since the main entry builds a filesystem-backed twoslasher on import.
+- Type acquisition at render time is not viable: one package import fetches thousands of files, and unthrottled parallel fetches fail TLS handshakes.
+- Local workerd timings approximate production CPU time. Production startup time and memory need a deploy.
+
+**Twoslash placement.** Twoslash runs in the Worker. The build snapshots the type files of each pinned package into one content-addressed asset, and the render route loads it once per isolate. Rendered HTML is cached by the hash of block and snapshot, so each unique block runs Twoslash once. Phase 2 measures the snapshot trimmed to the files a program reads. A Node renderer is the fallback only if that snapshot does not fit in 128 MB with the TypeScript program.
+
+**nanocode-ts dependency.** `vocs` cannot publish with a tarball URL dependency, and the `nanocode-ts` package is `private: true` with heavy dependencies (`viem`, `accounts`, `mppx`). Decision: ask the nanocode maintainers for an npm release of the browser entrypoints (`nanocode-ts`, `nanocode-ts/bash`) before phase 8. Until then, the catalog pins the release tarball for development. Vendoring the WebAssembly module and its glue is the fallback.
 
 ## Phase 1: Handler and chat, in custom mode
 
@@ -43,6 +83,7 @@ Goal: a host app mounts `Handler.from(config)`, and `<Ask />` answers Tempo ques
 - [ ] `vocs/server`: `Handler.from` with the model gateway (allowed models, size limit, per-address rate limit), the corpus route, and the agent route.
 - [ ] `vocs/client`: `Client.create`, `machines.agent`, and `machines.turn`. The agent loads on the first `ask`.
 - [ ] `vocs/react`: `<Ask />` on `vocs/client`, with the files read listed under each answer.
+- [ ] A CI job that measures the Phase 0 budgets and fails when one is exceeded.
 - [ ] `playground/custom`: a Worker host with a Vite and React page, configured with `tempoxyz/docs`, the Tempo TIPs, and `viem/tempo`.
 
 Done when: an end-to-end test asks a scripted question in `playground/custom` and sees the streamed answer and its cited files, and 20 real team questions get correct cited answers against the real gateway.
@@ -137,18 +178,20 @@ Done when: Tempo's docs serve from `vocs@next` in production.
 
 Each budget is set in the phase that first measures it. CI fails when a budget is exceeded.
 
-| Budget                         | Set in  | Value                                                    |
-| ------------------------------ | ------- | -------------------------------------------------------- |
-| Agent module, gzip             | Phase 0 | To be measured (nanocode-ts is 3.8 MB gzip at `543b857`) |
-| Time to first token, warm      | Phase 0 | To be measured                                           |
-| Block render CPU in a Worker   | Phase 0 | To be measured                                           |
-| `vocs/react` page bundle, gzip | Phase 1 | To be measured                                           |
-| Permalink time to first byte   | Phase 2 | To be measured                                           |
+| Budget                                   | Set in  | Value                                                                                    |
+| ---------------------------------------- | ------- | ---------------------------------------------------------------------------------------- |
+| Agent module and page JavaScript, Brotli | Phase 0 | 4 MB (measured 3.71 MB: 3.12 MB module, 0.24 MB JavaScript, 0.35 MB sqlite at `0624213`) |
+| Turn overhead with an instant model      | Phase 0 | 400 ms (measured 280 ms)                                                                 |
+| Time to first token, warm, real gateway  | Phase 0 | To be measured with Cloudflare credentials                                               |
+| Worker bundle, gzip                      | Phase 0 | 3 MB (measured 1.85 MB)                                                                  |
+| Warm block render in a Worker            | Phase 0 | Shiki 20 ms, Twoslash 250 ms (measured 7 ms and 155 ms)                                  |
+| `vocs/react` page bundle, gzip           | Phase 1 | To be measured                                                                           |
+| Permalink time to first byte             | Phase 2 | To be measured                                                                           |
 
 ## Risks
 
-- **nanocode-ts has no npm release.** Phase 0 decides how `vocs` depends on it.
-- **Twoslash in a Worker.** Spike B decides. A Node renderer is the fallback.
+- **nanocode-ts has no npm release.** Phase 8 is blocked until the browser entrypoints publish to npm, or the module is vendored.
+- **Twoslash type snapshots.** One `viem` import reads 2,604 type files (23.4 MB). Phase 2 must trim the snapshot to fit beside the TypeScript program in 128 MB.
 - **plugin-rsc is 0.x.** Only the quick-mode app depends on it. TanStack Start is the fallback.
 - **zyzz custom property names.** zyzz emits `--z-*` names, and a host that also uses zyzz can emit the same names. Phase 2 settles the token mapping.
 - **XState in the page bundle.** It is part of the `vocs/react` budget.

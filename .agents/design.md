@@ -146,16 +146,16 @@ export default { fetch: docs.fetch } // Cloudflare Worker: fetch(request, env, c
 
 `Handler.from(config, options)` returns `{ fetch }`. Its routes under `basePath`:
 
-| Route                                      | Purpose                                                                                                    |
-| ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- |
-| `POST /model`                              | The model gateway. Forwards only `config.model.models`, limits request size, and rate limits each address. |
-| `GET /search`                              | Runs `config.search`.                                                                                      |
-| `GET /sources/:name/*`                     | Lists and reads runtime sources.                                                                           |
-| `POST /mcp/:name`                          | Proxies MCP calls, so tokens stay on the server.                                                           |
-| `POST /render`                             | Renders blocks to streamed HTML.                                                                           |
-| `GET /pages/:id`, `POST /pages`            | Reads and saves pages through `config.storage`.                                                            |
-| `GET /corpus/:hash`, `GET /agent/:version` | Serves the corpus and the agent module with immutable caching.                                             |
-| `POST /mcp`, `GET /llms.txt`               | The corpus for other agents.                                                                               |
+| Route                                      | Purpose                                                                                                                                                                       |
+| ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `POST /model/responses`                    | The model gateway for the OpenAI Responses API, which nanocode's Codex harness sends. Forwards only `config.model.models`, limits request size, and rate limits each address. |
+| `GET /search`                              | Runs `config.search`.                                                                                                                                                         |
+| `GET /sources/:name/*`                     | Lists and reads runtime sources.                                                                                                                                              |
+| `POST /mcp/:name`                          | Proxies MCP calls, so tokens stay on the server.                                                                                                                              |
+| `POST /render`                             | Renders blocks to streamed HTML.                                                                                                                                              |
+| `GET /pages/:id`, `POST /pages`            | Reads and saves pages through `config.storage`.                                                                                                                               |
+| `GET /corpus/:hash`, `GET /agent/:version` | Serves the corpus and the agent module with immutable caching.                                                                                                                |
+| `POST /mcp`, `GET /llms.txt`               | The corpus for other agents.                                                                                                                                                  |
 
 ### Client
 

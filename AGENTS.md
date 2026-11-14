@@ -357,7 +357,8 @@ For in-session explanations to maintainers, not committed to the repository.
 - `src/`: `src/index.ts` is the `vocs` entrypoint, with `Source.ts`, `Search.ts`, `Model.ts`, and `Storage.ts` beside it. One directory per other entrypoint (`server/`, `client/`, `react/`, `rsc/`, `vite/`, `cli/`), PascalCase modules, and `internal/` for unexported helpers and adapter backends.
 - `src/zyzz.config.ts`: the zyzz tokens and layers. Its compiled CSS ships as `vocs/styles.css` and `vocs/tokens.css`.
 - `playground/quick` and `playground/custom`: the two consumption modes, with one shared `vocs.config.ts` shape. End-to-end tests run against them.
-- `test/e2e/`: Playwright suites. `test/workers/`: stand-in services. `test/fixtures/`: reusable input corpora.
+- `test/e2e/`: Playwright suites. `test/workers/`: stand-in services. `test/fixtures/`: reusable input corpora, authored for this repository.
+- `spikes/`: throwaway measurements that inform a plan decision. Each spike records its results in `.agents/plan.md`, and the phase that replaces it deletes it.
 - `.agents/design.md` holds the design and public API. `.agents/plan.md` tracks phases, acceptance gates, and budgets.
 
 ## Tooling

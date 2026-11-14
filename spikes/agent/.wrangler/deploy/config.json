@@ -1,4 +1,1 @@
-{
-  "configPath": "../../dist/vocs_spike_agent/wrangler.json",
-  "auxiliaryWorkers": [{ "configPath": "../../dist/vocs_test_model/wrangler.json" }]
-}
+{"configPath":"../../dist/vocs_spike_agent/wrangler.json","auxiliaryWorkers":[{"configPath":"../../dist/vocs_test_model/wrangler.json"}]}
