@@ -1,0 +1,8 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "assets": { "not_found_handling": "single-page-application", "run_worker_first": ["/api/*"] },
+  "compatibility_date": "2026-11-01",
+  "main": "./src/worker.ts",
+  "name": "vocs-spike-agent",
+  "vars": { "CLOUDFLARE_GATEWAY": "vocs-spike" },
+}

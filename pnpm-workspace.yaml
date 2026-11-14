@@ -1,10 +1,29 @@
 packages:
   - '.'
+  - spikes/*
+  - test/workers/*
+
+allowBuilds:
+  esbuild: true
+  workerd: true
 
 catalog:
   '@changesets/cli': '3.0.3'
+  '@cloudflare/vite-plugin': '1.69.1'
+  '@playwright/test': '1.65.1'
+  '@sqlite.org/sqlite-wasm': '3.54.1-build1'
   '@types/node': '^24.11.0'
+  'nanocode-ts': 'https://github.com/nanocodexyz/nanocode-ts/releases/download/build-0624213/nanocode-ts-0624213.tgz'
   'typescript': '7.0.2'
+  'vite': '8.3.8'
   'vite-plus': '1.6.0'
+  'wrangler': '4.162.0'
   'zile': '0.0.31'
   'zyzz': '0.0.44'
+
+minimumReleaseAgeExclude:
+  - '@playwright/test@1.65.1'
+  - miniflare@5.20261113.0-beta
+  - playwright-core@1.65.1
+  - playwright@1.65.1
+  - wrangler@4.162.0
