@@ -30,15 +30,23 @@ const files = await Promise.all(
       }
     }),
 )
-// Every module of the Worker counts, including the chunks it imports on the first render.
+// Every module of the Worker counts, including the chunks it imports on the first render and the
+// diagram compiler. The Twoslash type snapshot is content that grows with `twoslash.packages`, so
+// it is reported beside the budget.
 const workerRoot = Path.join(root, 'vocs_playground_custom')
-const worker = (
-  await Promise.all(
-    (await Fs.readdir(workerRoot, { recursive: true }))
-      .filter((name) => name.endsWith('.js'))
-      .map(async (name) => Zlib.gzipSync(await Fs.readFile(Path.join(workerRoot, name))).length),
-  )
-).reduce((total, size) => total + size, 0)
+const workerModules = await Promise.all(
+  (await Fs.readdir(workerRoot, { recursive: true }))
+    .filter((name) => /\.(js|wasm)$/.test(name))
+    .map(async (name) => ({
+      gzip: Zlib.gzipSync(await Fs.readFile(Path.join(workerRoot, name))).length,
+      name,
+    })),
+)
+const snapshot = workerModules.filter((module) => /^assets\/types-.+\.js$/.test(module.name))
+if (snapshot.length !== 1) throw new Error(`${workerRoot} has no Twoslash type snapshot.`)
+const worker = workerModules
+  .filter((module) => !snapshot.includes(module))
+  .reduce((total, module) => total + module.gzip, 0)
 const entry = files.find((file) => /^index-.+\.js$/.test(file.name))
 if (!entry) throw new Error(`${assets} has no page entry. Build playground/custom first.`)
 // The page entry counts with every chunk it imports statically, such as React when the build
@@ -62,7 +70,7 @@ const budgets = [
       .reduce((total, file) => total + file.brotli, 0),
   },
   { limit: 700_000, name: 'Diagram compiler module, Brotli', size: diagram[0]!.brotli },
-  { limit: 3_000_000, name: 'Worker bundle, gzip', size: worker },
+  { limit: 3_000_000, name: 'Worker bundle without the type snapshot, gzip', size: worker },
   {
     limit: 180_000,
     name: 'Page entry JavaScript with React and Lexical, gzip',
@@ -74,6 +82,9 @@ for (const budget of budgets)
   process.stdout.write(
     `${budget.size > budget.limit ? 'over' : 'ok  '}  ${budget.name}: ${kilobytes(budget.size)} of ${kilobytes(budget.limit)}\n`,
   )
+process.stdout.write(
+  `      Twoslash type snapshot, gzip, not budgeted: ${kilobytes(snapshot[0]!.gzip)}, so the Worker is ${kilobytes(worker + snapshot[0]!.gzip)}\n`,
+)
 if (budgets.some((budget) => budget.size > budget.limit)) process.exit(1)
 
 function kilobytes(bytes: number) {
