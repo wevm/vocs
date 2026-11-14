@@ -95,16 +95,18 @@ Finding: inlining the corpus in the Worker made the bundle 2.45 MB gzip with the
 
 Goal: a prompt becomes a streamed, refinable page with a permalink.
 
-- [ ] The block schema in Zod: `heading`, `prose`, `steps`, `code`, `codeGroup`, `callout`, `cards`, `fileTree`, `terminal`, `mermaid`, `demo`.
-- [ ] The page tool: emit blocks one at a time, and revise a page in place. `machines.page`.
-- [ ] `src/zyzz.config.ts` with the token set and the `vocs` layer. Decide how zyzz tokens read the public `--vocs-*` properties without colliding with a host's `--z-*` properties, and whether output is atomic or grouped.
-- [ ] The package build compiles zyzz styles ahead of time and ships `vocs/styles.css` and `vocs/tokens.css`. An end-to-end test renders a block in a host without zyzz.
-- [ ] The block components in `vocs/react`, styled with zyzz, with `data-vocs` parts.
+- [x] The block schema in Zod: `heading`, `prose`, `steps`, `code`, `codeGroup`, `callout`, `cards`, `fileTree`, `terminal`, `mermaid`, `demo`.
+- [x] The page tools: create, read, update, and delete pages, and insert, replace, and remove blocks. `machines.guide` covers one page or several pages in sidebar groups.
+- [x] `src/zyzz.config.ts` with the token set and the `vocs` layer. `id: 'vocs'` prefixes zyzz properties as `--z-vocs-*`, and each reads its public `--vocs-*` token. Output is atomic.
+- [x] The package build compiles zyzz styles ahead of time and ships `vocs/styles.css` and `vocs/tokens.css`. The playground renders blocks without zyzz.
+- [x] The block components in `vocs/react`, styled with zyzz, with `data-vocs` parts. A monochrome theme with light and dark defaults.
+- [x] `mermaid` blocks render with Ondine. A diagram that does not compile fails its tool call.
+- [x] `<Docs />` with home, docs, and chat views. The home view is a Lexical composer with Chat, Page, and Docs modes. Docs with more than one page get a sidebar.
 - [ ] `machines.render` and the render route: blocks to streamed HTML with Shiki and Twoslash, where spike B decided. `vocs/rsc` `Blocks`.
 - [ ] Twoslash failures return to the agent as a failed render.
 - [ ] Hydration of interactive parts only: tabs, copy buttons, registered demos.
 - [ ] `Storage`: `Storage.cloudflare` and `Storage.memory`. Saved pages, `<Page id />`, and server-rendered permalinks that load no WebAssembly.
-- [ ] `<Docs />` with home, page, and chat views. A chat reply can become a page.
+- [ ] A chat reply can become a page.
 
 Done when: end-to-end tests generate the "accept USDC in a Next.js checkout" page, refine it, load its permalink with JavaScript disabled, and see a wrong snippet caught and fixed.
 
@@ -181,15 +183,16 @@ Done when: Tempo's docs serve from `vocs@next` in production.
 
 Each budget is set in the phase that first measures it. CI fails when a budget is exceeded.
 
-| Budget                                   | Set in  | Value                                                                                                                            |
-| ---------------------------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| Agent module and page JavaScript, Brotli | Phase 0 | 4 MB (measured 3.71 MB: 3.12 MB module, 0.24 MB JavaScript, 0.35 MB sqlite at `0624213`; 3.88 MB with sqlite workers in Phase 1) |
-| Turn overhead with an instant model      | Phase 0 | 400 ms (measured 280 ms)                                                                                                         |
-| Time to first token, warm, real gateway  | Phase 0 | To be measured with Cloudflare credentials                                                                                       |
-| Worker bundle, gzip                      | Phase 0 | 3 MB (measured 1.85 MB)                                                                                                          |
-| Warm block render in a Worker            | Phase 0 | Shiki 20 ms, Twoslash 250 ms (measured 7 ms and 155 ms)                                                                          |
-| Page entry JavaScript with React, gzip   | Phase 1 | 100 kB (measured 83 kB)                                                                                                          |
-| Permalink time to first byte             | Phase 2 | To be measured                                                                                                                   |
+| Budget                                   | Set in  | Value                                                                                                                                                                |
+| ---------------------------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Agent module and page JavaScript, Brotli | Phase 0 | 4 MB (measured 3.71 MB: 3.12 MB module, 0.24 MB JavaScript, 0.35 MB sqlite at `0624213`; 3.88 MB with sqlite workers in Phase 1; 3.96 MB with page tools in Phase 2) |
+| Turn overhead with an instant model      | Phase 0 | 400 ms (measured 280 ms)                                                                                                                                             |
+| Time to first token, warm, real gateway  | Phase 0 | To be measured with Cloudflare credentials                                                                                                                           |
+| Worker bundle, gzip                      | Phase 0 | 3 MB (measured 1.85 MB)                                                                                                                                              |
+| Warm block render in a Worker            | Phase 0 | Shiki 20 ms, Twoslash 250 ms (measured 7 ms and 155 ms)                                                                                                              |
+| Page entry JavaScript with React, gzip   | Phase 1 | 180 kB (measured 160 kB). Raised from 100 kB in Phase 2, because the Lexical composer adds about 75 kB                                                               |
+| Diagram compiler module, Brotli          | Phase 2 | 700 kB (measured 513 kB). Loads on the first `mermaid` block only                                                                                                    |
+| Permalink time to first byte             | Phase 2 | To be measured                                                                                                                                                       |
 
 ## Risks
 

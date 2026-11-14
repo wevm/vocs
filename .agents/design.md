@@ -8,7 +8,8 @@ This branch is a rewrite from a fresh slate. Vocs v1 and the Vocs on `main` are 
 
 | Surface        | Behavior                                                                                                                                                        |
 | -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Home           | "What do you want to learn?" above a visual index of capabilities. A tile generates a page instead of opening a fixed one.                                      |
+| Home           | "What do you want to learn?" above a composer with three modes: Chat, Page, and Docs. Enter submits, and Shift+Enter adds a line.                               |
+| Generated docs | Several pages in a sidebar. Groups are noun phrases, such as "Clients & Transports". Titles are verb-led and five words or fewer, such as "Set Up a Client".    |
 | Generated page | Streams in block by block. The reader refines it in chat ("I use Express", "shorter"). A kept page gets a permalink such as `/learn/accept-usdc-nextjs-k3f9a2`. |
 | Chat           | Short answers that list the files the agent read. Any answer can become a page.                                                                                 |
 | Signed in      | The reader's API key and scopes fill into code. Missing scopes are flagged.                                                                                     |
@@ -165,21 +166,24 @@ export default { fetch: docs.fetch } // Cloudflare Worker: fetch(request, env, c
 import { Client } from 'vocs/client'
 
 const client = Client.create({ basePath: '/docs' })
-const turn = client.ask('How do I accept USDC in a Next.js checkout?', { output: 'page' })
-
+const turn = client.ask('How do I accept USDC in a Next.js checkout?')
 turn.subscribe(() => render(turn.get())) // { status, text, files, error }; status is a machines.turn state
 await turn.done
+
+const guide = client.generate('Explain memos and fees', { mode: 'docs' }) // or 'page'
+guide.subscribe(() => render(guide.get())) // { status, pages, files, error }; status is a machines.guide state
+guide.refine('use Express')
 ```
 
-The agent module loads on the first `ask`, not on `create`.
+The agent module loads on the first `ask` or `generate`, not on `create`.
 
 ### React
 
 ```tsx
-import { Ask, Docs, Page } from 'vocs/react'
+import { Ask, Composer, Docs, Page } from 'vocs/react'
 import 'vocs/styles.css'
 
-<Docs basePath="/docs" demos={{ memo: Memo }} components={{ Callout: MyCallout }} /> // home, pages, chat
+<Docs basePath="/docs" title="Tempo" demos={{ memo: Memo }} /> // home composer, generated docs, chat
 <Ask basePath="/docs" placeholder="Ask about the Tempo API" /> // only the prompt box
 <Page basePath="/docs" id="accept-usdc-nextjs-k3f9a2" /> // a saved page
 ```
@@ -202,7 +206,7 @@ export default defineConfig({ plugins: [vocs()] })
 
 ## Pages are typed blocks
 
-The agent does not write MDX. It calls a page tool with typed blocks:
+The agent does not write MDX. It calls host tools from its Code Mode cells: `page_create`, `page_read`, `page_update`, `page_delete`, `page_insert`, `page_replace`, and `page_remove`. Each block is typed:
 
 | Block                                               | Renders with                       |
 | --------------------------------------------------- | ---------------------------------- |
@@ -215,7 +219,9 @@ The agent does not write MDX. It calls a page tool with typed blocks:
 | `fileTree`, `terminal`, `mermaid`                   | `FileTree`, `Terminal`, Mermaid    |
 | `demo` (a registered ID and props)                  | A component the site registers     |
 
-- One Zod schema drives the page tool, validation, rendering, and Markdown export.
+- One Zod schema, `Block.schema` in `vocs`, drives the page tools, validation, rendering, and Markdown export.
+- A rejected operation, such as an invalid block or a title over five words, throws in the agent's cell with an English message, and the agent corrects it.
+- A `mermaid` block renders with [Ondine](https://ondine.sh). A diagram that does not compile fails its tool call.
 - Each block renders when it is complete, so a page fills in progressively.
 - A `twoslash` block that fails to type-check fails its render, and the error returns to the agent.
 - The model cannot run arbitrary JSX. A `demo` block names only a registered component.
@@ -273,6 +279,7 @@ Quick mode runs on a thin app layer over `@vitejs/plugin-rsc` and `@cloudflare/v
 
 - **Any host:** the handler's render route turns blocks into HTML with React's `renderToReadableStream`, Shiki, and Twoslash. `vocs/react` inserts the HTML and hydrates only interactive parts, such as tabs, copy buttons, and registered demos.
 - **Hosts with React Server Components:** `vocs/rsc` renders the same blocks as server components.
+- **Diagrams:** Ondine compiles `mermaid` blocks to SVG in the page for now. Its WebAssembly loads on the first diagram, in a module separate from the agent.
 - **Twoslash on Workers is a risk:** bundle size, CPU time, and TypeScript lib files. Spike B measures it. If it does not fit, Twoslash blocks go to a Node renderer and Shiki stays in the Worker.
 
 ## Styling
@@ -311,7 +318,10 @@ Vocs authors its own styles with [zyzz](https://zyzz.style): typed `style()` and
 
 - The package build compiles every style ahead of time. `vocs/styles.css` is static CSS, and `vocs/react` applies precompiled class names. Hosts, including hosts that use Tailwind or their own zyzz config, need no zyzz setup.
 - The `zyzz/oxlint` plugin runs in `pnpm check`. It enforces valid styles, no conflicting `className` or `style` props, no unused styles, logical properties, and tokens for colors, radii, and fonts.
-- zyzz names its custom properties `--z-<category>-<key>`, such as `--z-radius-md` (verified with `zyzz build` at 0.0.44). The public tokens stay `--vocs-*`. Phase 2 decides how zyzz tokens read them, and how they avoid collisions with a host's own `--z-*` properties.
+- The config sets `id: 'vocs'`, so zyzz properties are `--z-vocs-*` and do not collide with a host's `--z-*` properties. Each one reads a public token with the default as its fallback, such as `var(--vocs-color-accent, #222)`.
+- Dark colors are zyzz conditional values under `@media (prefers-color-scheme: dark)`. CSS `light-dark()` is not used, because a host's Lightning CSS rewrites it into properties that the host does not define.
+- `vocs/tokens.css` lists every public token with its light and dark defaults.
+- The default theme is monochrome: system fonts, gray borders, no accent hue.
 
 ## Lifecycles
 
@@ -321,7 +331,7 @@ Each of these is an XState machine with named states for success, failure, and c
 | ----------------- | ----------------------------------------------------------------------------- |
 | `machines.agent`  | `idle`, `loading`, `ready`, `failed`                                          |
 | `machines.turn`   | `queued`, `thinking`, `searching`, `streaming`, `done`, `failed`, `cancelled` |
-| `machines.page`   | `generating`, `refining`, `ready`, `saving`, `saved`, `failed`                |
+| `machines.guide`  | `generating`, `refining`, `ready`, `failed`, `cancelled`                      |
 | `machines.render` | `queued`, `rendering`, `rendered`, `failed`                                   |
 
 ## Decisions
