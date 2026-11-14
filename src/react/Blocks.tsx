@@ -7,6 +7,7 @@
 import * as React from 'react'
 import type * as Block from '../Block.js'
 import * as Diagram from '../internal/Diagram.js'
+import * as Enhance from '../internal/Enhance.js'
 import { Markdown, spans } from '../internal/Markdown.js'
 import { style, vars } from '../zyzz.config.js'
 
@@ -179,7 +180,36 @@ export function Code(props: Code.Props) {
       <pre data-vocs-part="pre" {...styles.pre()}>
         <Source code={props.code} html={props.html} />
       </pre>
+      <Copy />
     </figure>
+  )
+}
+
+/**
+ * A button that copies the visible code of its block. Permalinks render it without React, and
+ * `Enhance.script` gives it the same behavior.
+ */
+function Copy() {
+  const [state, setState] = React.useState<'copied' | 'idle'>('idle')
+  const reset = () => setState('idle')
+  return (
+    <button
+      aria-label="Copy code"
+      data-state={state}
+      data-vocs-part="copy"
+      onBlur={reset}
+      onClick={(event) => {
+        // A failed write leaves the button idle, and the reader can select the code instead.
+        void navigator.clipboard
+          .writeText(Enhance.copyText(event.currentTarget))
+          .then(() => setState('copied'))
+      }}
+      onMouseLeave={reset}
+      type="button"
+      {...styles.copy()}
+    >
+      {state === 'copied' ? 'Copied' : 'Copy'}
+    </button>
   )
 }
 
@@ -198,13 +228,14 @@ export declare namespace Code {
 export function CodeGroup(props: CodeGroup.Props) {
   const [selected, setSelected] = React.useState(0)
   const id = React.useId()
-  const tab = props.tabs[selected] ?? props.tabs[0]!
+  // Every panel renders, and inactive ones are `hidden`, so `Enhance.script` can switch tabs in
+  // server-rendered HTML.
   return (
     <figure data-vocs="code-group" {...styles.figure()}>
       <div aria-label="Code variants" data-vocs-part="tabs" role="tablist" {...styles.tabs()}>
         {props.tabs.map((entry, index) => (
           <button
-            aria-controls={`${id}-panel`}
+            aria-controls={`${id}-panel-${index}`}
             aria-selected={index === selected}
             data-state={index === selected ? 'active' : 'inactive'}
             data-vocs-part="tab"
@@ -218,16 +249,21 @@ export function CodeGroup(props: CodeGroup.Props) {
           </button>
         ))}
       </div>
-      <pre
-        data-lang={tab.lang}
-        data-state={tab.html === undefined ? 'plain' : 'highlighted'}
-        data-vocs-part="pre"
-        id={`${id}-panel`}
-        role="tabpanel"
-        {...styles.pre()}
-      >
-        <Source code={tab.code} html={tab.html} />
-      </pre>
+      {props.tabs.map((entry, index) => (
+        <pre
+          data-lang={entry.lang}
+          data-state={entry.html === undefined ? 'plain' : 'highlighted'}
+          data-vocs-part="pre"
+          hidden={index !== selected}
+          id={`${id}-panel-${index}`}
+          key={index}
+          role="tabpanel"
+          {...styles.pre()}
+        >
+          <Source code={entry.code} html={entry.html} />
+        </pre>
+      ))}
+      <Copy />
     </figure>
   )
 }
@@ -422,6 +458,32 @@ namespace styles {
     },
   })
 
+  // The button shows while the pointer or focus is in its block, and always without hover.
+  export const copy = style({
+    '@layer vocs': {
+      backgroundColor: vars.color.background,
+      borderColor: vars.color.border,
+      borderRadius: vars.radius.sm,
+      borderStyle: 'solid',
+      borderWidth: '1px',
+      color: vars.color.muted,
+      cursor: 'pointer',
+      fontFamily: vars.fontFamily.sans,
+      fontSize: 'xs',
+      insetBlockStart: 2,
+      insetInlineEnd: 2,
+      opacity: 0,
+      paddingBlock: '2px !custom',
+      paddingInline: 2,
+      position: 'absolute',
+      '&:hover': { color: vars.color.foreground },
+      '&[data-state="copied"]': { color: vars.color.foreground },
+      '&:focus-visible': { outlineColor: 'accent', outlineStyle: 'solid', outlineWidth: '2px' },
+      'figure:hover > &, figure:focus-within > &': { opacity: 1 },
+      '@media (hover: none)': { opacity: 1 },
+    },
+  })
+
   export const entry = style({
     '@layer vocs': {
       alignItems: 'baseline',
@@ -443,6 +505,7 @@ namespace styles {
       borderWidth: '1px',
       margin: 0,
       overflow: 'hidden',
+      position: 'relative',
     },
   })
 

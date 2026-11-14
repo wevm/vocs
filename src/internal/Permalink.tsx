@@ -1,11 +1,12 @@
 /**
  * Renders the permalink of a saved page as a streamed HTML document. The document inlines the
- * default theme and loads no script, so it reads the same with JavaScript off. The handler imports
- * this module on the first permalink.
+ * default theme and one module that switches code tabs and copies code, so it loads nothing else
+ * and reads the same with JavaScript off. The handler imports this module on the first permalink.
  * @module
  */
 import { renderToReadableStream } from 'react-dom/server'
 import { Page } from '../react/Page.js'
+import * as Enhance from './Enhance.js'
 import type * as Saved from './Saved.js'
 import * as Stylesheet from './Stylesheet.js'
 import { style } from '../zyzz.config.js'
@@ -30,6 +31,7 @@ export async function render(options: render.Options): Promise<ReadableStream<Ui
           slug={options.page.slug}
           title={options.site.title}
         />
+        <script dangerouslySetInnerHTML={{ __html: Enhance.script }} type="module" />
       </body>
     </html>,
   )
