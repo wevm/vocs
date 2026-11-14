@@ -13,7 +13,8 @@
     "@types/node": "catalog:",
     "typescript": "catalog:",
     "vite-plus": "catalog:",
-    "zile": "catalog:"
+    "zile": "catalog:",
+    "zyzz": "catalog:"
   },
   "packageManager": "pnpm@12.18.0",
   "[!start-pkg]": "",
