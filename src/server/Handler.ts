@@ -11,6 +11,7 @@ import * as Corpus from '../internal/Corpus.js'
 import * as Demos from '../internal/Demos.js'
 import * as Highlight from '../internal/Highlight.js'
 import * as Saved from '../internal/Saved.js'
+import * as Svg from '../internal/Svg.js'
 
 /** A mounted handler. */
 export type Handler = {
@@ -99,6 +100,10 @@ export function from(config: Config.Config, options: from.Options): Handler {
     twoslash: config.twoslash?.packages,
   } satisfies Agent
   const highlighter = Highlight.create({ types: Highlight.types(config) })
+  const diagrams = (() => {
+    const load = Svg.loader(config)
+    return load ? Svg.create(load) : undefined
+  })()
   // Rendered HTML by snippet, so a repeated block, such as one on a saved page, renders once.
   const rendered = new Map<string, string>()
   const key = (snippet: Highlight.Snippet) =>
@@ -284,12 +289,23 @@ export function from(config: Config.Config, options: from.Options): Handler {
         if (draft instanceof Error) return text(400, draft.message)
 
         // Registered demos validate their props again, so stored props always match the schema.
+        // Diagrams render to SVG here, so a permalink shows them without WebAssembly.
         const errors: string[] = []
         const pages = await Promise.all(
           draft.pages.map(async (page, pageIndex) => ({
             ...page,
             blocks: await Promise.all(
               page.blocks.map(async (block, blockIndex) => {
+                if (block.type === 'mermaid' && diagrams)
+                  return diagrams.render(block.diagram).then(
+                    (svg) => ({ ...block, svg }),
+                    (error: unknown) => {
+                      errors.push(
+                        `pages[${pageIndex}].blocks[${blockIndex}]: The mermaid diagram does not render. ${error instanceof Error ? error.message : String(error)}`,
+                      )
+                      return block
+                    },
+                  )
                 if (block.type !== 'demo' || !Object.hasOwn(demos, block.name))
                   return highlight(block)
                 const result = await validate(block.name, block.props)

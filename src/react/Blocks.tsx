@@ -69,7 +69,12 @@ function BlockView(props: {
       </Tag>
     )
   }
-  if (block.type === 'mermaid') return <Mermaid diagram={block.diagram} renderer={props.diagram} />
+  if (block.type === 'mermaid')
+    return block.svg === undefined ? (
+      <Mermaid diagram={block.diagram} renderer={props.diagram} />
+    ) : (
+      <Rendered svg={block.svg} />
+    )
   if (block.type === 'prose')
     return (
       <div data-vocs="prose" {...styles.prose()}>
@@ -103,16 +108,22 @@ function Mermaid(props: { diagram: string; renderer: Diagram.Diagram }) {
     )
   }, [props.diagram, props.renderer])
 
+  if (state.status === 'rendered') return <Rendered svg={state.svg} />
   return (
     <figure data-state={state.status} data-vocs="mermaid" {...styles.mermaid()}>
-      {state.status === 'rendered' ? (
-        // Ondine compiles the source to SVG and escapes every label, so the markup holds no script.
-        <div dangerouslySetInnerHTML={{ __html: state.svg }} data-vocs-part="svg" />
-      ) : (
-        <pre data-vocs-part="source" {...styles.pre()}>
-          <code>{props.diagram}</code>
-        </pre>
-      )}
+      <pre data-vocs-part="source" {...styles.pre()}>
+        <code>{props.diagram}</code>
+      </pre>
+    </figure>
+  )
+}
+
+/** A Mermaid diagram as SVG, from Ondine in the page or from the handler on a saved page. */
+function Rendered(props: { svg: string }) {
+  return (
+    <figure data-state="rendered" data-vocs="mermaid" {...styles.mermaid()}>
+      {/* Ondine compiles the source to SVG and escapes every label, so the markup holds no script. */}
+      <div dangerouslySetInnerHTML={{ __html: props.svg }} data-vocs-part="svg" />
     </figure>
   )
 }

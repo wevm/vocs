@@ -13,11 +13,16 @@ export type Block = schema.Block
 
 /**
  * A block as a page holds it. Code carries `html`, the highlighted HTML inside `<code>` that the
- * render route returned. The model never sets `html`: `parse` drops unknown fields.
+ * render route returned. A diagram of a saved page carries `svg`, which the handler rendered on
+ * save. The model never sets either: `parse` drops unknown fields.
  */
 export type Rendered =
-  | Exclude<Block, { type: 'code' | 'codeGroup' }>
+  | Exclude<Block, { type: 'code' | 'codeGroup' | 'mermaid' }>
   | (schema.Code & Html)
+  | (Extract<Block, { type: 'mermaid' }> & {
+      /** SVG of the diagram, from the handler. */
+      svg?: string | undefined
+    })
   | (Omit<schema.CodeGroup, 'tabs'> & {
       tabs: readonly (schema.CodeGroup['tabs'][number] & Html)[]
     })

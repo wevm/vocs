@@ -7,25 +7,32 @@
  * With `demos` set, it serves the registry as `virtual:vocs/demos`, and the client build emits
  * `virtual:vocs/islands`, the module that hydrates the demos of a permalink. The client then
  * builds before the server, which reads the URL of that module from Vite's cache directory.
+ * With `storage` set, server builds get `virtual:vocs/diagram`, the Ondine compiler module that
+ * renders the diagrams of saved pages, loaded on the first save with a diagram.
  * In dev, the dev server serves the sources asset, and a change to the config or a Markdown file
  * rebuilds it and reloads the config.
  * @module
  */
 import * as Fs from 'node:fs/promises'
 import * as Path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { type Plugin, runnerImport } from 'vite'
 import type * as Config from '../Config.js'
 import * as Corpus from '../internal/Corpus.js'
 import * as Demos from '../internal/Demos.js'
 import * as Highlight from '../internal/Highlight.js'
 import * as NodeFiles from '../internal/NodeFiles.js'
+import * as Svg from '../internal/Svg.js'
 import * as Types from '../internal/Types.js'
 
 const id = 'virtual:vocs/config'
 const demosId = 'virtual:vocs/demos'
+const diagramId = 'virtual:vocs/diagram'
 const islandsId = 'virtual:vocs/islands'
 const typesId = 'virtual:vocs/types'
-const virtuals = [id, demosId, islandsId, typesId]
+const virtuals = [id, demosId, diagramId, islandsId, typesId]
+/** The URL import of the compiler module that the page fetches to render diagrams. */
+const diagramUrl = 'ondine/compiler/wasm/all.wasm?url'
 
 /**
  * Rewrites `__filename` in TypeScript's API module. TypeScript treats a bundle with a `require`
@@ -212,6 +219,14 @@ export function vocs(options: vocs.Options = {}): Plugin {
         ].join('\n')
       }
       if (resolved === `\0${islandsId}`) return islands(command === 'serve' && preamble)
+      if (resolved === `\0${diagramUrl}`) return `export default ''`
+      // Workers compile WebAssembly only from module imports. Other runtimes compile the bytes.
+      // Ondine resolves from Vocs, because the host may not depend on it.
+      if (resolved === `\0${diagramId}`) {
+        if (this.environment.config.resolve.conditions.includes('workerd'))
+          return `export { default } from ${JSON.stringify(resolve('ondine/compiler/wasm/all.wasm'))}`
+        return `export { wasm as default } from ${JSON.stringify(resolve('ondine/compiler/wasm/all'))}`
+      }
       if (resolved !== `\0${id}`) return undefined
       const [built, config, entries] = await Promise.all([build(), load(), demos()])
       const asset = {
@@ -232,13 +247,17 @@ export function vocs(options: vocs.Options = {}): Plugin {
           'The islands module of `demos` is not built. Build the client environment before the server environments.',
         )
       })()
+      const diagram =
+        config.storage && this.environment.config.consumer === 'server'
+          ? `, [Symbol.for(${JSON.stringify(Svg.key.description)})]: () => import(${JSON.stringify(diagramId)}).then((module) => module.default)`
+          : ''
       const registry =
         modules === undefined
           ? ''
           : `, [Symbol.for(${JSON.stringify(Demos.key.description)})]: { ...${JSON.stringify(modules)}, load: () => import(${JSON.stringify(demosId)}).then((module) => module.load) }`
       return [
         `import config from ${JSON.stringify(configPath())}`,
-        `export default { ...config, [Symbol.for(${JSON.stringify(Corpus.key.description)})]: ${JSON.stringify(asset)}${types}${registry} }`,
+        `export default { ...config, [Symbol.for(${JSON.stringify(Corpus.key.description)})]: ${JSON.stringify(asset)}${types}${registry}${diagram} }`,
       ].join('\n')
     },
     name: 'vocs',
@@ -249,11 +268,24 @@ export function vocs(options: vocs.Options = {}): Plugin {
         return typescript.transform.handler(code)
       },
     },
-    resolveId(source) {
-      if (virtuals.includes(source)) return `\0${source}`
-      return undefined
+    resolveId: {
+      // Before Vite resolves `?url` imports as assets.
+      order: 'pre',
+      handler(source) {
+        if (virtuals.includes(source)) return `\0${source}`
+        // Only the page fetches it. A server build that emitted it as an asset would give it the
+        // file name of the server's compiled module, which the Cloudflare plugin then moves out.
+        if (source === diagramUrl && this.environment.config.consumer !== 'client')
+          return `\0${diagramUrl}`
+        return undefined
+      },
     },
   }
+}
+
+/** Returns the file path of a module that Vocs depends on. */
+function resolve(specifier: string) {
+  return fileURLToPath(import.meta.resolve(specifier))
 }
 
 /**
