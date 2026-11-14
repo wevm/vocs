@@ -7,8 +7,13 @@
     "moduleResolution": "nodenext",
     "target": "esnext",
     "jsx": "react-jsx",
-    // Resolve `vocs` entrypoints to their sources, so types check without a build.
-    "customConditions": ["src"],
+    "paths": {
+      "vocs": ["./src/index.ts"],
+      "vocs/client": ["./src/client/index.ts"],
+      "vocs/react": ["./src/react/index.ts"],
+      "vocs/server": ["./src/server/index.ts"],
+      "vocs/vite": ["./src/vite/index.ts"]
+    },
     "types": ["node", "vite-plus/test/globals"],
 
     // Other Outputs
@@ -36,5 +41,7 @@
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
     "skipLibCheck": true
-  }
+  },
+  // The playgrounds check with their own config, as hosts that consume `vocs`.
+  "exclude": ["dist", "node_modules", "playground"]
 }

@@ -5,11 +5,14 @@
  * @module
  */
 // oxlint-disable-next-line typescript/triple-slash-reference -- zile compiles only the entry graph, which an ambient declaration joins through a reference.
-/// <reference path="./wasm.d.ts" />
+/// <reference path="../internal/assets.d.ts" />
 import sqlite3InitModule from '@sqlite.org/sqlite-wasm'
 import { AgentRuntime, Contracts } from 'nanocode-ts'
 import { Bash } from 'nanocode-ts/bash'
 import wasm from 'nanocode-ts/nanocode_wasm.wasm?url'
+import * as z from 'zod/mini'
+import * as Block from '../Block.js'
+import * as Diagram from '../internal/Diagram.js'
 import type * as Corpus from '../internal/Corpus.js'
 import type * as Handler from '../server/Handler.js'
 
@@ -30,7 +33,22 @@ export type Handlers = {
   toolCall(): void
   /** A tool call returned. `output` holds its shell commands and their output. */
   toolResult(output: string): void
+  /**
+   * Applies a page tool call and returns the result the agent reads. Set only for page and docs
+   * messages. Throws with a message the agent reads when the operation does not apply.
+   */
+  page?: ((operation: Operation) => unknown) | undefined
 }
+
+/** A validated page tool call. `page` is the slug that `page_create` returns. */
+export type Operation =
+  | { block: Block.Block; index: number | undefined; page: string; type: 'block.insert' }
+  | { index: number; page: string; type: 'block.remove' }
+  | { block: Block.Block; index: number; page: string; type: 'block.replace' }
+  | { group: string; title: string; type: 'page.create' }
+  | { page: string; type: 'page.delete' }
+  | { page: string | undefined; type: 'page.read' }
+  | { group: string | undefined; page: string; title: string | undefined; type: 'page.update' }
 
 const scope = 'page'
 
@@ -69,6 +87,7 @@ export async function load(options: load.Options): Promise<Agent> {
   }
 
   let handlers: Handlers | undefined
+  const diagram = Diagram.create()
   // Shell commands run inside Code Mode cells. A cell's commands and their output are reported
   // together when the cell, a call without `parent_call_id`, returns.
   const cells = new Map<string, string[]>()
@@ -120,6 +139,7 @@ export async function load(options: load.Options): Promise<Agent> {
       subscription: false,
       thinking: 'low',
       web_search: false,
+      tools: tools(),
       workspace: bash.cwd,
       workspace_tools: 'all',
     },
@@ -132,6 +152,21 @@ export async function load(options: load.Options): Promise<Agent> {
           redirect: 'error',
           signal,
         }),
+      tools: {
+        async call(name, input) {
+          if (!handlers?.page)
+            throw new Error('Page tools work only for messages that ask for a page or docs.')
+          const next = operation(name, input)
+          // A diagram that fails to render returns to the agent, so it fixes the source.
+          if ('block' in next && next.block.type === 'mermaid')
+            await diagram.render(next.block.diagram).catch((error: unknown) => {
+              throw new Error(
+                `The mermaid diagram does not render. Fix it and emit the block again:\n${error instanceof Error ? error.message : String(error)}`,
+              )
+            })
+          return handlers.page(next)
+        },
+      },
       workspace: bash.workspace(),
     },
   )
@@ -190,10 +225,128 @@ function text(result: unknown): string {
   return result.map((part: { text?: unknown }) => String(part.text ?? '')).join('')
 }
 
+/** Returns the page tools, which Code Mode cells call as `tools.page_insert(...)`. */
+function tools(): Contracts.HostTool[] {
+  const { $schema: _, ...block } = z.toJSONSchema(Block.schema.block) as Record<string, unknown>
+  const string = (description: string) => ({ description, minLength: 1, type: 'string' })
+  const index = { minimum: 0, type: 'integer' }
+  const page = string('Page slug from `page_create`.')
+  const title = string(titles.page)
+  const group = string(titles.group)
+  const object = (properties: Record<string, unknown>, required: readonly string[]) => ({
+    additionalProperties: false,
+    properties,
+    required,
+    type: 'object',
+  })
+  return [
+    {
+      description:
+        'Creates an empty page in a sidebar group and returns its slug. Pages appear in creation order.',
+      name: 'page_create',
+      parameters: object({ group, title }, ['group', 'title']),
+    },
+    {
+      description:
+        'Without `page`, returns the outline: every page with its group, title, and block count. With `page`, returns that page with its blocks and their indexes.',
+      name: 'page_read',
+      parameters: object({ page }, []),
+    },
+    {
+      description: 'Renames a page or moves it to another group.',
+      name: 'page_update',
+      parameters: object({ group, page, title }, ['page']),
+    },
+    { description: 'Deletes a page.', name: 'page_delete', parameters: object({ page }, ['page']) },
+    {
+      description:
+        'Adds one block to a page at `index`, or at the end without one. Call once per block, in reading order, so the page renders as you write it.',
+      name: 'page_insert',
+      parameters: object({ block, index, page }, ['block', 'page']),
+    },
+    {
+      description: 'Replaces the block at `index`.',
+      name: 'page_replace',
+      parameters: object({ block, index, page }, ['block', 'index', 'page']),
+    },
+    {
+      description: 'Removes the block at `index`. Later blocks move up by one.',
+      name: 'page_remove',
+      parameters: object({ index, page }, ['index', 'page']),
+    },
+  ]
+}
+
+/** Sidebar naming rules, enforced by `operation` and repeated to the agent. */
+const titles = {
+  group:
+    'Sidebar group: a Title Case noun phrase of at most four words, such as "Clients & Transports".',
+  page: 'Sidebar title: Title Case, at most five words, led by a verb, such as "Set Up a Client" or "Query Logs". The first page of a group may be "Overview".',
+} as const
+
+/**
+ * Validates a page tool call.
+ *
+ * @throws When the input does not match the tool. The message names the fault.
+ */
+function operation(name: string, input: unknown): Operation {
+  const value = (input ?? {}) as Record<string, unknown>
+  const text = (key: string, words: number, rule: string) => {
+    const raw = value[key]
+    if (typeof raw !== 'string' || !raw.trim())
+      throw new Error(`\`${key}\` must be a non-empty string.`)
+    if (raw.trim().split(/\s+/).length > words) throw new Error(`\`${key}\` is too long. ${rule}`)
+    return raw.trim()
+  }
+  const optional = (key: string, words: number, rule: string) =>
+    value[key] === undefined ? undefined : text(key, words, rule)
+  const page = () => text('page', 1, 'Use the slug that `page_create` returned.')
+  const index = () => {
+    const raw = value.index
+    if (typeof raw !== 'number' || !Number.isInteger(raw) || raw < 0)
+      throw new Error('`index` must be a block index, an integer from 0.')
+    return raw
+  }
+
+  if (name === 'page_create')
+    return {
+      group: text('group', 4, titles.group),
+      title: text('title', 5, titles.page),
+      type: 'page.create',
+    }
+  if (name === 'page_read')
+    return { page: value.page === undefined ? undefined : page(), type: 'page.read' }
+  if (name === 'page_update')
+    return {
+      group: optional('group', 4, titles.group),
+      page: page(),
+      title: optional('title', 5, titles.page),
+      type: 'page.update',
+    }
+  if (name === 'page_delete') return { page: page(), type: 'page.delete' }
+  if (name === 'page_insert')
+    return {
+      block: Block.parse(value.block),
+      index: value.index === undefined ? undefined : index(),
+      page: page(),
+      type: 'block.insert',
+    }
+  if (name === 'page_replace')
+    return { block: Block.parse(value.block), index: index(), page: page(), type: 'block.replace' }
+  if (name === 'page_remove') return { index: index(), page: page(), type: 'block.remove' }
+  throw new Error(`Tool "${name}" does not exist.`)
+}
+
 function instructions(settings: Handler.Agent) {
   return [
     `You answer questions about ${settings.title}${settings.description ? `: ${settings.description}` : ''}.`,
     'The documentation sources are files under /sources. Search them with `rg` and read them with `cat` before you answer.',
     'Answer only from those files. Name the file paths you used. If the files do not answer the question, say so.',
+    'A message that starts with "Write a page:" asks for one page. Search the sources first. Create the page with `tools.page_create`, then add its blocks with `tools.page_insert`, one block per call, in reading order.',
+    'A message that starts with "Write docs:" asks for a small documentation site of two to eight pages. Search the sources first. Plan sidebar groups, start each group with an "Overview" page, and create every page with `tools.page_create` before you fill them with `tools.page_insert`.',
+    `${titles.page} ${titles.group}`,
+    'Prefer short prose, steps, and complete code blocks taken from the sources. Never invent an API.',
+    'A message that starts with "Revise:" asks for a change to the pages already written. Read the outline with `tools.page_read`, then change only what the message asks.',
+    'After a page or docs message, reply with one sentence that says what the pages cover or what changed.',
   ].join('\n')
 }

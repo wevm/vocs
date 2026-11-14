@@ -13,7 +13,7 @@ const assets = Path.join(root, 'client/assets')
 const files = await Promise.all(
   (await Fs.readdir(assets))
     // The sources snapshot is content, which grows with the sources and loads beside the code.
-    .filter((name) => !name.startsWith('vocs-corpus-'))
+    .filter((name) => !name.startsWith('vocs-corpus-') && !name.endsWith('.css'))
     .map(async (name) => {
       const content = await Fs.readFile(Path.join(assets, name))
       return {
@@ -27,14 +27,21 @@ const worker = Zlib.gzipSync(await Fs.readFile(Path.join(root, 'vocs_playground_
 const entry = files.find((file) => /^index-.+\.js$/.test(file.name))
 if (!entry) throw new Error(`${assets} has no page entry. Build playground/custom first.`)
 
+// Ondine's compiler module loads only for a page with a diagram, so it has its own budget.
+const diagram = files.filter((file) => file.name.startsWith('all.generated-'))
+if (diagram.length !== 1) throw new Error(`${assets} has no Ondine compiler module.`)
+
 const budgets = [
   {
     limit: 4_000_000,
     name: 'Agent module and page JavaScript, Brotli',
-    size: files.reduce((total, file) => total + file.brotli, 0),
+    size: files
+      .filter((file) => !diagram.includes(file))
+      .reduce((total, file) => total + file.brotli, 0),
   },
+  { limit: 700_000, name: 'Diagram compiler module, Brotli', size: diagram[0]!.brotli },
   { limit: 3_000_000, name: 'Worker bundle, gzip', size: worker.length },
-  { limit: 100_000, name: 'Page entry JavaScript with React, gzip', size: entry.gzip },
+  { limit: 180_000, name: 'Page entry JavaScript with React and Lexical, gzip', size: entry.gzip },
 ]
 
 for (const budget of budgets)

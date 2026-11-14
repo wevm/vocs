@@ -182,3 +182,193 @@ describe('machines.turn', () => {
     `)
   })
 })
+
+describe('machines.guide', () => {
+  const prose = (markdown: string) => ({ markdown, type: 'prose' }) as const
+
+  test('writes pages in sidebar order with unique slugs', () => {
+    const actor = createActor(machines.guide).start()
+    actor.send({ group: 'Memos', title: 'Overview', type: 'page.create' })
+    actor.send({ group: 'Memos', title: 'Attach a Memo', type: 'page.create' })
+    actor.send({ group: 'Fees', title: 'Overview', type: 'page.create' })
+    actor.send({
+      block: prose('First'),
+      index: undefined,
+      page: 'attach-a-memo',
+      type: 'block.insert',
+    })
+    actor.send({
+      block: prose('Second'),
+      index: undefined,
+      page: 'attach-a-memo',
+      type: 'block.insert',
+    })
+    actor.send({ block: prose('Zeroth'), index: 0, page: 'attach-a-memo', type: 'block.insert' })
+    actor.send({ block: prose('Edited'), index: 1, page: 'attach-a-memo', type: 'block.replace' })
+    actor.send({ index: 2, page: 'attach-a-memo', type: 'block.remove' })
+    actor.send({ group: 'Fees', page: 'overview-2', title: 'Pay Fees', type: 'page.update' })
+    actor.send({ page: 'overview', type: 'page.delete' })
+    actor.send({ type: 'turn.complete' })
+
+    expect(machines.guideState(actor.getSnapshot())).toMatchInlineSnapshot(`
+      {
+        "error": undefined,
+        "files": [],
+        "pages": [
+          {
+            "blocks": [
+              {
+                "markdown": "Zeroth",
+                "type": "prose",
+              },
+              {
+                "markdown": "Edited",
+                "type": "prose",
+              },
+            ],
+            "group": "Memos",
+            "slug": "attach-a-memo",
+            "title": "Attach a Memo",
+          },
+          {
+            "blocks": [],
+            "group": "Fees",
+            "slug": "overview-2",
+            "title": "Pay Fees",
+          },
+        ],
+        "status": "ready",
+      }
+    `)
+  })
+
+  test('ignores calls on missing pages and blocks', () => {
+    const actor = createActor(machines.guide).start()
+    actor.send({ group: 'Memos', title: 'Overview', type: 'page.create' })
+    const missing = [
+      { block: prose('x'), index: undefined, page: 'nope', type: 'block.insert' },
+      { block: prose('x'), index: 1, page: 'overview', type: 'block.insert' },
+      { block: prose('x'), index: 0, page: 'overview', type: 'block.replace' },
+      { index: 0, page: 'overview', type: 'block.remove' },
+      { page: 'nope', type: 'page.delete' },
+      { group: undefined, page: 'nope', title: 'X', type: 'page.update' },
+    ] as const
+
+    expect(missing.map((event) => actor.getSnapshot().can(event))).toMatchInlineSnapshot(`
+      [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+      ]
+    `)
+  })
+
+  test('keeps the pages when a revision fails, and revises again', () => {
+    const actor = createActor(machines.guide).start()
+    actor.send({ group: 'Memos', title: 'Overview', type: 'page.create' })
+    actor.send({ type: 'turn.complete' })
+    actor.send({ type: 'guide.refine' })
+    actor.send({ error: 'The agent could not answer.', type: 'turn.fail' })
+    const failed = machines.guideState(actor.getSnapshot())
+    actor.send({ type: 'guide.refine' })
+
+    expect({
+      failed: { error: failed.error, pages: failed.pages.length, status: failed.status },
+      next: {
+        error: actor.getSnapshot().context.error,
+        status: machines.guideStatus(actor.getSnapshot()),
+      },
+    }).toMatchInlineSnapshot(`
+      {
+        "failed": {
+          "error": "The agent could not answer.",
+          "pages": 1,
+          "status": "failed",
+        },
+        "next": {
+          "error": undefined,
+          "status": "refining",
+        },
+      }
+    `)
+  })
+
+  test('reaches every status, and each ends where its state says', () => {
+    const events = {
+      'agent.fail': { error: 'The agent module failed to load.', type: 'agent.fail' },
+      'block.insert': {
+        block: prose('x'),
+        index: undefined,
+        page: 'overview',
+        type: 'block.insert',
+      },
+      'block.remove': { index: 0, page: 'overview', type: 'block.remove' },
+      'block.replace': { block: prose('y'), index: 0, page: 'overview', type: 'block.replace' },
+      'guide.cancel': { type: 'guide.cancel' },
+      'guide.refine': { type: 'guide.refine' },
+      'page.create': { group: 'Memos', title: 'Overview', type: 'page.create' },
+      'page.delete': { page: 'overview', type: 'page.delete' },
+      'page.update': {
+        group: undefined,
+        page: 'overview',
+        title: 'Read Memos',
+        type: 'page.update',
+      },
+      'tool.result': { files: [], type: 'tool.result' },
+      'turn.complete': { type: 'turn.complete' },
+      'turn.fail': { error: 'The agent could not answer.', type: 'turn.fail' },
+    } satisfies Record<machines.guide.Event['type'], machines.guide.Event>
+
+    // At most one page with one block keeps the graph finite.
+    const size = (snapshot: machines.guide.Snapshot) =>
+      `${snapshot.context.pages.length}/${snapshot.context.pages[0]?.blocks.length ?? 0}`
+    const paths = getShortestPaths(machines.guide, {
+      events: (snapshot) =>
+        Object.values(events).filter(
+          (event) =>
+            snapshot.can(event) &&
+            !(event.type === 'page.create' && snapshot.context.pages.length > 0) &&
+            !(event.type === 'block.insert' && size(snapshot) !== '1/0'),
+        ),
+      serializeState: (snapshot) => `${String(snapshot.value)} ${size(snapshot)}`,
+    })
+
+    for (const event of Object.values(events))
+      expect(
+        paths.some((path) => path.state.can(event)),
+        event.type,
+      ).toBe(true)
+    // A guide holds an error exactly when it failed.
+    for (const path of paths) {
+      const state = machines.guideState(path.state)
+      expect(state.error !== undefined, state.status).toBe(state.status === 'failed')
+    }
+    expect(
+      paths.map(
+        (path) =>
+          `${path.steps.map((step) => step.event.type).join(' → ')} = ${String(path.state.value)} ${size(path.state)}`,
+      ),
+    ).toMatchInlineSnapshot(`
+      [
+        "xstate.init = generating 0/0",
+        "xstate.init → agent.fail = failed 0/0",
+        "xstate.init → guide.cancel = cancelled 0/0",
+        "xstate.init → page.create = generating 1/0",
+        "xstate.init → turn.complete = ready 0/0",
+        "xstate.init → agent.fail → guide.refine = refining 0/0",
+        "xstate.init → page.create → agent.fail = failed 1/0",
+        "xstate.init → page.create → block.insert = generating 1/1",
+        "xstate.init → page.create → guide.cancel = cancelled 1/0",
+        "xstate.init → page.create → turn.complete = ready 1/0",
+        "xstate.init → agent.fail → guide.refine → page.create = refining 1/0",
+        "xstate.init → page.create → block.insert → agent.fail = failed 1/1",
+        "xstate.init → page.create → block.insert → guide.cancel = cancelled 1/1",
+        "xstate.init → page.create → block.insert → turn.complete = ready 1/1",
+        "xstate.init → agent.fail → guide.refine → page.create → block.insert = refining 1/1",
+      ]
+    `)
+  })
+})

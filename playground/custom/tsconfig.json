@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    // Resolve `vocs` entrypoints to their sources, so types check without a build.
+    "customConditions": ["src"],
+    "declaration": false,
+    "declarationMap": false,
+    "paths": {},
+    "types": ["node", "vite/client"]
+  },
+  "exclude": ["dist", "node_modules"],
+  "include": ["**/*.ts", "**/*.tsx"]
+}

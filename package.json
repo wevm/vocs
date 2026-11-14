@@ -1,11 +1,11 @@
 {
   "scripts": {
-    "build": "zile",
+    "build": "zile && node scripts/styles.ts",
     "changeset:publish": "zile publish:prepare && changeset publish && zile publish:post",
     "changeset:version": "changeset version",
     "check": "vp check --fix",
     "check:budgets": "node scripts/budgets.ts",
-    "check:types": "tsc",
+    "check:types": "tsc && tsc -p playground/custom",
     "dev": "zile dev",
     "test": "vp test",
     "test:e2e": "playwright test"
@@ -21,8 +21,7 @@
     "typescript": "catalog:",
     "vite": "catalog:",
     "vite-plus": "catalog:",
-    "zile": "catalog:",
-    "zyzz": "catalog:"
+    "zile": "catalog:"
   },
   "packageManager": "pnpm@12.18.0",
   "[!start-pkg]": "",
@@ -53,6 +52,14 @@
       "types": "./dist/react/index.d.ts",
       "default": "./dist/react/index.js"
     },
+    "./styles.css": {
+      "src": "./src/styles.css",
+      "default": "./dist/styles.css"
+    },
+    "./tokens.css": {
+      "src": "./src/tokens.css",
+      "default": "./dist/tokens.css"
+    },
     "./server": {
       "src": "./src/server/index.ts",
       "types": "./dist/server/index.d.ts",
@@ -74,9 +81,14 @@
   ],
   "sideEffects": false,
   "dependencies": {
+    "@lexical/react": "catalog:",
     "@sqlite.org/sqlite-wasm": "catalog:",
+    "lexical": "catalog:",
     "nanocode-ts": "catalog:",
-    "xstate": "catalog:"
+    "ondine": "catalog:",
+    "xstate": "catalog:",
+    "zod": "catalog:",
+    "zyzz": "catalog:"
   },
   "peerDependencies": {
     "react": "^19.0.0",

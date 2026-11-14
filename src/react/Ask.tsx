@@ -65,7 +65,7 @@ export declare namespace Ask {
 }
 
 /** One question and its streaming answer. */
-function Message(props: Message.Props) {
+export function Message(props: Message.Props) {
   const state = React.useSyncExternalStore(props.turn.subscribe, props.turn.get, props.turn.get)
   return (
     <article
@@ -88,6 +88,6 @@ function Message(props: Message.Props) {
   )
 }
 
-declare namespace Message {
+export declare namespace Message {
   type Props = { turn: Client.Turn }
 }
