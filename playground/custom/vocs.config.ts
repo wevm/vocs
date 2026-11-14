@@ -1,6 +1,7 @@
 import { defineConfig, Provider, Source, Storage } from 'vocs'
 
 export default defineConfig({
+  demos: { memo: './src/demos/Memo.tsx' },
   description: 'Tempo is a payments blockchain.',
   provider: Provider.cloudflare({ gateway: 'vocs', models: ['gpt-6-luna'] }),
   sources: [

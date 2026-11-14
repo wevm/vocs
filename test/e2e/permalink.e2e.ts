@@ -1,8 +1,9 @@
 /**
  * End-to-end coverage of saved pages in custom mode: the reader saves generated pages, and the
  * handler serves each page's permalink as server-rendered HTML that reads the same with
- * JavaScript off and loads nothing else. One inline module switches code tabs and copies code.
- * Saving stores only what the handler renders.
+ * JavaScript off. One inline module switches code tabs and copies code. A registered demo renders
+ * on the server and hydrates as an island, so only a page with a demo loads React. Saving stores
+ * only what the handler renders.
  * @module
  */
 import type { Browser, Page } from '@playwright/test'
@@ -113,7 +114,10 @@ test('saves docs, and links their pages without JavaScript', async ({ browser, p
   await expect(permalink.page.locator('[data-vocs=mermaid] [data-vocs-part=source]')).toContainText(
     'Sender --> Fee[Fee token] --> Validator',
   )
-  expect(permalink.requests.filter((request) => !request.startsWith(path))).toEqual([])
+  // "Attach a Memo" has a demo. Chromium fetches its module preloads, but runs no script.
+  const others = permalink.requests.filter((request) => !request.startsWith(path))
+  expect(others.every((request) => request.startsWith('/assets/'))).toBe(true)
+  expect(others.filter((request) => /vocs-islands-/.test(request))).toEqual([])
   await permalink.context.close()
 })
 
@@ -131,7 +135,50 @@ test('switches code tabs and copies code, in the page and its permalink', async 
   page.on('request', (request) => requests.push(new URL(request.url()).pathname))
   await page.goto(`${path}/attach-a-memo`)
   await tabsAndCopy(page)
-  expect(requests).toEqual([`${path}/attach-a-memo`])
+  // The page's demo loads the islands module. Tabs and copy buttons add no request.
+  expect(requests.filter((request) => !request.startsWith('/assets/'))).toEqual([
+    `${path}/attach-a-memo`,
+  ])
+})
+
+test('renders a registered demo on the server, and hydrates it on the permalink', async ({
+  browser,
+  page,
+}) => {
+  const memo = (container: Page | ReturnType<Page['locator']>) => ({
+    input: container.getByRole('textbox', { name: 'Memo' }),
+    output: container.locator('output'),
+  })
+  const hex = (text: string) => `0x${Buffer.from(text).toString('hex').padEnd(64, '0')}`
+
+  await compose(page, 'Docs', 'Explain memos and fees')
+  const path = `${await save(page)}/attach-a-memo`
+  await page
+    .getByRole('navigation', { name: 'Pages' })
+    .getByRole('link', { name: 'Attach a Memo' })
+    .click()
+  const live = memo(page.locator('[data-vocs=demo]'))
+  await live.input.fill('hello')
+  await expect(live.output).toHaveText(hex('hello'))
+
+  const off = await open(browser, new URL(page.url()).origin, path)
+  const island = off.page.locator('[data-vocs=demo] [data-vocs-part=island]')
+  await expect(island).toHaveAttribute('data-state', 'static')
+  await expect(memo(island).input).toHaveValue('invoice 42')
+  await expect(memo(island).output).toHaveText(hex('invoice 42'))
+  await off.context.close()
+
+  const requests: string[] = []
+  page.on('request', (request) => requests.push(new URL(request.url()).pathname))
+  await page.goto(path)
+  const hydrated = page.locator('[data-vocs-part=island]')
+  await expect(hydrated).toHaveAttribute('data-state', 'hydrated')
+  await memo(hydrated).input.fill('refund 7')
+  await expect(memo(hydrated).output).toHaveText(hex('refund 7'))
+  expect(requests[0]).toBe(path)
+  expect(requests.slice(1).every((request) => request.startsWith('/assets/'))).toBe(true)
+  expect(requests.filter((request) => /vocs-islands-.*\.js$/.test(request))).toHaveLength(1)
+  expect(requests.filter((request) => /\.wasm$|\/Agent-/.test(request))).toEqual([])
 })
 
 test('stores only the HTML the handler renders, and rejects an invalid draft', async ({
