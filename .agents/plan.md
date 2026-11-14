@@ -67,7 +67,7 @@ Measured on 2026-11-14 in an orb: 4 vCPU Intel Xeon at 2.60 GHz, headless Chromi
 - Type acquisition at render time is not viable: one package import fetches thousands of files, and unthrottled parallel fetches fail TLS handshakes.
 - Local workerd timings approximate production CPU time. Production startup time and memory need a deploy.
 
-**Twoslash placement.** Twoslash runs in the Worker. The build snapshots the type files of each pinned package into one content-addressed asset, and the render route loads it once per isolate. Rendered HTML is cached by the hash of block and snapshot, so each unique block runs Twoslash once. Phase 2 measures the snapshot trimmed to the files a program reads. A Node renderer is the fallback only if that snapshot does not fit in 128 MB with the TypeScript program.
+**Twoslash placement.** Measured in Phase 2: the snapshot of the files a program reads is 659 files, 5.6 MB raw and 0.80 MB gzip, for `viem`, and 1,554 files, 12.0 MB raw and 1.22 MB gzip, for `viem` and `viem/tempo`. In local workerd, the first Twoslash block with `viem` takes 1.1 s and a warm one about 30 ms. Production isolate memory is not measured yet. Decision from Phase 0: Twoslash runs in the Worker. The build snapshots the type files of each pinned package into one content-addressed asset, and the render route loads it once per isolate. Rendered HTML is cached by the hash of block and snapshot, so each unique block runs Twoslash once. Phase 2 measures the snapshot trimmed to the files a program reads. A Node renderer is the fallback only if that snapshot does not fit in 128 MB with the TypeScript program.
 
 **nanocode-ts dependency.** `vocs` cannot publish with a tarball URL dependency, and the `nanocode-ts` package is `private: true` with heavy dependencies (`viem`, `accounts`, `mppx`). Decision: ask the nanocode maintainers for an npm release of the browser entrypoints (`nanocode-ts`, `nanocode-ts/bash`) before phase 8. Until then, the catalog pins the release tarball for development. Vendoring the WebAssembly module and its glue is the fallback.
 
@@ -102,8 +102,9 @@ Goal: a prompt becomes a streamed, refinable page with a permalink.
 - [x] The block components in `vocs/react`, styled with zyzz, with `data-vocs` parts. A monochrome theme with light and dark defaults.
 - [x] `mermaid` blocks render with Ondine. A diagram that does not compile fails its tool call.
 - [x] `<Docs />` with home, docs, and chat views. The home view is a Lexical composer with Chat, Page, and Docs modes. Docs with more than one page get a sidebar.
-- [ ] `machines.render` and the render route: blocks to streamed HTML with Shiki and Twoslash, where spike B decided. `vocs/rsc` `Blocks`.
-- [ ] Twoslash failures return to the agent as a failed render.
+- [x] The render route: code snippets to HTML with Shiki and Twoslash in the Worker, where spike B decided. `twoslash.packages` in the config, and a type snapshot built by `vocs()`.
+- [x] Twoslash failures return to the agent as a failed render.
+- [ ] Server rendering of whole blocks for permalinks, and `vocs/rsc` `Blocks`. `machines.render` lands here: a generated block renders inside one awaited page tool call, which has no lifecycle of its own.
 - [ ] Hydration of interactive parts only: tabs, copy buttons, registered demos.
 - [ ] `Storage`: `Storage.cloudflare` and `Storage.memory`. Saved pages, `<Page id />`, and server-rendered permalinks that load no WebAssembly.
 - [ ] A chat reply can become a page.
@@ -188,7 +189,7 @@ Each budget is set in the phase that first measures it. CI fails when a budget i
 | Agent module and page JavaScript, Brotli | Phase 0 | 4 MB (measured 3.71 MB: 3.12 MB module, 0.24 MB JavaScript, 0.35 MB sqlite at `0624213`; 3.88 MB with sqlite workers in Phase 1; 3.96 MB with page tools in Phase 2) |
 | Turn overhead with an instant model      | Phase 0 | 400 ms (measured 280 ms)                                                                                                                                             |
 | Time to first token, warm, real gateway  | Phase 0 | To be measured with Cloudflare credentials                                                                                                                           |
-| Worker bundle, gzip                      | Phase 0 | 3 MB (measured 1.85 MB)                                                                                                                                              |
+| Worker bundle, gzip                      | Phase 0 | 3 MB, every Worker module (measured 1.85 MB in spike B, and 2.52 MB in Phase 2 with Shiki, Twoslash, and a 0.81 MB `viem` type snapshot)                             |
 | Warm block render in a Worker            | Phase 0 | Shiki 20 ms, Twoslash 250 ms (measured 7 ms and 155 ms)                                                                                                              |
 | Page entry JavaScript with React, gzip   | Phase 1 | 180 kB (measured 160 kB). Raised from 100 kB in Phase 2, because the Lexical composer adds about 75 kB                                                               |
 | Diagram compiler module, Brotli          | Phase 2 | 700 kB (measured 513 kB). Loads on the first `mermaid` block only                                                                                                    |
@@ -197,9 +198,8 @@ Each budget is set in the phase that first measures it. CI fails when a budget i
 ## Risks
 
 - **nanocode-ts has no npm release.** Phase 8 is blocked until the browser entrypoints publish to npm, or the module is vendored.
-- **Twoslash type snapshots.** One `viem` import reads 2,604 type files (23.4 MB). Phase 2 must trim the snapshot to fit beside the TypeScript program in 128 MB.
+- **Twoslash type snapshots.** The trimmed `viem` snapshot is 5.6 MB raw. Isolate memory with the TypeScript program is not measured in production, and the Node process used about 270 MB of heap in a local run. With `viem/tempo`, the Worker is about 2.9 MB gzip, close to the 3 MB Workers Free limit.
 - **plugin-rsc is 0.x.** Only the quick-mode app depends on it. TanStack Start is the fallback.
-- **zyzz custom property names.** zyzz emits `--z-*` names, and a host that also uses zyzz can emit the same names. Phase 2 settles the token mapping.
 - **XState in the page bundle.** It is part of the `vocs/react` budget.
 - **Search cost.** AI Search bills per query from 2026-12-01. `vectorize` is the fallback.
 

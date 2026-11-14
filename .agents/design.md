@@ -52,6 +52,7 @@ export default defineConfig({
     Source.mcp({ name: 'tempo', url: 'https://api.tempo.xyz/mcp' }),
   ],
   demos: { memo: './src/demos/Memo.tsx' },
+  twoslash: { packages: ['viem', 'viem/tempo'] },
 })
 ```
 
@@ -153,7 +154,7 @@ export default { fetch: docs.fetch } // Cloudflare Worker: fetch(request, env, c
 | `GET /search`                   | Runs `config.search`.                                                                                                                                                            |
 | `GET /sources/:name/*`          | Lists and reads runtime sources.                                                                                                                                                 |
 | `POST /mcp/:name`               | Proxies MCP calls, so tokens stay on the server.                                                                                                                                 |
-| `POST /render`                  | Renders blocks to streamed HTML.                                                                                                                                                 |
+| `POST /render`                  | Renders one snippet, `{ code, lang, twoslash? }`, with Shiki, and Twoslash when set. Returns `{ html }`, or `{ error }` with the reason it does not render, such as type errors. |
 | `GET /pages/:id`, `POST /pages` | Reads and saves pages through `config.storage`.                                                                                                                                  |
 | `GET /agent`                    | The agent settings: title, description, model, and the URL of the sources snapshot, a static asset of the host's build, as is the agent module.                                  |
 | `POST /mcp`, `GET /llms.txt`    | The corpus for other agents.                                                                                                                                                     |
@@ -277,10 +278,12 @@ Quick mode runs on a thin app layer over `@vitejs/plugin-rsc` and `@cloudflare/v
 
 ## Rendering
 
-- **Any host:** the handler's render route turns blocks into HTML with React's `renderToReadableStream`, Shiki, and Twoslash. `vocs/react` inserts the HTML and hydrates only interactive parts, such as tabs, copy buttons, and registered demos.
-- **Hosts with React Server Components:** `vocs/rsc` renders the same blocks as server components.
+- **Code:** the page tools send each `code` block and `codeGroup` tab to `POST /render` before they add the block. The block keeps the returned HTML, so a page renders it with no second request. A snippet that does not render returns to the agent as a failed tool call.
+- **Shiki:** the JavaScript regex engine, so no WebAssembly loads. Each grammar loads on its first use. An unknown language renders as plain text.
+- **Twoslash:** runs in the handler with TypeScript 6, the last version with a JavaScript API. `vocs()` builds a type snapshot: it compiles a probe that imports each `twoslash.packages` entry from the host's `node_modules`, keeps every file TypeScript reads, and lays them out as one virtual `node_modules` tree. The snapshot is a separate server module, imported with TypeScript on the first Twoslash snippet.
+- **Hover types:** popups use CSS anchor positioning with `position: fixed`, so the scrolling `pre` does not clip them. `//    ^?` queries render as static lines.
+- **Later in Phase 2:** permalinks render whole blocks on the server with React's `renderToReadableStream`, and `vocs/react` hydrates only interactive parts, such as tabs, copy buttons, and registered demos. Hosts with React Server Components render the same blocks with `vocs/rsc`.
 - **Diagrams:** Ondine compiles `mermaid` blocks to SVG in the page for now. Its WebAssembly loads on the first diagram, in a module separate from the agent.
-- **Twoslash on Workers is a risk:** bundle size, CPU time, and TypeScript lib files. Spike B measures it. If it does not fit, Twoslash blocks go to a Node renderer and Shiki stays in the Worker.
 
 ## Styling
 
@@ -321,6 +324,7 @@ Vocs authors its own styles with [zyzz](https://zyzz.style): typed `style()` and
 - The config sets `id: 'vocs'`, so zyzz properties are `--z-vocs-*` and do not collide with a host's `--z-*` properties. Each one reads a public token with the default as its fallback, such as `var(--vocs-color-accent, #222)`.
 - Dark colors are zyzz conditional values under `@media (prefers-color-scheme: dark)`. CSS `light-dark()` is not used, because a host's Lightning CSS rewrites it into properties that the host does not define.
 - `vocs/tokens.css` lists every public token with its light and dark defaults.
+- Code token colors are `--vocs-code-*` properties, such as `--vocs-code-token-keyword`. The render route writes them into its markup with monochrome defaults: shades of `currentColor`.
 - The default theme is monochrome: system fonts, gray borders, no accent hue.
 
 ## Lifecycles
