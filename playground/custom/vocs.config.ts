@@ -24,4 +24,5 @@ export default defineConfig({
     }),
   ],
   title: 'Tempo',
+  twoslash: { packages: ['viem', 'viem/tempo'] },
 })

@@ -51,7 +51,7 @@ export type Guide = Store<Guide.State> & {
 export declare namespace Guide {
   /** One generated page. */
   type Page = {
-    blocks: readonly Block.Block[]
+    blocks: readonly Block.Rendered[]
     /** Sidebar group, such as "Clients & Transports". */
     group: string
     /** Unique URL segment derived from the title, such as `set-up-a-client`. */
@@ -669,7 +669,7 @@ export namespace machines {
   function edit(
     pages: readonly Guide.Page[],
     slug: string,
-    fn: (blocks: readonly Block.Block[]) => readonly Block.Block[],
+    fn: (blocks: readonly Block.Rendered[]) => readonly Block.Rendered[],
   ): readonly Guide.Page[] {
     return pages.map((page) => (page.slug === slug ? { ...page, blocks: fn(page.blocks) } : page))
   }

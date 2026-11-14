@@ -23,7 +23,15 @@ const files = await Promise.all(
       }
     }),
 )
-const worker = Zlib.gzipSync(await Fs.readFile(Path.join(root, 'vocs_playground_custom/index.js')))
+// Every module of the Worker counts, including the chunks it imports on the first render.
+const workerRoot = Path.join(root, 'vocs_playground_custom')
+const worker = (
+  await Promise.all(
+    (await Fs.readdir(workerRoot, { recursive: true }))
+      .filter((name) => name.endsWith('.js'))
+      .map(async (name) => Zlib.gzipSync(await Fs.readFile(Path.join(workerRoot, name))).length),
+  )
+).reduce((total, size) => total + size, 0)
 const entry = files.find((file) => /^index-.+\.js$/.test(file.name))
 if (!entry) throw new Error(`${assets} has no page entry. Build playground/custom first.`)
 
@@ -40,7 +48,7 @@ const budgets = [
       .reduce((total, file) => total + file.brotli, 0),
   },
   { limit: 700_000, name: 'Diagram compiler module, Brotli', size: diagram[0]!.brotli },
-  { limit: 3_000_000, name: 'Worker bundle, gzip', size: worker.length },
+  { limit: 3_000_000, name: 'Worker bundle, gzip', size: worker },
   { limit: 180_000, name: 'Page entry JavaScript with React and Lexical, gzip', size: entry.gzip },
 ]
 

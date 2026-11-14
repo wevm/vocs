@@ -25,8 +25,12 @@ catalog:
   'react': '19.3.1'
   'react-dom': '19.3.1'
   'shiki': '4.6.0'
+  'twoslash': '0.3.9'
   'twoslash-cdn': '0.3.9'
   'typescript': '7.0.2'
+  # Twoslash needs the JavaScript TypeScript API, which TypeScript 7 does not ship.
+  'typescript-api': 'npm:typescript@6.0.3'
+  'viem': '2.57.7'
   'vite': '8.3.8'
   'vite-plus': '1.6.0'
   'wrangler': '4.162.0'

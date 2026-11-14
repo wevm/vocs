@@ -42,9 +42,9 @@ export type Handlers = {
 
 /** A validated page tool call. `page` is the slug that `page_create` returns. */
 export type Operation =
-  | { block: Block.Block; index: number | undefined; page: string; type: 'block.insert' }
+  | { block: Block.Rendered; index: number | undefined; page: string; type: 'block.insert' }
   | { index: number; page: string; type: 'block.remove' }
-  | { block: Block.Block; index: number; page: string; type: 'block.replace' }
+  | { block: Block.Rendered; index: number; page: string; type: 'block.replace' }
   | { group: string; title: string; type: 'page.create' }
   | { page: string; type: 'page.delete' }
   | { page: string | undefined; type: 'page.read' }
@@ -157,14 +157,15 @@ export async function load(options: load.Options): Promise<Agent> {
           if (!handlers?.page)
             throw new Error('Page tools work only for messages that ask for a page or docs.')
           const next = operation(name, input)
+          if (!('block' in next)) return handlers.page(next)
           // A diagram that fails to render returns to the agent, so it fixes the source.
-          if ('block' in next && next.block.type === 'mermaid')
+          if (next.block.type === 'mermaid')
             await diagram.render(next.block.diagram).catch((error: unknown) => {
               throw new Error(
                 `The mermaid diagram does not render. Fix it and emit the block again:\n${error instanceof Error ? error.message : String(error)}`,
               )
             })
-          return handlers.page(next)
+          return handlers.page({ ...next, block: await highlight(options, next.block) })
         },
       },
       workspace: bash.workspace(),
@@ -210,6 +211,39 @@ export declare namespace load {
     /** Fetch used for the corpus, the module, and model requests. */
     fetch: typeof fetch
   }
+}
+
+/**
+ * Adds highlighted HTML to the code of a block. A snippet that does not render, such as a
+ * Twoslash snippet with a type error, throws with the route's message, so the agent fixes it.
+ * A failed request leaves the snippet as plain code.
+ */
+async function highlight(options: load.Options, block: Block.Rendered): Promise<Block.Rendered> {
+  async function render(snippet: { code: string; lang: string; twoslash?: boolean | undefined }) {
+    const response = await options
+      .fetch(`${options.basePath}/render`, {
+        body: JSON.stringify({
+          code: snippet.code,
+          lang: snippet.lang,
+          twoslash: snippet.twoslash,
+        }),
+        headers: { 'content-type': 'application/json' },
+        method: 'POST',
+      })
+      .catch(() => undefined)
+    if (!response?.ok) return undefined
+    const result = (await response.json()) as Handler.Render
+    if (result.error !== undefined) throw new Error(result.error)
+    return result.html
+  }
+
+  if (block.type === 'code') return { ...block, html: await render(block) }
+  if (block.type === 'codeGroup')
+    return {
+      ...block,
+      tabs: await Promise.all(block.tabs.map(async (tab) => ({ ...tab, html: await render(tab) }))),
+    }
+  return block
 }
 
 async function json<value>(options: load.Options, url: string): Promise<value> {
@@ -346,6 +380,11 @@ function instructions(settings: Handler.Agent) {
     'A message that starts with "Write docs:" asks for a small documentation site of two to eight pages. Search the sources first. Plan sidebar groups, start each group with an "Overview" page, and create every page with `tools.page_create` before you fill them with `tools.page_insert`.',
     `${titles.page} ${titles.group}`,
     'Prefer short prose, steps, and complete code blocks taken from the sources. Never invent an API.',
+    ...(settings.twoslash
+      ? [
+          `Set \`twoslash: true\` on complete \`ts\` and \`tsx\` code blocks. Twoslash type-checks them${settings.twoslash.length ? ` with these packages installed: ${settings.twoslash.join(', ')}` : ''}. A block with a type error is rejected with the compiler errors: fix the code and emit the block again. Add \`//    ^?\` queries under key identifiers to show their types.`,
+        ]
+      : []),
     'A message that starts with "Revise:" asks for a change to the pages already written. Read the outline with `tools.page_read`, then change only what the message asks.',
     'After a page or docs message, reply with one sentence that says what the pages cover or what changed.',
   ].join('\n')

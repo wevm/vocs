@@ -21,4 +21,5 @@ export default defineConfig({
   }),
   sources: [Source.files({ include: 'docs/**/*.md', name: 'playground' })],
   title: 'Tempo',
+  twoslash: { packages: ['viem'] },
 })

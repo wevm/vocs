@@ -16,6 +16,12 @@ export type Config = {
   sources: readonly Source.Source[]
   /** Site title. */
   title: string
+  /**
+   * Turns on Twoslash for `ts` and `tsx` code blocks: the render route type-checks each block
+   * that sets `twoslash`, returns type errors to the agent, and shows types on hover. The build
+   * reads the types of `packages` from the host's `node_modules`.
+   */
+  twoslash?: { packages: readonly string[] } | undefined
 }
 
 /**
@@ -46,6 +52,11 @@ export function defineConfig<const config extends Config>(config: config): confi
   if (!Array.isArray(config.sources) || config.sources.length === 0)
     throw new InvalidError(
       '`sources` is empty. Add at least one source, such as `Source.files(...)`.',
+    )
+
+  if (config.twoslash && !Array.isArray(config.twoslash.packages))
+    throw new InvalidError(
+      '`twoslash.packages` is missing. List the packages that code blocks import, such as `["viem"]`.',
     )
 
   const names = new Set<string>()

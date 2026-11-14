@@ -11,8 +11,24 @@ import { en } from 'zod/locales'
 /** One block of a page. */
 export type Block = schema.Block
 
+/**
+ * A block as a page holds it. Code carries `html`, the highlighted HTML inside `<code>` that the
+ * render route returned. The model never sets `html`: `parse` drops unknown fields.
+ */
+export type Rendered =
+  | Exclude<Block, { type: 'code' | 'codeGroup' }>
+  | (schema.Code & Html)
+  | (Omit<schema.CodeGroup, 'tabs'> & {
+      tabs: readonly (schema.CodeGroup['tabs'][number] & Html)[]
+    })
+
 /** The block type names, such as `callout`. */
 export type Type = Block['type']
+
+type Html = {
+  /** Highlighted HTML inside `<code>`, from the render route. */
+  html?: string | undefined
+}
 
 /**
  * Validates a block.
@@ -37,6 +53,15 @@ export namespace schema {
   const markdown = z.string().check(z.minLength(1), z.describe('Inline Markdown.'))
   const text = z.string().check(z.minLength(1))
   const code = z.string().check(z.minLength(1), z.describe('Source code, without fences.'))
+  const twoslash = z.optional(
+    z
+      .boolean()
+      .check(
+        z.describe(
+          'Type-checks a `ts` or `tsx` snippet and shows types on hover. Mark a query with `//    ^?` under the identifier.',
+        ),
+      ),
+  )
   const lang = z
     .string()
     .check(
@@ -68,12 +93,13 @@ export namespace schema {
     code,
     lang,
     title: z.optional(text.check(z.describe('File name or caption, such as `app/page.tsx`.'))),
+    twoslash,
     type: z.literal('code'),
   })
 
   export const codeGroup = z.object({
     tabs: z
-      .array(z.object({ code, lang, title: text }))
+      .array(z.object({ code, lang, title: text, twoslash }))
       .check(
         z.minLength(2),
         z.describe('Alternatives of one snippet, such as npm, pnpm, and bun.'),
@@ -141,4 +167,6 @@ export namespace schema {
   ])
 
   export type Block = z.infer<typeof block>
+  export type Code = z.infer<typeof codeBlock>
+  export type CodeGroup = z.infer<typeof codeGroup>
 }

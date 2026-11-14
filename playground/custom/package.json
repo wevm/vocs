@@ -12,6 +12,7 @@
   "devDependencies": {
     "@cloudflare/vite-plugin": "catalog:",
     "@vitejs/plugin-react": "catalog:",
+    "viem": "catalog:",
     "vite": "catalog:",
     "wrangler": "catalog:"
   },

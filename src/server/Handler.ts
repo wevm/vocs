@@ -1,11 +1,13 @@
 /**
  * The Vocs request handler, `(Request) => Response`. It serves the agent settings to the page,
- * and runs the model gateway, which forwards the agent's requests to the configured provider after it checks
- * the model, the body size, and the reader's request rate. It runs anywhere `fetch` runs.
+ * runs the model gateway, which forwards the agent's requests to the configured provider after it checks
+ * the model, the body size, and the reader's request rate, and renders code blocks to highlighted HTML.
+ * It runs anywhere `fetch` runs.
  * @module
  */
 import type * as Config from '../Config.js'
 import * as Corpus from '../internal/Corpus.js'
+import * as Highlight from '../internal/Highlight.js'
 
 /** A mounted handler. */
 export type Handler = {
@@ -21,7 +23,15 @@ export type Agent = {
   /** The model the agent requests. */
   model: string | undefined
   title: string
+  /** Packages that Twoslash code blocks may import, or `undefined` when Twoslash is off. */
+  twoslash: readonly string[] | undefined
 }
+
+/**
+ * The result of `POST <basePath>/render`: the highlighted HTML inside `<code>`, or the reason the
+ * snippet does not render, such as a Twoslash type error, for the agent to fix.
+ */
+export type Render = { error: string; html?: undefined } | { error?: undefined; html: string }
 
 /** A rate limiter with the shape of a Workers rate-limiting binding. */
 export type RateLimiter = {
@@ -53,7 +63,26 @@ export function from(config: Config.Config, options: from.Options): Handler {
     description: config.description,
     model: config.provider.models[0],
     title: config.title,
+    twoslash: config.twoslash?.packages,
   } satisfies Agent
+  const highlighter = Highlight.create({ types: Highlight.types(config) })
+  // Rendered HTML by snippet, so a repeated block, such as one on a revised page, renders once.
+  const rendered = new Map<string, string>()
+
+  async function limit(request: Request, env: Record<string, unknown>, scope: string) {
+    if (!options.rateLimit) return undefined
+    const limiter = env[options.rateLimit] as RateLimiter | undefined
+    if (!limiter || typeof limiter.limit !== 'function')
+      return text(
+        500,
+        `The rate-limit binding "${options.rateLimit}" is missing. Add it to the Worker.`,
+      )
+    const address =
+      request.headers.get('cf-connecting-ip') ?? request.headers.get('x-forwarded-for') ?? 'unknown'
+    const result = await limiter.limit({ key: `${scope}:${address}` })
+    if (!result.success) return text(429, 'Too many requests. Wait a minute and try again.')
+    return undefined
+  }
 
   return {
     async fetch(request, env = {}) {
@@ -81,20 +110,8 @@ export function from(config: Config.Config, options: from.Options): Handler {
             `Model "${String(model)}" is not served. Use one of: ${[...models].join(', ')}.`,
           )
 
-        if (options.rateLimit) {
-          const limiter = env[options.rateLimit] as RateLimiter | undefined
-          if (!limiter || typeof limiter.limit !== 'function')
-            return text(
-              500,
-              `The rate-limit binding "${options.rateLimit}" is missing. Add it to the Worker.`,
-            )
-          const key =
-            request.headers.get('cf-connecting-ip') ??
-            request.headers.get('x-forwarded-for') ??
-            'unknown'
-          const result = await limiter.limit({ key })
-          if (!result.success) return text(429, 'Too many requests. Wait a minute and ask again.')
-        }
+        const limited = await limit(request, env, 'model')
+        if (limited) return limited
 
         try {
           const response = await config.provider.complete(body, { env, signal: request.signal })
@@ -110,10 +127,65 @@ export function from(config: Config.Config, options: from.Options): Handler {
         }
       }
 
+      if (route === '/render' && request.method === 'POST') {
+        const body = await read(request, renderBytes)
+        if (body === undefined) return text(413, `The request is larger than ${renderBytes} bytes.`)
+        const snippet = (() => {
+          try {
+            return JSON.parse(body) as Partial<Record<keyof Highlight.Snippet, unknown>>
+          } catch {
+            return undefined
+          }
+        })()
+        if (
+          typeof snippet?.code !== 'string' ||
+          typeof snippet.lang !== 'string' ||
+          (snippet.twoslash !== undefined && typeof snippet.twoslash !== 'boolean')
+        )
+          return text(
+            400,
+            'The body must be JSON with `code` and `lang` strings, and an optional `twoslash` boolean.',
+          )
+
+        const key = JSON.stringify([snippet.code, snippet.lang, snippet.twoslash === true])
+        const cached = rendered.get(key)
+        if (cached !== undefined) return Response.json({ html: cached } satisfies Render)
+
+        // Twoslash runs the TypeScript checker, so only its renders count against the limit.
+        if (snippet.twoslash) {
+          const limited = await limit(request, env, 'render')
+          if (limited) return limited
+        }
+
+        try {
+          const result = await highlighter.render({
+            code: snippet.code,
+            lang: snippet.lang,
+            twoslash: snippet.twoslash,
+          })
+          if (rendered.size >= renderCache) rendered.delete(rendered.keys().next().value!)
+          rendered.set(key, result)
+          return Response.json({ html: result } satisfies Render)
+        } catch (error) {
+          if (
+            error instanceof Highlight.TypeCheckError ||
+            error instanceof Highlight.UnsupportedError
+          )
+            return Response.json({ error: error.message } satisfies Render)
+          throw error
+        }
+      }
+
       return text(404, 'Not found.')
     },
   }
 }
+
+/** Largest render request body in bytes. */
+const renderBytes = 64_000
+
+/** Number of rendered snippets the handler keeps. */
+const renderCache = 100
 
 export declare namespace from {
   type Options = {

@@ -9,6 +9,7 @@ import * as ChildProcess from 'node:child_process'
 import * as Fs from 'node:fs/promises'
 import * as Os from 'node:os'
 import * as Path from 'node:path'
+import * as Url from 'node:url'
 
 const root = Path.resolve(import.meta.dirname, '..')
 const dist = Path.join(root, 'dist')
@@ -36,7 +37,17 @@ try {
         (match) => [match[1]!, match[2]!] as const,
       ),
     )
-  const light = tokens(css.replace(dark, ''))
+  // The render route's markup reads the code token colors, so their defaults come from the built
+  // highlighter, not from the stylesheet.
+  const highlight: { tokens: Record<string, string> } = await import(
+    Url.pathToFileURL(Path.join(dist, 'internal/Highlight.js')).href
+  )
+  const light = new Map([
+    ...tokens(css.replace(dark, '')),
+    ...Object.entries(highlight.tokens).map(
+      ([name, value]) => [`--vocs-code-${name}`, value] as const,
+    ),
+  ])
   const darkTokens = tokens([...css.matchAll(dark)].map((match) => match[1]).join(''))
   if (light.size === 0) throw new Error('The compiled stylesheet has no `--vocs-*` tokens.')
   const block = (entries: Map<string, string>) =>

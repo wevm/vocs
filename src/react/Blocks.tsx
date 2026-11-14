@@ -24,7 +24,7 @@ export function Blocks(props: Blocks.Props) {
 
 export declare namespace Blocks {
   type Props = {
-    blocks: readonly Block.Block[]
+    blocks: readonly Block.Rendered[]
     className?: string | undefined
     /** Components that `demo` blocks may name. */
     demos?: Record<string, React.ComponentType> | undefined
@@ -32,7 +32,7 @@ export declare namespace Blocks {
 }
 
 function BlockView(props: {
-  block: Block.Block
+  block: Block.Rendered
   demos: Blocks.Props['demos']
   diagram: Diagram.Diagram
 }) {
@@ -159,24 +159,39 @@ export declare namespace Cards {
   type Props = Omit<Block.schema.Block & { type: 'cards' }, 'type'>
 }
 
-/** A code block with an optional file name. */
+/**
+ * A code block with an optional file name. With `html` from the render route, it shows the
+ * highlighted code, and Twoslash types on hover.
+ */
 export function Code(props: Code.Props) {
   return (
-    <figure data-lang={props.lang} data-vocs="code" {...styles.figure()}>
+    <figure
+      data-lang={props.lang}
+      data-state={props.html === undefined ? 'plain' : 'highlighted'}
+      data-vocs="code"
+      {...styles.figure()}
+    >
       {props.title && (
         <figcaption data-vocs-part="title" {...styles.caption()}>
           {props.title}
         </figcaption>
       )}
       <pre data-vocs-part="pre" {...styles.pre()}>
-        <code>{props.code}</code>
+        <Source code={props.code} html={props.html} />
       </pre>
     </figure>
   )
 }
 
+/** The `<code>` of a snippet: highlighted HTML from the render route, or the plain source. */
+function Source(props: { code: string; html: string | undefined }) {
+  // The render route escapes the source, and its markup holds only spans and Twoslash popups.
+  if (props.html !== undefined) return <code dangerouslySetInnerHTML={{ __html: props.html }} />
+  return <code>{props.code}</code>
+}
+
 export declare namespace Code {
-  type Props = Omit<Block.schema.Block & { type: 'code' }, 'type'>
+  type Props = Omit<Block.Rendered & { type: 'code' }, 'type'>
 }
 
 /** Alternatives of one snippet, one tab each. */
@@ -205,19 +220,20 @@ export function CodeGroup(props: CodeGroup.Props) {
       </div>
       <pre
         data-lang={tab.lang}
+        data-state={tab.html === undefined ? 'plain' : 'highlighted'}
         data-vocs-part="pre"
         id={`${id}-panel`}
         role="tabpanel"
         {...styles.pre()}
       >
-        <code>{tab.code}</code>
+        <Source code={tab.code} html={tab.html} />
       </pre>
     </figure>
   )
 }
 
 export declare namespace CodeGroup {
-  type Props = Omit<Block.schema.Block & { type: 'codeGroup' }, 'type'>
+  type Props = Omit<Block.Rendered & { type: 'codeGroup' }, 'type'>
 }
 
 /** A list of project paths with notes. */
@@ -474,6 +490,8 @@ namespace styles {
     },
   })
 
+  // Twoslash popups use fixed positioning anchored to the hovered token, so the scrolling `pre`
+  // does not clip them. Only one token is hovered at a time, so one anchor name serves all.
   export const pre = style({
     '@layer vocs': {
       fontFamily: vars.fontFamily.mono,
@@ -483,6 +501,84 @@ namespace styles {
       overflowX: 'auto',
       paddingBlock: 3,
       paddingInline: 4,
+      '& [data-vocs-part="hover"]': {
+        textDecorationColor: vars.color.transparent,
+        textDecorationLine: 'underline',
+        textDecorationStyle: 'dotted',
+        textUnderlineOffset: '3px',
+      },
+      '&:hover [data-vocs-part="hover"]': { textDecorationColor: vars.color.muted },
+      '& [data-vocs-part="hover"]:hover': { anchorName: '--vocs-twoslash' },
+      '& [data-vocs-part="popup"]': {
+        backgroundColor: vars.color.background,
+        borderColor: vars.color.border,
+        borderRadius: vars.radius.md,
+        borderStyle: 'solid',
+        borderWidth: '1px',
+        boxShadow: 'md',
+        display: 'none',
+        flexDirection: 'column',
+        insetBlockStart: 'anchor(bottom) !custom',
+        insetInlineStart: 'anchor(left) !custom',
+        marginBlockStart: 1,
+        maxInlineSize: 'min(36rem, 90vw) !custom',
+        position: 'fixed',
+        positionAnchor: '--vocs-twoslash',
+        positionTryFallbacks: 'flip-block',
+        whiteSpace: 'pre-wrap',
+        zIndex: 10,
+      },
+      '& [data-vocs-part="hover"]:hover > [data-vocs-part="popup"]': { display: 'flex' },
+      '& [data-vocs-part="types"]': { paddingBlock: 2, paddingInline: 3 },
+      '& [data-vocs-part="types"] pre': {
+        fontFamily: vars.fontFamily.mono,
+        margin: 0,
+        whiteSpace: 'pre-wrap',
+      },
+      '& [data-vocs-part="docs"]': {
+        borderBlockStartColor: 'border',
+        borderBlockStartStyle: 'solid',
+        borderBlockStartWidth: '1px',
+        color: vars.color.muted,
+        fontFamily: vars.fontFamily.sans,
+        paddingBlock: 2,
+        paddingInline: 3,
+      },
+      '& [data-vocs-part="tags"]': {
+        borderBlockStartColor: 'border',
+        borderBlockStartStyle: 'solid',
+        borderBlockStartWidth: '1px',
+        color: vars.color.muted,
+        display: 'flex',
+        flexDirection: 'column',
+        fontFamily: vars.fontFamily.sans,
+        paddingBlock: 2,
+        paddingInline: 3,
+      },
+      '& .twoslash-popup-docs-tag-name': {
+        color: vars.color.foreground,
+        fontFamily: vars.fontFamily.mono,
+        marginInlineEnd: 2,
+      },
+      '& .twoslash-popup-arrow': { display: 'none' },
+      '& .twoslash-query-line > .twoslash-popup-container': {
+        backgroundColor: vars.color.background,
+        borderColor: vars.color.border,
+        borderRadius: vars.radius.sm,
+        borderStyle: 'solid',
+        borderWidth: '1px',
+        display: 'inline-block',
+      },
+      '& .twoslash-query-line [data-vocs-part="types"]': { paddingBlock: 0, paddingInline: 2 },
+      '& .twoslash-error': { textDecorationLine: 'underline', textDecorationStyle: 'wavy' },
+      '& .twoslash-error-line': {
+        borderInlineStartColor: 'foreground',
+        borderInlineStartStyle: 'solid',
+        borderInlineStartWidth: '2px',
+        color: vars.color.muted,
+        fontFamily: vars.fontFamily.sans,
+        paddingInlineStart: 2,
+      },
     },
   })
 

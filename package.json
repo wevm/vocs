@@ -82,10 +82,14 @@
   "sideEffects": false,
   "dependencies": {
     "@lexical/react": "catalog:",
+    "@shikijs/twoslash": "catalog:",
     "@sqlite.org/sqlite-wasm": "catalog:",
     "lexical": "catalog:",
     "nanocode-ts": "catalog:",
     "ondine": "catalog:",
+    "shiki": "catalog:",
+    "twoslash": "catalog:",
+    "typescript-api": "catalog:",
     "xstate": "catalog:",
     "zod": "catalog:",
     "zyzz": "catalog:"
