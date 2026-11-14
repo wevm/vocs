@@ -19,6 +19,13 @@ const files = await Promise.all(
       return {
         brotli: Zlib.brotliCompressSync(content).length,
         gzip: Zlib.gzipSync(content).length,
+        // Static imports of sibling chunks. Dynamic `import("./…")` calls load later.
+        imports: name.endsWith('.js')
+          ? Array.from(
+              content.toString().matchAll(/\bfrom\s*"\.\/([^"]+)"|\bimport\s*"\.\/([^"]+)"/g),
+              (match) => (match[1] ?? match[2])!,
+            )
+          : [],
         name,
       }
     }),
@@ -34,6 +41,13 @@ const worker = (
 ).reduce((total, size) => total + size, 0)
 const entry = files.find((file) => /^index-.+\.js$/.test(file.name))
 if (!entry) throw new Error(`${assets} has no page entry. Build playground/custom first.`)
+// The page entry counts with every chunk it imports statically, such as React when the build
+// shares it with the islands module.
+const loaded = new Set([entry.name])
+for (const name of loaded)
+  for (const imported of files.find((file) => file.name === name)?.imports ?? [])
+    loaded.add(imported)
+const page = files.filter((file) => loaded.has(file.name))
 
 // Ondine's compiler module loads only for a page with a diagram, so it has its own budget.
 const diagram = files.filter((file) => file.name.startsWith('all.generated-'))
@@ -49,7 +63,11 @@ const budgets = [
   },
   { limit: 700_000, name: 'Diagram compiler module, Brotli', size: diagram[0]!.brotli },
   { limit: 3_000_000, name: 'Worker bundle, gzip', size: worker },
-  { limit: 180_000, name: 'Page entry JavaScript with React and Lexical, gzip', size: entry.gzip },
+  {
+    limit: 180_000,
+    name: 'Page entry JavaScript with React and Lexical, gzip',
+    size: page.reduce((total, file) => total + file.gzip, 0),
+  },
 ]
 
 for (const budget of budgets)
