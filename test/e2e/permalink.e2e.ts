@@ -3,7 +3,7 @@
  * handler serves each page's permalink as server-rendered HTML that reads the same with
  * JavaScript off. One inline module switches code tabs and copies code. A registered demo renders
  * on the server and hydrates as an island, so only a page with a demo loads React. Saving stores
- * only what the handler renders.
+ * only what the handler renders, including the SVG of each diagram.
  * @module
  */
 import type { Browser, Page } from '@playwright/test'
@@ -111,9 +111,9 @@ test('saves docs, and links their pages without JavaScript', async ({ browser, p
   await expect(permalink.page.getByRole('heading', { level: 1 })).toHaveText(
     'Pay Fees in Stablecoins',
   )
-  await expect(permalink.page.locator('[data-vocs=mermaid] [data-vocs-part=source]')).toContainText(
-    'Sender --> Fee[Fee token] --> Validator',
-  )
+  const diagram = permalink.page.locator('[data-vocs=mermaid]')
+  await expect(diagram).toHaveAttribute('data-state', 'rendered')
+  await expect(diagram.locator('[data-vocs-part=svg] svg')).toContainText('Fee token')
   // "Attach a Memo" has a demo. Chromium fetches its module preloads, but runs no script.
   const others = permalink.requests.filter((request) => !request.startsWith(path))
   expect(others.every((request) => request.startsWith('/assets/'))).toBe(true)
@@ -227,6 +227,11 @@ test('stores only the HTML the handler renders, and rejects an invalid draft', a
               lang: 'ts',
               type: 'code',
             },
+            {
+              diagram: 'flowchart LR\n  A --> B',
+              svg: '<script>alert(1)</script>',
+              type: 'mermaid',
+            },
           ],
           group: 'Memos',
           slug: 'attach-a-memo',
@@ -238,6 +243,10 @@ test('stores only the HTML the handler renders, and rejects an invalid draft', a
   expect(saved.status()).toBe(201)
   const html = await (await request.get((await saved.json()).url)).text()
   expect(html).not.toContain('onerror')
+  expect(html).not.toContain('<script>alert')
+  expect(html).toMatch(
+    /<figure data-state="rendered" data-vocs="mermaid"[^>]*><div data-vocs-part="svg"><svg /,
+  )
   expect(html).toContain('<span class="line"><span style="color:var(--vocs-code-token-keyword')
 
   const invalid = await request.post('/docs/pages', {
@@ -248,6 +257,24 @@ test('stores only the HTML the handler renders, and rejects an invalid draft', a
   })
   expect(invalid.status()).toBe(400)
   expect(await invalid.text()).toMatch(/^The pages are invalid:\n.*pages\[0\]\.slug/s)
+
+  const diagram = await request.post('/docs/pages', {
+    data: {
+      files: [],
+      pages: [
+        {
+          blocks: [{ diagram: 'flowchart LR\n  A -->', type: 'mermaid' }],
+          group: 'Fees',
+          slug: 'pay-fees',
+          title: 'Pay Fees',
+        },
+      ],
+    },
+  })
+  expect(diagram.status()).toBe(400)
+  expect(await diagram.text()).toMatch(
+    /^The pages are invalid:\npages\[0\]\.blocks\[0\]: The mermaid diagram does not render\. Parse error on line 3/,
+  )
 
   const missing = await request.get('/docs/pages/attach-a-memo-zzzzzz')
   expect(missing.status()).toBe(404)
