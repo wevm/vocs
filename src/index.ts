@@ -1,17 +1,5 @@
-export { useRouter } from 'waku'
-export * as Feedback from './internal/feedback.js'
-export * as McpSource from './internal/mcp-source.js'
-export { Badge } from './react/Badge.js'
-export { Callout } from './react/Callout.js'
-export { Card, Cards } from './react/Cards.js'
-export { Head } from './react/Head.js'
-export * as HomePage from './react/HomePage.js'
-export { Feedback as FeedbackWidget } from './react/internal/Feedback.client.js'
-export { Layout } from './react/Layout.js'
-export { Link } from './react/Link.js'
-export * as MdxPageContext from './react/MdxPageContext.js'
-export { Provider as MdxPageContextProvider } from './react/MdxPageContext.js'
-export { Sandbox } from './react/Sandbox/index.js'
-export { ScrollRestoration } from './react/ScrollRestoration.js'
-export { Tab, Tabs } from './react/Tabs.js'
-export { useConfig } from './react/useConfig.js'
+/**
+ * Public entrypoint for Vocs. Exports land here as each phase in `.agents/plan.md` ships.
+ * @module
+ */
+export {}

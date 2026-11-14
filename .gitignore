@@ -1,11 +1,5 @@
-_
-dist
-node_modules
-routeTree.gen.ts
+coverage/
+dist/
+node_modules/
+test-results/
 *.tsbuildinfo
-**/.cache
-tsconfig.tsbuildinfo
-tsconfig.tmp.*
-.vocs
-.env
-target
