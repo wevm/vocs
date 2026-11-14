@@ -88,7 +88,7 @@ await tools.page_insert({ page: attach, block: { type: 'steps', steps: [{ title:
 await tools.page_insert({ page: attach, block: { type: 'codeGroup', tabs: [{ title: 'npm', lang: 'bash', code: 'npm i viem' }, { title: 'pnpm', lang: 'bash', code: 'pnpm add viem' }] } })
 await tools.page_insert({ page: attach, block: { type: 'heading', level: 2, text: 'Send the transfer' } })
 await tools.page_insert({ page: attach, block: { type: 'code', lang: 'ts', title: 'client.ts', twoslash: true, code: "import { createClient, http } from 'viem'\\n\\nconst transport = http('https://rpc.tempo.xyz')\\n//    ^?\\nconst client = createClient({ transport })" } })
-await tools.page_insert({ page: attach, block: { type: 'demo', name: 'memo' } })
+await tools.page_insert({ page: attach, block: { type: 'demo', name: 'memo', props: { memo: 'order 1001' } } })
 await tools.page_insert({ page: attach, block: { type: 'fileTree', entries: [{ path: 'src' }, { path: 'src/transfer.ts', note: 'Sends the transfer' }, { path: 'package.json' }] } })
 await tools.page_insert({ page: fees, block: { type: 'callout', kind: 'warning', title: 'Testnet only', body: 'Fee tokens are on testnet.' } })
 await tools.page_insert({ page: fees, block: { type: 'terminal', commands: [{ command: 'cast send --fee-token USDC', output: 'status: success' }] } })

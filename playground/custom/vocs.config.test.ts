@@ -4,9 +4,17 @@
  * @module
  */
 import { defineConfig, Provider, Source, Storage } from 'vocs'
+import * as z from 'zod'
 
 export default defineConfig({
-  demos: { memo: './src/demos/Memo.tsx' },
+  demos: {
+    memo: {
+      module: './src/demos/Memo.tsx',
+      props: z.object({
+        memo: z.string().max(32).default('invoice 42').describe('The memo the demo starts with.'),
+      }),
+    },
+  },
   description: 'Tempo is a payments blockchain.',
   provider: Provider.from({
     complete(body, context) {

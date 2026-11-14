@@ -1,13 +1,13 @@
 /**
  * A demo that encodes a memo as the 32-byte hex value a transfer stores. The end-to-end config
- * registers it as `memo`.
+ * registers it as `memo`, with a schema for its `memo` prop.
  * @module
  */
 import * as React from 'react'
 
-export default function Memo() {
+export default function Memo(props: Memo.Props) {
   const id = React.useId()
-  const [memo, setMemo] = React.useState('invoice 42')
+  const [memo, setMemo] = React.useState(props.memo)
   const bytes = new TextEncoder().encode(memo)
   return (
     <div>
@@ -22,4 +22,11 @@ export default function Memo() {
       </output>
     </div>
   )
+}
+
+declare namespace Memo {
+  type Props = {
+    /** The memo the demo starts with. */
+    memo: string
+  }
 }

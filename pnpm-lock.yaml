@@ -339,6 +339,9 @@ importers:
       vocs:
         specifier: workspace:*
         version: link:../..
+      zod:
+        specifier: 'catalog:'
+        version: 4.6.7
     devDependencies:
       '@cloudflare/vite-plugin':
         specifier: 'catalog:'

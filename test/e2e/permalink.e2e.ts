@@ -158,14 +158,16 @@ test('renders a registered demo on the server, and hydrates it on the permalink'
     .getByRole('link', { name: 'Attach a Memo' })
     .click()
   const live = memo(page.locator('[data-vocs=demo]'))
+  await expect(live.input).toHaveValue('order 1001')
   await live.input.fill('hello')
   await expect(live.output).toHaveText(hex('hello'))
 
   const off = await open(browser, new URL(page.url()).origin, path)
   const island = off.page.locator('[data-vocs=demo] [data-vocs-part=island]')
   await expect(island).toHaveAttribute('data-state', 'static')
-  await expect(memo(island).input).toHaveValue('invoice 42')
-  await expect(memo(island).output).toHaveText(hex('invoice 42'))
+  await expect(island).toHaveAttribute('data-props', '{"memo":"order 1001"}')
+  await expect(memo(island).input).toHaveValue('order 1001')
+  await expect(memo(island).output).toHaveText(hex('order 1001'))
   await off.context.close()
 
   const requests: string[] = []
@@ -173,12 +175,41 @@ test('renders a registered demo on the server, and hydrates it on the permalink'
   await page.goto(path)
   const hydrated = page.locator('[data-vocs-part=island]')
   await expect(hydrated).toHaveAttribute('data-state', 'hydrated')
+  await expect(memo(hydrated).input).toHaveValue('order 1001')
   await memo(hydrated).input.fill('refund 7')
   await expect(memo(hydrated).output).toHaveText(hex('refund 7'))
   expect(requests[0]).toBe(path)
   expect(requests.slice(1).every((request) => request.startsWith('/assets/'))).toBe(true)
   expect(requests.filter((request) => /vocs-islands-.*\.js$/.test(request))).toHaveLength(1)
   expect(requests.filter((request) => /\.wasm$|\/Agent-/.test(request))).toEqual([])
+})
+
+test("validates demo props with the demo's schema", async ({ request }) => {
+  const check = async (props: unknown) =>
+    (await request.post('/docs/demos/memo', { data: props })).json()
+  expect(await check({})).toEqual({ props: { memo: 'invoice 42' } })
+  expect(await check({ memo: 'order 1001' })).toEqual({ props: { memo: 'order 1001' } })
+  expect((await check({ memo: 42 })).error).toBe(
+    'The props of demo "memo" are invalid:\n✖ Invalid input: expected string, received number\n  → at memo',
+  )
+
+  const saved = await request.post('/docs/pages', {
+    data: {
+      files: [],
+      pages: [
+        {
+          blocks: [{ name: 'memo', props: { memo: 'x'.repeat(33) }, type: 'demo' }],
+          group: 'Memos',
+          slug: 'try-a-memo',
+          title: 'Try a Memo',
+        },
+      ],
+    },
+  })
+  expect(saved.status()).toBe(400)
+  expect(await saved.text()).toBe(
+    'The pages are invalid:\npages[0].blocks[0]: The props of demo "memo" are invalid:\n✖ Too big: expected string to have <=32 characters\n  → at memo',
+  )
 })
 
 test('stores only the HTML the handler renders, and rejects an invalid draft', async ({

@@ -7,7 +7,8 @@
   "dependencies": {
     "react": "catalog:",
     "react-dom": "catalog:",
-    "vocs": "workspace:*"
+    "vocs": "workspace:*",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "catalog:",
