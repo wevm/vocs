@@ -104,12 +104,12 @@ Goal: a prompt becomes a streamed, refinable page with a permalink.
 - [x] `<Docs />` with home, docs, and chat views. The home view is a Lexical composer with Chat, Page, and Docs modes. Docs with more than one page get a sidebar.
 - [x] The render route: code snippets to HTML with Shiki and Twoslash in the Worker, where spike B decided. `twoslash.packages` in the config, and a type snapshot built by `vocs()`.
 - [x] Twoslash failures return to the agent as a failed render.
-- [ ] Server rendering of whole blocks for permalinks, and `vocs/rsc` `Blocks`. `machines.render` lands here: a generated block renders inside one awaited page tool call, which has no lifecycle of its own.
+- [x] Server rendering of whole blocks for permalinks. No `machines.render`: a generated block renders inside one awaited page tool call, which has no lifecycle of its own.
 - [x] Tabs and copy buttons on permalinks: one inline module, `Enhance.script`, with no React and no extra request.
 - [x] Registered demos: `demos` in the config, `virtual:vocs/demos` for the reader's page, and server-rendered islands that `virtual:vocs/islands` hydrates on permalinks.
 - [x] Demo props: a Standard JSON Schema per demo, shown to the agent, and validated in the handler by `POST /demos/:name` and on save.
 - [x] `Storage`: `Storage.cloudflare` and `Storage.memory`. Saved pages, `<Page />`, and server-rendered permalinks that load no WebAssembly and send no request after the document.
-- [ ] Mermaid on permalinks: render diagrams in the handler, or at save, so a permalink shows the SVG instead of the source.
+- [x] Mermaid on permalinks: the handler renders each diagram to SVG on save with `virtual:vocs/diagram`, and a permalink shows the stored SVG.
 - [ ] A chat reply can become a page.
 
 Done when: end-to-end tests generate the "accept USDC in a Next.js checkout" page, refine it, load its permalink with JavaScript disabled, and see a wrong snippet caught and fixed.
@@ -120,6 +120,7 @@ Goal: a site from `package.json` and `vocs.config.ts` alone.
 
 - [ ] `vocs dev` and `vocs build`: Vite with `configFile: false`, or the project's `vite.config.ts` when present.
 - [ ] The quick-mode app on `@vitejs/plugin-rsc` and `@cloudflare/vite-plugin`: prerendered home, permalink route, mounted handler. TanStack Start is the fallback.
+- [ ] `vocs/rsc` `Blocks` and `Page` as server components, with `'use client'` boundaries around tabs, copy buttons, diagrams, and demos. The quick-mode app is its first consumer and its end-to-end host.
 - [ ] Conventions: `src/index.tsx`, `src/demos/*`, `src/concepts/*.mdx`, `src/styles.css`.
 - [ ] `vocs build` output that `wrangler deploy` ships.
 - [ ] `create-vocs` for quick mode.
@@ -187,16 +188,16 @@ Done when: Tempo's docs serve from `vocs@next` in production.
 
 Each budget is set in the phase that first measures it. CI fails when a budget is exceeded.
 
-| Budget                                   | Set in  | Value                                                                                                                                                                |
-| ---------------------------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Agent module and page JavaScript, Brotli | Phase 0 | 4 MB (measured 3.71 MB: 3.12 MB module, 0.24 MB JavaScript, 0.35 MB sqlite at `0624213`; 3.88 MB with sqlite workers in Phase 1; 3.96 MB with page tools in Phase 2) |
-| Turn overhead with an instant model      | Phase 0 | 400 ms (measured 280 ms)                                                                                                                                             |
-| Time to first token, warm, real gateway  | Phase 0 | To be measured with Cloudflare credentials                                                                                                                           |
-| Worker bundle, gzip                      | Phase 0 | 3 MB, every Worker module (measured 1.85 MB in spike B, and 2.52 MB in Phase 2 with Shiki, Twoslash, and a 0.81 MB `viem` type snapshot)                             |
-| Warm block render in a Worker            | Phase 0 | Shiki 20 ms, Twoslash 250 ms (measured 7 ms and 155 ms)                                                                                                              |
-| Page entry JavaScript with React, gzip   | Phase 1 | 180 kB, the entry and every chunk it imports statically (measured 164 kB). Raised from 100 kB in Phase 2, because the Lexical composer adds about 75 kB              |
-| Diagram compiler module, Brotli          | Phase 2 | 700 kB (measured 513 kB). Loads on the first `mermaid` block only                                                                                                    |
-| Permalink time to first byte             | Phase 2 | 200 ms warm (measured in local workerd: 53 ms for the first permalink of an isolate, 6 ms warm median over 10 requests, and 7 ms with a demo). Not a CI gate yet     |
+| Budget                                   | Set in  | Value                                                                                                                                                                                                                                                                              |
+| ---------------------------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Agent module and page JavaScript, Brotli | Phase 0 | 4 MB (measured 3.71 MB: 3.12 MB module, 0.24 MB JavaScript, 0.35 MB sqlite at `0624213`; 3.88 MB with sqlite workers in Phase 1; 3.96 MB with page tools in Phase 2)                                                                                                               |
+| Turn overhead with an instant model      | Phase 0 | 400 ms (measured 280 ms)                                                                                                                                                                                                                                                           |
+| Time to first token, warm, real gateway  | Phase 0 | To be measured with Cloudflare credentials                                                                                                                                                                                                                                         |
+| Worker bundle, gzip                      | Phase 0 | 3 MB, every Worker module except the Twoslash type snapshot (measured 1.85 MB in spike B, and 2.51 MB in Phase 2 with Shiki, Twoslash, and the 0.64 MB Ondine compiler module). The playground's 0.81 MB `viem` snapshot makes its Worker 3.32 MB, over the free plan's 3 MB limit |
+| Warm block render in a Worker            | Phase 0 | Shiki 20 ms, Twoslash 250 ms (measured 7 ms and 155 ms)                                                                                                                                                                                                                            |
+| Page entry JavaScript with React, gzip   | Phase 1 | 180 kB, the entry and every chunk it imports statically (measured 164 kB). Raised from 100 kB in Phase 2, because the Lexical composer adds about 75 kB                                                                                                                            |
+| Diagram compiler module, Brotli          | Phase 2 | 700 kB (measured 513 kB). Loads on the first `mermaid` block only                                                                                                                                                                                                                  |
+| Permalink time to first byte             | Phase 2 | 200 ms warm (measured in local workerd: 53 ms for the first permalink of an isolate, 6 ms warm median over 10 requests, and 7 ms with a demo). Not a CI gate yet                                                                                                                   |
 
 ## Risks
 
