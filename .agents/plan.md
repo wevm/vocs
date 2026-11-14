@@ -49,7 +49,7 @@ Measured on 2026-11-14 in an orb: 4 vCPU Intel Xeon at 2.60 GHz, headless Chromi
 - Over a network, the download dominates: 3.71 MB Brotli is about 0.6 s at 50 Mbit/s and 3 s at 10 Mbit/s. The agent must load on the first prompt, and should prefetch when the prompt box takes focus.
 - Code Mode drives the shell through one `exec` custom tool (`tools.exec_command({ cmd })` in a JavaScript cell). `code_mode: true` and `workspace: bash.cwd` are required, or the session offers no workspace tools.
 - The default Codex session also offers `image_gen` and `apply_patch`. Vocs must restrict the tool set.
-- Model requests are OpenAI Responses API calls (`POST <endpoint>/responses`, SSE). `Model.cloudflare` forwards that API to AI Gateway.
+- Model requests are OpenAI Responses API calls (`POST <endpoint>/responses`, SSE). `Provider.cloudflare` forwards that API to AI Gateway.
 - Not measured yet: real time to first token and turn time through AI Gateway. These need `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN`, and a gateway.
 
 **Spike B, rendering in a Worker.** Local workerd, a fresh isolate per sample, 10 warm requests each:
@@ -75,18 +75,21 @@ Measured on 2026-11-14 in an orb: 4 vCPU Intel Xeon at 2.60 GHz, headless Chromi
 
 Goal: a host app mounts `Handler.from(config)`, and `<Ask />` answers Tempo questions with cited files.
 
-- [ ] `vocs`: `defineConfig` with validation and fault-then-fix errors.
-- [ ] `Source`: the contract, `Source.files`, and `Source.github` in `snapshot` mode.
-- [ ] `machines.corpus` and the corpus build: resolve revisions, fetch, write one content-addressed asset.
-- [ ] `vocs/vite` `vocs()` and `vocs corpus`, both running the corpus build.
-- [ ] `Model`: `Model.cloudflare` on AI Gateway.
-- [ ] `vocs/server`: `Handler.from` with the model gateway (allowed models, size limit, per-address rate limit), the corpus route, and the agent route.
-- [ ] `vocs/client`: `Client.create`, `machines.agent`, and `machines.turn`. The agent loads on the first `ask`.
-- [ ] `vocs/react`: `<Ask />` on `vocs/client`, with the files read listed under each answer.
-- [ ] A CI job that measures the Phase 0 budgets and fails when one is exceeded.
-- [ ] `playground/custom`: a Worker host with a Vite and React page, configured with `tempoxyz/docs`, the Tempo TIPs, and `viem/tempo`.
+- [x] `vocs`: `defineConfig` with validation and fault-then-fix errors.
+- [x] `Source`: the contract, `Source.files`, and `Source.github` in `snapshot` mode.
+- [x] The corpus build, `Corpus.build`: resolve revisions, fetch, write one content-addressed asset. It is a linear function, so it has no machine.
+- [x] `vocs/vite` `vocs()`, which runs the corpus build and writes the corpus as a static asset. `vocs corpus` was dropped: the corpus is not public API, and hosts without Vite wait for `vocs build`.
+- [x] `Provider`: `Provider.cloudflare` on AI Gateway. Named `Provider`, since nanocode's harness is the agent loop in the page and the adapter is the LLM provider behind the handler.
+- [x] `vocs/server`: `Handler.from` with the model gateway (allowed models, size limit, per-address rate limit through a Workers rate-limiting binding), the corpus route, and the agent settings route. The host's bundler serves the agent module, so the handler has no module route.
+- [x] `vocs/client`: `Client.create`, `machines.agent`, and `machines.turn`. The agent loads on the first `ask`.
+- [x] `vocs/react`: `<Ask />` on `vocs/client`, with the files read listed under each answer.
+- [x] A CI job that measures the size budgets and fails when one is exceeded (`pnpm check:budgets`). Turn overhead is not checked in CI yet.
+- [x] `playground/custom`: a Worker host with a Vite and React page, configured with `tempoxyz/docs`, the Tempo TIPs, and `viem/tempo` (683 files, 7.5 MB, built in 12 s).
+- [ ] The 20-question run against the real gateway. Skipped until Cloudflare credentials exist.
 
 Done when: an end-to-end test asks a scripted question in `playground/custom` and sees the streamed answer and its cited files, and 20 real team questions get correct cited answers against the real gateway.
+
+Finding: inlining the corpus in the Worker made the bundle 2.45 MB gzip with the three Tempo sources, against a 3 MB budget that Twoslash (1.85 MB) must also fit in. `vocs()` now writes the corpus as a static asset (7.5 MB, 1.74 MB Brotli, loaded on the first question), and the Worker is 4.7 kB gzip. The corpus is internal: `Handler.from(config, { basePath })` reads its URL from the config that `virtual:vocs/config` serves.
 
 ## Phase 2: Generated pages
 
@@ -178,15 +181,15 @@ Done when: Tempo's docs serve from `vocs@next` in production.
 
 Each budget is set in the phase that first measures it. CI fails when a budget is exceeded.
 
-| Budget                                   | Set in  | Value                                                                                    |
-| ---------------------------------------- | ------- | ---------------------------------------------------------------------------------------- |
-| Agent module and page JavaScript, Brotli | Phase 0 | 4 MB (measured 3.71 MB: 3.12 MB module, 0.24 MB JavaScript, 0.35 MB sqlite at `0624213`) |
-| Turn overhead with an instant model      | Phase 0 | 400 ms (measured 280 ms)                                                                 |
-| Time to first token, warm, real gateway  | Phase 0 | To be measured with Cloudflare credentials                                               |
-| Worker bundle, gzip                      | Phase 0 | 3 MB (measured 1.85 MB)                                                                  |
-| Warm block render in a Worker            | Phase 0 | Shiki 20 ms, Twoslash 250 ms (measured 7 ms and 155 ms)                                  |
-| `vocs/react` page bundle, gzip           | Phase 1 | To be measured                                                                           |
-| Permalink time to first byte             | Phase 2 | To be measured                                                                           |
+| Budget                                   | Set in  | Value                                                                                                                            |
+| ---------------------------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| Agent module and page JavaScript, Brotli | Phase 0 | 4 MB (measured 3.71 MB: 3.12 MB module, 0.24 MB JavaScript, 0.35 MB sqlite at `0624213`; 3.88 MB with sqlite workers in Phase 1) |
+| Turn overhead with an instant model      | Phase 0 | 400 ms (measured 280 ms)                                                                                                         |
+| Time to first token, warm, real gateway  | Phase 0 | To be measured with Cloudflare credentials                                                                                       |
+| Worker bundle, gzip                      | Phase 0 | 3 MB (measured 1.85 MB)                                                                                                          |
+| Warm block render in a Worker            | Phase 0 | Shiki 20 ms, Twoslash 250 ms (measured 7 ms and 155 ms)                                                                          |
+| Page entry JavaScript with React, gzip   | Phase 1 | 100 kB (measured 83 kB)                                                                                                          |
+| Permalink time to first byte             | Phase 2 | To be measured                                                                                                                   |
 
 ## Risks
 

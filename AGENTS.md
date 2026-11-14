@@ -14,11 +14,11 @@ Adapted from the general sections of these guidance files, retrieved 2026-11-14.
 - Vocs is documentation that readers talk to. A [nanocode](https://nanocode.xyz) agent runs in the reader's page, reads the site's sources, and answers in chat or generates a page of typed blocks. `.agents/design.md` holds the design and `.agents/plan.md` holds the phases and their acceptance gates.
 - The core is a web-standard handler, `(Request) => Response`, in `vocs/server`. The CLI, the Vite plugin, the React components, and the quick-mode app are layers around it. The handler runs anywhere `fetch` runs.
 - Two consumption modes share one core. Quick mode is a `package.json` and a `vocs.config.ts`. Custom mode embeds `vocs/server`, `vocs/client`, and `vocs/react` in a host app. A feature is done when it works in both modes.
-- Adapters are namespaces on the root entrypoint: `Source`, `Search`, `Model`, and `Storage`. Consumers call them as `Source.github(...)` after `import { Source } from 'vocs'`.
+- Adapters are namespaces on the root entrypoint: `Source`, `Search`, `Provider`, and `Storage`. Consumers call them as `Source.github(...)` after `import { Source } from 'vocs'`.
 - This branch is a rewrite from a fresh slate. Vocs v1 and the Vocs on `main` are prior art only. Do not port, copy, or mirror their code, APIs, or file layout. Read them only to learn which problems exist.
 - The model never runs arbitrary code in the reader's page. It emits typed blocks, and a `demo` block names only a component the site registered.
 - Every rendered element is public styling API: a `data-vocs` name, `data-vocs-part` names, state attributes, and `--vocs-*` tokens. Change them only with a semver-major release.
-- Secrets stay in the handler. Model keys, search tokens, and source credentials never reach the page, the corpus, an error, or a log.
+- Secrets stay in the handler. Provider keys, search tokens, and source credentials never reach the page, the corpus, an error, or a log.
 - Performance is a feature. A permalink renders on the server and loads no WebAssembly. The agent module loads on the first prompt, not on page load.
 
 ## TypeScript Conventions
@@ -124,7 +124,7 @@ Use XState v5 for lifecycles and `@xstate/store` for event-driven stores. Zustan
 | A value that combines two or more flags or statuses        | A state of an XState machine                       |
 | A record that transitions across requests                  | A conditional write that checks the current status |
 
-Lifecycles in Vocs that are machines from the start: the agent turn, the agent module load, block rendering, page generation and refinement, the corpus build, source refresh, and search indexing.
+Lifecycles in Vocs that are machines from the start: the agent turn, the agent module load, block rendering, page generation and refinement, source refresh, and search indexing. The corpus build is a linear function, not a machine.
 
 - A compound conditional over state is an unnamed state. Lift it into a machine:
   - A value that combines flags with `&&`, `||`, or a ternary, such as `streaming = status === 'running' || (status === 'tool' && blocks > 0)`.
@@ -354,10 +354,10 @@ For in-session explanations to maintainers, not committed to the repository.
 
 ## Repository Layout
 
-- `src/`: `src/index.ts` is the `vocs` entrypoint, with `Source.ts`, `Search.ts`, `Model.ts`, and `Storage.ts` beside it. One directory per other entrypoint (`server/`, `client/`, `react/`, `rsc/`, `vite/`, `cli/`), PascalCase modules, and `internal/` for unexported helpers and adapter backends.
+- `src/`: `src/index.ts` is the `vocs` entrypoint, with `Source.ts`, `Search.ts`, `Provider.ts`, and `Storage.ts` beside it. One directory per other entrypoint (`server/`, `client/`, `react/`, `rsc/`, `vite/`, `cli/`), PascalCase modules, and `internal/` for unexported helpers and adapter backends.
 - `src/zyzz.config.ts`: the zyzz tokens and layers. Its compiled CSS ships as `vocs/styles.css` and `vocs/tokens.css`.
 - `playground/quick` and `playground/custom`: the two consumption modes, with one shared `vocs.config.ts` shape. End-to-end tests run against them.
-- `test/e2e/`: Playwright suites. `test/workers/`: stand-in services. `test/fixtures/`: reusable input corpora, authored for this repository.
+- `test/e2e/`: Playwright suites. `test/workers/`: stand-in services. `playground/custom/docs/`: the Markdown corpus of the end-to-end config, authored for this repository.
 - `spikes/`: throwaway measurements that inform a plan decision. Each spike records its results in `.agents/plan.md`, and the phase that replaces it deletes it.
 - `.agents/design.md` holds the design and public API. `.agents/plan.md` tracks phases, acceptance gates, and budgets.
 

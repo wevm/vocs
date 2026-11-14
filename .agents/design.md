@@ -18,28 +18,28 @@ Hand-written pages are limited to the visual index and concept posts. Everything
 
 ## Public API
 
-The package ships these entrypoints. Adapters are namespaces on the root entrypoint: `Source`, `Search`, `Model`, and `Storage`. The package sets `sideEffects: false`, so a site bundles only the backends it calls.
+The package ships these entrypoints. Adapters are namespaces on the root entrypoint: `Source`, `Search`, `Provider`, and `Storage`. The package sets `sideEffects: false`, so a site bundles only the backends it calls.
 
 | Entrypoint                           | Exports                                                                                                                                      | Runs in                            |
 | ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
-| `vocs`                               | `defineConfig`, `Source`, `Search`, `Model`, `Storage`, `type Config`, `type Block`, `type Reader`                                           | Anywhere                           |
+| `vocs`                               | `defineConfig`, `Source`, `Search`, `Provider`, `Storage`, `type Config`, `type Block`, `type Reader`                                        | Anywhere                           |
 | `vocs/server`                        | `Handler`                                                                                                                                    | Any `fetch` runtime                |
 | `vocs/client`                        | `Client` (headless agent, turns, pages, saved pages)                                                                                         | Browser                            |
 | `vocs/react`                         | `Docs`, `Ask`, `Page`, `Blocks`, and the block components (`Callout`, `Card`, `Cards`, `Code`, `CodeGroup`, `FileTree`, `Steps`, `Terminal`) | Browser and SSR                    |
 | `vocs/rsc`                           | `Blocks`, `Page` as server components                                                                                                        | Hosts with React Server Components |
 | `vocs/vite`                          | `vocs()` plugin                                                                                                                              | Vite                               |
 | `vocs/styles.css`, `vocs/tokens.css` | The default theme in `@layer vocs`, or the tokens alone                                                                                      | CSS                                |
-| `vocs` bin                           | `vocs dev`, `vocs build`, `vocs corpus`                                                                                                      | Node                               |
+| `vocs` bin                           | `vocs dev`, `vocs build`                                                                                                                     | Node                               |
 
 ### Configuration
 
 ```ts
 // vocs.config.ts
-import { defineConfig, Model, Search, Source, Storage } from 'vocs'
+import { defineConfig, Provider, Search, Source, Storage } from 'vocs'
 
 export default defineConfig({
   title: 'Tempo',
-  model: Model.cloudflare({ gateway: 'tempo-docs', models: ['anthropic/claude-sonnet-5-5'] }),
+  provider: Provider.cloudflare({ gateway: 'tempo-docs', models: ['anthropic/claude-sonnet-5-5'] }),
   search: Search.cloudflare({ instance: 'tempo-docs' }),
   storage: Storage.cloudflare({ binding: 'PAGES' }),
   sources: [
@@ -69,7 +69,7 @@ type Source = {
   visibility: 'private' | 'public'
   auth: 'reader' | 'site'
   revision(context: Context): Promise<string> // commit SHA, modifiedTime, ETag
-  list(path: string, context: Context): Promise<readonly Entry[]>
+  list(context: Context): Promise<readonly string[]> // every file path
   read(path: string, context: Context): Promise<File> // content and the origin URL for citations
   tools?(context: Context): Promise<readonly Tool[]> // actions, such as MCP tools
 }
@@ -90,11 +90,11 @@ type Search = {
   status?(context: Context): Promise<{ state: 'failed' | 'indexing' | 'ready' }>
 }
 
-// Model
-type Model = {
+// Provider
+type Provider = {
   type: string
   models: readonly string[] // the only model IDs the gateway forwards
-  complete(request: Model.Request, context: Context): Promise<Response> // a streamed completion
+  complete(body: string, context: Context): Promise<Response> // a streamed completion of a checked request body
 }
 
 // Storage
@@ -133,7 +133,7 @@ type Context = {
 
 ```ts
 import { Handler } from 'vocs/server'
-import config from './vocs.config.js'
+import config from 'virtual:vocs/config' // vocs.config.ts with its sources built by vocs()
 
 const docs = Handler.from(config, {
   basePath: '/docs',
@@ -144,18 +144,18 @@ export default { fetch: docs.fetch } // Cloudflare Worker: fetch(request, env, c
 // app.all('/docs/*', (c) => docs.fetch(c.req.raw, c.env, c.executionCtx)) // Hono
 ```
 
-`Handler.from(config, options)` returns `{ fetch }`. Its routes under `basePath`:
+`Handler.from(config, options)` returns `{ fetch }`. The sources snapshot (internally, the corpus) is never public API: `vocs()` builds it, writes it as a static asset, and attaches its URL to the config. Its routes under `basePath`:
 
-| Route                                      | Purpose                                                                                                                                                                       |
-| ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `POST /model/responses`                    | The model gateway for the OpenAI Responses API, which nanocode's Codex harness sends. Forwards only `config.model.models`, limits request size, and rate limits each address. |
-| `GET /search`                              | Runs `config.search`.                                                                                                                                                         |
-| `GET /sources/:name/*`                     | Lists and reads runtime sources.                                                                                                                                              |
-| `POST /mcp/:name`                          | Proxies MCP calls, so tokens stay on the server.                                                                                                                              |
-| `POST /render`                             | Renders blocks to streamed HTML.                                                                                                                                              |
-| `GET /pages/:id`, `POST /pages`            | Reads and saves pages through `config.storage`.                                                                                                                               |
-| `GET /corpus/:hash`, `GET /agent/:version` | Serves the corpus and the agent module with immutable caching.                                                                                                                |
-| `POST /mcp`, `GET /llms.txt`               | The corpus for other agents.                                                                                                                                                  |
+| Route                           | Purpose                                                                                                                                                                          |
+| ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `POST /model/responses`         | The model gateway for the OpenAI Responses API, which nanocode's Codex harness sends. Forwards only `config.provider.models`, limits request size, and rate limits each address. |
+| `GET /search`                   | Runs `config.search`.                                                                                                                                                            |
+| `GET /sources/:name/*`          | Lists and reads runtime sources.                                                                                                                                                 |
+| `POST /mcp/:name`               | Proxies MCP calls, so tokens stay on the server.                                                                                                                                 |
+| `POST /render`                  | Renders blocks to streamed HTML.                                                                                                                                                 |
+| `GET /pages/:id`, `POST /pages` | Reads and saves pages through `config.storage`.                                                                                                                                  |
+| `GET /agent`                    | The agent settings: title, description, model, and the URL of the sources snapshot, a static asset of the host's build, as is the agent module.                                  |
+| `POST /mcp`, `GET /llms.txt`    | The corpus for other agents.                                                                                                                                                     |
 
 ### Client
 
@@ -167,7 +167,7 @@ import { Client } from 'vocs/client'
 const client = Client.create({ basePath: '/docs' })
 const turn = client.ask('How do I accept USDC in a Next.js checkout?', { output: 'page' })
 
-turn.subscribe((snapshot) => render(snapshot)) // status: 'loading' | 'thinking' | 'streaming' | 'done' | 'failed' | 'cancelled'
+turn.subscribe(() => render(turn.get())) // { status, text, files, error }; status is a machines.turn state
 await turn.done
 ```
 
@@ -195,11 +195,10 @@ import { vocs } from 'vocs/vite'
 export default defineConfig({ plugins: [vocs()] })
 ```
 
-| Command       | Behavior                                                                                                     |
-| ------------- | ------------------------------------------------------------------------------------------------------------ |
-| `vocs dev`    | Runs the quick-mode app with Vite and `configFile: false`, or the project's `vite.config.ts` when it exists. |
-| `vocs build`  | Builds the corpus, the search index, a Worker, and static assets.                                            |
-| `vocs corpus` | Builds only the corpus and the search index, for custom hosts without Vite.                                  |
+| Command      | Behavior                                                                                                     |
+| ------------ | ------------------------------------------------------------------------------------------------------------ |
+| `vocs dev`   | Runs the quick-mode app with Vite and `configFile: false`, or the project's `vite.config.ts` when it exists. |
+| `vocs build` | Builds the sources snapshot, the search index, a Worker, and static assets.                                  |
 
 ## Pages are typed blocks
 
@@ -248,12 +247,12 @@ Grep finds exact names, such as `transferWithMemo`. Semantic search finds concep
 
 ## Two ways to use it
 
-|          | Quick mode                             | Custom mode                                                            |
-| -------- | -------------------------------------- | ---------------------------------------------------------------------- |
-| For      | A docs site with nothing else to build | Docs inside an existing app, such as a console                         |
-| Files    | `package.json` and `vocs.config.ts`    | The host app, a mounted handler, and React components                  |
-| Commands | `vocs dev`, `vocs build`               | The host's own dev server and build, with `vocs/vite` or `vocs corpus` |
-| Output   | A Cloudflare Worker and static assets  | Whatever the host deploys                                              |
+|          | Quick mode                             | Custom mode                                           |
+| -------- | -------------------------------------- | ----------------------------------------------------- |
+| For      | A docs site with nothing else to build | Docs inside an existing app, such as a console        |
+| Files    | `package.json` and `vocs.config.ts`    | The host app, a mounted handler, and React components |
+| Commands | `vocs dev`, `vocs build`               | The host's own dev server and build, with `vocs/vite` |
+| Output   | A Cloudflare Worker and static assets  | Whatever the host deploys                             |
 
 Quick mode is our own app around the handler. Custom mode is the host's app around it. A host that uses only runtime sources needs no build step.
 
@@ -318,13 +317,12 @@ Vocs authors its own styles with [zyzz](https://zyzz.style): typed `style()` and
 
 Each of these is an XState machine with named states for success, failure, and cancellation. The states are public through `vocs/client` readers.
 
-| Machine           | States (draft)                                                                 |
-| ----------------- | ------------------------------------------------------------------------------ |
-| `machines.agent`  | `idle`, `loading`, `ready`, `failed`                                           |
-| `machines.turn`   | `thinking`, `searching`, `reading`, `streaming`, `done`, `failed`, `cancelled` |
-| `machines.page`   | `generating`, `refining`, `ready`, `saving`, `saved`, `failed`                 |
-| `machines.render` | `queued`, `rendering`, `rendered`, `failed`                                    |
-| `machines.corpus` | `resolving`, `fetching`, `writing`, `indexing`, `built`, `failed`              |
+| Machine           | States (draft)                                                                |
+| ----------------- | ----------------------------------------------------------------------------- |
+| `machines.agent`  | `idle`, `loading`, `ready`, `failed`                                          |
+| `machines.turn`   | `queued`, `thinking`, `searching`, `streaming`, `done`, `failed`, `cancelled` |
+| `machines.page`   | `generating`, `refining`, `ready`, `saving`, `saved`, `failed`                |
+| `machines.render` | `queued`, `rendering`, `rendered`, `failed`                                   |
 
 ## Decisions
 
@@ -335,7 +333,7 @@ Each of these is an XState machine with named states for success, failure, and c
 | Who pays for inference | The site, through its own gateway on Cloudflare AI Gateway                                              |
 | Hand-written pages     | Visual index and concept posts only                                                                     |
 | Source modes           | Every source supports `snapshot` and `runtime`                                                          |
-| Adapters               | Namespaces on the root entrypoint: `Source`, `Search`, `Model`, `Storage`                               |
+| Adapters               | Namespaces on the root entrypoint: `Source`, `Search`, `Provider`, `Storage`                            |
 | Styles                 | Authored with zyzz, compiled ahead of time to static CSS. Hosts never need zyzz.                        |
 | Core                   | A web-standard handler, with a client, React components, a Vite plugin, and a CLI around it             |
 | State                  | XState machines with enumerated states, no boolean flags                                                |
