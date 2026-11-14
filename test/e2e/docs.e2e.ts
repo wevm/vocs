@@ -66,7 +66,7 @@ test('type-checks code with Twoslash, and shows types', async ({ page }) => {
   await expect(code.locator('.twoslash-query-line')).toContainText(
     'const transport: HttpTransport<undefined, false>',
   )
-  await expect(page.locator('[data-vocs=code-group] pre')).toHaveAttribute(
+  await expect(page.locator('[data-vocs=code-group]').getByRole('tabpanel')).toHaveAttribute(
     'data-state',
     'highlighted',
   )

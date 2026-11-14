@@ -1,7 +1,8 @@
 /**
  * End-to-end coverage of saved pages in custom mode: the reader saves generated pages, and the
  * handler serves each page's permalink as server-rendered HTML that reads the same with
- * JavaScript off and loads no script or WebAssembly. Saving stores only what the handler renders.
+ * JavaScript off and loads nothing else. One inline module switches code tabs and copies code.
+ * Saving stores only what the handler renders.
  * @module
  */
 import type { Browser, Page } from '@playwright/test'
@@ -16,6 +17,41 @@ async function save(page: Page) {
   const link = page.getByRole('link', { name: 'Open permalink' })
   await expect(link).toHaveAttribute('href', /^\/docs\/pages\/[a-z0-9-]+-[a-z0-9]{6}$/)
   return (await link.getAttribute('href'))!
+}
+
+/** Switches the code tabs of "Attach a Memo", and copies its code. */
+async function tabsAndCopy(page: Page) {
+  const group = page.locator('[data-vocs=code-group]')
+  await group.getByRole('tab', { name: 'pnpm' }).click()
+  await expect(group.getByRole('tab', { name: 'pnpm' })).toHaveAttribute('aria-selected', 'true')
+  await expect(group.getByRole('tab', { name: 'npm', exact: true })).toHaveAttribute(
+    'aria-selected',
+    'false',
+  )
+  await expect(group.getByRole('tabpanel')).toHaveText('pnpm add viem')
+  await expect(group.getByText('npm i viem')).toBeHidden()
+
+  const copy = group.getByRole('button', { name: 'Copy code' })
+  await copy.click()
+  await expect(copy).toHaveText('Copied')
+  await expect.poll(() => page.evaluate(() => navigator.clipboard.readText())).toBe('pnpm add viem')
+  await page.getByRole('heading', { level: 1 }).hover()
+  await expect(copy).toHaveText('Copy')
+
+  await page
+    .locator('[data-vocs=code]', { hasText: 'client.ts' })
+    .getByRole('button', { name: 'Copy code' })
+    .click()
+  await expect
+    .poll(() => page.evaluate(() => navigator.clipboard.readText()))
+    .toBe(
+      [
+        "import { createClient, http } from 'viem'",
+        '',
+        "const transport = http('https://rpc.tempo.xyz')",
+        'const client = createClient({ transport })',
+      ].join('\n'),
+    )
 }
 
 /** Opens a path with JavaScript off, and records every request the page sends. */
@@ -41,7 +77,8 @@ test('saves a page, and serves its permalink without JavaScript', async ({ brows
   await expect(article.locator('[data-vocs=code]')).toHaveAttribute('data-state', 'highlighted')
   await expect(article.locator('[data-vocs=callout]')).toContainText('Rejected block')
   await expect(permalink.page.locator('[data-vocs=sidebar]')).toHaveCount(0)
-  await expect(permalink.page.locator('script')).toHaveCount(0)
+  await expect(permalink.page.locator('script')).toHaveCount(1)
+  await expect(permalink.page.locator('script')).not.toHaveAttribute('src')
   expect(permalink.requests).toEqual([path])
   await permalink.context.close()
 })
@@ -78,6 +115,23 @@ test('saves docs, and links their pages without JavaScript', async ({ browser, p
   )
   expect(permalink.requests.filter((request) => !request.startsWith(path))).toEqual([])
   await permalink.context.close()
+})
+
+test('switches code tabs and copies code, in the page and its permalink', async ({ page }) => {
+  await page.context().grantPermissions(['clipboard-read', 'clipboard-write'])
+  await compose(page, 'Docs', 'Explain memos and fees')
+  const path = await save(page)
+  await page
+    .getByRole('navigation', { name: 'Pages' })
+    .getByRole('link', { name: 'Attach a Memo' })
+    .click()
+  await tabsAndCopy(page)
+
+  const requests: string[] = []
+  page.on('request', (request) => requests.push(new URL(request.url()).pathname))
+  await page.goto(`${path}/attach-a-memo`)
+  await tabsAndCopy(page)
+  expect(requests).toEqual([`${path}/attach-a-memo`])
 })
 
 test('stores only the HTML the handler renders, and rejects an invalid draft', async ({
