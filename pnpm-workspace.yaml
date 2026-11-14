@@ -11,9 +11,12 @@ catalog:
   '@changesets/cli': '3.0.3'
   '@cloudflare/vite-plugin': '1.69.1'
   '@playwright/test': '1.65.1'
+  '@shikijs/twoslash': '4.6.0'
   '@sqlite.org/sqlite-wasm': '3.54.1-build1'
   '@types/node': '^24.11.0'
   'nanocode-ts': 'https://github.com/nanocodexyz/nanocode-ts/releases/download/build-0624213/nanocode-ts-0624213.tgz'
+  'shiki': '4.6.0'
+  'twoslash-cdn': '0.3.9'
   'typescript': '7.0.2'
   'vite': '8.3.8'
   'vite-plus': '1.6.0'
@@ -27,3 +30,8 @@ minimumReleaseAgeExclude:
   - playwright-core@1.65.1
   - playwright@1.65.1
   - wrangler@4.162.0
+
+catalogs:
+  typescript-api:
+    # Twoslash needs the JavaScript TypeScript API, which TypeScript 7 does not ship.
+    'typescript': '6.0.3'

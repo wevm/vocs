@@ -2,4 +2,6 @@ coverage/
 dist/
 node_modules/
 test-results/
+.wrangler/
+*.cpuprofile
 *.tsbuildinfo

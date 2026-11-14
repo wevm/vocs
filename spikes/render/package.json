@@ -1,0 +1,19 @@
+{
+  "scripts": {
+    "build": "wrangler deploy --dry-run --outdir dist",
+    "dev": "wrangler dev",
+    "measure": "node scripts/measure.ts"
+  },
+  "dependencies": {
+    "@shikijs/twoslash": "catalog:",
+    "shiki": "catalog:",
+    "twoslash-cdn": "catalog:",
+    "typescript": "catalog:typescript-api"
+  },
+  "devDependencies": {
+    "wrangler": "catalog:"
+  },
+  "name": "spike-render",
+  "private": true,
+  "type": "module"
+}

@@ -1,0 +1,9 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "compatibility_date": "2026-11-01",
+  "compatibility_flags": ["nodejs_compat"],
+  // TypeScript detects Node through `process` and reads `__filename` at module scope.
+  "define": { "__filename": "\"/worker.js\"" },
+  "main": "./src/worker.ts",
+  "name": "vocs-spike-render",
+}
