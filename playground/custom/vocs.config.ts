@@ -1,4 +1,4 @@
-import { defineConfig, Provider, Source } from 'vocs'
+import { defineConfig, Provider, Source, Storage } from 'vocs'
 
 export default defineConfig({
   description: 'Tempo is a payments blockchain.',
@@ -23,6 +23,7 @@ export default defineConfig({
       repo: 'wevm/viem',
     }),
   ],
+  storage: Storage.cloudflare({ binding: 'PAGES' }),
   title: 'Tempo',
   twoslash: { packages: ['viem', 'viem/tempo'] },
 })

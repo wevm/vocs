@@ -2,7 +2,8 @@
  * Compiles the zyzz styles of the built package ahead of time. It runs after `zile`: the zyzz
  * compiler rewrites each module in `dist` to apply precompiled class names, and writes the
  * stylesheet. The package then ships `dist/styles.css`, the default theme, and `dist/tokens.css`,
- * the default values of the public `--vocs-*` properties. Hosts need no zyzz setup.
+ * the default values of the public `--vocs-*` properties. Hosts need no zyzz setup. The theme is
+ * also written into `dist/internal/Stylesheet.js`, which permalinks inline.
  * @module
  */
 import * as ChildProcess from 'node:child_process'
@@ -27,6 +28,11 @@ try {
 
   const css = await Fs.readFile(Path.join(out, 'zyzz.css'), 'utf8')
   await Fs.writeFile(Path.join(dist, 'styles.css'), css)
+  await Fs.writeFile(
+    Path.join(dist, 'internal/Stylesheet.js'),
+    `export const css = ${JSON.stringify(css)}\n`,
+  )
+  await Fs.rm(Path.join(dist, 'internal/Stylesheet.js.map'), { force: true })
 
   // Each theme variable reads a public property with its default as the fallback. Dark defaults
   // sit in `prefers-color-scheme` blocks.

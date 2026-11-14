@@ -5,6 +5,7 @@
  */
 import type * as Provider from './Provider.js'
 import type * as Source from './Source.js'
+import type * as Storage from './Storage.js'
 
 /** A Vocs site. */
 export type Config = {
@@ -14,6 +15,8 @@ export type Config = {
   provider: Provider.Provider
   /** Content the agent reads. */
   sources: readonly Source.Source[]
+  /** Where saved pages go. Without it, readers cannot keep a page. */
+  storage?: Storage.Storage | undefined
   /** Site title. */
   title: string
   /**

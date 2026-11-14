@@ -1,9 +1,9 @@
 /**
- * The end-to-end config: local Markdown only, and the stand-in model through the `MODEL` service
- * binding of `wrangler.test.jsonc`.
+ * The end-to-end config: local Markdown only, the stand-in model through the `MODEL` service
+ * binding of `wrangler.test.jsonc`, and saved pages in its local `PAGES` KV namespace.
  * @module
  */
-import { defineConfig, Provider, Source } from 'vocs'
+import { defineConfig, Provider, Source, Storage } from 'vocs'
 
 export default defineConfig({
   description: 'Tempo is a payments blockchain.',
@@ -20,6 +20,7 @@ export default defineConfig({
     models: ['gpt-6-luna'],
   }),
   sources: [Source.files({ include: 'docs/**/*.md', name: 'playground' })],
+  storage: Storage.cloudflare({ binding: 'PAGES' }),
   title: 'Tempo',
   twoslash: { packages: ['viem'] },
 })

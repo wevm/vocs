@@ -10,6 +10,7 @@ import { Client } from '../client/index.js'
 import { Message } from './Ask.js'
 import { Blocks } from './Blocks.js'
 import { Composer } from './Composer.js'
+import { Sidebar, Sources, styles as layout } from './Page.js'
 import { style, vars } from '../zyzz.config.js'
 
 /** The documentation app: composer, chat, and generated pages. */
@@ -30,7 +31,7 @@ export function Docs(props: Docs.Props) {
   }
 
   return (
-    <div data-view={view} data-vocs="docs" {...styles.docs({ className: props.className })}>
+    <div data-view={view} data-vocs="docs" {...layout.docs({ className: props.className })}>
       {view === 'home' ? (
         <main data-vocs-part="home" {...styles.home()}>
           <h1 data-vocs-part="title" {...styles.homeTitle()}>
@@ -47,12 +48,12 @@ export function Docs(props: Docs.Props) {
         </main>
       ) : (
         <>
-          <header data-vocs-part="header" {...styles.header()}>
+          <header data-vocs-part="header" {...layout.header()}>
             <button
               data-vocs-part="home-link"
               onClick={() => setView('home')}
               type="button"
-              {...styles.homeLink()}
+              {...layout.homeLink()}
             >
               {props.title}
             </button>
@@ -96,50 +97,26 @@ function Pages(props: { demos: Docs.Props['demos']; guide: Client.Guide }) {
   const state = React.useSyncExternalStore(props.guide.subscribe, props.guide.get, props.guide.get)
   const [selected, setSelected] = React.useState<string>()
   const page = state.pages.find((entry) => entry.slug === selected) ?? state.pages[0]
-  const groups = React.useMemo(() => {
-    const map = new Map<string, Client.Guide.Page[]>()
-    for (const entry of state.pages) map.set(entry.group, [...(map.get(entry.group) ?? []), entry])
-    return [...map]
-  }, [state.pages])
 
   return (
     <div
       data-layout={state.pages.length > 1 ? 'sidebar' : 'single'}
       data-vocs-part="pages"
-      {...styles.pages()}
+      {...layout.pages()}
     >
       {state.pages.length > 1 && (
-        <nav aria-label="Pages" data-vocs="sidebar" {...styles.sidebar()}>
-          {groups.map(([group, entries]) => (
-            <section data-vocs-part="group" key={group} {...styles.group()}>
-              <p data-vocs-part="group-title" {...styles.groupTitle()}>
-                {group}
-              </p>
-              <ul {...styles.links()}>
-                {entries.map((entry) => (
-                  <li key={entry.slug}>
-                    <button
-                      aria-current={entry.slug === page?.slug ? 'page' : undefined}
-                      data-state={entry.slug === page?.slug ? 'active' : 'inactive'}
-                      data-vocs-part="link"
-                      onClick={() => setSelected(entry.slug)}
-                      type="button"
-                      {...styles.link()}
-                    >
-                      {entry.title}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          ))}
-        </nav>
+        <Sidebar
+          current={page?.slug}
+          href={(slug) => `#${slug}`}
+          onSelect={setSelected}
+          pages={state.pages}
+        />
       )}
-      <main data-vocs-part="main" {...styles.main()}>
-        <article data-state={state.status} data-vocs="page" {...styles.article()}>
+      <main data-vocs-part="main" {...layout.main()}>
+        <article data-state={state.status} data-vocs="page" {...layout.article()}>
           {page ? (
             <>
-              <h1 data-vocs-part="title" {...styles.pageTitle()}>
+              <h1 data-vocs-part="title" {...layout.pageTitle()}>
                 {page.title}
               </h1>
               <Blocks blocks={page.blocks} demos={props.demos} />
@@ -159,18 +136,25 @@ function Pages(props: { demos: Docs.Props['demos']; guide: Client.Guide }) {
           >
             {status(state)}
           </p>
-          {state.files.length > 0 && (
-            <details data-vocs-part="sources" {...styles.sources()}>
-              <summary>Sources</summary>
-              <ul>
-                {state.files.map((file) => (
-                  <li key={file.path}>
-                    {file.url ? <a href={file.url}>{file.path}</a> : file.path}
-                  </li>
-                ))}
-              </ul>
-            </details>
+          {state.status === 'saved' ? (
+            <a data-vocs-part="permalink" href={state.link} {...styles.action()}>
+              Open permalink
+            </a>
+          ) : (
+            (state.save === 'available' || state.status === 'saving') && (
+              <button
+                data-state={state.status === 'saving' ? 'saving' : 'idle'}
+                data-vocs-part="save"
+                disabled={state.status === 'saving'}
+                onClick={props.guide.save}
+                type="button"
+                {...styles.action()}
+              >
+                {state.status === 'saving' ? 'Saving' : 'Save'}
+              </button>
+            )
           )}
+          <Sources files={state.files} />
         </article>
         <Composer
           label="Revise these pages"
@@ -191,18 +175,29 @@ function status(state: Client.Guide.State): string {
   if (state.status === 'cancelled') return 'Stopped.'
   if (state.status === 'generating') return 'Writing'
   if (state.status === 'refining') return 'Revising'
+  if (state.status === 'saveFailed') return state.error ?? 'The pages failed to save.'
   return ''
 }
 
 namespace styles {
-  export const article = style({
+  export const action = style({
     '@layer vocs': {
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 6,
-      marginInline: 'auto',
-      maxWidth: 'page',
-      width: 'full',
+      alignSelf: 'flex-start',
+      backgroundColor: vars.color.background,
+      borderColor: vars.color.border,
+      borderRadius: vars.radius.md,
+      borderStyle: 'solid',
+      borderWidth: '1px',
+      color: vars.color.foreground,
+      cursor: 'pointer',
+      fontFamily: vars.fontFamily.sans,
+      fontSize: 'sm',
+      paddingBlock: 1,
+      paddingInline: 3,
+      textDecorationLine: 'none',
+      '&:hover': { backgroundColor: vars.color.surface },
+      '&:disabled': { color: vars.color.muted, cursor: 'default' },
+      '&:focus-visible': { outlineColor: 'accent', outlineStyle: 'solid', outlineWidth: '2px' },
     },
   })
 
@@ -230,38 +225,6 @@ namespace styles {
     },
   })
 
-  export const docs = style({
-    '@layer vocs': {
-      backgroundColor: vars.color.background,
-      color: vars.color.foreground,
-      colorScheme: 'light dark',
-      display: 'flex',
-      flexDirection: 'column',
-      fontFamily: vars.fontFamily.sans,
-      minHeight: '100dvh !custom',
-    },
-  })
-
-  export const group = style({
-    '@layer vocs': { display: 'flex', flexDirection: 'column', gap: 1 },
-  })
-
-  export const groupTitle = style({
-    '@layer vocs': { fontSize: 'sm', fontWeight: 600, margin: 0, paddingInline: 2 },
-  })
-
-  export const header = style({
-    '@layer vocs': {
-      alignItems: 'center',
-      borderBlockEndColor: 'border',
-      borderBlockEndStyle: 'solid',
-      borderBlockEndWidth: '1px',
-      display: 'flex',
-      paddingBlock: 3,
-      paddingInline: 4,
-    },
-  })
-
   export const home = style({
     '@layer vocs': {
       alignItems: 'center',
@@ -278,19 +241,6 @@ namespace styles {
     },
   })
 
-  export const homeLink = style({
-    '@layer vocs': {
-      backgroundColor: 'transparent',
-      borderWidth: 0,
-      color: vars.color.foreground,
-      cursor: 'pointer',
-      fontFamily: vars.fontFamily.sans,
-      fontSize: 'md',
-      fontWeight: 600,
-      padding: 0,
-    },
-  })
-
   export const homeTitle = style({
     '@layer vocs': { fontSize: 'xl', fontWeight: 600, margin: 0, textAlign: 'center' },
   })
@@ -299,80 +249,8 @@ namespace styles {
     '@layer vocs': { color: vars.color.muted, fontSize: 'lg', margin: 0, textAlign: 'center' },
   })
 
-  export const link = style({
-    '@layer vocs': {
-      backgroundColor: 'transparent',
-      borderRadius: vars.radius.sm,
-      borderWidth: 0,
-      color: vars.color.muted,
-      cursor: 'pointer',
-      fontFamily: vars.fontFamily.sans,
-      fontSize: 'sm',
-      paddingBlock: 1,
-      paddingInline: 2,
-      textAlign: 'start',
-      width: 'full',
-      '&:hover': { color: vars.color.foreground },
-      '&[data-state="active"]': {
-        backgroundColor: vars.color.surface,
-        color: vars.color.foreground,
-      },
-      '&:focus-visible': { outlineColor: 'accent', outlineStyle: 'solid', outlineWidth: '2px' },
-    },
-  })
-
-  export const links = style({
-    '@layer vocs': {
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 1,
-      listStyle: 'none',
-      margin: 0,
-      padding: 0,
-    },
-  })
-
-  export const main = style({
-    '@layer vocs': {
-      display: 'flex',
-      flex: 1,
-      flexDirection: 'column',
-      gap: 8,
-      minWidth: 0,
-      paddingBlock: 8,
-      paddingInline: 6,
-    },
-  })
-
   export const messages = style({
     '@layer vocs': { display: 'flex', flexDirection: 'column', gap: 6 },
-  })
-
-  export const pageTitle = style({
-    '@layer vocs': { fontSize: 'xl', fontWeight: 600, lineHeight: 1.2, margin: 0 },
-  })
-
-  export const pages = style({
-    '@layer vocs': { display: 'flex', flex: 1 },
-  })
-
-  export const sidebar = style({
-    '@layer vocs': {
-      borderInlineEndColor: 'border',
-      borderInlineEndStyle: 'solid',
-      borderInlineEndWidth: '1px',
-      display: 'flex',
-      flexDirection: 'column',
-      flexShrink: 0,
-      gap: 6,
-      paddingBlock: 8,
-      paddingInline: 4,
-      width: 'sidebar',
-    },
-  })
-
-  export const sources = style({
-    '@layer vocs': { color: vars.color.muted, fontSize: 'sm' },
   })
 
   export const status = style({

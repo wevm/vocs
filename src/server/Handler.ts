@@ -1,13 +1,15 @@
 /**
  * The Vocs request handler, `(Request) => Response`. It serves the agent settings to the page,
  * runs the model gateway, which forwards the agent's requests to the configured provider after it checks
- * the model, the body size, and the reader's request rate, and renders code blocks to highlighted HTML.
- * It runs anywhere `fetch` runs.
+ * the model, the body size, and the reader's request rate, renders code blocks to highlighted HTML,
+ * and saves pages to storage and serves their server-rendered permalinks. It runs anywhere `fetch` runs.
  * @module
  */
+import type * as Block from '../Block.js'
 import type * as Config from '../Config.js'
 import * as Corpus from '../internal/Corpus.js'
 import * as Highlight from '../internal/Highlight.js'
+import * as Saved from '../internal/Saved.js'
 
 /** A mounted handler. */
 export type Handler = {
@@ -22,6 +24,8 @@ export type Agent = {
   description: string | undefined
   /** The model the agent requests. */
   model: string | undefined
+  /** Path that saves pages and serves their permalinks, or `undefined` when the site has no storage. */
+  pages: string | undefined
   title: string
   /** Packages that Twoslash code blocks may import, or `undefined` when Twoslash is off. */
   twoslash: readonly string[] | undefined
@@ -32,6 +36,14 @@ export type Agent = {
  * snippet does not render, such as a Twoslash type error, for the agent to fix.
  */
 export type Render = { error: string; html?: undefined } | { error?: undefined; html: string }
+
+/** The result of `POST <basePath>/pages`. */
+export type Save = {
+  /** Permalink ID, such as `attach-a-memo-k3f9a2`. */
+  id: string
+  /** Permalink path, such as `/docs/pages/attach-a-memo-k3f9a2`. */
+  url: string
+}
 
 /** A rate limiter with the shape of a Workers rate-limiting binding. */
 export type RateLimiter = {
@@ -62,12 +74,43 @@ export function from(config: Config.Config, options: from.Options): Handler {
     corpus: corpus.url,
     description: config.description,
     model: config.provider.models[0],
+    pages: config.storage ? `${basePath}/pages` : undefined,
     title: config.title,
     twoslash: config.twoslash?.packages,
   } satisfies Agent
   const highlighter = Highlight.create({ types: Highlight.types(config) })
-  // Rendered HTML by snippet, so a repeated block, such as one on a revised page, renders once.
+  // Rendered HTML by snippet, so a repeated block, such as one on a saved page, renders once.
   const rendered = new Map<string, string>()
+  const key = (snippet: Highlight.Snippet) =>
+    JSON.stringify([snippet.code, snippet.lang, snippet.twoslash === true])
+
+  async function render(snippet: Highlight.Snippet): Promise<Render> {
+    const cached = rendered.get(key(snippet))
+    if (cached !== undefined) return { html: cached }
+    try {
+      const html = await highlighter.render(snippet)
+      if (rendered.size >= renderCache) rendered.delete(rendered.keys().next().value!)
+      rendered.set(key(snippet), html)
+      return { html }
+    } catch (error) {
+      if (error instanceof Highlight.TypeCheckError || error instanceof Highlight.UnsupportedError)
+        return { error: error.message }
+      throw error
+    }
+  }
+
+  /** Renders the code of a block again, so stored HTML never comes from the reader's page. */
+  async function highlight(block: Block.Block): Promise<Block.Rendered> {
+    if (block.type === 'code') return { ...block, html: (await render(block)).html }
+    if (block.type === 'codeGroup')
+      return {
+        ...block,
+        tabs: await Promise.all(
+          block.tabs.map(async (tab) => ({ ...tab, html: (await render(tab)).html })),
+        ),
+      }
+    return block
+  }
 
   async function limit(request: Request, env: Record<string, unknown>, scope: string) {
     if (!options.rateLimit) return undefined
@@ -147,33 +190,76 @@ export function from(config: Config.Config, options: from.Options): Handler {
             'The body must be JSON with `code` and `lang` strings, and an optional `twoslash` boolean.',
           )
 
-        const key = JSON.stringify([snippet.code, snippet.lang, snippet.twoslash === true])
-        const cached = rendered.get(key)
-        if (cached !== undefined) return Response.json({ html: cached } satisfies Render)
-
-        // Twoslash runs the TypeScript checker, so only its renders count against the limit.
-        if (snippet.twoslash) {
+        const next = { code: snippet.code, lang: snippet.lang, twoslash: snippet.twoslash }
+        // Twoslash runs the TypeScript checker, so only its uncached renders count against the limit.
+        if (next.twoslash && !rendered.has(key(next))) {
           const limited = await limit(request, env, 'render')
           if (limited) return limited
         }
 
-        try {
-          const result = await highlighter.render({
-            code: snippet.code,
-            lang: snippet.lang,
-            twoslash: snippet.twoslash,
-          })
-          if (rendered.size >= renderCache) rendered.delete(rendered.keys().next().value!)
-          rendered.set(key, result)
-          return Response.json({ html: result } satisfies Render)
-        } catch (error) {
-          if (
-            error instanceof Highlight.TypeCheckError ||
-            error instanceof Highlight.UnsupportedError
-          )
-            return Response.json({ error: error.message } satisfies Render)
-          throw error
-        }
+        return Response.json(await render(next))
+      }
+
+      if (route === '/pages' && request.method === 'POST') {
+        const storage = config.storage
+        if (!storage) return text(404, 'This site has no storage. Set `storage` in the config.')
+        const limited = await limit(request, env, 'save')
+        if (limited) return limited
+
+        const body = await read(request, saveBytes)
+        if (body === undefined) return text(413, `The request is larger than ${saveBytes} bytes.`)
+        const draft = (() => {
+          try {
+            return Saved.parse(JSON.parse(body))
+          } catch (error) {
+            return error instanceof Error ? error : new Error(String(error))
+          }
+        })()
+        if (draft instanceof Error) return text(400, draft.message)
+
+        const pages = await Promise.all(
+          draft.pages.map(async (page) => ({
+            ...page,
+            blocks: await Promise.all(page.blocks.map(highlight)),
+          })),
+        )
+        const id = `${draft.pages[0]!.slug.slice(0, 60).replace(/-$/, '')}-${suffix()}`
+        await storage.put(
+          `pages/${id}`,
+          JSON.stringify({ files: draft.files, id, pages } satisfies Saved.Saved),
+          { env },
+        )
+        return Response.json({ id, url: `${basePath}/pages/${id}` } satisfies Save, {
+          status: 201,
+        })
+      }
+
+      const permalink = route.match(/^\/pages\/([^/]+)(?:\/([^/]+))?$/)
+      if (permalink && request.method === 'GET') {
+        const [, id = '', slug] = permalink
+        const storage = config.storage
+        if (!storage) return text(404, 'This site has no storage. Set `storage` in the config.')
+        const value = Saved.segment.test(id) ? await storage.get(`pages/${id}`, { env }) : undefined
+        if (value === undefined) return text(404, `Page "${id}" does not exist.`)
+        const saved = JSON.parse(value) as Saved.Saved
+        const page =
+          slug === undefined ? saved.pages[0] : saved.pages.find((entry) => entry.slug === slug)
+        if (!page) return text(404, `Page "${id}" has no page "${slug}".`)
+
+        // React and the block components load on the first permalink.
+        const Permalink = await import('../internal/Permalink.js')
+        const stream = await Permalink.render({
+          basePath,
+          page,
+          saved,
+          site: { description: config.description, title: config.title },
+        })
+        return new Response(stream, {
+          headers: {
+            'cache-control': 'public, max-age=300',
+            'content-type': 'text/html; charset=utf-8',
+          },
+        })
       }
 
       return text(404, 'Not found.')
@@ -186,6 +272,16 @@ const renderBytes = 64_000
 
 /** Number of rendered snippets the handler keeps. */
 const renderCache = 100
+
+/** Largest save request body in bytes. */
+const saveBytes = 1_000_000
+
+/** Returns six random base-36 characters, which keep permalink IDs unguessable and short. */
+function suffix(): string {
+  return Array.from(crypto.getRandomValues(new Uint8Array(6)), (byte) =>
+    (byte % 36).toString(36),
+  ).join('')
+}
 
 export declare namespace from {
   type Options = {

@@ -16,6 +16,8 @@ import {
   waitFor,
 } from 'xstate'
 import type * as Block from '../Block.js'
+import type * as Stored from '../internal/Saved.js'
+import type * as Handler from '../server/Handler.js'
 import type * as Agent from './Agent.js'
 
 /** A client for one page. */
@@ -46,6 +48,8 @@ export type Guide = Store<Guide.State> & {
   prompt: string
   /** Revises the pages, such as "use Express" or "shorter". Ignored while the agent writes. */
   refine(prompt: string): void
+  /** Saves the pages and sets `link` to their permalink. Ignored unless `save` is `available`. */
+  save(): void
 }
 
 export declare namespace Guide {
@@ -61,11 +65,15 @@ export declare namespace Guide {
   }
 
   type State = {
-    /** The failure message when `status` is `failed`. */
+    /** The failure message when `status` is `failed` or `saveFailed`. */
     error: string | undefined
     /** Corpus files the agent read, in first-read order. */
     files: readonly File[]
+    /** Permalink path of the saved pages, set when `status` is `saved`. */
+    link: string | undefined
     pages: readonly Page[]
+    /** `available` when `save()` applies: the agent finished a page, and the site has storage. */
+    save: 'available' | 'unavailable'
     status: machines.guide.Status
   }
 }
@@ -76,6 +84,9 @@ export type File = {
   path: string
   url?: string | undefined
 }
+
+/** Saved pages under one permalink ID, as the handler stores them. */
+export type Saved = Stored.Saved
 
 /** A readable value that notifies listeners when it changes. */
 export type Store<value> = {
@@ -169,7 +180,21 @@ export function create(options: create.Options = {}): Client {
     },
     generate(prompt, options = {}) {
       const mode = options.mode ?? 'page'
-      const guide = createActor(machines.guide).start()
+      const guide = createActor(
+        machines.guide.provide({
+          actors: {
+            save: fromPromise(async (args) => {
+              const response = await fetcher(loaded!.settings.pages!, {
+                body: JSON.stringify(args.input),
+                headers: { 'content-type': 'application/json' },
+                method: 'POST',
+              })
+              if (!response.ok) throw new Error(await response.text())
+              return ((await response.json()) as Handler.Save).url
+            }),
+          },
+        }),
+      ).start()
 
       function run(text: string) {
         queue = queue.then(async () => {
@@ -177,6 +202,10 @@ export function create(options: create.Options = {}): Client {
             guide.send({ error: message(error), type: 'agent.fail' })
           })
           if (!current || !machines.writing(guide.getSnapshot())) return
+          guide.send({
+            storage: current.settings.pages ? 'available' : 'unavailable',
+            type: 'agent.ready',
+          })
 
           await current
             .ask(text, {
@@ -206,6 +235,9 @@ export function create(options: create.Options = {}): Client {
           if (!guide.getSnapshot().can({ type: 'guide.refine' })) return
           guide.send({ type: 'guide.refine' })
           run(`Revise: ${next}`)
+        },
+        save() {
+          guide.send({ type: 'guide.save' })
         },
       }
     },
@@ -472,10 +504,25 @@ export namespace machines {
 
   /**
    * Generated pages. `generating` and `refining` take page tool calls from the agent. A
-   * revision starts from `ready`, `failed`, or `cancelled`, and keeps the pages written so far.
+   * revision starts from `ready`, `failed`, `cancelled`, `saved`, or `saveFailed`, and keeps the
+   * pages written so far. `saving` runs the provided `save` actor, which stores the pages and
+   * returns their permalink path.
    */
   export const guide = setup({
     actions: {
+      clearLink: assign({ link: undefined }),
+      recordLink: assign({
+        link: (args) => (args.event as { output?: unknown }).output as string,
+      }),
+      recordSaveError: assign({
+        error: (args) => message((args.event as { error?: unknown }).error),
+      }),
+      recordStorage: assign({
+        storage: (args) => {
+          assertEvent(args.event, 'agent.ready')
+          return args.event.storage
+        },
+      }),
       addFiles: assign({
         files: (args) => {
           assertEvent(args.event, 'tool.result')
@@ -554,7 +601,17 @@ export namespace machines {
         },
       }),
     },
+    actors: {
+      /** Provided by `Client.create`: posts the pages and returns their permalink path. */
+      save: fromPromise<string, { files: readonly File[]; pages: readonly Guide.Page[] }>(
+        async () => {
+          throw new Error('The save actor is not provided.')
+        },
+      ),
+    },
     guards: {
+      /** The site has storage, and there is a page to save. */
+      canSave: (args) => args.context.storage === 'available' && args.context.pages.length > 0,
       /** The page exists, and the insert index is at most its block count. */
       canInsert: (args) => {
         assertEvent(args.event, 'block.insert')
@@ -578,35 +635,65 @@ export namespace machines {
     },
     types: { context: {} as guide.Context, events: {} as guide.Event },
   }).createMachine({
-    context: { error: undefined, files: [], pages: [] },
+    context: { error: undefined, files: [], link: undefined, pages: [], storage: 'unavailable' },
     id: 'guide',
     initial: 'generating',
+    on: { 'agent.ready': { actions: 'recordStorage' } },
     states: {
       cancelled: { on: { 'guide.refine': 'refining' } },
       failed: { on: { 'guide.refine': { actions: 'clearError', target: 'refining' } } },
       generating: writingState,
-      ready: { on: { 'guide.refine': 'refining' } },
+      ready: {
+        on: {
+          'guide.refine': 'refining',
+          'guide.save': { guard: 'canSave', target: 'saving' },
+        },
+      },
       refining: writingState,
+      saved: { on: { 'guide.refine': { actions: 'clearLink', target: 'refining' } } },
+      saveFailed: {
+        on: {
+          'guide.refine': { actions: 'clearError', target: 'refining' },
+          'guide.save': { actions: 'clearError', guard: 'canSave', target: 'saving' },
+        },
+      },
+      saving: {
+        invoke: {
+          input: (args) => ({ files: args.context.files, pages: args.context.pages }),
+          onDone: { actions: 'recordLink', target: 'saved' },
+          id: 'save',
+          onError: { actions: 'recordSaveError', target: 'saveFailed' },
+          src: 'save',
+        },
+      },
     },
   })
 
   export declare namespace guide {
     type Actor = ActorRefFrom<typeof guide>
     type Context = {
-      /** The failure message, set in `failed`. */
+      /** The failure message, set in `failed` and `saveFailed`. */
       error: string | undefined
       /** Corpus files the agent read, in first-read order. */
       files: readonly File[]
+      /** Permalink path of the saved pages, set in `saved`. */
+      link: string | undefined
       /** Pages in sidebar order. */
       pages: readonly Guide.Page[]
+      /** Whether the site has storage for saved pages, from the agent settings. */
+      storage: 'available' | 'unavailable'
     }
     type Event =
       /** The agent failed to load. */
       | { error: string; type: 'agent.fail' }
+      /** The agent loaded. `storage` says whether the site saves pages. */
+      | { storage: 'available' | 'unavailable'; type: 'agent.ready' }
       /** The reader stopped the agent. */
       | { type: 'guide.cancel' }
       /** The reader asked for a revision. */
       | { type: 'guide.refine' }
+      /** The reader asked to save the pages. */
+      | { type: 'guide.save' }
       /** A page tool call changed the pages. */
       | Exclude<Agent.Operation, { type: 'page.read' }>
       /** A shell command returned. `files` are the corpus files its output names. */
@@ -618,9 +705,18 @@ export namespace machines {
     type Snapshot = SnapshotFrom<typeof guide>
     /**
      * `generating`: the first turn is writing. `refining`: a revision is writing. `ready`: the
-     * last turn finished.
+     * last turn finished. `saving`: the pages are being stored. `saved`: the pages have a
+     * permalink. `saveFailed`: the last save failed, and the pages can be saved again.
      */
-    type Status = 'cancelled' | 'failed' | 'generating' | 'ready' | 'refining'
+    type Status =
+      | 'cancelled'
+      | 'failed'
+      | 'generating'
+      | 'ready'
+      | 'refining'
+      | 'saveFailed'
+      | 'saved'
+      | 'saving'
   }
 
   /** Returns the guide's status. */
@@ -630,7 +726,14 @@ export namespace machines {
 
   /** Returns the guide's state for UI layers. */
   export function guideState(snapshot: guide.Snapshot): Guide.State {
-    return { ...snapshot.context, status: guideStatus(snapshot) }
+    return {
+      error: snapshot.context.error,
+      files: snapshot.context.files,
+      link: snapshot.context.link,
+      pages: snapshot.context.pages,
+      save: snapshot.can({ type: 'guide.save' }) ? 'available' : 'unavailable',
+      status: guideStatus(snapshot),
+    }
   }
 
   /** Returns what `page_read` shows the agent: the outline, or one page with its blocks. */

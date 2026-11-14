@@ -3,6 +3,7 @@
   "$schema": "./node_modules/wrangler/config-schema.json",
   "assets": { "not_found_handling": "single-page-application", "run_worker_first": ["/docs/*"] },
   "compatibility_date": "2026-11-01",
+  "kv_namespaces": [{ "binding": "PAGES", "id": "vocs-pages" }],
   "main": "./src/worker.ts",
   "name": "vocs-playground-custom",
   "ratelimits": [

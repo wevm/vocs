@@ -214,6 +214,7 @@ describe('machines.guide', () => {
       {
         "error": undefined,
         "files": [],
+        "link": undefined,
         "pages": [
           {
             "blocks": [
@@ -237,6 +238,7 @@ describe('machines.guide', () => {
             "title": "Pay Fees",
           },
         ],
+        "save": "unavailable",
         "status": "ready",
       }
     `)
@@ -296,9 +298,99 @@ describe('machines.guide', () => {
     `)
   })
 
+  test('saves the pages, saves again after a failure, and drops the link on a revision', async () => {
+    const inputs: unknown[] = []
+    const results = [new Error('This site has no storage.'), '/docs/pages/overview-k3f9a2']
+    const actor = createActor(
+      machines.guide.provide({
+        actors: {
+          save: fromPromise(async (args) => {
+            inputs.push(args.input)
+            const result = results.shift()!
+            if (result instanceof Error) throw result
+            return result
+          }),
+        },
+      }),
+    ).start()
+    actor.send({ group: 'Memos', title: 'Overview', type: 'page.create' })
+    actor.send({ files: [{ path: '/sources/docs/memos.md' }], type: 'tool.result' })
+    actor.send({ type: 'turn.complete' })
+    const unavailable = machines.guideState(actor.getSnapshot()).save
+    actor.send({ storage: 'available', type: 'agent.ready' })
+    const available = machines.guideState(actor.getSnapshot()).save
+
+    actor.send({ type: 'guide.save' })
+    const failed = machines.guideState(await waitFor(actor, (next) => next.value === 'saveFailed'))
+    actor.send({ type: 'guide.save' })
+    const saved = machines.guideState(await waitFor(actor, (next) => next.value === 'saved'))
+    actor.send({ type: 'guide.refine' })
+    const refining = machines.guideState(actor.getSnapshot())
+
+    expect({
+      available,
+      failed: { error: failed.error, save: failed.save },
+      inputs,
+      refining: { link: refining.link, status: refining.status },
+      saved: { error: saved.error, link: saved.link, save: saved.save },
+      unavailable,
+    }).toMatchInlineSnapshot(`
+      {
+        "available": "available",
+        "failed": {
+          "error": "This site has no storage.",
+          "save": "available",
+        },
+        "inputs": [
+          {
+            "files": [
+              {
+                "path": "/sources/docs/memos.md",
+              },
+            ],
+            "pages": [
+              {
+                "blocks": [],
+                "group": "Memos",
+                "slug": "overview",
+                "title": "Overview",
+              },
+            ],
+          },
+          {
+            "files": [
+              {
+                "path": "/sources/docs/memos.md",
+              },
+            ],
+            "pages": [
+              {
+                "blocks": [],
+                "group": "Memos",
+                "slug": "overview",
+                "title": "Overview",
+              },
+            ],
+          },
+        ],
+        "refining": {
+          "link": undefined,
+          "status": "refining",
+        },
+        "saved": {
+          "error": undefined,
+          "link": "/docs/pages/overview-k3f9a2",
+          "save": "unavailable",
+        },
+        "unavailable": "unavailable",
+      }
+    `)
+  })
+
   test('reaches every status, and each ends where its state says', () => {
     const events = {
       'agent.fail': { error: 'The agent module failed to load.', type: 'agent.fail' },
+      'agent.ready': { storage: 'available', type: 'agent.ready' },
       'block.insert': {
         block: prose('x'),
         index: undefined,
@@ -309,6 +401,7 @@ describe('machines.guide', () => {
       'block.replace': { block: prose('y'), index: 0, page: 'overview', type: 'block.replace' },
       'guide.cancel': { type: 'guide.cancel' },
       'guide.refine': { type: 'guide.refine' },
+      'guide.save': { type: 'guide.save' },
       'page.create': { group: 'Memos', title: 'Overview', type: 'page.create' },
       'page.delete': { page: 'overview', type: 'page.delete' },
       'page.update': {
@@ -322,18 +415,32 @@ describe('machines.guide', () => {
       'turn.fail': { error: 'The agent could not answer.', type: 'turn.fail' },
     } satisfies Record<machines.guide.Event['type'], machines.guide.Event>
 
+    // The save actor's results, which the runner never sends.
+    const settled = [
+      { output: '/docs/pages/overview-k3f9a2', type: 'xstate.done.actor.save' },
+      { error: new Error('This site has no storage.'), type: 'xstate.error.actor.save' },
+    ] as const
     // At most one page with one block keeps the graph finite.
     const size = (snapshot: machines.guide.Snapshot) =>
       `${snapshot.context.pages.length}/${snapshot.context.pages[0]?.blocks.length ?? 0}`
-    const paths = getShortestPaths(machines.guide, {
-      events: (snapshot) =>
-        Object.values(events).filter(
+    const machine = machines.guide.provide({
+      actors: { save: fromPromise(() => new Promise<string>(() => {})) },
+    })
+    const paths = getShortestPaths(machine, {
+      events: (snapshot) => [
+        ...Object.values(events).filter(
           (event) =>
             snapshot.can(event) &&
             !(event.type === 'page.create' && snapshot.context.pages.length > 0) &&
-            !(event.type === 'block.insert' && size(snapshot) !== '1/0'),
+            !(event.type === 'block.insert' && size(snapshot) !== '1/0') &&
+            // Storage turns available once.
+            !(event.type === 'agent.ready' && snapshot.context.storage === 'available'),
         ),
-      serializeState: (snapshot) => `${String(snapshot.value)} ${size(snapshot)}`,
+        // Actor results are internal events, outside the machine's `Event` type.
+        ...(snapshot.value === 'saving' ? (settled as unknown as machines.guide.Event[]) : []),
+      ],
+      serializeState: (snapshot) =>
+        `${String(snapshot.value)} ${size(snapshot)} ${snapshot.context.storage}`,
     })
 
     for (const event of Object.values(events))
@@ -341,10 +448,13 @@ describe('machines.guide', () => {
         paths.some((path) => path.state.can(event)),
         event.type,
       ).toBe(true)
-    // A guide holds an error exactly when it failed.
+    // A guide holds an error exactly when it failed, and a link exactly when it is saved.
     for (const path of paths) {
       const state = machines.guideState(path.state)
-      expect(state.error !== undefined, state.status).toBe(state.status === 'failed')
+      expect(state.error !== undefined, state.status).toBe(
+        state.status === 'failed' || state.status === 'saveFailed',
+      )
+      expect(state.link !== undefined, state.status).toBe(state.status === 'saved')
     }
     expect(
       paths.map(
@@ -355,19 +465,40 @@ describe('machines.guide', () => {
       [
         "xstate.init = generating 0/0",
         "xstate.init → agent.fail = failed 0/0",
+        "xstate.init → agent.ready = generating 0/0",
         "xstate.init → guide.cancel = cancelled 0/0",
         "xstate.init → page.create = generating 1/0",
         "xstate.init → turn.complete = ready 0/0",
+        "xstate.init → agent.fail → agent.ready = failed 0/0",
         "xstate.init → agent.fail → guide.refine = refining 0/0",
+        "xstate.init → agent.ready → guide.cancel = cancelled 0/0",
+        "xstate.init → agent.ready → page.create = generating 1/0",
+        "xstate.init → agent.ready → turn.complete = ready 0/0",
         "xstate.init → page.create → agent.fail = failed 1/0",
         "xstate.init → page.create → block.insert = generating 1/1",
         "xstate.init → page.create → guide.cancel = cancelled 1/0",
         "xstate.init → page.create → turn.complete = ready 1/0",
+        "xstate.init → agent.fail → agent.ready → guide.refine = refining 0/0",
         "xstate.init → agent.fail → guide.refine → page.create = refining 1/0",
+        "xstate.init → agent.ready → page.create → agent.fail = failed 1/0",
+        "xstate.init → agent.ready → page.create → block.insert = generating 1/1",
+        "xstate.init → agent.ready → page.create → guide.cancel = cancelled 1/0",
+        "xstate.init → agent.ready → page.create → turn.complete = ready 1/0",
         "xstate.init → page.create → block.insert → agent.fail = failed 1/1",
         "xstate.init → page.create → block.insert → guide.cancel = cancelled 1/1",
         "xstate.init → page.create → block.insert → turn.complete = ready 1/1",
+        "xstate.init → agent.fail → agent.ready → guide.refine → page.create = refining 1/0",
         "xstate.init → agent.fail → guide.refine → page.create → block.insert = refining 1/1",
+        "xstate.init → agent.ready → page.create → block.insert → agent.fail = failed 1/1",
+        "xstate.init → agent.ready → page.create → block.insert → guide.cancel = cancelled 1/1",
+        "xstate.init → agent.ready → page.create → block.insert → turn.complete = ready 1/1",
+        "xstate.init → agent.ready → page.create → turn.complete → guide.save = saving 1/0",
+        "xstate.init → agent.fail → agent.ready → guide.refine → page.create → block.insert = refining 1/1",
+        "xstate.init → agent.ready → page.create → block.insert → turn.complete → guide.save = saving 1/1",
+        "xstate.init → agent.ready → page.create → turn.complete → guide.save → xstate.done.actor.save = saved 1/0",
+        "xstate.init → agent.ready → page.create → turn.complete → guide.save → xstate.error.actor.save = saveFailed 1/0",
+        "xstate.init → agent.ready → page.create → block.insert → turn.complete → guide.save → xstate.done.actor.save = saved 1/1",
+        "xstate.init → agent.ready → page.create → block.insert → turn.complete → guide.save → xstate.error.actor.save = saveFailed 1/1",
       ]
     `)
   })

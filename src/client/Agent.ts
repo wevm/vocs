@@ -24,6 +24,8 @@ export type Agent = {
   cancel(): Promise<void>
   /** The loaded corpus. */
   corpus: Corpus.Corpus
+  /** The agent settings the handler served. */
+  settings: Handler.Agent
 }
 
 /** Progress callbacks of one question. */
@@ -201,6 +203,7 @@ export async function load(options: load.Options): Promise<Agent> {
       if (running) await runtime.cancel(scope, running, {})
     },
     corpus,
+    settings,
   }
 }
 
