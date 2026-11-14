@@ -22,7 +22,7 @@ export const test = base.extend<{ page: Page }>({
   },
 })
 
-/** Waits until the page root reports that its scripts are running. */
+/** Waits until the prompt box has rendered and reports the agent's status. */
 export async function hydrated(page: Page) {
-  await expect(page.locator('[data-vocs=root]')).not.toHaveAttribute('data-state', 'loading')
+  await expect(page.locator('[data-vocs=ask]')).toHaveAttribute('data-state', /.+/)
 }

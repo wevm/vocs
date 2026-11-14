@@ -1,11 +1,11 @@
 /**
  * Spike C. Creates a Cloudflare AI Search instance with `source` and `url` metadata, uploads the
- * Spike A corpus through the Items API, waits until every item leaves the queue, then runs ten
+ * corpus of the custom playground through the Items API, waits until every item leaves the queue, then runs ten
  * questions with a `source` filter and one with a filter that matches nothing. It deletes the
  * instance afterwards unless `KEEP=1`.
  *
  * Needs `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN` (AI Search Edit and Run), and
- * `spikes/agent/public/corpus.json` from `pnpm --dir spikes/agent corpus tempo`.
+ * the corpus asset at the first argument, `playground/custom/dist/client/assets/vocs-corpus-<hash>.json`.
  * @module
  */
 import * as Fs from 'node:fs/promises'
@@ -28,9 +28,11 @@ const questions = [
   'How do I accept stablecoin payments in my app?',
 ]
 
-const corpus = JSON.parse(
-  await Fs.readFile(new URL('../agent/public/corpus.json', import.meta.url), 'utf8'),
-) as Record<string, string>
+const corpus = (
+  JSON.parse(await Fs.readFile(process.argv[2] ?? 'corpus.json', 'utf8')) as {
+    files: Record<string, string>
+  }
+).files
 
 await call('POST', '', {
   custom_metadata: [

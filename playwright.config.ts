@@ -1,6 +1,6 @@
 /**
- * Configures the end-to-end suites. Each run serves the production build of Spike A with the
- * stand-in model Worker.
+ * Configures the end-to-end suites. Each run builds the `vocs` package, then serves the
+ * production build of the custom-mode playground with the stand-in model Worker.
  * @module
  */
 import { defineConfig, devices } from '@playwright/test'
@@ -15,9 +15,10 @@ export default defineConfig({
   testMatch: '**/*.e2e.ts',
   use: { baseURL: `http://localhost:${port}`, trace: 'retain-on-failure' },
   webServer: {
-    command: `pnpm --dir spikes/agent corpus fixture && pnpm --dir spikes/agent build && pnpm --dir spikes/agent preview --port ${port} --strictPort`,
+    command: `pnpm build && pnpm --dir playground/custom build && pnpm --dir playground/custom preview --port ${port} --strictPort`,
     env: { VOCS_MODEL: 'stand-in' },
     port,
     reuseExistingServer: !process.env.CI,
+    timeout: 180_000,
   },
 })

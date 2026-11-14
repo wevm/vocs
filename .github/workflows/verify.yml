@@ -54,6 +54,9 @@ jobs:
         env:
           CI: true
 
+      - name: Check budgets
+        run: pnpm check:budgets
+
       - name: Upload traces
         if: failure()
         uses: actions/upload-artifact@v7
