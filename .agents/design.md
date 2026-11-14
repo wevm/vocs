@@ -10,7 +10,7 @@ This branch is a rewrite from a fresh slate. Vocs v1 and the Vocs on `main` are 
 | -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Home           | "What do you want to learn?" above a composer with three modes: Chat, Page, and Docs. Enter submits, and Shift+Enter adds a line.                               |
 | Generated docs | Several pages in a sidebar. Groups are noun phrases, such as "Clients & Transports". Titles are verb-led and five words or fewer, such as "Set Up a Client".    |
-| Generated page | Streams in block by block. The reader refines it in chat ("I use Express", "shorter"). A kept page gets a permalink such as `/learn/accept-usdc-nextjs-k3f9a2`. |
+| Generated page | Streams in block by block. The reader refines it in chat ("I use Express", "shorter"). A kept page gets a permalink such as `/docs/pages/attach-a-memo-k3f9a2`. |
 | Chat           | Short answers that list the files the agent read. Any answer can become a page.                                                                                 |
 | Signed in      | The reader's API key and scopes fill into code. Missing scopes are flagged.                                                                                     |
 | Agents         | Other agents read the same corpus through MCP and `llms.txt`.                                                                                                   |
@@ -102,14 +102,8 @@ type Provider = {
 // Storage
 type Storage = {
   type: string
-  delete(key: string, context: Context): Promise<void>
-  get(key: string, context: Context): Promise<string | undefined>
-  put(
-    key: string,
-    value: string,
-    options: { ttl?: number | undefined },
-    context: Context,
-  ): Promise<void>
+  get(key: string, context: { env: Record<string, unknown> }): Promise<string | undefined>
+  put(key: string, value: string, context: { env: Record<string, unknown> }): Promise<void>
 }
 
 type Context = {
@@ -129,6 +123,7 @@ type Context = {
 |           | `endpoint({ name, url, schema })`           | One typed tool, such as an API called with the reader's key |
 |           | `vectorize({ index, embedding, reranker })` | Workers AI embeddings, Vectorize, Workers AI reranker       |
 |           | `memory()`                                  | A vector index packed at build, no service                  |
+|           | `cloudflare({ binding })`                   | A Workers KV namespace                                      |
 |           | `memory()`                                  | Process memory, for development and tests                   |
 
 ### Server
@@ -148,16 +143,17 @@ export default { fetch: docs.fetch } // Cloudflare Worker: fetch(request, env, c
 
 `Handler.from(config, options)` returns `{ fetch }`. The sources snapshot (internally, the corpus) is never public API: `vocs()` builds it, writes it as a static asset, and attaches its URL to the config. Its routes under `basePath`:
 
-| Route                           | Purpose                                                                                                                                                                          |
-| ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `POST /model/responses`         | The model gateway for the OpenAI Responses API, which nanocode's Codex harness sends. Forwards only `config.provider.models`, limits request size, and rate limits each address. |
-| `GET /search`                   | Runs `config.search`.                                                                                                                                                            |
-| `GET /sources/:name/*`          | Lists and reads runtime sources.                                                                                                                                                 |
-| `POST /mcp/:name`               | Proxies MCP calls, so tokens stay on the server.                                                                                                                                 |
-| `POST /render`                  | Renders one snippet, `{ code, lang, twoslash? }`, with Shiki, and Twoslash when set. Returns `{ html }`, or `{ error }` with the reason it does not render, such as type errors. |
-| `GET /pages/:id`, `POST /pages` | Reads and saves pages through `config.storage`.                                                                                                                                  |
-| `GET /agent`                    | The agent settings: title, description, model, and the URL of the sources snapshot, a static asset of the host's build, as is the agent module.                                  |
-| `POST /mcp`, `GET /llms.txt`    | The corpus for other agents.                                                                                                                                                     |
+| Route                        | Purpose                                                                                                                                                                          |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `POST /model/responses`      | The model gateway for the OpenAI Responses API, which nanocode's Codex harness sends. Forwards only `config.provider.models`, limits request size, and rate limits each address. |
+| `GET /search`                | Runs `config.search`.                                                                                                                                                            |
+| `GET /sources/:name/*`       | Lists and reads runtime sources.                                                                                                                                                 |
+| `POST /mcp/:name`            | Proxies MCP calls, so tokens stay on the server.                                                                                                                                 |
+| `POST /render`               | Renders one snippet, `{ code, lang, twoslash? }`, with Shiki, and Twoslash when set. Returns `{ html }`, or `{ error }` with the reason it does not render, such as type errors. |
+| `POST /pages`                | Saves pages through `config.storage`. Validates the draft, drops reader-set `html`, renders code again, and returns `{ id, url }`.                                               |
+| `GET /pages/:id/:slug?`      | Streams the permalink: one saved page as a server-rendered HTML document with the theme inlined and no script.                                                                   |
+| `GET /agent`                 | The agent settings: title, description, model, and the URL of the sources snapshot, a static asset of the host's build, as is the agent module.                                  |
+| `POST /mcp`, `GET /llms.txt` | The corpus for other agents.                                                                                                                                                     |
 
 ### Client
 
@@ -174,6 +170,7 @@ await turn.done
 const guide = client.generate('Explain memos and fees', { mode: 'docs' }) // or 'page'
 guide.subscribe(() => render(guide.get())) // { status, pages, files, error }; status is a machines.guide state
 guide.refine('use Express')
+guide.save() // sets state.link to the permalink path when the site has storage
 ```
 
 The agent module loads on the first `ask` or `generate`, not on `create`.
@@ -186,7 +183,7 @@ import 'vocs/styles.css'
 
 <Docs basePath="/docs" title="Tempo" demos={{ memo: Memo }} /> // home composer, generated docs, chat
 <Ask basePath="/docs" placeholder="Ask about the Tempo API" /> // only the prompt box
-<Page basePath="/docs" id="accept-usdc-nextjs-k3f9a2" /> // a saved page
+<Page href={(slug) => `/docs/pages/${saved.id}/${slug}`} saved={saved} title="Tempo" /> // a saved page
 ```
 
 Hosts with React Server Components import `Blocks` and `Page` from `vocs/rsc` instead. Those render blocks on the server without the HTML step.
@@ -282,7 +279,9 @@ Quick mode runs on a thin app layer over `@vitejs/plugin-rsc` and `@cloudflare/v
 - **Shiki:** the JavaScript regex engine, so no WebAssembly loads. Each grammar loads on its first use. An unknown language renders as plain text.
 - **Twoslash:** runs in the handler with TypeScript 6, the last version with a JavaScript API. `vocs()` builds a type snapshot: it compiles a probe that imports each `twoslash.packages` entry from the host's `node_modules`, keeps every file TypeScript reads, and lays them out as one virtual `node_modules` tree. The snapshot is a separate server module, imported with TypeScript on the first Twoslash snippet.
 - **Hover types:** popups use CSS anchor positioning with `position: fixed`, so the scrolling `pre` does not clip them. `//    ^?` queries render as static lines.
-- **Later in Phase 2:** permalinks render whole blocks on the server with React's `renderToReadableStream`, and `vocs/react` hydrates only interactive parts, such as tabs, copy buttons, and registered demos. Hosts with React Server Components render the same blocks with `vocs/rsc`.
+- **Permalinks:** the handler renders `<Page />` with React's `renderToReadableStream` and streams a full document. It inlines `vocs/styles.css` and loads no script, so links between saved pages work with JavaScript off. React and the components load on the first permalink.
+- **Saved code:** a saved page stores the HTML the handler rendered on save, never HTML from the reader's page. A `mermaid` block shows its source on a permalink, because Ondine needs WebAssembly that the handler does not load yet.
+- **Later in Phase 2:** `vocs/react` hydrates only interactive parts, such as tabs, copy buttons, and registered demos. Hosts with React Server Components render the same blocks with `vocs/rsc`.
 - **Diagrams:** Ondine compiles `mermaid` blocks to SVG in the page for now. Its WebAssembly loads on the first diagram, in a module separate from the agent.
 
 ## Styling
@@ -331,12 +330,12 @@ Vocs authors its own styles with [zyzz](https://zyzz.style): typed `style()` and
 
 Each of these is an XState machine with named states for success, failure, and cancellation. The states are public through `vocs/client` readers.
 
-| Machine           | States (draft)                                                                |
-| ----------------- | ----------------------------------------------------------------------------- |
-| `machines.agent`  | `idle`, `loading`, `ready`, `failed`                                          |
-| `machines.turn`   | `queued`, `thinking`, `searching`, `streaming`, `done`, `failed`, `cancelled` |
-| `machines.guide`  | `generating`, `refining`, `ready`, `failed`, `cancelled`                      |
-| `machines.render` | `queued`, `rendering`, `rendered`, `failed`                                   |
+| Machine           | States (draft)                                                                            |
+| ----------------- | ----------------------------------------------------------------------------------------- |
+| `machines.agent`  | `idle`, `loading`, `ready`, `failed`                                                      |
+| `machines.turn`   | `queued`, `thinking`, `searching`, `streaming`, `done`, `failed`, `cancelled`             |
+| `machines.guide`  | `generating`, `refining`, `ready`, `saving`, `saved`, `saveFailed`, `failed`, `cancelled` |
+| `machines.render` | `queued`, `rendering`, `rendered`, `failed`                                               |
 
 ## Decisions
 
