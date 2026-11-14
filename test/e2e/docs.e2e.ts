@@ -1,7 +1,7 @@
 /**
  * End-to-end coverage of `<Docs />` in custom mode: the composer asks in chat, page, or docs mode,
- * the agent writes pages through the page tools, a sidebar lists several pages, and a revision
- * changes the pages in place.
+ * the agent writes pages through the page tools, a sidebar lists several pages, code renders through
+ * the render route with Twoslash, and a revision changes the pages in place.
  * @module
  */
 import type { Page } from '@playwright/test'
@@ -15,7 +15,9 @@ async function compose(page: Page, mode: 'Chat' | 'Docs' | 'Page', prompt: strin
   await page.keyboard.press('Enter')
 }
 
-test('writes one page, and the page tools reject an invalid block', async ({ page }) => {
+test('writes one page, and the page tools reject an invalid block and a type error', async ({
+  page,
+}) => {
   await compose(page, 'Page', 'How do I use transferWithMemo?')
 
   const article = page.locator('[data-vocs=page]')
@@ -25,9 +27,11 @@ test('writes one page, and the page tools reject an invalid block', async ({ pag
   await expect(article.locator('[data-vocs=prose]')).toHaveText(
     'Read in /sources/playground/docs/memos.md.',
   )
-  await expect(article.locator('[data-vocs=code] [data-vocs-part=title]')).toHaveText('transfer.ts')
+  const code = article.locator('[data-vocs=code]')
+  await expect(code.locator('[data-vocs-part=title]')).toHaveText('transfer.ts')
+  await expect(code).toHaveAttribute('data-state', 'highlighted')
   await expect(article.locator('[data-vocs=callout]')).toHaveText(
-    'Rejected blockThe page tool rejected an invalid callout kind.',
+    'Rejected blockThe page tools rejected an invalid callout kind and a type error.',
   )
 })
 
@@ -53,6 +57,38 @@ test('writes docs with a sidebar, and renders a diagram', async ({ page }) => {
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Pay Fees in Stablecoins')
   await expect(page.locator('[data-vocs=mermaid]')).toHaveAttribute('data-state', 'rendered')
   await expect(page.locator('[data-vocs=mermaid] svg')).toContainText('Fee token')
+})
+
+test('type-checks code with Twoslash, and shows types', async ({ page }) => {
+  await compose(page, 'Docs', 'Explain memos and fees')
+  await expect(page.locator('[data-vocs=page]')).toHaveAttribute('data-state', 'ready', {
+    timeout: 30_000,
+  })
+  await page
+    .getByRole('navigation', { name: 'Pages' })
+    .getByRole('button', { name: 'Attach a Memo' })
+    .click()
+
+  const code = page.locator('[data-vocs=code]', { hasText: 'client.ts' })
+  await expect(code).toHaveAttribute('data-state', 'highlighted')
+  await expect(code.locator('[data-vocs-part=pre]')).not.toContainText('^?')
+  await expect(code.locator('.twoslash-query-line')).toContainText(
+    'const transport: HttpTransport<undefined, false>',
+  )
+  await expect(page.locator('[data-vocs=code-group] pre')).toHaveAttribute(
+    'data-state',
+    'highlighted',
+  )
+
+  const popup = code
+    .locator('[data-vocs-part=popup]', {
+      has: page.locator('[data-vocs-part=types]', { hasText: /^function createClient/ }),
+    })
+    .first()
+  const token = popup.locator('..')
+  await expect(popup).toBeHidden()
+  await token.hover()
+  await expect(popup).toBeVisible()
 })
 
 test('revises the pages in place', async ({ page }) => {

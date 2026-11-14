@@ -5,8 +5,10 @@
  *
  * - A question searches the workspace with `rg` and answers with the matched paths.
  * - `Write a page:` searches, then writes one page with the page tools. It first emits an
- *   invalid block and writes the rejection it receives into the page.
- * - `Write docs:` writes three pages in two sidebar groups, with every block type.
+ *   invalid block and a Twoslash block with a type error, and writes whether both were rejected
+ *   into the page.
+ * - `Write docs:` writes three pages in two sidebar groups, with every block type and a Twoslash
+ *   block that imports `viem`.
  * - `Revise:` removes the last block of the first page and adds a callout with the request.
  *
  * The same request always produces the same response.
@@ -64,9 +66,14 @@ try {
 } catch (error) {
   rejection = String(error)
 }
+try {
+  await tools.page_insert({ page, block: { type: 'code', lang: 'ts', twoslash: true, code: "const memo: string = 42" } })
+} catch (error) {
+  rejection += String(error)
+}
 await tools.page_insert({ page, block: { type: 'prose', markdown: 'Read in ' + paths.map((path) => '\`' + path + '\`').join(', ') + '.' } })
 await tools.page_insert({ page, block: { type: 'code', lang: 'ts', title: 'transfer.ts', code: ${JSON.stringify(`await client.token.${term}({ amount: 100n, memo: 'invoice-42', to: recipient })`)} } })
-await tools.page_insert({ page, block: { type: 'callout', kind: 'note', title: 'Rejected block', body: rejection.includes('Invalid option') ? 'The page tool rejected an invalid callout kind.' : 'No rejection: ' + rejection } })
+await tools.page_insert({ page, block: { type: 'callout', kind: 'note', title: 'Rejected block', body: rejection.includes('Invalid option') && rejection.includes('[2322]') ? 'The page tools rejected an invalid callout kind and a type error.' : 'No rejection: ' + rejection } })
 text(page)`
 }
 
@@ -80,7 +87,7 @@ await tools.page_insert({ page: overview, block: { type: 'cards', cards: [{ titl
 await tools.page_insert({ page: attach, block: { type: 'steps', steps: [{ title: 'Install the SDK', body: 'Add \`viem\` to the project.' }, { title: 'Send the transfer', body: 'Call \`transferWithMemo\` with a memo.' }] } })
 await tools.page_insert({ page: attach, block: { type: 'codeGroup', tabs: [{ title: 'npm', lang: 'bash', code: 'npm i viem' }, { title: 'pnpm', lang: 'bash', code: 'pnpm add viem' }] } })
 await tools.page_insert({ page: attach, block: { type: 'heading', level: 2, text: 'Send the transfer' } })
-await tools.page_insert({ page: attach, block: { type: 'code', lang: 'ts', title: 'transfer.ts', code: "await client.token.transferWithMemo({ amount: 100n, memo: 'invoice-42', to: recipient })" } })
+await tools.page_insert({ page: attach, block: { type: 'code', lang: 'ts', title: 'client.ts', twoslash: true, code: "import { createClient, http } from 'viem'\\n\\nconst transport = http('https://rpc.tempo.xyz')\\n//    ^?\\nconst client = createClient({ transport })" } })
 await tools.page_insert({ page: attach, block: { type: 'fileTree', entries: [{ path: 'src' }, { path: 'src/transfer.ts', note: 'Sends the transfer' }, { path: 'package.json' }] } })
 await tools.page_insert({ page: fees, block: { type: 'callout', kind: 'warning', title: 'Testnet only', body: 'Fee tokens are on testnet.' } })
 await tools.page_insert({ page: fees, block: { type: 'terminal', commands: [{ command: 'cast send --fee-token USDC', output: 'status: success' }] } })
