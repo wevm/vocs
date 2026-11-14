@@ -107,6 +107,7 @@ Goal: a prompt becomes a streamed, refinable page with a permalink.
 - [ ] Server rendering of whole blocks for permalinks, and `vocs/rsc` `Blocks`. `machines.render` lands here: a generated block renders inside one awaited page tool call, which has no lifecycle of its own.
 - [x] Tabs and copy buttons on permalinks: one inline module, `Enhance.script`, with no React and no extra request.
 - [x] Registered demos: `demos` in the config, `virtual:vocs/demos` for the reader's page, and server-rendered islands that `virtual:vocs/islands` hydrates on permalinks.
+- [x] Demo props: a Standard JSON Schema per demo, shown to the agent, and validated in the handler by `POST /demos/:name` and on save.
 - [x] `Storage`: `Storage.cloudflare` and `Storage.memory`. Saved pages, `<Page />`, and server-rendered permalinks that load no WebAssembly and send no request after the document.
 - [ ] Mermaid on permalinks: render diagrams in the handler, or at save, so a permalink shows the SVG instead of the source.
 - [ ] A chat reply can become a page.

@@ -37,6 +37,7 @@ The package ships these entrypoints. Adapters are namespaces on the root entrypo
 ```ts
 // vocs.config.ts
 import { defineConfig, Provider, Search, Source, Storage } from 'vocs'
+import * as z from 'zod'
 
 export default defineConfig({
   title: 'Tempo',
@@ -51,12 +52,15 @@ export default defineConfig({
     Source.openapi({ url: 'https://api.tempo.xyz/openapi.json' }),
     Source.mcp({ name: 'tempo', url: 'https://api.tempo.xyz/mcp' }),
   ],
-  demos: { memo: './src/demos/Memo.tsx' },
+  demos: {
+    balance: './src/demos/Balance.tsx',
+    memo: { module: './src/demos/Memo.tsx', props: z.object({ memo: z.string().max(32) }) },
+  },
   twoslash: { packages: ['viem', 'viem/tempo'] },
 })
 ```
 
-`defineConfig` validates the config and returns it typed. `demos` maps each demo name to a module, relative to the config file, that default-exports a React component. Adapters hold binding names and options, not secrets. Each adapter reads its secrets and bindings from the request context on every call.
+`defineConfig` validates the config and returns it typed. `demos` maps each demo name to a module, relative to the config file, that default-exports a React component. A demo with props adds a schema that implements Standard JSON Schema, such as a zod 4 schema. Adapters hold binding names and options, not secrets. Each adapter reads its secrets and bindings from the request context on every call.
 
 ### Adapter contracts
 
@@ -149,6 +153,7 @@ export default { fetch: docs.fetch } // Cloudflare Worker: fetch(request, env, c
 | `GET /search`                | Runs `config.search`.                                                                                                                                                            |
 | `GET /sources/:name/*`       | Lists and reads runtime sources.                                                                                                                                                 |
 | `POST /mcp/:name`            | Proxies MCP calls, so tokens stay on the server.                                                                                                                                 |
+| `POST /demos/:name`          | Validates the props of a demo with its schema. Returns `{ props }` with defaults applied, or `{ error }` with the issues, for the agent to fix.                                  |
 | `POST /render`               | Renders one snippet, `{ code, lang, twoslash? }`, with Shiki, and Twoslash when set. Returns `{ html }`, or `{ error }` with the reason it does not render, such as type errors. |
 | `POST /pages`                | Saves pages through `config.storage`. Validates the draft, drops reader-set `html`, renders code again, and returns `{ id, url }`.                                               |
 | `GET /pages/:id/:slug?`      | Streams the permalink: one saved page as a server-rendered HTML document with the theme and one module inlined. Only a page with a registered demo loads the islands module.     |
@@ -181,7 +186,7 @@ The agent module loads on the first `ask` or `generate`, not on `create`.
 import { Ask, Composer, Docs, Page } from 'vocs/react'
 import 'vocs/styles.css'
 
-<Docs basePath="/docs" title="Tempo" demos={{ memo: Memo }} /> // home composer, generated docs, chat
+<Docs basePath="/docs" title="Tempo" demos={demos} /> // home composer, generated docs, chat; demos from virtual:vocs/demos
 <Ask basePath="/docs" placeholder="Ask about the Tempo API" /> // only the prompt box
 <Page href={(slug) => `/docs/pages/${saved.id}/${slug}`} saved={saved} title="Tempo" /> // a saved page
 ```
@@ -282,7 +287,8 @@ Quick mode runs on a thin app layer over `@vitejs/plugin-rsc` and `@cloudflare/v
 - **Permalinks:** the handler renders `<Page />` with React's `renderToReadableStream` and streams a full document. It inlines `vocs/styles.css` and one module, `Enhance.script`, and sends no other request. Links between saved pages work with JavaScript off. React and the components load on the first permalink.
 - **Saved code:** a saved page stores the HTML the handler rendered on save, never HTML from the reader's page. A `mermaid` block shows its source on a permalink, because Ondine needs WebAssembly that the handler does not load yet.
 - **Tabs and copy buttons:** a code group renders every panel and hides the inactive ones, and each code block has a copy button. In the reader's page, React runs them. On a permalink, the inline module runs them with one delegated click listener and no React. Both copy the text from `Enhance.copyText`, which leaves out Twoslash popups, query lines, and error lines.
-- **Demos:** `vocs()` serves the config's `demos` as `virtual:vocs/demos`, which the reader's page passes to `<Docs demos>`. The agent sees the names, and the page tools reject any other name.
+- **Demos:** `vocs()` serves the config's `demos` as `virtual:vocs/demos`, which the reader's page passes to `<Docs demos>`. Each component receives the props of its block.
+- **Demo props:** the agent sees each demo's name and the JSON Schema of its props. The page tools reject an unregistered name and send props to `POST /demos/:name`, so the real schema validates them in the handler, with no schema code in the page. Saving validates them again. A permalink island carries its props in `data-props`, and each set of props renders on the server once.
 - **Demo islands:** a permalink renders each registered demo of the page as its own React root on the server, so hydration matches its markup and IDs. The page then preloads and loads `virtual:vocs/islands`, a client chunk that hydrates each island and marks it `hydrated`. A demo that fails to render on the server renders in the browser. Only a page with a demo loads React.
 - **Build order:** the server bundle needs the URL of the islands chunk, so `vocs()` builds the client environment first. Each environment has its own plugin instance, so the client build writes the URL and its preloads to Vite's cache directory, and the server build reads them.
 - **Later in Phase 2:** hosts with React Server Components render the same blocks with `vocs/rsc`.
