@@ -105,8 +105,9 @@ Goal: a prompt becomes a streamed, refinable page with a permalink.
 - [x] The render route: code snippets to HTML with Shiki and Twoslash in the Worker, where spike B decided. `twoslash.packages` in the config, and a type snapshot built by `vocs()`.
 - [x] Twoslash failures return to the agent as a failed render.
 - [ ] Server rendering of whole blocks for permalinks, and `vocs/rsc` `Blocks`. `machines.render` lands here: a generated block renders inside one awaited page tool call, which has no lifecycle of its own.
-- [ ] Hydration of interactive parts only: tabs, copy buttons, registered demos.
-- [x] `Storage`: `Storage.cloudflare` and `Storage.memory`. Saved pages, `<Page />`, and server-rendered permalinks that load no script or WebAssembly.
+- [x] Tabs and copy buttons on permalinks: one inline module, `Enhance.script`, with no React and no extra request.
+- [ ] Hydration of registered demos on permalinks.
+- [x] `Storage`: `Storage.cloudflare` and `Storage.memory`. Saved pages, `<Page />`, and server-rendered permalinks that load no WebAssembly and send no request after the document.
 - [ ] Mermaid on permalinks: render diagrams in the handler, or at save, so a permalink shows the SVG instead of the source.
 - [ ] A chat reply can become a page.
 

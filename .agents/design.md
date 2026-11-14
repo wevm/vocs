@@ -151,7 +151,7 @@ export default { fetch: docs.fetch } // Cloudflare Worker: fetch(request, env, c
 | `POST /mcp/:name`            | Proxies MCP calls, so tokens stay on the server.                                                                                                                                 |
 | `POST /render`               | Renders one snippet, `{ code, lang, twoslash? }`, with Shiki, and Twoslash when set. Returns `{ html }`, or `{ error }` with the reason it does not render, such as type errors. |
 | `POST /pages`                | Saves pages through `config.storage`. Validates the draft, drops reader-set `html`, renders code again, and returns `{ id, url }`.                                               |
-| `GET /pages/:id/:slug?`      | Streams the permalink: one saved page as a server-rendered HTML document with the theme inlined and no script.                                                                   |
+| `GET /pages/:id/:slug?`      | Streams the permalink: one saved page as a server-rendered HTML document with the theme and one module inlined, and no other request.                                            |
 | `GET /agent`                 | The agent settings: title, description, model, and the URL of the sources snapshot, a static asset of the host's build, as is the agent module.                                  |
 | `POST /mcp`, `GET /llms.txt` | The corpus for other agents.                                                                                                                                                     |
 
@@ -279,9 +279,10 @@ Quick mode runs on a thin app layer over `@vitejs/plugin-rsc` and `@cloudflare/v
 - **Shiki:** the JavaScript regex engine, so no WebAssembly loads. Each grammar loads on its first use. An unknown language renders as plain text.
 - **Twoslash:** runs in the handler with TypeScript 6, the last version with a JavaScript API. `vocs()` builds a type snapshot: it compiles a probe that imports each `twoslash.packages` entry from the host's `node_modules`, keeps every file TypeScript reads, and lays them out as one virtual `node_modules` tree. The snapshot is a separate server module, imported with TypeScript on the first Twoslash snippet.
 - **Hover types:** popups use CSS anchor positioning with `position: fixed`, so the scrolling `pre` does not clip them. `//    ^?` queries render as static lines.
-- **Permalinks:** the handler renders `<Page />` with React's `renderToReadableStream` and streams a full document. It inlines `vocs/styles.css` and loads no script, so links between saved pages work with JavaScript off. React and the components load on the first permalink.
+- **Permalinks:** the handler renders `<Page />` with React's `renderToReadableStream` and streams a full document. It inlines `vocs/styles.css` and one module, `Enhance.script`, and sends no other request. Links between saved pages work with JavaScript off. React and the components load on the first permalink.
 - **Saved code:** a saved page stores the HTML the handler rendered on save, never HTML from the reader's page. A `mermaid` block shows its source on a permalink, because Ondine needs WebAssembly that the handler does not load yet.
-- **Later in Phase 2:** `vocs/react` hydrates only interactive parts, such as tabs, copy buttons, and registered demos. Hosts with React Server Components render the same blocks with `vocs/rsc`.
+- **Tabs and copy buttons:** a code group renders every panel and hides the inactive ones, and each code block has a copy button. In the reader's page, React runs them. On a permalink, the inline module runs them with one delegated click listener and no React. Both copy the text from `Enhance.copyText`, which leaves out Twoslash popups, query lines, and error lines.
+- **Later in Phase 2:** registered demos hydrate as islands on permalinks. Hosts with React Server Components render the same blocks with `vocs/rsc`.
 - **Diagrams:** Ondine compiles `mermaid` blocks to SVG in the page for now. Its WebAssembly loads on the first diagram, in a module separate from the agent.
 
 ## Styling
