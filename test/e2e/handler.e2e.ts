@@ -29,6 +29,7 @@ test('points the agent at the built sources', async ({ request }) => {
   const corpus = await (await request.get(agent.corpus)).json()
   expect(Object.keys(corpus.files)).toEqual([
     '/sources/playground/docs/accounts.md',
+    '/sources/playground/docs/checkout.md',
     '/sources/playground/docs/fees.md',
     '/sources/playground/docs/memos.md',
   ])

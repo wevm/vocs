@@ -114,6 +114,8 @@ Goal: a prompt becomes a streamed, refinable page with a permalink.
 
 Done when: end-to-end tests generate the "accept USDC in a Next.js checkout" page, refine it, load its permalink with JavaScript disabled, and see a wrong snippet caught and fixed.
 
+Met with the stand-in model: `test/e2e/permalink.e2e.ts` generates the checkout page, sees `POST /render` reject `parseUnits('25.00', '6')` with TS2345 and pass the fixed snippet, revises the page, and opens its permalink with JavaScript disabled. The run against the real gateway waits for Cloudflare credentials, as in Phase 1.
+
 ## Phase 3: Quick mode
 
 Goal: a site from `package.json` and `vocs.config.ts` alone.

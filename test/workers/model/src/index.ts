@@ -7,6 +7,8 @@
  * - `Write a page:` searches, then writes one page with the page tools. It first emits an
  *   invalid block and a Twoslash block with a type error, and writes whether both were rejected
  *   into the page. When the session already holds an answer, the page quotes it first.
+ * - `Write a page:` about a checkout writes the USDC checkout page. It emits a Twoslash snippet
+ *   with a type error, and emits the fixed snippet only after the page tools reject it.
  * - `Write docs:` writes three pages in two sidebar groups, with every block type and a Twoslash
  *   block that imports `viem`.
  * - `Revise:` removes the last block of the first page and adds a callout with the request.
@@ -31,6 +33,7 @@ export default {
         if (/^(Write a page|Write docs|Revise):/.test(text)) return message('Wrote the pages.')
         return answer(output(last.output))
       }
+      if (/^Write a page:.*checkout/i.test(text)) return cell(checkout)
       if (text.startsWith('Write a page:')) return cell(page(term(text), answered(body.input)))
       if (text.startsWith('Write docs:')) return cell(docs)
       if (text.startsWith('Revise:')) return cell(revise(text.slice('Revise:'.length).trim()))
@@ -77,6 +80,24 @@ await tools.page_insert({ page, block: { type: 'code', lang: 'ts', title: 'trans
 await tools.page_insert({ page, block: { type: 'callout', kind: 'note', title: 'Rejected block', body: rejection.includes('Invalid option') && rejection.includes('[2322]') ? 'The page tools rejected an invalid callout kind and a type error.' : 'No rejection: ' + rejection } })
 text(page)`
 }
+
+/** The code of a cell that writes the USDC checkout page, and fixes a snippet the tools reject. */
+const checkout = `
+const found = await tools.exec_command({ cmd: 'rg -l -i checkout /sources' })
+const paths = found.output.match(/\\/sources\\/\\S+\\.md/g) ?? []
+const { page } = await tools.page_create({ group: 'Payments', title: 'Accept USDC in Checkout' })
+await tools.page_insert({ page, block: { type: 'prose', markdown: 'USDC has 6 decimals. Read in ' + paths.map((path) => '\`' + path + '\`').join(', ') + '.' } })
+const snippet = (decimals) => "import { encodeFunctionData, erc20Abi, parseUnits } from 'viem'\\n\\nconst merchant = '0x0000000000000000000000000000000000000001'\\n\\nexport const data = encodeFunctionData({\\n  abi: erc20Abi,\\n  args: [merchant, parseUnits('25.00', " + decimals + ")],\\n  functionName: 'transfer',\\n})"
+let rejection = ''
+try {
+  await tools.page_insert({ page, block: { type: 'code', lang: 'ts', title: 'app/checkout/actions.ts', twoslash: true, code: snippet("'6'") } })
+} catch (error) {
+  rejection = String(error)
+}
+if (rejection.includes('[2345]'))
+  await tools.page_insert({ page, block: { type: 'code', lang: 'ts', title: 'app/checkout/actions.ts', twoslash: true, code: snippet('6') } })
+await tools.page_insert({ page, block: { type: 'callout', kind: 'tip', body: 'Test the checkout on testnet first.' } })
+text(page)`
 
 /** The code of a cell that writes three pages in two groups, with every block type. */
 const docs = `

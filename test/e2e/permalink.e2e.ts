@@ -1,9 +1,10 @@
 /**
  * End-to-end coverage of saved pages in custom mode: the reader saves generated pages, and the
  * handler serves each page's permalink as server-rendered HTML that reads the same with
- * JavaScript off. One inline module switches code tabs and copies code. A registered demo renders
- * on the server and hydrates as an island, so only a page with a demo loads React. Saving stores
- * only what the handler renders, including the SVG of each diagram.
+ * JavaScript off. The USDC checkout flow sees a type error caught and fixed, revises the page,
+ * and opens its permalink. One inline module switches code tabs and copies code. A registered demo
+ * renders on the server and hydrates as an island, so only a page with a demo loads React. Saving
+ * stores only what the handler renders, including the SVG of each diagram.
  * @module
  */
 import type { Browser, Page } from '@playwright/test'
@@ -80,6 +81,54 @@ test('saves a page, and serves its permalink without JavaScript', async ({ brows
   await expect(permalink.page.locator('[data-vocs=sidebar]')).toHaveCount(0)
   await expect(permalink.page.locator('script')).toHaveCount(1)
   await expect(permalink.page.locator('script')).not.toHaveAttribute('src')
+  expect(permalink.requests).toEqual([path])
+  await permalink.context.close()
+})
+
+test('writes the USDC checkout page, fixes its type error, revises it, and serves its permalink without JavaScript', async ({
+  browser,
+  page,
+}) => {
+  const renders: Promise<{ code: string; error?: string | undefined }>[] = []
+  page.on('response', (response) => {
+    if (new URL(response.url()).pathname !== '/docs/render') return
+    const { code } = response.request().postDataJSON() as { code: string }
+    renders.push(response.json().then((body: { error?: string }) => ({ code, error: body.error })))
+  })
+
+  await compose(page, 'Page', 'How do I accept USDC in a Next.js checkout?')
+  const article = page.locator('[data-vocs=page]')
+  await expect(article).toHaveAttribute('data-state', 'ready', { timeout: 30_000 })
+  await expect(article.getByRole('heading', { level: 1 })).toHaveText('Accept USDC in Checkout')
+
+  const checks = (await Promise.all(renders)).filter((render) => render.code.includes('parseUnits'))
+  expect(checks.map((render) => render.code.match(/parseUnits\('25\.00', [^)]+\)/)?.[0])).toEqual([
+    "parseUnits('25.00', '6')",
+    "parseUnits('25.00', 6)",
+  ])
+  expect(checks[0]?.error).toContain('[2345]')
+  expect(checks[1]?.error).toBeUndefined()
+
+  const code = article.locator('[data-vocs=code]')
+  await expect(code).toHaveCount(1)
+  await expect(code).toContainText("parseUnits('25.00', 6)")
+
+  await page.getByRole('textbox', { name: 'Revise these pages' }).fill('use the App Router')
+  await page.getByRole('button', { name: 'Revise' }).click()
+  await expect(article).toHaveAttribute('data-state', 'ready', { timeout: 30_000 })
+  await expect(article.locator('[data-vocs=callout]')).toHaveText(['Revised: use the App Router'])
+
+  const path = await save(page)
+  const permalink = await open(browser, new URL(page.url()).origin, path)
+  const saved = permalink.page.locator('[data-vocs=page]')
+  await expect(permalink.page).toHaveTitle('Accept USDC in Checkout · Tempo')
+  await expect(saved.locator('[data-vocs=callout]')).toHaveText(['Revised: use the App Router'])
+  await expect(saved.locator('[data-vocs=prose]')).toHaveText(
+    'USDC has 6 decimals. Read in /sources/playground/docs/checkout.md.',
+  )
+  await expect(saved.locator('[data-vocs=code]')).toHaveAttribute('data-state', 'highlighted')
+  await expect(saved.locator('[data-vocs=code]')).toContainText("parseUnits('25.00', 6)")
+  await expect(saved.locator('[data-vocs=code]')).not.toContainText("'6'")
   expect(permalink.requests).toEqual([path])
   await permalink.context.close()
 })
