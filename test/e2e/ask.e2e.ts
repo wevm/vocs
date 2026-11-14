@@ -6,7 +6,7 @@
 import { expect, hydrated, test } from '../Playwright.js'
 
 test('answers a question with the file that matches it', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/console')
   await hydrated(page)
   await expect(page.locator('[data-vocs=ask]')).toHaveAttribute('data-state', 'idle')
 
@@ -33,7 +33,7 @@ test('answers a question with the file that matches it', async ({ page }) => {
 })
 
 test('answers a second question in the same session', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/console')
   await hydrated(page)
 
   for (const prompt of ['How do I use transferWithMemo?', 'Who pays stablecoin fees?']) {

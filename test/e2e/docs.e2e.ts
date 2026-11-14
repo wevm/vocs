@@ -1,0 +1,82 @@
+/**
+ * End-to-end coverage of `<Docs />` in custom mode: the composer asks in chat, page, or docs mode,
+ * the agent writes pages through the page tools, a sidebar lists several pages, and a revision
+ * changes the pages in place.
+ * @module
+ */
+import type { Page } from '@playwright/test'
+import { expect, test } from '../Playwright.js'
+
+async function compose(page: Page, mode: 'Chat' | 'Docs' | 'Page', prompt: string) {
+  await page.goto('/')
+  await expect(page.locator('[data-vocs=composer]')).toBeVisible()
+  await page.getByRole('radio', { name: mode }).click()
+  await page.getByRole('textbox', { name: 'What do you want to learn?' }).fill(prompt)
+  await page.keyboard.press('Enter')
+}
+
+test('writes one page, and the page tools reject an invalid block', async ({ page }) => {
+  await compose(page, 'Page', 'How do I use transferWithMemo?')
+
+  const article = page.locator('[data-vocs=page]')
+  await expect(article).toHaveAttribute('data-state', 'ready', { timeout: 30_000 })
+  await expect(page.locator('[data-vocs=sidebar]')).toHaveCount(0)
+  await expect(article.getByRole('heading', { level: 1 })).toHaveText('Use transferWithMemo')
+  await expect(article.locator('[data-vocs=prose]')).toHaveText(
+    'Read in /sources/playground/docs/memos.md.',
+  )
+  await expect(article.locator('[data-vocs=code] [data-vocs-part=title]')).toHaveText('transfer.ts')
+  await expect(article.locator('[data-vocs=callout]')).toHaveText(
+    'Rejected blockThe page tool rejected an invalid callout kind.',
+  )
+})
+
+test('writes docs with a sidebar, and renders a diagram', async ({ page }) => {
+  await compose(page, 'Docs', 'Explain memos and fees')
+
+  const sidebar = page.getByRole('navigation', { name: 'Pages' })
+  await expect(page.locator('[data-vocs=page]')).toHaveAttribute('data-state', 'ready', {
+    timeout: 30_000,
+  })
+  await expect(sidebar.locator('[data-vocs-part=group-title]')).toHaveText(['Memos', 'Fees'])
+  await expect(sidebar.locator('[data-vocs-part=link]')).toHaveText([
+    'Overview',
+    'Attach a Memo',
+    'Pay Fees in Stablecoins',
+  ])
+  await expect(sidebar.getByRole('button', { name: 'Overview' })).toHaveAttribute(
+    'aria-current',
+    'page',
+  )
+
+  await sidebar.getByRole('button', { name: 'Pay Fees in Stablecoins' }).click()
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Pay Fees in Stablecoins')
+  await expect(page.locator('[data-vocs=mermaid]')).toHaveAttribute('data-state', 'rendered')
+  await expect(page.locator('[data-vocs=mermaid] svg')).toContainText('Fee token')
+})
+
+test('revises the pages in place', async ({ page }) => {
+  await compose(page, 'Page', 'How do I use transferWithMemo?')
+  const article = page.locator('[data-vocs=page]')
+  await expect(article).toHaveAttribute('data-state', 'ready', { timeout: 30_000 })
+  await expect(article.locator('[data-vocs=blocks] > *')).toHaveCount(3)
+
+  await page.getByRole('textbox', { name: 'Revise these pages' }).fill('shorter')
+  await page.getByRole('button', { name: 'Revise' }).click()
+
+  await expect(article).toHaveAttribute('data-state', 'ready', { timeout: 30_000 })
+  const blocks = article.locator('[data-vocs=blocks] > *')
+  await expect(blocks).toHaveCount(3)
+  await expect(blocks.first()).toHaveText('Revised: shorter')
+  await expect(article.locator('[data-vocs=callout]', { hasText: 'Rejected block' })).toHaveCount(0)
+})
+
+test('answers in chat from the composer', async ({ page }) => {
+  await compose(page, 'Chat', 'How do I use transferWithMemo?')
+
+  const message = page.locator('[data-vocs=message]')
+  await expect(message).toHaveAttribute('data-state', 'done', { timeout: 30_000 })
+  await expect(message.locator('[data-vocs-part=answer]')).toHaveText(
+    'Found in 1 file: /sources/playground/docs/memos.md',
+  )
+})
