@@ -6,9 +6,9 @@
     "module": "nodenext",
     "moduleResolution": "nodenext",
     "target": "esnext",
-    "paths": {
-      "vocs": ["./src/index.ts"]
-    },
+    "jsx": "react-jsx",
+    // Resolve `vocs` entrypoints to their sources, so types check without a build.
+    "customConditions": ["src"],
     "types": ["node", "vite-plus/test/globals"],
 
     // Other Outputs

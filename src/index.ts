@@ -1,5 +1,8 @@
 /**
- * Public entrypoint for Vocs. Exports land here as each phase in `.agents/plan.md` ships.
+ * Public entrypoint for Vocs: site configuration and the adapter namespaces.
  * @module
  */
-export {}
+export * as Config from './Config.js'
+export { defineConfig } from './Config.js'
+export * as Provider from './Provider.js'
+export * as Source from './Source.js'

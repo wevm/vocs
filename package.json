@@ -4,6 +4,7 @@
     "changeset:publish": "zile publish:prepare && changeset publish && zile publish:post",
     "changeset:version": "changeset version",
     "check": "vp check --fix",
+    "check:budgets": "node scripts/budgets.ts",
     "check:types": "tsc",
     "dev": "zile dev",
     "test": "vp test",
@@ -13,7 +14,12 @@
     "@changesets/cli": "catalog:",
     "@playwright/test": "catalog:",
     "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
     "typescript": "catalog:",
+    "vite": "catalog:",
     "vite-plus": "catalog:",
     "zile": "catalog:",
     "zyzz": "catalog:"
@@ -31,19 +37,59 @@
   },
   "type": "module",
   "main": "./dist/index.js",
-  "files": [
-    "dist",
-    "src"
-  ],
-  "sideEffects": false,
-  "dependencies": {},
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "src": "./src/index.ts",
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./client": {
+      "src": "./src/client/index.ts",
+      "types": "./dist/client/index.d.ts",
+      "default": "./dist/client/index.js"
+    },
+    "./react": {
+      "src": "./src/react/index.ts",
+      "types": "./dist/react/index.d.ts",
+      "default": "./dist/react/index.js"
+    },
+    "./server": {
+      "src": "./src/server/index.ts",
+      "types": "./dist/server/index.d.ts",
+      "default": "./dist/server/index.js"
+    },
+    "./vite": {
+      "src": "./src/vite/index.ts",
+      "types": "./dist/vite/index.d.ts",
+      "default": "./dist/vite/index.js"
+    },
+    "./vite/virtual": {
+      "types": "./dist/vite/virtual.d.ts",
+      "src": "./src/vite/virtual.d.ts"
     }
-  }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "sideEffects": false,
+  "dependencies": {
+    "@sqlite.org/sqlite-wasm": "catalog:",
+    "nanocode-ts": "catalog:",
+    "xstate": "catalog:"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "vite": "^8.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "vite": {
+      "optional": true
+    }
+  },
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts"
 }
