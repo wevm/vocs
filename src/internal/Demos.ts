@@ -12,7 +12,9 @@ export const key = Symbol.for('vocs.demos')
 /** Demos of a built config. */
 export type Registry = {
   /** Imports the module loaders by demo name. */
-  load(): Promise<Record<string, () => Promise<{ default: React.ComponentType }>>>
+  load(): Promise<
+    Record<string, () => Promise<{ default: React.ComponentType<Record<string, unknown>> }>>
+  >
   /** URLs of the modules that `script` imports, which a permalink preloads beside it. */
   preload: readonly string[]
   /** URL of the module that hydrates the demos of a permalink, a static asset of the host's build. */

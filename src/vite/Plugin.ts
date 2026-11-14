@@ -88,9 +88,10 @@ export function vocs(options: vocs.Options = {}): Plugin {
   /** Returns the demo module paths by name, resolved against the config file. */
   async function demos() {
     const config = await load()
-    return Object.entries(config.demos ?? {}).map(
-      ([name, path]) => [name, Path.resolve(Path.dirname(configPath()), path)] as const,
-    )
+    return Object.entries(config.demos ?? {}).map(([name, demo]) => {
+      const path = typeof demo === 'string' ? demo : demo.module
+      return [name, Path.resolve(Path.dirname(configPath()), path)] as const
+    })
   }
 
   function snapshot() {
@@ -257,7 +258,7 @@ export function vocs(options: vocs.Options = {}): Plugin {
 
 /**
  * Returns the islands module. It imports the demos of the page in parallel, then hydrates the
- * server HTML, or renders a demo whose server render failed. `Ready` renders no element, so the
+ * server HTML with the props of each island, or renders a demo whose server render failed. `Ready` renders no element, so the
  * hydrated tree matches the server HTML, and marks the island `hydrated` once React runs it.
  */
 function islands(preamble: boolean) {
@@ -275,7 +276,8 @@ function islands(preamble: boolean) {
     `  const name = root.getAttribute('data-name')`,
     '  if (!Object.hasOwn(load, name)) return',
     '  const Demo = (await load[name]()).default',
-    '  const element = createElement(Ready, { root }, createElement(Demo))',
+    `  const props = JSON.parse(root.getAttribute('data-props') ?? '{}')`,
+    '  const element = createElement(Ready, { root }, createElement(Demo, props))',
     `  if (root.getAttribute('data-state') === 'static') hydrateRoot(root, element)`,
     '  else createRoot(root).render(element)',
     '}))',

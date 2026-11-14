@@ -18,17 +18,23 @@ import { style } from '../zyzz.config.js'
 export async function render(options: render.Options): Promise<ReadableStream<Uint8Array>> {
   const href = (slug: string) => `${options.basePath}/pages/${options.saved.id}/${slug}`
   const islands = await render.islands({ blocks: options.page.blocks, registry: options.demos })
+  const html = new Map(islands.map((island) => [render.key(island), island.html]))
+  // Each component receives the props of its block, and finds the HTML rendered with them.
   const demos = Object.fromEntries(
     islands.map((island) => [
       island.name,
-      () => (
-        <div
-          dangerouslySetInnerHTML={{ __html: island.html ?? '' }}
-          data-name={island.name}
-          data-state={island.html === undefined ? 'empty' : 'static'}
-          data-vocs-part="island"
-        />
-      ),
+      (props: Record<string, unknown>) => {
+        const rendered = html.get(render.key({ name: island.name, props }))
+        return (
+          <div
+            dangerouslySetInnerHTML={{ __html: rendered ?? '' }}
+            data-name={island.name}
+            data-props={JSON.stringify(props)}
+            data-state={rendered === undefined ? 'empty' : 'static'}
+            data-vocs-part="island"
+          />
+        )
+      },
     ]),
   )
   return renderToReadableStream(
@@ -73,25 +79,28 @@ export declare namespace render {
 
 export namespace render {
   /**
-   * Renders each registered demo that the blocks name to HTML, in parallel. Each demo renders as
-   * its own React root, so the islands module hydrates it with matching markup and IDs. A demo that
-   * fails to render has no HTML, and the islands module renders it in the browser.
+   * Renders each registered demo that the blocks name to HTML, once for each set of props, in
+   * parallel. Each demo renders as its own React root, so the islands module hydrates it with
+   * matching markup and IDs. A demo that fails to render has no HTML, and the islands module
+   * renders it in the browser.
    */
   export async function islands(options: islands.Options): Promise<readonly islands.Island[]> {
     if (!options.registry) return []
-    const named = new Set(
-      options.blocks.flatMap((block) => (block.type === 'demo' ? [block.name] : [])),
+    const blocks = options.blocks.flatMap((block) =>
+      block.type === 'demo' ? [{ name: block.name, props: { ...block.props } }] : [],
     )
-    if (named.size === 0) return []
+    if (blocks.length === 0) return []
 
     const load = await options.registry.load()
-    const names = [...named].filter((name) => Object.hasOwn(load, name))
+    const unique = new Map(
+      blocks.filter((block) => Object.hasOwn(load, block.name)).map((block) => [key(block), block]),
+    )
     return Promise.all(
-      names.map(async (name) => {
+      [...unique.values()].map(async (block) => {
         const html = await (async () => {
           try {
-            const Demo = (await load[name]!()).default
-            const stream = await renderToReadableStream(<Demo />)
+            const Demo = (await load[block.name]!()).default
+            const stream = await renderToReadableStream(<Demo {...block.props} />)
             await stream.allReady
             return await new Response(stream).text()
           } catch {
@@ -99,7 +108,7 @@ export namespace render {
             return undefined
           }
         })()
-        return { html, name }
+        return { ...block, html }
       }),
     )
   }
@@ -109,11 +118,17 @@ export namespace render {
       /** Server HTML of the demo, or `undefined` when its render failed. */
       html: string | undefined
       name: string
+      props: Record<string, unknown>
     }
     type Options = {
       blocks: Saved.Page['blocks']
       registry: Demos.Registry | undefined
     }
+  }
+
+  /** Returns the key of a demo with its props. Props keep the key order of the stored block. */
+  export function key(island: { name: string; props: Record<string, unknown> }): string {
+    return JSON.stringify([island.name, island.props])
   }
 }
 

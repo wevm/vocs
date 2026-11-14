@@ -22,8 +22,8 @@ export type Handler = {
 export type Agent = {
   /** URL of the sources the agent mounts, a static asset of the host's build. */
   corpus: string
-  /** Names of the demos that `demo` blocks may name. */
-  demos: readonly string[]
+  /** The demos that `demo` blocks may name, with the JSON Schema of their props, if they take any. */
+  demos: Record<string, { props: Record<string, unknown> | undefined }>
   description: string | undefined
   /** The model the agent requests. */
   model: string | undefined
@@ -33,6 +33,14 @@ export type Agent = {
   /** Packages that Twoslash code blocks may import, or `undefined` when Twoslash is off. */
   twoslash: readonly string[] | undefined
 }
+
+/**
+ * The result of `POST <basePath>/demos/:name`: the props with the schema's defaults applied, or
+ * the reason the schema rejects them, for the agent to fix.
+ */
+export type Demo =
+  | { error: string; props?: undefined }
+  | { error?: undefined; props: NonNullable<Extract<Block.Block, { type: 'demo' }>['props']> }
 
 /**
  * The result of `POST <basePath>/render`: the highlighted HTML inside `<code>`, or the reason the
@@ -73,9 +81,17 @@ export function from(config: Config.Config, options: from.Options): Handler {
   const models = new Set(config.provider.models)
   const corpus = Corpus.asset(config)
   if (!corpus) throw new UnbuiltConfigError()
+  const demos = config.demos ?? {}
   const agent = {
     corpus: corpus.url,
-    demos: Object.keys(config.demos ?? {}),
+    demos: Object.fromEntries(
+      Object.entries(demos).map(([name, demo]) => {
+        if (typeof demo === 'string') return [name, { props: undefined }]
+        const schema = demo.props['~standard'].jsonSchema.input({ target: 'draft-2020-12' })
+        const { $schema: _, ...props } = schema
+        return [name, { props }]
+      }),
+    ),
     description: config.description,
     model: config.provider.models[0],
     pages: config.storage ? `${basePath}/pages` : undefined,
@@ -101,6 +117,35 @@ export function from(config: Config.Config, options: from.Options): Handler {
         return { error: error.message }
       throw error
     }
+  }
+
+  /** Validates the props of a demo against its schema, and applies the schema's defaults. */
+  async function validate(name: string, props: unknown): Promise<Demo> {
+    const demo = Object.hasOwn(demos, name) ? demos[name] : undefined
+    if (demo === undefined) return { error: `Demo "${name}" is not registered.` }
+    const value = props ?? {}
+    if (typeof demo === 'string')
+      return typeof value === 'object' && Object.keys(value).length === 0
+        ? { props: {} }
+        : { error: `Demo "${name}" takes no props. Remove \`props\`.` }
+
+    const result = await demo.props['~standard'].validate(value)
+    if (result.issues)
+      return {
+        error: [
+          `The props of demo "${name}" are invalid:`,
+          ...result.issues.map((issue) => {
+            const path = (issue.path ?? [])
+              .map((segment) => String(typeof segment === 'object' ? segment.key : segment))
+              .join('.')
+            return `✖ ${issue.message}${path ? `\n  → at ${path}` : ''}`
+          }),
+        ].join('\n'),
+      }
+    if (typeof result.value !== 'object' || result.value === null || Array.isArray(result.value))
+      return { error: `The props schema of demo "${name}" does not describe an object.` }
+    // Props travel and persist as JSON, so the result is the value as JSON reads it back.
+    return { props: JSON.parse(JSON.stringify(result.value)) as Demo['props'] & {} }
   }
 
   /** Renders the code of a block again, so stored HTML never comes from the reader's page. */
@@ -174,6 +219,23 @@ export function from(config: Config.Config, options: from.Options): Handler {
         }
       }
 
+      const demo = route.match(/^\/demos\/([^/]+)$/)
+      if (demo && request.method === 'POST') {
+        const body = await read(request, renderBytes)
+        if (body === undefined) return text(413, `The request is larger than ${renderBytes} bytes.`)
+        const props = (() => {
+          try {
+            return JSON.parse(body) as unknown
+          } catch {
+            return undefined
+          }
+        })()
+        if (typeof props !== 'object' || props === null || Array.isArray(props))
+          return text(400, 'The body must be a JSON object of props.')
+        // A rejected value returns with status 200, so the agent reads the reason and fixes it.
+        return Response.json(await validate(decodeURIComponent(demo[1]!), props))
+      }
+
       if (route === '/render' && request.method === 'POST') {
         const body = await read(request, renderBytes)
         if (body === undefined) return text(413, `The request is larger than ${renderBytes} bytes.`)
@@ -221,12 +283,24 @@ export function from(config: Config.Config, options: from.Options): Handler {
         })()
         if (draft instanceof Error) return text(400, draft.message)
 
+        // Registered demos validate their props again, so stored props always match the schema.
+        const errors: string[] = []
         const pages = await Promise.all(
-          draft.pages.map(async (page) => ({
+          draft.pages.map(async (page, pageIndex) => ({
             ...page,
-            blocks: await Promise.all(page.blocks.map(highlight)),
+            blocks: await Promise.all(
+              page.blocks.map(async (block, blockIndex) => {
+                if (block.type !== 'demo' || !Object.hasOwn(demos, block.name))
+                  return highlight(block)
+                const result = await validate(block.name, block.props)
+                if (result.error !== undefined)
+                  errors.push(`pages[${pageIndex}].blocks[${blockIndex}]: ${result.error}`)
+                return { ...block, props: result.props }
+              }),
+            ),
           })),
         )
+        if (errors.length > 0) return text(400, `The pages are invalid:\n${errors.join('\n')}`)
         const id = `${draft.pages[0]!.slug.slice(0, 60).replace(/-$/, '')}-${suffix()}`
         await storage.put(
           `pages/${id}`,

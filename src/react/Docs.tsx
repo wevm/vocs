@@ -82,8 +82,8 @@ export declare namespace Docs {
     /** Path where the handler is mounted. Defaults to `/docs`. */
     basePath?: string | undefined
     className?: string | undefined
-    /** Components that `demo` blocks may name. */
-    demos?: Record<string, React.ComponentType> | undefined
+    /** Components that `demo` blocks may name. Each receives the props of its block. */
+    demos?: Record<string, React.JSXElementConstructor<never>> | undefined
     /** Line under the title. Defaults to "What do you want to learn?". */
     lead?: string | undefined
     placeholder?: string | undefined

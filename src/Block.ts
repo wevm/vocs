@@ -109,6 +109,11 @@ export namespace schema {
 
   export const demo = z.object({
     name: text.check(z.describe('Name of a demo component the site registered.')),
+    props: z.optional(
+      z
+        .record(z.string(), z.json())
+        .check(z.describe('Props of the demo, which match its props schema in the instructions.')),
+    ),
     type: z.literal('demo'),
   })
 

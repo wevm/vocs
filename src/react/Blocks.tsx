@@ -27,8 +27,8 @@ export declare namespace Blocks {
   type Props = {
     blocks: readonly Block.Rendered[]
     className?: string | undefined
-    /** Components that `demo` blocks may name. */
-    demos?: Record<string, React.ComponentType> | undefined
+    /** Components that `demo` blocks may name. Each receives the props of its block. */
+    demos?: Record<string, React.JSXElementConstructor<never>> | undefined
   }
 }
 
@@ -43,13 +43,16 @@ function BlockView(props: {
   if (block.type === 'code') return <Code {...block} />
   if (block.type === 'codeGroup') return <CodeGroup {...block} />
   if (block.type === 'demo') {
-    const Demo = props.demos?.[block.name]
+    // The handler validated the props of the block against the demo's schema.
+    const Demo = props.demos?.[block.name] as
+      | React.JSXElementConstructor<Record<string, unknown>>
+      | undefined
     return (
       <div data-state={Demo ? 'ready' : 'missing'} data-vocs="demo" {...styles.demo()}>
         {Demo ? (
           // A demo from `virtual:vocs/demos` loads on its first render.
           <React.Suspense fallback={null}>
-            <Demo />
+            <Demo {...block.props} />
           </React.Suspense>
         ) : (
           `Demo "${block.name}" is not registered.`

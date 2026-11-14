@@ -48,8 +48,8 @@ export function Page(props: Page.Props) {
 export declare namespace Page {
   type Props = {
     className?: string | undefined
-    /** Components that `demo` blocks may name. */
-    demos?: Record<string, React.ComponentType> | undefined
+    /** Components that `demo` blocks may name. Each receives the props of its block. */
+    demos?: Record<string, React.JSXElementConstructor<never>> | undefined
     /** Link of the site title. Defaults to `/`. */
     home?: string | undefined
     /** Returns the link of a page in the set, such as `/docs/pages/<id>/<slug>`. */

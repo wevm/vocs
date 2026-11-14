@@ -160,10 +160,8 @@ export async function load(options: load.Options): Promise<Agent> {
             throw new Error('Page tools work only for messages that ask for a page or docs.')
           const next = operation(name, input)
           if (!('block' in next)) return handlers.page(next)
-          if (next.block.type === 'demo' && !settings.demos.includes(next.block.name))
-            throw new Error(
-              `Demo "${next.block.name}" is not registered. ${settings.demos.length ? `Use one of: ${settings.demos.join(', ')}.` : 'Remove the block.'}`,
-            )
+          if (next.block.type === 'demo')
+            return handlers.page({ ...next, block: await demo(options, settings, next.block) })
           // A diagram that fails to render returns to the agent, so it fixes the source.
           if (next.block.type === 'mermaid')
             await diagram.render(next.block.diagram).catch((error: unknown) => {
@@ -218,6 +216,37 @@ export declare namespace load {
     /** Fetch used for the corpus, the module, and model requests. */
     fetch: typeof fetch
   }
+}
+
+/**
+ * Checks a demo block against the registered demos. The handler validates its props with the
+ * demo's schema and returns them with defaults applied. A rejected block throws with the reason,
+ * so the agent fixes it.
+ */
+async function demo(
+  options: load.Options,
+  settings: Handler.Agent,
+  block: Extract<Block.Block, { type: 'demo' }>,
+): Promise<Block.Rendered> {
+  const names = Object.keys(settings.demos)
+  if (!Object.hasOwn(settings.demos, block.name))
+    throw new Error(
+      `Demo "${block.name}" is not registered. ${names.length ? `Use one of: ${names.join(', ')}.` : 'Remove the block.'}`,
+    )
+  if (!settings.demos[block.name]!.props && block.props === undefined) return block
+
+  const response = await options
+    .fetch(`${options.basePath}/demos/${encodeURIComponent(block.name)}`, {
+      body: JSON.stringify(block.props ?? {}),
+      headers: { 'content-type': 'application/json' },
+      method: 'POST',
+    })
+    .catch(() => undefined)
+  if (!response?.ok)
+    throw new Error(`The props of demo "${block.name}" could not be checked. Emit the block again.`)
+  const result = (await response.json()) as Handler.Demo
+  if (result.error !== undefined) throw new Error(result.error)
+  return { ...block, props: result.props }
 }
 
 /**
@@ -392,9 +421,13 @@ function instructions(settings: Handler.Agent) {
           `Set \`twoslash: true\` on complete \`ts\` and \`tsx\` code blocks. Twoslash type-checks them${settings.twoslash.length ? ` with these packages installed: ${settings.twoslash.join(', ')}` : ''}. A block with a type error is rejected with the compiler errors: fix the code and emit the block again. Add \`//    ^?\` queries under key identifiers to show their types.`,
         ]
       : []),
-    ...(settings.demos.length
+    ...(Object.keys(settings.demos).length
       ? [
-          `Add a \`demo\` block where an interactive example helps the reader. Registered demos: ${settings.demos.join(', ')}.`,
+          'Add a `demo` block where an interactive example helps the reader. Registered demos, with the JSON Schema of their `props`:',
+          ...Object.entries(settings.demos).map(
+            ([name, demo]) =>
+              `- ${name}: ${demo.props ? JSON.stringify(demo.props) : 'takes no props'}`,
+          ),
         ]
       : []),
     'A message that starts with "Revise:" asks for a change to the pages already written. Read the outline with `tools.page_read`, then change only what the message asks.',
