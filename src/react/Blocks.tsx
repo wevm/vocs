@@ -46,7 +46,14 @@ function BlockView(props: {
     const Demo = props.demos?.[block.name]
     return (
       <div data-state={Demo ? 'ready' : 'missing'} data-vocs="demo" {...styles.demo()}>
-        {Demo ? <Demo /> : `Demo "${block.name}" is not registered.`}
+        {Demo ? (
+          // A demo from `virtual:vocs/demos` loads on its first render.
+          <React.Suspense fallback={null}>
+            <Demo />
+          </React.Suspense>
+        ) : (
+          `Demo "${block.name}" is not registered.`
+        )}
       </div>
     )
   }
@@ -448,12 +455,14 @@ namespace styles {
     },
   })
 
+  // A wide demo scrolls inside its block instead of widening the page.
   export const demo = style({
     '@layer vocs': {
       borderColor: vars.color.border,
       borderRadius: vars.radius.md,
       borderStyle: 'dashed',
       borderWidth: '1px',
+      overflowX: 'auto',
       padding: 4,
     },
   })

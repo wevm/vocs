@@ -8,6 +8,7 @@
 import type * as Block from '../Block.js'
 import type * as Config from '../Config.js'
 import * as Corpus from '../internal/Corpus.js'
+import * as Demos from '../internal/Demos.js'
 import * as Highlight from '../internal/Highlight.js'
 import * as Saved from '../internal/Saved.js'
 
@@ -21,6 +22,8 @@ export type Handler = {
 export type Agent = {
   /** URL of the sources the agent mounts, a static asset of the host's build. */
   corpus: string
+  /** Names of the demos that `demo` blocks may name. */
+  demos: readonly string[]
   description: string | undefined
   /** The model the agent requests. */
   model: string | undefined
@@ -72,6 +75,7 @@ export function from(config: Config.Config, options: from.Options): Handler {
   if (!corpus) throw new UnbuiltConfigError()
   const agent = {
     corpus: corpus.url,
+    demos: Object.keys(config.demos ?? {}),
     description: config.description,
     model: config.provider.models[0],
     pages: config.storage ? `${basePath}/pages` : undefined,
@@ -250,6 +254,7 @@ export function from(config: Config.Config, options: from.Options): Handler {
         const Permalink = await import('../internal/Permalink.js')
         const stream = await Permalink.render({
           basePath,
+          demos: Demos.registry(config),
           page,
           saved,
           site: { description: config.description, title: config.title },

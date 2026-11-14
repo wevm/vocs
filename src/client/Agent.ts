@@ -160,6 +160,10 @@ export async function load(options: load.Options): Promise<Agent> {
             throw new Error('Page tools work only for messages that ask for a page or docs.')
           const next = operation(name, input)
           if (!('block' in next)) return handlers.page(next)
+          if (next.block.type === 'demo' && !settings.demos.includes(next.block.name))
+            throw new Error(
+              `Demo "${next.block.name}" is not registered. ${settings.demos.length ? `Use one of: ${settings.demos.join(', ')}.` : 'Remove the block.'}`,
+            )
           // A diagram that fails to render returns to the agent, so it fixes the source.
           if (next.block.type === 'mermaid')
             await diagram.render(next.block.diagram).catch((error: unknown) => {
@@ -386,6 +390,11 @@ function instructions(settings: Handler.Agent) {
     ...(settings.twoslash
       ? [
           `Set \`twoslash: true\` on complete \`ts\` and \`tsx\` code blocks. Twoslash type-checks them${settings.twoslash.length ? ` with these packages installed: ${settings.twoslash.join(', ')}` : ''}. A block with a type error is rejected with the compiler errors: fix the code and emit the block again. Add \`//    ^?\` queries under key identifiers to show their types.`,
+        ]
+      : []),
+    ...(settings.demos.length
+      ? [
+          `Add a \`demo\` block where an interactive example helps the reader. Registered demos: ${settings.demos.join(', ')}.`,
         ]
       : []),
     'A message that starts with "Revise:" asks for a change to the pages already written. Read the outline with `tools.page_read`, then change only what the message asks.',

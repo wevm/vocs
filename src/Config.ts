@@ -9,6 +9,13 @@ import type * as Storage from './Storage.js'
 
 /** A Vocs site. */
 export type Config = {
+  /**
+   * Interactive components that `demo` blocks may name, as module paths by name, relative to the
+   * config file. Each module default-exports a React component that takes no props. The agent
+   * sees the names, the reader's page imports them from `virtual:vocs/demos`, and permalinks render
+   * them on the server and hydrate them in the browser.
+   */
+  demos?: Record<string, string> | undefined
   /** One-sentence description, used in metadata and agent instructions. */
   description?: string | undefined
   /** The LLM provider the handler forwards the agent's model requests to. */
@@ -41,7 +48,7 @@ export type Config = {
  * })
  * ```
  *
- * @throws {Config.InvalidError} When a field is missing or two sources share a name.
+ * @throws {Config.InvalidError} When a field is missing, two sources share a name, or a demo name is invalid.
  */
 export function defineConfig<const config extends Config>(config: config): config {
   if (typeof config.title !== 'string' || !config.title.trim())
@@ -61,6 +68,17 @@ export function defineConfig<const config extends Config>(config: config): confi
     throw new InvalidError(
       '`twoslash.packages` is missing. List the packages that code blocks import, such as `["viem"]`.',
     )
+
+  for (const [name, path] of Object.entries(config.demos ?? {})) {
+    if (!/^[a-z][a-z0-9-]*$/.test(name))
+      throw new InvalidError(
+        `Demo name "${name}" is invalid. Use lowercase letters, digits, and hyphens.`,
+      )
+    if (typeof path !== 'string' || !path.trim())
+      throw new InvalidError(
+        `\`demos.${name}\` is empty. Set it to the path of the demo module, such as "./src/demos/Memo.tsx".`,
+      )
+  }
 
   const names = new Set<string>()
   for (const source of config.sources) {
