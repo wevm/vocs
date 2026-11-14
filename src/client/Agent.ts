@@ -413,6 +413,7 @@ function instructions(settings: Handler.Agent) {
     'The documentation sources are files under /sources. Search them with `rg` and read them with `cat` before you answer.',
     'Answer only from those files. Name the file paths you used. If the files do not answer the question, say so.',
     'A message that starts with "Write a page:" asks for one page. Search the sources first. Create the page with `tools.page_create`, then add its blocks with `tools.page_insert`, one block per call, in reading order.',
+    'When a "Write a page:" message repeats a question you already answered, build the page from that answer and the files it read.',
     'A message that starts with "Write docs:" asks for a small documentation site of two to eight pages. Search the sources first. Plan sidebar groups, start each group with an "Overview" page, and create every page with `tools.page_create` before you fill them with `tools.page_insert`.',
     `${titles.page} ${titles.group}`,
     'Prefer short prose, steps, and complete code blocks taken from the sources. Never invent an API.',

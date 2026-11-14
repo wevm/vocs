@@ -110,7 +110,7 @@ Goal: a prompt becomes a streamed, refinable page with a permalink.
 - [x] Demo props: a Standard JSON Schema per demo, shown to the agent, and validated in the handler by `POST /demos/:name` and on save.
 - [x] `Storage`: `Storage.cloudflare` and `Storage.memory`. Saved pages, `<Page />`, and server-rendered permalinks that load no WebAssembly and send no request after the document.
 - [x] Mermaid on permalinks: the handler renders each diagram to SVG on save with `virtual:vocs/diagram`, and a permalink shows the stored SVG.
-- [ ] A chat reply can become a page.
+- [x] A chat reply can become a page: "Make a page" under a finished answer generates a page in the same agent session, so the page builds on that answer.
 
 Done when: end-to-end tests generate the "accept USDC in a Next.js checkout" page, refine it, load its permalink with JavaScript disabled, and see a wrong snippet caught and fixed.
 

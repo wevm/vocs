@@ -6,7 +6,7 @@
  * - A question searches the workspace with `rg` and answers with the matched paths.
  * - `Write a page:` searches, then writes one page with the page tools. It first emits an
  *   invalid block and a Twoslash block with a type error, and writes whether both were rejected
- *   into the page.
+ *   into the page. When the session already holds an answer, the page quotes it first.
  * - `Write docs:` writes three pages in two sidebar groups, with every block type and a Twoslash
  *   block that imports `viem`.
  * - `Revise:` removes the last block of the first page and adds a callout with the request.
@@ -31,7 +31,7 @@ export default {
         if (/^(Write a page|Write docs|Revise):/.test(text)) return message('Wrote the pages.')
         return answer(output(last.output))
       }
-      if (text.startsWith('Write a page:')) return cell(page(term(text)))
+      if (text.startsWith('Write a page:')) return cell(page(term(text), answered(body.input)))
       if (text.startsWith('Write docs:')) return cell(docs)
       if (text.startsWith('Revise:')) return cell(revise(text.slice('Revise:'.length).trim()))
       return cell(search(term(text)))
@@ -54,12 +54,13 @@ function search(term: string): string {
   return `const result = await tools.exec_command({ cmd: ${JSON.stringify(`rg -n -i ${term} /`)} })\ntext(result.output)`
 }
 
-/** Returns the code of a cell that searches, then writes one page. */
-function page(term: string): string {
+/** Returns the code of a cell that searches, then writes one page, after the answer when set. */
+function page(term: string, answer: string | undefined): string {
   return `
 const found = await tools.exec_command({ cmd: ${JSON.stringify(`rg -l -i ${term} /sources`)} })
 const paths = found.output.match(/\\/sources\\/\\S+\\.md/g) ?? []
 const { page } = await tools.page_create({ group: 'Guides', title: ${JSON.stringify(`Use ${term}`)} })
+${answer ? `await tools.page_insert({ page, block: { type: 'callout', kind: 'note', title: 'From the chat', body: ${JSON.stringify(answer)} } })` : ''}
 let rejection = ''
 try {
   await tools.page_insert({ page, block: { type: 'callout', kind: 'loud', body: 'Invalid kind.' } })
@@ -194,6 +195,12 @@ function output(value: unknown): string {
   if (typeof value === 'string') return value
   if (!Array.isArray(value)) return ''
   return value.map((part: { text?: unknown }) => String(part.text ?? '')).join('')
+}
+
+/** Returns the text of the last assistant message in the session, the answer a page builds on. */
+function answered(input: Body['input']): string | undefined {
+  const message = input.findLast((item) => item.type === 'message' && item.role === 'assistant')
+  return message?.content?.map((part) => part.text ?? '').join('')
 }
 
 /** Returns the text of the last user message. */

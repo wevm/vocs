@@ -180,6 +180,8 @@ guide.save() // sets state.link to the permalink path when the site has storage
 
 The agent module loads on the first `ask` or `generate`, not on `create`.
 
+Questions and pages share one agent session. `client.generate(turn.prompt)` after a finished turn writes a page that builds on that answer and the files it read. `<Docs />` offers this as "Make a page" under each finished answer.
+
 ### React
 
 ```tsx

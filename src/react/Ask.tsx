@@ -6,6 +6,7 @@
  */
 import * as React from 'react'
 import { Client } from '../client/index.js'
+import { styles as layout } from './Page.js'
 
 /** A prompt box with streamed answers and the files each answer read. */
 export function Ask(props: Ask.Props) {
@@ -84,10 +85,24 @@ export function Message(props: Message.Props) {
           ))}
         </ul>
       )}
+      {props.onPage && state.status === 'done' && (
+        <button
+          data-vocs-part="page-action"
+          onClick={props.onPage}
+          type="button"
+          {...layout.action()}
+        >
+          Make a page
+        </button>
+      )}
     </article>
   )
 }
 
 export declare namespace Message {
-  type Props = { turn: Client.Turn }
+  type Props = {
+    /** Called when the reader turns the finished answer into a page. Without it, no button shows. */
+    onPage?: (() => void) | undefined
+    turn: Client.Turn
+  }
 }

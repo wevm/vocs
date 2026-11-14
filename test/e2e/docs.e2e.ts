@@ -1,7 +1,8 @@
 /**
  * End-to-end coverage of `<Docs />` in custom mode: the composer asks in chat, page, or docs mode,
  * the agent writes pages through the page tools, a sidebar lists several pages, code renders through
- * the render route with Twoslash, and a revision changes the pages in place.
+ * the render route with Twoslash, a revision changes the pages in place, and a chat answer becomes
+ * a page.
  * @module
  */
 import { compose, expect, test } from '../Playwright.js'
@@ -103,6 +104,28 @@ test('answers in chat from the composer', async ({ page }) => {
 
   const message = page.locator('[data-vocs=message]')
   await expect(message).toHaveAttribute('data-state', 'done', { timeout: 30_000 })
+  await expect(message.locator('[data-vocs-part=answer]')).toHaveText(
+    'Found in 1 file: /sources/playground/docs/memos.md',
+  )
+})
+
+test('turns a chat answer into a page that builds on it, and returns to the chat', async ({
+  page,
+}) => {
+  await compose(page, 'Chat', 'How do I use transferWithMemo?')
+  const message = page.locator('[data-vocs=message]')
+  await expect(message).toHaveAttribute('data-state', 'done', { timeout: 30_000 })
+
+  await message.getByRole('button', { name: 'Make a page' }).click()
+
+  const article = page.locator('[data-vocs=page]')
+  await expect(article).toHaveAttribute('data-state', 'ready', { timeout: 30_000 })
+  await expect(article.getByRole('heading', { level: 1 })).toHaveText('Use transferWithMemo')
+  await expect(article.locator('[data-vocs=callout]').first()).toHaveText(
+    'From the chatFound in 1 file: /sources/playground/docs/memos.md',
+  )
+
+  await page.getByRole('button', { name: 'Back to chat' }).click()
   await expect(message.locator('[data-vocs-part=answer]')).toHaveText(
     'Found in 1 file: /sources/playground/docs/memos.md',
   )

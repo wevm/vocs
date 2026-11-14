@@ -2,7 +2,8 @@
 /**
  * `<Docs />` is the reader's documentation app. The home view is a composer. A chat prompt opens
  * the conversation, and a page or docs prompt opens the generated pages, with a sidebar when there
- * is more than one page. The composer under the pages revises them.
+ * is more than one page. Any finished answer can become a page. The composer under the pages
+ * revises them.
  * @module
  */
 import * as React from 'react'
@@ -27,6 +28,12 @@ export function Docs(props: Docs.Props) {
       return
     }
     setGuide(client.generate(prompt, { mode }))
+    setView('guide')
+  }
+
+  // The agent keeps one session, so a page for an answered question builds on that answer.
+  function page(turn: Client.Turn) {
+    setGuide(client.generate(turn.prompt))
     setView('guide')
   }
 
@@ -57,12 +64,22 @@ export function Docs(props: Docs.Props) {
             >
               {props.title}
             </button>
+            {view === 'guide' && turns.length > 0 && (
+              <button
+                data-vocs-part="chat-link"
+                onClick={() => setView('chat')}
+                type="button"
+                {...styles.chatLink()}
+              >
+                Back to chat
+              </button>
+            )}
           </header>
           {view === 'chat' && (
             <main data-vocs-part="chat" {...styles.chat()}>
               <div data-vocs-part="messages" {...styles.messages()}>
                 {turns.map((turn, index) => (
-                  <Message key={index} turn={turn} />
+                  <Message key={index} onPage={() => page(turn)} turn={turn} />
                 ))}
               </div>
               <Composer label="Ask a follow-up" onSubmit={submit} {...styles.docked()} />
@@ -137,7 +154,7 @@ function Pages(props: { demos: Docs.Props['demos']; guide: Client.Guide }) {
             {status(state)}
           </p>
           {state.status === 'saved' ? (
-            <a data-vocs-part="permalink" href={state.link} {...styles.action()}>
+            <a data-vocs-part="permalink" href={state.link} {...layout.action()}>
               Open permalink
             </a>
           ) : (
@@ -148,7 +165,7 @@ function Pages(props: { demos: Docs.Props['demos']; guide: Client.Guide }) {
                 disabled={state.status === 'saving'}
                 onClick={props.guide.save}
                 type="button"
-                {...styles.action()}
+                {...layout.action()}
               >
                 {state.status === 'saving' ? 'Saving' : 'Save'}
               </button>
@@ -180,27 +197,6 @@ function status(state: Client.Guide.State): string {
 }
 
 namespace styles {
-  export const action = style({
-    '@layer vocs': {
-      alignSelf: 'flex-start',
-      backgroundColor: vars.color.background,
-      borderColor: vars.color.border,
-      borderRadius: vars.radius.md,
-      borderStyle: 'solid',
-      borderWidth: '1px',
-      color: vars.color.foreground,
-      cursor: 'pointer',
-      fontFamily: vars.fontFamily.sans,
-      fontSize: 'sm',
-      paddingBlock: 1,
-      paddingInline: 3,
-      textDecorationLine: 'none',
-      '&:hover': { backgroundColor: vars.color.surface },
-      '&:disabled': { color: vars.color.muted, cursor: 'default' },
-      '&:focus-visible': { outlineColor: 'accent', outlineStyle: 'solid', outlineWidth: '2px' },
-    },
-  })
-
   export const chat = style({
     '@layer vocs': {
       display: 'flex',
@@ -212,6 +208,21 @@ namespace styles {
       paddingBlock: 8,
       paddingInline: 4,
       width: 'full',
+    },
+  })
+
+  export const chatLink = style({
+    '@layer vocs': {
+      backgroundColor: 'transparent',
+      borderWidth: 0,
+      color: vars.color.muted,
+      cursor: 'pointer',
+      fontFamily: vars.fontFamily.sans,
+      fontSize: 'sm',
+      marginInlineStart: 'auto',
+      padding: 0,
+      '&:hover': { color: vars.color.foreground },
+      '&:focus-visible': { outlineColor: 'accent', outlineStyle: 'solid', outlineWidth: '2px' },
     },
   })
 

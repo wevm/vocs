@@ -128,8 +128,29 @@ export function Sources(props: { files: readonly Client.File[] }) {
   )
 }
 
-/** Layout styles that `<Docs />` shares. */
+/** Layout styles that `<Docs />` and `<Message />` share. */
 export namespace styles {
+  export const action = style({
+    '@layer vocs': {
+      alignSelf: 'flex-start',
+      backgroundColor: vars.color.background,
+      borderColor: vars.color.border,
+      borderRadius: vars.radius.md,
+      borderStyle: 'solid',
+      borderWidth: '1px',
+      color: vars.color.foreground,
+      cursor: 'pointer',
+      fontFamily: vars.fontFamily.sans,
+      fontSize: 'sm',
+      paddingBlock: 1,
+      paddingInline: 3,
+      textDecorationLine: 'none',
+      '&:hover': { backgroundColor: vars.color.surface },
+      '&:disabled': { color: vars.color.muted, cursor: 'default' },
+      '&:focus-visible': { outlineColor: 'accent', outlineStyle: 'solid', outlineWidth: '2px' },
+    },
+  })
+
   export const article = style({
     '@layer vocs': {
       display: 'flex',
