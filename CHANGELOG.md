@@ -1,5 +1,15 @@
 # vocs
 
+## 2.13.0
+
+### Minor Changes
+
+- 9939de1: Replaced Mermaid with [Ondine](https://ondine.sh), so `mermaid` code blocks now compile to inline SVG at build time instead of rendering in the browser.
+
+### Patch Changes
+
+- da5c7c4: Updated Waku to 1.0.0-rc.5 and React to 19.3.1, aligned Hono with Waku's version, and added Waku's client scan so production builds include server functions imported only from client code.
+
 ## 2.12.0
 
 ### Minor Changes
