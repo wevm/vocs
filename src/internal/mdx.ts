@@ -8,6 +8,7 @@ import type * as Estree from 'estree'
 import type * as HAst from 'hast'
 import type * as MdAst from 'mdast'
 import { toString as mdastToString } from 'mdast-util-to-string'
+import { remarkOndine } from 'ondine/remark'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import rehypeSlug from 'rehype-slug'
 import remarkDirective from 'remark-directive'
@@ -93,43 +94,6 @@ function getLanguageNames(langs: readonly unknown[] | undefined): string[] {
     const { aliases, name } = lang as LanguageRegistration
     return name ? [name, ...(aliases ?? [])] : (aliases ?? [])
   })
-}
-
-/**
- * Remark plugin that transforms mermaid code blocks into Mermaid components.
- * Replaces ```mermaid code blocks with a `VocsMermaid` element and imports
- * it only into pages that have one, so sites without diagrams never bundle
- * Mermaid.
- */
-export function remarkMermaid(): remarkMermaid.ReturnType {
-  return (tree: MdAst.Root) => {
-    let found = false
-    UnistUtil.visit(tree, 'code', (node, index, parent) => {
-      if (index === undefined || !parent) return
-      if (node.lang !== 'mermaid') return
-
-      found = true
-      parent.children.splice(index, 1, {
-        type: 'mdxJsxFlowElement',
-        name: 'VocsMermaid',
-        attributes: [{ type: 'mdxJsxAttribute', name: 'chart', value: node.value.trim() }],
-        children: [],
-      })
-      return UnistUtil.SKIP
-    })
-    if (!found) return
-
-    const value = `import { Mermaid as VocsMermaid } from 'vocs/mdx/mermaid'`
-    tree.children.push({
-      type: 'mdxjsEsm',
-      value,
-      data: { estree: EstreeUtil.fromJs(value, { module: true }) },
-    })
-  }
-}
-
-export declare namespace remarkMermaid {
-  type ReturnType = (tree: MdAst.Root) => void
 }
 
 /** Masks prompt bodies during parsing so MDX syntax remains literal prompt text. */
@@ -401,7 +365,7 @@ export function getCompileOptions(
           rehypeStaticCode,
         ],
         remarkPlugins: [
-          remarkMermaid,
+          [remarkOndine, { fontSize: 14 }] as Pluggable,
           remarkFrontmatter,
           remarkDirective,
           [remarkFileTree, config] as Pluggable,

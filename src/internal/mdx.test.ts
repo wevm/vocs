@@ -26,7 +26,6 @@ import {
   remarkFilename,
   remarkFileTree,
   remarkLangCommaAttrs,
-  remarkMermaid,
   remarkPrompt,
   remarkRestoreUnknownTextDirectives,
   remarkSubheading,
@@ -425,30 +424,23 @@ describe('recmaMdxLayout', () => {
   })
 })
 
-describe('remarkMermaid', () => {
-  async function compileMdx(source: string, format: 'md' | 'mdx' = 'mdx') {
-    const result = await compile(source, { format, remarkPlugins: [remarkMermaid] })
-    return String(result)
-  }
-
-  it('imports Mermaid only into pages with a mermaid block', async () => {
-    const withDiagram = await compileMdx('# Hi\n\n```mermaid\ngraph LR\n  A --> B\n```\n')
-    expect(withDiagram).toContain('import {Mermaid as VocsMermaid} from "vocs/mdx/mermaid"')
-    expect(withDiagram).toContain(
-      '_jsx(VocsMermaid, {\n      chart: "graph LR\\n  A --> B"\n    })',
+describe('mermaid', () => {
+  it('compiles mermaid fences to inline SVG at build time', async () => {
+    const config = Config.define({ rootDir: process.cwd() })
+    const { remarkPlugins } = getCompileOptions('react', config)
+    const output = String(
+      await compile(
+        ':::code-group\n<div data-title="Preview">\n```mermaid\nflowchart LR\n  A[Write] --> B[Read]\n```\n</div>\n:::\n',
+        { remarkPlugins },
+      ),
     )
-
-    const withoutDiagram = await compileMdx('# Hi\n\n```ts\nconst a = 1\n```\n')
-    expect(withoutDiagram).not.toContain('mermaid')
-  })
-
-  it('imports Mermaid once into Markdown pages', async () => {
-    const output = await compileMdx(
-      '```mermaid\ngraph LR\n```\n\n```mermaid\ngraph TD\n```\n',
-      'md',
-    )
-    expect(output.match(/from "vocs\/mdx\/mermaid"/g)).toHaveLength(1)
-    expect(output.match(/_jsx\(VocsMermaid/g)).toHaveLength(2)
+    expect(output).toContain('"data-ondine-diagram": "flowchart"')
+    expect(output).toContain('_jsxs(_components.svg')
+    expect(output).toContain('children: "Write"')
+    // No client-side renderer is imported into the page.
+    expect(output.match(/^import .+$/gm)).toEqual([
+      'import {jsx as _jsx, jsxs as _jsxs} from "react/jsx-runtime";',
+    ])
   })
 })
 
