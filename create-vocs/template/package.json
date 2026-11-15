@@ -9,10 +9,10 @@
     "preview": "vocs preview"
   },
   "dependencies": {
-    "react": "~19.3.0",
-    "react-dom": "~19.3.0",
+    "react": "~19.3.1",
+    "react-dom": "~19.3.1",
     "vocs": "latest",
-    "waku": "1.0.0-rc.2"
+    "waku": "1.0.0-rc.5"
   },
   "devDependencies": {
     "@types/node": "^22",

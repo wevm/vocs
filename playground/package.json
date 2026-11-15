@@ -21,12 +21,12 @@
     "waku": "catalog:"
   },
   "devDependencies": {
-    "@hono/node-server": "^2.0.2",
+    "@hono/node-server": "^2.1.5",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
-    "hono": "^4.12.14",
+    "hono": "^4.13.17",
     "tsx": "^4.21.0",
     "vite": "catalog:"
   }

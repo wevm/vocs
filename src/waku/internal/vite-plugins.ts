@@ -18,6 +18,7 @@ import {
   type ModuleRunnerContext,
 } from 'vite/module-runner'
 import type { Config as WakuConfig } from 'waku/config'
+import * as WakuPlugins from 'waku/vite-plugins'
 import * as VocsConfig from '../../internal/config.js'
 import {
   EXTENSIONS,
@@ -45,6 +46,12 @@ export {
   patchReactDomPlugin as patchReactDom,
   patchReactDomServerPlugin as patchReactDomServer,
 } from './patches/vite-plugins/patch-react-dom.js'
+
+// Builds server functions that only client code imports. Waku exports this plugin
+// from RC.3, so it is skipped on older versions.
+export function scanClient(): Plugin | undefined {
+  return WakuPlugins.unstable_scanClientPlugin?.()
+}
 
 // Vocs already deduplicates metadata in its router. Disable Waku's additional
 // transform without importing plugin exports that are unavailable in RC.1.
