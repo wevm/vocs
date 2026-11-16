@@ -8,6 +8,7 @@ import remarkFrontmatter from 'remark-frontmatter'
 import remarkGfm from 'remark-gfm'
 import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
+import remarkStringify from 'remark-stringify'
 import ruby from 'shiki/langs/ruby.mjs'
 import { unified } from 'unified'
 import { describe, expect, it } from 'vitest'
@@ -17,8 +18,11 @@ import {
   getCompileOptions,
   recmaMdxLayout,
   rehypeHeadingAnchors,
+  rehypeHeadingSlug,
   rehypeLinks,
   rehypeShiki,
+  remarkBadge,
+  remarkBadgeText,
   remarkBenchmarks,
   remarkChangelog,
   remarkCodeTitle,
@@ -1048,5 +1052,49 @@ describe('rehypeShiki', () => {
     const html = await highlight(['```notalanguage', 'package main', '```'].join('\n'))
 
     expect(html).toContain('<span>package main</span>')
+  })
+})
+
+describe('heading badges', () => {
+  async function toHtml(markdown: string) {
+    const file = await unified()
+      .use(remarkParse)
+      .use(remarkDirective)
+      .use(remarkBadge)
+      .use(remarkRehype)
+      .use(rehypeHeadingSlug)
+      .use(rehypeStringify)
+      .process(markdown)
+    return String(file)
+  }
+
+  async function toMarkdown(markdown: string) {
+    const file = await unified()
+      .use(remarkParse)
+      .use(remarkDirective)
+      .use(remarkBadgeText)
+      .use(remarkStringify)
+      .process(markdown)
+    return String(file)
+  }
+
+  it('leaves badge text out of the heading slug', async () => {
+    const html = await toHtml('## Status :badge[Beta]{warning}')
+    expect(html).toContain('id="status"')
+    expect(html).not.toContain('status-beta')
+  })
+
+  it('dedupes slugs like rehype-slug', async () => {
+    const html = await toHtml('## Status :badge[Beta]\n\n## Status')
+    expect(html).toContain('id="status"')
+    expect(html).toContain('id="status-1"')
+  })
+
+  it('drops badges from headings in Markdown output', async () => {
+    expect(await toMarkdown('## Status :badge[Beta]{warning}')).toBe('## Status\n')
+  })
+
+  it('renders badges outside headings as plain text in Markdown output', async () => {
+    expect(await toMarkdown('Now :badge[New]{success} here')).toBe('Now New here\n')
   })
 })
