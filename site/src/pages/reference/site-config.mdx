@@ -125,7 +125,7 @@ Top-level fields:
 
 | Field | Behavior |
 |---|---|
-| `base` | `<base>` href. Set a value to override, or `false` to omit. |
+| `base` | `<base>` href. Only emitted when set explicitly; `baseUrl` does not add it. Set `false` to omit. |
 | `canonical` | `<link rel="canonical">` href. Set a value to override, or `false` to omit. |
 | `icons` | `<link rel="icon">` tags. Set `false` to omit (values come from [`iconUrl`](#iconurl)). |
 | `link` | Additional `<link>` tags. |
@@ -183,7 +183,7 @@ Root-absolute [`logoUrl`](#logourl) and [`iconUrl`](#iconurl) values, such as `'
 
 - **Type:** `string`
 
-The canonical base URL for your docs site. Vocs uses this to populate the page `<base>` tag and to resolve the `%logo` variable in `ogImageUrl` templates.
+The canonical base URL for your docs site. Vocs uses this for canonical URLs and to resolve the `%logo` variable in `ogImageUrl` templates.
 
 ```ts
 export default defineConfig({

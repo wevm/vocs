@@ -67,7 +67,7 @@ export function Head(props: Head.Props) {
     return value ?? fallback
   }
 
-  const base = tag(head.base, baseUrl)
+  const base = tag(head.base, undefined)
   const canonical = tag(head.canonical, canonicalDefault)
   const icons = head.icons !== false
   const jsonLd =

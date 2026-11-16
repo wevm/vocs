@@ -47,7 +47,7 @@ export type HeadMeta = {
 }
 
 export type HeadTags = {
-  /** `<base>` href. Set a value to override, or `false` to omit. */
+  /** `<base>` href. Not emitted unless set explicitly; `false` also omits it. */
   base?: string | false | undefined
   /** `<link rel="canonical">` href. Set a value to override, or `false` to omit. */
   canonical?: string | false | undefined
@@ -418,8 +418,8 @@ export type Config<partial extends boolean = false> = MaybePartial<
      */
     basePath: string
     /**
-     * The base URL for your documentation. This is used to populate the `<base>` tag in the
-     * `<head>` of the page, and is used to form the `%logo` variable for dynamic OG images.
+     * The base URL for your documentation. This is used for the canonical URL, JSON-LD, Open Graph URLs, and
+     * the `%logo` variable for dynamic OG images. It does not add a `<base>` tag; set `head.base` for that.
      *
      * @example
      * https://vocs.dev

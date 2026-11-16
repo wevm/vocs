@@ -19,7 +19,8 @@ Set the common tags through config and frontmatter rather than writing raw eleme
 | `<meta name="author">` | frontmatter `author` |
 | `<meta name="robots">` | frontmatter `robots` |
 | `<link rel="icon">` | config [`iconUrl`](/reference/site-config#iconurl) |
-| `<link rel="canonical">` and `<base>` | config [`baseUrl`](/reference/site-config#baseurl) |
+| `<link rel="canonical">` | config [`baseUrl`](/reference/site-config#baseurl) |
+| `<base>` | only when [`head.base`](/reference/site-config#head) is set |
 | `<meta property="og:image">` and `<meta name="twitter:image">` | config [`ogImageUrl`](/reference/site-config#ogimageurl) |
 | Open Graph and Twitter title + description | derived from the resolved title and description |
 
