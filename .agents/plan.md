@@ -1,6 +1,6 @@
 # Vocs next: implementation plan
 
-Vocs next is built on the `next` branch of `wevm/vocs` in nine phases. Each phase ends in something that runs, an end-to-end test that proves it, and recorded budgets. Phase 0 settles the three risks that could change the design before product code exists. Tempo is the pilot site from phase 1.
+Vocs next is built on the `next` branch of `wevm/vocs` in ten phases. Each phase ends in something that runs, an end-to-end test that proves it, and recorded budgets. Phase 0 settles the three risks that could change the design before product code exists. Tempo is the pilot site from phase 1.
 
 The design and public API are in [`design.md`](./design.md). Conventions are in [`AGENTS.md`](../AGENTS.md).
 
@@ -69,7 +69,7 @@ Measured on 2026-11-14 in an orb: 4 vCPU Intel Xeon at 2.60 GHz, headless Chromi
 
 **Twoslash placement.** Measured in Phase 2: the snapshot of the files a program reads is 659 files, 5.6 MB raw and 0.80 MB gzip, for `viem`, and 1,554 files, 12.0 MB raw and 1.22 MB gzip, for `viem` and `viem/tempo`. In local workerd, the first Twoslash block with `viem` takes 1.1 s and a warm one about 30 ms. Production isolate memory is not measured yet. Decision from Phase 0: Twoslash runs in the Worker. The build snapshots the type files of each pinned package into one content-addressed asset, and the render route loads it once per isolate. Rendered HTML is cached by the hash of block and snapshot, so each unique block runs Twoslash once. Phase 2 measures the snapshot trimmed to the files a program reads. A Node renderer is the fallback only if that snapshot does not fit in 128 MB with the TypeScript program.
 
-**nanocode-ts dependency.** `vocs` cannot publish with a tarball URL dependency, and the `nanocode-ts` package is `private: true` with heavy dependencies (`viem`, `accounts`, `mppx`). Decision: ask the nanocode maintainers for an npm release of the browser entrypoints (`nanocode-ts`, `nanocode-ts/bash`) before phase 8. Until then, the catalog pins the release tarball for development. Vendoring the WebAssembly module and its glue is the fallback.
+**nanocode-ts dependency.** `vocs` cannot publish with a tarball URL dependency, and the `nanocode-ts` package is `private: true` with heavy dependencies (`viem`, `accounts`, `mppx`). Decision: ask the nanocode maintainers for an npm release of the browser entrypoints (`nanocode-ts`, `nanocode-ts/bash`) before phase 9. Until then, the catalog pins the release tarball for development. Vendoring the WebAssembly module and its glue is the fallback.
 
 ## Phase 1: Handler and chat, in custom mode
 
@@ -116,7 +116,24 @@ Done when: end-to-end tests generate the "accept USDC in a Next.js checkout" pag
 
 Met with the stand-in model: `test/e2e/permalink.e2e.ts` generates the checkout page, sees `POST /render` reject `parseUnits('25.00', '6')` with TS2345 and pass the fixed snippet, revises the page, and opens its permalink with JavaScript disabled. The run against the real gateway waits for Cloudflare credentials, as in Phase 1.
 
-## Phase 3: Quick mode
+## Phase 3: Universal MCP
+
+Goal: one MCP URL is the site's entry point for agents. An agent asks, generates pages, calls the site's other MCP tools, and pages a person when it cannot finish. The design is in [`design.md`](./design.md#mcp). Prior art: `tempoxyz/tempo.xyz2` serves `ask_tempo`, `sendoff`, `page_engineer`, a blocks MCP App, and SEP-3415 events from one Worker.
+
+- [ ] **Spike D, the agent in the handler** (`spikes/server-agent`): run the nanocode agent with the corpus and page tools in workerd and in Node. Measure turn overhead, cold start, and the Worker size it adds. Decide where chat sessions live: a Durable Object per chat, or `Storage` between stateless turns.
+- [ ] `POST /mcp`: Streamable HTTP, `initialize`, tools, resources, and server instructions that say when to call each tool.
+- [ ] `search` and `read` over the sources, with no model.
+- [ ] `ask` and `page` on the server agent, with `chat` follow-ups and per-caller rate limits.
+- [ ] `ui://vocs/blocks`: the MCP App that renders blocks with the permalink renderer and islands.
+- [ ] `Source.mcp`: resources as files, tools proxied with the source's credentials, in the reader's page and in the MCP server.
+- [ ] `escalate`, the handler's `escalation` option, and `POST /escalations/:id`. A reply reaches the chat's agent.
+- [ ] Events: `events/list` and `events/poll` for escalation replies, saved pages, and source updates.
+- [ ] `llms.txt`.
+- [ ] `playground/custom` lists a stand-in MCP source, and the Tempo config lists the Tempo API and gateway servers.
+
+Done when: an end-to-end test connects the MCP SDK client to `playground/custom`, searches and reads the sources, asks a question and a follow-up in one chat, generates a page whose permalink loads, renders its blocks in a test MCP Apps host, calls a proxied source tool, and gets an escalation reply as an event. Then Amp and Claude Code each install the URL and answer a Tempo question with the real gateway.
+
+## Phase 4: Quick mode
 
 Goal: a site from `package.json` and `vocs.config.ts` alone.
 
@@ -128,9 +145,9 @@ Goal: a site from `package.json` and `vocs.config.ts` alone.
 - [ ] `create-vocs` for quick mode.
 - [ ] `playground/quick` with the same config shape as `playground/custom`.
 
-Done when: every phase 1 and phase 2 end-to-end test passes against both playgrounds, and `pnpm create vocs` plus one GitHub source gives a working site.
+Done when: every phase 1 to 3 end-to-end test passes against both playgrounds, and `pnpm create vocs` plus one GitHub source gives a working site.
 
-## Phase 4: Search
+## Phase 5: Search
 
 Goal: the agent finds concepts, not only exact names.
 
@@ -141,19 +158,18 @@ Goal: the agent finds concepts, not only exact names.
 
 Done when: the phase 1 question set passes with fewer agent tool calls than grep alone, and swapping `cloudflare` for `memory` is a config change that passes the same end-to-end test.
 
-## Phase 5: Runtime mode and more sources
+## Phase 6: Runtime mode and more sources
 
 Goal: every source works in both modes.
 
 - [ ] Runtime mounting: the handler serves `list` and `read`, and the page mounts each source as a lazy filesystem cached by revision.
 - [ ] `github` in `runtime` mode.
 - [ ] `googleDocs`, `url`, `openapi`, `endpoint`, and `from`.
-- [ ] `mcp`: resources as files, tools proxied by the handler so tokens stay on the server.
 - [ ] `visibility` enforcement, and `auth: 'reader'`.
 
 Done when: the Tempo config in `design.md` runs with every source type, one source switches mode with one option, and a private source without `visibility: 'public'` fails the build with a clear error.
 
-## Phase 6: Signed-in docs and verified code
+## Phase 7: Signed-in docs and verified code
 
 Goal: docs act on the reader's account, and pages show whether their code ran.
 
@@ -164,18 +180,17 @@ Goal: docs act on the reader's account, and pages show whether their code ran.
 
 Done when: an end-to-end test signs in, copies a snippet with the key filled in, and sees the saved page's latest testnet result.
 
-## Phase 7: Agents, styling, and polish
+## Phase 8: Styling and polish
 
-Goal: other agents use the corpus, and hosts restyle everything.
+Goal: hosts restyle everything, and the Vocs docs run on Vocs next.
 
-- [ ] The MCP endpoint and `llms.txt`.
 - [ ] The styling contract documented, and the default theme in light and dark.
 - [ ] Accessibility: keyboard use, focus, `aria-live` for streaming, reduced motion.
 - [ ] The Vocs docs site rebuilt in quick mode.
 
-Done when: an external agent answers through the MCP endpoint, an end-to-end test restyles a playground with CSS alone, and the Vocs docs run on Vocs next.
+Done when: an end-to-end test restyles a playground with CSS alone, and the Vocs docs run on Vocs next.
 
-## Phase 8: Release
+## Phase 9: Release
 
 Goal: `vocs@next` is published and Tempo runs on it.
 
@@ -203,14 +218,16 @@ Each budget is set in the phase that first measures it. CI fails when a budget i
 
 ## Risks
 
-- **nanocode-ts has no npm release.** Phase 8 is blocked until the browser entrypoints publish to npm, or the module is vendored.
+- **nanocode-ts has no npm release.** Phase 9 is blocked until the browser entrypoints publish to npm, or the module is vendored.
 - **Twoslash type snapshots.** The trimmed `viem` snapshot is 5.6 MB raw. Isolate memory with the TypeScript program is not measured in production, and the Node process used about 270 MB of heap in a local run. With `viem/tempo`, the Worker is about 2.9 MB gzip, close to the 3 MB Workers Free limit.
 - **plugin-rsc is 0.x.** Only the quick-mode app depends on it. TanStack Start is the fallback.
 - **XState in the page bundle.** It is part of the `vocs/react` budget.
 - **Search cost.** AI Search bills per query from 2026-12-01. `vectorize` is the fallback.
+- **The agent in the Worker.** nanocode's WebAssembly is about 3.1 MB Brotli, and the Worker is already 2.5 MB gzip. MCP `ask` and `page` need the Workers Paid limit of 10 MB, or a second Worker behind a service binding. Spike D measures it.
+- **Inference paid for other agents.** `ask` and `page` spend the site's model budget on every caller. `search` and `read` cost nothing, and per-caller rate limits cap the rest.
 
 ## Out of scope
 
 - Fee detection, from the original Slack thread.
-- Migrating other wevm sites before phase 8.
+- Migrating other wevm sites before phase 9.
 - LLM evals. Phases use real question sets and end-to-end tests instead.

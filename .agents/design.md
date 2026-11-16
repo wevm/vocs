@@ -13,7 +13,7 @@ This branch is a rewrite from a fresh slate. Vocs v1 and the Vocs on `main` are 
 | Generated page | Streams in block by block. The reader refines it in chat ("I use Express", "shorter"). A kept page gets a permalink such as `/docs/pages/attach-a-memo-k3f9a2`. |
 | Chat           | Short answers that list the files the agent read. Any answer can become a page.                                                                                 |
 | Signed in      | The reader's API key and scopes fill into code. Missing scopes are flagged.                                                                                     |
-| Agents         | Other agents read the same corpus through MCP and `llms.txt`.                                                                                                   |
+| Agents         | One MCP server is the site's entry point: an agent asks, generates pages, calls the site's other MCP tools, and pages a person. See [MCP](#mcp).                |
 
 Hand-written pages are limited to the visual index and concept posts. Everything else is generated.
 
@@ -147,18 +147,20 @@ export default { fetch: docs.fetch } // Cloudflare Worker: fetch(request, env, c
 
 `Handler.from(config, options)` returns `{ fetch }`. The sources snapshot (internally, the corpus) is never public API: `vocs()` builds it, writes it as a static asset, and attaches its URL to the config. Its routes under `basePath`:
 
-| Route                        | Purpose                                                                                                                                                                          |
-| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `POST /model/responses`      | The model gateway for the OpenAI Responses API, which nanocode's Codex harness sends. Forwards only `config.provider.models`, limits request size, and rate limits each address. |
-| `GET /search`                | Runs `config.search`.                                                                                                                                                            |
-| `GET /sources/:name/*`       | Lists and reads runtime sources.                                                                                                                                                 |
-| `POST /mcp/:name`            | Proxies MCP calls, so tokens stay on the server.                                                                                                                                 |
-| `POST /demos/:name`          | Validates the props of a demo with its schema. Returns `{ props }` with defaults applied, or `{ error }` with the issues, for the agent to fix.                                  |
-| `POST /render`               | Renders one snippet, `{ code, lang, twoslash? }`, with Shiki, and Twoslash when set. Returns `{ html }`, or `{ error }` with the reason it does not render, such as type errors. |
-| `POST /pages`                | Saves pages through `config.storage`. Validates the draft, drops reader-set `html` and `svg`, renders code and diagrams again, and returns `{ id, url }`.                        |
-| `GET /pages/:id/:slug?`      | Streams the permalink: one saved page as a server-rendered HTML document with the theme and one module inlined. Only a page with a registered demo loads the islands module.     |
-| `GET /agent`                 | The agent settings: title, description, model, and the URL of the sources snapshot, a static asset of the host's build, as is the agent module.                                  |
-| `POST /mcp`, `GET /llms.txt` | The corpus for other agents.                                                                                                                                                     |
+| Route                   | Purpose                                                                                                                                                                          |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `POST /model/responses` | The model gateway for the OpenAI Responses API, which nanocode's Codex harness sends. Forwards only `config.provider.models`, limits request size, and rate limits each address. |
+| `GET /search`           | Runs `config.search`.                                                                                                                                                            |
+| `GET /sources/:name/*`  | Lists and reads runtime sources.                                                                                                                                                 |
+| `POST /mcp/:name`       | Proxies MCP calls, so tokens stay on the server.                                                                                                                                 |
+| `POST /demos/:name`     | Validates the props of a demo with its schema. Returns `{ props }` with defaults applied, or `{ error }` with the issues, for the agent to fix.                                  |
+| `POST /render`          | Renders one snippet, `{ code, lang, twoslash? }`, with Shiki, and Twoslash when set. Returns `{ html }`, or `{ error }` with the reason it does not render, such as type errors. |
+| `POST /pages`           | Saves pages through `config.storage`. Validates the draft, drops reader-set `html` and `svg`, renders code and diagrams again, and returns `{ id, url }`.                        |
+| `GET /pages/:id/:slug?` | Streams the permalink: one saved page as a server-rendered HTML document with the theme and one module inlined. Only a page with a registered demo loads the islands module.     |
+| `GET /agent`            | The agent settings: title, description, model, and the URL of the sources snapshot, a static asset of the host's build, as is the agent module.                                  |
+| `POST /mcp`             | The site's MCP server for other agents. See [MCP](#mcp).                                                                                                                         |
+| `POST /escalations/:id` | Records a person's reply to an escalation, authenticated with the handler's `escalation.secret`, and returns it to the chat's agent.                                             |
+| `GET /llms.txt`         | The corpus index for agents that read files instead of calling tools.                                                                                                            |
 
 ### Client
 
@@ -293,9 +295,29 @@ Quick mode runs on a thin app layer over `@vitejs/plugin-rsc` and `@cloudflare/v
 - **Demo props:** the agent sees each demo's name and the JSON Schema of its props. The page tools reject an unregistered name and send props to `POST /demos/:name`, so the real schema validates them in the handler, with no schema code in the page. Saving validates them again. A permalink island carries its props in `data-props`, and each set of props renders on the server once.
 - **Demo islands:** a permalink renders each registered demo of the page as its own React root on the server, so hydration matches its markup and IDs. The page then preloads and loads `virtual:vocs/islands`, a client chunk that hydrates each island and marks it `hydrated`. A demo that fails to render on the server renders in the browser. Only a page with a demo loads React.
 - **Build order:** the server bundle needs the URL of the islands chunk, so `vocs()` builds the client environment first. Each environment has its own plugin instance, so the client build writes the URL and its preloads to Vite's cache directory, and the server build reads them.
-- **Later, in Phase 3:** hosts with React Server Components render the same blocks with `vocs/rsc`, beside the quick-mode app that consumes it.
+- **Later, in Phase 4:** hosts with React Server Components render the same blocks with `vocs/rsc`, beside the quick-mode app that consumes it.
 - **Diagrams:** Ondine compiles `mermaid` blocks to SVG in the reader's page. Its WebAssembly loads on the first diagram, in a module separate from the agent.
 - **Diagrams on save:** with `storage` set, `vocs()` gives server builds `virtual:vocs/diagram`, the Ondine compiler module, which the handler imports on the first save with a diagram. Workers compile WebAssembly only from module imports, so a Worker build imports the `.wasm` file, and other runtimes compile Ondine's base64 module. Server builds resolve the page's `?url` import of the same module to an empty string, because the Cloudflare plugin moves a server asset with the module's file name out of the Worker.
+
+## MCP
+
+The handler serves one MCP server at `POST <basePath>/mcp`. An agent installs that one URL and reaches the whole site: its docs, its generated pages, its demos, and every MCP server the site lists as a source. For a site such as Tempo, "from zero to integrated" becomes "install the MCP server in your agent".
+
+A Vocs site is half fixed and half generated. Authors pin some pages, such as the visual index and concept posts. Agents generate the rest on demand, as pages for readers and as tool results for other agents. The MCP server serves both.
+
+| Tool              | Behavior                                                                                                                                                                                       |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ask`             | Answers a question with the site's agent on the server: the same instructions, sources, and tools as the reader's page. Returns the answer, the files it read, and a `chat` ID for follow-ups. |
+| `page`            | Writes a page or docs for a prompt with the same agent. Returns the blocks as an MCP App, and a permalink when the site has storage.                                                           |
+| `search`, `read`  | The sources for an agent that reasons on its own: a search over every source, and one file by path. These tools run no model, so they cost the site nothing.                                   |
+| `<source>_<tool>` | The tools of each `Source.mcp`, proxied with the source's credentials. Tempo lists its API and gateway servers, so Routes, Earn, and cloud-agent `sendoff` tools sit beside the docs.          |
+| `escalate`        | Pages a person with the chat's transcript and the reason. The server instructions tell the agent to call it when the user is frustrated or the agent cannot finish.                            |
+
+- **MCP Apps:** `ui://vocs/blocks` is one `text/html;profile=mcp-app` resource. It renders blocks with the permalink renderer, the theme, and the islands module. Hosts that support MCP Apps show pages, code tabs, diagrams, and registered demos inline. Other hosts get the answer as text and the permalink.
+- **Events:** `events/list` and `events/poll` follow draft SEP-3415. Built-in events are `vocs.escalation.reply`, `vocs.page.saved`, and `vocs.source.updated`. Each `Source.mcp` can add its own events, such as a cloud agent's status.
+- **Escalation:** the handler's `escalation` option takes `notify(escalation)`, such as a Slack webhook, and a `secret` for the reply route. A reply reaches the chat's agent as a message and the calling agent as an event, so a person can steer the work.
+- **Sessions:** `ask` and `page` keep each chat through `Storage`, so a follow-up continues the same conversation. Calls are rate limited per caller with the same binding as the model gateway.
+- **Auth:** anonymous callers get the public sources. Phase 7's `reader` option applies to MCP callers too, through the MCP authorization flow.
 
 ## Styling
 
@@ -355,7 +377,7 @@ Each of these is an XState machine with named states for success, failure, and c
 | Question               | Decision                                                                                                |
 | ---------------------- | ------------------------------------------------------------------------------------------------------- |
 | Where the code lives   | The `next` branch of `wevm/vocs`, rewritten from a fresh slate                                          |
-| Where the agent runs   | In the reader's page                                                                                    |
+| Where the agent runs   | In the reader's page, and in the handler for MCP `ask` and `page`                                       |
 | Who pays for inference | The site, through its own gateway on Cloudflare AI Gateway                                              |
 | Hand-written pages     | Visual index and concept posts only                                                                     |
 | Source modes           | Every source supports `snapshot` and `runtime`                                                          |
