@@ -118,20 +118,25 @@ Met with the stand-in model: `test/e2e/permalink.e2e.ts` generates the checkout 
 
 ## Phase 3: Universal MCP
 
-Goal: one MCP URL is the site's entry point for agents. An agent asks, generates pages, calls the site's other MCP tools, and pages a person when it cannot finish. The design is in [`design.md`](./design.md#mcp). Prior art: `tempoxyz/tempo.xyz2` serves `ask_tempo`, `sendoff`, `page_engineer`, a blocks MCP App, and SEP-3415 events from one Worker.
+Goal: one MCP URL is the site's entry point for agents. A caller researches with its own agent or asks the site's, saves pages, calls the site's other MCP tools, and pages a person when the answer is not good enough. The design and its four paths are in [`design.md`](./design.md#mcp). Prior art: `tempoxyz/tempo.xyz2` serves `ask_tempo`, `sendoff`, `page_engineer`, a blocks MCP App, and SEP-3415 events from one Worker. Cloudflare AI Search splits `search` from `chatCompletions` the same way as paths 1 and 2.
 
-- [ ] **Spike D, the agent in the handler** (`spikes/server-agent`): run the nanocode agent with the corpus and page tools in workerd and in Node. Measure turn overhead, cold start, and the Worker size it adds. Decide where chat sessions live: a Durable Object per chat, or `Storage` between stateless turns.
 - [ ] `POST /mcp`: Streamable HTTP, `initialize`, tools, resources, and server instructions that say when to call each tool.
-- [ ] `search` and `read` over the sources, with no model.
-- [ ] `ask` and `page` on the server agent, with `chat` follow-ups and per-caller rate limits.
-- [ ] `ui://vocs/blocks`: the MCP App that renders blocks with the permalink renderer and islands.
+- [ ] Path 1: `search` and `read`. `search` uses `config.search` when set, and otherwise searches the sources snapshot in the handler.
+- [ ] Path 2: `ask`, with one retrieval and one call through `config.provider`, the site's instructions, cited files, `chat` follow-ups through `Storage`, and per-caller rate limits.
+- [ ] `save_page`: the caller's blocks, validated, rendered, and saved through the same code as `POST /pages`, with block errors returned to the caller.
+- [ ] `ui://vocs/blocks`: the MCP App that renders a saved page's blocks with the permalink renderer and islands.
 - [ ] `Source.mcp`: resources as files, tools proxied with the source's credentials, in the reader's page and in the MCP server.
-- [ ] `escalate`, the handler's `escalation` option, and `POST /escalations/:id`. A reply reaches the chat's agent.
+- [ ] `escalate`, the handler's `escalation` option, and `POST /escalations/:id`.
 - [ ] Events: `events/list` and `events/poll` for escalation replies, saved pages, and source updates.
 - [ ] `llms.txt`.
 - [ ] `playground/custom` lists a stand-in MCP source, and the Tempo config lists the Tempo API and gateway servers.
+- [ ] **Spike D, the site's agent for MCP callers** (`spikes/server-agent`). It gates paths 3 and 4:
+  - Run the nanocode agent with the corpus and page tools in workerd and in Node. Measure turn overhead, cold start, and the Worker size it adds.
+  - Drive its model through MCP sampling, and record which hosts support sampling: Amp, Claude Code, Claude, ChatGPT, VS Code, and Cursor.
+  - Load the agent module in an MCP App iframe in each host that supports MCP Apps, and record whether its CSP allows WebAssembly and requests to the site.
+  - Decide where chat sessions live: a Durable Object per chat, or `Storage` between stateless turns.
 
-Done when: an end-to-end test connects the MCP SDK client to `playground/custom`, searches and reads the sources, asks a question and a follow-up in one chat, generates a page whose permalink loads, renders its blocks in a test MCP Apps host, calls a proxied source tool, and gets an escalation reply as an event. Then Amp and Claude Code each install the URL and answer a Tempo question with the real gateway.
+Done when: an end-to-end test connects the MCP SDK client to `playground/custom`, searches and reads the sources, asks a question and a follow-up in one chat with the stand-in model, saves a page whose permalink loads, renders it in a test MCP Apps host, calls a proxied source tool, and gets an escalation reply as an event. Then Amp and Claude Code each install the URL and answer a Tempo question with the real gateway, once with their own agent and once through `ask`.
 
 ## Phase 4: Quick mode
 
@@ -223,8 +228,8 @@ Each budget is set in the phase that first measures it. CI fails when a budget i
 - **plugin-rsc is 0.x.** Only the quick-mode app depends on it. TanStack Start is the fallback.
 - **XState in the page bundle.** It is part of the `vocs/react` budget.
 - **Search cost.** AI Search bills per query from 2026-12-01. `vectorize` is the fallback.
-- **The agent in the Worker.** nanocode's WebAssembly is about 3.1 MB Brotli, and the Worker is already 2.5 MB gzip. MCP `ask` and `page` need the Workers Paid limit of 10 MB, or a second Worker behind a service binding. Spike D measures it.
-- **Inference paid for other agents.** `ask` and `page` spend the site's model budget on every caller. `search` and `read` cost nothing, and per-caller rate limits cap the rest.
+- **The agent in the Worker.** nanocode's WebAssembly is about 3.1 MB Brotli, and the Worker is already 2.5 MB gzip. Paths 3 and 4 on the server need the Workers Paid limit of 10 MB, or a second Worker behind a service binding. Spike D measures it. Paths 1 and 2 add no WebAssembly.
+- **Inference paid for other agents.** `ask` spends one model call of the site's budget per question. `search` and `read` cost only search queries, and per-caller rate limits cap the rest.
 
 ## Out of scope
 

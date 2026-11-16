@@ -305,18 +305,30 @@ The handler serves one MCP server at `POST <basePath>/mcp`. An agent installs th
 
 A Vocs site is half fixed and half generated. Authors pin some pages, such as the visual index and concept posts. Agents generate the rest on demand, as pages for readers and as tool results for other agents. The MCP server serves both.
 
-| Tool              | Behavior                                                                                                                                                                                       |
-| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `ask`             | Answers a question with the site's agent on the server: the same instructions, sources, and tools as the reader's page. Returns the answer, the files it read, and a `chat` ID for follow-ups. |
-| `page`            | Writes a page or docs for a prompt with the same agent. Returns the blocks as an MCP App, and a permalink when the site has storage.                                                           |
-| `search`, `read`  | The sources for an agent that reasons on its own: a search over every source, and one file by path. These tools run no model, so they cost the site nothing.                                   |
-| `<source>_<tool>` | The tools of each `Source.mcp`, proxied with the source's credentials. Tempo lists its API and gateway servers, so Routes, Earn, and cloud-agent `sendoff` tools sit beside the docs.          |
-| `escalate`        | Pages a person with the chat's transcript and the reason. The server instructions tell the agent to call it when the user is frustrated or the agent cannot finish.                            |
+Callers choose whose agent and whose model answer, as with Cloudflare AI Search's `search` and `chatCompletions`:
+
+| Path             | Agent                                  | Model    | Runs in                                         | Cost to the site |
+| ---------------- | -------------------------------------- | -------- | ----------------------------------------------- | ---------------- |
+| 1. Research      | The caller's                           | Caller's | The handler returns passages and files          | Search queries   |
+| 2. Answer        | The site's, one retrieval and one call | Site's   | The handler                                     | One model call   |
+| 3. Sampled agent | The site's nanocode agent              | Caller's | The handler, through MCP sampling               | None             |
+| 4. Hosted agent  | The site's nanocode agent              | Site's   | The handler, or an MCP App iframe on the device | One agent turn   |
+
+Paths 1 and 2 need no nanocode on the server, so the Worker stays within its size budget. Paths 3 and 4 wait for Spike D.
+
+| Tool              | Path | Behavior                                                                                                                                                                                              |
+| ----------------- | ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `search`          | 1    | Returns the passages that match a query, each with its file and URL. Uses `config.search` when set, such as AI Search, and otherwise searches the sources snapshot.                                   |
+| `read`            | 1    | Returns one source file by path.                                                                                                                                                                      |
+| `ask`             | 2    | Retrieves passages and answers in one call to the site's model, with the site's instructions. Returns the answer, the files it cited, and a `chat` ID. A follow-up in a chat sends the earlier turns. |
+| `save_page`       | 1, 2 | Validates blocks that the caller wrote, renders code and diagrams as `POST /pages` does, saves them, and returns the permalink. Rejected blocks return their errors for the caller to fix.            |
+| `<source>_<tool>` | All  | The tools of each `Source.mcp`, proxied with the source's credentials. Tempo lists its API and gateway servers, so Routes, Earn, and cloud-agent `sendoff` tools sit beside the docs.                 |
+| `escalate`        | All  | Pages a person with the chat's transcript and the reason. The server instructions tell the agent to call it when the user is frustrated or the answer is not good enough.                             |
 
 - **MCP Apps:** `ui://vocs/blocks` is one `text/html;profile=mcp-app` resource. It renders blocks with the permalink renderer, the theme, and the islands module. Hosts that support MCP Apps show pages, code tabs, diagrams, and registered demos inline. Other hosts get the answer as text and the permalink.
 - **Events:** `events/list` and `events/poll` follow draft SEP-3415. Built-in events are `vocs.escalation.reply`, `vocs.page.saved`, and `vocs.source.updated`. Each `Source.mcp` can add its own events, such as a cloud agent's status.
-- **Escalation:** the handler's `escalation` option takes `notify(escalation)`, such as a Slack webhook, and a `secret` for the reply route. A reply reaches the chat's agent as a message and the calling agent as an event, so a person can steer the work.
-- **Sessions:** `ask` and `page` keep each chat through `Storage`, so a follow-up continues the same conversation. Calls are rate limited per caller with the same binding as the model gateway.
+- **Escalation:** the handler's `escalation` option takes `notify(escalation)`, such as a Slack webhook, and a `secret` for the reply route. A reply reaches the calling agent as an event, and the next `ask` in that chat as a message, so a person can steer the work.
+- **Sessions:** `ask` keeps each chat's turns through `Storage`, so a follow-up continues the same conversation. `ask` and `save_page` are rate limited per caller with the same binding as the model gateway.
 - **Auth:** anonymous callers get the public sources. Phase 7's `reader` option applies to MCP callers too, through the MCP authorization flow.
 
 ## Styling
@@ -377,7 +389,7 @@ Each of these is an XState machine with named states for success, failure, and c
 | Question               | Decision                                                                                                |
 | ---------------------- | ------------------------------------------------------------------------------------------------------- |
 | Where the code lives   | The `next` branch of `wevm/vocs`, rewritten from a fresh slate                                          |
-| Where the agent runs   | In the reader's page, and in the handler for MCP `ask` and `page`                                       |
+| Where the agent runs   | In the reader's page. MCP callers use their own agent or `ask`, until Spike D                           |
 | Who pays for inference | The site, through its own gateway on Cloudflare AI Gateway                                              |
 | Hand-written pages     | Visual index and concept posts only                                                                     |
 | Source modes           | Every source supports `snapshot` and `runtime`                                                          |
