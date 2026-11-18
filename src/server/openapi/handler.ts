@@ -1,6 +1,6 @@
 import { getRequestListener } from '@hono/node-server'
 import { Hono } from 'hono'
-import { prefersMarkdown, representationVary } from '../../internal/markdown-negotiation.js'
+import * as Negotiation from '../../internal/negotiation.js'
 import type { Payload } from '../../internal/openapi/app.js'
 import { inferMount, join, knownRoutes } from '../../internal/openapi/app.js'
 import * as Markdown from '../../internal/openapi/markdown.js'
@@ -87,7 +87,7 @@ export function openApi(config: OpenApi.Config, options: openApi.Options = {}): 
     // bots and search engines stay on HTML). Generated routes (overview +
     // categories) win over overrides, and authored guide pages serve their own
     // Markdown.
-    const wantsMarkdown = prefersMarkdown({
+    const wantsMarkdown = Negotiation.prefers({
       pathname,
       userAgent: c.req.header('user-agent'),
       accept: c.req.header('accept'),
@@ -102,7 +102,8 @@ export function openApi(config: OpenApi.Config, options: openApi.Options = {}): 
       if (markdown)
         return c.text(markdown, 200, {
           'content-type': 'text/markdown; charset=utf-8',
-          vary: representationVary,
+          link: `<${origin}${basePathname.replace(/\/+$/, '') || '/'}>; rel="canonical"`,
+          vary: Negotiation.vary,
         })
       // Explicit `.md` for an unknown route falls through to the normal handling
       // below (renders the shell, or `next()` in fallback mode).
@@ -122,7 +123,7 @@ export function openApi(config: OpenApi.Config, options: openApi.Options = {}): 
       if (!isKnownRoute(relative, routes)) return next()
     }
 
-    c.header('Vary', representationVary)
+    c.header('Vary', Negotiation.vary)
 
     // Otherwise render the HTML shell (client-side router takes over).
     const manifest = Assets.manifest()

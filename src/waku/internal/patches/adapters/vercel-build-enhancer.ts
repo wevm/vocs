@@ -3,9 +3,9 @@ import path from 'node:path'
 import { gzipSync } from 'node:zlib'
 import {
   aiUserAgents,
-  representationVary,
+  vary as representationVary,
   terminalUserAgents,
-} from '../../../../internal/markdown-negotiation.js'
+} from '../../../../internal/negotiation.js'
 
 export type BuildOptions = {
   assetsDir: string

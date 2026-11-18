@@ -1,44 +1,55 @@
 /**
- * Hybrid search fusion — combine keyword (MiniSearch) and semantic (vector)
- * result lists into a single ranking.
+ * Search fusion: combine ranked result lists (keyword, semantic, or any other
+ * source) into a single ranking.
  *
  * Uses weighted **Reciprocal Rank Fusion (RRF)**. RRF ranks by position rather
- * than raw score, so it gracefully merges two lists whose score scales are
+ * than raw score, so it gracefully merges lists whose score scales are
  * incompatible (MiniSearch's unbounded BM25-ish scores vs. cosine similarity in
- * `[0, 1]`). Each list contributes `weight / (k + rank)` to an item's fused
- * score; items appearing in both lists accumulate both contributions and rise to
- * the top.
+ * `[0, 1]`). Each source contributes `weight / (k + rank)` to an item's fused
+ * score; items appearing in several sources accumulate every contribution and
+ * rise to the top.
  *
- * Pure and dependency-free so it runs in the browser and is unit-testable.
+ * Pure and dependency-free so it runs in the browser, on Workers, and is
+ * unit-testable.
  */
 
 /**
- * Fuse keyword and semantic result lists into one ranked list, de-duplicated by
- * `href`. When the same `href` appears in both lists, the **keyword** item is
- * kept (it carries match metadata for highlighting) but its position reflects
- * the combined score.
+ * Fuse ranked result lists into one ranked list, de-duplicated by `key`
+ * (`href` by default). When the same key appears in several sources, the item
+ * from the **earliest** source is kept (put the source with the richest items,
+ * such as keyword highlight metadata, first), but its position reflects the
+ * combined score.
+ *
+ * @example
+ * ```ts
+ * SearchFusion.fuse({
+ *   sources: [
+ *     { items: keyword, weight: 0.3 },
+ *     { items: semantic, weight: 0.7 },
+ *     { items: changelog, weight: 0.2 },
+ *   ],
+ *   limit: 20,
+ * })
+ * ```
  */
-export function fuse<T extends { href: string }>(options: fuse.Options<T>): T[] {
-  const { keyword, semantic, keywordWeight = 0.3, semanticWeight = 0.7, k = 60, limit } = options
+export function fuse<T>(options: fuse.Options<T>): T[] {
+  const { k = 60, limit, sources } = options
+  const key = options.key ?? ((item: T) => (item as { href: string }).href)
 
   const scores = new Map<string, number>()
   const items = new Map<string, T>()
 
-  // Keyword first so its richer object (highlight metadata) wins on ties.
-  keyword.forEach((item, rank) => {
-    const contribution = keywordWeight / (k + rank + 1)
-    scores.set(item.href, (scores.get(item.href) ?? 0) + contribution)
-    items.set(item.href, item)
-  })
-  semantic.forEach((item, rank) => {
-    const contribution = semanticWeight / (k + rank + 1)
-    scores.set(item.href, (scores.get(item.href) ?? 0) + contribution)
-    if (!items.has(item.href)) items.set(item.href, item)
-  })
+  for (const { items: list, weight = 1 } of sources)
+    list.forEach((item, rank) => {
+      const id = key(item)
+      scores.set(id, (scores.get(id) ?? 0) + weight / (k + rank + 1))
+      if (!items.has(id)) items.set(id, item)
+    })
 
-  const ranked = [...items.values()].sort(
-    (a, b) => (scores.get(b.href) ?? 0) - (scores.get(a.href) ?? 0),
-  )
+  // `sort` is stable, so equal scores keep first-seen order.
+  const ranked = [...items.entries()]
+    .sort(([a], [b]) => (scores.get(b) ?? 0) - (scores.get(a) ?? 0))
+    .map(([, item]) => item)
   return typeof limit === 'number' ? ranked.slice(0, limit) : ranked
 }
 
@@ -46,16 +57,25 @@ export declare namespace fuse {
   type Options<T> = {
     /** RRF dampening constant; larger flattens rank influence. @default 60 */
     k?: number | undefined
-    /** Keyword (MiniSearch) results, already ranked best-first. */
-    keyword: readonly T[]
-    /** Weight applied to the keyword list. @default 0.3 */
-    keywordWeight?: number | undefined
     /** Cap on the number of fused results returned. */
     limit?: number | undefined
-    /** Semantic (vector) results, already ranked best-first. */
-    semantic: readonly T[]
-    /** Weight applied to the semantic list. @default 0.7 */
-    semanticWeight?: number | undefined
+    /** Result lists, each already ranked best-first, with its weight. */
+    sources: readonly Source<T>[]
+  } & (T extends { href: string }
+    ? {
+        /** Identity used to de-duplicate items across sources. @default item.href */
+        key?: ((item: T) => string) | undefined
+      }
+    : {
+        /** Identity used to de-duplicate items across sources. */
+        key: (item: T) => string
+      })
+
+  type Source<T> = {
+    /** Results, already ranked best-first. */
+    items: readonly T[]
+    /** Weight applied to this source. @default 1 */
+    weight?: number | undefined
   }
 }
 

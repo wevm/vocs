@@ -21,6 +21,7 @@ import { type SchemaModel, schemaModelSource, schemaModels } from './openapi/sch
 import * as Retriever from './retriever.js'
 import { SearchDocuments, SearchIndex } from './search.js'
 import * as ShikiTransformers from './shiki-transformers.js'
+import * as Sitemap from './sitemap.js'
 import * as TaskRunner from './task-runner.js'
 import * as InlineCache from './twoslash/inline-cache.js'
 
@@ -453,13 +454,7 @@ export function sitemap(config: Config.Config): PluginOption {
   }
 
   function buildRobotsTxt(siteUrl: string): string {
-    return [
-      'User-agent: *',
-      'Allow: /',
-      '',
-      `Sitemap: ${siteUrl.replace(/\/$/, '')}/sitemap.xml`,
-      '',
-    ].join('\n')
+    return Sitemap.robots({ sitemaps: [`${siteUrl.replace(/\/$/, '')}/sitemap.xml`] })
   }
 
   async function hasPublicFile(fileName: string): Promise<boolean> {
@@ -516,27 +511,7 @@ export function sitemap(config: Config.Config): PluginOption {
 
     urls.sort((a, b) => a.loc.localeCompare(b.loc))
 
-    const indent = '  '
-    const entries = urls
-      .map(({ loc, lastmod }) =>
-        [
-          `${indent}<url>`,
-          `${indent}${indent}<loc>${loc}</loc>`,
-          lastmod ? `${indent}${indent}<lastmod>${lastmod}</lastmod>` : undefined,
-          `${indent}</url>`,
-        ]
-          .filter(Boolean)
-          .join('\n'),
-      )
-      .join('\n')
-
-    return [
-      '<?xml version="1.0" encoding="UTF-8"?>',
-      '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
-      entries,
-      '</urlset>',
-      '',
-    ].join('\n')
+    return Sitemap.urlset({ urls })
   }
 
   return {

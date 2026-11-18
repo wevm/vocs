@@ -1,22 +1,16 @@
 import { createHash } from 'node:crypto'
-import type { Root, RootContent } from 'mdast'
+import type { Root } from 'mdast'
 import remarkMdx from 'remark-mdx'
 import remarkParse from 'remark-parse'
 import { unified } from 'unified'
 import { visit } from 'unist-util-visit'
+import type * as MarkdownRender from './markdown-render.js'
 
-/** A build-time representation of a component. Props contain static MDX values only. */
-export type MarkdownRenderer<Props = Record<string, unknown>> = (
-  props: Props,
-  context: {
-    /** Canonical route of the containing page. */
-    pageUrl: string
-    /** True when the component occurs inside a paragraph; return phrasing nodes. */
-    inline: boolean
-    /** Already transformed children; return these to unwrap a layout component. */
-    renderChildren(): RootContent[]
-  },
-) => RootContent[] | Promise<RootContent[]>
+/**
+ * A build-time representation of a component. Props contain static MDX values only. Return
+ * Markdown text or nodes; `element.renderChildren()` returns the already transformed children.
+ */
+export type MarkdownRenderer<Props = Record<string, unknown>> = MarkdownRender.Renderer<Props>
 
 /** Override a component by its resolved module and exported name, never its local MDX alias. */
 export type MarkdownComponentOverride = {

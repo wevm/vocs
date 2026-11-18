@@ -194,10 +194,11 @@ export function Search(props: Search.Props) {
     // results follow below. Fusion is the default.
     if (!semanticConfig?.hybrid?.enabled) return append(search.results, semanticFresh, 20)
     return fuse({
-      keyword: search.results,
-      semantic: semanticFresh,
-      keywordWeight: semanticConfig.hybrid.keywordWeight,
-      semanticWeight: semanticConfig.hybrid.semanticWeight,
+      sources: [
+        // Keyword first so its richer object (highlight metadata) wins on ties.
+        { items: search.results, weight: semanticConfig.hybrid.keywordWeight ?? 0.3 },
+        { items: semanticFresh, weight: semanticConfig.hybrid.semanticWeight ?? 0.7 },
+      ],
       limit: 20,
     })
   }, [

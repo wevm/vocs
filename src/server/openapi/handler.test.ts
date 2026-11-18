@@ -192,6 +192,7 @@ describe('Handler.openApi', () => {
       const response = await ref.fetch(new Request('http://localhost/api/pets.md'))
       expect(response.status).toBe(200)
       expect(response.headers.get('content-type')).toContain('text/markdown')
+      expect(response.headers.get('link')).toBe('<http://localhost/api/pets>; rel="canonical"')
 
       const md = await response.text()
       expect(md).toContain('## List pets')
@@ -262,7 +263,7 @@ describe('Handler.openApi', () => {
         ),
         await ref.fetch(
           new Request('http://localhost/api', {
-            headers: { accept: 'text/html', 'user-agent': 'curl/8.7.1' },
+            headers: { accept: '*/*', 'user-agent': 'curl/8.7.1' },
           }),
         ),
         await ref.fetch(

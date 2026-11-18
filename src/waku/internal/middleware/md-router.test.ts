@@ -175,7 +175,7 @@ describe('middleware', () => {
         'user-agent': 'Mozilla/5.0 AppleWebKit/537.36 Chrome/126 Safari/537.36',
       }),
       await request('http://localhost/docs', {
-        accept: 'text/html',
+        accept: '*/*',
         'user-agent': 'curl/8.7.1',
       }),
       await request('http://localhost/docs', {
@@ -318,6 +318,54 @@ describe('middleware', () => {
     expect(response.headers.get('content-type')).toBe('text/markdown; charset=utf-8')
     expect(await response.text()).toBe('# Hello from disk')
     expect(vi.mocked(readFile).mock.calls[0]?.[0]).toMatch(/\/public\/assets\/md\/docs\.md$/)
+  })
+
+  it('serves llms.txt to AI agents on `/`', async () => {
+    process.env['NODE_ENV'] = 'production'
+
+    const { readFile } = await import('node:fs/promises')
+    vi.mocked(readFile).mockResolvedValue('# llms.txt')
+
+    const response = await request('http://localhost/', {
+      'user-agent': 'Mozilla/5.0 (compatible; ClaudeBot/1.0; +claudebot@anthropic.com)',
+    })
+
+    expect(await response.text()).toBe('# llms.txt')
+    expect(vi.mocked(readFile).mock.calls[0]?.[0]).toMatch(/\/public\/llms\.txt$/)
+  })
+
+  it.each([
+    ['/index.md', /\/public\/assets\/md\/index\.md$/],
+    ['/guide/index.md', /\/public\/assets\/md\/guide\.md$/],
+    ['/guide/', /\/public\/assets\/md\/guide\.md$/],
+  ])('reads the twin the build writes for %s', async (route, file) => {
+    process.env['NODE_ENV'] = 'production'
+
+    const { readFile, stat } = await import('node:fs/promises')
+    vi.mocked(stat).mockRejectedValue(new Error('ENOENT'))
+    vi.mocked(readFile).mockResolvedValue('# Guide')
+
+    const response = await request(`http://localhost${route}`, { accept: 'text/markdown' })
+
+    expect(response.headers.get('content-type')).toBe('text/markdown; charset=utf-8')
+    expect(response.headers.get('link')).toMatch(
+      /^<http:\/\/localhost\/(guide)?>; rel="canonical"$/,
+    )
+    expect(vi.mocked(readFile).mock.calls[0]?.[0]).toMatch(file)
+  })
+
+  it('returns 404 Markdown for an unknown `.md` path', async () => {
+    process.env['NODE_ENV'] = 'production'
+
+    const { readFile, stat } = await import('node:fs/promises')
+    vi.mocked(stat).mockRejectedValue(new Error('ENOENT'))
+    vi.mocked(readFile).mockRejectedValue(new Error('ENOENT'))
+    globalThis.fetch = vi.fn().mockResolvedValue(new Response('Not Found', { status: 404 }))
+
+    const response = await request('http://localhost/missing.md')
+
+    expect(response.status).toBe(404)
+    expect(response.headers.get('content-type')).toBe('text/markdown; charset=utf-8')
   })
 
   it('serves markdown for clean routes whose parent segments contain dots', async () => {

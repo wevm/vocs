@@ -4,6 +4,7 @@ import type { Meta, MetaFlat } from 'unhead/types'
 import { unpackMeta } from 'unhead/utils'
 import { useRouter } from 'waku'
 import type * as Config from '../internal/config.js'
+import * as Negotiation from '../internal/negotiation.js'
 import * as JsonLd from './json-ld.js'
 import * as MdxPageContext from './MdxPageContext.js'
 import { useConfig } from './useConfig.js'
@@ -35,6 +36,8 @@ export function Head(props: Head.Props) {
   const fullPathname = basePath && basePath !== '/' ? `${basePath}${pathname}` : pathname
   const canonicalDefault = baseUrl ? `${baseUrl}${fullPathname}` : undefined
   const canonicalSource = typeof head.canonical === 'string' ? head.canonical : canonicalDefault
+  // MDX and OpenAPI pages (the ones with frontmatter) publish a Markdown twin.
+  const markdown = frontmatter ? `${baseUrl ?? ''}${Negotiation.path(fullPathname)}` : undefined
 
   const fullTitle = (() => {
     if (head.title === false) return undefined
@@ -129,6 +132,9 @@ export function Head(props: Head.Props) {
 
           {/* Canonical */}
           {canonical && <link rel="canonical" href={canonical} />}
+
+          {/* Markdown twin, for agents */}
+          {markdown && <link rel="alternate" type="text/markdown" href={markdown} />}
 
           {/* Icons */}
           {icons && iconUrl && typeof iconUrl === 'string' && (
