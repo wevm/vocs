@@ -463,7 +463,9 @@ import { Invalid } from './Invalid'
           title: 'My Docs',
           ...plugins,
         }),
-      ).rejects.toThrow('Invalid.toMarkdown must return a Markdown node or array of nodes.')
+      ).rejects.toThrow(
+        '<Invalid>: a Markdown renderer must return a string, a Markdown node, or an array of nodes.',
+      )
     } finally {
       fs.rmSync(rootDir, { force: true, recursive: true })
     }

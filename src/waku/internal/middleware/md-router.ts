@@ -1,11 +1,5 @@
-import type { MiddlewareHandler } from 'hono'
-import {
-  aiUserAgents,
-  ogBotUserAgents,
-  representationVary,
-  searchEngineUserAgents,
-  terminalUserAgents,
-} from '../../../internal/markdown-negotiation.js'
+import type { Context, MiddlewareHandler } from 'hono'
+import * as Negotiation from '../../../internal/negotiation.js'
 
 const isDev = process.env['NODE_ENV'] !== 'production'
 
@@ -62,70 +56,28 @@ async function hasPublicFile(pathname: string) {
 }
 
 export function middleware(): MiddlewareHandler {
-  return async (context, next) => {
+  const read = (context: Context, assetPath: string) => {
     const url = new URL(context.req.url)
+    const cookie = context.req.header('cookie')
+    return isDev
+      ? fetchMarkdownFromServer(url, assetPath, cookie)
+      : fetchMarkdown(url, assetPath, cookie)
+  }
 
+  const negotiation = Negotiation.middleware({
     // Generated markdown twins are static output; routing them back through
     // twin resolution would trigger a recursive self-fetch.
-    if (url.pathname.startsWith('/assets/md/')) return next()
+    exclude: ['/assets/md/'],
+    index: (context) => read(context, '/llms.txt'),
+    resolve: (context, page) => read(context, `/assets/md${Negotiation.path(page)}`),
+  })
 
-    const isMarkdownRequest = url.pathname.endsWith('.md')
-
+  return async (context, next) => {
+    const { pathname } = new URL(context.req.url)
     // A file physically present in `public/` wins over markdown-twin resolution,
     // so static `.md` files (skill manifests, plain markdown) are served as-is.
-    if (isMarkdownRequest && (await hasPublicFile(url.pathname))) return next()
-
-    // Static assets (`.json`, `.svg`, `.png`, ...) have no markdown twin. Skip
-    // twin resolution so a disk miss never falls back to a slow self-fetch.
-    const filename = url.pathname.split('/').pop() ?? ''
-    if (!isMarkdownRequest && filename.includes('.')) return next()
-
-    const nextWithVary = async () => {
-      await next()
-      context.header('Vary', representationVary, { append: true })
-    }
-
-    const userAgent = context.req.header('user-agent') ?? ''
-    const isOgBot = ogBotUserAgents.some((agent) => userAgent.includes(agent))
-    if (isOgBot) return nextWithVary()
-
-    const isAiAgent = aiUserAgents.some((agent) => userAgent.includes(agent))
-    const isSearchEngine = searchEngineUserAgents.some((agent) => userAgent.includes(agent))
-    const isTerminal = terminalUserAgents.some((agent) => userAgent.includes(agent))
-    const acceptHeader = context.req.header('accept') ?? ''
-    const acceptsMarkdown = acceptHeader.includes('text/markdown')
-
-    if (url.pathname === '/' && (acceptsMarkdown || isTerminal) && !isSearchEngine) {
-      const read = isDev ? fetchMarkdownFromServer : fetchMarkdown
-      const text = await read(url, '/llms.txt', context.req.header('cookie'))
-      if (!text) return nextWithVary()
-
-      context.res = new Response(text, {
-        headers: {
-          'Content-Type': 'text/markdown; charset=utf-8',
-          Vary: representationVary,
-        },
-      })
-      return
-    }
-
-    if (!isMarkdownRequest && (isSearchEngine || (!isAiAgent && !isTerminal && !acceptsMarkdown)))
-      return nextWithVary()
-
-    const assetPath = url.pathname.endsWith('.md')
-      ? `/assets/md${url.pathname}`
-      : `/assets/md${url.pathname}.md`
-    const read = isDev ? fetchMarkdownFromServer : fetchMarkdown
-    const text = await read(url, assetPath, context.req.header('cookie'))
-    if (!text) return nextWithVary()
-
-    context.res = new Response(text, {
-      headers: {
-        'Content-Type': 'text/markdown; charset=utf-8',
-        Vary: representationVary,
-      },
-    })
-    return
+    if (pathname.endsWith('.md') && (await hasPublicFile(pathname))) return next()
+    return negotiation(context, next)
   }
 }
 

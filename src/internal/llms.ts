@@ -8,6 +8,7 @@ import type { PluggableList } from 'unified'
 import { unified } from 'unified'
 import { visit } from 'unist-util-visit'
 import type * as Config from './config.js'
+import * as LlmsFormat from './llms-format.js'
 import * as MarkdownComponents from './markdown-components.js'
 import * as MarkdownImports from './markdown-imports.js'
 import * as MarkdownOutput from './markdown-output.js'
@@ -131,17 +132,7 @@ export async function buildLlmsContent(options: buildLlmsContent.Options) {
     }),
   ).then((data) => sortResults(data, sidebar))
 
-  const llmsTxtContent: string[] = [`# ${title}`, '']
-  if (description) llmsTxtContent.push(description, '')
-
-  const nav = []
-  for (const { title, description, path } of results)
-    nav.push(
-      `- [${escapeLabel(title)}](${path === '/' ? '/index' : path.replace(/\/$/, '')}.md)${description ? `: ${description.replace(/\s+/g, ' ').trim()}` : ''}`,
-    )
-
-  const sitemap = ['<!--', 'Sitemap:', ...nav, '-->', ''].join('\n')
-  let short = [...llmsTxtContent, ...nav].join('\n')
+  let short = LlmsFormat.index({ title, description, pages: results })
 
   let pageResults = pagePrelude
     ? results.map((result) => ({
@@ -208,13 +199,15 @@ export async function buildLlmsContent(options: buildLlmsContent.Options) {
     ...MarkdownOutput.resolveValidation({ config: options.validation }),
     diagnostics,
   }
-  const full = [
+  const full = LlmsFormat.full({
+    title,
+    description,
     // The transformed index already contains navigation. Appending the original
     // sitemap would reintroduce URLs that the transform deliberately rewrote.
-    ...(options.transform ? [short, ''] : [...llmsTxtContent, sitemap]),
-    ...pageResults.map((page) => `<!-- Source: ${page.path} -->\n\n${page.content}`),
-  ]
-  return { full: full.join('\n'), results: pageResults, short, report }
+    index: options.transform ? short : undefined,
+    pages: pageResults,
+  })
+  return { full, results: pageResults, short, report }
 }
 
 export declare namespace buildLlmsContent {
@@ -367,11 +360,4 @@ export async function getPagesFromDir(pagesDir: string): Promise<buildLlmsConten
           .replace(/\/$/, '') || '/',
       content: { path: file },
     }))
-}
-
-function escapeLabel(value: string) {
-  return value
-    .replace(/\s+/g, ' ')
-    .replace(/[\\[\]]/g, '\\$&')
-    .trim()
 }

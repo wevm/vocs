@@ -253,6 +253,29 @@ describe('Head', () => {
     expect(html).toContain('name="twitter:title" content="Intro"')
   })
 
+  test('links the Markdown twin of MDX pages only', () => {
+    mocks.config = createConfig()
+
+    mocks.path = '/guide/'
+    expect(renderHead({ title: 'Guide' })).toContain(
+      '<link rel="alternate" type="text/markdown" href="https://example.com/guide.md"/>',
+    )
+    mocks.path = '/'
+    expect(renderHead({ title: 'Home' })).toContain(
+      'type="text/markdown" href="https://example.com/index.md"',
+    )
+    expect(renderHead(undefined)).not.toContain('text/markdown')
+
+    mocks.config = createConfig({ basePath: '/docs' })
+    expect(renderHead({ title: 'Home' })).toContain(
+      'type="text/markdown" href="https://example.com/docs/index.md"',
+    )
+    mocks.path = '/guide'
+    expect(renderHead({ title: 'Guide' })).toContain(
+      'type="text/markdown" href="https://example.com/docs/guide.md"',
+    )
+  })
+
   test('disables all generated tags with `head: false`', () => {
     mocks.config = createConfig({ head: false, iconUrl: '/favicon.svg' })
 

@@ -7,7 +7,7 @@ describe('fuse', () => {
   it('de-duplicates by href and keeps the keyword object', () => {
     const keyword: Doc[] = [{ href: '/a', source: 'kw' }]
     const semantic: Doc[] = [{ href: '/a', source: 'sem' }]
-    const fused = fuse({ keyword, semantic })
+    const fused = fuse({ sources: [{ items: keyword }, { items: semantic }] })
     expect(fused).toHaveLength(1)
     expect(fused[0]?.source).toBe('kw')
   })
@@ -15,7 +15,7 @@ describe('fuse', () => {
   it('ranks items appearing in both lists above single-list items', () => {
     const keyword: Doc[] = [{ href: '/only-kw' }, { href: '/both' }]
     const semantic: Doc[] = [{ href: '/only-sem' }, { href: '/both' }]
-    const fused = fuse({ keyword, semantic })
+    const fused = fuse({ sources: [{ items: keyword }, { items: semantic }] })
     expect(fused[0]?.href).toBe('/both')
     expect(fused.map((d) => d.href).sort()).toEqual(['/both', '/only-kw', '/only-sem'])
   })
@@ -25,26 +25,55 @@ describe('fuse', () => {
     // semantic weight, the semantic-only item should win.
     const keyword: Doc[] = [{ href: '/kw' }]
     const semantic: Doc[] = [{ href: '/sem' }]
-    const semanticFirst = fuse({ keyword, semantic, keywordWeight: 0.1, semanticWeight: 0.9 })
+    const semanticFirst = fuse({
+      sources: [
+        { items: keyword, weight: 0.1 },
+        { items: semantic, weight: 0.9 },
+      ],
+    })
     expect(semanticFirst[0]?.href).toBe('/sem')
-    const keywordFirst = fuse({ keyword, semantic, keywordWeight: 0.9, semanticWeight: 0.1 })
+    const keywordFirst = fuse({
+      sources: [
+        { items: keyword, weight: 0.9 },
+        { items: semantic, weight: 0.1 },
+      ],
+    })
     expect(keywordFirst[0]?.href).toBe('/kw')
   })
 
   it('respects rank order within a single list', () => {
     const keyword: Doc[] = [{ href: '/1' }, { href: '/2' }, { href: '/3' }]
-    const fused = fuse({ keyword, semantic: [] })
+    const fused = fuse({ sources: [{ items: keyword }] })
     expect(fused.map((d) => d.href)).toEqual(['/1', '/2', '/3'])
   })
 
   it('applies the limit', () => {
     const keyword: Doc[] = Array.from({ length: 10 }, (_, i) => ({ href: `/${i}` }))
-    const fused = fuse({ keyword, semantic: [], limit: 3 })
+    const fused = fuse({ sources: [{ items: keyword }], limit: 3 })
     expect(fused).toHaveLength(3)
   })
 
+  it('fuses any number of sources, with a custom key', () => {
+    const a = [{ id: 'x' }, { id: 'y' }]
+    const b = [{ id: 'y' }]
+    const c = [{ id: 'z' }, { id: 'y' }]
+    // `y` is ranked lower everywhere, but appears in all three sources.
+    expect(
+      fuse({ sources: [{ items: a }, { items: b }, { items: c }], key: (item) => item.id }).map(
+        (item) => item.id,
+      ),
+    ).toEqual(['y', 'x', 'z'])
+    // A heavy third source ranks its top result above the first source's.
+    expect(
+      fuse({
+        sources: [{ items: a }, { items: [] }, { items: c, weight: 3 }],
+        key: (item) => item.id,
+      }).map((item) => item.id),
+    ).toEqual(['y', 'z', 'x'])
+  })
+
   it('handles empty inputs', () => {
-    expect(fuse({ keyword: [], semantic: [] })).toEqual([])
+    expect(fuse<Doc>({ sources: [{ items: [] }, { items: [] }] })).toEqual([])
   })
 })
 
