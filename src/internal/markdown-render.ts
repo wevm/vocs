@@ -409,8 +409,15 @@ export async function render<context = undefined>(
       const from = (child.position?.start.offset ?? 0) - start
       const to = (child.position?.end.offset ?? 0) - start
       let value = emit(child, childInline || child.type === 'mdxJsxTextElement')
-      if (node.type === 'tableCell') value = value.trim().replace(/\n/g, '<br>')
-      else if (value.includes('\n')) value = indent(value, start + from)
+      // A cell is one line, and an unescaped pipe would split it.
+      if (node.type === 'tableCell')
+        value = value
+          .trim()
+          .replace(/\n/g, '<br>')
+          .replace(/(?<!\\)\|/g, '\\|')
+      // The source prefix before a rendered node is its whole container prefix, so only the
+      // innermost splice indents; an ancestor splices text that already carries it.
+      else if (replaced.has(child) && value.includes('\n')) value = indent(value, start + from)
       text = text.slice(0, from) + value + text.slice(to)
     }
     return text

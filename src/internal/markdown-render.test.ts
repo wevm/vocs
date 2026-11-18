@@ -70,6 +70,8 @@ Some *emphasis*   with   spaces, a [link][ref], and a table:
 - Item
 
   <Steps />
+
+> - <Steps />
 `
     const markdown = await MarkdownRender.render(source, {
       renderers: { Steps: () => '1. One\n2. Two' },
@@ -82,8 +84,19 @@ Some *emphasis*   with   spaces, a [link][ref], and a table:
 
         1. One
         2. Two
+
+      > - 1. One
+      >   2. Two
       "
     `)
+  })
+
+  test('escapes pipes that a renderer puts in a table cell', async () => {
+    const markdown = await MarkdownRender.render(
+      '| a | b |\n|---|---|\n| <C /> | *<C />* \\| x |\n',
+      { renderers: { C: () => ({ type: 'inlineCode', value: 'A | B' }) } },
+    )
+    expect(markdown).toBe('| a | b |\n|---|---|\n| `A \\| B` | *`A \\| B`* \\| x |\n')
   })
 
   test('lowers intrinsic HTML elements', async () => {
