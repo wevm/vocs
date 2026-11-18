@@ -265,6 +265,15 @@ describe('Head', () => {
       'type="text/markdown" href="https://example.com/index.md"',
     )
     expect(renderHead(undefined)).not.toContain('text/markdown')
+
+    mocks.config = createConfig({ basePath: '/docs' })
+    expect(renderHead({ title: 'Home' })).toContain(
+      'type="text/markdown" href="https://example.com/docs/index.md"',
+    )
+    mocks.path = '/guide'
+    expect(renderHead({ title: 'Guide' })).toContain(
+      'type="text/markdown" href="https://example.com/docs/guide.md"',
+    )
   })
 
   test('disables all generated tags with `head: false`', () => {

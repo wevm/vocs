@@ -37,7 +37,10 @@ export function Head(props: Head.Props) {
   const canonicalDefault = baseUrl ? `${baseUrl}${fullPathname}` : undefined
   const canonicalSource = typeof head.canonical === 'string' ? head.canonical : canonicalDefault
   // MDX and OpenAPI pages (the ones with frontmatter) publish a Markdown twin.
-  const markdown = frontmatter ? `${baseUrl ?? ''}${Negotiation.path(fullPathname)}` : undefined
+  // Resolve the page's Markdown before the base path, so `/` maps to `/index.md` under it.
+  const markdown = frontmatter
+    ? `${baseUrl ?? ''}${fullPathname.slice(0, fullPathname.length - pathname.length)}${Negotiation.path(pathname)}`
+    : undefined
 
   const fullTitle = (() => {
     if (head.title === false) return undefined
