@@ -81,7 +81,7 @@ export type Component = {
  *
  * @example
  * ```ts
- * import { MarkdownRender } from 'vocs/server/markdown-render'
+ * import { MarkdownRender } from 'vocs/server'
  *
  * const markdown = await MarkdownRender.render(source, {
  *   context: { posts },
