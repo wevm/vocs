@@ -23,7 +23,10 @@ export function rss(options: rss.Options): string {
       '  <item>',
       `    <title>${Xml.encode(item.title)}</title>`,
       `    <link>${Xml.encode(item.url)}</link>`,
-      `    <guid>${Xml.encode(item.id ?? item.url)}</guid>`,
+      // A custom id is opaque, not a link.
+      item.id
+        ? `    <guid isPermaLink="false">${Xml.encode(item.id)}</guid>`
+        : `    <guid>${Xml.encode(item.url)}</guid>`,
       item.description
         ? `    <description>${Xml.encode(item.description)}</description>`
         : undefined,
@@ -91,7 +94,7 @@ export function atom(options: atom.Options): string {
     `  <id>${Xml.encode(options.id ?? options.url)}</id>`,
     options.self ? `  <link href="${Xml.encode(options.self)}" rel="self"/>` : undefined,
     `  <link href="${Xml.encode(options.url)}"/>`,
-    options.author ? `  <author><name>${Xml.encode(options.author)}</name></author>` : undefined,
+    `  <author><name>${Xml.encode(options.author)}</name></author>`,
     `  <updated>${updated.toISOString()}</updated>`,
     ...entries,
     '</feed>',
@@ -103,7 +106,8 @@ export function atom(options: atom.Options): string {
 
 export declare namespace atom {
   type Options = {
-    author?: string | undefined
+    /** The feed's author, which Atom requires (RFC 4287 §4.1.1). */
+    author: string
     /** Feed identity. @default url */
     id?: string | undefined
     items: readonly Item[]
@@ -121,7 +125,7 @@ export type Item = {
   /** Publish date: a `Date` or a date string. */
   date: string | Date
   description?: string | undefined
-  /** Stable identity. @default url */
+  /** Stable identity that is not the item's URL, such as a UUID. @default url */
   id?: string | undefined
   title: string
   /** Absolute URL of the item. */

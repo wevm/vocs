@@ -1,3 +1,4 @@
+import type * as MdAst from 'mdast'
 import { describe, expect, test } from 'vitest'
 import * as MarkdownRender from './markdown-render.js'
 
@@ -89,6 +90,29 @@ Some *emphasis*   with   spaces, a [link][ref], and a table:
       >   2. Two
       "
     `)
+  })
+
+  test('separates rendered blocks from adjacent blocks with a blank line', async () => {
+    const renderers = {
+      First: (): MdAst.Paragraph => ({
+        type: 'paragraph',
+        children: [{ type: 'text', value: 'First' }],
+      }),
+      Second: () => '**Second**',
+    }
+    expect(await MarkdownRender.render('<First />\n<Second />\n', { renderers })).toBe(
+      'First\n\n**Second**\n',
+    )
+    expect(await MarkdownRender.render('> <First />\n> <Second />\n', { renderers })).toBe(
+      '> First\n>\n> **Second**\n',
+    )
+    expect(await MarkdownRender.render('- x\n  <First />\n', { renderers })).toBe(
+      '- x\n\n  First\n',
+    )
+  })
+
+  test('keeps hard breaks in inline replacements', async () => {
+    expect(await MarkdownRender.render('before<br />after\n')).toBe('before\\\nafter\n')
   })
 
   test('escapes pipes that a renderer puts in a table cell', async () => {

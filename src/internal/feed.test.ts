@@ -8,7 +8,12 @@ const items = [
     description: 'What changed.',
     date: '2026-03-01T00:00:00Z',
   },
-  { title: 'Hello', url: 'https://example.com/blog/hello', date: new Date('2026-01-02T00:00:00Z') },
+  {
+    title: 'Hello',
+    url: 'https://example.com/blog/hello',
+    id: 'post-123',
+    date: new Date('2026-01-02T00:00:00Z'),
+  },
 ]
 
 test('rss', () => {
@@ -37,7 +42,7 @@ test('rss', () => {
       <item>
         <title>Hello</title>
         <link>https://example.com/blog/hello</link>
-        <guid>https://example.com/blog/hello</guid>
+        <guid isPermaLink="false">post-123</guid>
         <pubDate>Fri, 02 Jan 2026 00:00:00 GMT</pubDate>
       </item>
     </channel>
@@ -56,7 +61,8 @@ test('atom updates at the newest item', () => {
   expect(atom).toContain('<updated>2026-03-01T00:00:00.000Z</updated>\n  <entry>')
   expect(atom).toContain('<title>Fees &amp; &lt;limits&gt;</title>')
   expect(atom).toContain('<link href="https://example.com/blog/hello"/>')
-  expect(Feed.atom({ title: 'Empty', url: 'https://example.com/', items: [] })).toContain(
-    '<updated>1970-01-01T00:00:00.000Z</updated>',
-  )
+  expect(atom).toContain('<author><name>Example</name></author>')
+  expect(
+    Feed.atom({ title: 'Empty', url: 'https://example.com/', author: 'Example', items: [] }),
+  ).toContain('<updated>1970-01-01T00:00:00.000Z</updated>')
 })

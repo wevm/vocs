@@ -404,7 +404,26 @@ export async function render<context = undefined>(
     let text = source.slice(start, end)
     if (!changed.has(node)) return text
     const childInline = phrasingParents.has(node.type)
-    for (const child of [...(originals.get(node) ?? [])].reverse()) {
+    const children = originals.get(node) ?? []
+    for (const [index, child] of [...children.entries()].reverse()) {
+      const next = children[index + 1]
+      // A rendered block needs a blank line before its next sibling block. Splices so far are at or
+      // after `next`, so the gap still has its source offsets.
+      if (!childInline && next && (replaced.has(child) || replaced.has(next))) {
+        const gapFrom = (child.position?.end.offset ?? 0) - start
+        const gapTo = (next.position?.start.offset ?? 0) - start
+        const gap = text.slice(gapFrom, gapTo)
+        if (gap.includes('\n') && !/\n[ \t>]*\n/.test(gap))
+          text =
+            text.slice(0, gapFrom) +
+            gap.replace(
+              '\n',
+              `\n${prefix(start + gapTo)
+                .replace(/[^>\s]/g, ' ')
+                .trimEnd()}\n`,
+            ) +
+            text.slice(gapTo)
+      }
       if (!replaced.has(child) && !changed.has(child)) continue
       const from = (child.position?.start.offset ?? 0) - start
       const to = (child.position?.end.offset ?? 0) - start
@@ -423,11 +442,16 @@ export async function render<context = undefined>(
     return text
   }
 
+  // The source from the start of the line to `offset`, such as a container's `> - `.
+  function prefix(offset: number) {
+    return source.slice(source.lastIndexOf('\n', offset - 1) + 1, offset)
+  }
+
   // Blocks in containers (`>`, list items, indented JSX) continue on their container's prefix.
   function indent(value: string, offset: number) {
-    const prefix = source.slice(source.lastIndexOf('\n', offset - 1) + 1, offset)
-    if (!/^[\s>*+\-\d.)]*$/.test(prefix)) return value
-    const continuation = prefix.replace(/[^>\s]/g, ' ')
+    const line = prefix(offset)
+    if (!/^[\s>*+\-\d.)]*$/.test(line)) return value
+    const continuation = line.replace(/[^>\s]/g, ' ')
     return value
       .replace(/\n$/, '')
       .split('\n')
@@ -440,12 +464,18 @@ export async function render<context = undefined>(
   // node that renders to nothing, such as an import.
   let output = ''
   let end = 0
+  let previous: MdAst.Node | undefined
   for (const node of tree.children) {
     const text = emit(node, false)
-    const gap = source.slice(end, node.position?.start.offset)
+    let gap = source.slice(end, node.position?.start.offset)
     end = node.position?.end.offset ?? end
     if (!text && replaced.has(node)) continue
-    output += (output ? gap : gap.replace(/^\n+/, '')) + text
+    if (!output) gap = gap.replace(/^\n+/, '')
+    // A rendered block needs a blank line between it and its neighbors.
+    else if ((replaced.has(node) || (previous && replaced.has(previous))) && !/\n.*\n/s.test(gap))
+      gap = '\n\n'
+    output += gap + text
+    previous = node
   }
   return output + source.slice(end)
 }
@@ -525,10 +555,14 @@ const extensions = [mdxToMarkdown(), gfmToMarkdown()]
 /** Serializes nodes as Markdown, without a trailing newline. */
 function serialize(nodes: readonly MdAst.RootContent[], inline: boolean): string {
   if (!nodes.length) return ''
+  const inlineNodes = inline ? phrasing(nodes) : []
   const children = inline
-    ? [{ type: 'paragraph' as const, children: phrasing(nodes) }]
+    ? [{ type: 'paragraph' as const, children: inlineNodes }]
     : (flow(nodes) as MdAst.RootContent[])
-  return toMarkdown({ type: 'root', children }, { extensions }).trimEnd()
+  const markdown = toMarkdown({ type: 'root', children }, { extensions })
+  if (!inline) return markdown.trimEnd()
+  // A trailing hard break ends in the newline that makes it a break; keep it.
+  return inlineNodes.at(-1)?.type === 'break' ? markdown : markdown.replace(/\n$/, '')
 }
 
 // Markdown text becomes a raw node, which serializes byte for byte.
