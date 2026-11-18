@@ -720,6 +720,11 @@ function lower(
         {
           type: 'list',
           ordered: name === 'ol',
+          // `<ol start={5}>` or `start="5"` continues an earlier list's numbering.
+          start:
+            name === 'ol' && Number.isInteger(Number(props['start']))
+              ? Number(props['start'])
+              : null,
           spread: false,
           children: children.flatMap((child): MdAst.ListItem[] => {
             if (child.type === 'listItem') return [child]

@@ -111,6 +111,15 @@ Some *emphasis*   with   spaces, a [link][ref], and a table:
     )
   })
 
+  test('keeps the start of an ordered list', async () => {
+    expect(
+      await MarkdownRender.render('<ol start={5}>\n  <li>Five</li>\n  <li>Six</li>\n</ol>\n'),
+    ).toBe('5. Five\n6. Six\n')
+    expect(await MarkdownRender.render('<ol start="3">\n  <li>Three</li>\n</ol>\n')).toBe(
+      '3. Three\n',
+    )
+  })
+
   test('keeps hard breaks in inline replacements', async () => {
     expect(await MarkdownRender.render('before<br />after\n')).toBe('before\\\nafter\n')
   })
