@@ -167,7 +167,7 @@ export function page(pathname: string): string {
  * @example
  * ```ts
  * import { Hono } from 'hono'
- * import { Negotiation } from 'vocs/server'
+ * import * as Negotiation from 'vocs/server/negotiation'
  *
  * const app = new Hono()
  * app.use(
