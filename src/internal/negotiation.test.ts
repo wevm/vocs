@@ -150,6 +150,13 @@ describe('middleware', () => {
       'https://example.com/contact.md',
     )
     expect(custom.headers.get('link')).toBe('<https://docs.example/contact/>; rel="canonical"')
+    const some = app({
+      canonical: (_c, page) => (page === '/contact' ? 'https://x/contact' : undefined),
+    })
+    expect((await some.request('https://example.com/contact.md')).headers.get('link')).toBe(
+      '<https://x/contact>; rel="canonical"',
+    )
+    expect((await some.request('https://example.com/foo.md')).headers.get('link')).toBeNull()
     const none = await app({ canonical: false }).request('https://example.com/contact.md')
     expect(none.headers.get('link')).toBeNull()
   })

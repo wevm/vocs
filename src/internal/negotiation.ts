@@ -223,7 +223,8 @@ export function middleware<env extends Env = Env>(
     const result = await resolve(c, target)
     if (result instanceof Response) return result
     if (typeof result === 'string') {
-      const href = canonical === false ? undefined : (canonical?.(c, target) ?? url.origin + target)
+      const href =
+        canonical === false ? undefined : canonical ? canonical(c, target) : url.origin + target
       return respond(result, 200, href)
     }
     if (explicit) return respond('Not found\n', 404)
@@ -246,8 +247,8 @@ export declare namespace middleware {
 
   type Options<env extends Env = Env> = {
     /**
-     * Returns the canonical URL of a page's Markdown, for its `Link: rel="canonical"` header.
-     * `false` omits the header.
+     * Returns the canonical URL of a page's Markdown, for its `Link: rel="canonical"` header, or
+     * `undefined` to omit the header for that page. `false` omits it for every page.
      * @default The request origin followed by the page, such as `https://example.com/guide`.
      */
     canonical?: false | ((c: Context<env>, page: string) => string | undefined) | undefined
