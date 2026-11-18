@@ -1,5 +1,11 @@
 # vocs
 
+## 2.14.1
+
+### Patch Changes
+
+- 92924df: Added an entry for each Workers-safe `vocs/server` module, such as `vocs/server/negotiation` and `vocs/server/llms`, so apps can import one module without loading the rest of the barrel. Importing `vocs/server` in a Vite dev server with `ssr.noExternal` could exhaust memory.
+
 ## 2.14.0
 
 ### Minor Changes
