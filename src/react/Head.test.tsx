@@ -198,6 +198,18 @@ describe('Head', () => {
     expect(html).toContain('name="twitter:title" content="Custom Title"')
   })
 
+  test('does not emit <base> from baseUrl alone', () => {
+    mocks.config = createConfig({})
+
+    expect(renderHead({ title: 'Post' })).not.toContain('<base')
+  })
+
+  test('emits <base> when head.base is set', () => {
+    mocks.config = createConfig({ head: { base: 'https://example.com/' } })
+
+    expect(renderHead({ title: 'Post' })).toContain('<base href="https://example.com/"')
+  })
+
   test('omits disabled tags', () => {
     mocks.config = createConfig({
       head: {
