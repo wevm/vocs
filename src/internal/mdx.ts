@@ -5,12 +5,12 @@ import shiki, { type RehypeShikiOptions } from '@shikijs/rehype'
 import shikiFromHighlighter from '@shikijs/rehype/core'
 import * as EstreeUtil from 'esast-util-from-js'
 import type * as Estree from 'estree'
+import GithubSlugger from 'github-slugger'
 import type * as HAst from 'hast'
 import type * as MdAst from 'mdast'
 import { toString as mdastToString } from 'mdast-util-to-string'
 import { remarkOndine } from 'ondine/remark'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
-import rehypeSlug from 'rehype-slug'
 import remarkDirective from 'remark-directive'
 import remarkFrontmatter from 'remark-frontmatter'
 import remarkGfm from 'remark-gfm'
@@ -294,6 +294,7 @@ export function getCompileOptions(
           // directives can render real markdown below. Unhandled directives
           // round-trip back to their source form on stringify.
           remarkDirective,
+          remarkBadgeText,
           [remarkPrompt, { output: 'code' }] as Pluggable,
           [remarkChangelogMarkdown, config] as Pluggable,
           // User plugins extend the parser (e.g. `remark-math`) so syntax
@@ -307,7 +308,7 @@ export function getCompileOptions(
     if (type === 'react')
       return {
         rehypePlugins: [
-          rehypeSlug,
+          rehypeHeadingSlug,
           [
             rehypeAutolinkHeadings,
             {
@@ -1029,6 +1030,7 @@ export function remarkBadge(): remarkBadge.ReturnType {
 
       data.hName = 'span'
       data.hProperties = {
+        'data-toc-exclude': '',
         'data-v-badge': '',
         'data-v-context': variant ?? 'info',
       }
@@ -1038,6 +1040,63 @@ export function remarkBadge(): remarkBadge.ReturnType {
 
 export declare namespace remarkBadge {
   type ReturnType = (tree: MdAst.Root) => void
+}
+
+/**
+ * Remark plugin for the Markdown (`.md`) output that replaces `:badge[text]` directives with
+ * plain text. Badges inside headings are dropped so the heading matches its anchor.
+ */
+export function remarkBadgeText(): remarkBadge.ReturnType {
+  return (tree: MdAst.Root) => {
+    UnistUtil.visit(tree, 'textDirective', (node, index, parent) => {
+      if (node.name !== 'badge' || index === undefined || !parent) return
+      if (parent.type === 'heading') {
+        parent.children.splice(index, 1)
+        // Drop the whitespace the badge leaves behind at the end of the heading.
+        const last = parent.children[parent.children.length - 1]
+        if (last?.type === 'text') last.value = last.value.trimEnd()
+        return index
+      }
+      parent.children.splice(index, 1, ...(node.children as MdAst.PhrasingContent[]))
+      return index
+    })
+  }
+}
+
+/** Collects heading text, skipping badges and elements marked `data-toc-exclude`. */
+function getSlugText(node: HAst.Nodes): string {
+  if (node.type === 'text') return node.value
+  if (!('children' in node)) return ''
+  if (node.type === 'element') {
+    const props = node.properties ?? {}
+    if (
+      'dataTocExclude' in props ||
+      'data-toc-exclude' in props ||
+      'dataVBadge' in props ||
+      'data-v-badge' in props
+    )
+      return ''
+  }
+  return (node.children as HAst.Nodes[]).map(getSlugText).join('')
+}
+
+/**
+ * Rehype plugin that adds `id`s to headings (like `rehype-slug`), but leaves out badges and
+ * `data-toc-exclude` content so `## Status :badge[Beta]` gets `#status`.
+ */
+export function rehypeHeadingSlug(): rehypeHeadingSlug.ReturnType {
+  return (tree: HAst.Root) => {
+    const slugger = new GithubSlugger()
+    UnistUtil.visit(tree, 'element', (node) => {
+      if (!/^h[1-6]$/.test(node.tagName)) return
+      if (node.properties?.id) return
+      node.properties = { ...node.properties, id: slugger.slug(getSlugText(node).trim()) }
+    })
+  }
+}
+
+export declare namespace rehypeHeadingSlug {
+  type ReturnType = (tree: HAst.Root) => void
 }
 
 /**

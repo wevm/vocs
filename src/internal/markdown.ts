@@ -289,6 +289,11 @@ function stripJsx() {
         node.type === 'mdxTextExpression',
       (node, index, parent) => {
         if (index === undefined || !parent) return
+        // Badge text isn't part of the heading's anchor.
+        if (node.name === 'badge' && parent.type === 'heading') {
+          parent.children.splice(index, 1)
+          return index
+        }
         if ('children' in node && Array.isArray(node.children)) {
           parent.children.splice(index, 1, ...(node.children as Mdast.RootContent[]))
           return index
