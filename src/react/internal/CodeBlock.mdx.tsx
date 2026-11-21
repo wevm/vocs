@@ -22,23 +22,26 @@ export function CodeBlock(props: CodeBlock.Props) {
           </span>
         </div>
       )}
-      <pre
-        {...props}
-        className={cx(
-          className,
-          'vocs:relative vocs:group/code',
-          title ? ' vocs:rounded-t-none vocs:border-t-0' : '',
-        )}
-        data-v-wrapped={showWrap !== undefined ? '' : undefined}
-        data-v
-      >
-        {props.children}
+      {/* The buttons sit next to the `<pre>`, not in it, so they don't scroll with the code. */}
+      <div data-v-code-block className="vocs:relative vocs:group/code">
+        <pre
+          {...props}
+          className={cx(
+            className,
+            'vocs:relative',
+            title ? ' vocs:rounded-t-none vocs:border-t-0' : '',
+          )}
+          data-v-wrapped={showWrap !== undefined ? '' : undefined}
+          data-v
+        >
+          {props.children}
+          {isShell !== undefined && <ShellLineCopyButtons />}
+          <CollapseHandler />
+          <FoldHandler />
+        </pre>
         {showWrap !== undefined && <WrapButton defaultWrapped />}
         <CopyButton />
-        {isShell !== undefined && <ShellLineCopyButtons />}
-        <CollapseHandler />
-        <FoldHandler />
-      </pre>
+      </div>
     </div>
   )
 }
