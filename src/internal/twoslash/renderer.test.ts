@@ -1,5 +1,10 @@
 import { expect, test } from 'vitest'
-import { defaultMarkdownPatterns, reconstructDocs, rustMarkdownPatterns } from './renderer.js'
+import {
+  defaultMarkdownPatterns,
+  reconstructDocs,
+  rewriteJsdocLinks,
+  rustMarkdownPatterns,
+} from './renderer.js'
 
 // Re-implement fixUnclosedCodeBlocks for testing (since it's not exported)
 function fixUnclosedCodeBlocks(markdown: string, patterns: RegExp[]): string {
@@ -433,4 +438,19 @@ test('reconstructDocs: handles multiple example tags', () => {
   expect(reconstructDocs(docs, tags)).toBe(
     'Description\n\n**Example**\n\n```ts\nexample1\n```\n\n**Example**\n\n```ts\nexample2\n```',
   )
+})
+
+test('rewriteJsdocLinks: keeps {@link} text instead of deleting the tag', () => {
+  expect(rewriteJsdocLinks('Given a seed, returns a {@link Generator}.')).toBe(
+    'Given a seed, returns a `Generator`.',
+  )
+  expect(rewriteJsdocLinks('See {@link Foo | the foo docs}.')).toBe('See the foo docs.')
+  expect(rewriteJsdocLinks('Open {@link https://example.com}.')).toBe(
+    'Open <https://example.com>.',
+  )
+  expect(rewriteJsdocLinks('Open {@link https://example.com | Example}.')).toBe(
+    'Open [Example](https://example.com).',
+  )
+  // Twoslash-joined form with newlines around the target
+  expect(rewriteJsdocLinks('returns a\n{@link \nGenerator\n}\n.')).toBe('returns a `Generator`.')
 })
