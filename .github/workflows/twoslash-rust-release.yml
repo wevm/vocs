@@ -32,7 +32,7 @@ jobs:
           submodules: recursive
 
       - name: Install Rust
-        uses: wevm/actions/vendor/dtolnay/rust-toolchain/rev-b725eda52536@b518cf981b50a4c745a8b7335fc693f34b108a75
+        uses: wevm/actions/vendor/dtolnay/rust-toolchain/rev-b725eda52536@e0e99cfdac7c74eadc3ee7281015c0bf0496d6ac
         with:
           targets: ${{ matrix.target }}
 
@@ -69,7 +69,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: wevm/actions/vendor/pnpm/action-setup/v6@b518cf981b50a4c745a8b7335fc693f34b108a75
+      - uses: wevm/actions/vendor/pnpm/action-setup/v6@e0e99cfdac7c74eadc3ee7281015c0bf0496d6ac
 
       - uses: actions/setup-node@v7
         with:
