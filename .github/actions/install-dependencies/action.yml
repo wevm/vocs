@@ -5,7 +5,7 @@ runs:
   using: 'composite'
   steps:
     - name: Install dependencies
-      uses: wevm/actions/.github/actions/pnpm@b518cf981b50a4c745a8b7335fc693f34b108a75 # v1.0.1
+      uses: wevm/actions/.github/actions/pnpm@e0e99cfdac7c74eadc3ee7281015c0bf0496d6ac # v1.0.4
       with:
         node-version: '24.22.1'
         skip-cache: 'true'
