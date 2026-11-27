@@ -8,7 +8,6 @@ import remarkFrontmatter from 'remark-frontmatter'
 import remarkGfm from 'remark-gfm'
 import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
-import ruby from 'shiki/langs/ruby.mjs'
 import { unified } from 'unified'
 import { describe, expect, it } from 'vitest'
 import * as Config from './config.js'
@@ -527,40 +526,49 @@ describe('remarkFilename', () => {
 })
 
 describe('getCompileOptions', () => {
+  // Not a Shiki language, so only `additionalLanguages` keeps its fences.
+  const mylang = {
+    name: 'mylang',
+    aliases: ['myl'],
+    scopeName: 'source.mylang',
+    patterns: [],
+    repository: {},
+  }
+
   it('preserves configured custom language fences', () => {
     const config = Config.define({
-      codeHighlight: { langs: ruby },
+      codeHighlight: { langs: [mylang] },
       rootDir: process.cwd(),
     })
 
     const codeTitleOptions = getCodeTitlePlugin(config)
 
-    expect(codeTitleOptions.additionalLanguages).toEqual(expect.arrayContaining(['rb', 'ruby']))
+    expect(codeTitleOptions.additionalLanguages).toEqual(expect.arrayContaining(['myl', 'mylang']))
 
     const codeNode = transformCodeNode(config, {
-      lang: 'ruby',
-      meta: '[server.rb]',
-      value: 'require "mpp"',
+      lang: 'mylang',
+      meta: '[server.myl]',
+      value: 'hello world',
     })
 
-    expect(codeNode.lang).toBe('ruby')
-    expect(codeNode.meta).toBe('[server.rb]')
+    expect(codeNode.lang).toBe('mylang')
+    expect(codeNode.meta).toBe('[server.myl]')
   })
 
   it('preserves custom language aliases', () => {
     const config = Config.define({
-      codeHighlight: { langs: ruby },
+      codeHighlight: { langs: [mylang] },
       rootDir: process.cwd(),
     })
 
     const codeNode = transformCodeNode(config, {
-      lang: 'rb',
-      meta: '[client.rb]',
-      value: 'require "mpp"',
+      lang: 'myl',
+      meta: '[client.myl]',
+      value: 'hello world',
     })
 
-    expect(codeNode.lang).toBe('rb')
-    expect(codeNode.meta).toBe('[client.rb]')
+    expect(codeNode.lang).toBe('myl')
+    expect(codeNode.meta).toBe('[client.myl]')
   })
 
   it('preserves built-in aliases with comma attrs', () => {
