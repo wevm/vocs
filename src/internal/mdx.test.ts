@@ -580,6 +580,19 @@ describe('getCompileOptions', () => {
     expect(codeNode.meta).toBe('[main.rs] no_run')
   })
 
+  it('keeps fences in languages missing from `langs` unchanged', () => {
+    const config = Config.define({ codeHighlight: { langs: ['ts'] }, rootDir: process.cwd() })
+
+    const codeNode = transformCodeNode(config, {
+      lang: 'rb',
+      meta: '[server.rb]',
+      value: 'require "mpp"',
+    })
+
+    expect(codeNode.lang).toBe('rb')
+    expect(codeNode.meta).toBe('[server.rb]')
+  })
+
   it('falls back unknown titled fences to plaintext', () => {
     const config = Config.define({ rootDir: process.cwd() })
 
