@@ -33,7 +33,6 @@ export async function vocs(): Promise<PluginOption[]> {
       },
       jsx: 'react',
     }),
-    Plugins.langWatcher(config),
     Plugins.llms(config),
     Plugins.mdx(config),
     Plugins.openapi(config),
