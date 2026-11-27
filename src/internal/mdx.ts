@@ -22,17 +22,8 @@ import type {
   LanguageRegistration,
   ShikiTransformer,
 } from 'shiki'
-import { getSingletonHighlighter } from 'shiki'
-import { bundledLanguages, bundledLanguagesInfo } from 'shiki/bundle/web'
-import dockerfile from 'shiki/langs/dockerfile.mjs'
-import go from 'shiki/langs/go.mjs'
-import protobuf from 'shiki/langs/protobuf.mjs'
-import python from 'shiki/langs/python.mjs'
-import rust from 'shiki/langs/rust.mjs'
-import solidity from 'shiki/langs/solidity.mjs'
-import sql from 'shiki/langs/sql.mjs'
-import toml from 'shiki/langs/toml.mjs'
-import yamlLang from 'shiki/langs/yaml.mjs'
+import { bundledLanguages, getSingletonHighlighter } from 'shiki'
+import { bundledLanguagesInfo } from 'shiki/bundle/web'
 import { type Pluggable, type PluggableList, type Processor, unified } from 'unified'
 import * as UnistUtil from 'unist-util-visit'
 import type { VFile } from 'vfile'
@@ -56,27 +47,8 @@ import type { ExactPartial, UnionOmit } from './types.js'
 export { default as remarkFrontmatter } from 'remark-frontmatter'
 export { default as remarkMdxFrontmatter } from 'remark-mdx-frontmatter'
 
-const defaultLanguages = {
-  ...bundledLanguages,
-  dockerfile,
-  go,
-  protobuf,
-  python,
-  rust,
-  solidity,
-  sql,
-  toml,
-  yaml: yamlLang,
-} as const
-
-/** Set of all valid language names including aliases from explicitly imported languages */
-const validLanguageNames = new Set([
-  ...Object.keys(bundledLanguages),
-  // Extract names and aliases from explicitly imported language modules (non-function values)
-  ...Object.values(defaultLanguages).flatMap((lang) =>
-    typeof lang === 'function' ? [] : lang.flatMap((l) => [l.name, ...(l.aliases ?? [])]),
-  ),
-])
+/** Every language Shiki can load lazily, including aliases */
+const validLanguageNames = new Set(Object.keys(bundledLanguages))
 
 function getLanguageNames(langs: readonly unknown[] | undefined): string[] {
   if (!langs) return []
